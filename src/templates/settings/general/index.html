@@ -3,18 +3,20 @@
 {% set selectedTab = 'settings' %}
 
 {% import "_includes/forms" as forms %}
+{% from _self import configWarning %}
 
 {% block content %}
 
     <h2>{{ "General Settings"|t('commerce') }}</h2>
 
-    <form action="" method="post" accept-charset="UTF-8">
+    <form action="" method="post" accept-charset="UTF-8" data-saveshortcut>
         <input type="hidden" name="action" value="commerce/settings/save-settings">
         {{ redirectInput('commerce/settings/general') }}
         {{ csrfInput() }}
 
         <h3>{{ 'Email'|t('commerce') }}</h3>
-        {{ forms.textField({
+        {{ forms.autosuggestField({
+            first: true,
             label: 'Status Email Address'|t('commerce'),
             instructions: "The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings."|t('commerce'),
             id: 'emailSenderAddress',
@@ -22,9 +24,11 @@
             placeholder: settings.emailSenderAddressPlaceholder,
             value: settings.emailSenderAddress,
             errors: settings.getErrors('emailSenderAddress'),
+            suggestEnvVars: true,
+            autofocus: true,
         }) }}
 
-        {{ forms.textField({
+        {{ forms.autosuggestField({
             label: 'From Name'|t('commerce'),
             instructions: 'The "From" name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.'|t('commerce'),
             id: 'emailSenderName',
@@ -32,6 +36,8 @@
             placeholder: settings.emailSenderNamePlaceholder,
             value: settings.emailSenderName,
             errors: settings.getErrors('emailSenderName'),
+            suggestEnvVars: true,
+            autofocus: true,
         }) }}
 
         <h3>{{ 'Units'|t('commerce') }}</h3>
@@ -43,6 +49,7 @@
             options: settings.getWeightUnitsOptions(),
             errors: settings.getErrors('weightUnits'),
             required: true,
+            warning: configWarning('weightUnits', 'commerce'),
         }) }}
 
         {{ forms.selectField({
@@ -53,6 +60,7 @@
             options: settings.getDimensionUnits(),
             errors: settings.getErrors('dimensionUnits'),
             required: true,
+            warning: configWarning('dimensionUnits', 'commerce'),
         }) }}
 
         {{ forms.selectField({
@@ -63,6 +71,7 @@
             options: settings.getMinimumTotalPriceStrategyOptions(),
             errors: settings.getErrors('minimumTotalPriceStrategy'),
             required: true,
+            warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
         }) }}
 
         <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
@@ -74,6 +83,7 @@
             value: settings.orderPdfPath,
             errors: settings.getErrors('orderPdfPath'),
             required: true,
+            warning: configWarning('orderPdfPath', 'commerce'),
         }) }}
 
         {{ forms.textField({
@@ -88,6 +98,7 @@
             class: 'code ltr',
             errors: settings.getErrors('orderPdfFilenameFormat'),
             required: true,
+            warning: configWarning('orderPdfFilenameFormat', 'commerce'),
         }) }}
 
         {{ forms.textField({
@@ -102,6 +113,35 @@
             class: 'code ltr',
             errors: settings.getErrors('orderReferenceFormat'),
             required: true,
+            warning: configWarning('orderReferenceFormat', 'commerce'),
+        }) }}
+
+
+        <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
+        {{ forms.autosuggestField({
+            label: "Billing detail update URL"|t('commerce'),
+            instructions: "The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication."|t('commerce'),
+            id: 'updateBillingDetailsUrl',
+            name: 'settings[updateBillingDetailsUrl]',
+            value: settings.updateBillingDetailsUrl,
+            errors: settings.getErrors('updateBillingDetailsUrl'),
+            required: false,
+            suggestEnvVars: true,
+            suggestAliases: true,
+            placeholder: "//example.com/subscriptions/updateBillingDetails",
+            warning: configWarning('updateBillingDetailsUrl', 'commerce'),
+        }) }}
+
+        <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
+        {{ forms.selectField({
+            label: "Default View"|t('commerce'),
+            instructions: "The default view that is shown when viewing Commerce in the CP. If the user does not have permission it will fallback to a location they can access."|t('commerce'),
+            name: 'settings[defaultView]',
+            value: settings.defaultView,
+            options: settings.getDefaultViewOptions(),
+            errors: settings.getErrors('defaultView'),
+            required: true,
+            warning: configWarning('defaultView', 'commerce'),
         }) }}
 
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">

@@ -9,14 +9,19 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\AddressZoneInterface;
+use craft\commerce\db\Table;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
+use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\caching\TagDependency;
 use yii\db\Exception;
+use yii\db\Expression;
 
 /**
  * Address service.
@@ -27,9 +32,6 @@ use yii\db\Exception;
  */
 class Addresses extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event AddressEvent The event that is raised before an address is saved.
      *
@@ -81,16 +83,12 @@ class Addresses extends Component
      */
     const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Address[]
      */
     private $_addressesById = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an address by its ID.
@@ -120,7 +118,7 @@ class Addresses extends Component
     public function getAddressesByCustomerId(int $customerId): array
     {
         $rows = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->all();
 
@@ -143,7 +141,7 @@ class Addresses extends Component
     public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
     {
         $result = $this->_createAddressQuery()
-            ->innerJoin('{{%commerce_customers_addresses}} customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
+            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
             ->where(['customerAddresses.customerId' => $customerId])
             ->andWhere(['addresses.id' => $addressId])
             ->one();
@@ -209,12 +207,16 @@ class Addresses extends Component
         $addressRecord->title = $addressModel->title;
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
+        $addressRecord->fullName = $addressModel->fullName;
         $addressRecord->address1 = $addressModel->address1;
         $addressRecord->address2 = $addressModel->address2;
+        $addressRecord->address3 = $addressModel->address3;
         $addressRecord->city = $addressModel->city;
         $addressRecord->zipCode = $addressModel->zipCode;
         $addressRecord->phone = $addressModel->phone;
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
+        $addressRecord->label = $addressModel->label;
+        $addressRecord->notes = $addressModel->notes;
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
@@ -222,9 +224,14 @@ class Addresses extends Component
         $addressRecord->isStoreLocation = $addressModel->isStoreLocation;
         $addressRecord->stateId = $addressModel->stateId;
         $addressRecord->stateName = $addressModel->stateName;
+        $addressRecord->custom1 = $addressModel->custom1;
+        $addressRecord->custom2 = $addressModel->custom2;
+        $addressRecord->custom3 = $addressModel->custom3;
+        $addressRecord->custom4 = $addressModel->custom4;
+        $addressRecord->isEstimated = $addressModel->isEstimated;
 
         if ($addressRecord->isStoreLocation && $addressRecord->id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_addresses}}', ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
+            Craft::$app->getDb()->createCommand()->update(Table::ADDRESSES, ['isStoreLocation' => false], 'id <> :thisId', [':thisId' => $addressRecord->id])->execute();
         }
 
         $addressRecord->save(false);
@@ -285,10 +292,12 @@ class Addresses extends Component
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
 
-            if (in_array($address->countryId, $countryIds, false)) {
-                return true;
+            if (!in_array($address->countryId, $countryIds, false)) {
+                return false;
             }
-        } else {
+        }
+
+        if (!$zone->getIsCountryBased()) {
             $states = [];
             $countries = [];
             $stateNames = [];
@@ -305,16 +314,71 @@ class Addresses extends Component
             $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
             $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
 
-            if ($countryAndStateMatch || $countryAndStateNameMatch || $countryAndStateAbbrMatch) {
-                return true;
+            if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
+                return false;
             }
         }
 
-        return false;
+        // Do we have a condition formula for the zip matching? Blank condition will match all
+        if (is_string($zone->getZipCodeConditionFormula()) && $zone->getZipCodeConditionFormula() !== '') {
+            $formulasService = Plugin::getInstance()->getFormulas();
+            $conditionFormula = $zone->getZipCodeConditionFormula();
+            $zipCode = $address->zipCode;
+
+            $cacheKey = get_class($zone) . ':' . $conditionFormula . ':' . $zipCode;
+
+            if (Craft::$app->cache->exists($cacheKey)) {
+                $result = Craft::$app->cache->get($cacheKey);
+            } else {
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode'=>$zipCode], 'Zip Code condition formula matching address');
+                Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
+            }
+
+            if (!$result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
-    // Private Methods
-    // =========================================================================
+    /**
+     * Deletes all addresses not related to a customer, cart or order
+     *
+     * @throws Exception
+     * @throws \yii\base\ExitException
+     * @since 3.0.4
+     */
+    public function purgeOrphanedAddresses()
+    {
+        $select = new Expression('DISTINCT [[addresses.id]] id');
+        $addresses = (new Query())
+            ->select([$select])
+            ->from(Table::ADDRESSES . ' addresses')
+            ->leftJoin(Table::ORDERS . ' bo', '[[addresses.id]] = [[bo.billingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' beo', '[[addresses.id]] = [[beo.estimatedBillingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' so', '[[addresses.id]] = [[so.shippingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' seo', '[[addresses.id]] = [[seo.estimatedShippingAddressId]]')
+            ->leftJoin(Table::CUSTOMERS_ADDRESSES . ' c', '[[addresses.id]] = [[c.addressId]]')
+            ->where(['and', [
+                '[[so.shippingAddressId]]' => null,
+                '[[seo.estimatedShippingAddressId]]' => null,
+                '[[c.addressId]]' => null,
+                '[[bo.billingAddressId]]' => null,
+                '[[beo.estimatedBillingAddressId]]' => null,
+                '[[addresses.isStoreLocation]]' => 0,
+            ]]);
+
+        foreach ($addresses->batch(500) as $address) {
+            $ids = ArrayHelper::getColumn($address, 'id', false);
+
+            if (!empty($ids)) {
+                Craft::$app->getDb()->createCommand()
+                    ->delete(Table::ADDRESSES, ['id' => $ids])
+                    ->execute();
+            }
+        }
+    }
 
     /**
      * Returns a Query object prepped for retrieving addresses.
@@ -330,19 +394,28 @@ class Addresses extends Component
                 'addresses.title',
                 'addresses.firstName',
                 'addresses.lastName',
+                'addresses.fullName',
                 'addresses.countryId',
                 'addresses.stateId',
                 'addresses.address1',
                 'addresses.address2',
+                'addresses.address3',
                 'addresses.city',
                 'addresses.zipCode',
                 'addresses.phone',
                 'addresses.alternativePhone',
+                'addresses.label',
+                'addresses.notes',
                 'addresses.businessName',
                 'addresses.businessTaxId',
                 'addresses.businessId',
-                'addresses.stateName'
+                'addresses.stateName',
+                'addresses.custom1',
+                'addresses.custom2',
+                'addresses.custom3',
+                'addresses.custom4',
+                'addresses.isEstimated'
             ])
-            ->from(['{{%commerce_addresses}} addresses']);
+            ->from([Table::ADDRESSES . ' addresses']);
     }
 }

@@ -1,0 +1,75 @@
+{% do view.registerTranslations('commerce', [
+    'Revenue',
+    'Order count',
+]) %}
+<div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-wrapper--no-x-axis">
+    <canvas id="{{ namespaceId }}"></canvas>
+</div>
+{% js %}
+    var revChart = new Craft.Commerce.Chart('{{ namespaceId }}', {
+        chart: {
+
+            type: 'line',
+            data: {
+                labels: {{ labels|json_encode|raw }},
+                datasets: [
+                    {% if widget.showOrderCount %}
+                        {
+                            label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
+                            yAxisID: 'count',
+                            data: {{ orderCount|json_encode|raw }}
+                        },
+                    {% endif %}
+                    {
+                        label: Craft.escapeHtml(Craft.t('commerce', 'Revenue')),
+                        yAxisID: 'revenue',
+                        data: {{ revenue|json_encode|raw }}
+                    }
+                ]
+            },
+            options: {
+                legend: {
+                    display: {{ widget.showOrderCount|json_encode|raw }}
+                },
+                scales: {
+                    yAxes: [{
+                        id: 'revenue',
+                        gridLines: {
+                            display: false,
+                            color: Craft.Commerce.ChartColors.gridLines,
+                            drawBorder: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            display: false,
+                            beginAtZero: true,
+                            callback: Craft.Commerce.ChartCurrencyTicks
+                        },
+                        position: 'left'
+                    },
+                    {
+                        id: 'count',
+                        display: false,
+                        position: 'right',
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        display: false,
+                        type: 'time',
+                        time: {
+                            unit: '{{ chartInterval }}'
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        offset: false
+                    }]
+                }
+            }
+        }
+    });
+
+{% endjs %}

@@ -42,6 +42,15 @@
         required: true
     }) }}
 
+    {{ forms.textField({
+        label: "Description"|t('commerce'),
+        instructions: "Order Status description."|t('commerce'),
+        id: 'description',
+        name: 'description',
+        value: orderStatus.description,
+        errors: orderStatus.getErrors('description'),
+    }) }}
+
     {{ forms.hidden({
         id: 'color',
         name: 'color',
@@ -68,14 +77,14 @@
     {% endset %}
     {{ forms.field({
         label: 'Color'|t('commerce'),
-        instructions: 'Choose a color to represent the order’s status'|t
+        instructions: 'Choose a color to represent the order’s status'|t('commerce')
     },colorField) }}
 
 
     {% if not emails|length %}
         {{ forms.field({
             label: 'Status Emails'|t('commerce'),
-            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t~'</span>',
+            instructions: '<span class="error">'~'You currently have no emails configured to select for this status.'|t('commerce')~'</span>',
             disabled: true
         }) }}
     {% else %}
@@ -91,15 +100,27 @@
         }) }}
     {% endif %}
 
-    {{ forms.checkboxField({
-        label: "New orders get this status by default"|t('commerce'),
-        name: 'default',
-        value: 1,
-        checked: orderStatus.default,
-        errors: orderStatus.getErrors('default')
-    }) }}
-{% endblock %}
+    {% set orderStatuses = craft.commerce.orderStatuses.getAllOrderStatuses() %}
 
+    {% if orderStatuses|length == 0 %}
+        {% set isDefault = true %}
+        {% else %}
+        {% set isDefault = orderStatus.default %}
+    {% endif %}
+
+    {% if orderStatus.default %}
+        <input type="hidden" name="default" value="1">
+    {% else %}
+        {{ forms.checkboxField({
+            label: "New orders get this status by default"|t('commerce'),
+            name: 'default',
+            value: 1,
+            checked: isDefault,
+            errors: orderStatus.getErrors('default')
+        }) }}
+    {% endif %}
+
+{% endblock %}
 {% js %}
     {% if not orderStatus.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
     $(function () {

@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\base\Gateway;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
@@ -27,8 +28,6 @@ use yii\base\Component;
  */
 class Transactions extends Component
 {
-    // Constants
-    // =========================================================================
     /**
      * @event TransactionEvent The event that is triggered after a transaction has been saved.
      *
@@ -63,8 +62,6 @@ class Transactions extends Component
      */
     const EVENT_AFTER_CREATE_TRANSACTION = 'afterCreateTransaction';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns true if a specific transaction can be refunded.
@@ -145,7 +142,7 @@ class Transactions extends Component
                 'orderId' => $transaction->orderId,
                 'parentId' => $transaction->id
             ])
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->sum('[[paymentAmount]]');
 
         return $transaction->paymentAmount - $amount;
@@ -411,8 +408,6 @@ class Transactions extends Component
         return true;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving Transactions.
      *
@@ -443,7 +438,7 @@ class Transactions extends Component
                 'dateCreated',
                 'dateUpdated',
             ])
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->orderBy(['id' => SORT_ASC]);
     }
 }

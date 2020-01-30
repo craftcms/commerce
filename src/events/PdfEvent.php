@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class PdfEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Order
      */
@@ -35,6 +32,11 @@ class PdfEvent extends Event
      * @var string
      */
     public $template;
+
+    /**
+     * @var array
+     */
+    public $variables;
 
     /**
      * @var string|null The rendered PDF

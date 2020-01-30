@@ -47,16 +47,15 @@
                         }
                     });
 
-                    eval('{{ js|e("js") }}');
-
                     setTimeout(function() {
-                    $form.find('.text:first').focus();
-
-                    modal.updateSizeAndPosition();
-
-                    $form.find('.body:first').on('resize', function() {
+                        $form.find('.text:first').focus();
                         modal.updateSizeAndPosition();
+
+                        $form.find('.body:first').on('resize', function() {
+                            modal.updateSizeAndPosition();
                         });
+
+                        eval('{{ js|e("js") }}');
                     }, 100);
 
                     $form.on('submit', function(ev) {
@@ -120,8 +119,16 @@
         value: taxRate.name,
         errors: taxRate.getErrors('name'),
         autofocus: true,
-        required: true,
-        translatable: true
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Code"|t('commerce'),
+        instructions: "Can be used as an internal reference."|t('commerce'),
+        name: 'code',
+        value: taxRate.code,
+        errors: taxRate.getErrors('code'),
+        class: 'code'
     }) }}
 
     {{ forms.selectField({
@@ -174,6 +181,8 @@
         required: true,
         options: taxCategories,
         class: 'selectize fullwidth',
+        disabled: hideTaxCategory,
+        fieldClass: 'field' ~ (hideTaxCategory ? ' hidden')
     } %}
 
     {{ lazyCreateSelect(
@@ -210,3 +219,32 @@
         {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
     {% endif %}
 </p>
+
+{% js %}
+    {% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}
+        (function() {
+            var $taxableSelect = $('#taxable');
+            var $taxablesNoTaxCategory = {{ taxablesNoTaxCategory|json_encode|raw }};
+
+            if ($taxableSelect.length) {
+                $taxableSelect.on('change', function(ev) {
+                    var $this = $(this);
+                    var $taxCategoryField = $('#taxCategoryId');
+                    var $selectize = $taxCategoryField.get(0).selectize;
+
+                    if ($taxablesNoTaxCategory.indexOf($this.val()) === -1) {
+                        $taxCategoryField.removeAttr('disabled');
+                        $selectize.enable();
+                        $taxCategoryField.parents('.field').removeClass('hidden');
+                        $taxCategoryField.parents('.select.selectize').removeClass('disabled');
+                    } else {
+                        $taxCategoryField.attr('disabled', true);
+                        $selectize.disable();
+                        $taxCategoryField.parents('.field').addClass('hidden');
+                        $taxCategoryField.parents('.select.selectize').addClass('disabled');
+                    }
+                });
+            }
+        })();
+    {% endif %}
+{% endjs %}

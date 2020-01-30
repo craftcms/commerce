@@ -25,9 +25,6 @@ use craft\helpers\StringHelper;
  */
 class Orders extends Widget
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|null
      */
@@ -38,15 +35,11 @@ class Orders extends Widget
      */
     public $limit = 10;
 
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function isSelectable(): bool
     {
-        // This widget is only available to users that can manage orders
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
@@ -55,13 +48,13 @@ class Orders extends Widget
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Recent Orders');
+        return Plugin::t( 'Recent Orders');
     }
 
     /**
      * @inheritdoc
      */
-    public static function iconPath(): string
+    public static function icon(): string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -75,7 +68,7 @@ class Orders extends Widget
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
-                return Craft::t('commerce', 'Recent Orders') . ' – ' . Craft::t('commerce', $orderStatus->name);
+                return Plugin::t( 'Recent Orders') . ' – ' . Plugin::t( $orderStatus->name);
             }
         }
 
@@ -89,9 +82,15 @@ class Orders extends Widget
     {
         $orders = $this->_getOrders();
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/body', [
+        $id = 'recent-orders-settings-' . StringHelper::randomString();
+        $namespaceId = Craft::$app->getView()->namespaceInputId($id);
+
+
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/body', [
             'orders' => $orders,
             'showStatuses' => $this->orderStatusId === null,
+            'id' => $id,
+            'namespaceId' => $namespaceId,
         ]);
     }
 
@@ -104,25 +103,23 @@ class Orders extends Widget
 
         Craft::$app->getView()->registerAssetBundle(OrdersWidgetAsset::class);
 
-        $id = 'analytics-settings-' . StringHelper::randomString();
+        $id = 'recent-orders-settings-' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         Craft::$app->getView()->registerJs("new Craft.Commerce.OrdersWidgetSettings('" . $namespaceId . "');");
 
-        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/Orders/settings', [
+        return Craft::$app->getView()->renderTemplate('commerce/_components/widgets/orders/recent/settings', [
             'id' => $id,
             'widget' => $this,
             'orderStatuses' => $orderStatuses,
         ]);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Returns the recent entries, based on the widget settings and user permissions.
      *
-     * @return array
+     * @return Order[]
      */
     private function _getOrders(): array
     {

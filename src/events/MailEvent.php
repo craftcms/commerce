@@ -21,9 +21,6 @@ use craft\mail\Message;
  */
 class MailEvent extends CancelableEvent
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Message Craft email object
      */
@@ -43,4 +40,9 @@ class MailEvent extends CancelableEvent
      * @var OrderHistory The order history
      */
     public $orderHistory;
+
+    /**
+     * @var array Order data at the time the email sends.
+     */
+    public $orderData;
 }

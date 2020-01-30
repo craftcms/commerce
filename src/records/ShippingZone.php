@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -16,6 +17,7 @@ use yii\db\ActiveQueryInterface;
  * @property Country[] $countries
  * @property bool $isCountryBased
  * @property string $description
+ * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
  * @property State[] $states
@@ -24,15 +26,12 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingZone extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_shippingzones}}';
+        return Table::SHIPPINGZONES;
     }
 
     /**
@@ -40,7 +39,7 @@ class ShippingZone extends ActiveRecord
      */
     public function getCountries(): ActiveQueryInterface
     {
-        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable('{{%commerce_shippingzone_countries}}', ['shippingZoneId' => 'id']);
+        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable(Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId' => 'id']);
     }
 
     /**
@@ -48,6 +47,6 @@ class ShippingZone extends ActiveRecord
      */
     public function getStates(): ActiveQueryInterface
     {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable('{{%commerce_shippingzone_states}}', ['shippingZoneId' => 'id']);
+        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::SHIPPINGZONE_STATES, ['shippingZoneId' => 'id']);
     }
 }

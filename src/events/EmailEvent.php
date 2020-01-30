@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class EmailEvent extends Event
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Email Email
      */

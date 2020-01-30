@@ -50,18 +50,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     private $_sales;
 
-    // Public Methods
-    // =========================================================================
-
-    /**
-     * @deprecated as of 2.0
-     */
-    public function getPurchasableId()
-    {
-        Craft::$app->getDeprecator()->log('Purchasable::getPurchasableId()', 'The Purchasable::getPurchasableId() function has been deprecated. Use Purchasable::getId() instead.');
-
-        return $this->getId();
-    }
 
     /**
      * @inheritdoc
@@ -251,7 +239,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function afterSave(bool $isNew)
     {
-
         $purchasable = PurchasableRecord::findOne($this->id);
 
         if (!$purchasable) {
@@ -261,6 +248,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $purchasable->sku = $this->getSku();
         $purchasable->price = $this->getPrice();
         $purchasable->id = $this->id;
+        $purchasable->description = $this->getDescription();
 
         $purchasable->save(false);
 

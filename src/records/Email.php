@@ -7,18 +7,22 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
  * Email record.
  *
  * @property string $bcc
+ * @property string $cc
+ * @property string $replyTo
  * @property bool $enabled
  * @property int $id
  * @property string $name
  * @property string $recipientType
  * @property string $subject
  * @property string $templatePath
+ * @property string $plainTextTemplatePath
  * @property bool $attachPdf
  * @property string $pdfTemplatePath
  * @property string $to
@@ -27,20 +31,15 @@ use craft\db\ActiveRecord;
  */
 class Email extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const TYPE_CUSTOMER = 'customer';
     const TYPE_CUSTOM = 'custom';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_emails}}';
+        return Table::EMAILS;
     }
 }

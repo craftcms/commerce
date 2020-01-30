@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 
@@ -26,9 +27,6 @@ use craft\i18n\Locale;
  */
 class TaxRate extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -38,6 +36,12 @@ class TaxRate extends Model
      * @var string Name
      */
     public $name;
+
+    /**
+     * @var string Code
+     * @since 2.2
+     */
+    public $code;
 
     /**
      * @var float Rate
@@ -84,17 +88,22 @@ class TaxRate extends Model
      */
     private $_taxZone;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['taxCategoryId', 'name'], 'required']
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
+            ['taxCategoryId'], 'required', 'when' => function($model): bool {
+                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
+            }
         ];
+
+        return $rules;
     }
 
     /**

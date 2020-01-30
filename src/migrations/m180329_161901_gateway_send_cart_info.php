@@ -42,7 +42,6 @@ class m180329_161901_gateway_send_cart_info extends Migration
             ->all($this->db);
 
         foreach ($gateways as $gateway) {
-
             $settings = Json::decodeIfJson($gateway['settings']);
 
             if (!is_array($settings)) {

@@ -24,9 +24,6 @@ use craft\helpers\Json;
  */
 class UpdateOrderStatus extends ElementAction
 {
-    // Public Properties
-    // =========================================================================
-
     /**
      * @var int
      */
@@ -37,15 +34,13 @@ class UpdateOrderStatus extends ElementAction
      */
     public $message;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     public function getTriggerLabel(): string
     {
-        return Craft::t('commerce', 'Update Order Status…');
+        return Plugin::t('Update Order Status…');
     }
 
     /**

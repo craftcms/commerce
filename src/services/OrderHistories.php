@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\models\OrderHistory;
@@ -25,9 +26,6 @@ use yii\base\Exception;
  */
 class OrderHistories extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event OrderStatusEvent The event that is triggered when order status is changed
      *
@@ -45,8 +43,6 @@ class OrderHistories extends Component
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get order history by its ID.
@@ -132,7 +128,7 @@ class OrderHistories extends Component
             $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No order history exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No order history exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -178,8 +174,6 @@ class OrderHistories extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Order History.
@@ -198,6 +192,6 @@ class OrderHistories extends Component
                 'customerId',
                 'dateCreated'
             ])
-            ->from(['{{%commerce_orderhistories}}']);
+            ->from([Table::ORDERHISTORIES]);
     }
 }

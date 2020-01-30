@@ -23,7 +23,7 @@ class m180326_130001_cascadeDeleteVariants extends Migration
         $this->delete('{{%commerce_variants}}', ['productId' => null]);
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}');
 
-        // Now we can set the groupId column to NOT NULL
+        // Now we can set the productId column to NOT NULL
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)

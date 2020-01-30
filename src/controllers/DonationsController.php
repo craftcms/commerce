@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
+use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;
@@ -24,9 +25,6 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @param array $variables
      * @return Response
@@ -68,7 +66,7 @@ class DonationsController extends BaseStoreSettingsController
             return $this->renderTemplate('commerce/store-settings/donation/_edit', compact('donation'));
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Donation settings saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Donation settings saved.'));
         return $this->redirectToPostedUrl();
     }
 }

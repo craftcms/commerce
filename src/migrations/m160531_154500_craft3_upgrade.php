@@ -34,7 +34,7 @@ class m160531_154500_craft3_upgrade extends Migration
         $this->update('{{%elements}}', ['type' => Variant::class], ['type' => 'Commerce_Variant']);
 
         // Fields
-        $this->update('{{%fields}}', ['type' => Customer::class], ['type' => 'Commerce_Customer']);
+        $this->update('{{%fields}}', ['type' => 'craft\commerce\fields\Customer'], ['type' => 'Commerce_Customer']);
         $this->update('{{%fields}}', ['type' => Products::class], ['type' => 'Commerce_Products']);
 
         // Widgets

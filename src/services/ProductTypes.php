@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Field;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
@@ -17,6 +18,7 @@ use craft\commerce\models\ProductTypeSite;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -44,9 +46,6 @@ use yii\base\Exception;
  */
 class ProductTypes extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event ProductTypeEvent The event that is triggered before a category group is saved.
      *
@@ -83,8 +82,6 @@ class ProductTypes extends Component
 
     const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -121,8 +118,6 @@ class ProductTypes extends Component
      */
     private $_savingProductTypes = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all editable product types.
@@ -250,7 +245,7 @@ class ProductTypes extends Component
                     'hasUrls',
                     'template'
                 ])
-                ->from('{{%commerce_producttypes_sites}}')
+                ->from(Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
                 ->all();
 
@@ -321,6 +316,8 @@ class ProductTypes extends Component
             'hasVariants' => $productType->hasVariants,
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'titleFormat' => $productType->titleFormat,
+            'titleLabel' => $productType->titleLabel,
+            'variantTitleLabel' => $productType->variantTitleLabel,
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
             'siteSettings' => []
@@ -357,7 +354,7 @@ class ProductTypes extends Component
         }
 
         foreach ($allSiteSettings as $siteId => $settings) {
-            $siteUid = Db::uidById('{{%sites}}', $siteId);
+            $siteUid = Db::uidById(CraftTable::SITES, $siteId);
             $configData['siteSettings'][$siteUid] = [
                 'hasUrls' => $settings['hasUrls'],
                 'uriFormat' => $settings['uriFormat'],
@@ -369,7 +366,7 @@ class ProductTypes extends Component
         $projectConfig->set($configPath, $configData);
 
         if ($isNewProductType) {
-            $productType->id = Db::idByUid('{{%commerce_producttypes}}', $productType->uid);
+            $productType->id = Db::idByUid(Table::PRODUCTTYPES, $productType->uid);
         }
 
         return true;
@@ -410,6 +407,8 @@ class ProductTypes extends Component
             $productTypeRecord->hasVariants = $data['hasVariants'];
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
             $productTypeRecord->titleFormat = $data['titleFormat'] ?: '{product.title}';
+            $productTypeRecord->titleLabel = $data['titleLabel'];
+            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'];
             $productTypeRecord->skuFormat = $data['skuFormat'];
             $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
 
@@ -590,7 +589,7 @@ class ProductTypes extends Component
     public function getProductTypesByTaxCategoryId($taxCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin('{{%commerce_producttypes_taxcategories}} productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
             ->where(['productTypeTaxCategories.taxCategoryId' => $taxCategoryId])
             ->all();
 
@@ -612,7 +611,7 @@ class ProductTypes extends Component
     public function getProductTypesByShippingCategoryId($shippingCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
-            ->innerJoin('{{%commerce_producttypes_shippingcategories}} productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
+            ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
             ->where(['productTypeShippingCategories.shippingCategoryId' => $shippingCategoryId])
             ->all();
 
@@ -834,33 +833,22 @@ class ProductTypes extends Component
      */
     public function afterSaveSiteHandler(SiteEvent $event)
     {
+        $projectConfig = Craft::$app->getProjectConfig();
+
         if ($event->isNew) {
-            $primarySiteSettings = (new Query())
-                ->select([
-                    'productTypes.uid productTypeUid',
-                    'producttypes_sites.uriFormat',
-                    'producttypes_sites.template',
-                    'producttypes_sites.hasUrls'
-                ])
-                ->from(['{{%commerce_producttypes_sites}} producttypes_sites'])
-                ->innerJoin(['{{%commerce_producttypes}} productTypes'], '[[producttypes_sites.productTypeId]] = [[productTypes.id]]')
-                ->where(['siteId' => $event->oldPrimarySiteId])
-                ->one();
+            $oldPrimarySiteUid = Db::uidById(CraftTable::SITES, $event->oldPrimarySiteId);
+            $existingProductTypeSettings = $projectConfig->get(self::CONFIG_PRODUCTTYPES_KEY);
 
-            if ($primarySiteSettings) {
-                $newSiteSettings = [
-                    'uriFormat' => $primarySiteSettings['uriFormat'],
-                    'template' => $primarySiteSettings['template'],
-                    'hasUrls' => $primarySiteSettings['hasUrls']
-                ];
-
-                Craft::$app->getProjectConfig()->set(self::CONFIG_PRODUCTTYPES_KEY . '.' . $primarySiteSettings['productTypeUid'] . '.siteSettings.' . $event->site->uid, $newSiteSettings);
+            if (is_array($existingProductTypeSettings)) {
+                foreach ($existingProductTypeSettings as $productTypeUid => $settings) {
+                    $primarySiteSettings = $settings['siteSettings'][$oldPrimarySiteUid];
+                    $configPath = self::CONFIG_PRODUCTTYPES_KEY . '.' . $productTypeUid . '.siteSettings.' . $event->site->uid;
+                    $projectConfig->set($configPath, $primarySiteSettings);
+                }
             }
         }
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a product type
@@ -890,12 +878,14 @@ class ProductTypes extends Component
                 'productTypes.hasDimensions',
                 'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
+                'productTypes.variantTitleLabel',
                 'productTypes.titleFormat',
+                'productTypes.titleLabel',
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
                 'productTypes.uid'
             ])
-            ->from(['{{%commerce_producttypes}} productTypes']);
+            ->from([Table::PRODUCTTYPES . ' productTypes']);
     }
 
     /**

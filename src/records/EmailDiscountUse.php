@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -25,15 +26,12 @@ use yii\db\ActiveQueryInterface;
  */
 class EmailDiscountUse extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_email_discountuses}}';
+        return Table::EMAIL_DISCOUNTUSES;
     }
 
     /**

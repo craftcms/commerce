@@ -24,9 +24,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -71,11 +68,13 @@ class TaxRatesController extends BaseTaxSettingsController
         if ($variables['taxRate']->id) {
             $variables['title'] = $variables['taxRate']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
+            $variables['title'] = Plugin::t('Create a new tax rate');
         }
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
-        $variables['taxZones'] = [];
+        $variables['taxZones'] = [
+            ['value' => '', 'label' => '']
+        ];
 
         foreach ($taxZones as $model) {
             $variables['taxZones'][$model->id] = $model->name;
@@ -89,24 +88,29 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $taxable = [];
-        $taxable[TaxRateRecord::TAXABLE_PRICE] = Craft::t('commerce', 'Line item price');
-        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('commerce', 'Line item shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('commerce', 'Both (Line item price + Line item shipping costs)');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Craft::t('commerce', 'Order total shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Craft::t('commerce', 'Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
+        $taxable[TaxRateRecord::TAXABLE_PRICE] = Plugin::t('Line item price');
+        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Plugin::t('Line item shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Plugin::t('Both (Line item price + Line item shipping costs)');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Plugin::t('Order total shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Plugin::t('Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
         $variables['taxables'] = $taxable;
+        $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
+
+        $variables['hideTaxCategory'] = false;
+        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'])) {
+            $variables['hideTaxCategory'] = true;
+        }
 
         // Get the HTML and JS for the new tax zone/category modals
         $view = $this->getView();
         $view->setNamespace('new');
 
         $view->startJsBuffer();
-        $countries = $plugin->getCountries()->getAllCountries();
-        $states = $plugin->getStates()->getAllStates();
+
         $variables['newTaxZoneFields'] = $view->namespaceInputs(
             $view->renderTemplate('commerce/tax/taxzones/_fields', [
-                'countries' => ArrayHelper::map($countries, 'id', 'name'),
-                'states' => ArrayHelper::map($states, 'id', 'name')
+                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
+                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
             ])
         );
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
@@ -136,10 +140,11 @@ class TaxRatesController extends BaseTaxSettingsController
         // Shared attributes
         $taxRate->id = Craft::$app->getRequest()->getBodyParam('taxRateId');
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
+        $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
-        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId');
+        $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
 
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -153,10 +158,10 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax rate saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax rate.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax rate.'));
         }
 
         // Send the model back to the template

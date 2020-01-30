@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Element;
 use yii\db\ActiveQueryInterface;
@@ -18,10 +19,12 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property float $length
  * @property string $note
+ * @property string $privateNote
  * @property mixed $options
  * @property string $optionsSignature
  * @property Order $order
  * @property int $orderId
+ * @property int|null lineItemStatusId
  * @property float $price
  * @property ActiveQueryInterface $purchasable
  * @property int $purchasableId
@@ -42,15 +45,12 @@ use yii\db\ActiveQueryInterface;
  */
 class LineItem extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_lineitems}}';
+        return Table::LINEITEMS;
     }
 
     /**
@@ -83,5 +83,13 @@ class LineItem extends ActiveRecord
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
+    }
+
+    /**
+     * @return ActiveQueryInterface
+     */
+    public function getLineItemStatus(): ActiveQueryInterface
+    {
+        return $this->hasOne(LineItemStatus::class, ['id' => 'lineItemStatusId']);
     }
 }

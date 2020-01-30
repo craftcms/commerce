@@ -10,7 +10,9 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -37,9 +39,6 @@ use function in_array;
  */
 class Sales extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
      * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the application of the matched sale.
@@ -58,8 +57,18 @@ class Sales extends Component
      */
     const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
 
-    // Properties
-    // =========================================================================
+    /**
+     * @event SaleEvent The event that is triggered before a sale is saved.
+     * @since 2.2
+     */
+    const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
+
+    /**
+     * @event SaleEvent The event that is triggered after a sale is saved.
+     * @since 2.2
+     */
+    const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
+
 
     /**
      * @var Sale[]
@@ -76,8 +85,6 @@ class Sales extends Component
      */
     private $_purchasableSaleMatch = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get a sale by its ID.
@@ -117,14 +124,15 @@ class Sales extends Component
                 sales.allGroups,
                 sales.allPurchasables,
                 sales.allCategories,
+                sales.categoryRelationshipType,
                 sales.enabled,
                 sp.purchasableId,
                 spt.categoryId,
                 sug.userGroupId')
-                ->from('{{%commerce_sales}} sales')
-                ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]] = [[sales.id]]')
-                ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]] = [[sales.id]]')
-                ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]] = [[sales.id]]')
+                ->from(Table::SALES . ' sales')
+                ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')
+                ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]] = [[sales.id]]')
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -177,10 +185,10 @@ class Sales extends Component
             'sp.purchasableId,
             spt.categoryId,
             sug.userGroupId')
-            ->from('{{%commerce_sales}} sales')
-            ->leftJoin('{{%commerce_sale_purchasables}} sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin('{{%commerce_sale_categories}} spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin('{{%commerce_sale_usergroups}} sug', '[[sug.saleId]]=[[sales.id]]')
+            ->from(Table::SALES . ' sales')
+            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
+            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
             ->where(['sales.id' => $sale->id])
             ->all();
 
@@ -219,10 +227,9 @@ class Sales extends Component
         $matchedSales = [];
 
         foreach ($this->_getAllEnabledSales() as $sale) {
-
             if ($this->matchPurchasableAndSale($purchasable, $sale, $order)) {
                 $matchedSales[] = $sale;
-                    
+
                 if ($sale->stopProcessing) {
                     break;
                 }
@@ -240,12 +247,19 @@ class Sales extends Component
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
         $sales = [];
+        $id = $purchasable->getId();
 
-        if ($purchasable->getId()) {
+        if ($id) {
             foreach ($this->getAllSales() as $sale) {
+                // Get related by product specifically
                 $purchasableIds = $sale->getPurchasableIds();
-                $id = $purchasable->getId();
-                if (in_array($id, $purchasableIds, false)) {
+
+                // Get related via category
+                $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $saleCategories = $sale->getCategoryIds();
+                $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $sales[] = $sale;
                 }
             }
@@ -271,7 +285,6 @@ class Sales extends Component
 
         /** @var Sale $sale */
         foreach ($sales as $sale) {
-
             switch ($sale->apply) {
                 case SaleRecord::APPLY_BY_PERCENT:
                     // applyAmount is stored as a negative already
@@ -360,7 +373,7 @@ class Sales extends Component
 
         // Category match
         if (!$sale->allCategories) {
-            $relatedTo = ['sourceElement' => $purchasable->getPromotionRelationSource()];
+            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $saleCategories = $sale->getCategoryIds();
             $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
@@ -432,15 +445,17 @@ class Sales extends Component
      */
     public function saveSale(Sale $model, bool $runValidation = true): bool
     {
-        if ($model->id) {
+        $isNewSale = !$model->id;
+
+        if ($isNewSale) {
+            $record = new SaleRecord();
+        } else {
             $record = SaleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No sale exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No sale exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
-        } else {
-            $record = new SaleRecord();
         }
 
         if ($runValidation && !$model->validate()) {
@@ -458,6 +473,7 @@ class Sales extends Component
             'applyAmount',
             'stopProcessing',
             'ignorePrevious',
+            'categoryRelationshipType',
             'enabled'
         ];
         foreach ($fields as $field) {
@@ -468,6 +484,13 @@ class Sales extends Component
         $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
         $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
+        // Fire an 'beforeSaveSection' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
+                'sale' => $model,
+                'isNew' => $isNewSale
+            ]));
+        }
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
@@ -505,6 +528,14 @@ class Sales extends Component
 
             $transaction->commit();
 
+            // Fire an 'beforeSaveSection' event
+            if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
+                $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
+                    'sale' => $model,
+                    'isNew' => $isNewSale
+                ]));
+            }
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -522,7 +553,7 @@ class Sales extends Component
     {
         foreach ($ids as $sortOrder => $id) {
             Craft::$app->getDb()->createCommand()
-                ->update('{{%commerce_sales}}', ['sortOrder' => $sortOrder + 1], ['id' => $id])
+                ->update(Table::SALES, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
 
@@ -549,8 +580,6 @@ class Sales extends Component
         return false;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get all enabled sales.

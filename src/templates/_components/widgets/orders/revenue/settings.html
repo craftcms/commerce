@@ -1,0 +1,13 @@
+{% import '_includes/forms' as forms %}
+<div id="{{ id }}">
+  {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+
+  {{ forms.lightswitchField({
+    label: 'Show Order Count?'|t('commerce'),
+    id: 'showOrderCount',
+    name: 'showOrderCount',
+    value: 1,
+    on: widget.showOrderCount,
+    instructions: 'Show order count line on chart.'|t('commerce')
+  }) }}
+</div>

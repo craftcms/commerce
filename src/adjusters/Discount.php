@@ -26,9 +26,6 @@ use DateTime;
  */
 class Discount extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
-
     /**
      * The discount adjustment type.
      */
@@ -51,8 +48,6 @@ class Discount extends Component implements AdjusterInterface
     const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Order
@@ -60,17 +55,15 @@ class Discount extends Component implements AdjusterInterface
     private $_order;
 
     /**
-     * @var bool Whole order has free shipping applied
-     */
-    private $_hasFreeShippingForOrderApplied;
-
-    /**
      * @var
      */
     private $_discount;
 
-    // Public Methods
-    // =========================================================================
+    /*
+     * @var
+     */
+    private $_discountTotal = 0;
+
 
     /**
      * @inheritdoc
@@ -81,7 +74,7 @@ class Discount extends Component implements AdjusterInterface
 
         $adjustments = [];
         $availableDiscounts = [];
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
         foreach ($discounts as $discount) {
             if (Plugin::getInstance()->getDiscounts()->matchOrder($order, $discount)) {
@@ -103,8 +96,6 @@ class Discount extends Component implements AdjusterInterface
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param DiscountModel $discount
@@ -146,7 +137,7 @@ class Discount extends Component implements AdjusterInterface
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
-            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount, false)) {
                 if (!$this->_discount->allGroups) {
                     $customer = $this->_order->getCustomer();
                     $user = $customer ? $customer->getUser() : null;
@@ -192,7 +183,7 @@ class Discount extends Component implements AdjusterInterface
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount * $item->qty);
 
                 //Default is percentage off already discounted price
-                $existingLineItemDiscount = $item->getAdjustmentsTotalByType('discount');
+                $existingLineItemDiscount = $item->getDiscount();
                 $existingLineItemPrice = ($item->getSubtotal() + $existingLineItemDiscount);
                 $amountPercentage = Currency::round($this->_discount->percentDiscount * $existingLineItemPrice);
 
@@ -203,24 +194,16 @@ class Discount extends Component implements AdjusterInterface
                 $adjustment->amount = $amountPerItem + $amountPercentage;
 
                 if ($adjustment->amount != 0) {
+                    $this->_discountTotal += $adjustment->amount;
                     $adjustments[] = $adjustment;
                 }
             }
         }
 
-        if ($discount->hasFreeShippingForOrder && !$this->_hasFreeShippingForOrderApplied) {
-            // Don't remove order shipping cost more than once
-            $this->_hasFreeShippingForOrderApplied = true;
-            $adjustment = $this->_createOrderAdjustment($this->_discount);
-            $adjustment->amount = $this->_order->getAdjustmentsTotalByType('shipping') * -1;
-            if ($this->_order->getAdjustmentsTotalByType('shipping') > 0) {
-                $adjustments[] = $adjustment;
-            }
-        }
-
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
-            $baseDiscountAdjustment->amount = $discount->baseDiscount;
+            $baseDiscountAdjustment->amount = $this->_getBaseDiscountAmount($discount);
+
             $adjustments[] = $baseDiscountAdjustment;
         }
 
@@ -229,7 +212,7 @@ class Discount extends Component implements AdjusterInterface
             return false;
         }
 
-        // Raise the 'beforeMatchLineItem' event
+        // Raise the 'afterDiscountAdjustmentsCreated' event
         $event = new DiscountAdjustmentsEvent([
             'order' => $this->_order,
             'discount' => $discount,
@@ -243,5 +226,28 @@ class Discount extends Component implements AdjusterInterface
         }
 
         return $event->adjustments;
+    }
+
+    /**
+     * @param DiscountModel $discount
+     * @return float|int
+     */
+    private function _getBaseDiscountAmount(DiscountModel $discount)
+    {
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
+            return $discount->baseDiscount;
+        }
+
+        $total = $this->_order->getItemSubtotal();
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
+            $total += $this->_discountTotal;
+        }
+
+        if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED || $discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
+            $total += $this->_order->getTotalShippingCost();
+        }
+
+        return ($total / 100) * $discount->baseDiscount;
     }
 }

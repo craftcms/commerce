@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\User;
 use yii\db\ActiveQueryInterface;
@@ -26,15 +27,12 @@ use yii\db\ActiveQueryInterface;
  */
 class PaymentSource extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_paymentsources}}';
+        return Table::PAYMENTSOURCES;
     }
 
     /**
@@ -44,7 +42,7 @@ class PaymentSource extends ActiveRecord
      */
     public function getGateway(): ActiveQueryInterface
     {
-        return $this->hasOne(Gateway::class, ['gatewayId' => 'id']);
+        return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
 

@@ -18,9 +18,6 @@ use craft\web\AssetBundle;
  */
 class EditProductAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -34,6 +31,10 @@ class EditProductAsset extends AssetBundle
 
         $this->css = [
             'css/product.css',
+        ];
+
+        $this->js = [
+            'js/CommerceProductEdit.js',
         ];
 
         parent::init();

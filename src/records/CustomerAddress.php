@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
@@ -19,14 +20,11 @@ use craft\db\ActiveRecord;
  */
 class CustomerAddress extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_customers_addresses}}';
+        return Table::CUSTOMERS_ADDRESSES;
     }
 }

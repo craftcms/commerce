@@ -27,9 +27,6 @@ use craft\validators\UniqueValidator;
  */
 class PaymentCurrency extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -55,8 +52,6 @@ class PaymentCurrency extends Model
      */
     private $_currency;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -80,7 +75,7 @@ class PaymentCurrency extends Model
     public function attributes(): array
     {
         $names = parent::attributes();
-        $names[] = 'minorUnits';
+        $names[] = 'minorUnit';
         $names[] = 'alphabeticCode';
         $names[] = 'currency';
         $names[] = 'numericCode';
@@ -171,11 +166,13 @@ class PaymentCurrency extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['iso'], 'required'],
-            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['iso'], 'required'];
+        $rules[] = [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']];
+
+        return $rules;
     }
 }

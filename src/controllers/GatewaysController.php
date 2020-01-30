@@ -24,9 +24,6 @@ use yii\web\Response;
  */
 class GatewaysController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -92,7 +89,7 @@ class GatewaysController extends BaseAdminController
         if ($variables['gateway']->id) {
             $variables['title'] = $variables['gateway']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new gateway');
+            $variables['title'] = Plugin::t('Create a new gateway');
         }
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }
@@ -141,7 +138,7 @@ class GatewaysController extends BaseAdminController
 
         // Save it
         if (!Plugin::getInstance()->getGateways()->saveGateway($gateway)) {
-            $session->setError(Craft::t('commerce', 'Couldn’t save gateway.'));
+            $session->setError(Plugin::t('Couldn’t save gateway.'));
 
             // Send the volume back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -151,7 +148,7 @@ class GatewaysController extends BaseAdminController
             return null;
         }
 
-        $session->setNotice(Craft::t('commerce', 'Gateway saved.'));
+        $session->setNotice(Plugin::t('Gateway saved.'));
         return $this->redirectToPostedUrl($gateway);
     }
 
@@ -169,7 +166,7 @@ class GatewaysController extends BaseAdminController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not archive gateway.'));
+        return $this->asErrorJson(Plugin::t('Could not archive gateway.'));
     }
 
     /**
@@ -185,6 +182,6 @@ class GatewaysController extends BaseAdminController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder gateways.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder gateways.')]);
     }
 }

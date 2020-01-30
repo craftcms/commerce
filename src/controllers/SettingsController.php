@@ -23,9 +23,6 @@ use yii\web\Response;
  */
 class SettingsController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Commerce Settings Form
      */
@@ -63,20 +60,22 @@ class SettingsController extends BaseAdminController
         $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
         $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
+        $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
+        $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save settings.'));
             return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
         }
 
         $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray());
 
         if (!$pluginSettingsSaved) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save settings.'));
             return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }
@@ -96,7 +95,7 @@ class SettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription fields saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Subscription fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

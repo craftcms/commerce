@@ -9,6 +9,7 @@ namespace craft\commerce\fields;
 
 use Craft;
 use craft\commerce\elements\Variant;
+use craft\commerce\Plugin;
 use craft\fields\BaseRelationField;
 
 /**
@@ -19,15 +20,12 @@ use craft\fields\BaseRelationField;
  */
 class Variants extends BaseRelationField
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function displayName(): string
     {
-        return Craft::t('commerce', 'Commerce Variants');
+        return Plugin::t('Commerce Variants');
     }
 
     /**
@@ -35,11 +33,9 @@ class Variants extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Craft::t('commerce', 'Add a variant');
+        return Plugin::t('Add a variant');
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

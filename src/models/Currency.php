@@ -17,9 +17,6 @@ use craft\commerce\base\Model;
  */
 class Currency extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string Alphabetic code
      */
@@ -45,8 +42,6 @@ class Currency extends Model
      */
     public $numericCode;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string

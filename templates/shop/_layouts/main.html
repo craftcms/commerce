@@ -9,9 +9,9 @@
     <meta name="description" content="{{ "The example templates for Craft Commerce"|t }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <script type="application/javascript">{% include 'shop/jquery.js' %}</script>
-    <style>{% include 'shop/tailwind.css' %}</style>
-    <style>{% include 'shop/style.css' %}</style>
+    <script type="application/javascript" src="/shop/jquery.js"></script>
+    <link rel="stylesheet" href="/shop/tailwind.css">
+    <link rel="stylesheet" href="/shop/style.css">
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
@@ -20,9 +20,6 @@
     {% endif %}
 </head>
 <body class="bg-grey-lightest">
-    <!--[if lt IE 8]>
-    <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
 
     {% if cart is not defined %}
         {% set cart = craft.commerce.carts.cart %}
@@ -104,7 +101,10 @@
                 <li><strong>User</strong> {{ cart.user }}</li>
                 <li><strong>Shipping Address ID</strong> {{ cart.shippingAddressId }}</li>
                 <li><strong>Billing Address ID</strong> {{ cart.billingAddressId }}</li>
+                <li><strong>Estimated Shipping Address ID</strong> {{ cart.estimatedShippingAddressId }}</li>
+                <li><strong>Estimated Billing Address ID</strong> {{ cart.estimatedBillingAddressId }}</li>
                 <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
+                <li><strong>Line Items Count</strong> {{ cart.lineItems|length }}</li>
                 <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
                 <li><strong>Currency</strong> {{ cart.currency }}</li>
                 <li><strong>Payment Currency</strong> {{ cart.paymentCurrency }}</li>
@@ -130,41 +130,5 @@
             </ul>
         </div>
     </footer>
-
-    {#
-        The following javascript polls the server every 10 seconds and sees if the cart has changed on another session or browser tab
-        and will refresh the page if the current page is out of date. This prevents the customer from changing the cart on another tab,
-        then submitting an update cart form action that might overwrite the changes on the other page.
-    #}
-    {% js %}
-        function doPoll(){
-            console.log('Commerce example templates : Polling to see if the order changed on another tab or session');
-            $.ajax({
-                url: '',
-                data: {
-                    '{{ craft.config.csrfTokenName|e('js') }}': '{{ craft.request.csrfToken|e('js') }}',
-                    'action': 'commerce/cart/get-cart'
-                },
-                success: function(data) {
-                    var orderNumberChanged = (data.cart.number != '{{ cart.number }}');
-                    var orderTotalChanged = (data.cart.totalQty != '{{ cart.totalQty }}');
-                    var orderTotalPriceChanged = (data.cart.totalPrice != '{{ cart.totalPrice }}');
-                    if(orderNumberChanged || orderTotalChanged || orderTotalPriceChanged){
-                        console.log({'orderNumberChanged' : orderNumberChanged, 'orderTotalChanged' : orderTotalChanged, 'orderTotalPriceChanged': orderTotalPriceChanged});
-                        console.log('Reloading the page as the cart has changed');
-                        alert("Your cart has been updated, reloading the page.");
-                        location.reload(true);
-                    }else{
-                        console.log('Commerce example templates : Nothing changed, checking again in 10 seconds.');
-                    }
-                    setTimeout(doPoll,10000);
-                },
-                dataType: 'json'
-            });
-        }
-
-        doPoll();
-    {% endjs %}
-
 </body>
 </html>

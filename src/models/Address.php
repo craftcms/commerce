@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
-use craft\commerce\events\RegisterAddressRulesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DvK\Vat\Validator;
@@ -32,28 +31,6 @@ use Exception;
  */
 class Address extends Model
 {
-    // Constants
-    // =========================================================================
-
-    /**
-     * @event RegisterAddressRulesEvent The event that is raised after initial rules were set.
-     *
-     * Plugins can add additional address validation rules.
-     *
-     * ```php
-     * use craft\commerce\events\RegisterAddressRulesEvent;
-     * use craft\commerce\models\Address;
-     *
-     * Event::on(Address::class, Address::EVENT_REGISTER_ADDRESS_VALIDATION_RULES, function(RegisterAddressRulesEvent $event) {
-     *      $event->rules[] = [['attention'], 'required'];
-     * });
-     * ```
-     */
-    const EVENT_REGISTER_ADDRESS_VALIDATION_RULES = 'registerAddressValidationRules';
-
-    // Properties
-    // =========================================================================
-
     /**
      * @var int Address ID
      */
@@ -85,6 +62,12 @@ class Address extends Model
     public $lastName;
 
     /**
+     * @var string Full Name
+     * @since 2.2
+     */
+    public $fullName;
+
+    /**
      * @var string Address Line 1
      */
     public $address1;
@@ -93,6 +76,12 @@ class Address extends Model
      * @var string Address Line 2
      */
     public $address2;
+
+    /**
+     * @var string Address Line 3
+     * @since 2.2
+     */
+    public $address3;
 
     /**
      * @var string City
@@ -113,6 +102,12 @@ class Address extends Model
      * @var string Alternative Phone
      */
     public $alternativePhone;
+
+    /**
+     * @var string Label
+     * @since 2.2
+     */
+    public $label;
 
     /**
      * @var string Business Name
@@ -145,6 +140,42 @@ class Address extends Model
     public $stateId;
 
     /**
+     * @var string Notes
+     * @since 2.2
+     */
+    public $notes;
+
+    /**
+     * @var string Custom Field 1
+     * @since 2.2
+     */
+    public $custom1;
+
+    /**
+     * @var string Custom Field 2
+     * @since 2.2
+     */
+    public $custom2;
+
+    /**
+     * @var string Custom Field 3
+     * @since 2.2
+     */
+    public $custom3;
+
+    /**
+     * @var string Custom Field 4
+     * @since 2.2
+     */
+    public $custom4;
+
+    /**
+     * @var bool If this address is used for estimated values
+     * @since 2.2
+     */
+    public $isEstimated = false;
+
+    /**
      * @var int|string Can be a State ID or State Name
      */
     private $_stateValue;
@@ -154,8 +185,6 @@ class Address extends Model
      */
     private $_vatValidator;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -196,47 +225,73 @@ class Address extends Model
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
-        $labels['firstName'] = Craft::t('commerce', 'First Name');
-        $labels['lastName'] = Craft::t('commerce', 'Last Name');
-        $labels['attention'] = Craft::t('commerce', 'Attention');
-        $labels['title'] = Craft::t('commerce', 'Title');
-        $labels['address1'] = Craft::t('commerce', 'Address 1');
-        $labels['address2'] = Craft::t('commerce', 'Address 2');
-        $labels['city'] = Craft::t('commerce', 'City');
-        $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
-        $labels['phone'] = Craft::t('commerce', 'Phone');
-        $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
-        $labels['businessName'] = Craft::t('commerce', 'Business Name');
-        $labels['businessId'] = Craft::t('commerce', 'Business ID');
-        $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
-        $labels['countryId'] = Craft::t('commerce', 'Country');
-        $labels['stateId'] = Craft::t('commerce', 'State');
-        $labels['stateName'] = Craft::t('commerce', 'State');
-        $labels['stateValue'] = Craft::t('commerce', 'State');
+        $labels['firstName'] = Plugin::t('First Name');
+        $labels['lastName'] = Plugin::t('Last Name');
+        $labels['fullName'] = Plugin::t('Full Name');
+        $labels['attention'] = Plugin::t('Attention');
+        $labels['title'] = Plugin::t('Title');
+        $labels['address1'] = Plugin::t('Address 1');
+        $labels['address2'] = Plugin::t('Address 2');
+        $labels['address3'] = Plugin::t('Address 3');
+        $labels['city'] = Plugin::t('City');
+        $labels['zipCode'] = Plugin::t('Zip Code');
+        $labels['phone'] = Plugin::t('Phone');
+        $labels['alternativePhone'] = Plugin::t('Alternative Phone');
+        $labels['businessName'] = Plugin::t('Business Name');
+        $labels['businessId'] = Plugin::t('Business ID');
+        $labels['businessTaxId'] = Plugin::t('Business Tax ID');
+        $labels['countryId'] = Plugin::t('Country');
+        $labels['stateId'] = Plugin::t('State');
+        $labels['stateName'] = Plugin::t('State');
+        $labels['stateValue'] = Plugin::t('State');
+        $labels['custom1'] = Plugin::t('Custom 1');
+        $labels['custom2'] = Plugin::t('Custom 2');
+        $labels['custom3'] = Plugin::t('Custom 3');
+        $labels['custom4'] = Plugin::t('Custom 4');
+        $labels['notes'] = Plugin::t('Notes');
+        $labels['label'] = Plugin::t('Label');
         return $labels;
     }
 
     /**
-     * @return array
+     * @inheritDoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
-        $rules[] = [['firstName'], 'required'];
-        $rules[] = [['lastName'], 'required'];
-        $rules[] = ['stateId', 'validateState', 'skipOnEmpty' => false];
-        $rules[] = ['businessTaxId', 'validateBusinessTaxId', 'skipOnEmpty' => true];
+        $rules = parent::defineRules();
 
-        $event = new RegisterAddressRulesEvent([
-            'rules' => $rules
-        ]);
+        $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
+        $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
-        //Raise the RegisterAddressRules event
-        if ($this->hasEventHandlers(self::EVENT_REGISTER_ADDRESS_VALIDATION_RULES)) {
-            $this->trigger(self::EVENT_REGISTER_ADDRESS_VALIDATION_RULES, $event);
-        }
+        $rules[] = [[
+            'firstName',
+            'lastName',
+            'fullName',
+            'attention',
+            'title',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'businessId',
+            'businessTaxId',
+            'countryId',
+            'stateId',
+            'stateName',
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'notes',
+            'label',
+        ], 'trim'];
 
-        return $event->rules;
+        return $rules;
     }
 
     /**
@@ -249,7 +304,7 @@ class Address extends Model
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
+            $this->addError('stateValue', Plugin::t('Country requires a related state selected.'));
         }
     }
 
@@ -279,33 +334,8 @@ class Address extends Model
         // Clean up if the API returned false and the item was still in cache
         if (!$validBusinessTaxId) {
             Craft::$app->getCache()->delete('commerce:validVatId:' . $this->businessTaxId);
-            $this->addError('businessTaxId', Craft::t('commerce', 'Invalid Business Tax ID.'));
+            $this->addError('businessTaxId', Plugin::t('Invalid Business Tax ID.'));
         }
-    }
-
-    /**
-     * Returns the address full name.
-     *
-     * @return string|null
-     */
-    public function getFullName()
-    {
-        $firstName = trim($this->firstName);
-        $lastName = trim($this->lastName);
-
-        if (!$firstName && !$lastName) {
-            return null;
-        }
-
-        $name = $firstName;
-
-        if ($firstName && $lastName) {
-            $name .= ' ';
-        }
-
-        $name .= $lastName;
-
-        return $name;
     }
 
     /**
@@ -385,6 +415,8 @@ class Address extends Model
 
             $this->_stateValue = $value;
         } else {
+            $this->stateId = null;
+            $this->stateName = null;
             $this->_stateValue = null;
         }
     }

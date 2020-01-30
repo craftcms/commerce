@@ -29,8 +29,6 @@ class Orders extends Component
 {
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Handle field layout change
@@ -120,7 +118,7 @@ class Orders extends Component
      * @param string $number
      * @return Order|null
      */
-    public function getOrderByNumber($number)
+    public function getOrderByNumber(string $number)
     {
         $query = Order::find();
         $query->number($number);
@@ -136,6 +134,10 @@ class Orders extends Component
      */
     public function getOrdersByCustomer($customer)
     {
+        if (!$customer) {
+            return null;
+        }
+
         $query = Order::find();
         if ($customer instanceof Customer) {
             $query->customer($customer);
@@ -154,7 +156,7 @@ class Orders extends Component
      * @param string $email
      * @return Order[]|null
      */
-    public function getOrdersByEmail($email)
+    public function getOrdersByEmail(string $email)
     {
         $query = Order::find();
         $query->email($email);
@@ -167,7 +169,7 @@ class Orders extends Component
     /**
      * @param Order $cart
      * @return array
-     * @deprecated 2.2 use `$order->toArray()` instead
+     * @deprecated 3.0 use `$order->toArray()` instead
      */
     public function cartArray($cart)
     {
@@ -176,7 +178,6 @@ class Orders extends Component
         $data['number'] = $cart->number;
         $data['couponCode'] = $cart->couponCode;
         $data['itemTotal'] = $cart->getItemTotal();
-        $data['itemSubtotal'] = $cart->getItemSubtotal();
         $data['totalPaid'] = $cart->getTotalPaid();
         $data['email'] = $cart->getEmail();
         $data['isCompleted'] = (bool)$cart->isCompleted;
@@ -189,6 +190,7 @@ class Orders extends Component
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
+        $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
@@ -205,6 +207,7 @@ class Orders extends Component
         $data['totalWeight'] = $cart->getTotalWeight();
         $data['total'] = $cart->getTotal();
         $data['totalPrice'] = $cart->getTotalPrice();
+        $data['recalculationMode'] = $cart->getRecalculationMode();
 
         $availableShippingMethods = $cart->getAvailableShippingMethods();
         $data['availableShippingMethods'] = [];
@@ -215,8 +218,8 @@ class Orders extends Component
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
-            $data['shippingAddress'] = $cart->shippingAddress->toArray();
-            if ($cart->shippingAddress->getErrors()) {
+            $data['shippingAddress'] = $cart->getShippingAddress()->toArray();
+            if ($cart->getShippingAddress()->getErrors()) {
                 $lineItems['shippingAddress']['errors'] = $cart->getShippingAddress()->getErrors();
             }
         } else {
@@ -225,12 +228,32 @@ class Orders extends Component
 
         $data['billingAddressId'] = $cart->billingAddressId;
         if ($cart->getBillingAddress()) {
-            $data['billingAddress'] = $cart->billingAddress->toArray();
-            if ($cart->billingAddress->getErrors()) {
+            $data['billingAddress'] = $cart->getBillingAddress()->toArray();
+            if ($cart->getBillingAddress()->getErrors()) {
                 $lineItems['billingAddress']['errors'] = $cart->getBillingAddress()->getErrors();
             }
         } else {
             $data['billingAddress'] = null;
+        }
+
+        $data['estimatedShippingAddressId'] = $cart->estimatedShippingAddressId;
+        if ($cart->getEstimatedShippingAddress()) {
+            $data['estimatedShippingAddress'] = $cart->getEstimatedShippingAddress()->toArray();
+            if ($cart->getEstimatedShippingAddress()->getErrors()) {
+                $lineItems['estimatedShippingAddress']['errors'] = $cart->getEstimatedShippingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedShippingAddress'] = null;
+        }
+
+        $data['estimatedBillingAddressId'] = $cart->estimatedBillingAddressId;
+        if ($cart->getEstimatedBillingAddress()) {
+            $data['estimatedBillingAddress'] = $cart->getEstimatedBillingAddress()->toArray();
+            if ($cart->getEstimatedBillingAddress()->getErrors()) {
+                $lineItems['estimatedBillingAddress']['errors'] = $cart->getEstimatedBillingAddress()->getErrors();
+            }
+        } else {
+            $data['estimatedBillingAddress'] = null;
         }
 
         $lineItems = [];
@@ -258,20 +281,47 @@ class Orders extends Component
             $lineItemData['optionsSignature'] = $lineItem->getOptionsSignature();
             $lineItemData['subtotal'] = $lineItem->getSubtotal();
             $lineItemData['total'] = $lineItem->getTotal();
-            $data['totalTax'] = $cart->getAdjustmentsTotalByType('tax');
-            $data['totalTaxIncluded'] = $cart->getAdjustmentsTotalByType('tax', true);
-            $data['totalShippingCost'] = $cart->getAdjustmentsTotalByType('shipping');
-            $data['totalDiscount'] = $cart->getAdjustmentsTotalByType('discount');
+
+            $lineItemData['totalTax'] = $lineItem->getTax(); // deprecate in 3.0
+            $lineItemData['totalTaxIncluded'] = $lineItem->getTaxIncluded(); // deprecate in 3.0
+            $lineItemData['totalShippingCost'] = $lineItem->getShippingCost(); // deprecate in 3.0
+            $lineItemData['totalDiscount'] = $lineItem->getDiscount(); // deprecate in 3.0
+
+            $lineItemData['tax'] = $lineItem->getTax();
+            $lineItemData['taxIncluded'] = $lineItem->getTaxIncluded();
+            $lineItemData['shippingCost'] = $lineItem->getShippingCost();
+            $lineItemData['discount'] = $lineItem->getDiscount();
+
+            $lineItemAdjustments = [];
+            foreach ($lineItem->getAdjustments() as $adjustment) {
+                $adjustmentData = [];
+                $adjustmentData['id'] = $adjustment->id;
+                $adjustmentData['type'] = $adjustment->type;
+                $adjustmentData['name'] = $adjustment->name;
+                $adjustmentData['description'] = $adjustment->description;
+                $adjustmentData['amount'] = $adjustment->amount;
+                $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
+                $adjustmentData['orderId'] = $adjustment->orderId;
+                $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+                $adjustmentData['isEstimated'] = $adjustment->isEstimated;
+                $adjustments[$adjustment->type][] = $adjustmentData;
+                $lineItemAdjustments[] = $adjustmentData;
+            }
+            $lineItemData['adjustments'] = $lineItemAdjustments;
             $lineItems[$lineItem->id] = $lineItemData;
             if ($lineItem->getErrors()) {
                 $lineItems['errors'] = $lineItem->getErrors();
             }
         }
+        $data['totalTax'] = $cart->getTotalTax();
+        $data['totalTaxIncluded'] = $cart->getTotalTaxIncluded();
+        $data['totalShippingCost'] = $cart->getTotalShippingCost();
+        $data['totalDiscount'] = $cart->getTotalDiscount();
         $data['lineItems'] = $lineItems;
         $data['totalLineItems'] = count($lineItems);
 
         $adjustments = [];
-        foreach ($cart->adjustments as $adjustment) {
+        foreach ($cart->getAdjustments() as $adjustment) {
             $adjustmentData = [];
             $adjustmentData['id'] = $adjustment->id;
             $adjustmentData['type'] = $adjustment->type;
@@ -280,6 +330,8 @@ class Orders extends Component
             $adjustmentData['amount'] = $adjustment->amount;
             $adjustmentData['sourceSnapshot'] = $adjustment->sourceSnapshot;
             $adjustmentData['orderId'] = $adjustment->orderId;
+            $adjustmentData['lineItemId'] = $adjustment->lineItemId;
+            $adjustmentData['isEstimated'] = $adjustment->isEstimated;
             $adjustments[$adjustment->type][] = $adjustmentData;
         }
         $data['adjustments'] = $adjustments;
