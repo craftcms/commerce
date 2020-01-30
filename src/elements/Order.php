@@ -1459,10 +1459,15 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
+        $customerUser = $customer->getUser();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $noCustomerUserOrCurrentUser = ($customerUser == null && $currentUser == null);
+        $currentUserDoesntMatchCustomerUser = ($currentUser && ($customerUser == null || $currentUser->id != $customerUser->id));
+
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            // We need to only save the address to the customers address book while it is a cart
-            if ($customer && !$this->isCompleted) {
+            // We need to only save the address to the customers address book while it is a cart and not being edited by another user
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
@@ -1474,8 +1479,8 @@ class Order extends Element
 
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            // We need to only save the address to the customers address book while it is a cart
-            if ($customer && !$this->isCompleted) {
+            // We need to only save the address to the customers address book while it is a cart and not being edited by another user
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
