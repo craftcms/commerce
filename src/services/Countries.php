@@ -8,7 +8,9 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Country;
+use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -26,9 +28,6 @@ use yii\base\Exception;
  */
 class Countries extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -40,6 +39,11 @@ class Countries extends Component
     private $_countriesById = [];
 
     /**
+     * @var Country[]
+     */
+    private $_enabledCountriesById;
+
+    /**
      * @var Country[][]
      */
     private $_countriesByTaxZoneId = [];
@@ -49,8 +53,6 @@ class Countries extends Component
      */
     private $_countriesByShippingZoneId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns a country by its ID.
@@ -98,23 +100,23 @@ class Countries extends Component
      * Returns all country names, indexed by ID.
      *
      * @return array
-     * @deprecated as of 2.0
      */
-    public function getAllCountriesListData(): array
+    public function getAllCountriesAsList(): array
     {
-        Craft::$app->getDeprecator()->log('Countries::getAllCountriesListData()', 'Countries::getAllCountriesListData() has been deprecated. Use Countries::getAllCountriesAsList() instead');
+        $countries = $this->getAllCountries();
 
-        return $this->getAllCountriesAsList();
+        return ArrayHelper::map($countries, 'id', 'name');
     }
 
     /**
      * Returns all country names, indexed by ID.
      *
      * @return array
+     * @since 3.0
      */
-    public function getAllCountriesAsList(): array
+    public function getAllEnabledCountriesAsList(): array
     {
-        $countries = $this->getAllCountries();
+        $countries = $this->getAllEnabledCountries();
 
         return ArrayHelper::map($countries, 'id', 'name');
     }
@@ -131,11 +133,28 @@ class Countries extends Component
             $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row) {
-                $this->_countriesById[$row['id']] = new Country($row);
+                $country = new Country($row);
+                $this->_countriesById[$country->id] = $country;
+
+                if ($country->enabled) {
+                    $this->_enabledCountriesById[$country->id] = $country;
+                }
             }
         }
 
         return $this->_countriesById;
+    }
+
+    /**
+     * Returns an array of all enabled countries
+     *
+     * @return array
+     * @since 3.0
+     */
+    public function getAllEnabledCountries(): array
+    {
+        $this->getAllCountries();
+        return $this->_enabledCountriesById;
     }
 
     /**
@@ -148,7 +167,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin('{{%commerce_taxzone_countries}} taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
+                ->innerJoin(Table::TAXZONE_COUNTRIES . ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
                 ->where(['taxZoneCountries.taxZoneId' => $taxZoneId])
                 ->all();
             $countries = [];
@@ -173,7 +192,7 @@ class Countries extends Component
     {
         if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createCountryQuery()
-                ->innerJoin('{{%commerce_shippingzone_countries}} shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
+                ->innerJoin(Table::SHIPPINGZONE_COUNTRIES . ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
                 ->where(['shippingZoneCountries.shippingZoneId' => $shippingZoneId])
                 ->all();
             $countries = [];
@@ -202,7 +221,7 @@ class Countries extends Component
             $record = CountryRecord::findOne($country->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”', ['id' => $country->id]));
+                throw new Exception(Plugin::t( 'No country exists with the ID “{id}”', ['id' => $country->id]));
             }
         } else {
             $record = new CountryRecord();
@@ -217,7 +236,7 @@ class Countries extends Component
         $record->name = $country->name;
         $record->iso = strtoupper($country->iso);
         $record->isStateRequired = $country->isStateRequired;
-
+        $record->enabled = (bool)$country->enabled;
 
         // Save it!
         $record->save(false);
@@ -245,8 +264,23 @@ class Countries extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
+    /**
+     * @param array $ids
+     * @return bool
+     * @throws \yii\db\Exception
+     * @since 2.2
+     */
+    public function reorderCountries(array $ids): bool
+    {
+        $command = Craft::$app->getDb()->createCommand();
+
+        foreach ($ids as $index => $id) {
+            $command->update(Table::COUNTRIES, ['sortOrder' => $index + 1], ['id' => $id])->execute();
+        }
+
+        return true;
+    }
+
 
     /**
      * Returns a Query object prepped for retrieving Countries.
@@ -260,9 +294,10 @@ class Countries extends Component
                 'countries.id',
                 'countries.name',
                 'countries.iso',
-                'countries.isStateRequired'
+                'countries.isStateRequired',
+                'countries.enabled',
             ])
-            ->from(['{{%commerce_countries}} countries'])
-            ->orderBy(['name' => SORT_ASC]);
+            ->from([Table::COUNTRIES . ' countries'])
+            ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);
     }
 }

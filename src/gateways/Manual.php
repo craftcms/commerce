@@ -17,6 +17,7 @@ use craft\commerce\models\payments\OffsitePaymentForm;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\responses\Manual as ManualRequestResponse;
 use craft\commerce\models\Transaction;
+use craft\commerce\Plugin;
 use craft\web\Response as WebResponse;
 
 /**
@@ -27,9 +28,6 @@ use craft\web\Response as WebResponse;
  */
 class Manual extends Gateway
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -80,7 +78,7 @@ class Manual extends Gateway
      */
     public function completeAuthorize(Transaction $transaction): RequestResponseInterface
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**
@@ -88,7 +86,7 @@ class Manual extends Gateway
      */
     public function completePurchase(Transaction $transaction): RequestResponseInterface
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**
@@ -96,7 +94,7 @@ class Manual extends Gateway
      */
     public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**
@@ -104,7 +102,7 @@ class Manual extends Gateway
      */
     public function deletePaymentSource($token): bool
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**
@@ -113,7 +111,7 @@ class Manual extends Gateway
     public function getPaymentTypeOptions(): array
     {
         return [
-            'authorize' => Craft::t('commerce', 'Authorize Only (Manually Capture)'),
+            'authorize' => Plugin::t('Authorize Only (Manually Capture)'),
         ];
     }
 
@@ -122,7 +120,7 @@ class Manual extends Gateway
      */
     public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**
@@ -130,7 +128,7 @@ class Manual extends Gateway
      */
     public function processWebHook(): WebResponse
     {
-        throw new NotImplementedException(Craft::t('commerce', 'This gateway does not support that functionality.'));
+        throw new NotImplementedException(Plugin::t('This gateway does not support that functionality.'));
     }
 
     /**

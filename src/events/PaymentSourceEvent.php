@@ -18,9 +18,6 @@ use craft\events\CancelableEvent;
  */
 class PaymentSourceEvent extends CancelableEvent
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var PaymentSource Payment source
      */

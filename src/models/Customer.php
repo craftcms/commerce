@@ -13,6 +13,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\helpers\UrlHelper;
+use DateInterval;
+use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
@@ -29,9 +32,6 @@ use yii\base\InvalidConfigException;
  */
 class Customer extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|null Customer ID
      */
@@ -57,8 +57,6 @@ class Customer extends Model
      */
     private $_user;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the email address of the customer as the string output.
@@ -143,7 +141,11 @@ class Customer extends Model
      */
     public function getAddresses(): array
     {
-        return Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        if ($this->id) {
+            return Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($this->id);
+        }
+
+        return [];
     }
 
     /**
@@ -165,6 +167,16 @@ class Customer extends Model
     }
 
     /**
+     * @return string
+     * @since 3.0
+     */
+    public function getCpEditUrl(): string
+    {
+        $id = $this->id ?? '';
+        return UrlHelper::cpUrl('commerce/customers/' . $id);
+    }
+
+    /**
      * Returns the order elements associated with this customer.
      *
      * @return Order[]
@@ -172,6 +184,28 @@ class Customer extends Model
     public function getOrders(): array
     {
         return Order::find()->customer($this)->isCompleted()->all();
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     * @since 2.2
+     */
+    public function getActiveCarts(): array
+    {
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
+        return Order::find()->customer($this)->isCompleted(false)->dateUpdated('>= ' . $edge)->orderBy('dateUpdated DESC')->all();
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     * @since 2.2
+     */
+    public function getInactiveCarts(): array
+    {
+        $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
+        return Order::find()->customer($this)->isCompleted(false)->dateUpdated('< ' . $edge)->orderBy('dateUpdated ASC')->all();
     }
 
     /**

@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
@@ -35,9 +36,6 @@ use yii\base\Component;
  */
 class Payments extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event TransactionEvent The event that is triggered after a payment transaction is made
      *
@@ -158,8 +156,6 @@ class Payments extends Component
      */
     const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Process a payment.
@@ -182,7 +178,7 @@ class Payments extends Component
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
             // Long story short - a plugin said "no."
-            throw new PaymentException(Craft::t('commerce', 'Unable to make payment at this time.'));
+            throw new PaymentException(Plugin::t( 'Unable to make payment at this time.'));
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
@@ -203,10 +199,10 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support authorize'));
+                throw new PaymentException(Plugin::t( 'Gateway doesn’t support authorize'));
             }
         } else if (!$gateway->supportsPurchase()) {
-            throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support purchase'));
+            throw new PaymentException(Plugin::t( 'Gateway doesn’t support purchase'));
         }
 
         //creating order, transaction and request
@@ -327,6 +323,7 @@ class Payments extends Component
 
         // If it's successful already, we're good.
         if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
+            $transaction->order->updateOrderPaidInformation();
             return true;
         }
 
@@ -382,7 +379,7 @@ class Payments extends Component
     public function getTotalPaidForOrder(Order $order): float
     {
         $paid = (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -402,7 +399,7 @@ class Payments extends Component
     public function getTotalRefundedForOrder(Order $order): float
     {
         return (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -420,7 +417,7 @@ class Payments extends Component
     public function getTotalAuthorizedForOrder(Order $order): float
     {
         $authorized = (float)(new Query())
-            ->from(['{{%commerce_transactions}}'])
+            ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -431,8 +428,6 @@ class Payments extends Component
         return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Handles a redirect.
@@ -527,11 +522,11 @@ class Payments extends Component
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support refunds.'));
+                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support refunds.'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support partial refunds.'));
+                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support partial refunds.'));
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
@@ -546,6 +541,7 @@ class Payments extends Component
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
             } catch (Throwable $exception) {
+                Craft::error(Plugin::t('Error refunding transaction: {transactionHash}', ['transactionHash' => $parent->hash]), 'commerce');
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);

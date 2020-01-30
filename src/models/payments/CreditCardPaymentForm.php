@@ -8,6 +8,7 @@
 namespace craft\commerce\models\payments;
 
 use Craft;
+use craft\commerce\Plugin;
 
 /**
  * Credit Card Payment form model.
@@ -17,9 +18,6 @@ use Craft;
  */
 class CreditCardPaymentForm extends BasePaymentForm
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var string First name
      */
@@ -65,8 +63,6 @@ class CreditCardPaymentForm extends BasePaymentForm
      */
     public $threeDSecure = false;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -93,18 +89,20 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
-            [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
-            [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12],
-            [['cvv'], 'integer', 'integerOnly' => true],
-            [['cvv'], 'string', 'length' => [3, 4]],
-            [['number'], 'integer', 'integerOnly' => true],
-            [['number'], 'string', 'max' => 19],
-            [['number'], 'creditCardLuhn']
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
+        $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
+        $rules[] = [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12];
+        $rules[] = [['cvv'], 'integer', 'integerOnly' => true];
+        $rules[] = [['cvv'], 'string', 'length' => [3, 4]];
+        $rules[] = [['number'], 'integer', 'integerOnly' => true];
+        $rules[] = [['number'], 'string', 'max' => 19];
+        $rules[] = [['number'], 'creditCardLuhn'];
+
+        return $rules;
     }
 
     /**
@@ -119,7 +117,7 @@ class CreditCardPaymentForm extends BasePaymentForm
         }
 
         if (array_sum(str_split($str)) % 10 !== 0) {
-            $this->addError($attribute, Craft::t('commerce', 'Not a valid credit card number.'));
+            $this->addError($attribute, Plugin::t('Not a valid credit card number.'));
         }
     }
 }

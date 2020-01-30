@@ -509,7 +509,7 @@ return [
     ],
     'HUF' => [
         'alphabeticCode' => 'HUF',
-        'currency' => 'Forint',
+        'currency' => 'Hungarian Forint',
         'entity' => 'HUNGARY',
         'minorUnit' => 2,
         'numericCode' => 348,

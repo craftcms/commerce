@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\User;
 use yii\db\ActiveQueryInterface;
@@ -36,9 +37,6 @@ use yii\db\ActiveQueryInterface;
  */
 class Transaction extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const TYPE_AUTHORIZE = 'authorize';
     const TYPE_CAPTURE = 'capture';
     const TYPE_PURCHASE = 'purchase';
@@ -49,23 +47,19 @@ class Transaction extends ActiveRecord
     const STATUS_SUCCESS = 'success';
     const STATUS_FAILED = 'failed';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var int $total
      */
     public $total = 0;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_transactions}}';
+        return Table::TRANSACTIONS;
     }
 
     /**

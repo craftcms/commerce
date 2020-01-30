@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\Element;
 use yii\db\ActiveQuery;
@@ -17,6 +18,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property ActiveQueryInterface $element
  * @property int $id
+ * @property string $description
  * @property float $price
  * @property string $sku
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -24,15 +26,12 @@ use yii\db\ActiveQueryInterface;
  */
 class Purchasable extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_purchasables}}';
+        return Table::PURCHASABLES;
     }
 
     /**

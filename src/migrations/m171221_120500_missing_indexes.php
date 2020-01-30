@@ -19,7 +19,6 @@ class m171221_120500_missing_indexes extends Migration
      */
     public function safeUp(): bool
     {
-
         $this->createIndex($this->db->getIndexName('{{%commerce_gateways}}', 'handle', true), '{{%commerce_gateways}}', 'handle', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_paymentsources}}', 'gatewayId', false), '{{%commerce_paymentsources}}', 'gatewayId', false);
         $this->createIndex($this->db->getIndexName('{{%commerce_paymentsources}}', 'userId', false), '{{%commerce_paymentsources}}', 'userId', false);

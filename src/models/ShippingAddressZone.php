@@ -30,9 +30,6 @@ use craft\validators\UniqueValidator;
  */
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -54,6 +51,12 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     public $default = false;
 
     /**
+     * @var string The code to match the zip code.
+     * @since 2.2
+     */
+    public $zipCodeConditionFormula;
+
+    /**
      * @var bool Country based
      */
     private $_isCountryBased = true;
@@ -68,8 +71,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     private $_states;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -164,6 +165,15 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
+     * @return string
+     * @since 2.2
+     */
+    public function getZipCodeConditionFormula(): string
+    {
+        return (string)$this->zipCodeConditionFormula;
+    }
+
+    /**
      * Set states in this shipping Zone.
      *
      * @param State[] $states
@@ -209,21 +219,23 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
-            [
-                ['states'], 'required', 'when' => function($model) {
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
+        $rules[] = [
+            ['states'], 'required', 'when' => static function($model) {
                 return !$model->isCountryBased;
             }
-            ],
-            [
-                ['countries'], 'required', 'when' => function($model) {
+        ];
+        $rules[] = [
+            ['countries'], 'required', 'when' => static function($model) {
                 return $model->isCountryBased;
             }
-            ],
         ];
+
+        return $rules;
     }
 }

@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\commerce\elements\Variant;
 use yii\base\Component;
 
@@ -20,12 +19,6 @@ use yii\base\Component;
  */
 class Variants extends Component
 {
-    // Constants
-    // =========================================================================
-
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns a product's variants, per the product's ID.
      *
@@ -45,7 +38,7 @@ class Variants extends Component
      *
      * @param int $variantId The variant’s ID.
      * @param int|null $siteId The site ID for which to fetch the variant. Defaults to `null` which is current site.
-     * @return ElementInterface|null
+     * @return Variant|null
      */
     public function getVariantById(int $variantId, int $siteId = null)
     {

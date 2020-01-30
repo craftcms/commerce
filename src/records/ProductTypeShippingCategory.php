@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -22,15 +23,12 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductTypeShippingCategory extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_producttypes_shippingcategories}}';
+        return Table::PRODUCTTYPES_SHIPPINGCATEGORIES;
     }
 
     /**

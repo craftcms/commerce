@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\commerce\records\Sale as SaleRecord;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -27,9 +28,6 @@ use DateTime;
  */
 class Sale extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -91,6 +89,11 @@ class Sale extends Model
     public $allCategories = false;
 
     /**
+     * @var string Type of relationship between Categories and Products
+     */
+    public $categoryRelationshipType;
+
+    /**
      * @var bool Enabled
      */
     public $enabled = true;
@@ -115,28 +118,35 @@ class Sale extends Model
      */
     private $_userGroupIds;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [
-                ['apply'],
-                'in',
-                'range' => [
-                    'toPercent',
-                    'toFlat',
-                    'byPercent',
-                    'byFlat'
-                ],
-            ],
-            [['enabled'], 'boolean'],
-            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
+        $rules = parent::defineRules();
+
+        $rules[] = [
+            ['apply'],
+            'in',
+            'range' => [
+                'toPercent',
+                'toFlat',
+                'byPercent',
+                'byFlat'
+            ]
         ];
+        $rules[] = [
+            ['categoryRelationshipType'], 'in', 'range' => [
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
+            ]
+        ];
+        $rules[] = [['enabled'], 'boolean'];
+        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
+
+        return $rules;
     }
 
     /**
@@ -247,8 +257,6 @@ class Sale extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Loads the sale relations

@@ -1,81 +1,76 @@
 {% extends "commerce/_layouts/settings" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Available Shipping Categoires',
+    'Available Tax Categoires',
+    'Has Variants?',
+    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
+    'No product types exist yet.'
+]) %}
 
-{% block content %}
-    <h2>{{ "Product Types"|t('commerce') }}</h2>
-
-    <div id="no-product-types"{% if productTypes|length %} class="hidden"{% endif %}>
-        <p>{{ "No product types exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if productTypes|length %}
-        <table id="producttypes" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ "Name"|t('commerce') }}</th>
-                <th scope="col">{{ "Handle"|t('commerce') }}</th>
-                <th scope="col">{{ "Has Variants?"|t('commerce') }}</th>
-                <th scope="col">{{ "Available Shipping Categories"|t('commerce') }}</th>
-                <th scope="col">{{ "Available Tax Categories"|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for productType in productTypes %}
-                <tr data-id="{{ productType.id }}"
-                    data-name="{{ productType.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/settings/producttypes/'~productType.id) }}">{{ productType.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Handle'|t('commerce') }}"
-                        class="code">{{ productType.handle }}</td>
-                    <td data-title="{{ 'Has Variants?'|t('commerce') }}">{% if productType.hasVariants %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td data-title="{{ 'Available Shipping Categories'|t('commerce') }}">
-                        {% for cat in productType.getShippingCategories() %}
-                            {% if loop.first %}<ul>{% endif %}
-                            {% if currentUser.can('commerce-manageShipping') %}
-                                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
-                            {% else %}
-                                <li>{{ cat.name }}</li>
-                            {% endif %}
-                            {% if loop.last %}</ul>{% endif %}
-                        {% endfor %}
-                    </td>
-                    <td data-title="{{ 'Available Tax Categories'|t('commerce') }}">
-                        {% for cat in productType.getTaxCategories() %}
-                            {% if loop.first %}<ul>{% endif %}
-                            {% if currentUser.can('commerce-manageTax') %}
-                                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
-                            {% else %}
-                                <li>{{ cat.name }}</li>
-                            {% endif %}
-                            {% if loop.last %}</ul>{% endif %}
-                        {% endfor %}
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/producttypes/new') }}"
-           class="btn submit add icon">{{ 'New product type'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/producttypes/new') }}" class="btn submit add icon">{{ 'New product type'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="types-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for type in productTypes %}
+    {% set shipping = null %}
+    {% for cat in type.getShippingCategories() %}
+    	{% set shipping = shipping ~ '<li>' ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    {% endfor %}
+    {% set shipping = shipping ? tag('ul', { html: shipping }) : '' %}
+
+    {% set tax = null %}
+    {% for cat in type.getTaxCategories() %}
+    	{% set tax = tax ~ '<li>' ~ (currentUser.can('commerce-manageTax') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~ cat.name|t('site')|e ~ (currentUser.can('commerce-manageShipping') ? '<a href="' ~ cat.getCpEditUrl() ~ '">' : '') ~'</li>' %}
+    {% endfor %}
+    {% set tax = tax ? tag('ul', { html: tax }) : '' %}
+
+    {% set tableData = tableData|merge([{
+        id: type.id,
+        title: type.name|t('site'),
+        url: type.cpEditUrl,
+        handle: type.handle|e,
+        hasVariants: type.hasVariants ? true : false,
+        shipping: shipping,
+        tax: tax,
+    }]) %}
+{% endfor %}
+
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#producttypes',
-    noObjectsSelector: '#noproducttypes',
-    newObjectBtnSelector: '#newproductTypecontainer',
-    deleteAction: 'commerce/product-types/delete-product-type',
-    confirmDeleteMessage: '{{ "Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action."|t('commerce') }}'
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                }
+            }
+        },
+        { name: 'shipping', title: Craft.t('commerce', 'Available Shipping Categories'),
+            callback: function(value) {
+                return value;
+            }
+        },
+        { name: 'tax', title: Craft.t('commerce', 'Available Tax Categories'),
+            callback: function(value) {
+                return value;
+            }
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#types-vue-admin-table',
+        deleteAction: 'commerce/product-types/delete-product-type',
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.'),
+        emptyMessage: Craft.t('commerce', 'No product types exist yet.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
+
 {% endjs %}

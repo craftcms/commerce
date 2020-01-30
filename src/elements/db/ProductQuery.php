@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\db;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\ProductType;
@@ -41,9 +42,6 @@ use yii\db\Connection;
  */
 class ProductQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool Whether the product is available for purchase
      */
@@ -109,8 +107,6 @@ class ProductQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -184,7 +180,7 @@ class ProductQuery extends ElementQuery
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
-                ->from(['{{%commerce_producttypes}}'])
+                ->from([Table::PRODUCTTYPES])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
@@ -495,8 +491,6 @@ class ProductQuery extends ElementQuery
         return parent::status($value);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -629,8 +623,6 @@ class ProductQuery extends ElementQuery
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Applies the 'editable' param to the query being prepared.
@@ -712,7 +704,7 @@ class ProductQuery extends ElementQuery
         $this->subQuery->andWhere($condition);
 
         if ($joinSections) {
-            $this->subQuery->innerJoin('{{%commerce_producttypes}} commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
+            $this->subQuery->innerJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
     }
 }

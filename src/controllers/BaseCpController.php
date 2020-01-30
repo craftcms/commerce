@@ -17,9 +17,6 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
  */
 class BaseCpController extends BaseController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

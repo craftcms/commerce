@@ -21,9 +21,6 @@ use craft\helpers\UrlHelper;
  */
 class TaxCategory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID;
      */
@@ -54,8 +51,6 @@ class TaxCategory extends Model
      */
     private $_productTypes;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the name of this tax category.
@@ -131,10 +126,12 @@ class TaxCategory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['handle'], 'required']
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['handle'], 'required'];
+
+        return $rules;
     }
 }

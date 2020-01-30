@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class ProductTypeEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var ProductType|null The product type model associated with the event.
      */

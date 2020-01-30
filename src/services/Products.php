@@ -21,9 +21,6 @@ use yii\base\Component;
  */
 class Products extends Component
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Get a product by ID.
      *

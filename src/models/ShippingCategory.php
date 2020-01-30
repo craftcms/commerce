@@ -20,9 +20,6 @@ use craft\helpers\UrlHelper;
  */
 class ShippingCategory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -53,8 +50,6 @@ class ShippingCategory extends Model
      */
     private $_productTypes;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the name of this shipping category.
@@ -112,10 +107,12 @@ class ShippingCategory extends Model
     /**
      * @return array
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name', 'handle'], 'required']
-        ];
+        $rules = parent::defineRules();
+
+        $rules [] = [['name', 'handle'], 'required'];
+
+        return $rules;
     }
 }

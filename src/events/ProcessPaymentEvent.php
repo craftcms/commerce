@@ -16,9 +16,6 @@ use craft\events\CancelableEvent;
 
 class ProcessPaymentEvent extends CancelableEvent
 {
-    // Properties
-    // =============================================================================
-
     /**
      * @var Order Order
      */

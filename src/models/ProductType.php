@@ -38,9 +38,6 @@ use craft\validators\UniqueValidator;
  */
 class ProductType extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -67,6 +64,11 @@ class ProductType extends Model
     public $hasVariants;
 
     /**
+     * @var string Title label
+     */
+    public $variantTitleLabel = 'Title';
+
+    /**
      * @var bool Has variant title field
      */
     public $hasVariantTitleField = true;
@@ -75,6 +77,11 @@ class ProductType extends Model
      * @var string Title format
      */
     public $titleFormat = '{product.title}';
+
+    /**
+     * @var string Title label
+     */
+    public $titleLabel = 'Title';
 
     /**
      * @var string SKU format
@@ -126,8 +133,6 @@ class ProductType extends Model
      */
     private $_siteSettings;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return null|string
@@ -140,15 +145,17 @@ class ProductType extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
-            [['name', 'handle', 'titleFormat'], 'required'],
-            [['name', 'handle'], 'string', 'max' => 255],
-            [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
-            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
+        $rules[] = [['name', 'handle', 'titleFormat'], 'required'];
+        $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
+        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
+        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
+
+        return $rules;
     }
 
     /**

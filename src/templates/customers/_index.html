@@ -1,0 +1,54 @@
+{% extends "commerce/_layouts/cp" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'No Customers available.',
+    'Primary Billing Address',
+    'Primary Shipping Address',
+    'No. of Addresses',
+    'Search customers by name, email, address or order reference/number…',
+]) %}
+
+{% set title = 'Customers'|t('commerce') %}
+{% set selectedSubnavItem = 'customers' %}
+
+{% block content %}
+  <div id="customers-vue-admin-table"></div>
+{% endblock %}
+
+{% js %}
+var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Email') },
+    { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) { return value } },
+    { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) { return value } },
+    { name: 'addresses', title: Craft.t('commerce', 'No. of Addresses') },
+    { name: 'user', title: Craft.t('app', 'User'), callback: function(value) {
+        if (!value) {
+            return '';
+        }
+
+        var title = Craft.escapeHtml(value.title);
+        var $html = '';
+        if (value.status) {
+            $html = $html + '<span class="status '+value.status+'"></span>';
+        }
+
+        if (value.url) {
+            $html = $html + '<a class="cell-bold" href="'+value.url+'">'+title+'</a>';
+        } else {
+            $html = $html + '<span class="cell-bold">'+title+'</span>';
+        }
+
+        return $html;
+    } }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#customers-vue-admin-table',
+    emptyMessage: Craft.t('commerce', 'No Customers available.'),
+    padded: true,
+    search: true,
+    searchPlaceholder: Craft.t('commerce', 'Search customers by name, email, address or order reference/number…'),
+    tableDataEndpoint: Craft.getActionUrl('commerce/customers/customers-table')
+});
+{% endjs %}

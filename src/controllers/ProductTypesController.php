@@ -27,9 +27,6 @@ use yii\web\Response;
  */
 class ProductTypesController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -68,24 +65,24 @@ class ProductTypesController extends BaseAdminController
         if (!empty($variables['productTypeId'])) {
             $variables['title'] = $variables['productType']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a Product Type');
+            $variables['title'] = Plugin::t('Create a Product Type');
         }
 
         $tabs = [
             'productTypeSettings' => [
-                'label' => Craft::t('commerce', 'Settings'),
+                'label' => Plugin::t('Settings'),
                 'url' => '#product-type-settings',
             ],
             'taxAndShipping' => [
-                'label' => Craft::t('commerce', 'Tax & Shipping'),
+                'label' => Plugin::t('Tax & Shipping'),
                 'url' => '#tax-and-shipping',
             ],
             'productFields' => [
-                'label' => Craft::t('commerce', 'Product Fields'),
+                'label' => Plugin::t('Product Fields'),
                 'url' => '#product-fields',
             ],
             'variantFields' => [
-                'label' => Craft::t('commerce', 'Variant Fields'),
+                'label' => Plugin::t('Variant Fields'),
                 'url' => '#variant-fields',
             ]
         ];
@@ -106,7 +103,7 @@ class ProductTypesController extends BaseAdminController
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
+            throw new HttpException(403, Plugin::t('This action is not allowed for the current user.'));
         }
 
         $request = Craft::$app->getRequest();
@@ -122,6 +119,8 @@ class ProductTypesController extends BaseAdminController
         $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
         $productType->hasVariantTitleField = (bool)$productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
         $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
+        $productType->titleLabel = Craft::$app->getRequest()->getBodyParam('titleLabel', $productType->titleLabel);
+        $productType->variantTitleLabel = Craft::$app->getRequest()->getBodyParam('variantTitleLabel', $productType->variantTitleLabel);
         $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');
 
@@ -163,10 +162,10 @@ class ProductTypesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product type saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Product type saved.'));
             $this->redirectToPostedUrl($productType);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product type.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product type.'));
         }
 
         // Send the productType back to the template

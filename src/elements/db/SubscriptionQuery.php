@@ -9,6 +9,7 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\commerce\base\Plan;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Subscription;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
@@ -36,9 +37,6 @@ use yii\db\Expression;
  */
 class SubscriptionQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|int[] The user id of the subscriber
      */
@@ -85,6 +83,21 @@ class SubscriptionQuery extends ElementQuery
     public $isCanceled;
 
     /**
+     * @var bool Whether the subscription is suspended
+     */
+    public $isSuspended;
+
+    /**
+     * @var DateTime The date the subscription ceased to be active
+     */
+    public $dateSuspended;
+
+    /**
+     * @var bool Whether the subscription has started
+     */
+    public $hasStarted;
+
+    /**
      * @var DateTime The time the subscription was canceled
      */
     public $dateCanceled;
@@ -95,7 +108,7 @@ class SubscriptionQuery extends ElementQuery
     public $isExpired;
 
     /**
-     * @var DateTime The
+     * @var DateTime The date the subscription ceased to be active
      */
     public $dateExpired;
 
@@ -104,8 +117,6 @@ class SubscriptionQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -115,6 +126,8 @@ class SubscriptionQuery extends ElementQuery
         // Default status
         if (!isset($config['status'])) {
             $config['status'] = Subscription::STATUS_ACTIVE;
+            $config['hasStarted'] = true;
+            $config['isSuspended'] = false;
         }
 
         parent::__construct($elementType, $config);
@@ -131,12 +144,6 @@ class SubscriptionQuery extends ElementQuery
                 break;
             case 'plan':
                 $this->plan($value);
-                break;
-            case 'subscribedBefore':
-                $this->subscribedBefore($value);
-                break;
-            case 'subscribedAfter':
-                $this->subscribedAfter($value);
                 break;
             default:
                 parent::__set($name, $value);
@@ -228,54 +235,12 @@ class SubscriptionQuery extends ElementQuery
         } else if ($value !== null) {
             $this->planId = (new Query())
                 ->select(['id'])
-                ->from(['{{%commerce_plans}}'])
+                ->from([Table::PLANS])
                 ->where(Db::parseParam('handle', $value))
                 ->column();
         } else {
             $this->planId = null;
         }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the subscriptions’ creation dates.
-     *
-     * @param DateTime|string $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateCreated()]] instead.
-     */
-    public function subscribedBefore($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '<' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the subscriptions’ creation dates.
-     *
-     * @param DateTime|string $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateCreated()]] instead.
-     */
-    public function subscribedAfter($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '>=' . $value;
 
         return $this;
     }
@@ -541,6 +506,101 @@ class SubscriptionQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results to only subscriptions that have started.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch started subscriptions #}
+     * {% set {elements-var} = {twig-function}
+     *     .hasStarted()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch started subscriptions
+     * ${elements-var} = {element-class}::find()
+     *     ->hasStarted()
+     *     ->all();
+     * ```
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     */
+    public function hasStarted(bool $value = true)
+    {
+        $this->hasStarted = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only subscriptions that are suspended.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch suspended subscriptions #}
+     * {% set {elements-var} = {twig-function}
+     *     .isSuspended()
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch suspended subscriptions
+     * ${elements-var} = {element-class}::find()
+     *     ->isSuspended()
+     *     ->all();
+     * ```
+     *
+     * @param bool $value The property value
+     * @return static self reference
+     */
+    public function isSuspended(bool $value = true)
+    {
+        $this->isSuspended = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the subscriptions’ suspension date.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were suspended on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were suspended before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were suspended between 2018-04-01 and 2018-05-01.
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were suspended recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .dateSuspended(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were suspended recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateSuspended(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function dateSuspended($value)
+    {
+        $this->dateSuspended = $value;
+        return $this;
+    }
+
+    /**
      * Narrows the query results to only subscriptions that have expired.
      *
      * ---
@@ -641,8 +701,6 @@ class SubscriptionQuery extends ElementQuery
         return parent::status($value);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -670,7 +728,10 @@ class SubscriptionQuery extends ElementQuery
             'commerce_subscriptions.isCanceled',
             'commerce_subscriptions.dateCanceled',
             'commerce_subscriptions.isExpired',
-            'commerce_subscriptions.dateExpired'
+            'commerce_subscriptions.dateExpired',
+            'commerce_subscriptions.hasStarted',
+            'commerce_subscriptions.isSuspended',
+            'commerce_subscriptions.dateSuspended',
         ]);
 
         if ($this->userId) {
@@ -709,6 +770,18 @@ class SubscriptionQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateCanceled', $this->dateCanceled));
         }
 
+        if ($this->hasStarted !== null) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.hasStarted', $this->hasStarted));
+        }
+
+        if ($this->isSuspended !== null) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isSuspended', $this->isSuspended));
+        }
+
+        if ($this->dateSuspended) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateSuspended', $this->dateSuspended));
+        }
+
         if ($this->isExpired) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired));
         }
@@ -743,6 +816,17 @@ class SubscriptionQuery extends ElementQuery
             default:
                 return parent::statusCondition($status);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+
+    public function anyStatus()
+    {
+        $this->isSuspended = null;
+        $this->hasStarted = null;
+        return parent::anyStatus();
     }
 
     /**

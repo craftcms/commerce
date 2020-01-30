@@ -115,9 +115,9 @@ class m181206_120000_remaining_project_config_support extends Migration
 
             unset($productTypeRow['uid'], $productTypeRow['fieldLayoutId'], $productTypeRow['variantFieldLayoutId']);
 
-            $productTypeRows['hasDimensions'] = (bool)$productTypeRows['hasDimensions'];
-            $productTypeRows['hasVariants'] = (bool)$productTypeRows['hasVariants'];
-            $productTypeRows['hasVariantTitleField'] = (bool)$productTypeRows['hasVariantTitleField'];
+            $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
+            $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
+            $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
 
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;

@@ -15,9 +15,6 @@ namespace craft\commerce\events;
  */
 class RefundTransactionEvent extends TransactionEvent
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var float The amount to refund
      */

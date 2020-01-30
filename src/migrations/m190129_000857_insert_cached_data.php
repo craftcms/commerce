@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link https://craftcms.com/
+ * @copyright Copyright (c) Pixel & Tonic, Inc.
+ * @license https://craftcms.github.io/license/
+ */
 
 namespace craft\commerce\migrations;
 
@@ -30,7 +35,6 @@ class m190129_000857_insert_cached_data extends Migration
         }
 
         if (Craft::$app->getCache()->exists('commerce_sale_purchasables_001')) {
-
             $newSalesPurchasables = Craft::$app->getCache()->get('commerce_sale_purchasables_001');
             $newSalesPurchasables = Json::decode($newSalesPurchasables);
             foreach ($newSalesPurchasables as $newSalePurchasable) {

@@ -1,0 +1,69 @@
+{% extends "commerce/_layouts/settings" %}
+
+{% set selectedTab = 'settings' %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?',
+    'Couldn’t reorder statuses.',
+    'Default status?',
+    'Line item statuses reordered.',
+]) %}
+
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/lineitemstatuses/new') }}" class="btn submit add icon">{{ 'New line item status'|t('commerce') }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id="statuses-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for lineItemStatus in lineItemStatuses %}
+    {% set tableData = tableData|merge([{
+        id: lineItemStatus.id,
+        labelHtml: {
+            url: lineItemStatus.cpEditUrl,
+            html: lineItemStatus.labelHtml|raw
+        },
+        title: lineItemStatus.name|t('site'),
+        url: lineItemStatus.cpEditUrl,
+        handle: lineItemStatus.handle|e,
+        default: lineItemStatus.default ? true : false,
+    }]) %}
+{% endfor %}
+
+{% js %}
+var columns = [
+    {
+        name: 'labelHtml',
+        title: Craft.t('app', 'Name'),
+        callback: function(value) {
+            return '<a class="cell-bold" href="'+value.url+'">'+value.html+'</a>';
+        }
+    },
+    { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+    {
+        name: 'default',
+        title: Craft.t('commerce', 'Default Status?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+            }
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#statuses-vue-admin-table',
+    deleteAction: 'commerce/line-item-statuses/archive',
+    deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?'),
+    minItems: 1,
+    padded: true,
+    reorderAction: 'commerce/line-item-statuses/reorder',
+    reorderSuccessMessage: Craft.t('commerce', 'Line item statuses reordered.'),
+    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder statuses.'),
+    tableData: {{ tableData|json_encode|raw }},
+    });
+{% endjs %}
+

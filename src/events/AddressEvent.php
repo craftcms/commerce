@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class AddressEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Address The address model
      */

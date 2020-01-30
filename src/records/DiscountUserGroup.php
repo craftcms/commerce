@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\UserGroup;
 use yii\db\ActiveQueryInterface;
@@ -24,15 +25,12 @@ use yii\db\ActiveQueryInterface;
  */
 class DiscountUserGroup extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_discount_usergroups}}';
+        return Table::DISCOUNT_USERGROUPS;
     }
 
     /**

@@ -18,9 +18,6 @@ use craft\commerce\records\Email as EmailRecord;
  */
 class Email extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -52,6 +49,16 @@ class Email extends Model
     public $bcc;
 
     /**
+     * @var string Cc
+     */
+    public $cc;
+
+    /**
+     * @var string Reply to
+     */
+    public $replyTo;
+
+    /**
      * @var bool Is Enabled
      */
     public $enabled;
@@ -60,6 +67,11 @@ class Email extends Model
      * @var string Template path
      */
     public $templatePath;
+
+    /**
+     * @var string Plain Text Template path
+     */
+    public $plainTextTemplatePath;
 
     /**
      * @var bool Whether the email should attach a pdf template
@@ -76,24 +88,23 @@ class Email extends Model
      */
     public $uid;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['subject'], 'required'],
-            [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
-            [
-                ['to'], 'required', 'when' => function($model) {
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['subject'], 'required'];
+        $rules[] = [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]];
+        $rules[] = [
+            ['to'], 'required', 'when' => static function($model) {
                 return $model->recipientType == EmailRecord::TYPE_CUSTOM;
             }
-            ],
-            [['templatePath'], 'required']
         ];
+        $rules[] = [['templatePath'], 'required'];
+        return $rules;
     }
 }

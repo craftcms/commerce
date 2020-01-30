@@ -23,9 +23,6 @@ use yii\web\Response;
  */
 class LiteTaxController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @throws WrongEditionException
      */
@@ -43,7 +40,6 @@ class LiteTaxController extends BaseStoreSettingsController
      */
     public function actionEdit(): Response
     {
-
         $settings = new LiteTaxSettings([
             'taxRate' => 0,
             'taxName' => 'Tax',
@@ -78,7 +74,7 @@ class LiteTaxController extends BaseStoreSettingsController
         }
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save settings.'));
             return $this->renderTemplate('commerce/store-settings/tax', compact('settings'));
         }
 
@@ -92,7 +88,7 @@ class LiteTaxController extends BaseStoreSettingsController
             throw new Exception('Could not save internal tax rate for lite tax.');
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
+        Craft::$app->getSession()->setNotice(Plugin::t('Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }

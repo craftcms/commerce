@@ -28,9 +28,6 @@ use DateTime;
  */
 class Discount extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -63,13 +60,15 @@ class Discount extends Model
 
     /**
      * @var int Total use limit by guests or users
+     * @since 3.0
      */
-    public $totalUseLimit = 0;
+    public $totalDiscountUseLimit = 0;
 
     /**
      * @var int Total use counter;
+     * @since 3.0
      */
-    public $totalUses = 0;
+    public $totalDiscountUses = 0;
 
     /**
      * @var DateTime|null Date the discount is valid from
@@ -100,6 +99,11 @@ class Discount extends Model
      * @var float Base amount of discount
      */
     public $baseDiscount = 0;
+
+    /**
+     * @var string Type of discount for the base discount e.g. currency value or percentage
+     */
+    public $baseDiscountType;
 
     /**
      * @var float Amount of discount per item
@@ -147,6 +151,11 @@ class Discount extends Model
     public $allCategories;
 
     /**
+     * @var string Type of relationship between Categories and Products
+     */
+    public $categoryRelationshipType;
+
+    /**
      * @var bool Discount enabled?
      */
     public $enabled = true;
@@ -172,6 +181,11 @@ class Discount extends Model
     public $dateUpdated;
 
     /**
+     * @var bool Discount ignores sales
+     */
+    public $ignoreSales = true;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
@@ -186,8 +200,6 @@ class Discount extends Model
      */
     private $_userGroupIds;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -277,28 +289,6 @@ class Discount extends Model
 
     /**
      * @param bool $value
-     * @deprecated in 2.1
-     */
-    public function setFreeShipping($value)
-    {
-        Craft::$app->getDeprecator()->log('Discount::setFreeShipping()', 'Discount::setFreeShipping() has been deprecated. Use Discount::setHasFreeShippingForMatchingItems() instead');
-
-        $this->setHasFreeShippingForMatchingItems($value);
-    }
-
-    /**
-     * @return bool
-     * @deprecated in 2.1
-     */
-    public function getFreeShipping(): bool
-    {
-        Craft::$app->getDeprecator()->log('Discount::getFreeShipping()', 'Discount::getFreeShipping() or discount.freeShipping has been deprecated. Use Discount::getHasFreeShippingForMatchingItems() or discount.hasFreeShippingForMatchingItems instead');
-
-        return $this->getHasFreeShippingForMatchingItems();
-    }
-
-    /**
-     * @param bool $value
      */
     public function setHasFreeShippingForMatchingItems($value)
     {
@@ -331,38 +321,47 @@ class Discount extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
+        $rules = parent::defineRules();
+
+        $rules[] = [['name'], 'required'];
+        $rules[] = [
             [
+                'purchaseTotal',
+                'perUserLimit',
+                'perEmailLimit',
+                'totalDiscountUseLimit',
+                'totalDiscountUses',
+                'purchaseTotal',
+                'purchaseQty',
+                'maxPurchaseQty',
+                'baseDiscount',
+                'perItemDiscount',
+                'percentDiscount'
+            ], 'number', 'skipOnEmpty' => false
+        ];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
+        $rules[] = [
+            ['categoryRelationshipType'], 'in', 'range' =>
                 [
-                    'purchaseTotal',
-                    'perUserLimit',
-                    'perEmailLimit',
-                    'totalUseLimit',
-                    'totalUses',
-                    'purchaseTotal',
-                    'purchaseQty',
-                    'maxPurchaseQty',
-                    'baseDiscount',
-                    'perItemDiscount',
-                    'percentDiscount'
-                ], 'number', 'skipOnEmpty' => false
-            ],
-            [
-                'hasFreeShippingForOrder', function($attribute, $params, $validator) {
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
+                ]
+        ];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
+        $rules[] = [
+            'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
                     $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
                 }
             }
-            ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
         ];
+
+        return $rules;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Loads the sale relations

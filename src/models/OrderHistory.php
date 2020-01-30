@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use DateTime;
 
 /**
@@ -24,9 +25,6 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -62,8 +60,6 @@ class OrderHistory extends Model
      */
     public $dateCreated;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Order|null
@@ -78,7 +74,8 @@ class OrderHistory extends Model
      */
     public function getPrevStatus()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->prevStatusId);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        return ArrayHelper::firstWhere($orderStatuses, 'id', $this->prevStatusId);
     }
 
     /**
@@ -86,7 +83,8 @@ class OrderHistory extends Model
      */
     public function getNewStatus()
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->newStatusId);
+        $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
+        return ArrayHelper::firstWhere($orderStatuses, 'id', $this->newStatusId);
     }
 
     /**
@@ -100,11 +98,13 @@ class OrderHistory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['orderId', 'customerId'], 'required'],
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['orderId', 'customerId'], 'required'];
+
+        return $rules;
     }
 }
 

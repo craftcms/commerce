@@ -20,9 +20,6 @@ use craft\commerce\base\Model;
  */
 class LiteShippingSettings extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var float Shipping base rate
      */

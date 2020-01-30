@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use yii\db\ActiveQueryInterface;
 
@@ -27,22 +28,17 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRuleCategory extends ActiveRecord
 {
-    // Constants
-    // =========================================================================
-
     const CONDITION_ALLOW = 'allow';
     const CONDITION_DISALLOW = 'disallow';
     const CONDITION_REQUIRE = 'require';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_shippingrule_categories}}';
+        return Table::SHIPPINGRULE_CATEGORIES;
     }
 
     /**

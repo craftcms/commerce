@@ -22,9 +22,6 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -59,14 +56,11 @@ class TaxZonesController extends BaseTaxSettingsController
         if ($variables['taxZone']->id) {
             $variables['title'] = $variables['taxZone']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a tax zone');
+            $variables['title'] = Plugin::t('Create a tax zone');
         }
 
-        $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        $states = Plugin::getInstance()->getStates()->getAllStates();
-
-        $variables['countries'] = ArrayHelper::map($countries, 'id', 'name');
-        $variables['states'] = ArrayHelper::map($states, 'id', 'name');
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
@@ -85,6 +79,7 @@ class TaxZonesController extends BaseTaxSettingsController
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
         $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
+        $taxZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
         $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
         $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
@@ -116,7 +111,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax zone saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Tax zone saved.'));
             $this->redirectToPostedUrl($taxZone);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -125,7 +120,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax zone.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax zone.'));
         }
 
         // Send the model back to the template
@@ -146,5 +141,26 @@ class TaxZonesController extends BaseTaxSettingsController
 
         Plugin::getInstance()->getTaxZones()->deleteTaxZoneById($id);
         return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\web\BadRequestHttpException
+     * @since 2.2
+     */
+    public function actionTestZip()
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $zipCodeFormula = (string)Craft::$app->getRequest()->getRequiredBodyParam('zipCodeConditionFormula');
+        $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
+
+        $params = ['zipCode' => $testZipCode];
+        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->asErrorJson('failed');
     }
 }

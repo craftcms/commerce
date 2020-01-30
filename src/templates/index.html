@@ -1,3 +1,16 @@
+{% set permissionsToView = {
+    'commerce/orders': 'commerce-manageOrders',
+    'commerce/products': 'commerce-manageProducts',
+    'commerce/promotions': 'commerce-managePromotions',
+    'commerce/shipping/shippingmethods': 'commerce-manageShipping',
+    'commerce/tax/taxrates': 'commerce-manageTaxes',
+    'commerce/subscriptions': 'commerce-manageSubscriptions',
+} %}
+{% set permission = permissionsToView[craft.commerce.settings.defaultView] ?? null %}
+{% if craft.commerce.settings.defaultView and permission and currentUser.can(permission) %}
+    {% redirect craft.commerce.settings.defaultView %}
+{% endif %}
+
 {% if currentUser.can('commerce-manageOrders') %}
     {% redirect 'commerce/orders' %}
 {% endif %}

@@ -28,9 +28,6 @@ use yii\web\Response;
  */
 class PlansController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -72,7 +69,7 @@ class PlansController extends BaseAdminController
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
+            $variables['title'] = Plugin::t('Create a Subscription Plan');
         }
 
         $variables['entryElementType'] = Entry::class;
@@ -137,10 +134,10 @@ class PlansController extends BaseAdminController
 
         // Save $plan
         if ($planService->savePlan($plan)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription plan saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Subscription plan saved.'));
             $this->redirectToPostedUrl($plan);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription plan.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save subscription plan.'));
         }
 
         // Send the productType back to the template
@@ -182,7 +179,6 @@ class PlansController extends BaseAdminController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder plans.')]);
     }
-
 }

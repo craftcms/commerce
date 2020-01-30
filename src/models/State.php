@@ -22,9 +22,6 @@ use yii\base\InvalidConfigException;
  */
 class State extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -45,17 +42,22 @@ class State extends Model
      */
     public $countryId;
 
-    // Public Methods
-    // =========================================================================
+    /**
+     * @var bool Is Enabled
+     */
+    public $enabled;
+
 
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['countryId', 'name', 'abbreviation'], 'required']
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
+        
+        return $rules;
     }
 
     /**

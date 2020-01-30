@@ -18,9 +18,6 @@ use craft\commerce\models\LineItem;
  */
 interface PurchasableInterface
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns the element’s ID.
      *

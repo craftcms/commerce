@@ -8,6 +8,7 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
@@ -27,9 +28,6 @@ use yii\base\Exception;
  */
 class ShippingRules extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -45,8 +43,6 @@ class ShippingRules extends Component
      */
     private $_shippingRulesByMethodId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all shipping rules.
@@ -134,7 +130,7 @@ class ShippingRules extends Component
             $record = ShippingRuleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No shipping rule exists with the ID “{id}”',
+                throw new Exception(Plugin::t( 'No shipping rule exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -266,7 +262,7 @@ class ShippingRules extends Component
     public function reorderShippingRules(array $ids): bool
     {
         foreach ($ids as $sortOrder => $id) {
-            Craft::$app->getDb()->createCommand()->update('{{%commerce_shippingrules}}', ['priority' => $sortOrder + 1], ['id' => $id])->execute();
+            Craft::$app->getDb()->createCommand()->update(Table::SHIPPINGRULES, ['priority' => $sortOrder + 1], ['id' => $id])->execute();
         }
 
         return true;
@@ -289,8 +285,6 @@ class ShippingRules extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
     /**
      * Returns a Query object prepped for retrieving shipping rules.
      *
@@ -322,7 +316,7 @@ class ShippingRules extends Component
                 'isLite'
             ])
             ->orderBy('name')
-            ->from(['{{%commerce_shippingrules}}']);
+            ->from([Table::SHIPPINGRULES]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             $query->andWhere('[[isLite]] = true');

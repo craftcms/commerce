@@ -7,6 +7,7 @@
 
 namespace craft\commerce\records;
 
+use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\records\FieldLayout;
 use yii\db\ActiveQueryInterface;
@@ -29,6 +30,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
  * @property string $titleFormat
+ * @property string $titleLabel
+ * @property string $variantTitleLabel
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -36,15 +39,12 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductType extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return '{{%commerce_producttypes}}';
+        return Table::PRODUCTTYPES;
     }
 
     /**

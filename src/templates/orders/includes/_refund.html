@@ -1,0 +1,25 @@
+{% if currentUser.can('commerce-refundPayment') and transaction.canRefund() %}
+  <form method="post">
+    {{ csrfInput() }}
+    {% import "_includes/forms" as forms %}
+    {{ forms.text({
+      id: 'amount',
+      size: 10,
+      name: 'amount',
+      placeholder: transaction.paymentCurrency~' '~transaction.refundableAmount
+    }) }}
+    {{ forms.text({
+      id: 'note',
+      size: 20,
+      name: 'note',
+      value: transaction.note,
+      placeholder: 'Refund Note'
+    }) }}
+    <a class="small btn submit formsubmit"
+       data-action="commerce/orders/transaction-refund"
+       data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
+       data-redirect="{{ transaction.order.cpEditUrl|hash }}"
+       data-param="id"
+       data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
+  </form>
+{% endif %}
