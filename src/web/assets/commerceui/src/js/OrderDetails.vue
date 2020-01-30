@@ -54,7 +54,7 @@
             <template v-if="draftErrors.length">
                 <h4 class="error">{{this.$options.filters.t('There are errors on the order', 'commerce')}}</h4>
                 <ul class="errors">
-                    <li v-for="error in draftErrors">{{error}}</li>
+                    <li v-for="(error, index) in draftErrors" v-bind:key="index">{{error}}</li>
                 </ul>
             </template>
         </div>
@@ -148,7 +148,7 @@
 
             draftErrors() {
                 let errors = [];
-                console.log(this.draft.order.errors);
+
                 if (this.draft && this.draft.order && this.draft.order.errors) {
                     var draftErrors = this.draft.order.errors;
                     for (var key in draftErrors) {
