@@ -118,6 +118,17 @@ class Tax extends Component implements AdjusterInterface
         return $adjustments;
     }
 
+    private function _negativeTax($amount)
+    {
+        if($amount > 0) {
+            $status = false;
+        } else {
+            $status = true;
+        }
+
+        return $status;
+    }
+
 
     /**
      * @param TaxRate $taxRate
@@ -179,6 +190,12 @@ class Tax extends Component implements AdjusterInterface
                     }
 
                     $adjustment = $this->_createAdjustment($taxRate);
+
+                    // If tax is negativ set to 0
+                    if($this->_negativeTax($amount)) {
+                        $amount = 0;
+                    }
+
                     // We need to display the adjustment that removed the included tax
                     $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
                     $adjustment->amount = $amount;
@@ -196,6 +213,12 @@ class Tax extends Component implements AdjusterInterface
                         $amount = Currency::round($amount);
 
                         $adjustment = $this->_createAdjustment($taxRate);
+
+                        // If tax is negativ set to 0
+                        if($this->_negativeTax($amount)) {
+                            $amount = 0;
+                        }
+
                         // We need to display the adjustment that removed the included tax
                         $adjustment->name = $taxRate->name . ' ' . Plugin::t('Removed');
                         $adjustment->amount = $amount;
@@ -257,6 +280,12 @@ class Tax extends Component implements AdjusterInterface
             }
 
             $adjustment = $this->_createAdjustment($taxRate);
+
+            // If tax is negativ set to 0
+            if($this->_negativeTax($orderTax)) {
+                $orderTax = 0;
+            }
+
             // We need to display the adjustment that removed the included tax
             $adjustment->amount = $orderTax;
 
@@ -287,6 +316,12 @@ class Tax extends Component implements AdjusterInterface
                 }
 
                 $adjustment = $this->_createAdjustment($taxRate);
+
+                // If tax is negativ set to 0
+                if($this->_negativeTax($itemTax)) {
+                    $itemTax = 0;
+                }
+
                 // We need to display the adjustment that removed the included tax
                 $adjustment->amount = $itemTax;
                 $adjustment->setLineItem($item);
