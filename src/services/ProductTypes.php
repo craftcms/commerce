@@ -406,10 +406,10 @@ class ProductTypes extends Component
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
             $productTypeRecord->hasVariants = $data['hasVariants'];
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
-            $productTypeRecord->titleFormat = $data['titleFormat'] ?: '{product.title}';
-            $productTypeRecord->titleLabel = $data['titleLabel'];
-            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'];
-            $productTypeRecord->skuFormat = $data['skuFormat'];
+            $productTypeRecord->titleFormat = $data['titleFormat'] ?? '{product.title}';
+            $productTypeRecord->titleLabel = $data['titleLabel'] ?? 'Title';
+            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'] ?? 'Title';
+            $productTypeRecord->skuFormat = $data['skuFormat'] ?? '';
             $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
 
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
