@@ -207,7 +207,7 @@ class PaymentsController extends BaseFrontEndController
 
         /** @var Gateway $gateway */
         if (!$gateway) {
-            $error = Plugin::t('There is no gateway selected for this order.');
+            $error = Plugin::t('There is no gateway or payment source selected for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
