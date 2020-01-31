@@ -150,15 +150,17 @@
           actions: [
               {
                   label: Craft.t('commerce', 'Set as Primary Billing'),
-                  action: 'commerce/addresses/set-primary',
+                  action: 'commerce/addresses/set-primary-address',
                   param: 'type',
                   value: 'billing',
+                  allowMultiple: false
               },
               {
                   label: Craft.t('commerce', 'Set as Primary Shipping'),
-                  action: 'commerce/addresses/set-primary',
+                  action: 'commerce/addresses/set-primary-address',
                   param: 'type',
                   value: 'shipping',
+                  allowMultiple: false
               }
           ]
       }

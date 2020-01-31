@@ -5,6 +5,7 @@
 ### Added
 - Added purging of orphaned addresses to garbage collection.
 - Added `craft\commerce\services\Addresses::purgeOrphanedAddresses`.
+- Added `craft\commerce\controllers\AddressesController::setPrimaryAddress`.
 
 ### Fixed
 - Fixed an error that could occur when trying to change the customer while editing an order in the CP. ([#1238](https://github.com/craftcms/commerce/issues/1238))
@@ -12,6 +13,7 @@
 - Fixed a bug that could occur when editing a completed order causing the Date Ordered date to shift. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
 - Fixed a bug that could occur when viewing a customer without full Commerce permissions. ([#1252](https://github.com/craftcms/commerce/issues/1252))
+- Fixed a bug where set primary address action was missing. ([#1253](https://github.com/craftcms/commerce/issues/1253))
 
 ## 3.0.3 - 2020-01-29
 
