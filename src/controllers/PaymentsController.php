@@ -54,6 +54,7 @@ class PaymentsController extends BaseFrontEndController
     /**
      * @return Response|null
      * @throws HttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionPay()
     {
@@ -61,9 +62,13 @@ class PaymentsController extends BaseFrontEndController
 
         $customError = '';
 
+        /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        $userSession = Craft::$app->getUser();
 
         if (($number = $request->getBodyParam('orderNumber')) !== null) {
             /** @var Order $order */
