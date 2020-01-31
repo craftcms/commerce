@@ -721,11 +721,11 @@ class Discounts extends Component
         /** @var OrderAdjustment $discountAdjustment */
         foreach ($discountAdjustments as $discountAdjustment) {
             $snapshot = $discountAdjustment->sourceSnapshot ?? null;
-            if (!$snapshot || !isset($snapshot['id']) || isset($discounts[$snapshot['id']])) {
+            if (!$snapshot || !isset($snapshot['discountUseId']) || isset($discounts[$snapshot['discountUseId']])) {
                 continue;
             }
 
-            $discounts[$snapshot['id']] = $snapshot;
+            $discounts[$snapshot['discountUseId']] = $snapshot;
         }
 
         if (empty($discounts)) {
@@ -736,12 +736,12 @@ class Discounts extends Component
         foreach ($discounts as $discount) {
             // Count if there was a user on this order
             if ($customer && $customer->userId) {
-                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount['id']])->one();
+                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount['discountUseId']])->one();
 
                 if (!$customerDiscountUseRecord) {
                     $customerDiscountUseRecord = new CustomerDiscountUseRecord();
                     $customerDiscountUseRecord->customerId = $order->customerId;
-                    $customerDiscountUseRecord->discountId = $discount['id'];
+                    $customerDiscountUseRecord->discountId = $discount['discountUseId'];
                     $customerDiscountUseRecord->uses = 1;
                     $customerDiscountUseRecord->save();
                 } else {
@@ -750,18 +750,18 @@ class Discounts extends Component
                             'uses' => new Expression('[[uses]] + 1')
                         ], [
                             'customerId' => $order->customerId,
-                            'discountId' => $discount['id']
+                            'discountId' => $discount['discountUseId']
                         ])
                         ->execute();
                 }
             }
 
             // Count email usage
-            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['id']])->one();
+            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
             if (!$customerDiscountUseRecord) {
                 $customerDiscountUseRecord = new EmailDiscountUseRecord();
                 $customerDiscountUseRecord->email = $order->getEmail();
-                $customerDiscountUseRecord->discountId = $discount['id'];
+                $customerDiscountUseRecord->discountId = $discount['discountUseId'];
                 $customerDiscountUseRecord->uses = 1;
                 $customerDiscountUseRecord->save();
             } else {
@@ -770,7 +770,7 @@ class Discounts extends Component
                         'uses' => new Expression('[[uses]] + 1')
                     ], [
                         'email' => $order->getEmail(),
-                        'discountId' => $discount['id']
+                        'discountId' => $discount['discountUseId']
                     ])
                     ->execute();
             }
@@ -780,7 +780,7 @@ class Discounts extends Component
                 ->update(Table::DISCOUNTS,[
                     'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1')
                 ], [
-                    'id' => $discount['id']
+                    'id' => $discount['discountUseId']
                 ])
                 ->execute();
         }

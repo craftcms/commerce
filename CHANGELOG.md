@@ -17,6 +17,7 @@
 - Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))
 - Fixed an error that could occur when sending an email from the Order edit page if the email settings have not be re-saved after migrating.
 - Fixed an issue where Commerce Lite versions were not able to edit an order.
+- Fixed an error that could occur on order complete if a discount had been registered programmatically.
 
 ## 3.0.3 - 2020-01-29
 
