@@ -536,26 +536,28 @@ class Emails extends Component
         }
         // Plain Text Template Path
         $plainTextTemplatePath = null;
-        try {
-            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
-        } catch (\Exception $e) {
-            $error = Plugin::t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
-                'email' => $email->name,
-                'order' => $order->getShortNumber(),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
-            ]);
-            Craft::error($error, __METHOD__);
+        if ($email->plainTextTemplatePath) {
+            try {
+                $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+            } catch (\Exception $e) {
+                $error = Plugin::t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
+                    'email' => $email->name,
+                    'order' => $order->getShortNumber(),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine()
+                ]);
+                Craft::error($error, __METHOD__);
 
-            Craft::$app->language = $originalLanguage;
-            $view->setTemplateMode($oldTemplateMode);
+                Craft::$app->language = $originalLanguage;
+                $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+                return false;
+            }
         }
 
         // Plain Text Body
-        if ($plainTextTemplatePath && !$view->doesTemplateExist($templatePath)) {
+        if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
             $error = Plugin::t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->plainTextTemplatePath,
                 'templateParsedPath' => $plainTextTemplatePath,
