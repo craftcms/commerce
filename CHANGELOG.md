@@ -14,6 +14,7 @@
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
 - Fixed a bug that could occur when viewing a customer without full Commerce permissions. ([#1252](https://github.com/craftcms/commerce/issues/1252))
 - Fixed a bug where set primary address action was missing. ([#1253](https://github.com/craftcms/commerce/issues/1253))
+- Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))
 
 ## 3.0.3 - 2020-01-29
 
