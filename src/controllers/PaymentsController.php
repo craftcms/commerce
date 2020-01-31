@@ -90,10 +90,7 @@ class PaymentsController extends BaseFrontEndController
             $order = $plugin->getCarts()->getCart(true);
         }
 
-        // Are we paying anonymously?
-        $userSession = Craft::$app->getUser();
-
-        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders');
+        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$currentUser->can('commerce-manageOrders');
         if ($cartActiveAndHasPermission && $order->getEmail() !== $request->getParam('email')) {
             $error = Plugin::t('Email required to make payments on a completed order.');
 
