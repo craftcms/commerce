@@ -409,16 +409,19 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionCompletePayment(): Response
     {
+        /** @var Plugin $plugin */
+        $plugin = Plugin::getInstance();
+
         $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
-        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($hash);
+        $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
 
         if (!$transaction) {
             throw new HttpException(400, Plugin::t('Can not complete payment for missing transaction.'));
         }
 
         $customError = '';
-        $success = Plugin::getInstance()->getPayments()->completePayment($transaction, $customError);
+        $success = $plugin->getPayments()->completePayment($transaction, $customError);
 
         if ($success) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
