@@ -185,6 +185,7 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
+        // This will get the gateway from the payment source first, and the current gateway second.
         $gateway = $order->getGateway();
 
         if ($gateway) {
