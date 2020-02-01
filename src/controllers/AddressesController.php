@@ -144,6 +144,61 @@ class AddressesController extends BaseCpController
     }
 
     /**
+     * Set the primary billing or shipping address for a customer
+     *
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws \craft\errors\MissingComponentException
+     * @since 3.0.4
+     */
+    public function actionSetPrimaryAddress()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $type = $request->getRequiredParam('type');
+        $ids = $request->getRequiredParam('ids');
+
+        if (empty($ids) || !$id = $ids[0] ?? null) {
+            Craft::$app->getSession()->setError(Plugin::t('An address ID is required.'));
+            return null;
+        }
+
+        $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
+
+        if (!$address) {
+            Craft::$app->getSession()->setError(Plugin::t('Unable to find address.'));
+            return null;
+        }
+
+        $customerId = (new Query())
+            ->select(['[[ca.customerId]]'])
+            ->from(Table::CUSTOMERS_ADDRESSES . ' ca')
+            ->innerJoin(Table::CUSTOMERS . ' c', '[[c.id]] = [[ca.customerId]]')
+            ->where(['[[ca.addressId]]' => $address->id])
+            ->andWhere(['not', ['[[c.id]]' => null]])
+            ->scalar();
+
+        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            Craft::$app->getSession()->setError(Plugin::t('Cannot find customer.'));
+            return null;
+        }
+
+        if ($type == 'billing') {
+            $customer->primaryBillingAddressId = $address->id;
+        } else if ($type == 'shipping') {
+            $customer->primaryShippingAddressId = $address->id;
+        }
+
+        if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
+            Craft::$app->getSession()->setNotice(Plugin::t('Primary address updated.'));
+        } else {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update primary address.'));
+        }
+
+        return null;
+    }
+
+    /**
      * @throws HttpException
      */
     public function actionDelete(): Response

@@ -39,7 +39,9 @@
                         <hr>
                     </template>
 
-                    <add-line-item @addLineItem="addLineItem"></add-line-item>
+                    <template v-if="isProEdition">
+                        <add-line-item @addLineItem="addLineItem"></add-line-item>
+                    </template>
 
                     <template v-if="lineItems.length > 0">
                         <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
@@ -74,7 +76,7 @@
 </style>
 
 <script>
-    import {mapActions, mapState} from 'vuex'
+    import {mapActions, mapGetters, mapState} from 'vuex'
     import LineItems from './components/details/LineItems'
     import AddLineItem from './components/details/AddLineItem'
     import OrderAdjustments from './components/details/OrderAdjustments'
@@ -91,6 +93,10 @@
         },
 
         computed: {
+            ...mapGetters([
+                'isProEdition'
+            ]),
+
             ...mapState({
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,

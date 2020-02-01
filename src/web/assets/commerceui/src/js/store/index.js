@@ -31,7 +31,7 @@ export default new Vuex.Store({
         },
 
         canEdit(state, getters) {
-            return getters.currentUserPermissions['commerce-editOrders'] && window.orderEdit.edition != 'lite'
+            return getters.currentUserPermissions['commerce-editOrders']
         },
 
         forceEdit() {
@@ -48,6 +48,14 @@ export default new Vuex.Store({
 
         edition() {
             return window.orderEdit.edition
+        },
+
+        isProEdition() {
+          return (window.orderEdit.edition == 'pro')
+        },
+
+        isLiteEdition() {
+          return (window.orderEdit.edition == 'lite')
         },
 
         orderId() {

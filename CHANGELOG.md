@@ -3,16 +3,25 @@
 ## Unreleased
 
 ### Added
-- Added purging of orphaned addresses to garbage collection.
-- Added `craft\commerce\services\Addresses::purgeOrphanedAddresses`.
+- Orphaned addresses are now purged as part of garbage collection.
+- Added `craft\commerce\services\Addresses::purgeOrphanedAddresses()`.
+- Added the `commerce/addresses/set-primary-address` action.
+
+### Changed
+- `craft\commerce\events\OrderStatusEvent` no longer extends `craft\events\CancelableEvent`. ([#1244](https://github.com/craftcms/commerce/issues/1244))
 
 ### Fixed
-- Fixed an error that could occur when trying to change the customer while editing an order in the CP. ([#1238](https://github.com/craftcms/commerce/issues/1238))
-- Fixed a bug where Commerce would cause Craft to crash when hosted on Windows machines. ([#1247](https://github.com/craftcms/commerce/issues/1247))
-- Fixed a bug that could occur when editing a completed order causing the Date Ordered date to shift. ([#1246](https://github.com/craftcms/commerce/issues/1246))
+- Fixed an error that could occur when trying to changing the customer the Edit Order page. ([#1238](https://github.com/craftcms/commerce/issues/1238))
+- Fixed a PHP error that occurred on Windows environments. ([#1247](https://github.com/craftcms/commerce/issues/1247))
+- Fixed a bug where orders’ Date Ordered attributes could shift after saving an order from the Edit Order page. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
-- Fixed a bug that caused emails not to send. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
-- The `craft\commerce\events\OrderStatusEvent` should not be cancellable. ([#1237](https://github.com/craftcms/commerce/issues/1237))
+- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a error that occurred on the Edit User page when the logged-in user did’t have the “Manage subscriptions” permission. ([#1252](https://github.com/craftcms/commerce/issues/1252))
+- Fixed an error that occurred when setting a primary address on a customer. ([#1253](https://github.com/craftcms/commerce/issues/1253))
+- Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))
+- Fixed an error that could occur when sending an email from the Edit Order page if the email settings had not be resaved after updating to Craft Commerce 3.
+- Fixed a bug where it wasn’t possible to change order statuses and custom field values when using the Lite edition.
+- Fixed an error that could occur on order complete if a discount had been applied programmatically. 
 
 ## 3.0.3 - 2020-01-29
 
