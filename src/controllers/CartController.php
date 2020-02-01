@@ -61,10 +61,16 @@ class CartController extends BaseFrontEndController
 
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
+     *
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionUpdateCart()
     {
         $this->requirePostRequest();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        /** @var Plugin $plugin */
+        $plugin = Plugin::getInstance();
 
         // Get the cart from the request or from the session.
         $this->_cart = $this->_getCart(true);
@@ -185,8 +191,8 @@ class CartController extends BaseFrontEndController
 
         $this->_setAddresses();
 
-        // Set guest email address onto guest customer and order.
-        if (Craft::$app->getUser()->isGuest && $email = $request->getParam('email')) {
+        // Set guest email address onto guest customers order.
+        if (!$this->_cart->getUser() && $email = $request->getParam('email')) {
             $this->_cart->setEmail($email);
         }
 
@@ -207,14 +213,22 @@ class CartController extends BaseFrontEndController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $request->getParam('gatewayId')) {
-            $this->_cart->gatewayId = $gatewayId;
-            $this->_cart->paymentSourceId = null;
+            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+                $this->_cart->setGatewayId($gatewayId);
+            }
         }
 
-        // Set Payment Source on cart
+        // Submit payment source on cart
         if ($paymentSourceId = $request->getParam('paymentSourceId')) {
-            $this->_cart->gatewayId = null;
-            $this->_cart->paymentSourceId = $paymentSourceId;
+            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+                // The payment source can only be used by the same user as the cart's user.
+                $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
+                $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
+                $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
+                if ($allowedToUsePaymentSource) {
+                    $this->_cart->setPaymentSource($paymentSource);
+                }
+            }
         }
 
         // Set Shipping method on cart.

@@ -5,7 +5,7 @@
 {% set tableData = [] %}
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
-    title: (stat.productType ? stat.productType.name : stat.name)|e,
+    title: (stat.productType ? stat.productType.name : stat.name),
     qty: stat.qty,
     revenue: stat.revenue|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}

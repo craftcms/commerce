@@ -79,7 +79,7 @@
             <div>
                 <strong>{{ lineItem.totalAsCurrency }}</strong>
             </div>
-            <div v-if="editing">
+            <div v-if="editing && isProEdition">
                 <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
         </order-block>
@@ -133,6 +133,7 @@
                 'shippingCategories',
                 'taxCategories',
                 'orderId',
+                'isProEdition',
             ]),
 
             salePrice: {

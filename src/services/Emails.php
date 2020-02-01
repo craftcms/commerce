@@ -375,7 +375,7 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString($email->to, $renderVariables);
+                $emails = $view->renderString((string)$email->to, $renderVariables);
                 $emails = preg_split('/[\s,]+/', $emails);
 
                 $newEmail->setTo($emails);
@@ -409,7 +409,7 @@ class Emails extends Component
         // BCC:
         if ($email->bcc) {
             try {
-                $bcc = $view->renderString($email->bcc, $renderVariables);
+                $bcc = $view->renderString((string)$email->bcc, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -436,7 +436,7 @@ class Emails extends Component
         // CC:
         if ($email->cc) {
             try {
-                $cc = $view->renderString($email->cc, $renderVariables);
+                $cc = $view->renderString((string)$email->cc, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -463,7 +463,7 @@ class Emails extends Component
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
+                $newEmail->setReplyTo($view->renderString((string)$email->replyTo, $renderVariables));
             } catch (\Exception $e) {
                 $error = Plugin::t('Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -483,7 +483,7 @@ class Emails extends Component
 
         // Subject:
         try {
-            $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
+            $newEmail->setSubject($view->renderString((string)$email->subject, $renderVariables));
         } catch (\Exception $e) {
             $error = Plugin::t('Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -502,7 +502,7 @@ class Emails extends Component
 
         // Template Path
         try {
-            $templatePath = $view->renderString($email->templatePath, $renderVariables);
+            $templatePath = $view->renderString((string)$email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Plugin::t('Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -537,7 +537,7 @@ class Emails extends Component
         // Plain Text Template Path
         $plainTextTemplatePath = null;
         try {
-            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
+            $plainTextTemplatePath = $view->renderString((string)$email->plainTextTemplatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Plugin::t('Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -555,7 +555,7 @@ class Emails extends Component
         }
 
         // Plain Text Body
-        if ($plainTextTemplatePath && !$view->doesTemplateExist($templatePath)) {
+        if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
             $error = Plugin::t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->plainTextTemplatePath,
                 'templateParsedPath' => $plainTextTemplatePath,

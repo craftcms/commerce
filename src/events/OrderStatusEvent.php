@@ -9,7 +9,7 @@ namespace craft\commerce\events;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderHistory;
-use craft\events\CancelableEvent;
+use yii\base\Event;
 
 /**
  * Class OrderStatusEvent
@@ -17,7 +17,7 @@ use craft\events\CancelableEvent;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class OrderStatusEvent extends CancelableEvent
+class OrderStatusEvent extends Event
 {
     /**
      * @var OrderHistory The order history

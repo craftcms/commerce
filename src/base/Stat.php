@@ -380,8 +380,8 @@ abstract class Stat implements StatInterface
                     'interval' => 'P1M',
                     'dateKeyFormat' => 'Y-n',
                     'dateKey' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]]))',
-                    'groupBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]), EXTRACT(MONTH FROM [[dateOrdered]])',
-                    'orderBy' => 'EXTRACT(YEAR FROM [[dateOrdered]]) ASC, EXTRACT(MONTH FROM [[dateOrdered]]) ASC',
+                    'groupBy' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]]))',
+                    'orderBy' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]])) ASC',
                 ];
                 break;
             }
