@@ -2,17 +2,21 @@
     <ul class="list-reset">
         {% set page = craft.app.request.getSegment(2) %}
 
-        {% if craft.commerce.plans.getAllPlans|length %}
-            <li>
-                <a class="{% if page == 'services' %}active{% endif %}" href="{{ url('shop/services') }}">
-                    {{ "Services"|t }}
-                </a>
-            </li>
-        {% endif %}
-
         <li>
             <a class="{% if page == 'products' %}active{% endif %}" href="{{ url('shop/products') }}">
                 {{ "Products"|t }}
+            </a>
+        </li>
+
+        <li>
+            <a class="{% if page == 'plans' %}active{% endif %}" href="{{ url('shop/plans') }}">
+                {{ "Plans"|t }}
+            </a>
+        </li>
+
+        <li>
+            <a class="{% if page == 'donations' %}active{% endif %}" href="{{ url('shop/donations') }}">
+                {{ "Donations"|t }}
             </a>
         </li>
 

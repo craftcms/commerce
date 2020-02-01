@@ -3,6 +3,10 @@
 
 {% set plans = craft.commerce.getPlans().getAllEnabledPlans() %}
 
+  {% if not plans|length %}
+  <h2>No plans set up</h2>
+  {% endif %}
+
   {% if currentUser and plans|length %}
     {% for plan in plans %}
       <div class="md:flex service">
@@ -36,7 +40,7 @@
             {% endif %}
             <br/><br/>
 
-            <a href="{{ url('/shop/services/subscription', {subscription: subscription.id}) }}">Manage subscription</a>
+            <a href="{{ url('/shop/plans/subscription', {subscription: subscription.id}) }}">Manage subscription</a>
             <br/><br/>
           {% endfor %}
         </div>
@@ -54,7 +58,7 @@
           <form method="POST">
             <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
             <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
-            {{ redirectInput('shop/services') }}
+            {{ redirectInput('shop/plans') }}
             {{ csrfInput() }}
 
             <h4>{{ plan.name }}</h4>

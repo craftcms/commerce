@@ -1,0 +1,25 @@
+<h3>Cart Debug</h3>
+<p>Information about the current cart in session.</p>
+<ul>
+  <li><strong>ID</strong> {{ cart.id }}</li>
+  <li><strong>Number</strong> {{ cart.number }}</li>
+  <li><strong>Short Number</strong> {{ cart.shortNumber }}</li>
+  <li><strong>Email</strong> {{ cart.email }}</li>
+  <li><strong>Customer ID</strong> {{ cart.customerId }}</li>
+  <li><strong>User</strong> {{ cart.user }}</li>
+  <li><strong>Shipping Address ID</strong> {{ cart.shippingAddressId }}</li>
+  <li><strong>Billing Address ID</strong> {{ cart.billingAddressId }}</li>
+  <li><strong>Estimated Shipping Address ID</strong> {{ cart.estimatedShippingAddressId }}</li>
+  <li><strong>Estimated Billing Address ID</strong> {{ cart.estimatedBillingAddressId }}</li>
+  <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
+  <li><strong>Line Items Count</strong> {{ cart.lineItems|length }}</li>
+  <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
+  <li><strong>Currency</strong> {{ cart.currency }}</li>
+  <li><strong>Payment Currency</strong> {{ cart.paymentCurrency }}</li>
+  <li><strong>Gateway ID</strong> {{ cart.gatewayId }}</li>
+  <li><strong>Payment Source ID</strong> {{ cart.paymentSourceId }}</li>
+  <li><strong>Language</strong> {{ cart.orderLanguage }}</li>
+  <li><strong>Payment Return URL</strong> {{ cart.returnUrl }}</li>
+  <li><strong>Payment Cancel URL</strong> {{ cart.cancelUrl }}</li>
+  <li><strong>Last IP</strong> {{ cart.lastIp }}</li>
+</ul>
