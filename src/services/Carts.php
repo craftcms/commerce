@@ -18,6 +18,7 @@ use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use DateTime;
+use phpDocumentor\Reflection\Types\This;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -59,6 +60,7 @@ class Carts extends Component
     {
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
+            $this->forgetCart(); // Remove the cart number from session if there was one.
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
         }

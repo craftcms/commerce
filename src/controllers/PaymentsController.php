@@ -54,6 +54,7 @@ class PaymentsController extends BaseFrontEndController
     /**
      * @return Response|null
      * @throws HttpException
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionPay()
     {
@@ -61,9 +62,13 @@ class PaymentsController extends BaseFrontEndController
 
         $customError = '';
 
+        /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
         $request = Craft::$app->getRequest();
         $session = Craft::$app->getSession();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        $userSession = Craft::$app->getUser();
 
         if (($number = $request->getBodyParam('orderNumber')) !== null) {
             /** @var Order $order */
@@ -85,10 +90,7 @@ class PaymentsController extends BaseFrontEndController
             $order = $plugin->getCarts()->getCart(true);
         }
 
-        // Are we paying anonymously?
-        $userSession = Craft::$app->getUser();
-
-        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$userSession->checkPermission('commerce-manageOrders');
+        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$currentUser->can('commerce-manageOrders');
         if ($cartActiveAndHasPermission && $order->getEmail() !== $request->getParam('email')) {
             $error = Plugin::t('Email required to make payments on a completed order.');
 
@@ -183,6 +185,7 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
+        // This will get the gateway from the payment source first, and the current gateway second.
         $gateway = $order->getGateway();
 
         if ($gateway) {
@@ -207,7 +210,7 @@ class PaymentsController extends BaseFrontEndController
 
         /** @var Gateway $gateway */
         if (!$gateway) {
-            $error = Plugin::t('There is no gateway selected for this order.');
+            $error = Plugin::t('There is no gateway or payment source selected for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -409,16 +412,19 @@ class PaymentsController extends BaseFrontEndController
      */
     public function actionCompletePayment(): Response
     {
+        /** @var Plugin $plugin */
+        $plugin = Plugin::getInstance();
+
         $hash = Craft::$app->getRequest()->getParam('commerceTransactionHash');
 
-        $transaction = Plugin::getInstance()->getTransactions()->getTransactionByHash($hash);
+        $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
 
         if (!$transaction) {
             throw new HttpException(400, Plugin::t('Can not complete payment for missing transaction.'));
         }
 
         $customError = '';
-        $success = Plugin::getInstance()->getPayments()->completePayment($transaction, $customError);
+        $success = $plugin->getPayments()->completePayment($transaction, $customError);
 
         if ($success) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {

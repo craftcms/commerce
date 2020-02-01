@@ -30,8 +30,7 @@
             value: productType.name,
             errors: productType.getErrors('name'),
             autofocus: true,
-            required: true,
-            translatable: true
+            required: true
         }) }}
 
         {{ forms.textField({
@@ -287,16 +286,7 @@
 {% endif %}
 
 {% js %}
-    if (!document.getElementById('hasVariants').checked){
-        $('#tab-variantFields').parent().addClass('hidden');
-    }
-
-    if (document.getElementById('hasVariants').checked){
-        $('#tab-variantFields').parent().removeClass('hidden');
-    }
-
     $('#hasVariants').on('change', function() {
-        $('#tab-variantFields').parent().toggleClass('hidden');
-        $('#tab-variantFields').parent().toggleClass('hidden');
+        Craft.cp.$tabs.filter($("[data-id='variantFields'")).find("#tab-variantFields").toggleClass('hidden');
     });
 {% endjs %}

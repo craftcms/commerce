@@ -123,59 +123,62 @@
 
 
 {% js %}
+  var columns = [
+      { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
+      { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
+      { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) {
+              if (!value) {
+                  return '';
+              }
 
-var columns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
-    { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
-    { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) {
-            if (!value) {
-                return '';
-            }
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+          } },
+      { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
+              if (!value) {
+                  return '';
+              }
 
-            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
-        } },
-    { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
-            if (!value) {
-                return '';
-            }
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+          } },
+      { name: '__slot:detail', title: '', titleClass: 'thin' },
+  ];
 
-            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
-        } },
-    { name: '__slot:detail', title: '', titleClass: 'thin' },
-];
+  var actions = [
+      {
+          label: '',
+          icon: 'settings',
+          actions: [
+              {
+                  label: Craft.t('commerce', 'Set as Primary Billing'),
+                  action: 'commerce/addresses/set-primary-address',
+                  param: 'type',
+                  value: 'billing',
+                  allowMultiple: false
+              },
+              {
+                  label: Craft.t('commerce', 'Set as Primary Shipping'),
+                  action: 'commerce/addresses/set-primary-address',
+                  param: 'type',
+                  value: 'shipping',
+                  allowMultiple: false
+              }
+          ]
+      }
+  ];
 
-var actions = [
-    {
-        label: '',
-        icon: 'settings',
-        actions: [
-            {
-                label: Craft.t('commerce', 'Set as Primary Billing'),
-                action: 'commerce/addresses/set-primary',
-                param: 'type',
-                value: 'billing',
-            },
-            {
-                label: Craft.t('commerce', 'Set as Primary Shipping'),
-                action: 'commerce/addresses/set-primary',
-                param: 'type',
-                value: 'shipping',
-            }
-        ]
-    }
-];
-
-new Craft.VueAdminTable({
-    actions: actions,
-    checkboxes: true,
-    columns: columns,
-    container: '#addresses-vue-admin-table',
-    deleteAction: 'commerce/addresses/delete',
-    deleteConfirmationMessage: Craft.t('commerece', 'Are you sure you want to delete this address?'),
-    emptyMessage: Craft.t('commerce', 'No Addresses available.'),
-    padded: true,
-    tableData: {{ tableData|json_encode|raw }}
-});
+  {% if tableData is defined %}
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#addresses-vue-admin-table',
+        deleteAction: 'commerce/addresses/delete',
+        deleteConfirmationMessage: Craft.t('commerece', 'Are you sure you want to delete this address?'),
+        emptyMessage: Craft.t('commerce', 'No Addresses available.'),
+        padded: true,
+        tableData: {{ tableData|json_encode|raw }}
+    });
+  {% endif %}
 
   var cartColumns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Cart') },
@@ -183,42 +186,49 @@ new Craft.VueAdminTable({
     { name: 'total', title: Craft.t('commerce', 'Total') }
   ];
 
-  if (document.querySelector('#active-vue-admin-table')) {
-    new Craft.VueAdminTable({
-      columns: cartColumns,
-      container: '#active-vue-admin-table',
-      emptyMessage: Craft.t('commerce', 'No active carts exist for this customer.'),
-      padded: true,
-      tableData: {{ activeTableData|json_encode|raw }}
-    });
-  }
+  {% if activeTableData is defined %}
+    if (document.querySelector('#active-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: cartColumns,
+        container: '#active-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No active carts exist for this customer.'),
+        padded: true,
+        tableData: {{ activeTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
 
-  if (document.querySelector('#inactive-vue-admin-table')) {
-    new Craft.VueAdminTable({
-      columns: cartColumns,
-      container: '#inactive-vue-admin-table',
-      emptyMessage: Craft.t('commerce', 'No inactive carts exist for this customer.'),
-      padded: true,
-      tableData: {{ inactiveTableData|json_encode|raw }}
-    });
-  }
+  {% if inactiveTableData is defined %}
+    if (document.querySelector('#inactive-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: cartColumns,
+        container: '#inactive-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No inactive carts exist for this customer.'),
+        padded: true,
+        tableData: {{ inactiveTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
 
-  var subColumns = [
-    { name: '__slot:title', title: Craft.t('commerce', 'Subscription') },
-    { name: 'subDate', title: Craft.t('commerce', 'Subscription date') },
-    { name: 'canDate', title: Craft.t('commerce', 'Cancellation date') },
-    { name: 'expDate', title: Craft.t('commerce', 'Expiration date') },
-    { name: 'active', title: Craft.t('commerce', 'Is subscription active?') }
-  ];
+  {% if subsTableData is defined %}
+    var subColumns = [
+      { name: '__slot:title', title: Craft.t('commerce', 'Subscription') },
+      { name: 'subDate', title: Craft.t('commerce', 'Subscription date') },
+      { name: 'canDate', title: Craft.t('commerce', 'Cancellation date') },
+      { name: 'expDate', title: Craft.t('commerce', 'Expiration date') },
+      { name: 'active', title: Craft.t('commerce', 'Is subscription active?') }
+    ];
 
-  if (document.querySelector('#subscriptions-vue-admin-table')) {
-    new Craft.VueAdminTable({
-      columns: subColumns,
-      container: '#subscriptions-vue-admin-table',
-      emptyMessage: Craft.t('commerce', 'No subscriptions exist for this user yet.'),
-      padded: true,
-      tableData: {{ subsTableData|json_encode|raw }}
-    });
-  }
+    if (document.querySelector('#subscriptions-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: subColumns,
+        container: '#subscriptions-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No subscriptions exist for this user yet.'),
+        padded: true,
+        tableData: {{ subsTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
+
 
 {% endjs %}

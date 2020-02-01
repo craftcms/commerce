@@ -115,8 +115,8 @@ trait OrderValidatorsTrait
                 $anotherOrdersAddress = (new Query())
                     ->select('id')
                     ->from([Table::ORDERS])
-                    ->where(['not', ['orderId' => $this->id]])
-                    ->andWhere(['or', ['shippingAddress' => $address->id], ['billingAddress' => $address->id]])
+                    ->where(['not', ['id' => $this->id]])
+                    ->andWhere(['or', ['shippingAddressId' => $address->id], ['billingAddressId' => $address->id]])
                     ->all();
             }
 

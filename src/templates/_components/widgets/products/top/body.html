@@ -5,7 +5,7 @@
 {% set tableData = [] %}
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
-    title: (stat.product ? stat.product.title : stat.title)|e,
+    title: (stat.product ? stat.product.title : stat.title),
     url: stat.product ? stat.product.cpEditUrl : null,
     qty: stat.qty,
     status: stat.product ? stat.product.enabled : null,
