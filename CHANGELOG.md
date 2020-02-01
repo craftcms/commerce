@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.4 - 2020-01-31
 
 ### Added
 - Orphaned addresses are now purged as part of garbage collection.
