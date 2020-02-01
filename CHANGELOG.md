@@ -1,5 +1,7 @@
 # Release Notes for Craft Commerce
 
+## 3.0.5 - 2020-01-31
+
 ### Fixed
 - Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
 
