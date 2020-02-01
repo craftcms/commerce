@@ -555,7 +555,7 @@ class Emails extends Component
         }
 
         // Plain Text Body
-        if ($plainTextTemplatePath && !$view->doesTemplateExist($templatePath)) {
+        if ($plainTextTemplatePath && !$view->doesTemplateExist($plainTextTemplatePath)) {
             $error = Plugin::t('Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.', [
                 'templatePath' => $email->plainTextTemplatePath,
                 'templateParsedPath' => $plainTextTemplatePath,
