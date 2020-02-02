@@ -17,7 +17,7 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Email') },
+    { name: '__slot:title', title: Craft.t('app', 'Email'), sortField: 'orders.email' },
     { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) { return value } },
     { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) { return value } },
     { name: 'addresses', title: Craft.t('commerce', 'No. of Addresses') },

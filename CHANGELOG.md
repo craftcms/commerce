@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the ability to sort the customer list by email in the control panel.
+
 ## 3.0.5 - 2020-01-31
 
 ### Fixed
