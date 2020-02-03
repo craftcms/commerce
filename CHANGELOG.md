@@ -5,6 +5,9 @@
 ### Added
 - Added the ability to sort the customer list by email in the control panel.
 
+### Fixed
+- Fixed a bug that prevented CP users refunding orders even if they had correct permissions. ([#1259](https://github.com/craftcms/commerce/issues/1259))
+
 ## 3.0.5 - 2020-01-31
 
 ### Fixed

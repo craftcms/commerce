@@ -1128,7 +1128,7 @@ class OrdersController extends Controller
                             'transaction' => $transaction,
                         ]
                     );
-                } else if ($user->can('commerceRefundPayment') && $transaction->canRefund()) {
+                } else if ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
                     $refundCapture = Craft::$app->getView()->renderTemplate(
                         'commerce/orders/includes/_refund',
                         [
