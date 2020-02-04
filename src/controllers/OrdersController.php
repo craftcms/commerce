@@ -329,7 +329,7 @@ class OrdersController extends Controller
         }
 
         if ($sort) {
-            [$field, $direction] = explode('|', $sort);
+            list($field, $direction) = explode('|', $sort);
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);

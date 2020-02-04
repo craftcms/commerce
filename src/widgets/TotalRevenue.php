@@ -135,7 +135,7 @@ class TotalRevenue extends Widget
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);
         if ($this->_stat->getDateRangeInterval() == 'month') {
             $labels = array_map(static function($label) {
-                [$year, $month] = explode('-', $label);
+                list($year, $month) = explode('-', $label);
                 $month = $month < 10 ? '0'.$month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);

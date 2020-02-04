@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug that prevented CP users refunding orders even if they had correct permissions. ([#1259](https://github.com/craftcms/commerce/issues/1259))
+- Fixed an error that could occur when using PHP 7.0. ([#1262](https://github.com/craftcms/commerce/issues/1262))
 
 ## 3.0.5 - 2020-01-31
 
