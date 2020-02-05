@@ -80,7 +80,7 @@
                 <strong>{{ lineItem.totalAsCurrency }}</strong>
             </div>
             <div v-if="editing && isProEdition">
-                <btn-link @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
+                <btn-link  button-class="btn-link btn-link--danger" @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
         </order-block>
     </div>
@@ -201,9 +201,6 @@
     @import "~craftcms-sass/src/mixins";
 
     .line-item {
-        border-bottom: 2px solid #eee;
-        padding-bottom: 20px;
-        margin-bottom: 20px;
         transition: background-color 0.5s ease;
 
         &.new-line-item {

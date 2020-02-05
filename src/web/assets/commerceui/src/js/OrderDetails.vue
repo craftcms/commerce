@@ -20,37 +20,32 @@
                             @updateLineItems="updateLineItems"
                     ></line-items>
 
-                    <template v-if="orderAdjustments.length > 0 || editing">
-                        <order-adjustments
-                                :adjustments="orderAdjustments"
-                                :editing="editing"
-                                :recalculation-mode="recalculationMode"
-                                @updateOrderAdjustments="updateOrderAdjustments"
-                        ></order-adjustments>
-
-                        <hr />
-                    </template>
-
-                    <total :order="draft.order"></total>
-                </template>
-
-                <template v-if="editing">
-                    <template v-if="lineItems.length > 0">
-                        <hr>
-                    </template>
-
-                    <template v-if="isProEdition">
+                    <template v-if="editing && isProEdition">
                         <add-line-item @addLineItem="addLineItem"></add-line-item>
                     </template>
 
-                    <template v-if="lineItems.length > 0">
-                        <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
-                            <btn-link class="recalculate-btn error" @click="autoRecalculate()">{{"Recalculate order"|t('commerce')}}</btn-link>
-                        </div>
+                    <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
+                        <btn-link class="recalculate-btn error" @click="autoRecalculate()">{{"Recalculate order"|t('commerce')}}</btn-link>
+                    </div>
 
-                        <div v-if="recalculateLoading" class="spinner"></div>
-                    </template>
+                    <div v-if="recalculateLoading" class="spinner"></div>
+
+                    <div class="order-total-summary">
+                        <template v-if="orderAdjustments.length > 0 || editing">
+                            <order-adjustments
+                                    :adjustments="orderAdjustments"
+                                    :editing="editing"
+                                    :recalculation-mode="recalculationMode"
+                                    @updateOrderAdjustments="updateOrderAdjustments"
+                            ></order-adjustments>
+
+                            <hr />
+                        </template>
+
+                        <total :order="draft.order"></total>
+                    </div>
                 </template>
+
             </template>
 
             <template v-if="draftErrors.length">
@@ -72,6 +67,14 @@
         .recalculate-btn {
             display: inline-block;
         }
+    }
+
+    .order-total-summary {
+        background-color: #f3f7fc;
+        border-bottom-left-radius: 5px;
+        border-bottom-right-radius: 5px;
+        margin: 20px -24px -24px;
+        padding: 34px 24px 24px;
     }
 </style>
 

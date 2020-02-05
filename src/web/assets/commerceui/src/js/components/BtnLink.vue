@@ -32,4 +32,8 @@
             text-decoration: underline;
         }
     }
+
+    .btn-link--danger {
+        color: $red;
+    }
 </style>
