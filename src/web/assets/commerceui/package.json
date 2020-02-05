@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "lodash.debounce": "^4.0.8",
+    "lodash.find": "^4.6.0",
     "prismjs": "^1.16.0",
     "vue": "^2.6.6",
     "vue-prism-editor": "^0.2.1",

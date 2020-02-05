@@ -463,6 +463,64 @@ class OrdersController extends Controller
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionPurchasablesTable()
+    {
+        $this->requirePermission('commerce-editOrder');
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        // Prepare purchasables query
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select(['id', 'price', 'description', 'sku'])
+            ->from('{{%commerce_purchasables}}');
+
+        // Are they searching for a SKU or purchasable description?
+        if ($search) {
+            $sqlQuery->where([
+                'or',
+                [$likeOperator, 'description', $search],
+                [$likeOperator, 'sku', $search]
+            ]);
+        }
+
+        $total = $sqlQuery->count();
+
+        $sqlQuery->limit($limit);
+        $sqlQuery->offset($offset);
+        $result = $sqlQuery->all();
+
+        $rows = [];
+
+        // Add the currency formatted price
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        foreach ($result as $row) {
+            /** @var PurchasableInterface $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $rows[] = $row;
+            }
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
+    }
+
+    /**
      * @param null $query
      * @return Response
      */
