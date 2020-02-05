@@ -69,7 +69,7 @@
   {% for order in activeCarts %}
     {% set activeTableData = activeTableData|merge([{
       id: order.id,
-      title: (order.reference ?? order.shortNumber)|e,
+      title: (order.reference ?? order.shortNumber),
       url: order.cpEditUrl,
       date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
       total: order.totalPrice|currency(order.currency),
@@ -86,7 +86,7 @@
   {% for order in inactiveCarts %}
     {% set inactiveTableData = inactiveTableData|merge([{
       id: order.id,
-      title: (order.reference ?? order.shortNumber)|e,
+      title: (order.reference ?? order.shortNumber),
       url: order.cpEditUrl,
       date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
       total: order.totalPrice|currency(order.currency),

@@ -183,7 +183,7 @@ class CustomersController extends BaseCpController
         $customersQuery->limit($limit);
 
         if ($sort) {
-            [$sortField, $sortDir] = explode('|', $sort);
+            list($sortField, $sortDir) = explode('|', $sort);
             if ($sortField && $sortDir) {
                 $customersQuery->orderBy('[['.$sortField.']] '.$sortDir);
             }

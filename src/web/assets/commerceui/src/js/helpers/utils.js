@@ -1,3 +1,4 @@
+/* global Craft */
 export default {
     /**
      * Builds draft data and makes sure values have the right type.
