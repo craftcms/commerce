@@ -49,7 +49,7 @@
                             <option value="yes">Gift wrapped.</option>
                         </select>
                         {% if product.hasUnlimitedStock or (product.hasUnlimitedStock == false and product.totalStock > 0 ) %}
-                            <button type="submit">{{ "Add to cart"|t }}</button>
+                            <button class="add-to-cart-button" type="submit">{{ "Add to cart"|t }}</button>
                         {% else %}
                             {{ "Out of Stock"|t }}
                         {% endif %}
