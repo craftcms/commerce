@@ -193,7 +193,7 @@ class Discount extends Component implements AdjusterInterface
                     $amountPercentage = Currency::round($this->_discount->percentDiscount * $item->getSubtotal());
                 }
 
-                $adjustment->amount = $amountPerItem + $amountPercentage;
+                $adjustment->amount = $amountPerItem + $amountPercentage; //Adding already rounded
 
                 if ($adjustment->amount != 0) {
                     $this->_discountTotal += $adjustment->amount;
