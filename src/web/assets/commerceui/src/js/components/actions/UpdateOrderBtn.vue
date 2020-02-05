@@ -14,7 +14,7 @@
                 <template v-if="editing">
                     <ul>
                         <li>
-                            <a @click="save()">
+                            <a @click="save({redirect: ordersIndexUrl})">
                                 <option-shortcut-label os="mac" shortcut-key="S"></option-shortcut-label>
                                 {{"Save and return to all orders"|t('commerce')}}
                             </a>
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    /* global Garnish */
+    /* global Garnish, $ */
 
     import {mapGetters, mapState} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
@@ -60,6 +60,10 @@
                 'canDelete',
             ]),
 
+            ordersIndexUrl() {
+                return window.orderEdit.ordersIndexUrlHashed;
+            },
+
             orderData: {
                 get() {
                     return this.$store.state.orderData
@@ -72,7 +76,11 @@
         },
 
         methods: {
-            save() {
+            save(options) {
+                if (options !== undefined && options.hasOwnProperty('redirect')) {
+                    $('#main-form input[type="hidden"][name="redirect"]').val(options.redirect);
+                }
+
                 this.saveOrder(this.draft)
             },
 
@@ -81,9 +89,9 @@
 
                 if (window.confirm(message)) {
                     this.$store.dispatch('deleteOrder', this.orderId)
-                        .then(() => {
-                            this.returnToOrders()
-                        })
+                            .then(() => {
+                                this.returnToOrders()
+                            })
                 }
             },
 
