@@ -18,7 +18,7 @@
         <template v-else>
             <div>
                 <div class="flex add-line-item-table-header">
-                    <h3>{{ $options.filters.t('Select a purchasable', 'commerce') }}</h3>
+                    <h2>{{ $options.filters.t('Add a line item', 'commerce') }}</h2>
                     <form @submit.prevent="lineItemAdd()" class="add-line-item-form">
                         <div class="buttons buttons--add-line-item">
                             <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled"

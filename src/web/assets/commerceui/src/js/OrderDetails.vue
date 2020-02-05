@@ -73,6 +73,7 @@
         background-color: #f3f7fc;
         border-bottom-left-radius: 5px;
         border-bottom-right-radius: 5px;
+        border-top: 2px solid #eee;
         margin: 20px -24px -24px;
         padding: 34px 24px 24px;
     }
