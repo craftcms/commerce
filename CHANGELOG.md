@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a error that prevented redirection back to the Customer info page.
+
 ## 3.0.6 - 2020-02-06
 
 ### Added
