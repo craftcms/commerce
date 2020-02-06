@@ -10,6 +10,7 @@
 - Fixed an error that could occur when using PHP 7.0. ([#1262](https://github.com/craftcms/commerce/issues/1262))
 - Fixed a bug where selecting save and return to orders would not redirect back to the Orders index. ([#1266](https://github.com/craftcms/commerce/issues/1266))
 - Fixed an error that prevented the product editor HUD from opening.
+- Fixed a bug that prevented adding purchasables to the order on the Edit Order page.
 
 ## 3.0.5 - 2020-01-31
 
