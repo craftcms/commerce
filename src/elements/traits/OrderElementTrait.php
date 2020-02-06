@@ -157,11 +157,13 @@ trait OrderElementTrait
             'billingFirstName',
             'billingLastName',
             'billingFullName',
+            'billingPhone',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
+            'shippingPhone',
             'shortNumber',
             'transactionReference',
             'username',
@@ -181,12 +183,16 @@ trait OrderElementTrait
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
                 return $this->billingAddress->fullName ?? '';
+            case 'billingPhone':
+                return $this->billingAddress->phone ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
                 return $this->shippingAddress->fullName ?? '';
+            case 'shippingPhone':
+                return $this->shippingAddress->phone ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
