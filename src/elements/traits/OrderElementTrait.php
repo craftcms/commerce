@@ -202,8 +202,11 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $allCriteria = ['isCompleted' => true];
-        $count = Craft::configure(self::find(), $allCriteria)->count();
+        $count = (new Query())
+            ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
+            ->from([Table::ORDERS . ' o'])
+            ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
+            ->count();
 
         $sources = [
             '*' => [
