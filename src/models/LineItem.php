@@ -414,7 +414,7 @@ class LineItem extends Model
             $salePrice = $this->salePrice;
         }
 
-        return $this->qty * $salePrice;
+        return CurrencyHelper::round($this->qty * $salePrice);
     }
 
     /**
@@ -498,12 +498,13 @@ class LineItem extends Model
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
         $this->price = $purchasable->getPrice();
+        $this->salePrice = $this->price;
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
 
         $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder());
 
-        // Check to see if there is a discount applied that ignores Sales
+        // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
         foreach ($discounts as $discount) {
             if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
@@ -515,9 +516,9 @@ class LineItem extends Model
             }
         }
 
-        $this->salePrice = $ignoreSales ? $this->price : Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
-
-        $this->saleAmount = $this->salePrice - $this->price;
+        if (!$ignoreSales) {
+            $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+        }
 
         $snapshot = [
             'price' => $purchasable->getPrice(),
@@ -543,6 +544,11 @@ class LineItem extends Model
                 'isNew' => !$this->id
             ]));
         }
+
+        // Just in case they have not been rounded yet.
+        $this->price = CurrencyHelper::round($this->price);
+        $this->salePrice = CurrencyHelper::round($this->salePrice);
+        $this->saleAmount = $this->price - $this->salePrice; //  result is always rounded.
     }
 
     /**
