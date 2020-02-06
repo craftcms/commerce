@@ -694,9 +694,9 @@ class Discounts extends Component
     public function getCustomerUsageStatsById(int $id): array
     {
         $usage = (new Query())
-            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT(customerId) as customers'])
+            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[customerId]]) as customers'])
             ->from(Table::CUSTOMER_DISCOUNTUSES)
-            ->where(['discountId' => $id])
+            ->where(['[[discountId]]' => $id])
             ->one();
 
         return $usage;
@@ -736,7 +736,7 @@ class Discounts extends Component
         foreach ($discounts as $discount) {
             // Count if there was a user on this order
             if ($customer && $customer->userId) {
-                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['customerId' => $order->customerId, 'discountId' => $discount['discountUseId']])->one();
+                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['[[customerId]]' => $order->customerId, '[[discountId]]' => $discount['discountUseId']])->one();
 
                 if (!$customerDiscountUseRecord) {
                     $customerDiscountUseRecord = new CustomerDiscountUseRecord();
@@ -777,7 +777,7 @@ class Discounts extends Component
 
             // Update the total uses
             Craft::$app->getDb()->createCommand()
-                ->update(Table::DISCOUNTS,[
+                ->update(Table::DISCOUNTS, [
                     'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1')
                 ], [
                     'id' => $discount['discountUseId']
@@ -866,7 +866,7 @@ class Discounts extends Component
             $usage = (new Query())
                 ->select(['uses'])
                 ->from([Table::CUSTOMER_DISCOUNTUSES])
-                ->where(['customerId' => $customer->id, 'discountId' => $discount->id])
+                ->where(['[[customerId]]' => $customer->id, 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {

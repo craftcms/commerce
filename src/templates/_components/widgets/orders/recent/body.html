@@ -12,7 +12,7 @@
 {% for order in orders %}
     {% set status %}{{ order.orderStatus ? order.orderStatus.labelHtml : '' }}{% endset %}
     {% set tableData = tableData|merge([{
-        title: order.reference|e,
+        title: order.reference,
         url: order.getCpEditUrl(),
         orderStatus: status,
         paid: order.totalPaid|currency(order.currency),

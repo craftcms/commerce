@@ -6,6 +6,7 @@ if (process.env.NODE_ENV === 'development') {
 } else {
     publicPath = '/'
 }
+const path = require('path');
 
 module.exports = {
     filenameHashing: false,
@@ -17,6 +18,11 @@ module.exports = {
             'vuex': 'Vuex',
             'axios': 'axios'
         },
+        resolve: {
+            alias: {
+                Craft: path.resolve(__dirname, './../../../../../cms/src/web/assets/')
+            }
+        }
     },
     devServer: {
         headers: {"Access-Control-Allow-Origin": "*"},

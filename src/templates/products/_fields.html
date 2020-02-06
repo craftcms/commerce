@@ -118,7 +118,7 @@
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
 
-    {% if variant.product.getType().hasVariantTitleField and variant.product.getType().hasVariants %}
+    {% if product.type.hasVariantTitleField and product.type.hasVariants %}
         {{ forms.textField({
             label: product.type.variantTitleLabel|t('site')|e ?: 'Title'|t('app'),
             site: variant.site,

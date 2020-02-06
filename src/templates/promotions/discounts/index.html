@@ -24,12 +24,18 @@
 
 {% set tableData = [] %}
 {% for discount in discounts %}
+
+    {% set dateRange = (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') %}
+    {% if not discount.dateFrom and not discount.dateTo %}
+        {% set dateRange = '∞' %}
+    {% endif %}
+
     {% set tableData = tableData|merge([{
         id: discount.id,
         title: discount.name|t('site'),
         url: url('commerce/promotions/discounts/' ~ discount.id),
         status: discount.enabled ? true : false,
-        duration: (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞'),
+        duration: dateRange,
         timesUsed: discount.totalDiscountUses,
         handle: discount.code,
         ignore: discount.ignoreSales ? true : false,

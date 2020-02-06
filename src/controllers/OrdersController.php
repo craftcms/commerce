@@ -329,7 +329,7 @@ class OrdersController extends Controller
         }
 
         if ($sort) {
-            [$field, $direction] = explode('|', $sort);
+            list($field, $direction) = explode('|', $sort);
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -412,10 +412,22 @@ class OrdersController extends Controller
      */
     public function actionPurchasableSearch($query = null)
     {
-        if($query === null)
-        {
-            return $this->asJson([]);
+
+        if ($query === null) {
+            $results = (new Query())
+                ->select(['id', 'price', 'description', 'sku'])
+                ->from('{{%commerce_purchasables}}')
+                ->limit(10)
+                ->all();
+            if (!$results) {
+                return $this->asJson([]);
+            }
+
+            $purchasables = $this->_addLivePurchasableInfo($results);
+
+            return $this->asJson($purchasables);
         }
+
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
@@ -424,11 +436,14 @@ class OrdersController extends Controller
 
         // Are they searching for a purchasable ID?
         if (is_numeric($query)) {
-            $result = $sqlQuery->where(['id' => $query])->all();
-            if (!$result) {
+            $results = $sqlQuery->where(['id' => $query])->all();
+            if (!$results) {
                 return $this->asJson([]);
             }
-            return $this->asJson($result);
+
+            $purchasables = $this->_addLivePurchasableInfo($results);
+
+            return $this->asJson($purchasables);
         }
 
         // Are they searching for a SKU or purchasable description?
@@ -440,24 +455,13 @@ class OrdersController extends Controller
             ]);
         }
 
-        $result = $sqlQuery->limit(30)->all();
+        $results = $sqlQuery->limit(30)->all();
 
-        if (!$result) {
+        if (!$results) {
             return $this->asJson([]);
         }
 
-        $purchasables = [];
-
-        // Add the currency formatted price
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        foreach ($result as $row) {
-            /** @var PurchasableInterface $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-                $row['isAvailable'] = $purchasable->getIsAvailable();
-                $purchasables[] = $row;
-            }
-        }
+        $purchasables = $this->_addLivePurchasableInfo($results);
 
         return $this->asJson($purchasables);
     }
@@ -923,6 +927,7 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
 
         // TODO when we support multiple PDF templates, retrieve them all from a service
@@ -1128,7 +1133,7 @@ class OrdersController extends Controller
                             'transaction' => $transaction,
                         ]
                     );
-                } else if ($user->can('commerceRefundPayment') && $transaction->canRefund()) {
+                } else if ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
                     $refundCapture = Craft::$app->getView()->renderTemplate(
                         'commerce/orders/includes/_refund',
                         [
@@ -1177,5 +1182,27 @@ class OrdersController extends Controller
         }
 
         return $return;
+    }
+
+    /**
+     * @param array $results
+     * @param string $baseCurrency
+     * @param array $purchasables
+     * @return array
+     * @throws InvalidConfigException
+     */
+    private function _addLivePurchasableInfo(array $results): array
+    {
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $purchasables = [];
+        foreach ($results as $row) {
+            /** @var PurchasableInterface $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $purchasables[] = $row;
+            }
+        }
+        return $purchasables;
     }
 }

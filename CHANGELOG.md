@@ -1,9 +1,21 @@
 # Release Notes for Craft Commerce
 
+## 3.0.6 - 2020-02-06
+
+### Added
+- It’s now possible to sort customers by email address.
+
+### Fixed
+- Fixed PHP 7.0 compatibility. ([#1262](https://github.com/craftcms/commerce/issues/1262))
+- Fixed a bug where it wasn’t possible to refund orders. ([#1259](https://github.com/craftcms/commerce/issues/1259))
+- Fixed a bug where it wasn’t possible to add purchasables to an order on the Edit Order page.
+- Fixed a bug where clicking on “Save and return to all orders” wouldn’t redirect back to the Orders index page. ([#1266](https://github.com/craftcms/commerce/issues/1266))
+- Fixed an error that occurred when attempting to open a product editor HUD.
+
 ## 3.0.5 - 2020-01-31
 
 ### Fixed
-- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a bug that prevented emails from being sent. ([#1257](https://github.com/craftcms/commerce/issues/1257))
 
 ## 3.0.4 - 2020-01-31
 

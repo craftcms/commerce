@@ -182,6 +182,13 @@ class CustomersController extends BaseCpController
         $customersQuery->offset($offset);
         $customersQuery->limit($limit);
 
+        if ($sort) {
+            list($sortField, $sortDir) = explode('|', $sort);
+            if ($sortField && $sortDir) {
+                $customersQuery->orderBy('[['.$sortField.']] '.$sortDir);
+            }
+        }
+
         // Get number of addresses for customers
         $customerIds = $customersQuery->column();
         $addressCountByCustomerId = [];
