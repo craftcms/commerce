@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.6 - 2020-02-06
 
 ### Added
 - It’s now possible to sort customers by email address.
