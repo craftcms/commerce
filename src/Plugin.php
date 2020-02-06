@@ -719,7 +719,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Registers templates hooks for inserting Commerce information in the CP
+     * Registers templates hooks for inserting Commerce information in the control panel
      *
      * @since 2.2
      */
