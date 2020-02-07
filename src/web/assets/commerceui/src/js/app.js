@@ -14,6 +14,9 @@ import OrderTitle from './components/OrderTitle'
 
 
 Vue.config.productionTip = false
+if (process.env.NODE_ENV === 'development') {
+    Vue.config.devtools = true
+}
 Vue.filter('t', t)
 Vue.filter('capitalize', capitalize)
 Vue.component('btn-link', BtnLink)
