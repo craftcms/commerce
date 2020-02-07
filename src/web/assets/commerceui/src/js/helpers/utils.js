@@ -14,6 +14,8 @@ export default {
                 couponCode: draft.order.couponCode,
                 recalculationMode: draft.order.recalculationMode,
                 shippingMethodHandle: draft.order.shippingMethodHandle,
+                shippingAddressId: draft.order.shippingAddressId,
+                billingAddressId: draft.order.billingAddressId,
                 message: draft.order.message,
                 dateOrdered: draft.order.dateOrdered,
                 lineItems: [],

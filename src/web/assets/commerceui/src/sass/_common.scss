@@ -1,5 +1,9 @@
 /* General */
 
+.order-box-sizing * {
+  box-sizing: border-box;
+}
+
 .order-flex {
   display: flex;
 }
@@ -49,4 +53,61 @@
 
 .w-4\/5 {
   width: 80%;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.p-1 {
+  padding: 7px;
+}
+
+.p-2 {
+  padding: 14px;
+}
+
+.px-1 {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.px-2 {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.px-4 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.mx-1 {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.mx-2 {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.mx-4 {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.\-mx-1 {
+  margin-left: -6px;
+  margin-right: -6px;
+}
+
+.\-mx-2 {
+  margin-left: -12px;
+  margin-right: -12px;
+}
+
+.\-mx-4 {
+  margin-left: -24px;
+  margin-right: -24px;
 }

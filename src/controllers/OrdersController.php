@@ -401,7 +401,7 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
         return $order->toArray($orderFields, $extraFields);
     }
 
@@ -983,6 +983,11 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+
+        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode(Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId()), View::POS_BEGIN);
+        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
+        $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
+        Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
         // TODO when we support multiple PDF templates, retrieve them all from a service
         $pdfUrls = [

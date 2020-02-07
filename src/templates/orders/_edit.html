@@ -134,10 +134,11 @@
 {% block content %}
 
     <div id="orderDetailsTab">
-      <div id="order-details-app"></div>
+        <div id="order-customer-app"></div>
+        <hr>
+        <div id="order-details-app"></div>
 
-      {% hook "cp.commerce.order.edit.main-pane" %}
-
+        {% hook "cp.commerce.order.edit.main-pane" %}
     </div>
 
     {% include 'commerce/orders/_customFields' %}

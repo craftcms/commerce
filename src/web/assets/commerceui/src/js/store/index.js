@@ -34,6 +34,10 @@ export default new Vuex.Store({
             return getters.currentUserPermissions['commerce-editOrders']
         },
 
+        countries() {
+            return window.orderEdit.countries
+        },
+
         forceEdit() {
             return window.orderEdit.forceEdit
         },
@@ -68,6 +72,10 @@ export default new Vuex.Store({
 
         shippingCategories() {
             return window.orderEdit.shippingCategories
+        },
+
+        statesByCountryId() {
+            return window.orderEdit.statesByCountryId
         },
 
         pdfUrls() {
