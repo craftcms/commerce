@@ -13,6 +13,7 @@
 
 ### Fixed
 - Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order.([#1234](https://github.com/craftcms/commerce/issues/1243))
+- Ajax requests to `commerce/cart/*` now include line items `subtotal` values.
 
 ## 3.0.6 - 2020-02-06
 

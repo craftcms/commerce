@@ -20,7 +20,6 @@ use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\validators\StringValidator;
 use DateTime;
@@ -374,6 +373,8 @@ class LineItem extends Model
                 return $model->$attribute;
             };
         }
+
+        $fields['subtotal'] = 'subtotal';
 
         return $fields;
     }
