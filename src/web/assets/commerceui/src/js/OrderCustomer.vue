@@ -10,29 +10,12 @@
         <div class="order-flex order-box-sizing -mx-2">
           <div class="w-1/2 px-2">
             <template v-if="hasBillingAddress">
-              <div class="order-flex" style="justify-content: space-between;">
-                <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
-                <btn-link button-class="btn small" @click="handleEditAddress('billing')">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
-              </div>
-
-              <div class="hidden">
-                <div ref="billingaddressform" class="order-address-modal modal fitted">
-                  <div class="body">
-                    <address-form
-                      :title="$options.filters.t('Billing Address', 'commerce')"
-                      :address="draft.order.billingAddress"
-                      :states="statesByCountryId"
-                      :countries="countries"
-                      @update="handleBillingAddressUpdate"></address-form>
-                  </div>
-                  <div class="footer">
-                    <div class="buttons right">
-                      <btn-link button-class="btn" @click="handleEditAddress('billing')">{{$options.filters.t('Close', 'commerce')}}</btn-link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
+              <address-edit
+                :title="titles.billingAddress"
+                :address="draft.order.billingAddress"
+                :originalAddress="draft.order.billingAddress"
+                @update="updateBillingAddress"
+              ></address-edit>
             </template>
             <template v-else>
               Billing Address search / selection
@@ -41,23 +24,12 @@
 
           <div class="w-1/2 px-2">
             <template v-if="hasShippingAddress">
-              <div class="order-flex" style="justify-content: space-between;">
-                <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
-                <btn-link button-class="btn small" @click="handleEditAddress('shipping')">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
-              </div>
-
-
-              <div class="hidden">
-                <div ref="shippingaddressform" class="order-address-modal modal fitted">
-                  <div class="body">
-                    <address-form
-                      :title="$options.filters.t('Shipping Address', 'commerce')"
+              <address-edit
+                      :title="titles.shippingAddress"
                       :address="draft.order.shippingAddress"
-                      :countries="countries"
-                      @update="handleShippingAddressUpdate"></address-form>
-                  </div>
-                </div>
-              </div>
+                      :originalAddress="draft.order.shippingAddress"
+                      @update="updateShippingAddress"
+              ></address-edit>
             </template>
             <template v-else>
               Shipping Address search / selection
@@ -71,19 +43,21 @@
 </template>
 
 <script>
-    /* global Garnish */
-    import {mapState, mapGetters} from 'vuex';
-    import AddressForm from './components/customer/AddressForm';
-    import AddressDisplay from './components/customer/Address';
+    import {mapState} from 'vuex';
+    import AddressEdit from './components/customer/AddressEdit';
 
     export default {
         components: {
-            AddressDisplay,
-            AddressForm,
+            AddressEdit,
         },
 
         data() {
             return {
+                titles: {
+                    billingAddress: this.$options.filters.t('Billing Address', 'commerce'),
+                    shippingAddress: this.$options.filters.t('Shipping Address', 'commerce'),
+                },
+
                 modal: null,
                 modals: {
                     addresses: {
@@ -107,11 +81,6 @@
                 editing: state => state.editing,
                 originalDraft: state => state.originalDraft
             }),
-
-            ...mapGetters([
-                'countries',
-                'statesByCountryId',
-            ]),
 
             draft: {
                 get() {
@@ -137,42 +106,21 @@
         },
 
         methods: {
-            handleBillingAddressUpdate(address) {
-                this.handleUpdateAddress('billing', address);
+            updateBillingAddress(address) {
+                this.updateAddress('billing', address);
             },
 
-            handleShippingAddressUpdate(address) {
-                this.handleUpdateAddress('shipping', address);
+            updateShippingAddress(address) {
+                this.updateAddress('shipping', address);
             },
 
-            handleUpdateAddress(type, address) {
+            updateAddress(type, address) {
                 let draft = this.draft;
                 let key = type + 'Address';
                 draft.order[key] = address;
 
                 this.draft = draft;
             },
-
-            handleEditAddress(type) {
-                let $this = this;
-                if (!this.modals.addresses[type].modal) {
-                    this.modals.addresses[type].modal = new Garnish.Modal(this.$refs[type + 'addressform'], {
-                        autoShow: false,
-                        resizable: false,
-                        onHide() {
-                            $this.modals.addresses[type].isVisible = false;
-                        }
-                    });
-                }
-
-                this.modals.addresses[type].isVisible = !this.modals.addresses[type].isVisible;
-                if (this.modals.addresses[type].isVisible) {
-                    this.modals.addresses[type].modal.show();
-                } else {
-                    this.modals.addresses[type].modal.hide();
-                }
-
-            }
         },
     }
 </script>

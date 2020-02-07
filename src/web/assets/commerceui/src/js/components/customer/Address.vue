@@ -10,6 +10,7 @@
       {{address.address3}}<br v-if="address.address3">
       {{address.city}}<br v-if="address.city">
       {{address.zipCode}}<br v-if="address.zipCode">
+      {{state}} {{address.countryText}}<br v-if="state || address.countryText">
       {{address.phone}}<br v-if="address.phone">
       {{address.alternativePhone}}<br v-if="address.alternativePhone">
       {{address.label}}<br v-if="address.label">
@@ -37,6 +38,20 @@
                 default: null,
             },
         },
+
+        computed: {
+            state() {
+                if (this.address.stateName) {
+                    return this.address.stateName;
+                }
+
+                if (this.address.stateText) {
+                    return this.address.stateText;
+                }
+
+                return null
+            }
+        }
     }
 </script>
 

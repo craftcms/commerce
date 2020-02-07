@@ -70,7 +70,29 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('State', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.state" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update"  v-if="!hasStates"/>
+          <select-input
+                  ref="vSelect"
+                  label="name"
+                  :value="state"
+                  :options="statesList"
+                  :filterable="true"
+                  :clearable="false"
+                  :reduce="name => name.id"
+                  :placeholder="$options.filters.t('Search…', 'commerce')"
+                  :taggable="false"
+                  @input="handleStateChange"
+                  @search="onSearch"
+                  v-if="hasStates">
+            <template v-slot:option="slotProps">
+              <div>{{slotProps.option.name}}</div>
+            </template>
+            <template v-slot:selected-option="slotProps">
+              <div v-if="slotProps.option" @click="onOptionClick">
+                {{slotProps.option.name}}
+              </div>
+            </template>
+          </select-input>
         </field>
       </div>
       <div class="w-1/2 px-1">
@@ -78,14 +100,14 @@
           <select-input
                   ref="vSelect"
                   label="name"
-                  value="id"
-                  v-model="address.countryId"
+                  :value="country"
                   :options="countries"
-                  :filterable="false"
+                  :filterable="true"
                   :clearable="false"
+                  :reduce="name => name.id"
                   :placeholder="$options.filters.t('Search…', 'commerce')"
-                  taggable="false"
-                  @input="onChange"
+                  :taggable="false"
+                  @input="handleCountryChange"
                   @search="onSearch">
             <template v-slot:option="slotProps">
               <div>{{slotProps.option.name}}</div>
@@ -173,8 +195,8 @@
 </template>
 
 <script>
-  import Field from '../Field';
-  import SelectInput from '../SelectInput';
+    import Field from '../Field';
+    import SelectInput from '../SelectInput';
 
     export default {
         components: {
@@ -199,12 +221,79 @@
                 type: [String, null],
                 default: null,
             },
+            reset: {
+                type: Boolean,
+                default: false,
+            },
+        },
 
+        data() {
+            return {
+                countrySelect: null,
+                stateSelect: null,
+            };
         },
 
         methods: {
+            handleCountryChange(option) {
+                this.countrySelect = option;
+                this.$emit('countryUpdate', this.countrySelect);
+            },
+
+            handleStateChange(option) {
+                this.stateSelect = option;
+                this.$emit('stateUpdate', this.stateSelect);
+            },
+
             update() {
                 this.$emit('update', this.address);
+            }
+        },
+
+        computed: {
+            country() {
+                if (this.countrySelect) {
+                    return this.countrySelect;
+                }
+
+                if (this.address && this.address.countryText) {
+                    return {id: this.address.countryId, name: this.address.countryText};
+                }
+
+                return null;
+            },
+
+            state() {
+                if (this.stateSelect) {
+                    return this.stateSelect;
+                }
+
+                if (this.address && this.address.stateValue && this.address.stateId) {
+                    return {id: this.address.stateValue, name: this.address.stateText};
+                }
+
+                return null;
+            },
+
+            statesList() {
+                if (!this.hasStates) {
+                    return null;
+                }
+
+                return this.states[this.country.id];
+            },
+
+            hasStates() {
+                return (this.country && Object.keys(this.states).indexOf(this.country.id) !== -1)
+            },
+        },
+
+        watch: {
+            reset(val) {
+                if (val) {
+                    this.countrySelect = null;
+                    this.stateSelect = null;
+                }
             }
         },
     }

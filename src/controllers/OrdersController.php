@@ -988,7 +988,21 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
 
-        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode(Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId()), View::POS_BEGIN);
+        $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
+
+        if (!empty($statesList)) {
+            foreach ($statesList as &$states) {
+                foreach ($states as $key => &$state) {
+                    $state = [
+                        'id' => $key,
+                        'name' => $state,
+                    ];
+                }
+                $states = array_values($states);
+            }
+        }
+
+        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode($statesList), View::POS_BEGIN);
         $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
         $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
         Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
