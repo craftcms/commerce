@@ -2,13 +2,26 @@
 
 ## Unreleased
 
+### Changed
+- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
+
 ### Added
-- Added the ability to sort the customer list by email in the control panel.
+- Added `craft\commerce\models\LineItem::$sku`.
+- Added `craft\commerce\models\LineItem::$description`.
+- Added `craft\commerce\elements\Order::$dateAuthorized`.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
+
+## 3.0.6 - 2020-02-06
+
+### Added
+- It’s now possible to sort customers by email address.
 
 ### Fixed
-- Fixed a bug that prevented CP users refunding orders even if they had correct permissions. ([#1259](https://github.com/craftcms/commerce/issues/1259))
-- Fixed an error that could occur when using PHP 7.0. ([#1262](https://github.com/craftcms/commerce/issues/1262))
-- Fixed a bug where selecting save and return to orders would not redirect back to the Orders index. ([#1266](https://github.com/craftcms/commerce/issues/1266))
+- Fixed PHP 7.0 compatibility. ([#1262](https://github.com/craftcms/commerce/issues/1262))
+- Fixed a bug where it wasn’t possible to refund orders. ([#1259](https://github.com/craftcms/commerce/issues/1259))
+- Fixed a bug where it wasn’t possible to add purchasables to an order on the Edit Order page.
+- Fixed a bug where clicking on “Save and return to all orders” wouldn’t redirect back to the Orders index page. ([#1266](https://github.com/craftcms/commerce/issues/1266))
+- Fixed an error that occurred when attempting to open a product editor HUD.
 
 ## 3.0.5 - 2020-01-31
 

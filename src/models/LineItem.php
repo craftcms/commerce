@@ -32,7 +32,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * Line Item model representing a line item on an order.
  *
  * @property array|OrderAdjustment[] $adjustments
- * @property string $description the description from the snapshot of the purchasable
  * @property float $discount
  * @property bool $onSale
  * @property array $options
@@ -40,7 +39,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
  * @property int $shippingCost
- * @property string $sku the description from the snapshot of the purchasable
  * @property int $tax
  * @property float $total the subTotal plus any adjustments belonging to this line item
  * @property TaxCategory $taxCategory
@@ -56,6 +54,11 @@ class LineItem extends Model
      * @var int|null ID
      */
     public $id;
+
+    /**
+     * @var string Description
+     */
+    public $description;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -101,6 +104,11 @@ class LineItem extends Model
      * @var mixed Snapshot
      */
     public $snapshot;
+
+    /**
+     * @var string SKU
+     */
+    public $sku;
 
     /**
      * @var string Note
@@ -500,12 +508,12 @@ class LineItem extends Model
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder());
+        $this->sku = $purchasable->getSku();
+        $this->description = $purchasable->getDescription();
 
         // Check to see if there is a discount applied that ignores Sales
         $ignoreSales = false;
-        foreach ($discounts as $discount) {
+        foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
                 if ($discount->ignoreSales) {
@@ -555,30 +563,6 @@ class LineItem extends Model
         }
 
         return false;
-    }
-
-    /**
-     * Returns the description from the snapshot of the purchasable
-     */
-    public function getDescription(): string
-    {
-        $purchasable = $this->getPurchasable();
-        $snapshotDescription = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
-        $liveDescription = $purchasable ? $purchasable->getDescription() : '';
-
-        return $snapshotDescription ?: $liveDescription;
-    }
-
-    /**
-     * Returns the Sku from the snapshot of the purchasable
-     */
-    public function getSku(): string
-    {
-        $purchasable = $this->getPurchasable();
-        $snapshotSku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
-        $liveSku = $purchasable ? $purchasable->getSku() : '';
-
-        return $snapshotSku ?: $liveSku;
     }
 
     /**

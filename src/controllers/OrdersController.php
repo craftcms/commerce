@@ -412,10 +412,22 @@ class OrdersController extends Controller
      */
     public function actionPurchasableSearch($query = null)
     {
-        if($query === null)
-        {
-            return $this->asJson([]);
+
+        if ($query === null) {
+            $results = (new Query())
+                ->select(['id', 'price', 'description', 'sku'])
+                ->from('{{%commerce_purchasables}}')
+                ->limit(10)
+                ->all();
+            if (!$results) {
+                return $this->asJson([]);
+            }
+
+            $purchasables = $this->_addLivePurchasableInfo($results);
+
+            return $this->asJson($purchasables);
         }
+
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
@@ -424,11 +436,14 @@ class OrdersController extends Controller
 
         // Are they searching for a purchasable ID?
         if (is_numeric($query)) {
-            $result = $sqlQuery->where(['id' => $query])->all();
-            if (!$result) {
+            $results = $sqlQuery->where(['id' => $query])->all();
+            if (!$results) {
                 return $this->asJson([]);
             }
-            return $this->asJson($result);
+
+            $purchasables = $this->_addLivePurchasableInfo($results);
+
+            return $this->asJson($purchasables);
         }
 
         // Are they searching for a SKU or purchasable description?
@@ -440,24 +455,13 @@ class OrdersController extends Controller
             ]);
         }
 
-        $result = $sqlQuery->limit(30)->all();
+        $results = $sqlQuery->limit(30)->all();
 
-        if (!$result) {
+        if (!$results) {
             return $this->asJson([]);
         }
 
-        $purchasables = [];
-
-        // Add the currency formatted price
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        foreach ($result as $row) {
-            /** @var PurchasableInterface $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-                $row['isAvailable'] = $purchasable->getIsAvailable();
-                $purchasables[] = $row;
-            }
-        }
+        $purchasables = $this->_addLivePurchasableInfo($results);
 
         return $this->asJson($purchasables);
     }
@@ -1241,5 +1245,27 @@ class OrdersController extends Controller
         }
 
         return $return;
+    }
+
+    /**
+     * @param array $results
+     * @param string $baseCurrency
+     * @param array $purchasables
+     * @return array
+     * @throws InvalidConfigException
+     */
+    private function _addLivePurchasableInfo(array $results): array
+    {
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $purchasables = [];
+        foreach ($results as $row) {
+            /** @var PurchasableInterface $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $purchasables[] = $row;
+            }
+        }
+        return $purchasables;
     }
 }

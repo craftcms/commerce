@@ -178,7 +178,7 @@ class Payments extends Component
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
             // Long story short - a plugin said "no."
-            throw new PaymentException(Plugin::t( 'Unable to make payment at this time.'));
+            throw new PaymentException(Plugin::t('Unable to make payment at this time.'));
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
@@ -199,10 +199,10 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(Plugin::t( 'Gateway doesn’t support authorize'));
+                throw new PaymentException(Plugin::t('Gateway doesn’t support authorize'));
             }
         } else if (!$gateway->supportsPurchase()) {
-            throw new PaymentException(Plugin::t( 'Gateway doesn’t support purchase'));
+            throw new PaymentException(Plugin::t('Gateway doesn’t support purchase'));
         }
 
         //creating order, transaction and request
@@ -414,9 +414,31 @@ class Payments extends Component
      * @param Order $order
      * @return float
      */
+    public function getTotalAuthorizedOnlyForOrder(Order $order): float
+    {
+        $amount = 0;
+        if ($order->id) {
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTopLevelTransactionsByOrderId($order->id);
+            foreach ($transactions as $transaction) {
+                $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
+                $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
+                if ($isSuccess && $isAuth && !$transaction->getChildTransactions()) {
+                    $amount += $transaction->amount;
+                }
+            }
+        }
+        return $amount;
+    }
+
+    /**
+     * Gets the total transactions amount with authorized.
+     *
+     * @param Order $order
+     * @return float
+     */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        $authorized = (float)(new Query())
+        return (float)(new Query())
             ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
@@ -424,8 +446,6 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
-
-        return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
 
@@ -522,11 +542,11 @@ class Payments extends Component
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support refunds.'));
+                throw new SubscriptionException(Plugin::t('Gateway doesn’t support refunds.'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support partial refunds.'));
+                throw new SubscriptionException(Plugin::t('Gateway doesn’t support partial refunds.'));
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);

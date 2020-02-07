@@ -347,17 +347,22 @@ class Variant extends Purchasable
      * Returns the product title and variants title together for variable products.
      *
      * @return string
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
     public function getDescription(): string
     {
-        $format = $this->getProduct()->getType()->descriptionFormat;
+        $description = $this->title;
 
-        if ($format) {
-            return Craft::$app->getView()->renderObjectTemplate($format, $this);
+        if ($format = $this->getProduct()->getType()->descriptionFormat) {
+            if ($rendered = Craft::$app->getView()->renderObjectTemplate($format, $this)) {
+                $description = $rendered;
+            }
         }
 
         // If title is not set yet default to blank string
-        return $this->title ?? '';
+        return $description;
     }
 
     /**
