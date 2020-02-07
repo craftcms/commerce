@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+### Changed
+- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
+
 ### Added
+- Added `craft\commerce\models\LineItem::$sku`.
+- Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
 

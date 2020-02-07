@@ -182,6 +182,8 @@ class LineItems extends Component
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
         $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
+        $lineItemRecord->sku = $lineItem->sku;
+        $lineItemRecord->description = $lineItem->description;
 
         $lineItemRecord->options = $lineItem->getOptions();
         $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();
@@ -329,6 +331,8 @@ class LineItems extends Component
                 'price',
                 'saleAmount',
                 'salePrice',
+                'sku',
+                'description',
                 'weight',
                 'length',
                 'height',
