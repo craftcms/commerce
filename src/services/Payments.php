@@ -414,9 +414,31 @@ class Payments extends Component
      * @param Order $order
      * @return float
      */
+    public function getTotalAuthorizedOnlyForOrder(Order $order): float
+    {
+        $amount = 0;
+        if ($order->id) {
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTopLevelTransactionsByOrderId($order->id);
+            foreach ($transactions as $transaction) {
+                $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
+                $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
+                if ($isSuccess && $isAuth && !$transaction->getChildTransactions()) {
+                    $amount += $transaction->amount;
+                }
+            }
+        }
+        return $amount;
+    }
+
+    /**
+     * Gets the total transactions amount with authorized.
+     *
+     * @param Order $order
+     * @return float
+     */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
-        $authorized = (float)(new Query())
+        return (float)(new Query())
             ->from([Table::TRANSACTIONS])
             ->where([
                 'orderId' => $order->id,
@@ -424,8 +446,6 @@ class Payments extends Component
                 'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
             ])
             ->sum('amount');
-
-        return $authorized - $this->getTotalRefundedForOrder($order);
     }
 
 

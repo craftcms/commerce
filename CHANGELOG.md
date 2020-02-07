@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\elements\Order::$dateAuthorized`.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
+
 ## 3.0.6 - 2020-02-06
 
 ### Added

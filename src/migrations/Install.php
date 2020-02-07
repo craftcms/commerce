@@ -374,6 +374,7 @@ class Install extends Migration
             'isCompleted' => $this->boolean(),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
+            'dateAuthorized' => $this->dateTime(),
             'currency' => $this->string(),
             'paymentCurrency' => $this->string(),
             'lastIp' => $this->string(),
