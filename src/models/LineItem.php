@@ -177,7 +177,7 @@ class LineItem extends Model
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,

@@ -2,14 +2,17 @@
 
 ## Unreleased
 
-### Changed
-- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
-
 ### Added
 - Added `craft\commerce\models\LineItem::$sku`.
 - Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
+
+### Changed
+- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
+
+### Fixed
+- Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order.([#1234](https://github.com/craftcms/commerce/issues/1243))
 
 ## 3.0.6 - 2020-02-06
 
