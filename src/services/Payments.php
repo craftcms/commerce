@@ -178,7 +178,7 @@ class Payments extends Component
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
             // Long story short - a plugin said "no."
-            throw new PaymentException(Plugin::t( 'Unable to make payment at this time.'));
+            throw new PaymentException(Plugin::t('Unable to make payment at this time.'));
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
@@ -199,10 +199,10 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(Plugin::t( 'Gateway doesn’t support authorize'));
+                throw new PaymentException(Plugin::t('Gateway doesn’t support authorize'));
             }
         } else if (!$gateway->supportsPurchase()) {
-            throw new PaymentException(Plugin::t( 'Gateway doesn’t support purchase'));
+            throw new PaymentException(Plugin::t('Gateway doesn’t support purchase'));
         }
 
         //creating order, transaction and request
@@ -542,11 +542,11 @@ class Payments extends Component
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support refunds.'));
+                throw new SubscriptionException(Plugin::t('Gateway doesn’t support refunds.'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new SubscriptionException(Plugin::t( 'Gateway doesn’t support partial refunds.'));
+                throw new SubscriptionException(Plugin::t('Gateway doesn’t support partial refunds.'));
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
