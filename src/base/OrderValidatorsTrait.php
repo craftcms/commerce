@@ -3,11 +3,13 @@
 namespace craft\commerce\base;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -87,11 +89,33 @@ trait OrderValidatorsTrait
         /** @var Address $address */
         $address = $this->$attribute;
 
-        if ($customer && $address) {
-            $addressesIds = Plugin::getInstance()->getCustomers()->getAddressIds($customer->id);
+        // We need to have a customer ID and an address ID
+        if ($customer && $customer->id && $address && $address->id) {
 
-            if ($address->id && !in_array($address->id, $addressesIds, false)) {
-                $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
+            $anotherOrdersAddress = false;
+
+            // Is another customer related to this address?
+            $anotherCustomerAddress = (new Query())
+                ->select('id')
+                ->from([Table::CUSTOMERS_ADDRESSES])
+                ->where(['not', ['customerId' => $customer->id]])
+                ->andWhere(['addressId' => $address->id])
+                ->all();
+
+
+            // Don't do an additional query if we already have an invalid address
+            if ($anotherCustomerAddress) {
+                // Is another order using this address?
+                $anotherOrdersAddress = (new Query())
+                    ->select('id')
+                    ->from([Table::ORDERS])
+                    ->where(['not', ['id' => $this->id]])
+                    ->andWhere(['or', ['shippingAddressId' => $address->id], ['billingAddressId' => $address->id]])
+                    ->all();
+            }
+
+            if ($anotherCustomerAddress || $anotherOrdersAddress) {
+                $address->addError($attribute, Plugin::t('Address does not belong to customer.'));
                 $this->addModelErrors($address, $attribute);
             }
         }
