@@ -1,22 +1,29 @@
 <template>
   <div>
-    <div class="order-flex justify-between">
+    <div class="order-address-display">
       <address-display :title="title" :address="address"></address-display>
-      <btn-link button-class="btn small" @click="open">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
+
+      <div class="order-address-display-buttons order-flex">
+        <address-select
+          :customer-id="customerId"
+          @update="handleSelect"
+        ></address-select>
+        <btn-link button-class="btn small" @click="open">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
+      </div>
     </div>
 
     <div class="hidden">
       <div ref="addressmodal" class="order-address-modal modal fitted">
         <div class="body">
           <address-form
-                  :title="title"
-                  :address="draftAddress"
-                  :states="statesByCountryId"
-                  :countries="countries"
-                  :reset="!isVisible"
-                  @countryUpdate="handleCountrySelect"
-                  @stateUpdate="handleStateSelect"
-                  ></address-form>
+            :title="title"
+            :address="draftAddress"
+            :states="statesByCountryId"
+            :countries="countries"
+            :reset="!isVisible"
+            @countryUpdate="handleCountrySelect"
+            @stateUpdate="handleStateSelect"
+            ></address-form>
         </div>
         <div class="footer">
           <div class="buttons right">
@@ -29,30 +36,52 @@
   </div>
 </template>
 
+<style scoped lang="scss">
+  .order-address-display {
+    position: relative;
+
+    &-buttons {
+      position: absolute;
+      top: 0;
+      right: 0;
+
+      .btn:last-child {
+        margin-left: 4px;
+      }
+    }
+  }
+</style>
+
 <script>
     /* global Garnish */
     import {mapGetters} from 'vuex';
     import AddressForm from './AddressForm';
     import AddressDisplay from './Address';
+    import AddressSelect from './AddressSelect';
 
     export default {
         components: {
             AddressDisplay,
             AddressForm,
+            AddressSelect,
         },
 
         props: {
-            title: {
-                type: String,
-                default: '',
+            address: {
+                type: [Object, null],
+                default: null,
+            },
+            customerId: {
+                type: [Number, null],
+                default: null,
             },
             draftAddress: {
                 type: [Object, null],
                 default: null,
             },
-            address: {
-                type: [Object, null],
-                default: null,
+            title: {
+                type: String,
+                default: '',
             },
         },
 
@@ -132,6 +161,12 @@
                 }
             },
 
+            handleSelect(address) {
+                if (address) {
+                  this.$emit('update', address);
+                }
+            },
+
             handleCountrySelect(country) {
                 this.country = country;
             },
@@ -151,7 +186,3 @@
         }
     }
 </script>
-
-<style scoped>
-
-</style>

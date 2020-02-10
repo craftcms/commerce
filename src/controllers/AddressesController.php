@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\AdminTable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -210,5 +211,52 @@ class AddressesController extends BaseCpController
 
         Plugin::getInstance()->getAddresses()->deleteAddressById($id);
         return $this->asJson(['success' => true]);
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 3.1
+     */
+    public function actionGetCustomerAddresses()
+    {
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $customerId = $request->getRequiredParam('customerId');
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+
+        if (!$customer) {
+            return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
+        }
+
+        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
+
+        $total = count($addresses);
+
+        $rows = [];
+
+        foreach (array_slice($addresses, 0, $limit) as $row) {
+            /** @var AddressModel $row */
+            $rows[] = [
+                'id' => $row->id,
+                'title' => $row->address1,
+                'zipCode' => $row->zipCode,
+                'billing' => ($row->id == $customer->primaryBillingAddressId),
+                'shipping' => ($row->id == $customer->primaryShippingAddressId),
+                'address' => $row,
+            ];
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
     }
 }

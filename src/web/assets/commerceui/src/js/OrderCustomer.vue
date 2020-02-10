@@ -14,6 +14,7 @@
                 :title="titles.billingAddress"
                 :address="draft.order.billingAddress"
                 :originalAddress="draft.order.billingAddress"
+                :customer-id="draft.order.customerId"
                 @update="updateBillingAddress"
               ></address-edit>
             </template>
@@ -25,10 +26,11 @@
           <div class="w-1/2 px-2">
             <template v-if="hasShippingAddress">
               <address-edit
-                      :title="titles.shippingAddress"
-                      :address="draft.order.shippingAddress"
-                      :originalAddress="draft.order.shippingAddress"
-                      @update="updateShippingAddress"
+                :title="titles.shippingAddress"
+                :address="draft.order.shippingAddress"
+                :originalAddress="draft.order.shippingAddress"
+                :customer-id="draft.order.customerId"
+                @update="updateShippingAddress"
               ></address-edit>
             </template>
             <template v-else>
@@ -117,7 +119,9 @@
             updateAddress(type, address) {
                 let draft = this.draft;
                 let key = type + 'Address';
+                let idKey = key + 'Id'
                 draft.order[key] = address;
+                draft.order[idKey] = address.id;
 
                 this.draft = draft;
             },
