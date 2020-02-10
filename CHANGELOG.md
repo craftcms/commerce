@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 2.2.16 - 2020-02-10
+
+### Change
+- Improved the performance of the Orders index page.
+
+### Fixed
+- Fixed a bug where customers could get an “Address does not belong to customer” validation error incorrectly during checkout. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+
 ## 2.2.15 - 2020-01-25
 
 ### Fixed
