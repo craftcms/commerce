@@ -74,8 +74,8 @@
                 currentTableData: null,
                 purchasableTableColumns: [
                     { name: 'description', title: this.$options.filters.t('Description', 'commerce') },
-                    { name:'sku', title: this.$options.filters.t('SKU', 'commerce') },
-                    { name:'priceAsCurrency', title: this.$options.filters.t('Price', 'commerce') },
+                    { name: 'sku', title: this.$options.filters.t('SKU', 'commerce') },
+                    { name: 'priceAsCurrency', title: this.$options.filters.t('Price', 'commerce') },
                     { name: 'isAvailable', title: this.$options.filters.t('Available?', 'commerce'), callback: function(value) {
                         if (value) {
                             return '<span data-icon="check" title=""></span>'
