@@ -71,7 +71,7 @@ class Transactions extends Component
      */
     public function canCaptureTransaction(Transaction $transaction): bool
     {
-        // Can refund only successful authorize transactions
+        // Can only capture successful authorize transactions
         if ($transaction->type !== TransactionRecord::TYPE_AUTHORIZE || $transaction->status !== TransactionRecord::STATUS_SUCCESS) {
             return false;
         }
@@ -220,6 +220,8 @@ class Transactions extends Component
      *
      * @param Transaction $transaction the transaction to delete
      * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function deleteTransaction(Transaction $transaction): bool
     {
@@ -230,6 +232,24 @@ class Transactions extends Component
         }
 
         return false;
+    }
+
+    /**
+     * @param int $orderId the order's ID
+     * @return array|Transaction[]
+     */
+    public function getAllTopLevelTransactionsByOrderId($orderId)
+    {
+        $transactions = $this->getAllTransactionsByOrderId($orderId);
+
+        foreach ($transactions as $key => $transaction) {
+            // Remove transactions that have a parentId
+            if ($transaction->parentId) {
+                unset($transactions[$key]);
+            }
+        }
+
+        return $transactions;
     }
 
     /**

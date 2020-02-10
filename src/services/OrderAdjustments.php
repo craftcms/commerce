@@ -117,7 +117,9 @@ class OrderAdjustments extends Component
 
         foreach ($rows as $row) {
             $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-            $adjustments[] = new OrderAdjustment($row);
+            $adjustment = new OrderAdjustment($row);
+            $adjustment->typecastAttributes();
+            $adjustments[] = $adjustment;
         }
 
         return $adjustments;

@@ -1,5 +1,22 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\models\LineItem::$sku`.
+- Added `craft\commerce\models\LineItem::$description`.
+- Added `craft\commerce\elements\Order::$dateAuthorized`.
+- Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
+
+### Changed
+- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
+
+### Fixed
+- Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order. ([#1234](https://github.com/craftcms/commerce/issues/1243))
+- Ajax requests to `commerce/cart/*` now include line items `subtotal` values. ([#1263](https://github.com/craftcms/commerce/issues/1263))
+- Fixed a JavaScript error that occurred when editing products. ([#1273](https://github.com/craftcms/commerce/issues/1273))
+- Restored missing “New Subscription Plan” button. ([#1271](https://github.com/craftcms/commerce/pull/1271)) 
+
 ## 3.0.6 - 2020-02-06
 
 ### Added
@@ -236,6 +253,14 @@
 - Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
+
+## 2.2.16 - 2020-02-10
+
+### Change
+- Improved the performance of the Orders index page.
+
+### Fixed
+- Fixed a bug where customers could get an “Address does not belong to customer” validation error incorrectly during checkout. ([#1227](https://github.com/craftcms/commerce/issues/1227))
 
 ## 2.2.15 - 2020-01-25
 

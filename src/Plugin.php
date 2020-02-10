@@ -121,7 +121,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.4';
+    public $schemaVersion = '3.0.8';
 
     /**
      * @inheritdoc
@@ -179,6 +179,7 @@ class Plugin extends BasePlugin
      */
     public function beforeInstall(): bool
     {
+        // Check version before installing
         if (version_compare(Craft::$app->getInfo()->version, '3.0', '<')) {
             throw new Exception('Craft Commerce 2 requires Craft CMS 3+ in order to run.');
         }
@@ -719,7 +720,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Registers templates hooks for inserting Commerce information in the CP
+     * Registers templates hooks for inserting Commerce information in the control panel
      *
      * @since 2.2
      */
