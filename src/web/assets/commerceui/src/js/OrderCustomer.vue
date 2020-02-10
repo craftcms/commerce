@@ -121,6 +121,19 @@
 
                 this.draft = draft;
             },
+
+            removeCustomer() {
+                if (confirm(this.$options.filters.t('Are you sure you want to remove this customer?', 'commerce'))) {
+                    let draft = this.draft;
+                    draft.order.customerId = null;
+                    draft.order.billingAddressId = null;
+                    draft.order.billingAddress = null;
+                    draft.order.shippingAddressId = null;
+                    draft.order.shippingAddress = null;
+
+                    this.draft = draft;
+                }
+            }
         },
     }
 </script>
