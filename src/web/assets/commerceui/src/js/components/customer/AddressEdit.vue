@@ -4,15 +4,37 @@
       <address-display :title="title" :address="address"></address-display>
 
       <div class="order-address-display-buttons order-flex">
+        <btn-link button-class="btn small" @click="open('new')">{{$options.filters.t('New', 'commerce')}}</btn-link>
         <address-select
           :customer-id="customerId"
           @update="handleSelect"
         ></address-select>
-        <btn-link button-class="btn small" @click="open">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
+        <btn-link button-class="btn small" @click="open('edit')">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
       </div>
     </div>
 
     <div class="hidden">
+      <div ref="newaddressmodal" class="order-address-modal modal fitted">
+        <div class="body">
+          <address-form
+            :title="title"
+            :address="newAddress"
+            :states="statesByCountryId"
+            :countries="countries"
+            :reset="!modals.new.isVisible"
+            :new-address="true"
+            @countryUpdate="handleNewCountrySelect"
+            @stateUpdate="handleNewStateSelect"
+          ></address-form>
+        </div>
+        <div class="footer">
+          <div class="buttons right">
+            <btn-link button-class="btn" @click="close('new')">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
+            <btn-link button-class="btn submit" @click="done('new')">{{$options.filters.t('Done', 'commerce')}}</btn-link>
+          </div>
+        </div>
+      </div>
+
       <div ref="addressmodal" class="order-address-modal modal fitted">
         <div class="body">
           <address-form
@@ -20,15 +42,15 @@
             :address="draftAddress"
             :states="statesByCountryId"
             :countries="countries"
-            :reset="!isVisible"
-            @countryUpdate="handleCountrySelect"
-            @stateUpdate="handleStateSelect"
+            :reset="!modals.edit.isVisible"
+            @countryUpdate="handleEditCountrySelect"
+            @stateUpdate="handleEditStateSelect"
             ></address-form>
         </div>
         <div class="footer">
           <div class="buttons right">
-            <btn-link button-class="btn" @click="close">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-            <btn-link button-class="btn submit" @click="done">{{$options.filters.t('Done', 'commerce')}}</btn-link>
+            <btn-link button-class="btn" @click="close('edit')">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
+            <btn-link button-class="btn submit" @click="done('edit')">{{$options.filters.t('Done', 'commerce')}}</btn-link>
           </div>
         </div>
       </div>
@@ -45,8 +67,8 @@
       top: 0;
       right: 0;
 
-      .btn:last-child {
-        margin-left: 4px;
+      *:not(:last-child) {
+        margin-right: 4px;
       }
     }
   }
@@ -87,7 +109,58 @@
 
         data() {
             return {
+                newAddress: {
+                    id: 'new',
+                    isStoreLocation: false,
+                    attention: null,
+                    title: null,
+                    firstName: null,
+                    lastName: null,
+                    fullName: null,
+                    address1: null,
+                    address2: null,
+                    address3: null,
+                    city: null,
+                    zipCode: null,
+                    phone: null,
+                    alternativePhone: null,
+                    label: null,
+                    businessName: null,
+                    businessTaxId: null,
+                    businessId: null,
+                    stateName: null,
+                    countryId: null,
+                    stateId: null,
+                    notes: null,
+                    custom1: null,
+                    custom2: null,
+                    custom3: null,
+                    custom4: null,
+                    isEstimated: null,
+                    countryText: null,
+                    stateText: null,
+                    stateValue: null,
+                    abbreviationText: null
+                },
                 country: null,
+                modals: {
+                    edit: {
+                        country: null,
+                        ref: 'addressmodal',
+                        modal: null,
+                        isVisible: false,
+                        save: false,
+                        state: null,
+                    },
+                    new: {
+                        country: null,
+                        ref: 'newaddressmodal',
+                        modal: null,
+                        isVisible: false,
+                        save: false,
+                        state: null,
+                    }
+                },
                 modal: null,
                 isVisible: false,
                 save: false,
@@ -103,34 +176,14 @@
         },
 
         methods: {
-            _initModal() {
+            _initModal(type) {
                 let $this = this;
 
-                this.modal = new Garnish.Modal(this.$refs.addressmodal, {
+                this.modals[type].modal = new Garnish.Modal(this.$refs[this.modals[type].ref], {
                     autoShow: false,
                     resizable: false,
                     onHide() {
-                        $this.isVisible = false;
-                        if ($this.save) {
-                            if ($this.country) {
-                                $this.draftAddress.countryId = $this.country.id;
-                                $this.draftAddress.countryText = $this.country.name;
-                            }
-
-                            if ($this.state) {
-                                $this.draftAddress.stateName = null;
-                                $this.draftAddress.stateId = $this.state.id;
-                                $this.draftAddress.stateValue = $this.state.id;
-                                $this.draftAddress.stateText = $this.state.name;
-                            }
-
-                            $this.$emit('update', $this.draftAddress);
-                            $this.save = false;
-                        } else {
-                            $this.country = null;
-                            $this.state = null;
-                            $this.draftAddress = JSON.parse(JSON.stringify($this.address));
-                        }
+                        $this.onHide(type);
                     }
                 });
             },
@@ -139,25 +192,92 @@
                 this.draftAddress = JSON.parse(JSON.stringify(this.address));
             },
 
-            open() {
-                if (!this.modal) {
-                    this._initModal()
-                }
+            _setBlankNewAddress() {
+                this.newAddress = {
+                    id: 'new',
+                    isStoreLocation: false,
+                    attention: null,
+                    title: null,
+                    firstName: null,
+                    lastName: null,
+                    fullName: null,
+                    address1: null,
+                    address2: null,
+                    address3: null,
+                    city: null,
+                    zipCode: null,
+                    phone: null,
+                    alternativePhone: null,
+                    label: null,
+                    businessName: null,
+                    businessTaxId: null,
+                    businessId: null,
+                    stateName: null,
+                    countryId: null,
+                    stateId: null,
+                    notes: null,
+                    custom1: null,
+                    custom2: null,
+                    custom3: null,
+                    custom4: null,
+                    isEstimated: null,
+                    countryText: null,
+                    stateText: null,
+                    stateValue: null,
+                    abbreviationText: null
+                };
+            },
 
-                if (!this.isVisible) {
-                    this.isVisible = true;
-                    this._setAddress();
-                    this.modal.show();
+            onHide(type) {
+                this.modals[type].isVisible = false;
+                if (this.modals[type].save) {
+                    let updateAddress = this.draftAddress;
+
+                    if (type == 'new') {
+                        updateAddress = this.newAddress;
+                    }
+
+                    if (this.modals[type].country) {
+                        updateAddress.countryId = this.modals[type].country.id;
+                        updateAddress.countryText = this.modals[type].country.name;
+                    }
+
+                    if (this.modals[type].state) {
+                        updateAddress.stateName = null;
+                        updateAddress.stateId = this.modals[type].state.id;
+                        updateAddress.stateValue = this.modals[type].state.id;
+                        updateAddress.stateText = this.modals[type].state.name;
+                    }
+
+                    this.$emit('update', updateAddress);
+                    this.modals[type].save = false;
+                } else {
+                    this.modals[type].country = null;
+                    this.modals[type].state = null;
+                    this._setBlankNewAddress();
+                    this.draftAddress = JSON.parse(JSON.stringify(this.address));
                 }
             },
 
-            close() {
-                if (!this.modal) {
+            open(type) {
+                if (!this.modals[type].modal) {
+                    this._initModal(type);
+                }
+
+                if (!this.modals[type].isVisible) {
+                    this.modals[type].isVisible = true;
+                    this._setAddress();
+                    this.modals[type].modal.show();
+                }
+            },
+
+            close(type) {
+                if (!this.modals[type].modal) {
                     this._initModal()
                 }
 
-                if (this.isVisible) {
-                    this.modal.hide();
+                if (this.modals[type].isVisible) {
+                    this.modals[type].modal.hide();
                 }
             },
 
@@ -167,22 +287,31 @@
                 }
             },
 
-            handleCountrySelect(country) {
-                this.country = country;
+            handleEditCountrySelect(country) {
+                this.modals.edit.country = country;
             },
 
-            handleStateSelect(state) {
-                this.state = state;
+            handleEditStateSelect(state) {
+                this.modals.edit.state = state;
             },
 
-            done() {
-                this.save = true;
-                this.close();
+            handleNewCountrySelect(country) {
+                this.modals.edit.country = country;
+            },
+
+            handleNewStateSelect(state) {
+                this.modals.edit.state = state;
+            },
+
+            done(type) {
+                this.modals[type].save = true;
+                this.close(type);
             },
         },
 
         created() {
             this._setAddress();
+            this._setBlankNewAddress();
         }
     }
 </script>

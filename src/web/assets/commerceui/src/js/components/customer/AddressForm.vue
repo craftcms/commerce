@@ -225,6 +225,10 @@
                 type: Boolean,
                 default: false,
             },
+            newAddress: {
+                type: Boolean,
+                default: false,
+            },
         },
 
         data() {
