@@ -1,6 +1,6 @@
 <template>
   <div v-if="customerId">
-    <btn-link button-class="btn small" @click="open">{{$options.filters.t('Select', 'commerce')}}</btn-link>
+    <a @click.prevent="open">{{$options.filters.t('Select address', 'commerce')}}</a>
 
     <div class="hidden">
       <div ref="addressselectmodal" class="order-address-modal modal fitted">

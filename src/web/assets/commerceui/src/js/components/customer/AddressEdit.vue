@@ -4,12 +4,29 @@
       <address-display :title="title" :address="address"></address-display>
 
       <div class="order-address-display-buttons order-flex">
-        <btn-link button-class="btn small" @click="open('new')">{{$options.filters.t('New', 'commerce')}}</btn-link>
-        <address-select
-          :customer-id="customerId"
-          @update="handleSelect"
-        ></address-select>
-        <btn-link button-class="btn small" @click="open('edit')">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
+        <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="addressmenubtn"></div>
+        <div class="menu">
+          <ul>
+            <li>
+              <a @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
+            </li>
+            <li>
+              <address-select
+                :customer-id="customerId"
+                @update="handleSelect"
+              ></address-select>
+            </li>
+            <li>
+              <a @click.prevent="open('new')">{{$options.filters.t('New address', 'commerce')}}</a>
+            </li>
+          </ul>
+          <hr>
+          <ul>
+            <li>
+              <a class="error" @click.prevent="">{{$options.filters.t('Remove address', 'commerce')}}</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -312,6 +329,10 @@
         created() {
             this._setAddress();
             this._setBlankNewAddress();
-        }
+        },
+
+        mounted() {
+            new Garnish.MenuBtn(this.$refs.updateMenuBtn)
+        },
     }
 </script>
