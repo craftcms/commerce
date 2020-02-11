@@ -2,7 +2,8 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
-import ordersApi from '../api/orders';
+import ordersApi from '../api/orders'
+import addressesApi from '../api/addresses'
 import utils from '../helpers/utils'
 
 Vue.use(Vuex)
@@ -289,6 +290,26 @@ export default new Vuex.Store({
 
         sendEmail(context, emailTemplateId) {
             return ordersApi.sendEmail(emailTemplateId)
+        },
+
+        validateAddress(context, address) {
+            return addressesApi.validate(address)
+                .then((response) => {
+                    if (response.data) {
+                        return response.data;
+                    }
+
+                    return response;
+                })
+                .catch((error) => {
+                    let errorMsg = "Couldn’t validate address."
+
+                    if (error.response.data.error) {
+                        errorMsg = error.response.data.error
+                    }
+
+                    throw errorMsg
+                });
         }
     },
 

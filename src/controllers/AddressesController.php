@@ -259,4 +259,44 @@ class AddressesController extends BaseCpController
             'data' => $rows,
         ]);
     }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     */
+    public function actionValidate(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $addressPost = $request->getParam('address', null);
+
+        if (!$addressPost) {
+            return $this->asErrorJson(Plugin::t('An address must be provided.'));
+        }
+
+        // Remove readonly attributes
+        $readOnly = [
+            'countryText',
+            'stateText',
+            'abbreviationText',
+        ];
+        foreach ($readOnly as $item) {
+            if (isset($addressPost[$item])) {
+                unset($addressPost[$item]);
+            }
+        }
+
+        $address = new AddressModel($addressPost);
+
+        if (!$address->validate()) {
+            return $this->asJson([
+                'success' => false,
+                'errors' => $address->getErrors(),
+            ]);
+        }
+
+        return $this->asJson(['success' => true]);
+    }
 }

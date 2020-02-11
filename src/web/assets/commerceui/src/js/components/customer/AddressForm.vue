@@ -9,8 +9,8 @@
         </field>
       </div>
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Full Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.fullName" @input="update" />
+        <field :label="$options.filters.t('Full Name', 'commerce')" :errors="getErrors('fullName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('fullName') }" v-model="address.fullName" @input="update" />
         </field>
       </div>
     </div>
@@ -195,6 +195,7 @@
 </template>
 
 <script>
+    import _debounce from 'lodash.debounce'
     import Field from '../Field';
     import SelectInput from '../SelectInput';
 
@@ -233,6 +234,8 @@
 
         data() {
             return {
+                errors: null,
+                isValid: true,
                 countrySelect: null,
                 stateSelect: null,
             };
@@ -249,8 +252,45 @@
                 this.$emit('stateUpdate', this.stateSelect);
             },
 
+            hasErrors(key) {
+                if (!this.errors) {
+                    return false;
+                }
+
+                if (!this.errors.hasOwnProperty(key)) {
+                    return false;
+                }
+                let errors = this.errors[key];
+                if (!errors.length) {
+                    return false;
+                }
+
+                return true;
+            },
+
+            getErrors(key) {
+                if (!this.hasErrors(key)) {
+                    return [];
+                }
+
+                return this.errors[key];
+            },
+
+            validate:  _debounce((address, vm) => {
+                vm.$store.dispatch('validateAddress', address).then((data) => {
+                   if (!data.success && data.errors) {
+                       vm.errors = data.errors;
+                       vm.$emit('errors', true);
+                   } else {
+                       vm.errors = null;
+                       vm.$emit('errors', false);
+                       vm.$emit('update', vm.address);
+                   }
+                });
+            }, 300),
+
             update() {
-                this.$emit('update', this.address);
+                this.validate(this.address, this);
             }
         },
 

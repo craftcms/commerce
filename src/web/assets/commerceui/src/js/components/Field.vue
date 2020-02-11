@@ -1,7 +1,7 @@
 <template>
     <div :id="'field-' + id" class="order-field field">
         <div class="heading">
-            <label v-if="label" :for="id" :class="{required: required}">{{label}}</label>
+            <label v-if="label" :for="id" :class="{required: required, error: errors && errors.length}">{{label}}</label>
 
             <div v-if="instructions" class="instructions">
                 <p>{{ instructions }}</p>
