@@ -208,11 +208,19 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $count = (new Query())
+        $orderCountByStatus = (new Query())
+            ->select(['o.orderStatusId', 'count(o.id) as orderCount'])
             ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
-            ->from([Table::ORDERS . ' o'])
+            ->from(['{{%commerce_orders}} o'])
             ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
-            ->count();
+            ->groupBy('o.orderStatusId')
+            ->indexBy('orderStatusId')
+            ->all();
+
+        $count = array_reduce($orderCountByStatus, static function($sum, $thing) {
+            return $sum + (int) $thing['orderCount'];
+        }, 0);
+
 
         $sources = [
             '*' => [
@@ -233,11 +241,7 @@ trait OrderElementTrait
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
 
-            $count = (new Query())
-                ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from([Table::ORDERS . ' o'])
-                ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
-                ->count();
+            $count = $orderCountByStatus[$orderStatus->id]['orderCount'] ?? 0;
 
             $sources[] = [
                 'key' => $key,
