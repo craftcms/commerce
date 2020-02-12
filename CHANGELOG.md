@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 2.2.17 - 2020-02-12
+
+### Change
+- Improved the performance of the Orders index page.
+
 ## 2.2.16 - 2020-02-10
 
 ### Change
