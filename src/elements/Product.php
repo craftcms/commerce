@@ -649,7 +649,7 @@ class Product extends Element
             $namespace = $viewService->getNamespace();
             $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
             $viewService->setNamespace($newNamespace);
-            $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant]));
+            $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant, $variant->getProduct()]));
 
             if ($productType->hasDimensions) {
                 $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'dimensionVariantFields', [$variant]));

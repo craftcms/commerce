@@ -215,7 +215,7 @@ abstract class Stat implements StatInterface
     /**
      * @throws Exception
      */
-    private function _setDates(): void
+    private function _setDates()
     {
         if (!$this->dateRange) {
             throw new Exception('A date range string must be specified to set stat dates.');
@@ -350,7 +350,7 @@ abstract class Stat implements StatInterface
      * @return string|null
      * @throws \Exception
      */
-    private function _getCacheKey(): ?string
+    private function _getCacheKey()
     {
         $orderLastUpdatedString = 'never';
 

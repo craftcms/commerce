@@ -152,6 +152,13 @@
             </div>
             </template>
 
+            <template v-if="!draft.order.datePaid && draft.order.dateAuthorized">
+                <div class="data">
+                    <h5 class="heading">{{"Date Authorized"|t('commerce')}}</h5>
+                    <span class="value">{{draft.order.dateAuthorized.date}} {{draft.order.dateAuthorized.time}}</span>
+                </div>
+            </template>
+
             <template v-if="draft.order.datePaid">
                 <div class="data">
                     <h5 class="heading">{{"Date Paid"|t('commerce')}}</h5>

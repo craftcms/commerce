@@ -107,7 +107,11 @@ trait OrderElementTrait
             }
             case 'totalPaid':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPaid, $this->currency);
+            }
+            case 'itemTotal':
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->storedItemTotal, $this->currency);
             }
             case 'total':
             {
@@ -115,31 +119,23 @@ trait OrderElementTrait
             }
             case 'totalPrice':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPrice, $this->currency);
             }
             case 'totalShippingCost':
             {
-                $amount = $this->getTotalShippingCost();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalShippingCost, $this->currency);
             }
             case 'totalDiscount':
             {
-                $amount = $this->getTotalDiscount();
-                if ($this->$attribute >= 0) {
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
-
-                return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalDiscount * -1, $this->currency);
             }
             case 'totalTax':
             {
-                $amount = $this->getTotalTax();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTax, $this->currency);
             }
             case 'totalIncludedTax':
             {
-                $amount = $this->getTotalTaxIncluded();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTaxIncluded, $this->currency);
             }
             default:
             {
@@ -157,11 +153,13 @@ trait OrderElementTrait
             'billingFirstName',
             'billingLastName',
             'billingFullName',
+            'billingPhone',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
+            'shippingPhone',
             'shortNumber',
             'transactionReference',
             'username',
@@ -181,12 +179,16 @@ trait OrderElementTrait
                 return $this->billingAddress->lastName ?? '';
             case 'billingFullName':
                 return $this->billingAddress->fullName ?? '';
+            case 'billingPhone':
+                return $this->billingAddress->phone ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->lastName ?? '';
             case 'shippingFullName':
                 return $this->shippingAddress->fullName ?? '';
+            case 'shippingPhone':
+                return $this->shippingAddress->phone ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -202,8 +204,19 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $allCriteria = ['isCompleted' => true];
-        $count = Craft::configure(self::find(), $allCriteria)->count();
+        $orderCountByStatus = (new Query())
+            ->select(['o.orderStatusId', 'count(o.id) as orderCount'])
+            ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
+            ->from(['{{%commerce_orders}} o'])
+            ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
+            ->groupBy('o.orderStatusId')
+            ->indexBy('orderStatusId')
+            ->all();
+
+        $count = array_reduce($orderCountByStatus, static function($sum, $thing) {
+            return $sum + (int) $thing['orderCount'];
+        }, 0);
+
 
         $sources = [
             '*' => [
@@ -224,11 +237,7 @@ trait OrderElementTrait
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
 
-            $count = (new Query())
-                ->where(['o.orderStatusId' => $orderStatus->id, 'e.dateDeleted' => null])
-                ->from([Table::ORDERS . ' o'])
-                ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
-                ->count();
+            $count = $orderCountByStatus[$orderStatus->id]['orderCount'] ?? 0;
 
             $sources[] = [
                 'key' => $key,

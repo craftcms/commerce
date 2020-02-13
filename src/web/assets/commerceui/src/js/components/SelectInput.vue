@@ -133,3 +133,9 @@
         }
     }
 </script>
+
+<style>
+    .vs__open-indicator:hover {
+        cursor: pointer;
+    }
+</style>

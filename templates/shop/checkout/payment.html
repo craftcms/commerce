@@ -107,6 +107,7 @@
 #}
 
             {% if cart.gatewayId or cart.paymentSourceId %}
+
             <h3>Payment Form</h3>
 
                 {% if paymentForm is defined %}
@@ -121,7 +122,7 @@
 
                 <form method="POST" class="form-horizontal paymentSource-form max-w-md bg-gray-200" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
-                    {{ redirectInput('/shop/customer/order?number='~cart.number) }}
+                    {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
                     <input type="hidden" name="orderEmail" value="{{ cart.email }}"/>
 

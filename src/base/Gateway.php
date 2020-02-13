@@ -33,7 +33,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 {
     use GatewayTrait;
 
-
     /**
      * Returns the name of this payment method.
      *
