@@ -973,6 +973,16 @@ class OrderQuery extends ElementQuery
             }
         }
 
+        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
+            $this->query->addSelect(['commerce_orders.totalPrice as [[storedTotalPrice]]']);
+            $this->query->addSelect(['commerce_orders.totalPaid as [[storedTotalPaid]]']);
+            $this->query->addSelect(['commerce_orders.itemTotal as [[storedItemTotal]]']);
+            $this->query->addSelect(['commerce_orders.totalDiscount as [[storedTotalDiscount]]']);
+            $this->query->addSelect(['commerce_orders.totalShippingCost as [[storedTotalShippingCost]]']);
+            $this->query->addSelect(['commerce_orders.totalTax as [[storedTotalTax]]']);
+            $this->query->addSelect(['commerce_orders.totalTaxIncluded as [[storedTotalTaxIncluded]]']);
+        }
+
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {

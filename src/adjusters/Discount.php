@@ -64,6 +64,10 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discountTotal = 0;
 
+    /**
+     * @var bool
+     */
+    private $_spreadBaseOrderDiscountsToLineItems = false;
 
     /**
      * @inheritdoc
@@ -92,6 +96,60 @@ class Discount extends Component implements AdjusterInterface
                 }
             }
         }
+
+        if ($this->_spreadBaseOrderDiscountsToLineItems) {
+            // Consolidate order level discounts to line items.
+            $orderLevelDiscountAmount = 0;
+            $discountTotalByLineItem = [];
+            foreach ($adjustments as $key => $adjustment) {
+                if (!$adjustment->getLineItem()) {
+                    // Get the value of the order adjustment and remove it
+                    $orderLevelDiscountAmount += $adjustment->amount;
+                    unset($adjustments[$key]);
+                } else {
+                    // line item adjustment
+                    $lineItemHashId = spl_object_hash($adjustment->getLineItem());
+                    if (!isset($discountTotalByLineItem[$lineItemHashId])) {
+                        $discountTotalByLineItem[$lineItemHashId] = 0;
+                    }
+
+                    $discountTotalByLineItem[$lineItemHashId] += $adjustment->amount;
+                }
+            }
+
+            // Will be a negative if there is a base discount amount off the order.
+            if ($orderLevelDiscountAmount < 0) {
+                foreach ($this->_order->getLineItems() as $lineItem) {
+                    $lineItemHashId = spl_object_hash($lineItem);
+                    $amount = 0;
+                    if (isset($discountTotalByLineItem[$lineItemHashId]) && $orderLevelDiscountAmount < 0) {
+
+                        $priceAfterDiscounts = $lineItem->getSubtotal() + $discountTotalByLineItem[$lineItemHashId];
+
+                        if ($priceAfterDiscounts <= -$orderLevelDiscountAmount) {
+                            $orderLevelDiscountAmount += $priceAfterDiscounts;
+                            $amount = -$priceAfterDiscounts;
+                        } elseif ($priceAfterDiscounts > -$orderLevelDiscountAmount) {
+                            $amount = $orderLevelDiscountAmount;
+                            $orderLevelDiscountAmount = 0;
+                        }
+
+                        if ($amount) {
+                            $adjustment = new OrderAdjustment();
+                            $adjustment->type = self::ADJUSTMENT_TYPE;
+                            $adjustment->name = "Discount";
+                            $adjustment->setOrder($this->_order);
+                            $adjustment->setLineItem($lineItem);
+                            $adjustment->description = "Spread Base Description";
+                            $adjustment->sourceSnapshot = [];
+                            $adjustment->amount = $amount;
+                            $adjustments[] = $adjustment;
+                        }
+                    }
+                }
+            }
+        }
+
 
         return $adjustments;
     }
@@ -205,7 +263,6 @@ class Discount extends Component implements AdjusterInterface
         if ($discount->baseDiscount !== null && $discount->baseDiscount != 0) {
             $baseDiscountAdjustment = $this->_createOrderAdjustment($discount);
             $baseDiscountAdjustment->amount = $this->_getBaseDiscountAmount($discount);
-
             $adjustments[] = $baseDiscountAdjustment;
         }
 

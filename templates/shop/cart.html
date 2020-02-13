@@ -73,6 +73,13 @@
                                     <br>
                                     <span title="{{ item.saleAmount}}">Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}</span>
                                     <br>
+                                    {% set itemSales = item.snapshot.sales ?? [] %}
+                                    {% for sale in itemSales %}
+                                    {% if loop.first %}
+                                    Sales Applied:
+                                    {% endif %}
+                                    {{ sale.name }}<br>
+                                    {% endfor %}
                                     <span title="{{ item.salePrice}}">Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}</span>
                                     <br>
                                     <span title="{{ item.subtotal}}">Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}</span>
@@ -84,29 +91,23 @@
                                     <br>
                                 {% endif %}
                             {% endif %}
-
-                            {% set itemSales = item.snapshot.sales ?? [] %}
-                            {% for sale in itemSales %}
-                            {% if loop.first %}
-                              Sales Applied:
-                            {% endif %}
-                              {{ sale.name }}<br>
-                            {% endfor %}
                         </td>
                     </tr>
                     {% if not lineItemHasErrors %}
                         {% for adjustment in item.adjustments %}
                             <tr class="adjustment">
-                                <td>{{ adjustment.type }}</td>
+                                <td></td>
                                 <td>
-                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
-                                    )
+                                  <strong>{{ adjustment.type|upper }}</strong> {{ adjustment.name|title }}
+                                  {% if adjustment.isEstimated %}<i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>
+                                  {{ adjustment.description }}
                                 </td>
-                              <td class="text-right"><span title="{{ adjustment.amount}}}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span></td>
+                              <td class="text-right">
+                                <span title="{{ adjustment.amount}}}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                              </td>
                             </tr>
                         {% endfor %}
                     {% endif %}
-
                 {% endfor %}
 
                 {% if not lineItemHasErrors %}

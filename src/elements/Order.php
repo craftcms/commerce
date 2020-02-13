@@ -646,6 +646,92 @@ class Order extends Element
      */
     public $paymentSourceId;
 
+
+    /**
+     * @var float The total price as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPrice;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPrice }}
+     * ```
+     */
+    public $storedTotalPrice;
+
+    /**
+     * @var float The total paid as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPaid;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPaid }}
+     * ```
+     */
+    public $storedTotalPaid;
+
+    /**
+     * @var float The item total as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedItemTotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemTotal }}
+     * ```
+     */
+    public $storedItemTotal;
+
+    /**
+     * @var float The total shipping cost adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalShippingCost;
+     * ```
+     * ```twig
+     * {{ order.storedTotalShippingCost }}
+     * ```
+     */
+    public $storedTotalShippingCost;
+
+    /**
+     * @var float The total of discount adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalDiscount;
+     * ```
+     * ```twig
+     * {{ order.storedTotalDiscount }}
+     * ```
+     */
+    public $storedTotalDiscount;
+
+    /**
+     * @var float The total tax adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTax;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTax }}
+     * ```
+     */
+    public $storedTotalTax;
+
+    /**
+     * @var float The total tax included  adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTaxIncluded;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTaxIncluded }}
+     * ```
+     */
+    public $storedTotalTaxIncluded;
+
+
     /**
      * @var string
      * @see Order::setRecalculationMode() To set the current recalculation mode
