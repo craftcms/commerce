@@ -107,7 +107,11 @@ trait OrderElementTrait
             }
             case 'totalPaid':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->getTotalPaid(), $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPaid, $this->currency);
+            }
+            case 'itemTotal':
+            {
+                return Craft::$app->getFormatter()->asCurrency($this->storedItemTotal, $this->currency);
             }
             case 'total':
             {
@@ -115,31 +119,23 @@ trait OrderElementTrait
             }
             case 'totalPrice':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->getTotalPrice(), $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPrice, $this->currency);
             }
             case 'totalShippingCost':
             {
-                $amount = $this->getTotalShippingCost();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalShippingCost, $this->currency);
             }
             case 'totalDiscount':
             {
-                $amount = $this->getTotalDiscount();
-                if ($this->$attribute >= 0) {
-                    return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-                }
-
-                return Craft::$app->getFormatter()->asCurrency($amount * -1, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalDiscount * -1, $this->currency);
             }
             case 'totalTax':
             {
-                $amount = $this->getTotalTax();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTax, $this->currency);
             }
             case 'totalIncludedTax':
             {
-                $amount = $this->getTotalTaxIncluded();
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
+                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTaxIncluded, $this->currency);
             }
             default:
             {
