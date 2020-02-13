@@ -40,14 +40,15 @@
             :countries="countries"
             :reset="!modals.new.isVisible"
             :new-address="true"
-            @countryUpdate="handleNewCountrySelect"
-            @stateUpdate="handleNewStateSelect"
+            @countryUpdate="handleCountrySelect($event, 'new')"
+            @stateUpdate="handleStateSelect($event, 'new')"
+            @errors="handleFormErrors($event, 'new')"
           ></address-form>
         </div>
         <div class="footer">
           <div class="buttons right">
             <btn-link button-class="btn" @click="close('new')">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-            <btn-link button-class="btn submit" @click="done('new')">{{$options.filters.t('Done', 'commerce')}}</btn-link>
+            <btn-link button-class="btn submit" @click="done('new')" :class="{ 'disabled': modals.new.hasErrors }" :disabled="modals.new.hasErrors">{{$options.filters.t('Done', 'commerce')}}</btn-link>
           </div>
         </div>
       </div>
@@ -60,8 +61,8 @@
             :states="statesByCountryId"
             :countries="countries"
             :reset="!modals.edit.isVisible"
-            @countryUpdate="handleEditCountrySelect"
-            @stateUpdate="handleEditStateSelect"
+            @countryUpdate="handleCountrySelect($event, 'edit')"
+            @stateUpdate="handleStateSelect($event, 'edit')"
             @errors="handleFormErrors($event, 'edit')"
             ></address-form>
         </div>
@@ -311,20 +312,12 @@
                 }
             },
 
-            handleEditCountrySelect(country) {
-                this.modals.edit.country = country;
+            handleCountrySelect(country, type) {
+                this.modals[type].country = country;
             },
 
-            handleEditStateSelect(state) {
-                this.modals.edit.state = state;
-            },
-
-            handleNewCountrySelect(country) {
-                this.modals.edit.country = country;
-            },
-
-            handleNewStateSelect(state) {
-                this.modals.edit.state = state;
+            handleStateSelect(state, type) {
+                this.modals[type].state = state;
             },
 
             done(type) {

@@ -5,12 +5,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Attention', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.attention" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.attention" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Full Name', 'commerce')" :errors="getErrors('fullName')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('fullName') }" v-model="address.fullName" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('fullName') }" v-model="address.fullName" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -18,17 +18,17 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('Title', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.title" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.title" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('First Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.firstName" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.firstName" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('Last Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.lastName" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.lastName" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -36,7 +36,7 @@
     <div class="order-address-form-row order-flex">
       <div class="w-full">
         <field :label="$options.filters.t('Address 1', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address1" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address1" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -44,12 +44,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
         <field :label="$options.filters.t('Address 2', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address2" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address2" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('Address 3', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address3" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address3" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -57,12 +57,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
         <field :label="$options.filters.t('City', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.city" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.city" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('Zip Code', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.zipCode" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.zipCode" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -70,7 +70,7 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('State', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update"  v-if="!hasStates"/>
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
           <select-input
                   ref="vSelect"
                   label="name"
@@ -125,12 +125,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Phone', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.phone" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.phone" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Phone (Alt)', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.alternativePhone" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.alternativePhone" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -138,12 +138,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/3 px-1">
         <field :label="$options.filters.t('Label', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.label" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.label" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-2/3 px-1">
         <field :label="$options.filters.t('Notes', 'commerce')" v-slot:default="slotProps">
-          <textarea :id="slotProps.id" type="text" class="text w-full" v-model="address.notes" @input="update"></textarea>
+          <textarea :id="slotProps.id" type="text" class="text w-full" v-model="address.notes" @input="update($event, self())"></textarea>
         </field>
       </div>
     </div>
@@ -151,17 +151,17 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Business Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessName" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessName" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/4 px-1">
         <field :label="$options.filters.t('Business Tax ID', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessTaxId" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessTaxId" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/4 px-1">
         <field :label="$options.filters.t('Business ID', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessId" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessId" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -169,12 +169,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Custom 1', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom1" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom1" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Custom 2', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom2" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom2" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -182,12 +182,12 @@
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Custom 3', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom3" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom3" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
         <field :label="$options.filters.t('Custom 4', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom4" @input="update" />
+          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom4" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -234,9 +234,9 @@
 
         data() {
             return {
+                countrySelect: null,
                 errors: null,
                 isValid: true,
-                countrySelect: null,
                 stateSelect: null,
             };
         },
@@ -276,22 +276,26 @@
                 return this.errors[key];
             },
 
-            validate:  _debounce((address, vm) => {
-                vm.$store.dispatch('validateAddress', address).then((data) => {
-                   if (!data.success && data.errors) {
-                       vm.errors = data.errors;
-                       vm.$emit('errors', true);
-                   } else {
-                       vm.errors = null;
-                       vm.$emit('errors', false);
-                       vm.$emit('update', vm.address);
-                   }
+            validate(address) {
+                this.$store.dispatch('validateAddress', address).then((data) => {
+                    if (!data.success && data.errors) {
+                        this.errors = data.errors;
+                        this.$emit('errors', true);
+                    } else {
+                        this.errors = null;
+                        this.$emit('errors', false);
+                        this.$emit('update', this.address);
+                    }
                 });
+            },
+
+            update: _debounce((ev, vm) => {
+                vm.validate(vm.address);
             }, 300),
 
-            update() {
-                this.validate(this.address, this);
-            }
+            self() {
+                return this;
+            },
         },
 
         computed: {
@@ -338,8 +342,18 @@
                     this.countrySelect = null;
                     this.stateSelect = null;
                 }
-            }
+
+                if (!this.newAddress) {
+                    this.validate(this.address);
+                }
+            },
         },
+
+        mounted() {
+            if (!this.newAddress) {
+                this.validate(this.address);
+            }
+        }
     }
 </script>
 

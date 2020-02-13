@@ -381,6 +381,32 @@ class Addresses extends Component
     }
 
     /**
+     * @param array $address
+     * @return array
+     * @since 3.x
+     */
+    public function removeReadOnlyAttributesFromArray(array $address): array
+    {
+        if (empty($address)) {
+            return $address;
+        }
+
+        // Remove readonly attributes
+        $readOnly = [
+            'countryText',
+            'stateText',
+            'abbreviationText',
+        ];
+        foreach ($readOnly as $item) {
+            if (array_key_exists($item, $address)) {
+                unset($address[$item]);
+            }
+        }
+
+        return $address;
+    }
+
+    /**
      * Returns a Query object prepped for retrieving addresses.
      *
      * @return Query The query object.

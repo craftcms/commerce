@@ -263,6 +263,7 @@ class AddressesController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
+     * @simce 3.x
      */
     public function actionValidate(): Response
     {
@@ -276,17 +277,7 @@ class AddressesController extends BaseCpController
             return $this->asErrorJson(Plugin::t('An address must be provided.'));
         }
 
-        // Remove readonly attributes
-        $readOnly = [
-            'countryText',
-            'stateText',
-            'abbreviationText',
-        ];
-        foreach ($readOnly as $item) {
-            if (isset($addressPost[$item])) {
-                unset($addressPost[$item]);
-            }
-        }
+        $addressPost = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($addressPost);
 
         $address = new AddressModel($addressPost);
 

@@ -45,7 +45,7 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex';
+    import {mapState, mapActions} from 'vuex';
     import AddressEdit from './components/customer/AddressEdit';
 
     export default {
@@ -108,6 +108,10 @@
         },
 
         methods: {
+            ...mapActions([
+                'recalculateOrder'
+            ]),
+
             updateBillingAddress(address) {
                 this.updateAddress('billing', address);
             },
@@ -124,6 +128,13 @@
                 draft.order[idKey] = address.id;
 
                 this.draft = draft;
+                this.recalculateOrder(draft)
+                    .then(() => {
+                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    })
             },
 
             removeCustomer() {

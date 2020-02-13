@@ -15,12 +15,22 @@ export default {
                 recalculationMode: draft.order.recalculationMode,
                 shippingMethodHandle: draft.order.shippingMethodHandle,
                 shippingAddressId: draft.order.shippingAddressId,
+                shippingAddress: null,
                 billingAddressId: draft.order.billingAddressId,
+                billingAddress: null,
                 message: draft.order.message,
                 dateOrdered: draft.order.dateOrdered,
                 lineItems: [],
                 orderAdjustments: [],
             }
+        }
+
+        if (draft.order.billingAddress) {
+            draftData.order.billingAddress = draft.order.billingAddress
+        }
+
+        if (draft.order.shippingAddress) {
+            draftData.order.shippingAddress = draft.order.shippingAddress
         }
 
         if (draftData.order.dateOrdered && !draftData.order.dateOrdered.hasOwnProperty('timezone')) {

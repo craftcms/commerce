@@ -18,10 +18,12 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
@@ -1081,6 +1083,60 @@ class OrdersController extends Controller
             $order->paymentSourceId = null;
             $order->gatewayId = null;
         }
+
+        // Addresses
+        $billingAddressId = $orderRequestData['order']['billingAddressId'];
+        $shippingAddressId = $orderRequestData['order']['shippingAddressId'];
+        $billingAddress = null;
+        $shippingAddress = null;
+
+        // We need to create a new address if it belongs to a customer
+        if ($billingAddressId) {
+            $belongsToCustomer = CustomerAddress::find()
+                ->where(['[[addressId]]' => $billingAddressId])
+                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->exists();
+
+            if ($belongsToCustomer) {
+                $billingAddressId = 'new';
+            }
+        }
+
+        if ($shippingAddressId) {
+            $belongsToCustomer = CustomerAddress::find()
+                ->where(['[[addressId]]' => $shippingAddressId])
+                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->exists();
+
+            if ($belongsToCustomer) {
+                $shippingAddressId = 'new';
+            }
+        }
+
+        if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
+            $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
+            $billingAddress = new Address($billingAddress);
+
+            $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
+
+            // TODO figure out if we need to validate at this point;
+            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
+            $billingAddressId = $billingAddress->id;
+        }
+
+        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId ==$orderRequestData['order']['shippingAddress']['id'])) {
+            $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
+            $shippingAddress = new Address($shippingAddress);
+
+            $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
+
+            // TODO figure out if we need to validate at this point;
+            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
+            $shippingAddressId = $shippingAddress->id;
+        }
+
+        $order->billingAddressId = $billingAddressId;
+        $order->shippingAddressId = $shippingAddressId;
 
         $lineItems = [];
         $adjustments = [];
