@@ -240,22 +240,26 @@ class Discount extends Component implements AdjusterInterface
             if ($matchingLineIds && in_array($lineItemHashId, $matchingLineIds, false)) {
                 $adjustment = $this->_createOrderAdjustment($this->_discount);
                 $adjustment->setLineItem($item);
-
+                $discountAmountPerItemPreDiscounts = 0;
                 $amountPerItem = Currency::round($this->_discount->perItemDiscount);
 
                 if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
-                    $unitPrice = $item->salePrice;
-                    $discountAmountPerItemPreDiscounts = ($this->_discount->percentDiscount * $unitPrice);
-                } else {
-                    $unitPrice = $this->_discountUnitPricesByLineItem[$lineItemHashId] ?? $item->salePrice;
+                    $discountAmountPerItemPreDiscounts = ($this->_discount->percentDiscount * $item->salePrice);
                 }
+
+                $unitPrice = $this->_discountUnitPricesByLineItem[$lineItemHashId] ?? $item->salePrice;
 
                 $lineItemSubtotal = Currency::round($unitPrice * $item->qty);
 
                 $unitPrice = max($unitPrice + $amountPerItem, 0);
 
                 if ($unitPrice > 0) {
-                    $discountedUnitPrice = $unitPrice + ($this->_discount->percentDiscount * $unitPrice);
+                    if ($this->_discount->percentageOffSubject == DiscountRecord::TYPE_ORIGINAL_SALEPRICE) {
+                        $discountedUnitPrice = $unitPrice + $discountAmountPerItemPreDiscounts;
+                    } else {
+                        $discountedUnitPrice = $unitPrice + ($this->_discount->percentDiscount * $unitPrice);
+                    }
+
                     $discountedSubtotal = Currency::round($discountedUnitPrice * $item->qty);
                     $amountOfPercentDiscount = $discountedSubtotal - $lineItemSubtotal;
                     $this->_discountUnitPricesByLineItem[$lineItemHashId] = $discountedUnitPrice;
