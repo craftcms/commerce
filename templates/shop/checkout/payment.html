@@ -36,7 +36,7 @@
             ║  └───────────────────────────────────────────┘   ║
             ╚══════════════════════════════════════════════════╝
 #}
-            <h3>Update Cart</h3>
+            <h3 class="font-semibold">Update Cart</h3>
             {% if availableGateways|length %}
 
 
@@ -114,7 +114,7 @@
 
             {% if cart.gatewayId or cart.paymentSourceId %}
 
-            <h3>Payment Form</h3>
+            <h3 class="font-semibold">Payment Form</h3>
 
                 {% if paymentForm is defined %}
                   {% for key, errors in paymentForm.getErrors() %}
@@ -126,7 +126,7 @@
                   {% endfor %}
                 {% endif %}
 
-                <form method="post" class="form-horizontal paymentSource-form max-w-md bg-gray-200" id="paymentForm">
+                <form method="post" class="form-horizontal js-paymentSource-form max-w-md bg-gray-200" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
@@ -138,7 +138,6 @@
                         <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
 
                         {{ cart.gateway.getPaymentFormHtml({})|raw }}
-
 
                         {% if cart.gateway.supportsPaymentSources() and currentUser %}
                             <div class="checkbox">

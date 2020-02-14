@@ -38,7 +38,7 @@
                     {{ csrfInput() }}
 
                     {% for handle, method in cart.availableShippingMethods %}
-                        <div class="shipping-select">
+                        <div class="js-shipping-select">
                             <label>
 
                                 <input type="radio" name="shippingMethodHandle" value="{{ handle }}"

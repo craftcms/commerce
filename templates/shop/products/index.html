@@ -25,7 +25,7 @@
                 {% include "shop/_images/product" with { number: '3' } %}
             </div>
             <div class="md:w-2/6 md:p-4">
-                <h3>{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h3>
+                <h3 class="font-semibold">{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h3>
                 {% if product.getVariants()|length %}
                     <form method="post" class="add-to-cart-form">
                         <input type="hidden" name="action" value="commerce/cart/update-cart">
@@ -34,7 +34,7 @@
                         <input type="hidden" name="qty" value="1">
                         {{ csrfInput() }}
 
-                        <select name="purchasableId" class="purchasableId">
+                        <select name="purchasableId">
                             {%- for purchasable in product.getVariants() -%}
                                 <option {% if not purchasable.isAvailable %}disabled {% endif %}
                                         data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
@@ -63,7 +63,7 @@
                     {% endif %}
 
                     {%- for purchasable in product.getVariants() -%}
-                        <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="purchasableInfo" style="display:none;">
+                        <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="js-purchasableInfo" style="display:none;">
                             <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
                             <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>
                             {% if purchasable.sales %}<strong>Sales Applied:</strong><br>{% endif %}
@@ -81,15 +81,15 @@
     {% endfor %}
 
     {% js %}
-        $( ".purchasableId" ).change(function(e) {
-            $(".purchasableInfo").hide();
+        $( ".js-purchasableId" ).change(function(e) {
+            $(".js-purchasableInfo").hide();
             $("#"+($(this).find(":selected").data('info'))).toggle();
         });
 
         {#
         $('form.add-to-cart-form').submit(function(e){
             e.preventDefault();
-            var purchasable = $(this).find('.purchasableId').val();
+            var purchasable = $(this).find('.js-purchasableId').val();
             $.ajax({
                 type: "POST",
                 dataType: 'json',

@@ -12,27 +12,26 @@
     <script type="application/javascript" src="/shop/jquery.js"></script>
     <link rel="stylesheet" href="/shop/tailwind.css">
     <link rel="stylesheet" href="/shop/style.css">
-
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/html-inspector/0.8.2/html-inspector.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
     {% if extraHead is defined %}
         {{ extraHead }}
     {% endif %}
 </head>
-<body class="bg-grey-lightest">
+<body class="bg-gray-100">
 
     {% if cart is not defined %}
         {% set cart = craft.commerce.carts.cart %}
     {% endif %}
 
-
     {% if showNav is not defined %}
         {% set showNav = true %}
     {% endif %}
 
-    <div class="bg-grey-lighter">
+    <div class="bg-gray-200 sticky top-0 shadow-xl">
         <div id="header" class="container mx-auto md:flex justify-between items-center p-6 text-center">
-            <h3>Example Templates</h3>
+            <h3 class="font-semibold">Example Templates</h3>
 
             {% if showNav %}
                 {% include "shop/_includes/nav" %}
@@ -82,7 +81,7 @@
         <div class="bg-white">
             <div id="main" class="container mx-auto p-6">
                 {% block main %}
-                    <h1>Default Content</h1>
+                    <h1 class="text-xl font-semibold">Default Content</h1>
                     <p>You should not see this.</p>
                 {% endblock %}
             </div>

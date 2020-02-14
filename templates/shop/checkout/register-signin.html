@@ -20,7 +20,7 @@
 
     {% set userExists = craft.users.email(cart.email).one() %}
 
-    <h1>Account</h1>
+    <h1 class="text-xl font-semibold">Account</h1>
     <div class="flex -mx-8 mt-6 pt-8">
         <div class="w-1/2 px-8 border-r border-grey-lighter">
             {% if userExists %}
