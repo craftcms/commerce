@@ -18,7 +18,7 @@
 
                     <div class="buttons mt-4">
                         <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
-                        <form method="POST">
+                        <form method="post">
                             <input type="hidden" name="action" value="commerce/customer-addresses/delete">
                             {{ csrfInput() }}
                             <input type="hidden" name="id" value="{{ address.id }}"/>

@@ -17,7 +17,7 @@
                 </div>
 
                 <div>
-                    <form method="POST">
+                    <form method="post">
                         {{ csrfInput() }}
                         {{ redirectInput('/shop/customer/cards') }}
                         <input type="hidden" name="action" value="commerce/payment-sources/delete">
@@ -51,7 +51,7 @@
             {% for gateway in gateways %}
                 {% if gateway.supportsPaymentSources() %}
                     <div id="fields-{{ gateway.id }}" class="gateway-fields hidden">
-                        <form method="POST" class="form-horizontal paymentSource-form max-w-md" id="gateway-{{ gateway.id }}">
+                        <form method="post" class="form-horizontal paymentSource-form max-w-md" id="gateway-{{ gateway.id }}">
                             <input type="hidden" name="action" value="commerce/payment-sources/add"/>
                             <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
                             <input type="hidden" name="cancelUrl" value="{{ '/shop/customer/cards'|hash }}"/>

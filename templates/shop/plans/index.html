@@ -55,7 +55,7 @@
       </div>
       <div class="md:w-3/4 md:pt-4">
         {% for plan in plans %}
-          <form method="POST">
+          <form method="post">
             <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
             <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
             {{ redirectInput('shop/plans') }}

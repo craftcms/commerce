@@ -32,7 +32,7 @@
             {% endif %}
 
             {% if cart.availableShippingMethods|length %}
-                <form method="POST">
+                <form method="post">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}

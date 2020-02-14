@@ -8,7 +8,7 @@
     <h1>Let’s grab your email to get started</h1>
     <div class="flex -mx-8 mt-6">
         <div class="w-1/2 px-8 border-r border-grey-lighter">
-            <form method="POST">
+            <form method="post">
                 <input type="hidden" name="action" value="commerce/cart/update-cart">
                 {{ redirectInput('shop/checkout/register-signin') }}
                 {{ csrfInput() }}

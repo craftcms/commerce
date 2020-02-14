@@ -5,7 +5,7 @@
 {% block main %}
     <h1>Products</h1>
 
-    <form method="POST" class="text-center">
+    <form method="post" class="text-center">
         <input type="hidden" name="action" value="commerce/cart/update-cart">
         <input type="hidden" name="cartUpdatedNotice" value="Multiple items added to the cart.">
         {{ redirectInput('shop/cart') }}
@@ -27,7 +27,7 @@
             <div class="md:w-2/6 md:p-4">
                 <h3>{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h3>
                 {% if product.getVariants()|length %}
-                    <form method="POST" class="add-to-cart-form">
+                    <form method="post" class="add-to-cart-form">
                         <input type="hidden" name="action" value="commerce/cart/update-cart">
                         <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title}} to the cart.">
                         {{ redirectInput('shop/cart') }}

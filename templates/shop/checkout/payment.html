@@ -38,22 +38,33 @@
 #}
             <h3>Update Cart</h3>
             {% if availableGateways|length %}
-                <form method="POST" id="paymentPreferenceForm" class="relative border-b-1 mb-4">
+
+
+                <form method="post" id="paymentPreferenceForm" class="relative border-b-1 mb-4">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
+
+
                     <label for="paymentMethod">Choose cart gateway or payment source:</label>
                     <select id="paymentMethod" class="form-control">
-                        {% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
+
+                        {% if storedCards|length %}
+                            <optgroup label="Existing Payment Source">
+                        {% endif %}
 
                         {% for storedCard in storedCards %}
-                            <option value="card:{{ storedCard.id }}" {% if storedCard.id == cart.paymentSourceId %}selected{% endif %}>Payment Source: {{ storedCard.description }}</option>
+                            {# The option below prepends the `card:` to the front of the value, so that javascript below can submit the right formparam#}
+                            <option value="paymentSourceId:{{ storedCard.id }}" {% if storedCard.id == cart.paymentSourceId %}selected{% endif %}>Pay with: {{ storedCard.description }}</option>
                         {% endfor %}
-                        <option value="">---</option>
+                            </optgroup>
+
+                        <optgroup label="New Payment with Gateway">
                         {% for id,name in craft.commerce.gateways.allCustomerEnabledGateways %}
-                            <option value="gateway:{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}> Payment Gateway: {{ name }}</option>
+                            <option value="gatewayId:{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}> Pay with: {{ name }}</option>
                         {% endfor %}
+                        </optgroup>
                     </select>
 
                     {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
@@ -83,17 +94,12 @@
                     if ($select.val().length === 0) {
                         return;
                     }
-
                     var parts = $select.val().split(':');
-                    var name = 'gatewayId';
-
-                    if (parts[0] === 'card') {
-                        name = 'paymentSourceId';
-                    }
-
+                    var name = parts[0]; // get the form param NAME from the select value. Format: 'gatewayId:2' or 'paymentSourceId:1'
+                    var value = parts[1]; // // get the form param VALUE from the select value. Format: 'gatewayId:2' or 'paymentSourceId:1'
                     $select.prop('disabled', 'disabled');
-
-                    $('form#paymentPreferenceForm').append('<input type="hidden" name="' + name + '" value="' + parts[1] + '" />').submit();
+                    $('form#paymentPreferenceForm').append('<input type="hidden" name="' + name + '" value="' + value + '" />').submit();
+                    $('form#paymentPreferenceForm').append('<input type="hidden" name="cartUpdatedNotice" value="Updated the cart’s ' + name + '" />').submit();
                 });
             {% endjs %}
 
@@ -120,7 +126,7 @@
                   {% endfor %}
                 {% endif %}
 
-                <form method="POST" class="form-horizontal paymentSource-form max-w-md bg-gray-200" id="paymentForm">
+                <form method="post" class="form-horizontal paymentSource-form max-w-md bg-gray-200" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
