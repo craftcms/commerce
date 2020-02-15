@@ -1084,13 +1084,8 @@ class Order extends Element
 
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-
-                if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
-                }
-
-                return $model->$attribute;
+                $amount = $model->$attribute ?? 0;
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
             };
         }
 
