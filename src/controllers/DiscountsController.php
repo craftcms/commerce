@@ -332,11 +332,23 @@ class DiscountsController extends BaseCpController
 
         $variables['baseDiscountTypes'] = [
             DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Plugin::t($currencyName . ' value'),
-            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL => Plugin::t('(%) Percent off items total (original price) and shipping total'),
-            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price) and shipping total'),
-            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS => Plugin::t('(%) Percent off items total (original price)'),
-            DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED => Plugin::t('(%) Percent off items total (discounted price)'),
         ];
+
+        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Plugin::t('(%) off total original price and shipping total (Deprecated)');
+        }
+
+        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED) {
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Plugin::t('(%) off total discounted price and shipping total (Deprecated)');
+        }
+
+        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS) {
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Plugin::t('(%) off total original price (Deprecated)');
+        }
+
+        if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Plugin::t('(%) off total discounted price (Deprecated)');
+        }
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;

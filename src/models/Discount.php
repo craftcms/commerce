@@ -186,6 +186,11 @@ class Discount extends Model
     public $ignoreSales = true;
 
     /**
+     * @var bool What the per item amount and per item percentage off amounts can apply to
+     */
+    public $appliesTo = DiscountRecord::APPLIES_TO_MATCHING_LINE_ITEMS;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
