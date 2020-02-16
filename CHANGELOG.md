@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Order indexes can now have a “Totals” column.
 - Added `craft\commerce\models\LineItem::$sku`.
 - Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
