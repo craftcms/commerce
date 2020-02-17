@@ -135,7 +135,7 @@ class Address extends Model
     public $countryId;
 
     /**
-     * @var int Country ID
+     * @var int State ID
      */
     public $stateId;
 
