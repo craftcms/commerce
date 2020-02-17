@@ -16,7 +16,7 @@
     } %}
 
     {# TODO allow viewing of sales when a view promotions permission is introduced #}
-    {% if currentUser.can('commerce-managePromotions') %}
+    {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
         {{ productFields.relatedSales(variant.id, false) }}
     {% endif %}
 </div>
