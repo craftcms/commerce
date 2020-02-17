@@ -48,7 +48,6 @@ class Discount extends Component implements AdjusterInterface
     const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';
 
 
-
     /**
      * @var Order
      */
@@ -199,21 +198,11 @@ class Discount extends Component implements AdjusterInterface
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
+            // Order is already a match to this discount, or we wouldn't get here.
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount, false)) {
-                if (!$this->_discount->allGroups) {
-                    $customer = $this->_order->getCustomer();
-                    $user = $customer ? $customer->getUser() : null;
-                    $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
-                    if ($user && array_intersect($userGroups, $this->_discount->getUserGroupIds())) {
-                        $matchingLineIds[] = $lineItemHashId;
-                        $matchingQty += $item->qty;
-                        $matchingTotal += $item->getSubtotal();
-                    }
-                } else {
-                    $matchingLineIds[] = $lineItemHashId;
-                    $matchingQty += $item->qty;
-                    $matchingTotal += $item->getSubtotal();
-                }
+                $matchingLineIds[] = $lineItemHashId;
+                $matchingQty += $item->qty;
+                $matchingTotal += $item->getSubtotal();
             }
         }
 
