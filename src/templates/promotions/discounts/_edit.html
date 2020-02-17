@@ -129,7 +129,7 @@
             {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
             {{ forms.elementSelectField({
                 id: 'purchasables-'~purchasableType.elementType|id,
-                label: purchasableType.name,
+                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
                 name: 'purchasables['~purchasableType.elementType~']',
                 elements: purchasables[purchasableType.elementType] ?? null,
                 elementType: purchasableType.elementType,
@@ -146,7 +146,7 @@
             elements: categories ? categories : null,
             elementType: categoryElementType,
             limit: null,
-            instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
+            instructions: "Categories that the matching purchasables must be related to. Leave blank for all categories."|t('commerce'),
             errors: discount.getErrors('categories'),
         }) }}
 
