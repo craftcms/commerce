@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Order indexes can now have a “Totals” column.
 - Added `craft\commerce\models\LineItem::$sku`.
 - Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
@@ -12,11 +13,13 @@
 - The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
 
 ### Fixed
+- Ajax requests to `commerce/cart/*` now correctly format of zero value totals correctly. ([#1278](https://github.com/craftcms/commerce/issues/1278)) 
 - Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order. ([#1234](https://github.com/craftcms/commerce/issues/1243))
 - Ajax requests to `commerce/cart/*` now include line items `subtotal` values. ([#1263](https://github.com/craftcms/commerce/issues/1263))
 - Fixed a JavaScript error that occurred when editing products. ([#1273](https://github.com/craftcms/commerce/issues/1273))
 - Restored missing “New Subscription Plan” button. ([#1271](https://github.com/craftcms/commerce/pull/1271))
-- Fixed an error that could occur when upgrading to 3.0 from pre 2.2.6. 
+- Fixed an error that could occur when upgrading to 3.0 from pre 2.2.6.
+- Fixed ability to view transactions tab for carts. ([#1268](https://github.com/craftcms/commerce/issues/1268))
 
 ## 3.0.6 - 2020-02-06
 

@@ -135,15 +135,23 @@ export default new Vuex.Store({
             Craft.cp.displayNotice(msg)
         },
 
-        edit({commit}) {
+        edit({commit, state}) {
             const $tabLinks = window.document.querySelectorAll('#tabs a.tab')
             let $selectedLink = null
+            let $detailsLink = null
+            let switchToDetailsTab = false
 
             $tabLinks.forEach(function($tabLink) {
+                if ($tabLink.getAttribute('href') == '#orderDetailsTab' && state.draft.order.isCompleted) {
+                    $detailsLink = $tabLink
+                }
+
                 // Disable Transactions tab
-                if ($tabLink.getAttribute('href') === '#transactionsTab') {
+                if ($tabLink.getAttribute('href') === '#transactionsTab' && state.draft.order.isCompleted) {
+                    switchToDetailsTab = $tabLink.classList.contains('sel');
                     $tabLink.classList.add('disabled')
                     $tabLink.href = ''
+                    $tabLink.classList.remove('sel')
 
                     const $tabLinkClone = $tabLink.cloneNode(true)
 
@@ -152,6 +160,9 @@ export default new Vuex.Store({
                     })
 
                     $tabLink.parentNode.replaceChild($tabLinkClone, $tabLink)
+
+                    let $transactionsTab = window.document.querySelector('#transactionsTab')
+                    $transactionsTab.classList.add('hidden')
                 }
 
                 // Custom tabs
@@ -169,6 +180,12 @@ export default new Vuex.Store({
                     }
                 }
             })
+
+            if (switchToDetailsTab) {
+                $detailsLink.classList.add('sel')
+                let $detailsTab = window.document.querySelector('#orderDetailsTab')
+                $detailsTab.classList.remove('hidden')
+            }
 
             // Retrieve dynamic link corresponding to selected static one and click it
             if ($selectedLink && $selectedLink.classList.contains('static')) {
