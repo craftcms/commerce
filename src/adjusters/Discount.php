@@ -65,6 +65,8 @@ class Discount extends Component implements AdjusterInterface
     private $_discountTotal = 0;
 
     /**
+     * Temporary feature flag for testing
+     * 
      * @var bool
      */
     private $_spreadBaseOrderDiscountsToLineItems = false;
