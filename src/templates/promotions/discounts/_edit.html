@@ -19,7 +19,7 @@
 {% endif %}
 
 {% set conditionsClasses = "" %}
-{% if(discount.getErrors('startDate') or discount.getErrors('endDate') or discount.getErrors('productTypes')) %}
+{% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
     {% set conditionsClasses = "error" %}
 {% endif %}
 
@@ -300,7 +300,6 @@
             'tip': 'Matching items are those items that are used to match this discount’s conditions, like “Product Variant” or “Category” conditions.'|t('commerce')
         }) }}
 
-
         {{ commerceForms.numberField({
             label: "Per Item Amount Off"|t('commerce'),
             instructions: "The flat value which should discount each item. i.e “3” for $3 off each item."|t('commerce'),
@@ -345,6 +344,14 @@
             errors: discount.getErrors('percentDiscount'),
             tip: 'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.'|t('commerce')
         }, pctDiscountInput) }}
+
+        {{ forms.checkboxField({
+            label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
+            id: 'ignoreSales',
+            name: 'ignoreSales',
+            value: 1,
+            checked: discount.ignoreSales
+        }) }}
 
         <hr>
         <h3>Flat Amount Off Order</h3>
@@ -392,13 +399,6 @@
 
         <hr>
         <h3>Additional Actions</h3>
-        {{ forms.checkboxField({
-            label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
-            id: 'ignoreSales',
-            name: 'ignoreSales',
-            value: 1,
-            checked: discount.ignoreSales
-        }) }}
 
         {{ forms.checkboxField({
             label: "Remove all shipping costs from the order"|t('commerce'),
@@ -431,7 +431,7 @@
 
 {% js %}
         $(function() {
-            $('#groups, #productTypes').selectize({
+            $('#groups').selectize({
                 plugins: ['remove_button'],
                 dropdownParent: 'body'
             });
@@ -441,6 +441,15 @@
                     $('#coupon-fields').addClass('hidden');
                 } else {
                     $('#coupon-fields').removeClass('hidden');
+                }
+            });
+
+            $('#appliesTo').on('change', function(event) {
+                if(event.target.value == 'allLineItems'){
+                    $('#ignoreSales').attr('disabled', true);
+                    $('#ignoreSales').prop('checked', false);
+                }else{
+                    $('#ignoreSales').attr('disabled', false);
                 }
             });
 
