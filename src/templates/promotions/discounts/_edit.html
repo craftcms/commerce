@@ -289,7 +289,7 @@
         <h3>Per Item Discount</h3>
         {{ forms.selectField({
             label: "Scope"|t('commerce'),
-            instructions: "Choose whether the whole order or just matching line items get the 'Per Item' amounts off."|t('commerce'),
+            instructions: "Choose whether the all line items or just matching line items get the 'Per Item' amounts off."|t('commerce'),
             id: 'appliesTo',
             name: 'appliesTo',
             options: [
@@ -297,8 +297,9 @@
                 {label: "Discount all line items"|t('commerce'), value: 'allLineItems'}
             ],
             value: discount.appliesTo,
-            'tip': 'Matching items are those items that matched this discount’s conditions.'|t('commerce')
+            'tip': 'Matching items are those items that are used to match this discount’s conditions, like “Product Variant” or “Category” conditions.'|t('commerce')
         }) }}
+
 
         {{ commerceForms.numberField({
             label: "Per Item Amount Off"|t('commerce'),
@@ -362,12 +363,14 @@
                     }) }}
                 </td>
                 <td style="padding-left: 14px;">
+                    {% if baseDiscountTypes|length > 1 %}
                     {{ forms.select({
                         id: 'baseDiscountType',
                         name: 'baseDiscountType',
                         options: baseDiscountTypes,
                         value: discount.baseDiscountType
                     }) }}
+                    {% endif %}
                 </td>
             </tr>
         </table>
@@ -380,16 +383,17 @@
 
         {{ forms.field({
             label: "Flat Order Discount Amount Off"|t('commerce'),
-            instructions: "The amount of discount that is applied to the whole order. This amount is spread across all line items. It is spread in the same order as your tax rates, then highest to lowest price."|t('commerce'),
+            instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in the same order as your tax categories, then highest price to lowest price, until the discount is used up."|t('commerce'),
             id: 'baseDiscount',
             errors: discount.getErrors('baseDiscount'),
-            warning: showWarning ? 'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”'|t('commerce') : null
+            warning: showWarning ? 'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”'|t('commerce') : null,
+            tip: 'The base discount can only discount items in the cart to down to zero until it is used up, it can not make the order negative.'|t('commerce')
         }, baseDiscountInput) }}
 
         <hr>
         <h3>Additional Actions</h3>
         {{ forms.checkboxField({
-            label: "Ignore sales when this discount is applied"|t('commerce'),
+            label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
             id: 'ignoreSales',
             name: 'ignoreSales',
             value: 1,
