@@ -8,17 +8,14 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\elements\actions\DeleteOrder;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use DateTime;
 
 trait OrderElementTrait
 {
@@ -107,35 +104,47 @@ trait OrderElementTrait
             }
             case 'totalPaid':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPaid, $this->currency);
+                return $this->_asCurrency($this->storedTotalPaid);
             }
             case 'itemTotal':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedItemTotal, $this->currency);
+                return $this->_asCurrency($this->storedItemTotal);
             }
             case 'total':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->getTotal(), $this->currency);
+                return $this->_asCurrency($this->getTotal());
             }
             case 'totalPrice':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalPrice, $this->currency);
+                return $this->_asCurrency($this->storedTotalPrice);
             }
             case 'totalShippingCost':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalShippingCost, $this->currency);
+                return $this->_asCurrency($this->storedTotalShippingCost);
             }
             case 'totalDiscount':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalDiscount * -1, $this->currency);
+                return $this->_asCurrency($this->storedTotalDiscount * -1);
             }
             case 'totalTax':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTax, $this->currency);
+                return $this->_asCurrency($this->storedTotalTax);
             }
             case 'totalIncludedTax':
             {
-                return Craft::$app->getFormatter()->asCurrency($this->storedTotalTaxIncluded, $this->currency);
+                return $this->_asCurrency($this->storedTotalTaxIncluded);
+            }
+            case 'totals':
+            {
+                $values = [
+                    [Plugin::t('Items'), $this->getItemSubtotal()],
+                    [Plugin::t('Discounts'), $this->storedTotalDiscount],
+                    [Plugin::t('Shipping'), $this->storedTotalShippingCost],
+                    [Plugin::t('Tax (inc)'), $this->storedTotalTaxIncluded],
+                    [Plugin::t('Tax'), $this->storedTotalTax],
+                    [Plugin::t('Price'), $this->storedTotalPrice],
+                ];
+                return $this->_miniTable($values);
             }
             default:
             {
@@ -214,7 +223,7 @@ trait OrderElementTrait
             ->all();
 
         $count = array_reduce($orderCountByStatus, static function($sum, $thing) {
-            return $sum + (int) $thing['orderCount'];
+            return $sum + (int)$thing['orderCount'];
         }, 0);
 
 
@@ -360,6 +369,7 @@ trait OrderElementTrait
             'number' => ['label' => Plugin::t('Number')],
             'id' => ['label' => Plugin::t('ID')],
             'orderStatus' => ['label' => Plugin::t('Status')],
+            'totals' => ['label' => Plugin::t('Totals')],
             'total' => ['label' => Plugin::t('Total')],
             'totalPrice' => ['label' => Plugin::t('Total')],
             'totalPaid' => ['label' => Plugin::t('Total Paid')],
@@ -399,11 +409,10 @@ trait OrderElementTrait
         if (0 !== strpos($source, 'carts:')) {
             $attributes[] = 'reference';
             $attributes[] = 'orderStatus';
-            $attributes[] = 'totalPrice';
             $attributes[] = 'dateOrdered';
-            $attributes[] = 'totalPaid';
             $attributes[] = 'datePaid';
-            $attributes[] = 'paidStatus';
+            $attributes[] = 'totalPaid';
+            $attributes[] = 'totals';
         } else {
             $attributes[] = 'shortNumber';
             $attributes[] = 'dateUpdated';
@@ -464,5 +473,29 @@ trait OrderElementTrait
             'datePaid' => Craft::t('commerce', 'Date Paid'),
             'couponCode' => Craft::t('commerce', 'Coupon Code'),
         ];
+    }
+
+    private function _miniTable($values)
+    {
+        $output = '';
+        $output .= '<table style="padding: 0; width: 100%">';
+        foreach ($values as $row) {
+            if ($row[1] != 0) {
+                $output .= '<tr style="padding: 0">';
+                $count = 1;
+                foreach ($row as $cell) {
+                    if ($count == 1) {
+                        $output .= '<td style="text-align: left; padding: 0px">' . $cell . '</td>';
+                    } else {
+                        $output .= '<td style="text-align: right; padding: 0px">' . $this->_asCurrency($cell) . '</td>';
+                    }
+                    $count++;
+                }
+                $output .= '</tr>';
+            }
+        }
+        $output .= '</table>';
+
+        return $output;
     }
 }

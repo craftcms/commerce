@@ -44,7 +44,7 @@ class m200207_161707_sku_description_on_lineitem extends Migration
             $this->update('{{%commerce_lineitems}}', $data, ['purchasableId' => $data['purchasableId']]);
         }
 
-        echo 'Updated ' . count($purchasableSkuAndDescriptionByPurchasableId) . ' purchasbles on line items with description and sku.';
+        echo '    > Updated ' . count($purchasableSkuAndDescriptionByPurchasableId) . ' purchasbles on line items with description and sku.';
     }
 
     /**
