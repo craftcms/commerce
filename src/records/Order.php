@@ -25,6 +25,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $customerId
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
+ * @property DateTime $dateAuthorized
  * @property ActiveQueryInterface $discount
  * @property ActiveQueryInterface $element
  * @property string $email
@@ -55,6 +56,10 @@ use yii\db\ActiveQueryInterface;
  * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
+ * @property float $totalTax
+ * @property float $totalTaxIncluded
+ * @property float $totalShippingCost
+ * @property float $totalDiscount
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId

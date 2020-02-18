@@ -78,10 +78,15 @@ class OrderQuery extends ElementQuery
     public $expiryDate;
 
     /**
-     * @var mixed The date the order was paid.
+     * @var mixed The date the order was paid in full.
      */
     public $datePaid;
 
+    /**
+     * @var mixed The date the order was authorized in full.
+     */
+    public $dateAuthorized;
+    
     /**
      * @var int The Order Status ID that the resulting orders must have.
      */
@@ -396,6 +401,46 @@ class OrderQuery extends ElementQuery
     public function datePaid($value)
     {
         $this->datePaid = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the orders’ authorized dates.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'>= 2018-04-01'` | that were authorized on or after 2018-04-01.
+     * | `'< 2018-05-01'` | that were authorized before 2018-05-01
+     * | `['and', '>= 2018-04-04', '< 2018-05-01']` | that were completed between 2018-04-01 and 2018-05-01.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} that were authorized recently #}
+     * {% set aWeekAgo = date('7 days ago')|atom %}
+     *
+     * {% set {elements-var} = {twig-method}
+     *     .dateAuthorized(">= #{aWeekAgo}")
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} that were authorized recently
+     * $aWeekAgo = new \DateTime('7 days ago')->format(\DateTime::ATOM);
+     *
+     * ${elements-var} = {php-method}
+     *     ->dateAuthorized(">= {$aWeekAgo}")
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function dateAuthorized($value)
+    {
+        $this->dateAuthorized = $value;
         return $this;
     }
 
@@ -872,31 +917,31 @@ class OrderQuery extends ElementQuery
         $this->joinElementTable('commerce_orders');
 
         $this->query->select([
-            'commerce_orders.id',
-            'commerce_orders.number',
-            'commerce_orders.reference',
-            'commerce_orders.couponCode',
-            'commerce_orders.orderStatusId',
-            'commerce_orders.dateOrdered',
-            'commerce_orders.email',
-            'commerce_orders.isCompleted',
-            'commerce_orders.datePaid',
-            'commerce_orders.currency',
-            'commerce_orders.paymentCurrency',
-            'commerce_orders.lastIp',
-            'commerce_orders.orderLanguage',
-            'commerce_orders.message',
-            'commerce_orders.returnUrl',
-            'commerce_orders.cancelUrl',
-            'commerce_orders.billingAddressId',
-            'commerce_orders.shippingAddressId',
-            'commerce_orders.estimatedBillingAddressId',
-            'commerce_orders.estimatedShippingAddressId',
-            'commerce_orders.shippingMethodHandle',
-            'commerce_orders.gatewayId',
-            'commerce_orders.paymentSourceId',
-            'commerce_orders.customerId',
-            'commerce_orders.dateUpdated'
+            '[[commerce_orders.id]]',
+            '[[commerce_orders.number]]',
+            '[[commerce_orders.reference]]',
+            '[[commerce_orders.couponCode]]',
+            '[[commerce_orders.orderStatusId]]',
+            '[[commerce_orders.dateOrdered]]',
+            '[[commerce_orders.email]]',
+            '[[commerce_orders.isCompleted]]',
+            '[[commerce_orders.datePaid]]',
+            '[[commerce_orders.currency]]',
+            '[[commerce_orders.paymentCurrency]]',
+            '[[commerce_orders.lastIp]]',
+            '[[commerce_orders.orderLanguage]]',
+            '[[commerce_orders.message]]',
+            '[[commerce_orders.returnUrl]]',
+            '[[commerce_orders.cancelUrl]]',
+            '[[commerce_orders.billingAddressId]]',
+            '[[commerce_orders.shippingAddressId]]',
+            '[[commerce_orders.estimatedBillingAddressId]]',
+            '[[commerce_orders.estimatedShippingAddressId]]',
+            '[[commerce_orders.shippingMethodHandle]]',
+            '[[commerce_orders.gatewayId]]',
+            '[[commerce_orders.paymentSourceId]]',
+            '[[commerce_orders.customerId]]',
+            '[[commerce_orders.dateUpdated]]'
         ]);
 
         // Join shipping and billing address
@@ -913,15 +958,29 @@ class OrderQuery extends ElementQuery
         }
 
         if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.recalculationMode']);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.origin']);
+            $this->query->addSelect(['[[commerce_orders.recalculationMode]]']);
+            $this->query->addSelect(['[[commerce_orders.origin]]']);
 
             if ($this->origin) {
                 $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
             }
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
+            $this->query->addSelect(['[[commerce_orders.dateAuthorized]]']);
+            if ($this->dateAuthorized) {
+                $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
+            }
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
+            $this->query->addSelect(['[[commerce_orders.totalPrice]] as [[storedTotalPrice]]']);
+            $this->query->addSelect(['[[commerce_orders.totalPaid]] as [[storedTotalPaid]]']);
+            $this->query->addSelect(['[[commerce_orders.itemTotal]] as [[storedItemTotal]]']);
+            $this->query->addSelect(['[[commerce_orders.totalDiscount]] as [[storedTotalDiscount]]']);
+            $this->query->addSelect(['[[commerce_orders.totalShippingCost]] as [[storedTotalShippingCost]]']);
+            $this->query->addSelect(['[[commerce_orders.totalTax]] as [[storedTotalTax]]']);
+            $this->query->addSelect(['[[commerce_orders.totalTaxIncluded]] as [[storedTotalTaxIncluded]]']);
         }
 
         if ($this->number !== null) {

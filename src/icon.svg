@@ -1,28 +1,16 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="100px" height="100px" viewBox="0 0 100 100" version="1.1"
-     xmlns="http://www.w3.org/2000/svg"
->
-    <!-- Generator: Sketch 47.1 (45422) - http://www.bohemiancoding.com/sketch -->
-    <title>commerce-lite-alt</title>
-    <desc>Created with Sketch.</desc>
-    <defs>
-        <linearGradient x1="18.2879192%" y1="0%" x2="91.4586509%" y2="100%"
-                        id="linearGradient-1">
-            <stop stop-color="#2F1645" offset="0%"></stop>
-            <stop stop-color="#513764" offset="25.361152%"></stop>
-            <stop stop-color="#5B3461" offset="62.0315599%"></stop>
-            <stop stop-color="#864059" offset="100%"></stop>
-        </linearGradient>
-    </defs>
-    <g id="Icons" stroke="none" stroke-width="1" fill="none"
-       fill-rule="evenodd">
-        <g id="commerce-lite-alt">
-            <circle id="Oval-1" fill="url(#linearGradient-1)"
-                    fill-rule="nonzero"
-                    transform="translate(49.400002, 49.400002) scale(-1, 1) translate(-49.400002, -49.400002) "
-                    cx="49.4000015" cy="49.4000015" r="49.4000015"></circle>
-            <path d="M27.3571429,62.3571429 L27.3571429,50.1428571 L73.6428571,50.1428571 L73.6428571,62.3571429 C73.6428571,63.2410758 73.3281281,63.9977647 72.6986607,64.6272321 C72.0691933,65.2566996 71.3125044,65.5714286 70.4285714,65.5714286 L30.5714286,65.5714286 C29.6874956,65.5714286 28.9308067,65.2566996 28.3013393,64.6272321 C27.6718719,63.9977647 27.3571429,63.2410758 27.3571429,62.3571429 Z M40.2142857,57.8571429 L40.2142857,60.4285714 L47.9285714,60.4285714 L47.9285714,57.8571429 L40.2142857,57.8571429 Z M32.5,57.8571429 L32.5,60.4285714 L37.6428571,60.4285714 L37.6428571,57.8571429 L32.5,57.8571429 Z M70.4285714,34.7142857 C71.3125044,34.7142857 72.0691933,35.0290147 72.6986607,35.6584821 C73.3281281,36.2879496 73.6428571,37.0446384 73.6428571,37.9285714 L73.6428571,42.4285714 L27.3571429,42.4285714 L27.3571429,37.9285714 C27.3571429,37.0446384 27.6718719,36.2879496 28.3013393,35.6584821 C28.9308067,35.0290147 29.6874956,34.7142857 30.5714286,34.7142857 L70.4285714,34.7142857 Z"
-                  id="" fill="#FFFFFF"></path>
-        </g>
-    </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 24.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#E5422B;}
+</style>
+<g>
+	<rect x="39.2" y="58.1" class="st0" width="8.1" height="2.7"/>
+	<rect x="31" y="58.1" class="st0" width="5.4" height="2.7"/>
+	<path class="st0" d="M89.6,0H10.5C4.7,0,0,4.7,0,10.5v78.9C0,95.3,4.7,100,10.5,100h79c5.7,0,10.5-4.7,10.5-10.5v-79
+		C100.1,4.7,95.4,0,89.6,0z M74.4,62.9c0,0.9-0.3,1.7-0.9,2.4c-0.6,0.6-1.5,0.9-2.4,0.9H29c-0.9,0-1.7-0.3-2.4-0.9
+		c-0.6-0.6-0.9-1.5-0.9-2.4V50h48.8V62.9z M74.4,41.9H25.6v-4.7c0-0.9,0.3-1.7,0.9-2.4c0.7-0.6,1.5-0.9,2.4-0.9h42
+		c0.9,0,1.7,0.3,2.4,0.9c0.6,0.6,0.9,1.5,0.9,2.4V41.9z"/>
+</g>
 </svg>

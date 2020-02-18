@@ -240,6 +240,23 @@ class Order extends Element
      */
     const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
+    /**
+     * @event \yii\base\Event This event is raised after an order is authorized in full and completed
+     *
+     * Plugins can get notified after an order is authorized in full and completed
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(Order::class, Order::EVENT_AFTER_ORDER_AUTHORIZED, function(Event $e) {
+     *     // @var Order $order
+     *     $order = $e->sender;
+     *     // ...
+     * });
+     * ```
+     */
+    const EVENT_AFTER_ORDER_AUTHORIZED = 'afterOrderAuthorized';
 
     /**
      * This is the unique number (hash) generated for the order when it was first created.
@@ -325,6 +342,21 @@ class Order extends Element
      * ```
      */
     public $datePaid;
+
+    /**
+     * The date and time this order was authorized in full.
+     * This may the same date as datePaid if the order was paid immediately.
+     *
+     * @var DateTime Date authorized
+     * ---
+     * ```php
+     * echo $order->dateAuthorized;
+     * ```
+     * ```twig
+     * {{ order.dateAuthorized }}
+     * ```
+     */
+    public $dateAuthorized;
 
     /**
      * The currency of the order (ISO code)
@@ -614,6 +646,92 @@ class Order extends Element
      */
     public $paymentSourceId;
 
+
+    /**
+     * @var float The total price as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPrice;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPrice }}
+     * ```
+     */
+    public $storedTotalPrice;
+
+    /**
+     * @var float The total paid as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPaid;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPaid }}
+     * ```
+     */
+    public $storedTotalPaid;
+
+    /**
+     * @var float The item total as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedItemTotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemTotal }}
+     * ```
+     */
+    public $storedItemTotal;
+
+    /**
+     * @var float The total shipping cost adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalShippingCost;
+     * ```
+     * ```twig
+     * {{ order.storedTotalShippingCost }}
+     * ```
+     */
+    public $storedTotalShippingCost;
+
+    /**
+     * @var float The total of discount adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalDiscount;
+     * ```
+     * ```twig
+     * {{ order.storedTotalDiscount }}
+     * ```
+     */
+    public $storedTotalDiscount;
+
+    /**
+     * @var float The total tax adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTax;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTax }}
+     * ```
+     */
+    public $storedTotalTax;
+
+    /**
+     * @var float The total tax included  adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTaxIncluded;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTaxIncluded }}
+     * ```
+     */
+    public $storedTotalTaxIncluded;
+
+
     /**
      * @var string
      * @see Order::setRecalculationMode() To set the current recalculation mode
@@ -891,8 +1009,13 @@ class Order extends Element
      */
     public function datetimeAttributes(): array
     {
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
         $attributes = parent::datetimeAttributes();
         $attributes[] = 'datePaid';
+        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
+            $attributes[] = 'dateAuthorized';
+        }
         $attributes[] = 'dateOrdered';
         $attributes[] = 'dateUpdated';
         return $attributes;
@@ -961,13 +1084,8 @@ class Order extends Element
 
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-
-                if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
-                }
-
-                return $model->$attribute;
+                $amount = $model->$attribute ?? 0;
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
             };
         }
 
@@ -1069,16 +1187,29 @@ class Order extends Element
     public function updateOrderPaidInformation()
     {
         $paidInFull = !$this->hasOutstandingBalance();
-        $justPaid = $paidInFull && $this->datePaid === null;
+        $authorizedInFull = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this) >= $this->getTotalPrice();
+
+        $justPaid = $paidInFull && $this->datePaid == null;
+        $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
         // If it is no longer paid in full, set datePaid to null
         if (!$paidInFull) {
             $this->datePaid = null;
         }
 
+        // If it is no longer authorized in full, set dateAuthorized to null
+        if (!$authorizedInFull) {
+            $this->dateAuthorized = null;
+        }
+
         // If it was just paid set the date paid to now.
         if ($justPaid) {
             $this->datePaid = Db::prepareDateForDb(new DateTime());
+        }
+
+        // If it was just authorized set the date authorized to now.
+        if ($justAuthorized) {
+            $this->dateAuthorized = Db::prepareDateForDb(new DateTime());
         }
 
         // Lock for recalculation
@@ -1090,7 +1221,7 @@ class Order extends Element
 
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
-            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedForOrder($this);
+            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this);
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
@@ -1103,6 +1234,10 @@ class Order extends Element
 
         if ($justPaid && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_PAID)) {
             $this->trigger(self::EVENT_AFTER_ORDER_PAID);
+        }
+
+        if ($justAuthorized && $this->hasEventHandlers(self::EVENT_AFTER_ORDER_AUTHORIZED)) {
+            $this->trigger(self::EVENT_AFTER_ORDER_AUTHORIZED);
         }
 
         // restore recalculation lock state
@@ -1435,6 +1570,7 @@ class Order extends Element
         $orderRecord->isCompleted = $this->isCompleted;
         $orderRecord->dateOrdered = $this->dateOrdered;
         $orderRecord->datePaid = $this->datePaid ?: null;
+        $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
@@ -1443,6 +1579,10 @@ class Order extends Element
         $orderRecord->total = $this->getTotal();
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
+        $orderRecord->totalDiscount = $this->getTotalDiscount();
+        $orderRecord->totalShippingCost = $this->getTotalShippingCost();
+        $orderRecord->totalTax = $this->getTotalTax();
+        $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
@@ -2431,6 +2571,18 @@ class Order extends Element
     public function getOrderStatus()
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+    }
+
+
+    /**
+     * @param $value
+     * @return string
+     * @throws InvalidConfigException
+     */
+    private function _asCurrency($value)
+    {
+        $value = $value ?? 0;
+        return Craft::$app->getFormatter()->asCurrency($value, $this->currency);
     }
 
 

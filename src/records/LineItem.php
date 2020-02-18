@@ -21,6 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $note
  * @property string $privateNote
  * @property mixed $options
+ * @property string $description
  * @property string $optionsSignature
  * @property Order $order
  * @property int $orderId
@@ -31,6 +32,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $qty
  * @property float $saleAmount
  * @property float $salePrice
+ * @property string $sku
  * @property ActiveQueryInterface $shippingCategory
  * @property int $shippingCategoryId
  * @property string $snapshot
