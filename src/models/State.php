@@ -47,6 +47,11 @@ class State extends Model
      */
     public $enabled;
 
+    /**
+     * @var int Ordering
+     */
+    public $sortOrder;
+
 
     /**
      * @inheritdoc

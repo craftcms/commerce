@@ -46,12 +46,12 @@ class States extends Component
     /**
      * @var State[]
      */
-    private $_statesOrderedByName = [];
+    private $_statesAsOrdered = [];
 
     /**
      * @var State[]
      */
-    private $_enabledStatesOrderedByName = [];
+    private $_enabledStatesAsOrdered = [];
 
     /**
      * @var State[][]
@@ -188,18 +188,18 @@ class States extends Component
 
                 $state = new State($row);
                 $this->_statesById[$row['id']] = $state;
-                $this->_statesOrderedByName[] = $state;
+                $this->_statesAsOrdered[] = $state;
 
                 if ($state->enabled && $countryEnabled) {
                     $this->_enabledStatesById[$row['id']] = $state;
-                    $this->_enabledStatesOrderedByName[] = $state;
+                    $this->_enabledStatesAsOrdered[] = $state;
                 }
             }
 
             $this->_fetchedAllStates = true;
         }
 
-        return $this->_statesOrderedByName;
+        return $this->_statesAsOrdered;
     }
 
     /**
@@ -221,7 +221,7 @@ class States extends Component
     {
         $this->getAllStates();
 
-        return $this->_enabledStatesOrderedByName;
+        return $this->_enabledStatesAsOrdered;
     }
 
     /**
@@ -365,8 +365,9 @@ class States extends Component
                 'states.abbreviation',
                 'states.countryId',
                 'states.enabled',
+                'states.sortOrder'
             ])
             ->from([Table::STATES . ' states'])
-            ->orderBy(['countryId' => SORT_ASC, 'sortOrder' => SORT_ASC]);
+            ->orderBy(['states.sortOrder' => SORT_ASC]);
     }
 }
