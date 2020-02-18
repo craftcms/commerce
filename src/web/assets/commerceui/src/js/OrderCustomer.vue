@@ -39,6 +39,10 @@
           </div>
         </div>
       </template>
+      <template v-else>
+        <customer-select :order="draft.order"
+          @update="updateCustomer"></customer-select>
+      </template>
 
     </template>
   </div>
@@ -47,10 +51,12 @@
 <script>
     import {mapState, mapActions} from 'vuex';
     import AddressEdit from './components/customer/AddressEdit';
+    import CustomerSelect from './components/meta/CustomerSelect';
 
     export default {
         components: {
             AddressEdit,
+            CustomerSelect,
         },
 
         data() {
@@ -128,19 +134,25 @@
                 draft.order[idKey] = address.id;
 
                 this.draft = draft;
-                this.recalculateOrder(draft)
-                    .then(() => {
-                        this.$store.dispatch('displayNotice', "Order recalculated.")
-                    })
-                    .catch((error) => {
-                        this.$store.dispatch('displayError', error);
-                    })
+                this.recalculate();
+            },
+
+            updateCustomer(customer) {
+                if (customer) {
+                    let draft = JSON.parse(JSON.stringify(this.draft));
+                    draft.order.customerId = customer.customerId;
+                    draft.order.email = customer.email;
+
+                    this.draft = draft;
+                    this.recalculate()
+                }
             },
 
             removeCustomer() {
                 if (confirm(this.$options.filters.t('Are you sure you want to remove this customer?', 'commerce'))) {
                     let draft = this.draft;
                     draft.order.customerId = null;
+                    draft.order.email = null;
                     draft.order.billingAddressId = null;
                     draft.order.billingAddress = null;
                     draft.order.shippingAddressId = null;
@@ -148,7 +160,17 @@
 
                     this.draft = draft;
                 }
-            }
+            },
+
+            recalculate() {
+                this.recalculateOrder(this.draft)
+                    .then(() => {
+                        this.$store.dispatch('displayNotice', "Order recalculated.")
+                    })
+                    .catch((error) => {
+                        this.$store.dispatch('displayError', error);
+                    })
+            },
         },
     }
 </script>

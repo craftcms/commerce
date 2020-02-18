@@ -98,10 +98,7 @@
             }, 350),
 
             onChange() {
-                const order = JSON.parse(JSON.stringify(this.order))
-                order.customerId = this.selectedCustomer.customerId
-                order.email = this.selectedCustomer.email
-                this.$emit('updateOrder', order)
+                this.$emit('update', this.selectedCustomer);
             }
         },
 

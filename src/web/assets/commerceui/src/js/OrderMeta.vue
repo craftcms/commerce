@@ -72,16 +72,6 @@
                                      @updateOrder="updateOrder"></shipping-method>
                 </div>
             </div>
-
-            <div class="field" id="customer-field">
-                <div class="heading">
-                    <label id="customer-label" for="customer">{{"Customer"|t('commerce')}}</label>
-                </div>
-                <div class="input ltr">
-                    <customer-select :order="order"
-                                     @updateOrder="updateOrder"></customer-select>
-                </div>
-            </div>
         </div>
 
         <div id="meta" class="meta read-only">
@@ -206,7 +196,6 @@
     import {mapActions, mapGetters, mapState} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
-    import CustomerSelect from './components/meta/CustomerSelect'
     import DateOrderedInput from './components/meta/DateOrderedInput'
     import Field from './components/Field'
     import mixins from './mixins'
@@ -217,7 +206,6 @@
         components: {
             OrderStatus,
             ShippingMethod,
-            CustomerSelect,
             DateOrderedInput,
             Field,
         },
