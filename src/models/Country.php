@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 
 /**
@@ -51,6 +52,15 @@ class Country extends Model
     public function __toString(): string
     {
         return (string)$this->name;
+    }
+
+    /**
+     * @return array
+     * @since 3.1
+     */
+    public function getStates()
+    {
+        return Plugin::getInstance()->getStates()->getStatesByCountryId($this->id);
     }
 
     /**

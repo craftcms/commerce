@@ -6,6 +6,7 @@
     'Countries reordered.',
     'Country Code',
     'Name',
+    'States',
     'No countries exist yet.',
     'State Required?',
     'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
@@ -27,6 +28,7 @@
         status: country.enabled ? true : false,
         url: url('commerce/store-settings/countries/'~country.id),
         countryCode: country.iso|e,
+        statesCount: country.states|length|e,
         stateRequired: country.isStateRequired ? true : false,
     }]) %}
 
@@ -36,8 +38,15 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: 'countryCode', title: Craft.t('commerce', 'Country Code') },
-        { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'),
-            callback: function(value) {
+        { name: 'statesCount', title: Craft.t('commerce', 'States'), callback: function(value) {
+                if (value > 0) {
+                    return value;
+                }else{
+                    return '<span class="light">-</span>';
+                }
+            }
+        },
+        { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'), callback: function(value) {
                 if (value) {
                     return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
                 }
