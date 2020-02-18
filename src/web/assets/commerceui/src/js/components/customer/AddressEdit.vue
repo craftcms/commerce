@@ -1,14 +1,22 @@
 <template>
-  <div>
+  <div ref="container">
     <div class="order-address-display">
-      <address-display :title="title" :address="address"></address-display>
+      <template v-if="address">
+        <address-display :title="title" :address="address"></address-display>
+      </template>
+      <template v-else>
+        <div class="zilch">{{emptyMsg}}</div>
+      </template>
 
       <div class="order-address-display-buttons order-flex">
         <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="addressmenubtn"></div>
         <div class="menu">
           <ul>
             <li>
-              <a @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
+              <a
+                :class="{ disabled: !draftAddress }"
+                :disabled="!draftAddress"
+                @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
             </li>
             <li>
               <address-select
@@ -56,6 +64,7 @@
       <div ref="addressmodal" class="order-address-modal modal fitted">
         <div class="body">
           <address-form
+            v-if="draftAddress"
             :title="title"
             :address="draftAddress"
             :states="statesByCountryId"
@@ -116,8 +125,15 @@
                 type: [Number, null],
                 default: null,
             },
+            customerUpdated: {
+                default: null,
+            },
             draftAddress: {
                 type: [Object, null],
+                default: null,
+            },
+            emptyMessage: {
+                type: [String, null],
                 default: null,
             },
             title: {
@@ -182,6 +198,7 @@
                         hasErrors: false,
                     }
                 },
+                menuBtn: null,
                 modal: null,
                 isVisible: false,
                 save: false,
@@ -194,6 +211,14 @@
                 'countries',
                 'statesByCountryId',
             ]),
+
+            emptyMsg() {
+                if (!this.emptyMessage) {
+                    return this.$options.filters.t('No address', 'commerce');
+                }
+
+                return this.emptyMessage;
+            },
         },
 
         methods: {
@@ -270,6 +295,11 @@
                         updateAddress.stateText = this.modals[type].state.name;
                     }
 
+                    if (type == 'new') {
+                        this.draftAddress = updateAddress;
+                    }
+
+
                     this.$emit('update', updateAddress);
                     this.modals[type].save = false;
                 } else {
@@ -326,13 +356,20 @@
             },
         },
 
+        watch: {
+            customerUpdated() {
+                this._setAddress();
+                this._setBlankNewAddress();
+            }
+        },
+
         created() {
             this._setAddress();
             this._setBlankNewAddress();
         },
 
         mounted() {
-            new Garnish.MenuBtn(this.$refs.updateMenuBtn)
+            this.menuBtn = new Garnish.MenuBtn(this.$refs.updateMenuBtn);
         },
     }
 </script>

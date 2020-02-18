@@ -4,45 +4,39 @@
       Show customer info
     </template>
     <template v-else>
-      <template v-if="hasCustomer">
+      <div v-show="hasCustomer">
         <p>{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}} <btn-link class="btn-link btn-link--danger" @click="removeCustomer">{{$options.filters.t('Remove', 'commerce')}}</btn-link></p>
 
         <div class="order-flex order-box-sizing -mx-2">
           <div class="w-1/2 px-2">
-            <template v-if="hasBillingAddress">
-              <address-edit
-                :title="titles.billingAddress"
-                :address="draft.order.billingAddress"
-                :originalAddress="draft.order.billingAddress"
-                :customer-id="draft.order.customerId"
-                @update="updateBillingAddress"
-              ></address-edit>
-            </template>
-            <template v-else>
-              Billing Address search / selection
-            </template>
+            <address-edit
+              :title="titles.billingAddress"
+              :address="draft.order.billingAddress"
+              :originalAddress="draft.order.billingAddress"
+              :customer-id="draft.order.customerId"
+              :empty-message="$options.filters.t('No billing address', 'commerce')"
+              :customer-updated="customerUpdatedTime"
+              @update="updateBillingAddress"
+            ></address-edit>
           </div>
 
           <div class="w-1/2 px-2">
-            <template v-if="hasShippingAddress">
-              <address-edit
-                :title="titles.shippingAddress"
-                :address="draft.order.shippingAddress"
-                :originalAddress="draft.order.shippingAddress"
-                :customer-id="draft.order.customerId"
-                @update="updateShippingAddress"
-              ></address-edit>
-            </template>
-            <template v-else>
-              Shipping Address search / selection
-            </template>
+            <address-edit
+              :title="titles.shippingAddress"
+              :address="draft.order.shippingAddress"
+              :originalAddress="draft.order.shippingAddress"
+              :customer-id="draft.order.customerId"
+              :empty-message="$options.filters.t('No shipping address', 'commerce')"
+              :customer-updated="customerUpdatedTime"
+              @update="updateShippingAddress"
+            ></address-edit>
           </div>
         </div>
-      </template>
-      <template v-else>
+      </div>
+      <div v-if="!hasCustomer">
         <customer-select :order="draft.order"
           @update="updateCustomer"></customer-select>
-      </template>
+      </div>
 
     </template>
   </div>
@@ -61,6 +55,8 @@
 
         data() {
             return {
+                customerId: null,
+                customerUpdatedTime: null,
                 titles: {
                     billingAddress: this.$options.filters.t('Billing Address', 'commerce'),
                     shippingAddress: this.$options.filters.t('Shipping Address', 'commerce'),
@@ -171,6 +167,20 @@
                         this.$store.dispatch('displayError', error);
                     })
             },
+        },
+
+        mounted() {
+            if (this.draft) {
+              this.customerId = this.draft.order.customerId;
+            }
+        },
+
+        updated() {
+            if (this.draft && this.customerId != this.draft.order.customerId) {
+                this.customerId = this.draft.order.customerId;
+                let date = new Date();
+                this.customerUpdatedTime = date.getTime();
+            }
         },
     }
 </script>
