@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.7 - 2020-02-18
 
 ### Added
 - Order indexes can now have a “Totals” column.
