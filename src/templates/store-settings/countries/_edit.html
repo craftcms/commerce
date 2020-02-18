@@ -1,5 +1,17 @@
 {% extends "commerce/_layouts/cp" %}
 
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Name',
+    'Abbreviation',
+    'Country',
+    'No states exist yet.',
+    'Couldn’t reorder states.',
+    'States reordered.',
+    'Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
+]) %}
+
+
 {% set crumbs = [
     { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
     { label: "Countries"|t('commerce'), url: url('commerce/store-settings/countries') },
@@ -57,4 +69,72 @@
         errors: country.getErrors('enabled'),
         warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
     }) }}
+
+    <hr>
+    <h3>States</h3>
+
+    <div id="states-vue-admin-table"></div>
+    {% set tableData = [] %}
+    {% for state in states if state.countryId == country.id %}
+      {% set tableData = tableData|merge([{
+            id: state.id,
+            title: state.name|t('site'),
+            url: url('commerce/store-settings/states/'~state.id),
+            status: state.enabled ? true : false,
+            abbreviation: state.abbreviation|e,
+            country: {
+                status: state.country.enabled ? true : false,
+                country: state.country.name|t('site')|e
+            }
+        }]) %}
+    {% endfor %}
+
+    {% js %}
+        var columns = [
+            { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+            { name: 'abbreviation', title: Craft.t('commerce', 'Abbreviation') }
+        ];
+
+        var actions = [
+            {
+                label: Craft.t('app', 'Set State Status'),
+                actions: [
+                    {
+                        label: Craft.t('app', 'Enabled'),
+                        action: 'commerce/states/update-status',
+                        param: 'status',
+                        value: 'enabled',
+                        status: 'enabled'
+                    },
+                    {
+                        label: Craft.t('app', 'Disabled'),
+                        action: 'commerce/states/update-status',
+                        param: 'status',
+                        value: 'disabled',
+                        status: 'disabled'
+                    }
+                ]
+            }
+        ];
+
+        new Craft.VueAdminTable({
+            actions: actions,
+            checkboxes: true,
+            columns: columns,
+            container: '#states-vue-admin-table',
+            deleteAction: 'commerce/states/delete',
+            deleteConfirmationMessage: Craft.t('commerce', 'Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
+            emptyMessage: Craft.t('commerce', 'No states exist yet.'),
+            padded: true,
+            tableData: {{ tableData|json_encode|raw }},
+            reorderAction: 'commerce/states/reorder',
+            reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder states.'),
+            reorderSuccessMessage: Craft.t('commerce', 'States reordered.'),
+        });
+    {% endjs %}
+
+    <div style="padding-top: 20px;">
+        {% set newStateUrl = country.id ? '?countryId='~country.id : '' %}
+        <a href="{{ url('commerce/store-settings/states/new') ~ newStateUrl }}" class="btn add icon">{{ 'New state'|t('commerce') }}</a>
+    </div>
 {% endblock %}

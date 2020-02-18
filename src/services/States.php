@@ -179,7 +179,7 @@ class States extends Component
             $results = $this->_createStatesQuery()
                 ->innerJoin(Table::COUNTRIES . ' countries', '[[states.countryId]] = [[countries.id]]')
                 ->addSelect('[[countries.enabled]] as countryEnabled')
-                ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
+                ->orderBy(['countries.sortOrder' => SORT_ASC, 'states.sortOrder' => SORT_ASC])
                 ->all();
 
             foreach ($results as $row) {
@@ -200,6 +200,15 @@ class States extends Component
         }
 
         return $this->_statesOrderedByName;
+    }
+
+    /**
+     * @param int $countryId
+     * @return array
+     */
+    public function getStatesByCountryId(int $countryId): array
+    {
+        return ArrayHelper::where($this->getAllStates(), 'countryId', $countryId);
     }
 
     /**
@@ -281,7 +290,7 @@ class States extends Component
             $record = StateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No state exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No state exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -326,6 +335,23 @@ class States extends Component
     }
 
     /**
+     * @param array $ids
+     * @return bool
+     * @throws \yii\db\Exception
+     * @since 2.2
+     */
+    public function reorderStates(array $ids): bool
+    {
+        $command = Craft::$app->getDb()->createCommand();
+
+        foreach ($ids as $index => $id) {
+            $command->update(Table::STATES, ['sortOrder' => $index + 1], ['id' => $id])->execute();
+        }
+
+        return true;
+    }
+
+    /**
      * Returns a Query object prepped for retrieving States.
      *
      * @return Query The query object.
@@ -341,6 +367,6 @@ class States extends Component
                 'states.enabled',
             ])
             ->from([Table::STATES . ' states'])
-            ->orderBy(['name' => SORT_ASC]);
+            ->orderBy(['countryId' => SORT_ASC, 'sortOrder' => SORT_ASC]);
     }
 }
