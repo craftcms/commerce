@@ -242,7 +242,7 @@
   {% js %}
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
-        hasVariants: {{ productType.hasVariants ? 'true' : 'false'|raw }},
+        hasVariants: {{ productType.hasVariants ? 'true' : 'false' }},
         purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}
       });
   {% endjs %}
