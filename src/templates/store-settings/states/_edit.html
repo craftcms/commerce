@@ -13,9 +13,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/states/save">
-    {{ redirectInput('commerce/store-settings/states') }}
-    {% if state.id %}<input type="hidden" name="stateId"
-                            value="{{ state.id }}">{% endif %}
+    {% if state.id %}<input type="hidden" name="stateId" value="{{ state.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,
@@ -38,16 +36,26 @@
         required: true,
     }) }}
 
+    {% if not state.countryId and craft.app.request.getQueryParam('countryId') %}
+        {% set countryId = craft.app.request.getQueryParam('countryId') %}
+        {% set hideSelect = true %}
+    {% else %}
+        {% set countryId = null %}
+        {% set hideSelect = false %}
+    {% endif %}
+
+    <div class="{{ hideSelect ? 'hidden' : '' }}">
     {{ forms.selectField({
         label: "Country"|t('commerce'),
         id: 'countryId',
         name: 'countryId',
-        value: state.countryId,
+        value: state.countryId ? state.countryId : countryId,
         errors: state.getErrors('countryId'),
         required: true,
         options: countries,
         class: 'selectize fullwidth',
     }) }}
+    </div>
 
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
