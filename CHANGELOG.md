@@ -13,7 +13,7 @@
 - The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
 
 ### Fixed
-- Ajax requests to `commerce/cart/*` now correctly format of zero value totals correctly. ([#1278](https://github.com/craftcms/commerce/issues/1278)) 
+- Ajax requests to `commerce/cart/*` now correctly format zero value totals correctly. ([#1278](https://github.com/craftcms/commerce/issues/1278)) 
 - Ajax requests to `commerce/cart/*` now include line items `subtotal` values. ([#1263](https://github.com/craftcms/commerce/issues/1263))
 - Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order. ([#1234](https://github.com/craftcms/commerce/issues/1243))
 - Fixed a JavaScript error that occurred when editing products. ([#1273](https://github.com/craftcms/commerce/issues/1273))
