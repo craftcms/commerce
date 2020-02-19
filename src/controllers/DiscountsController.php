@@ -115,6 +115,7 @@ class DiscountsController extends BaseCpController
         $discount->ignoreSales = (bool)$request->getBodyParam('ignoreSales');
         $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
+        $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;
@@ -371,6 +372,11 @@ class DiscountsController extends BaseCpController
             DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source'),
             DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target'),
             DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Both'),
+        ];
+
+        $variables['appliedTo'] = [
+            DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS => Plugin::t('Discount the matching items only'),
+            DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS => Plugin::t('Discount all line items')
         ];
 
         $variables['purchasables'] = null;

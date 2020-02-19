@@ -26,6 +26,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
@@ -131,13 +132,7 @@ class Discounts extends Component
      */
     public function getDiscountById($id)
     {
-        foreach ($this->getAllDiscounts() as $discount) {
-            if ($discount->id == $id) {
-                return $discount;
-            }
-        }
-
-        return null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), 'id', $id);
     }
 
     /**
@@ -519,6 +514,7 @@ class Discounts extends Component
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignoreSales = $model->ignoreSales;
         $record->categoryRelationshipType = $model->categoryRelationshipType;
+        $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -957,41 +953,48 @@ class Discounts extends Component
      */
     private function _createDiscountQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
-                'discounts.id',
-                'discounts.name',
-                'discounts.description',
-                'discounts.code',
-                'discounts.perUserLimit',
-                'discounts.perEmailLimit',
-                'discounts.totalDiscountUseLimit',
-                'discounts.totalDiscountUses',
-                'discounts.dateFrom',
-                'discounts.dateTo',
-                'discounts.purchaseTotal',
-                'discounts.purchaseQty',
-                'discounts.maxPurchaseQty',
-                'discounts.baseDiscount',
-                'discounts.baseDiscountType',
-                'discounts.perItemDiscount',
-                'discounts.percentDiscount',
-                'discounts.percentageOffSubject',
-                'discounts.excludeOnSale',
-                'discounts.hasFreeShippingForMatchingItems',
-                'discounts.hasFreeShippingForOrder',
-                'discounts.allGroups',
-                'discounts.allPurchasables',
-                'discounts.allCategories',
-                'discounts.categoryRelationshipType',
-                'discounts.enabled',
-                'discounts.stopProcessing',
-                'discounts.ignoreSales',
-                'discounts.sortOrder',
-                'discounts.dateCreated',
-                'discounts.dateUpdated',
+                '[[discounts.id]]',
+                '[[discounts.name]]',
+                '[[discounts.description]]',
+                '[[discounts.code]]',
+                '[[discounts.perUserLimit]]',
+                '[[discounts.perEmailLimit]]',
+                '[[discounts.totalDiscountUseLimit]]',
+                '[[discounts.totalDiscountUses]]',
+                '[[discounts.dateFrom]]',
+                '[[discounts.dateTo]]',
+                '[[discounts.purchaseTotal]]',
+                '[[discounts.purchaseQty]]',
+                '[[discounts.maxPurchaseQty]]',
+                '[[discounts.baseDiscount]]',
+                '[[discounts.baseDiscountType]]',
+                '[[discounts.perItemDiscount]]',
+                '[[discounts.percentDiscount]]',
+                '[[discounts.percentageOffSubject]]',
+                '[[discounts.excludeOnSale]]',
+                '[[discounts.hasFreeShippingForMatchingItems]]',
+                '[[discounts.hasFreeShippingForOrder]]',
+                '[[discounts.allGroups]]',
+                '[[discounts.allPurchasables]]',
+                '[[discounts.allCategories]]',
+                '[[discounts.categoryRelationshipType]]',
+                '[[discounts.enabled]]',
+                '[[discounts.stopProcessing]]',
+                '[[discounts.ignoreSales]]',
+                '[[discounts.sortOrder]]',
+                '[[discounts.dateCreated]]',
+                '[[discounts.dateUpdated]]',
             ])
             ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '3.1', '>=')) {
+            $query->addSelect('[[discounts.appliedTo]]');
+        }
+
+        return $query;
     }
 }
