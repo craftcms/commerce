@@ -7,7 +7,7 @@
                 type="button"
                 class="btn submit"
                 :value="$options.filters.t('Update order', 'commerce')"
-                :class="{ disabled: !hasCustomer }"
+                :class="{ disabled: !hasCustomer || !hasAddresses }"
                 :disabled="!hasCustomer"
                 @click="save()"
             />
@@ -19,7 +19,7 @@
             <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="updateMenuBtn"></div>
 
             <div class="menu">
-                <template v-if="editing && hasCustomer">
+                <template v-if="editing && hasCustomer && hasAddresses">
                     <ul>
                         <li>
                             <a @click="save({redirect: ordersIndexUrl})">
@@ -31,7 +31,7 @@
                 </template>
 
                 <template v-if="canDelete">
-                    <template v-if="editing && hasCustomer">
+                    <template v-if="editing && hasCustomer && hasAddresses">
                         <hr>
                     </template>
 
@@ -66,6 +66,7 @@
             ...mapGetters([
                 'orderId',
                 'canDelete',
+                'hasAddresses',
                 'hasCustomer',
             ]),
 

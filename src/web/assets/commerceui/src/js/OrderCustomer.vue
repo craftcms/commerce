@@ -80,7 +80,8 @@
 
         computed: {
             ...mapGetters([
-                'hasCustomer'
+                'hasCustomer',
+                'hasAddresses',
             ]),
 
             ...mapState({
@@ -136,7 +137,7 @@
 
                 this.draft = draft;
 
-                if (recalculate) {
+                if (recalculate && this.hasCustomer && this.hasAddresses) {
                   this.recalculate();
                 }
             },
@@ -149,37 +150,31 @@
                     draft.order.email = customer.email;
                     this.draft = draft;
 
-                    if (!customer.primaryBillingAddressId && !customer.primaryShippingAddressId) {
-                        this.recalculate();
+                    if (customer.primaryBillingAddressId && !customer.primaryShippingAddressId) {
+                      let billingPromise = true;
+                      if (customer.primaryBillingAddressId) {
+                          billingPromise = this.getAddressById(customer.primaryBillingAddressId)
+                            .then((address) => {
+                                if (address) {
+                                    $this.updateAddress('billing', address, false);
+                                }
+                            });
+                      }
+
+                      let shippingPromise = true;
+                      if (customer.primaryShippingAddressId) {
+                          shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
+                            .then((address) => {
+                                if (address) {
+                                    $this.updateAddress('shipping', address, false);
+                                }
+                            });
+                      }
+
+                      Promise.all([billingPromise, shippingPromise]).then(() => {
+                          $this.recalculate();
+                      });
                     }
-
-
-                    let billingPromise = true;
-                    if (customer.primaryBillingAddressId) {
-                        billingPromise = this.getAddressById(customer.primaryBillingAddressId)
-                          .then((address) => {
-                              if (address) {
-                                  $this.updateAddress('billing', address, false);
-                              }
-                          });
-                    }
-
-                    let shippingPromise = true;
-                    if (customer.primaryShippingAddressId) {
-                        shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
-                          .then((address) => {
-                              if (address) {
-                                  $this.updateAddress('shipping', address, false);
-                              }
-                          });
-                    }
-
-                    Promise.all([billingPromise, shippingPromise]).then(() => {
-                        $this.recalculate();
-                    });
-
-
-                    // this.recalculate()
                 }
             },
 
