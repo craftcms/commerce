@@ -973,7 +973,7 @@ class OrderQuery extends ElementQuery
             }
         }
 
-        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
             $this->query->addSelect(['[[commerce_orders.totalPrice]] as [[storedTotalPrice]]']);
             $this->query->addSelect(['[[commerce_orders.totalPaid]] as [[storedTotalPaid]]']);
             $this->query->addSelect(['[[commerce_orders.itemTotal]] as [[storedItemTotal]]']);
