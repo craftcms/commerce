@@ -104,10 +104,18 @@ export default new Vuex.Store({
         },
 
         hasAddresses(state) {
+            if (!state.draft) {
+                return false
+            }
+
             return ((state.draft.order.billingAddressId && state.draft.order.shippingAddressId) || (state.draft.order.billingAddress && state.draft.order.shippingAddress))
         },
 
         hasCustomer(state) {
+            if (!state.draft) {
+                return false
+            }
+
             return (state.draft.order.customerId && state.draft.order.email)
         },
 

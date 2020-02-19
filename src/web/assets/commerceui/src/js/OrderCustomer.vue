@@ -1,7 +1,26 @@
 <template>
   <div>
     <template v-if="!editing">
-      Show customer info
+      <p v-if="hasCustomer">{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}}</p>
+      <div class="order-flex order-box-sizing -mx-2">
+        <div class="w-1/2 px-2">
+          <template v-if="draft && draft.order.billingAddress">
+            <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
+          </template>
+          <template v-else>
+            <div class="zilch">{{$options.filters.t('No billing address', 'commerce')}}</div>
+          </template>
+        </div>
+        <div class="w-1/2 px-2">
+          <template v-if="draft && draft.order.shippingAddress">
+            <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
+          </template>
+          <template v-else>
+            <div class="zilch">{{$options.filters.t('No shipping address', 'commerce')}}</div>
+          </template>
+        </div>
+      </div>
+
     </template>
     <template v-else>
       <div v-show="hasCustomer">
@@ -44,11 +63,13 @@
 
 <script>
     import {mapGetters, mapState, mapActions} from 'vuex';
+    import AddressDisplay from './components/customer/Address';
     import AddressEdit from './components/customer/AddressEdit';
     import CustomerSelect from './components/meta/CustomerSelect';
 
     export default {
         components: {
+            AddressDisplay,
             AddressEdit,
             CustomerSelect,
         },
@@ -100,10 +121,6 @@
                     this.$store.commit('updateDraft', draft)
                 }
             },
-
-            // hasCustomer() {
-            //     return (this.draft.order.customerId && this.draft.order.email)
-            // },
 
             hasBillingAddress() {
                 return (this.draft.order.billingAddressId != null);
