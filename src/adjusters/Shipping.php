@@ -37,6 +37,10 @@ class Shipping extends Component implements AdjusterInterface
      */
     private $_isEstimated = false;
 
+    /**
+     * @var bool
+     */
+    private $_consolidateShippingToSingleAdjustment = false;
 
     /**
      * @inheritdoc
@@ -142,6 +146,26 @@ class Shipping extends Component implements AdjusterInterface
                     $adjustments[] = $adjustment;
                 }
             }
+        }
+
+        if($this->_consolidateShippingToSingleAdjustment)
+        {
+            $amount = 0;
+            foreach ($adjustments as $adjustment){
+                $amount += $adjustment->amount;
+            }
+
+            //preparing model
+            $adjustment = new OrderAdjustment;
+            $adjustment->type = self::ADJUSTMENT_TYPE;
+            $adjustment->setOrder($this->_order);
+            $adjustment->name = $shippingMethod->getName();
+            $adjustment->amount = $amount;
+            $adjustment->description = $rule->getDescription();
+            $adjustment->isEstimated = $this->_isEstimated;
+            $adjustment->sourceSnapshot = [];
+
+            return [$adjustment];
         }
 
         return $adjustments;

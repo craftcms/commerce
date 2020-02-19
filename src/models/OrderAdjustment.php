@@ -99,6 +99,7 @@ class OrderAdjustment extends Model
                 'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+                'isEstimated' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'type' => AttributeTypecastBehavior::TYPE_STRING,
                 'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,

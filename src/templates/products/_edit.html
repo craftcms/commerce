@@ -198,7 +198,7 @@
   <div class="meta">
     {# Related Sales #}
     {# TODO allow viewing of sales when a view promotions permission is introduced #}
-    {% if currentUser.can('commerce-managePromotions') %}
+    {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
       {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
 
       <div class="data">
@@ -240,10 +240,9 @@
   {% endjs %}
 {% else %}
   {% js %}
-
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
-        hasVariants: {{ productType.hasVariants|raw }},
+        hasVariants: {{ productType.hasVariants ? 'true' : 'false' }},
         purchasables: {{ product.getVariants()|map(v => {id: v.id, title: v.title, sku: v.sku})|json_encode|raw }}
       });
   {% endjs %}

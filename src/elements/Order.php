@@ -646,6 +646,92 @@ class Order extends Element
      */
     public $paymentSourceId;
 
+
+    /**
+     * @var float The total price as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPrice;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPrice }}
+     * ```
+     */
+    public $storedTotalPrice;
+
+    /**
+     * @var float The total paid as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalPaid;
+     * ```
+     * ```twig
+     * {{ order.storedTotalPaid }}
+     * ```
+     */
+    public $storedTotalPaid;
+
+    /**
+     * @var float The item total as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedItemTotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemTotal }}
+     * ```
+     */
+    public $storedItemTotal;
+
+    /**
+     * @var float The total shipping cost adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalShippingCost;
+     * ```
+     * ```twig
+     * {{ order.storedTotalShippingCost }}
+     * ```
+     */
+    public $storedTotalShippingCost;
+
+    /**
+     * @var float The total of discount adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalDiscount;
+     * ```
+     * ```twig
+     * {{ order.storedTotalDiscount }}
+     * ```
+     */
+    public $storedTotalDiscount;
+
+    /**
+     * @var float The total tax adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTax;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTax }}
+     * ```
+     */
+    public $storedTotalTax;
+
+    /**
+     * @var float The total tax included  adjustments as stored in the database from last retrieval
+     * ---
+     * ```php
+     * echo $order->storedTotalTaxIncluded;
+     * ```
+     * ```twig
+     * {{ order.storedTotalTaxIncluded }}
+     * ```
+     */
+    public $storedTotalTaxIncluded;
+
+
     /**
      * @var string
      * @see Order::setRecalculationMode() To set the current recalculation mode
@@ -998,13 +1084,8 @@ class Order extends Element
 
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-
-                if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->currency, [], [], true);
-                }
-
-                return $model->$attribute;
+                $amount = $model->$attribute ?? 0;
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
             };
         }
 
@@ -1498,6 +1579,10 @@ class Order extends Element
         $orderRecord->total = $this->getTotal();
         $orderRecord->totalPrice = $this->getTotalPrice();
         $orderRecord->totalPaid = $this->getTotalPaid();
+        $orderRecord->totalDiscount = $this->getTotalDiscount();
+        $orderRecord->totalShippingCost = $this->getTotalShippingCost();
+        $orderRecord->totalTax = $this->getTotalTax();
+        $orderRecord->totalTaxIncluded = $this->getTotalTaxIncluded();
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
@@ -2486,6 +2571,18 @@ class Order extends Element
     public function getOrderStatus()
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+    }
+
+
+    /**
+     * @param $value
+     * @return string
+     * @throws InvalidConfigException
+     */
+    private function _asCurrency($value)
+    {
+        $value = $value ?? 0;
+        return Craft::$app->getFormatter()->asCurrency($value, $this->currency);
     }
 
 

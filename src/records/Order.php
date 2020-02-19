@@ -56,6 +56,10 @@ use yii\db\ActiveQueryInterface;
  * @property float $total
  * @property float $totalPaid
  * @property float $totalPrice
+ * @property float $totalTax
+ * @property float $totalTaxIncluded
+ * @property float $totalShippingCost
+ * @property float $totalDiscount
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
