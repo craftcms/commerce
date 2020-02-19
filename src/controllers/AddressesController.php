@@ -288,4 +288,37 @@ class AddressesController extends BaseCpController
 
         return $this->asJson(['success' => true]);
     }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 3.x
+     */
+    public function actionGetAddressById(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $addressId = $request->getParam('id', null);
+
+        if (!$addressId) {
+            return $this->asErrorJson(Plugin::t('Address ID is required.'));
+        }
+
+        if (!is_numeric($addressId)) {
+            return $this->asErrorJson(Plugin::t('Address ID must be numeric.'));
+        }
+
+        $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$addressId);
+
+        if (!$address) {
+            return $this->asErrorJson(Plugin::t('Couldn’t retrieve address.'));
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'address' => $address,
+        ]);
+    }
 }

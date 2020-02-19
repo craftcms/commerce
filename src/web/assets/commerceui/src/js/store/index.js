@@ -103,6 +103,10 @@ export default new Vuex.Store({
             return false
         },
 
+        hasCustomer(state) {
+            return (state.draft.order.customerId && state.draft.order.email)
+        },
+
         lineItemStatuses() {
             return window.orderEdit.lineItemStatuses
         },
@@ -307,6 +311,22 @@ export default new Vuex.Store({
 
         sendEmail(context, emailTemplateId) {
             return ordersApi.sendEmail(emailTemplateId)
+        },
+
+        getAddressById(context, id) {
+            return addressesApi.getById(id)
+                .then((response) => {
+                    if (response.data && response.data.success && response.data.address) {
+                        return response.data.address;
+                    }
+
+                    return null;
+                })
+                .catch(() => {
+                    let errorMsg = 'Couldn’t retrieve address.';
+
+                    throw errorMsg;
+                });
         },
 
         validateAddress(context, address) {

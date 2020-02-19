@@ -43,7 +43,7 @@
 </template>
 
 <script>
-    import {mapState, mapActions} from 'vuex';
+    import {mapGetters, mapState, mapActions} from 'vuex';
     import AddressEdit from './components/customer/AddressEdit';
     import CustomerSelect from './components/meta/CustomerSelect';
 
@@ -79,6 +79,10 @@
         },
 
         computed: {
+            ...mapGetters([
+                'hasCustomer'
+            ]),
+
             ...mapState({
                 recalculateLoading: state => state.recalculateLoading,
                 saveLoading: state => state.saveLoading,
@@ -96,9 +100,9 @@
                 }
             },
 
-            hasCustomer() {
-                return (this.draft.order.customerId)
-            },
+            // hasCustomer() {
+            //     return (this.draft.order.customerId && this.draft.order.email)
+            // },
 
             hasBillingAddress() {
                 return (this.draft.order.billingAddressId != null);
@@ -111,7 +115,8 @@
 
         methods: {
             ...mapActions([
-                'recalculateOrder'
+                'recalculateOrder',
+                'getAddressById',
             ]),
 
             updateBillingAddress(address) {
@@ -122,7 +127,7 @@
                 this.updateAddress('shipping', address);
             },
 
-            updateAddress(type, address) {
+            updateAddress(type, address, recalculate = true) {
                 let draft = this.draft;
                 let key = type + 'Address';
                 let idKey = key + 'Id'
@@ -130,17 +135,51 @@
                 draft.order[idKey] = address.id;
 
                 this.draft = draft;
-                this.recalculate();
+
+                if (recalculate) {
+                  this.recalculate();
+                }
             },
 
             updateCustomer(customer) {
                 if (customer) {
+                    let $this = this;
                     let draft = JSON.parse(JSON.stringify(this.draft));
                     draft.order.customerId = customer.customerId;
                     draft.order.email = customer.email;
-
                     this.draft = draft;
-                    this.recalculate()
+
+                    if (!customer.primaryBillingAddressId && !customer.primaryShippingAddressId) {
+                        this.recalculate();
+                    }
+
+
+                    let billingPromise = true;
+                    if (customer.primaryBillingAddressId) {
+                        billingPromise = this.getAddressById(customer.primaryBillingAddressId)
+                          .then((address) => {
+                              if (address) {
+                                  $this.updateAddress('billing', address, false);
+                              }
+                          });
+                    }
+
+                    let shippingPromise = true;
+                    if (customer.primaryShippingAddressId) {
+                        shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
+                          .then((address) => {
+                              if (address) {
+                                  $this.updateAddress('shipping', address, false);
+                              }
+                          });
+                    }
+
+                    Promise.all([billingPromise, shippingPromise]).then(() => {
+                        $this.recalculate();
+                    });
+
+
+                    // this.recalculate()
                 }
             },
 

@@ -13,6 +13,7 @@ use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
@@ -28,6 +29,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
@@ -545,11 +547,13 @@ class OrdersController extends Controller
         $sqlQuery = (new Query())
             ->select([
                 '[[customers.id]] customerId',
-                '[[customers.id]] userId',
-                '[[users.email]] email'
+                '[[users.id]] userId',
+                '[[users.email]] email',
+                '[[customers.primaryBillingAddressId]]',
+                '[[customers.primaryShippingAddressId]]',
             ])
-            ->from('{{%commerce_customers}} customers')
-            ->innerJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
+            ->from(Table::CUSTOMERS . ' customers')
+            ->innerJoin(CraftTable::USERS . ' users', '[[customers.userId]] = [[users.id]]')
             ->andWhere([$likeOperator, '[[users.email]]', $query]);
 
         $results = $sqlQuery->limit($limit)->all();
@@ -562,9 +566,11 @@ class OrdersController extends Controller
             ->select([
                 '[[customers.id]] as customerId',
                 '[[orders.email]] as email',
+                '[[customers.primaryBillingAddressId]]',
+                '[[customers.primaryShippingAddressId]]',
             ])
-            ->from('{{%commerce_customers}} customers')
-            ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
+            ->from(Table::CUSTOMERS . ' customers')
+            ->innerJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
             ->andWhere(['[[orders.isCompleted]]' => 1])
             ->andWhere([$likeOperator, '[[orders.email]]', $query]);
 
@@ -1139,6 +1145,8 @@ class OrdersController extends Controller
 
         $order->billingAddressId = $billingAddressId;
         $order->shippingAddressId = $shippingAddressId;
+        $order->billingAddress = $billingAddress;
+        $order->shippingAddress = $shippingAddress;
 
         $lineItems = [];
         $adjustments = [];

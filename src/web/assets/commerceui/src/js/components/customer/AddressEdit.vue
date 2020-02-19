@@ -357,6 +357,10 @@
         },
 
         watch: {
+            address() {
+                this._setAddress();
+            },
+
             customerUpdated() {
                 this._setAddress();
                 this._setBlankNewAddress();
