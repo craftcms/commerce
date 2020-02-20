@@ -30,6 +30,11 @@ class Product extends ElementArguments
                 'type' => Type::boolean(),
                 'description' => 'Whether to only return products that are available to purchase.'
             ],
+            'defaultPrice' => [
+                'name' => 'defaultPrice',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on teh default price on the product.'
+            ],
             'editable' => [
                 'name' => 'editable',
                 'type' => Type::boolean(),
