@@ -25,6 +25,11 @@ class Product extends ElementArguments
     public static function getArguments(): array
     {
         return array_merge(parent::getArguments(), [
+            'availableForPurchase' => [
+                'name' => 'availableForPurchase',
+                'type' => Type::boolean(),
+                'description' => 'Whether to only return products that are available to purchase.'
+            ],
             'editable' => [
                 'name' => 'editable',
                 'type' => Type::boolean(),
