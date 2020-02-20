@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.0.10 - 2020-02-20
+
+### Fixed
+- Fixed an error that could occur when creating a new product.
+
 ## 3.0.9 - 2020-02-19
 
 ### Fixed
