@@ -35,13 +35,13 @@ class Product extends ElementArguments
                 'type' => Type::boolean(),
                 'description' => 'Whether to only return products that the user has permission to edit.'
             ],
-            'productType' => [
-                'name' => 'productType',
+            'type' => [
+                'name' => 'type',
                 'type' => Type::listOf(Type::string()),
                 'description' => 'Narrows the query results based on the product type the products belong to per the product type’s handles.'
             ],
-            'productTypeId' => [
-                'name' => 'productTypeId',
+            'typeId' => [
+                'name' => 'typeId',
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the product types the products belong to, per the product type IDs.'
             ],
