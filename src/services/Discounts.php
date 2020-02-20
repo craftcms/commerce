@@ -293,7 +293,7 @@ class Discounts extends Component
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon limited to {limit} uses.', [
+            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
