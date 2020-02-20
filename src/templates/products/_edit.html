@@ -238,7 +238,7 @@
   {% js %}
       window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
   {% endjs %}
-{% else %}
+{% elseif product.id %}
   {% js %}
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},
