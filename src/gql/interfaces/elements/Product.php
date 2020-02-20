@@ -73,6 +73,11 @@ class Product extends Element
                 'type' => Type::boolean(),
                 'description' => 'If the product is available for purchase.'
             ],
+            'defaultPrice' => [
+                'name' => 'defaultPrice',
+                'type' => Type::float(),
+                'description' => 'The price of the default variant for the product.'
+            ],
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
