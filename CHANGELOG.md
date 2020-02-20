@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when editing a variants stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
+
 ## 3.0.10 - 2020-02-20
 
 ### Fixed
