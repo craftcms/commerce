@@ -30,6 +30,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
  * @property string $titleFormat
+ * @property string $titleLabel
+ * @property string $variantTitleLabel
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -37,9 +39,6 @@ use yii\db\ActiveQueryInterface;
  */
 class ProductType extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

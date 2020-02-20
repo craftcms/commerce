@@ -31,9 +31,6 @@ use craft\validators\UniqueValidator;
  */
 class TaxAddressZone extends Model implements AddressZoneInterface
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -75,8 +72,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     private $_states;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return string
@@ -234,21 +229,23 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['name'], 'required'],
-            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
-            [
-                ['states'], 'required', 'when' => function($model) {
+        $rules = parent::defineRules();
+        
+        $rules[] = [['name'], 'required'];
+        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']];
+        $rules[] = [
+            ['states'], 'required', 'when' => static function($model) {
                 return !$model->isCountryBased;
             }
-            ],
-            [
-                ['countries'], 'required', 'when' => function($model) {
+        ];
+        $rules[] = [
+            ['countries'], 'required', 'when' => static function($model) {
                 return $model->isCountryBased;
             }
-            ],
         ];
+
+        return $rules;
     }
 }

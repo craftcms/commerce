@@ -24,9 +24,6 @@ use yii\web\Response;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -62,7 +59,7 @@ class OrderStatusesController extends BaseAdminController
         if ($variables['orderStatus']->id) {
             $variables['title'] = $variables['orderStatus']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new order status');
+            $variables['title'] = Plugin::t('Create a new order status');
         }
 
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
@@ -95,10 +92,10 @@ class OrderStatusesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, $emailIds)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order status saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Order status saved.'));
             $this->redirectToPostedUrl($orderStatus);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order status.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save order status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('orderStatus', 'emailIds'));
@@ -111,13 +108,13 @@ class OrderStatusesController extends BaseAdminController
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+
         if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder Order Statuses.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder Order Statuses.')]);
     }
 
     /**
@@ -136,6 +133,6 @@ class OrderStatusesController extends BaseAdminController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Order Status.')]);
+        return $this->asJson(['error' => Plugin::t('Couldn’t archive Order Status.')]);
     }
 }

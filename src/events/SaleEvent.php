@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class SaleEvent extends Event
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Sale sale
      */

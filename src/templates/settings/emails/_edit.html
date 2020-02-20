@@ -20,7 +20,7 @@
     {{ forms.textField({
         first: true,
         label: "Name"|t('commerce'),
-        instructions: "What this email will be called in the CP."|t('commerce'),
+        instructions: "What this email will be called in the control panel."|t('commerce'),
         id: 'name',
         name: 'name',
         value: email.name,
@@ -109,6 +109,15 @@
         value: email.templatePath,
         errors: email.getErrors('templatePath'),
         required: true,
+    }) }}
+
+    {{ forms.textField({
+        label: 'Plain Text Email Template Path'|t('commerce'),
+        instructions: 'The template to be used for plain text emails. Twig code can be used here.'|t('commerce'),
+        id: 'plainTextTemplatePath',
+        name: 'plainTextTemplatePath',
+        value: email.plainTextTemplatePath,
+        errors: email.getErrors('plainTextTemplatePath'),
     }) }}
 
     {{ forms.lightswitchField({

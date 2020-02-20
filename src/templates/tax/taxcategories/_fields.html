@@ -3,14 +3,13 @@
 {{ forms.textField({
     first: true,
     label: "Name"|t('app'),
-    instructions: "What this tax category will be called in the CP."|t('commerce'),
+    instructions: "What this tax category will be called in the control panel."|t('commerce'),
     id: 'name',
     name: 'name',
     value: taxCategory is defined ? taxCategory.name,
     errors: taxCategory is defined ? taxCategory.getErrors('name'),
     autofocus: true,
-    required: true,
-    translatable: true
+    required: true
 }) }}
 
 {{ forms.textField({

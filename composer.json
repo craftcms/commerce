@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "2.2.7",
+  "version": "3.0.9",
   "keywords": [
     "cms",
     "craftcms",
@@ -20,15 +20,15 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.3.0",
+    "craftcms/cms": "^3.4.0",
     "dompdf/dompdf": "^0.8.3",
-    "moneyphp/money": "^3.1.3",
-    "ibericode/vat": "^1.1.2",
-    "phpoffice/phpspreadsheet": "^1.4"
+    "moneyphp/money": "^3.2.1",
+    "ibericode/vat": "^1.1.2"
   },
   "autoload": {
     "psr-4": {
-      "craft\\commerce\\": "src/"
+      "craft\\commerce\\": "src/",
+      "craftcommercetests\\fixtures\\": "tests/fixtures/"
     }
   },
   "extra": {
@@ -37,5 +37,22 @@
     "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://docs.craftcms.com/commerce/v2/"
+  },
+  "require-dev": {
+    "roave/security-advisories": "dev-master",
+    "codeception/codeception": "^3.0",
+    "vlucas/phpdotenv": "^3.4"
+  },
+  "scripts": {
+    "testunit": [
+      "Composer\\Config::disableProcessTimeout",
+      "codecept run unit"
+    ]
+  },
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php":  "7.1.30"
+    }
   }
 }

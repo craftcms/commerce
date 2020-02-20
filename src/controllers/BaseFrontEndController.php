@@ -19,9 +19,6 @@ use craft\commerce\Plugin;
  */
 class BaseFrontEndController extends BaseController
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event Event The event that is triggered when an cart is returned as an array (for ajax cart update requests)
      *
@@ -40,16 +37,12 @@ class BaseFrontEndController extends BaseController
      */
     const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
     protected $allowAnonymous = true;
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @param Order $cart
@@ -57,7 +50,18 @@ class BaseFrontEndController extends BaseController
      */
     protected function cartArray(Order $cart): array
     {
-        $cartInfo = Plugin::getInstance()->getOrders()->cartArray($cart);
+        // Typecast order attributes
+        $cart->typeCastAttributes();
+
+        $extraFields = [
+            'lineItems.snapshot',
+            'availableShippingMethods',
+            'totalTax',
+            'totalTaxIncluded',
+            'totalShippingCost',
+            'totalDiscount'
+        ];
+        $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([

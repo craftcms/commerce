@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
+use craft\commerce\queue\jobs\ConsolidateGuestOrders;
 use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\records\CustomerAddress as CustomerAddressRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
@@ -21,6 +22,7 @@ use craft\db\Query;
 use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
+use craft\events\ModelEvent;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -43,21 +45,14 @@ use yii\web\UserEvent;
  */
 class Customers extends Component
 {
-    // Constants
-    // =========================================================================
-
     const SESSION_CUSTOMER = 'commerce_customer';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Customer
      */
     private $_customer;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get all customers.
@@ -258,22 +253,24 @@ class Customers extends Component
 
     /**
      * Deletes any customer record not related to a user or a cart.
+     *
      * @since 2.2
      */
     public function purgeOrphanedCustomers()
     {
         $customers = (new Query())
             ->select(['[[customers.id]] id'])
-            ->from('{{%commerce_customers}} customers')
-            ->leftJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null])
-            ->andWhere(['[[customers.userId]]' => null])
+            ->from(Table::CUSTOMERS . ' customers')
+            ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
             ->column();
 
-        // This will also remove all addresses related to the customer.
-        Craft::$app->getDb()->createCommand()
-            ->delete('{{%commerce_customers}}', ['id' => $customers])
-            ->execute();
+        if ($customers) {
+            // This will also remove all addresses related to the customer.
+            Craft::$app->getDb()->createCommand()
+                ->delete(Table::CUSTOMERS, ['id' => $customers])
+                ->execute();
+        }
     }
 
     /**
@@ -291,12 +288,6 @@ class Customers extends Component
         if ($impersonating) {
             Plugin::getInstance()->getCarts()->forgetCart();
         }
-
-        /** @var User $user */
-        $user = $event->identity;
-
-        // Consolidates completed orders to the user
-        $this->consolidateOrdersToUser($user);
     }
 
     /**
@@ -318,6 +309,7 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
+     * @deprecated in 3.0 use ConsolidateGuestOrders job instead
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
@@ -375,7 +367,6 @@ class Customers extends Component
      */
     public function getCustomerByUserId($id)
     {
-
         $row = $this->_createCustomerQuery()
             ->where(['userId' => $id])
             ->one();
@@ -431,6 +422,11 @@ class Customers extends Component
         if ($orderAddressesMutated) {
             Craft::$app->getElements()->saveElement($order, false);
         }
+
+        // Consolidate guest orders
+        Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
+            'emails' => [$order->email]
+        ]));
     }
 
     /**
@@ -470,8 +466,6 @@ class Customers extends Component
         }
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Get the current customer.
@@ -529,18 +523,26 @@ class Customers extends Component
                     'title',
                     'firstName',
                     'lastName',
+                    'fullName',
                     'countryId',
                     'stateId',
                     'address1',
                     'address2',
+                    'address3',
                     'city',
                     'zipCode',
                     'phone',
                     'alternativePhone',
+                    'label',
+                    'notes',
                     'businessName',
                     'businessTaxId',
                     'businessId',
-                    'stateName'
+                    'stateName',
+                    'custom1',
+                    'custom2',
+                    'custom3',
+                    'custom4',
                 ]
             ));
             $originalBillingAddressId = $snapshotBillingAddress->id;
@@ -561,18 +563,26 @@ class Customers extends Component
                     'title',
                     'firstName',
                     'lastName',
+                    'fullName',
                     'countryId',
                     'stateId',
                     'address1',
                     'address2',
+                    'address3',
                     'city',
                     'zipCode',
                     'phone',
                     'alternativePhone',
+                    'label',
+                    'notes',
                     'businessName',
                     'businessTaxId',
                     'businessId',
-                    'stateName'
+                    'stateName',
+                    'custom1',
+                    'custom2',
+                    'custom3',
+                    'custom4',
                 ]
             ));
             $originalShippingAddressId = $snapshotShippingAddress->id;
@@ -654,6 +664,13 @@ class Customers extends Component
                 Craft::warning('User saved, but couldn’t send activation email. Check your email settings.', __METHOD__);
             }
 
+            // Delete auto generated customer from $this->afterSaveUserHandler()
+            $autoGeneratedCustomer = $this->getCustomerByUserId($user->id);
+
+            if ($autoGeneratedCustomer) {
+                $this->deleteCustomer($autoGeneratedCustomer);
+            }
+
             $customer->userId = $user->id;
             Plugin::getInstance()->getCustomers()->saveCustomer($customer, false);
         } else {
@@ -672,7 +689,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Craft::t('commerce', 'Customer Info'),
+                'label' => Plugin::t('Customer Info'),
                 'url' => '#customerInfo'
             ];
         }
@@ -701,8 +718,25 @@ class Customers extends Component
         }
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/customers/_editUserTab', [
-            'customer' => $customer
+        return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
+            'customer' => $customer,
+            'addressRedirect' => $context['user']->getCpEditUrl(),
         ]);
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @throws Exception
+     */
+    public function afterSaveUserHandler(ModelEvent $event)
+    {
+        // Check to see if there is a customer record for the user
+        $customer = $this->getCustomerByUserId($event->sender->id);
+
+        // Create a new customer for a user that does not have a customer
+        if (!$customer) {
+            $customer = new Customer(['userId' => $event->sender->id]);
+            $this->saveCustomer($customer);
+        }
     }
 }

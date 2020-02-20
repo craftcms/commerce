@@ -37,9 +37,6 @@ use craft\web\View;
  */
 class Dummy extends SubscriptionGateway
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

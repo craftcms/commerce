@@ -1,66 +1,84 @@
 {% extends "commerce/_layouts/store-settings" %}
 
-{% block content %}
-    <h2>{{ "Countries"|t('commerce') }}</h2>
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Couldn’t reorder countries.',
+    'Countries reordered.',
+    'Country Code',
+    'Name',
+    'No countries exist yet.',
+    'State Required?',
+    'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
+]) %}
 
-    <div id="no-countries"{% if countries|length %} class="hidden"{% endif %}>
-        <p>{{ "No countries exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if countries|length %}
-        <table id="countries" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Name'|t('commerce') }}</th>
-                <th scope="col">{{ 'Country Code'|t('commerce') }}</th>
-                <th scope="col">{{ 'State Required?'|t('commerce') }}</th>
-                <td class="thin"></td>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for country in countries %}
-                <tr data-id="{{ country.id }}" data-name="{{ country.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/store-settings/countries/'~country.id) }}">{{ country.name }}</a>
-                    </th>
-                    <td data-title="{{ 'ISO'|t('commerce') }}">{{ country.iso }}</td>
-                    <td data-title="{{ 'State Required?'|t('commerce') }}">{% if country.isStateRequired %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td class="thin">
-                        <a class="move icon disabled"
-                           title="{{ 'Move'|t('commerce') }}"
-                           role="button"></a>
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/store-settings/countries/new') }}"
-           class="btn submit add icon">{{ 'New country'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+        <a href="{{ url('commerce/store-settings/countries/new') }}"class="btn submit add icon">{{ 'New country'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="countries-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for country in countries %}
+    {% set tableData = tableData|merge([{
+        id: country.id,
+        title: country.name|t('site'),
+        status: country.enabled ? true : false,
+        url: url('commerce/store-settings/countries/'~country.id),
+        countryCode: country.iso|e,
+        stateRequired: country.isStateRequired ? true : false,
+    }]) %}
+
+{% endfor %}
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#countries',
-    noObjectsSelector: '#no-countries',
-    deleteAction: 'commerce/countries/delete',
-    confirmDeleteMessage:  Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?') ,
-    deleteFailMessage: '{{ "Can not delete “{name}” because it is in use."|t('commerce') }}',
-    sortable: true,
-    reorderAction: 'commerce/countries/reorder',
-    reorderSuccessMessage: Craft.t('commerce', 'Countries reordered.') ,
-    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder countries.')
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'countryCode', title: Craft.t('commerce', 'Country Code') },
+        { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                }
+            }
+        }
+    ];
+
+    var actions = [
+        {
+            label: Craft.t('app', 'Set Status'),
+            actions: [
+                {
+                    label: Craft.t('app', 'Enabled'),
+                    action: 'commerce/countries/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('app', 'Disabled'),
+                    action: 'commerce/countries/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#countries-vue-admin-table',
+        deleteAction: 'commerce/countries/delete',
+        deleteConfirmationMessage: Craft.t('commerce', 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?'),
+        emptyMessage: Craft.t('commerce', 'No countries exist yet.'),
+        padded: true,
+        reorderAction: 'commerce/countries/reorder',
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder countries.'),
+        reorderSuccessMessage: Craft.t('commerce', 'Countries reordered.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}

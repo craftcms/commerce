@@ -2,70 +2,74 @@
 
 {% set title = "Gateways"|t('commerce') %}
 
-{% block content %}
-    <h2>{{ "Gateways"|t('commerce') }}</h2>
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Couldn’t reorder gateways.',
+    'Customer Enabled?',
+    'Gateways reordered.',
+    'Handle',
+    'ID',
+    'Name',
+    'Type',
+]) %}
 
-    <table id="gateways" class="data fullwidth collapsible">
-        <thead>
-        <tr>
-            <th class="thin">{{ "ID"|t('commerce') }}</th>
-            <th>{{ "Name"|t('commerce') }}</th>
-            <th>{{ "Handle"|t('commerce') }}</th>
-            <th>{{ "Type"|t('commerce') }}</th>
-            <th>{{ "Customer Enabled?"|t('commerce') }}</th>
-            <td class="thin"></td>
-            <td class="thin"></td>
-        </tr>
-        </thead>
-        <tbody>
-        {% for gateway in gateways %}
-            <tr data-id="{{ gateway.id }}"
-                data-name="{{ gateway.name }}">
-                <td class="thin" scope="row"
-                    data-title="{{ 'ID'|t('commerce') }}">{{ gateway.id }}</td>
-                <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                            href="{{ gateway.cpEditUrl }}">{{ gateway.name }}</a>
-                </th>
-                <td data-title="{{ 'Handle'|t('commerce') }}">{{ gateway.handle }}</td>
-                <td data-title="{{ 'Type'|t('commerce') }}">
-                    {% if gateway is missing %}
-                        <span class="error">{{ gateway.expectedType }}</span>
-                    {% else %}
-                        {{ gateway.displayName() }}
-                    {% endif %}
-                </td>
-                <td data-title="{{ 'Customer Enabled?'|t('commerce') }}">
-                    {% if gateway.isFrontendEnabled %} <span data-icon="check"
-                                                           title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                </td>
-                <td class="thin"><a class="move icon"
-                                    title="{{ 'Delete'|t('commerce') }}"
-                                    role="button"></a></td>
-                <td class="thin"><a class="delete icon"
-                                    title="{{ 'Archive'|t('commerce') }}"
-                                    role="button"></a>
-                </td>
-            </tr>
-        {% endfor %}
-
-        </tbody>
-    </table>
-
-    <div class="buttons">
-        <a href="{{ url('commerce/settings/gateways/new') }}"
-           class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/settings/gateways/new') }}" class="btn submit add icon">{{ 'New gateway'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="gateways-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for gateway in gateways %}
+    {% set tableData = tableData|merge([{
+        id: gateway.id,
+        title: gateway.name|t('site'),
+        url: gateway.cpEditUrl,
+        handle: gateway.handle|e,
+        type: {
+            missing: gateway is missing ? true : false,
+            name: gateway is missing? gateway.expectedType : gateway.displayName()
+        },
+        customerEnabled: gateway.isFrontendEnabled ? true : false
+    }]) %}
+{% endfor %}
 
 {% js %}
-    new Craft.AdminTable({
-    tableSelector: '#gateways',
-    deleteAction: 'commerce/gateways/archive',
-    minObjects: 0,
-    sortable: true,
-    reorderAction: 'commerce/gateways/reorder',
-    reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
-    reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways..')
+    var columns = [
+        { name: 'id', title: Craft.t('commerce', 'ID') },
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        {
+            name: 'type',
+            title: Craft.t('app', 'Type'),
+            callback: function(value) {
+                if (value.missing) {
+                    return '<span class="error">'+value.name+'</span>';
+                }
+
+                return value.name;
+            }
+        },
+        {
+            name: 'customerEnabled',
+            title: Craft.t('commerce', 'Customer Enabled?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></div>';
+                }
+            }
+        }
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#gateways-vue-admin-table',
+        deleteAction: 'commerce/gateways/archive',
+        reorderAction: 'commerce/gateways/reorder',
+        reorderSuccessMessage: Craft.t('commerce', 'Gateways reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder gateways.'),
+        tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}

@@ -23,10 +23,6 @@ use yii\base\Component;
  */
 class Purchasables extends Component
 {
-
-    // Constants
-    // =========================================================================
-
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
      *
@@ -48,8 +44,6 @@ class Purchasables extends Component
      */
     const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Delete a purhasable by its ID.

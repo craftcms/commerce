@@ -18,9 +18,6 @@ use craft\web\AssetBundle;
  */
 class ProductIndexAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

@@ -24,9 +24,6 @@ use yii\web\Response;
  */
 class ShippingRulesController extends BaseShippingSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @param int|null $methodId
      * @param int|null $ruleId
@@ -57,18 +54,18 @@ class ShippingRulesController extends BaseShippingSettingsController
             }
         }
 
-        $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
-        $variables['states'] = $plugin->getStates()->getAllStatesAsList();
+        // TODO: check if the following two lines can be removed
+        // $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
+        // $variables['states'] = $plugin->getStates()->getAllStatesAsList();
 
         $this->getView()->setNamespace('new');
 
         $this->getView()->startJsBuffer();
-        $countries = $plugin->getCountries()->getAllCountries();
-        $states = $plugin->getStates()->getAllStates();
+
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
             $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => ArrayHelper::map($countries, 'id', 'name'),
-                'states' => ArrayHelper::map($states, 'id', 'name'),
+                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
+                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
             ])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
@@ -76,7 +73,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
+            $variables['title'] = Plugin::t('Create a new shipping rule');
         }
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
@@ -87,9 +84,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         }
 
         $variables['categoryShippingOptions'] = [];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Allow'), 'value' => ShippingRuleCategory::CONDITION_ALLOW];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
+        $variables['categoryShippingOptions'][] = ['label' => Plugin::t('Allow'), 'value' => ShippingRuleCategory::CONDITION_ALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Plugin::t('Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Plugin::t('Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
 
         return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
@@ -135,10 +132,10 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         // Save it
         if (Plugin::getInstance()->getShippingRules()->saveShippingRule($shippingRule)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping rule saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Shipping rule saved.'));
             $this->redirectToPostedUrl($shippingRule);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping rule.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping rule.'));
         }
 
         // Send the model back to the template
@@ -174,6 +171,6 @@ class ShippingRulesController extends BaseShippingSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asErrorJson(Plugin::t('Could not delete shipping rule'));
     }
 }

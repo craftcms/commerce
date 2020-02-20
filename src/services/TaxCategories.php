@@ -30,9 +30,6 @@ use yii\base\Exception;
  */
 class TaxCategories extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var bool
      */
@@ -53,8 +50,6 @@ class TaxCategories extends Component
      */
     private $_defaultTaxCategory;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all Tax Categories
@@ -136,7 +131,7 @@ class TaxCategories extends Component
     }
 
     /**
-     * Returns all Tax categories, indexed by ID.
+     * Returns all Tax category names, indexed by ID.
      *
      * @return array
      */
@@ -317,8 +312,6 @@ class TaxCategories extends Component
         return $taxCategories;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a tax category model by its ID and handle.

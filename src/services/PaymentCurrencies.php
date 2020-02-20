@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
 use yii\base\Component;
@@ -29,9 +30,6 @@ use yii\base\InvalidConfigException;
  */
 class PaymentCurrencies extends Component
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var PaymentCurrency[]
      */
@@ -42,8 +40,6 @@ class PaymentCurrencies extends Component
      */
     private $_allCurrenciesById;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get payment currency by its ID.
@@ -83,9 +79,9 @@ class PaymentCurrencies extends Component
             foreach ($rows as $row) {
                 $paymentCurrency = new PaymentCurrency($row);
 
-                // TODO: Fix this with money/money package in 3.0
+                // TODO: Fix this with money/money package in 4.0
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
-                    throw new CurrencyException(Plugin::t( 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
+                    throw new CurrencyException(Plugin::t('No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }
 
                 $paymentCurrency->setCurrency($currency);
@@ -101,10 +97,10 @@ class PaymentCurrencies extends Component
      * Get a payment currency by its ISO code.
      *
      * @param string $iso
-     * @return PaymentCurrency
+     * @return PaymentCurrency|null
      * @throws CurrencyException if currency does not exist with tat iso code
      */
-    public function getPaymentCurrencyByIso($iso): PaymentCurrency
+    public function getPaymentCurrencyByIso($iso)
     {
         if ($this->_allCurrenciesByIso === null) {
             $this->getAllPaymentCurrencies();
@@ -114,7 +110,7 @@ class PaymentCurrencies extends Component
             return $this->_allCurrenciesByIso[$iso];
         }
 
-        throw new CurrencyException(Plugin::t( 'No currency found with ISO code “{iso}”.', ['iso' => $iso]));
+        return null;
     }
 
     /**
@@ -172,7 +168,7 @@ class PaymentCurrencies extends Component
             $record = PaymentCurrencyRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No currency exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No currency exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -185,7 +181,7 @@ class PaymentCurrencies extends Component
             return false;
         }
 
-
+        $originalIso = $record->iso;
         $record->iso = strtoupper($model->iso);
         $record->primary = $model->primary;
         // If this rate is primary, the rate must be 1 since it is now the rate all prices are enter in as.
@@ -197,6 +193,12 @@ class PaymentCurrencies extends Component
         $model->id = $record->id;
 
         if ($record->primary) {
+            // The store wll not usually change primary currency in production, this fix is mainly for developers
+            // who had a cart created before they started setting up their currencies.
+            if ($originalIso != $record->iso){
+                Order::updateAll(['currency' => $record->iso, 'paymentCurrency' => $record->iso], ['isCompleted' => false]);
+            }
+
             PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
         }
 
@@ -220,8 +222,6 @@ class PaymentCurrencies extends Component
         return false;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * Memoize a payment currency

@@ -1,10 +1,7 @@
 {% extends "_layouts/elementindex" %}
 
 {% set title = "Orders"|t('commerce') %}
-{% set docTitle = title~' - '~'Commerce' %}
 {% set elementType = 'craft\\commerce\\elements\\Order' %}
-{% set selectedTab = 'orders' %}
-{% set selectedSubnavItem = "orders" %}
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
 
 {% do craft.app.view.registerTranslations('commerce', [

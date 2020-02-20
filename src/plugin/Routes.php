@@ -19,9 +19,6 @@ use yii\base\Event;
  */
 trait Routes
 {
-    // Private Methods
-    // =========================================================================
-
     private function _registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
@@ -50,6 +47,9 @@ trait Routes
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
+
+            $event->rules['commerce/orders/create-new'] = 'commerce/orders/new-order';
+
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
@@ -70,9 +70,11 @@ trait Routes
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
             $event->rules['commerce/settings/orderstatuses/<id:\d+>'] = 'commerce/order-statuses/edit';
 
+            $event->rules['commerce/settings/lineitemstatuses'] = 'commerce/line-item-statuses/index';
+            $event->rules['commerce/settings/lineitemstatuses/new'] = 'commerce/line-item-statuses/edit';
+            $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-
             $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
 
             $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
@@ -82,7 +84,6 @@ trait Routes
             $event->rules['commerce/store-settings/donation'] = 'commerce/donations/edit';
 
             // Store Settings - Regions
-
             $event->rules['commerce/store-settings/countries'] = 'commerce/countries/index';
             $event->rules['commerce/store-settings/countries/new'] = 'commerce/countries/edit';
             $event->rules['commerce/store-settings/countries/<id:\d+>'] = 'commerce/countries/edit';
@@ -92,12 +93,10 @@ trait Routes
             $event->rules['commerce/store-settings/states/<id:\d+>'] = 'commerce/states/edit';
 
             // Lite shipping and tax
-
             $event->rules['commerce/store-settings/shipping'] = 'commerce/lite-shipping/edit';
             $event->rules['commerce/store-settings/tax'] = 'commerce/lite-tax/edit';
 
             // Shipping
-
             $event->rules['commerce/shipping/shippingzones'] = 'commerce/shipping-zones/index';
             $event->rules['commerce/shipping/shippingzones/new'] = 'commerce/shipping-zones/edit';
             $event->rules['commerce/shipping/shippingzones/<id:\d+>'] = 'commerce/shipping-zones/edit';
@@ -114,7 +113,6 @@ trait Routes
 
 
             // Taxes
-
             $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';
             $event->rules['commerce/tax/taxcategories/new'] = 'commerce/tax-categories/edit';
             $event->rules['commerce/tax/taxcategories/<id:\d+>'] = 'commerce/tax-categories/edit';
@@ -126,9 +124,7 @@ trait Routes
             $event->rules['commerce/tax/taxrates/new'] = 'commerce/tax-rates/edit';
             $event->rules['commerce/tax/taxrates/<id:\d+>'] = 'commerce/tax-rates/edit';
 
-
             // Promotions
-
             $event->rules['commerce/promotions/sales'] = 'commerce/sales/index';
             $event->rules['commerce/promotions/sales/new'] = 'commerce/sales/edit';
             $event->rules['commerce/promotions/sales/<id:\d+>'] = 'commerce/sales/edit';
@@ -138,7 +134,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
 
             // Customers
-
             $event->rules['commerce/customers'] = 'commerce/customers/index';
             $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });

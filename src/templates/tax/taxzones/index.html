@@ -1,77 +1,90 @@
 {% extends "commerce/_layouts/tax" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Countries/States',
+    'Hax Zip Condition?',
+    'Used By Tax Rates',
+    'Default?',
+]) %}
 
 {% from "commerce/_includes/settings" import indexInlineList %}
 
-{% block content %}
-    <h2>{{ "Tax Zones"|t('commerce') }}</h2>
-
-    <div id="no-tax-zones"{% if taxZones|length %} class="hidden"{% endif %}>
-        <p>{{ "No tax zones exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if taxZones|length %}
-        <table id="tax-zones" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Name'|t('commerce') }}</th>
-                <th scope="col">{{ 'Description'|t('commerce') }}</th>
-                <th scope="col">{{ 'Type'|t('commerce') }}</th>
-                <th scope="col">{{ 'Countries/States'|t('commerce') }}</th>
-                <th scope="col">{{ 'Has Zip Condition?'|t('commerce') }}</th>
-                <th scope="col">{{ 'Tax Rate Usage'|t('commerce') }}</th>
-                <th scope="col">{{ 'Default Zone?'|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for taxZone in taxZones %}
-                <tr data-id="{{ taxZone.id }}" data-name="{{ taxZone.name }}">
-                    <td scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/tax/taxzones/'~taxZone.id) }}">{{ taxZone.name }}</a>
-                    </td>
-                    <td data-title="{{ 'Description'|t('commerce') }}">{{ taxZone.description }}</td>
-                    <td data-title="{{ 'Type'|t('commerce') }}">{{ taxZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce') }}</td>
-                    <td data-title="{{ 'Countries/States'|t('commerce') }}">
-                        {% if taxZone.isCountryBased %}
-                            {{ indexInlineList(taxZone.getCountriesNames()) }}
-                        {% else %}
-                            {{ indexInlineList(taxZone.getStatesNames()) }}
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Has Zip Condition?'|t('commerce') }}">
-                        {% if taxZone.zipCodeConditionFormula %}<span data-icon="check" title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td data-title="{{ 'Used By Tax Rates'|t('commerce') }}">
-                        {% for rate in taxZone.taxRates %}
-                            <a href="{{ rate.getCpEditUrl }}">{{ rate.name }}</a>
-                            <br>
-                        {% endfor %}
-                    </td>
-                    <td data-title="{{ 'Default Zone?'|t('commerce') }}">{% if taxZone.default %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td class="thin">{% if not taxZone.taxRates|length %}<a
-                            class="delete icon"
-                            title="{{ 'Delete'|t('commerce') }}"
-                            role="button"></a>{% endif %}</td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-
-    <div class="buttons">
-        <a href="{{ url('commerce/tax/taxzones/new') }}"
-           class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/tax/taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="tax-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for taxZone in taxZones %}
+    {% set taxRates = [] %}
+    {% for taxRate in taxZone.taxRates %}
+        {% set taxRates = taxRates|merge([{
+            label: taxRate.name|t('site')|e,
+            url: taxRate.cpEditUrl,
+        }]) %}
+    {% endfor %}
+
+	{% set tableData = tableData|merge([{
+        id: taxZone.id,
+        title: taxZone.name|t('site'),
+        url: taxZone.cpEditUrl,
+        description: taxZone.description|t('site')|e,
+        type: taxZone.isCountryBased ? 'Country-based'|t('commerce') : 'State-based'|t('commerce'),
+        countryState: taxZone.isCountryBased ? indexInlineList(taxZone.getCountriesNames()) : indexInlineList(taxZone.getStatesNames()),
+        zipCondition: taxZone.zipCodeConditionFormula ? true : false,
+        taxRates: taxRates,
+        default: taxZone.default ? true : false,
+        _showDelete: not taxZone.taxRates|length ? true : false
+    }]) %}
+{% endfor %}
+
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#tax-zones',
-    noObjectsSelector: '#no-tax-zones',
-    deleteAction: 'commerce/tax-zones/delete'
+    var columns = [
+        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: 'type', title: Craft.t('app', 'Type') },
+        { name: 'countryState', title: Craft.t('commerce', 'Countries/States') },
+        {
+            name: 'zipCondition',
+            title: Craft.t('commerce', 'Has Zip Condition?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+        {
+            name: 'taxRates',
+            title: Craft.t('commerce', 'Used By Tax Rates'),
+            callback: function(value) {
+                var output = '';
+                if (value && value.length) {
+                    for (var i = 0; i < value.length; i++) {
+                        output += '<a href="'+value[i].url+'">'+value[i].label+'</a><br>';
+                    }
+                }
+
+                return output;
+            }
+        },
+        {
+            name: 'default',
+            title: Craft.t('commerce', 'Default?'),
+            callback: function(value) {
+                if (value) {
+                    return '<div data-icon="check"></div>';
+                }
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        columns: columns,
+        container: '#tax-vue-admin-table',
+        deleteAction: 'commerce/tax-zones/delete',
+        tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

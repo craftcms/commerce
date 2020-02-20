@@ -18,7 +18,6 @@ use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -32,9 +31,6 @@ use yii\base\InvalidArgumentException;
  */
 class LineItems extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event LineItemEvent The event that is triggered before a line item is saved.
      *
@@ -139,16 +135,12 @@ class LineItems extends Component
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var LineItem[]
      */
     private $_lineItemsByOrderId = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an order's line items, per the order's ID.
@@ -168,7 +160,9 @@ class LineItems extends Component
 
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
-                $this->_lineItemsByOrderId[$orderId][] = new LineItem($result);
+                $lineItem = new LineItem($result);
+                $lineItem->typecastAttributes();
+                $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
 
@@ -200,6 +194,7 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
         } else {
             $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
@@ -247,6 +242,8 @@ class LineItems extends Component
         $lineItemRecord->orderId = $lineItem->orderId;
         $lineItemRecord->taxCategoryId = $lineItem->taxCategoryId;
         $lineItemRecord->shippingCategoryId = $lineItem->shippingCategoryId;
+        $lineItemRecord->sku = $lineItem->sku;
+        $lineItemRecord->description = $lineItem->description;
 
         $lineItemRecord->options = $lineItem->getOptions();
         $lineItemRecord->optionsSignature = $lineItem->getOptionsSignature();
@@ -261,6 +258,8 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = $lineItem->note;
+        $lineItemRecord->privateNote = $lineItem->privateNote ?? '';
+        $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
         $lineItemRecord->salePrice = $lineItem->salePrice;
@@ -268,7 +267,6 @@ class LineItems extends Component
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
         if (!$lineItem->hasErrors()) {
-
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
 
@@ -315,7 +313,13 @@ class LineItems extends Component
             ->where(['id' => $id])
             ->one();
 
-        return $result ? new LineItem($result) : null;
+        if ($result) {
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            return $lineItem;
+        }
+
+        return null;
     }
 
     /**
@@ -340,9 +344,9 @@ class LineItems extends Component
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
-        $lineItem->setPurchasable($purchasable);
 
         if ($purchasable && ($purchasable instanceof PurchasableInterface)) {
+            $lineItem->setPurchasable($purchasable);
             $lineItem->populateFromPurchasable($purchasable);
         } else {
             throw new InvalidArgumentException('Invalid purchasable ID');
@@ -372,8 +376,6 @@ class LineItems extends Component
         return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving line items.
@@ -389,6 +391,8 @@ class LineItems extends Component
                 'price',
                 'saleAmount',
                 'salePrice',
+                'sku',
+                'description',
                 'weight',
                 'length',
                 'height',
@@ -396,11 +400,13 @@ class LineItems extends Component
                 'qty',
                 'snapshot',
                 'note',
+                'privateNote',
                 'purchasableId',
                 'orderId',
                 'taxCategoryId',
                 'shippingCategoryId',
-                'dateCreated'
+                'lineItemStatusId',
+                'dateCreated',
             ])
             ->from([Table::LINEITEMS . ' lineItems']);
     }

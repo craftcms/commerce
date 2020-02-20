@@ -24,13 +24,8 @@ use craft\commerce\Plugin;
  */
 class Shipping extends Component implements AdjusterInterface
 {
-    // Constants
-    // =========================================================================
-
     const ADJUSTMENT_TYPE = 'shipping';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var
@@ -42,8 +37,10 @@ class Shipping extends Component implements AdjusterInterface
      */
     private $_isEstimated = false;
 
-    // Public Methods
-    // =========================================================================
+    /**
+     * @var bool
+     */
+    private $_consolidateShippingToSingleAdjustment = false;
 
     /**
      * @inheritdoc
@@ -64,21 +61,19 @@ class Shipping extends Component implements AdjusterInterface
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if($purchasable && !$purchasable->getIsShippable())
-            {
+            if ($purchasable && !$purchasable->getIsShippable()) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
 
         // Are all line items non shippable items? No shipping cost.
-        if(count($lineItems) == count($nonShippableItems))
-        {
+        if (count($lineItems) == count($nonShippableItems)) {
             return [];
         }
 
         $adjustments = [];
 
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
         /** @var ShippingRule $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);
@@ -96,17 +91,16 @@ class Shipping extends Component implements AdjusterInterface
             if (!$hasDiscountRemoveShippingCosts) {
                 //checking items shipping categories
                 foreach ($order->getLineItems() as $item) {
-
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                     $hasFreeShippingFromDiscount = false;
                     foreach ($discounts as $discount) {
-                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount)) {
+                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, true)) {
                             $hasFreeShippingFromDiscount = true;
                         }
                     }
 
                     $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                    $shippable =  $item->purchasable->getIsShippable();
+                    $shippable = $item->purchasable->getIsShippable();
                     if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                         $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
@@ -154,11 +148,29 @@ class Shipping extends Component implements AdjusterInterface
             }
         }
 
+        if($this->_consolidateShippingToSingleAdjustment)
+        {
+            $amount = 0;
+            foreach ($adjustments as $adjustment){
+                $amount += $adjustment->amount;
+            }
+
+            //preparing model
+            $adjustment = new OrderAdjustment;
+            $adjustment->type = self::ADJUSTMENT_TYPE;
+            $adjustment->setOrder($this->_order);
+            $adjustment->name = $shippingMethod->getName();
+            $adjustment->amount = $amount;
+            $adjustment->description = $rule->getDescription();
+            $adjustment->isEstimated = $this->_isEstimated;
+            $adjustment->sourceSnapshot = [];
+
+            return [$adjustment];
+        }
+
         return $adjustments;
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @param ShippingMethod $shippingMethod

@@ -29,8 +29,6 @@ class Orders extends Component
 {
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Handle field layout change
@@ -171,7 +169,7 @@ class Orders extends Component
     /**
      * @param Order $cart
      * @return array
-     * @deprecated 2.2 use `$order->toArray()` instead
+     * @deprecated 3.0 use `$order->toArray()` instead
      */
     public function cartArray($cart)
     {
@@ -192,6 +190,7 @@ class Orders extends Component
         $data['returnUrl'] = $cart->returnUrl;
         $data['cancelUrl'] = $cart->cancelUrl;
         $data['orderStatusId'] = $cart->orderStatusId;
+        $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
         $data['shippingMethodId'] = $cart->getShippingMethodId();
@@ -208,6 +207,7 @@ class Orders extends Component
         $data['totalWeight'] = $cart->getTotalWeight();
         $data['total'] = $cart->getTotal();
         $data['totalPrice'] = $cart->getTotalPrice();
+        $data['recalculationMode'] = $cart->getRecalculationMode();
 
         $availableShippingMethods = $cart->getAvailableShippingMethods();
         $data['availableShippingMethods'] = [];

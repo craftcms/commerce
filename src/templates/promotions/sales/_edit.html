@@ -42,7 +42,7 @@
         {{ forms.textField({
             first: true,
             label: "Name"|t('commerce'),
-            instructions: "What this sale will be called in the CP."|t('commerce'),
+            instructions: "What this sale will be called in the control panel."|t('commerce'),
             id: 'name',
             name: 'name',
             value: sale.name,
@@ -128,6 +128,16 @@
                 limit: null,
                 instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
                 errors: sale.getErrors('categories'),
+            }) }}
+
+            {{ forms.selectField({
+                id: 'categoryRelationshipType',
+                name: 'categoryRelationshipType',
+                label: 'Categories Relationship Type'|t('commerce'),
+                instructions: "This determines how the Products and Categories are related to match the sale. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
+                options: categoryRelationshipType,
+                value: sale.categoryRelationshipType,
+                errors: sale.getErrors('categoryRelationshipType')
             }) }}
         </div>
 

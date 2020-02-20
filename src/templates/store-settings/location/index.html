@@ -40,7 +40,6 @@
             label: 'First Name'|t('commerce'),
             id: 'firstName',
             name: 'firstName',
-            required: true,
             placeholder: storeLocation.firstName,
             value: storeLocation.firstName,
             errors: storeLocation.getErrors('firstName'),
@@ -50,7 +49,6 @@
             label: 'Last Name'|t('commerce'),
             id: 'lastName',
             name: 'lastName',
-            required: true,
             placeholder: storeLocation.lastName,
             value: storeLocation.lastName,
             errors: storeLocation.getErrors('lastName'),
@@ -100,7 +98,6 @@
             label: 'Address 1'|t('commerce'),
             id: 'address1',
             name: 'address1',
-            required: true,
             placeholder: storeLocation.address1,
             value: storeLocation.address1,
             errors: storeLocation.getErrors('address1'),
@@ -148,7 +145,7 @@
                 id: 'countryId',
                 name: 'countryId',
                 value: storeLocation.countryId,
-                options: craft.commerce.countries.allCountriesAsList,
+                options: craft.commerce.countries.allEnabledCountriesAsList,
                 errors: storeLocation.getErrors('countryId'),
                 required: true,
                 class: 'fullwidth'
@@ -241,7 +238,7 @@
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
     </form>
 
-    {% set statesByCountryId = craft.commerce.states.allStates|group('countryId') %}
+    {% set statesByCountryId = craft.commerce.states.allEnabledStates|group('countryId') %}
     {% set startingStates = statesByCountryId[storeLocation.countryId] ?? [] %}
     {% js %}
         window.statesByCountryId = {{ statesByCountryId|json_encode|raw }};

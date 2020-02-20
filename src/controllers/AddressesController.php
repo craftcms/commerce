@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use craft\db\Query;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -23,9 +25,6 @@ use yii\web\Response;
  */
 class AddressesController extends BaseCpController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -54,10 +53,18 @@ class AddressesController extends BaseCpController
             }
         }
 
-        $variables['title'] = Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']]);
+        $variables['title'] = Plugin::t('Edit Address', ['id' => $variables['addressId']]);
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllStatesAsList();
+        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
+
+        $variables['customerId'] = (new Query())
+            ->from(Table::CUSTOMERS_ADDRESSES)
+            ->select(['customerId'])
+            ->where(['addressId' => $variables['address']->id])
+            ->scalar();
+
+        $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '' );
 
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
@@ -115,21 +122,76 @@ class AddressesController extends BaseCpController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
+                    'error' => Plugin::t('Couldn’t save address.'),
                     'errors' => $address->errors
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save address.'));
         }
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+
+        return null;
+    }
+
+    /**
+     * Set the primary billing or shipping address for a customer
+     *
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws \craft\errors\MissingComponentException
+     * @since 3.0.4
+     */
+    public function actionSetPrimaryAddress()
+    {
+        $this->requirePostRequest();
+        $request = Craft::$app->getRequest();
+        $type = $request->getRequiredParam('type');
+        $ids = $request->getRequiredParam('ids');
+
+        if (empty($ids) || !$id = $ids[0] ?? null) {
+            Craft::$app->getSession()->setError(Plugin::t('An address ID is required.'));
+            return null;
+        }
+
+        $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
+
+        if (!$address) {
+            Craft::$app->getSession()->setError(Plugin::t('Unable to find address.'));
+            return null;
+        }
+
+        $customerId = (new Query())
+            ->select(['[[ca.customerId]]'])
+            ->from(Table::CUSTOMERS_ADDRESSES . ' ca')
+            ->innerJoin(Table::CUSTOMERS . ' c', '[[c.id]] = [[ca.customerId]]')
+            ->where(['[[ca.addressId]]' => $address->id])
+            ->andWhere(['not', ['[[c.id]]' => null]])
+            ->scalar();
+
+        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            Craft::$app->getSession()->setError(Plugin::t('Cannot find customer.'));
+            return null;
+        }
+
+        if ($type == 'billing') {
+            $customer->primaryBillingAddressId = $address->id;
+        } else if ($type == 'shipping') {
+            $customer->primaryShippingAddressId = $address->id;
+        }
+
+        if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
+            Craft::$app->getSession()->setNotice(Plugin::t('Primary address updated.'));
+        } else {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update primary address.'));
+        }
 
         return null;
     }

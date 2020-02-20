@@ -37,9 +37,6 @@ use yii\db\Expression;
  */
 class SubscriptionQuery extends ElementQuery
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|int[] The user id of the subscriber
      */
@@ -120,8 +117,6 @@ class SubscriptionQuery extends ElementQuery
      */
     protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
@@ -149,12 +144,6 @@ class SubscriptionQuery extends ElementQuery
                 break;
             case 'plan':
                 $this->plan($value);
-                break;
-            case 'subscribedBefore':
-                $this->subscribedBefore($value);
-                break;
-            case 'subscribedAfter':
-                $this->subscribedAfter($value);
                 break;
             default:
                 parent::__set($name, $value);
@@ -252,48 +241,6 @@ class SubscriptionQuery extends ElementQuery
         } else {
             $this->planId = null;
         }
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the subscriptions’ creation dates.
-     *
-     * @param DateTime|string $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateCreated()]] instead.
-     */
-    public function subscribedBefore($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '<' . $value;
-
-        return $this;
-    }
-
-    /**
-     * Narrows the query results based on the subscriptions’ creation dates.
-     *
-     * @param DateTime|string $value The property value
-     * @return static self reference
-     * @deprecated in 2.0. Use [[dateCreated()]] instead.
-     */
-    public function subscribedAfter($value)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, __METHOD__ . ' is deprecated. Use dateCreated() instead.');
-
-        if ($value instanceof DateTime) {
-            $value = $value->format(DateTime::W3C);
-        }
-
-        $this->dateCreated = ArrayHelper::toArray($this->dateCreated);
-        $this->dateCreated[] = '>=' . $value;
 
         return $this;
     }
@@ -754,8 +701,6 @@ class SubscriptionQuery extends ElementQuery
         return parent::status($value);
     }
 
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

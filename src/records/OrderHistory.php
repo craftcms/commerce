@@ -31,9 +31,6 @@ use yii\db\ActiveQueryInterface;
  */
 class OrderHistory extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

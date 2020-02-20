@@ -26,9 +26,6 @@ use yii\base\Exception;
  */
 class OrderHistories extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event OrderStatusEvent The event that is triggered when an order status is changed.
      *
@@ -58,8 +55,6 @@ class OrderHistories extends Component
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Get order history by its ID.
@@ -191,8 +186,6 @@ class OrderHistories extends Component
         return false;
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Returns a Query object prepped for retrieving Order History.

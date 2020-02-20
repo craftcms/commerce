@@ -26,9 +26,6 @@ use yii\db\ActiveQueryInterface;
  */
 class EmailDiscountUse extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

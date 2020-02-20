@@ -19,14 +19,12 @@ use yii\db\ActiveQueryInterface;
  * @property string $name
  * @property bool $isStateRequired
  * @property State[] $states
+ * @property bool $enabled
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Country extends ActiveRecord
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */

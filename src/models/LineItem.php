@@ -8,29 +8,29 @@
 namespace craft\commerce\models;
 
 use Craft;
-use DateTime;
-use LitEmoji\LitEmoji;
-use craft\helpers\Html;
-use craft\helpers\Json;
-use craft\commerce\Plugin;
 use craft\commerce\base\Model;
-use craft\helpers\ArrayHelper;
-use craft\commerce\elements\Order;
-use craft\commerce\services\Orders;
 use craft\commerce\base\Purchasable;
-use yii\base\InvalidConfigException;
-use craft\validators\StringValidator;
-use craft\commerce\events\LineItemEvent;
 use craft\commerce\base\PurchasableInterface;
-use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\commerce\elements\Order;
+use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
+use craft\commerce\Plugin;
+use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\commerce\services\LineItemStatuses;
+use craft\commerce\services\Orders;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
+use craft\validators\StringValidator;
+use DateTime;
+use LitEmoji\LitEmoji;
+use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Line Item model representing a line item on an order.
  *
  * @property array|OrderAdjustment[] $adjustments
- * @property string $description the description from the snapshot of the purchasable
  * @property float $discount
  * @property bool $onSale
  * @property array $options
@@ -38,7 +38,6 @@ use craft\commerce\helpers\LineItem as LineItemHelper;
  * @property Purchasable $purchasable
  * @property ShippingCategory $shippingCategory
  * @property int $shippingCost
- * @property string $sku the description from the snapshot of the purchasable
  * @property int $tax
  * @property float $total the subTotal plus any adjustments belonging to this line item
  * @property TaxCategory $taxCategory
@@ -50,13 +49,15 @@ use craft\commerce\helpers\LineItem as LineItemHelper;
  */
 class LineItem extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int|null ID
      */
     public $id;
+
+    /**
+     * @var string Description
+     */
+    public $description;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -104,9 +105,19 @@ class LineItem extends Model
     public $snapshot;
 
     /**
+     * @var string SKU
+     */
+    public $sku;
+
+    /**
      * @var string Note
      */
     public $note;
+
+    /**
+     * @var string Private Note
+     */
+    public $privateNote;
 
     /**
      * @var int Purchasable ID
@@ -117,6 +128,11 @@ class LineItem extends Model
      * @var int Order ID
      */
     public $orderId;
+
+    /**
+     * @var int Line Item Status ID
+     */
+    public $lineItemStatusId;
 
     /**
      * @var int Tax category ID
@@ -145,22 +161,52 @@ class LineItem extends Model
     private $_order;
 
     /**
+     * @var LineItemStatus Line item status
+     */
+    private $_lineItemStatus;
+
+    /**
      * @var
      */
-    private $_options;
+    private $_options = [];
 
-    // Public Methods
-    // =========================================================================
+
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'note' => AttributeTypecastBehavior::TYPE_STRING,
+                'privateNote' => AttributeTypecastBehavior::TYPE_STRING,
+                'width' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'height' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'length' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
+            ]
+        ];
+
+        return $behaviors;
+    }
 
     /**
      * @return Order|null
      */
     public function getOrder()
     {
-        /** @var Orders $orderService */
-        $orderService = Plugin::getInstance()->getOrders();
-
         if (null === $this->_order && null !== $this->orderId) {
+            /** @var Orders $orderService */
+            $orderService = Plugin::getInstance()->getOrders();
             $this->_order = $orderService->getOrderById($this->orderId);
         }
 
@@ -174,6 +220,20 @@ class LineItem extends Model
     {
         $this->orderId = $order->id;
         $this->_order = $order;
+    }
+
+    /**
+     * @return LineItemStatus|null
+     */
+    public function getLineItemStatus()
+    {
+        if (null === $this->_lineItemStatus && null !== $this->lineItemStatusId) {
+            /** @var LineItemStatuses $lineItemStatus */
+            $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
+            $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
+        }
+
+        return $this->_lineItemStatus;
     }
 
     /**
@@ -228,32 +288,41 @@ class LineItem extends Model
         return LineItemHelper::generateOptionsSignature($this->_options);
     }
 
+    /**
+     * @return float Sale Price
+     */
+    public function getSalePrice()
+    {
+        return CurrencyHelper::round($this->saleAmount + $this->price);
+    }
 
     /**
      * @return array
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = [
+        $rules = parent::defineRules();
+
+        $rules[] = [
             [
-                [
-                    'optionsSignature',
-                    'price',
-                    'salePrice',
-                    'saleAmount',
-                    'weight',
-                    'length',
-                    'height',
-                    'width',
-                    'total',
-                    'qty',
-                    'snapshot',
-                    'taxCategoryId',
-                    'shippingCategoryId'
-                ], 'required'
-            ],
-            [['note'], StringValidator::class, 'disallowMb4' => true],
+                'optionsSignature',
+                'price',
+                'salePrice',
+                'saleAmount',
+                'weight',
+                'length',
+                'height',
+                'width',
+                'qty',
+                'snapshot',
+                'taxCategoryId',
+                'shippingCategoryId'
+            ], 'required'
         ];
+        $rules[] = [['qty'], 'integer', 'min' => 1];
+        $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
+        $rules[] = [['price', 'salePrice', 'saleAmount'], 'number'];
+        $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
@@ -269,7 +338,7 @@ class LineItem extends Model
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'snapshot');
@@ -286,16 +355,59 @@ class LineItem extends Model
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        foreach ($this->currencyAttributes() as $attribute) {
+            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
+                $attribute = substr($attribute, 0, -10);
+                if (!empty($model->$attribute)) {
+                    if (is_numeric($model->$attribute)) {
+                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
+                    }
+                }
+
+                return $model->$attribute;
+            };
+        }
+
+        $fields['subtotal'] = 'subtotal';
+
+        return $fields;
+    }
+
+    /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'order',
-            'purchasable',
             'shippingCategory',
             'taxCategory',
+            'lineItemStatus',
+            'snapshot'
         ];
+    }
+
+    /**
+     * The attributes on the order that should be made available as formatted currency.
+     *
+     * @return array
+     */
+    public function currencyAttributes(): array
+    {
+        $attributes = [];
+        $attributes[] = 'price';
+        $attributes[] = 'saleAmount';
+        $attributes[] = 'salePrice';
+        $attributes[] = 'subtotal';
+        $attributes[] = 'total';
+
+        return $attributes;
     }
 
     /**
@@ -303,8 +415,15 @@ class LineItem extends Model
      */
     public function getSubtotal(): float
     {
-        // The subtotal should always be rounded.
-        return $this->qty * $this->salePrice;
+        // Even though we validate salePrice as numeric, we still need to
+        // stop any exceptions from occurring when displaying subtotal on an order/lineitems with errors.
+        if (!is_numeric($this->salePrice)) {
+            $salePrice = 0;
+        } else {
+            $salePrice = $this->salePrice;
+        }
+
+        return $this->qty * $salePrice;
     }
 
     /**
@@ -383,17 +502,6 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     * @deprecated in 2.0 Use populateFromPurchasable() instead.
-     */
-    public function fillFromPurchasable(PurchasableInterface $purchasable)
-    {
-        Craft::$app->getDeprecator()->log('LineItemModel::fillFromPurchasable()', 'LineItemModel::fillFromPurchasable() has been deprecated by renaming. Use LineItem::populateFromPurchasable($purchasable)');
-
-        $this->populateFromPurchasable($purchasable);
-    }
-
-    /**
-     * @param PurchasableInterface $purchasable
      *
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable)
@@ -401,13 +509,13 @@ class LineItem extends Model
         $this->price = $purchasable->getPrice();
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-
-        $discounts = Plugin::getInstance()->getDiscounts()->getAllDiscounts();
+        $this->sku = $purchasable->getSku();
+        $this->description = $purchasable->getDescription();
 
         // Check to see if there is a discount applied that ignores Sales
         $ignoreSales = false;
-        foreach ($discounts as $discount) {
-            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount)) {
+        foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
+            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
                 if ($discount->ignoreSales) {
                     $ignoreSales = $discount->ignoreSales;
@@ -444,13 +552,6 @@ class LineItem extends Model
                 'isNew' => !$this->id
             ]));
         }
-
-        // If a plugin used the above event and changed the price of the product or
-        // its saleAmount we need to ensure the salePrice works calculates correctly and is rounded
-        $this->salePrice = CurrencyHelper::round($this->saleAmount + $this->price);
-
-        // salePrice can not be negative
-        $this->salePrice = max($this->salePrice, 0);
     }
 
     /**
@@ -463,30 +564,6 @@ class LineItem extends Model
         }
 
         return false;
-    }
-
-    /**
-     * Returns the description from the snapshot of the purchasable
-     */
-    public function getDescription(): string
-    {
-        $purchasable = $this->getPurchasable();
-        $snapshotDescription = isset($this->snapshot['description']) ? Html::decode($this->snapshot['description']) : '';
-        $liveDescription = $purchasable ? $purchasable->getDescription() : '';
-
-        return $snapshotDescription ?: $liveDescription;
-    }
-
-    /**
-     * Returns the Sku from the snapshot of the purchasable
-     */
-    public function getSku(): string
-    {
-        $purchasable = $this->getPurchasable();
-        $snapshotSku = isset($this->snapshot['sku']) ? Html::decode($this->snapshot['sku']) : '';
-        $liveSku = $purchasable ? $purchasable->getSku() : '';
-
-        return $snapshotSku ?: $liveSku;
     }
 
     /**
@@ -567,7 +644,7 @@ class LineItem extends Model
     }
 
     /**
-     * @param string  $type
+     * @param string $type
      * @param bool $included
      * @return float|int
      */

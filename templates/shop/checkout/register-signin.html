@@ -12,12 +12,13 @@
 
     {# Does a user exist with this email address? #}
 
-    {% set userExists = craft.users.email(cart.email).one() %}
     {% set userExistsButCantLogin = craft.users.email(cart.email).status(['locked','suspended','pending']).one() %}
 
     {% if userExistsButCantLogin %}
             {% redirect 'shop/checkout/addresses' %}
     {% endif %}
+
+    {% set userExists = craft.users.email(cart.email).one() %}
 
     <h1>Account</h1>
     <div class="flex -mx-8 mt-6 pt-8">

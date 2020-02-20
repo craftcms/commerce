@@ -20,9 +20,6 @@ use craft\events\CancelableEvent;
  */
 class SubscriptionSwitchPlansEvent extends CancelableEvent
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Plan The plan user is switching from
      */

@@ -16,10 +16,12 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 use yii\caching\TagDependency;
 use yii\db\Exception;
+use yii\db\Expression;
 
 /**
  * Address service.
@@ -30,9 +32,6 @@ use yii\db\Exception;
  */
 class Addresses extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event AddressEvent The event that is triggered before an address is saved.
      *
@@ -108,16 +107,12 @@ class Addresses extends Component
      */
     const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var Address[]
      */
     private $_addressesById = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns an address by its ID.
@@ -371,8 +366,43 @@ class Addresses extends Component
         return true;
     }
 
-    // Private Methods
-    // =========================================================================
+    /**
+     * Deletes all addresses not related to a customer, cart or order
+     *
+     * @throws Exception
+     * @throws \yii\base\ExitException
+     * @since 3.0.4
+     */
+    public function purgeOrphanedAddresses()
+    {
+        $select = new Expression('DISTINCT [[addresses.id]] id');
+        $addresses = (new Query())
+            ->select([$select])
+            ->from(Table::ADDRESSES . ' addresses')
+            ->leftJoin(Table::ORDERS . ' bo', '[[addresses.id]] = [[bo.billingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' beo', '[[addresses.id]] = [[beo.estimatedBillingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' so', '[[addresses.id]] = [[so.shippingAddressId]]')
+            ->leftJoin(Table::ORDERS . ' seo', '[[addresses.id]] = [[seo.estimatedShippingAddressId]]')
+            ->leftJoin(Table::CUSTOMERS_ADDRESSES . ' c', '[[addresses.id]] = [[c.addressId]]')
+            ->where(['and', [
+                '[[so.shippingAddressId]]' => null,
+                '[[seo.estimatedShippingAddressId]]' => null,
+                '[[c.addressId]]' => null,
+                '[[bo.billingAddressId]]' => null,
+                '[[beo.estimatedBillingAddressId]]' => null,
+                '[[addresses.isStoreLocation]]' => 0,
+            ]]);
+
+        foreach ($addresses->batch(500) as $address) {
+            $ids = ArrayHelper::getColumn($address, 'id', false);
+
+            if (!empty($ids)) {
+                Craft::$app->getDb()->createCommand()
+                    ->delete(Table::ADDRESSES, ['id' => $ids])
+                    ->execute();
+            }
+        }
+    }
 
     /**
      * Returns a Query object prepped for retrieving addresses.

@@ -21,9 +21,6 @@ use yii\web\Response;
  */
 class PaymentCurrenciesController extends BaseStoreSettingsController
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return Response
      */
@@ -63,7 +60,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
                 $variables['title'] = $variables['currency']->currency . ' (' . $variables['currency']->iso . ')';
             }
         } else {
-            $variables['title'] = Craft::t('commerce', 'Create a new currency');
+            $variables['title'] = Plugin::t('Create a new currency');
         }
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
@@ -89,10 +86,10 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Currency saved.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Currency saved.'));
             $this->redirectToPostedUrl($currency);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save currency.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save currency.'));
         }
 
         // Send the model back to the template
@@ -115,7 +112,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        $message = Craft::t('commerce', 'You can not delete that currency.');
+        $message = Plugin::t('You can not delete that currency.');
         return $this->asErrorJson($message);
     }
 }

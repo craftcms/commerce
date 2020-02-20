@@ -26,10 +26,6 @@ use yii\web\Response;
  */
 class PaymentSourcesController extends BaseFrontEndController
 {
-    // Public Methods
-    // =========================================================================
-
-
     /**
      * Adds a payment source.
      *
@@ -53,7 +49,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $userId = Craft::$app->getUser()->getId();
 
         if (!$userId) {
-            throw new HttpException(401, Craft::t('commerce', 'You must be logged in to create a payment source.'));
+            throw new HttpException(401, Plugin::t('You must be logged in to create a payment source.'));
         }
 
         // Allow setting the payment method at time of submitting payment.
@@ -63,7 +59,7 @@ class PaymentSourcesController extends BaseFrontEndController
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
 
         if (!$gateway || !$gateway->supportsPaymentSources()) {
-            $error = Craft::t('commerce', 'There is no gateway selected that supports payment sources.');
+            $error = Plugin::t('There is no gateway selected that supports payment sources.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -83,7 +79,7 @@ class PaymentSourcesController extends BaseFrontEndController
             $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
         } catch (Throwable $exception) {
             Craft::$app->getErrorHandler()->logException($exception);
-            $error = Craft::t('commerce', 'Could not create the payment source.');
+            $error = Plugin::t('Could not create the payment source.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
@@ -144,13 +140,13 @@ class PaymentSourcesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Payment source deleted.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Payment source deleted.'));
         } else {
             if ($request->getAcceptsJson()) {
-                return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+                return $this->asErrorJson(Plugin::t('Couldn’t delete the payment source.'));
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t delete the payment source.'));
         }
 
         return $this->redirectToPostedUrl();

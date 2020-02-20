@@ -29,9 +29,6 @@ use yii\web\Response;
  */
 class CartController extends BaseFrontEndController
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Order The cart element
      */
@@ -42,110 +39,12 @@ class CartController extends BaseFrontEndController
      */
     private $_cartVariable;
 
-    // Public Methods
-    // =========================================================================
 
     public function init()
     {
         $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
 
         parent::init();
-    }
-
-    /**
-     * Updates a single line item
-     *
-     * @throws Exception
-     * @throws HttpException
-     * @throws Throwable
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionUpdateLineItem()
-    {
-        $this->requirePostRequest();
-
-        Craft::$app->getDeprecator()->log('CartController::actionUpdateLineItem()', 'craft\commerce\controllers\CartController::actionUpdateLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $request = Craft::$app->getRequest();
-
-        $lineItemId = $request->getParam('lineItemId');
-
-        $this->_cart = $this->_getCart();
-
-        $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-        // Line item not found, or does not belong to their order
-        if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-            throw new NotFoundHttpException('Line item not found');
-        }
-
-        if ($qty = $request->getParam('qty')) {
-            $lineItem->qty = $qty;
-        }
-
-        if ($note = LitEmoji::unicodeToShortcode($request->getParam('note'))) {
-            $lineItem->note = $note;
-        }
-
-        if ($options = $request->getParam('options')) {
-            $lineItem->setOptions($options);
-        }
-
-        $this->_cart->addLineItem($lineItem);
-
-        return $this->_returnCart();
-    }
-
-    /**
-     * Removes a line item
-     *
-     * @throws Exception
-     * @throws NotFoundHttpException
-     * @throws Throwable
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionRemoveLineItem()
-    {
-        $this->requirePostRequest();
-
-        // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
-
-        Craft::$app->getDeprecator()->log('CartController::actionRemoveLineItem()', 'craft\commerce\controllers\CartController::actionRemoveLineItem() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $request = Craft::$app->getRequest();
-
-        $lineItemId = $request->getParam('lineItemId');
-
-        $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-        // Line item not found, or does not belong to their order
-        if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-            throw new NotFoundHttpException('Line item not found');
-        }
-
-        $this->_cart->removeLineItem($lineItem);
-
-        return $this->_returnCart();
-    }
-
-    /**
-     * Remove all line items
-     *
-     * @deprecated as of 2.0.0-beta.5
-     */
-    public function actionRemoveAllLineItems()
-    {
-        $this->requirePostRequest();
-
-        // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
-
-        Craft::$app->getDeprecator()->log('CartController::actionRemoveAllLineItems()', 'craft\commerce\controllers\CartController::actionRemoveAllLineItems() has been deprecated. Use `commerce/cart/update-cart` instead.');
-
-        $this->_cart->setLineItems([]);
-
-        return $this->_returnCart();
     }
 
     /**
@@ -161,26 +60,20 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Returns the cart combined with any other carts belonging to the current user as JSON
-     */
-    public function actionGetMergedCart()
-    {
-        $this->requireAcceptsJson();
-
-        $this->_cart = Plugin::getInstance()->getCarts()->getCart(true, true);
-
-        return $this->asJson([$this->_cartVariable => $this->cartArray($this->_cart)]);
-    }
-
-    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
+     *
+     * @throws \yii\base\InvalidConfigException
      */
     public function actionUpdateCart()
     {
         $this->requirePostRequest();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        /** @var Plugin $plugin */
+        $plugin = Plugin::getInstance();
 
         // Get the cart from the request or from the session.
-        $this->_cart = $this->_getCart();
+        $this->_cart = $this->_getCart(true);
 
         // Services we will be using.
         $request = Craft::$app->getRequest();
@@ -212,11 +105,9 @@ class CartController extends BaseFrontEndController
 
         // Add multiple items to the cart
         if ($purchasables = $request->getParam('purchasables')) {
-
             // Initially combine same purchasables
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
-
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
                 $note = LitEmoji::unicodeToShortcode($request->getParam("purchasables.{$key}.note", ''));
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
@@ -300,8 +191,8 @@ class CartController extends BaseFrontEndController
 
         $this->_setAddresses();
 
-        // Set guest email address onto guest customer and order.
-        if (Craft::$app->getUser()->isGuest && $email = $request->getParam('email')) {
+        // Set guest email address onto guest customers order.
+        if (!$this->_cart->getUser() && $email = $request->getParam('email')) {
             $this->_cart->setEmail($email);
         }
 
@@ -322,14 +213,22 @@ class CartController extends BaseFrontEndController
 
         // Set Payment Gateway on cart
         if ($gatewayId = $request->getParam('gatewayId')) {
-            $this->_cart->gatewayId = $gatewayId;
-            $this->_cart->paymentSourceId = null;
+            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+                $this->_cart->setGatewayId($gatewayId);
+            }
         }
 
-        // Set Payment Source on cart
+        // Submit payment source on cart
         if ($paymentSourceId = $request->getParam('paymentSourceId')) {
-            $this->_cart->gatewayId = null;
-            $this->_cart->paymentSourceId = $paymentSourceId;
+            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+                // The payment source can only be used by the same user as the cart's user.
+                $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
+                $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
+                $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
+                if ($allowedToUsePaymentSource) {
+                    $this->_cart->setPaymentSource($paymentSource);
+                }
+            }
         }
 
         // Set Shipping method on cart.
@@ -340,8 +239,6 @@ class CartController extends BaseFrontEndController
         return $this->_returnCart();
     }
 
-    // Private Methods
-    // =========================================================================
 
     /**
      * @return Response
@@ -355,8 +252,7 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
-
-            $error = Craft::t('commerce', 'Unable to update cart.');
+            $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
@@ -386,7 +282,7 @@ class CartController extends BaseFrontEndController
         if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
             Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
         } else {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Cart updated.'));
+            Craft::$app->getSession()->setNotice(Plugin::t('Cart updated.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams([
@@ -397,14 +293,15 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * @param bool $forceSave Force the cart to save to the DB
      * @return Order|null
      *
+     * @throws ElementNotFoundException
      * @throws Exception
      * @throws NotFoundHttpException
      * @throws Throwable
-     * @throws ElementNotFoundException
      */
-    private function _getCart()
+    private function _getCart($forceSave = false)
     {
         $request = Craft::$app->getRequest();
 
@@ -421,13 +318,10 @@ class CartController extends BaseFrontEndController
             return $cart;
         }
 
-        // Get the cart from the current users session, or return a new cart attached to the session
-        // Merge previous carts if any are found
-        if ($merge = $request->getBodyParam('mergeCarts')) {
-            return Plugin::getInstance()->getCarts()->getMergedCart();
-        }
+        $requestForceSave = (bool)$request->getBodyParam('forceSave');
+        $doForceSave = ($requestForceSave || $forceSave);
 
-        return Plugin::getInstance()->getCarts()->getCart(true);
+        return Plugin::getInstance()->getCarts()->getCart($doForceSave);
     }
 
     /**

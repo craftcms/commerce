@@ -20,9 +20,6 @@ use yii\web\JqueryAsset;
  */
 class CommerceCpAsset extends AssetBundle
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
@@ -51,33 +48,35 @@ class CommerceCpAsset extends AssetBundle
 
         if ($view instanceof View) {
             $view->registerTranslations('commerce', [
-                'New {productType} product',
-                'New product',
-                'Update Order Status',
-                'Message',
-                'Status change message',
-                'Update',
-                'Cancel',
-                'First Name',
-                'Last Name',
-                'Address Line 1',
-                'Address Line 2',
-                'City',
-                'Zip Code',
-                'Phone',
-                'Alternative Phone',
-                'Phone (Alt)',
-                'Business Name',
-                'Business Tax ID',
-                'Country',
-                'State',
-                'Update Address',
-                'New',
-                'Edit',
                 'Add Address',
                 'Add',
-                'Update',
+                'Address Line 1',
+                'Address Line 2',
+                'Address Updated.',
+                'Alternative Phone',
+                'Business Name',
+                'Business Tax ID',
+                'Cancel',
+                'City',
+                'Country',
+                'Edit',
+                'First Name',
+                'Last Name',
+                'Message',
+                'New product',
+                'New {productType} product',
+                'New',
                 'No Address',
+                'Phone (Alt)',
+                'Phone',
+                'State',
+                'Status change message',
+                'Status Updated.',
+                'Update Address',
+                'Update Order Status',
+                'Update',
+                'Update',
+                'Zip Code',
             ]);
         }
     }

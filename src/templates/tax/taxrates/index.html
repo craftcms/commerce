@@ -1,72 +1,67 @@
 {% extends "commerce/_layouts/tax" %}
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Rate',
+    'Include in Price?',
+    'Is VAT?',
+    'Tax Zone',
+    'Tax Category',
+]) %}
 
-{% block content %}
-    <h2>{{ "Tax Rates"|t('commerce') }}</h2>
-
-    <div id="no-tax-rates"{% if taxRates|length %} class="hidden"{% endif %}>
-        <p>{{ "No tax rates exist yet."|t('commerce') }}</p>
-    </div>
-
-    {% if taxRates|length %}
-        <table id="tax-rates" class="data fullwidth collapsible">
-            <thead>
-            <tr>
-                <th scope="col">{{ 'Name'|t('commerce') }}</th>
-                <th scope="col">{{ 'Rate'|t('commerce') }}</th>
-                <th scope="col">{{ 'Include in Price?'|t('commerce') }}</th>
-                <th scope="col">{{ 'Is Vat?'|t('commerce') }}</th>
-                <th scope="col">{{ 'Tax Zone'|t('commerce') }}</th>
-                <th scope="col">{{ 'Tax Category'|t('commerce') }}</th>
-                <td class="thin"></td>
-            </tr>
-            </thead>
-            <tbody>
-            {% for taxRate in taxRates %}
-                <tr data-id="{{ taxRate.id }}" data-name="{{ taxRate.name }}">
-                    <th scope="row" data-title="{{ 'Name'|t('commerce') }}"><a
-                                href="{{ url('commerce/tax/taxrates/'~taxRate.id) }}">{{ taxRate.name }}</a>
-                    </th>
-                    <td data-title="{{ 'Rate'|t('commerce') }}">{{ taxRate.rateAsPercent }}</td>
-                    <td data-title="{{ 'Include in Price?'|t('commerce') }}">{% if taxRate.include %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td data-title="{{ 'Is Vat?'|t('commerce') }}">{% if taxRate.isVat %}
-                        <span data-icon="check"
-                              title="{{ 'Yes'|t('commerce') }}"></span>{% endif %}
-                    </td>
-                    <td data-title="{{ 'Tax Zone'|t('commerce') }}">
-                        {% if not taxRate.isEverywhere %}
-                        <a href="{{ taxRate.taxZone.cpEditUrl }}">{{ taxRate.taxZone.name }}</a>
-                        {% else %}
-                         {{ 'Everywhere'|t('commerce') }}
-                        {% endif %}
-                    </td>
-                    <td data-title="{{ 'Tax Category'|t('commerce') }}">
-                        {% if taxRate.taxCategory %}
-                            <a href="{{ taxRate.taxCategory.cpEditUrl }}">{{ taxRate.taxCategory.name }}</a>
-                        {% endif %}
-                    </td>
-                    <td class="thin"><a class="delete icon"
-                                        title="{{ 'Delete'|t('commerce') }}"
-                                        role="button"></a></td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
-    {% endif %}
-    <div class="buttons">
-        <a href="{{ url('commerce/tax/taxrates/new') }}"
-           class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
-    </div>
+{% block actionButton %}
+    <a href="{{ url('commerce/tax/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
 {% endblock %}
 
+{% block content %}
+    <div id="taxrate-vue-admin-table"></div>
+{% endblock %}
+
+{% set tableData = [] %}
+{% for taxRate in taxRates %}
+    {% set tableData = tableData|merge([{
+        id: taxRate.id,
+        title: taxRate.name|t('site'),
+        url: url('commerce/tax/taxrates/'~taxRate.id),
+        rate: taxRate.rateAsPercent,
+        included: taxRate.include ? true : false,
+        vat: taxRate.isVat ? true : false,
+        zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name|t('site')|e, url: taxRate.taxZone.cpEditUrl },
+        category: taxRate.taxCategory ? { label: taxRate.taxCategory.name|t('site')|e, url: taxRate.taxCategory.cpEditUrl } : false,
+    }]) %}
+{% endfor %}
 
 {% js %}
-    var adminTable = new Craft.AdminTable({
-    tableSelector: '#tax-rates',
-    noObjectsSelector: '#no-tax-rates',
-    deleteAction: 'commerce/tax-rates/delete'
+var columns = [
+    { name: '__slot:title', title: Craft.t('app', 'Name') },
+    { name: 'rate', title: Craft.t('commerce', 'Rate') },
+    { name: 'included', title: Craft.t('commerce', 'Include in Price?'), callback: function(value) {
+      if (value) {
+          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+      }
+    } },
+    { name: 'vat', title: Craft.t('commerce', 'Is VAT?'), callback: function(value) {
+        if (value) {
+            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+        }
+    } },
+    { name: 'zone', title: Craft.t('commerce', 'Tax Zone'), callback: function(value) {
+        if (value && value.url) {
+            return '<a href="'+value.url+'">'+value.label+'</a>';
+        } else if (value) {
+            return value;
+        }
+    } },
+    { name: 'category', title: Craft.t('commerce', 'Tax Category'), callback: function(value) {
+        if (value) {
+            return '<a href="'+value.url+'">'+value.label+'</a>';
+        }
+    } },
+];
+
+new Craft.VueAdminTable({
+    columns: columns,
+    container: '#taxrate-vue-admin-table',
+    deleteAction: 'commerce/tax-rates/delete',
+    tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

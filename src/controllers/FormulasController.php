@@ -19,9 +19,6 @@ use craft\web\Controller;
  */
 class FormulasController extends Controller
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @return \yii\web\Response
      * @throws \yii\web\BadRequestHttpException
@@ -41,7 +38,7 @@ class FormulasController extends Controller
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($condition, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid condition syntax'));
+            return $this->asErrorJson(Plugin::t('Invalid condition syntax'));
         }
 
         return $this->asJson(['success' => 'true']);
@@ -66,7 +63,7 @@ class FormulasController extends Controller
         }
 
         if (!Plugin::getInstance()->getFormulas()->validateFormulaSyntax($formula, $params)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid formula syntax'));
+            return $this->asErrorJson(Plugin::t('Invalid formula syntax'));
         }
 
         return $this->asJson(['success' => 'true']);

@@ -1,0 +1,48 @@
+{% if showChart is defined and not showChart %}
+    <div class="commerce-widget-numberstat">
+    {% spaceless %}
+        {% set total = number ?? 0 %}
+        <strong class="commerce-widget-numberstat-number">{{ total }}</strong><br>
+        <span>{{ (total == 1 ? 'order' : 'orders')|t('commerce')|e }}</span><br>
+        <span class="extralight">{{ timeFrame|e }}</span>
+    {% endspaceless %}
+    </div>
+{% endif %}
+
+{% if showChart is defined and showChart %}
+    <div class="commerce-widget-linechart-wrapper--full commerce-widget-linechart-wrapper--no-x-axis">
+        <canvas id="{{ namespaceId }}" height="75"></canvas>
+    </div>
+
+    {% js %}
+        new Craft.Commerce.Chart('{{ namespaceId }}', {
+            chart: {
+                type: 'line',
+                data: {
+                    labels: {{ labels|json_encode|raw }},
+                    datasets: [
+                        {
+                            label: Craft.escapeHtml(Craft.t('commerce', 'Order count')),
+                            yAxisID: 'count',
+                            data: {{ data|json_encode|raw }}
+                        }
+                    ]
+                },
+                options: {
+                    legend: {
+                        display: false
+                    },
+                    scales: {
+                        yAxes: [{
+                            id: 'count',
+                            display: false,
+                        }],
+                        xAxes: [{
+                            display: false
+                        }]
+                    }
+                }
+            }
+        });
+    {% endjs %}
+{% endif %}

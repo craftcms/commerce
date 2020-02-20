@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Field;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\events\ProductTypeEvent;
@@ -18,7 +19,6 @@ use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\commerce\records\ProductTypeSite as ProductTypeSiteRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\commerce\db\Table;
 use craft\errors\ProductTypeNotFoundException;
 use craft\events\ConfigEvent;
 use craft\events\DeleteSiteEvent;
@@ -46,9 +46,6 @@ use yii\base\Exception;
  */
 class ProductTypes extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event ProductTypeEvent The event that is triggered before a product type is saved.
      *
@@ -99,8 +96,6 @@ class ProductTypes extends Component
 
     const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -137,8 +132,6 @@ class ProductTypes extends Component
      */
     private $_savingProductTypes = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns all editable product types.
@@ -337,6 +330,8 @@ class ProductTypes extends Component
             'hasVariants' => $productType->hasVariants,
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'titleFormat' => $productType->titleFormat,
+            'titleLabel' => $productType->titleLabel,
+            'variantTitleLabel' => $productType->variantTitleLabel,
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
             'siteSettings' => []
@@ -425,8 +420,10 @@ class ProductTypes extends Component
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
             $productTypeRecord->hasVariants = $data['hasVariants'];
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
-            $productTypeRecord->titleFormat = $data['titleFormat'] ?: '{product.title}';
-            $productTypeRecord->skuFormat = $data['skuFormat'];
+            $productTypeRecord->titleFormat = $data['titleFormat'] ?? '{product.title}';
+            $productTypeRecord->titleLabel = $data['titleLabel'] ?? 'Title';
+            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'] ?? 'Title';
+            $productTypeRecord->skuFormat = $data['skuFormat'] ?? '';
             $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
 
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
@@ -866,8 +863,6 @@ class ProductTypes extends Component
         }
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a product type
@@ -897,7 +892,9 @@ class ProductTypes extends Component
                 'productTypes.hasDimensions',
                 'productTypes.hasVariants',
                 'productTypes.hasVariantTitleField',
+                'productTypes.variantTitleLabel',
                 'productTypes.titleFormat',
+                'productTypes.titleLabel',
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
                 'productTypes.uid'

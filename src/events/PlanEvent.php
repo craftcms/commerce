@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class PlanEvent extends Event
 {
-    // Properties
-    // ==========================================================================
-
     /**
      * @var Plan Plan
      */

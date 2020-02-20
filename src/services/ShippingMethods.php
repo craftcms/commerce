@@ -31,9 +31,6 @@ use yii\base\Exception;
  */
 class ShippingMethods extends Component
 {
-    // Constants
-    // =========================================================================
-
     /**
      * @event RegisterShippingMethods The event that is triggered for registration of additional shipping methods.
      *
@@ -55,8 +52,6 @@ class ShippingMethods extends Component
      */
     const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 
-    // Properties
-    // =========================================================================
 
     /**
      * @var bool
@@ -73,8 +68,6 @@ class ShippingMethods extends Component
      */
     private $_shippingMethodsByHandle = [];
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * Returns the Commerce managed and 3rd party shipping methods
@@ -88,6 +81,7 @@ class ShippingMethods extends Component
 
             foreach ($results as $result) {
                 $shippingMethod = new ShippingMethod($result);
+                $shippingMethod->typecastAttributes();
                 $this->_memoizeShippingMethod($shippingMethod);
             }
 
@@ -156,18 +150,6 @@ class ShippingMethods extends Component
     }
 
     /**
-     * @param Order $cart
-     * @return array
-     * @deprecated as of 2.0
-     */
-    public function getOrderedAvailableShippingMethods(Order $cart): array
-    {
-        Craft::$app->getDeprecator()->log('ShippingMethods::getOrderedAvailableShippingMethods', 'ShippingMethods::getOrderedAvailableShippingMethods us has been deprecated. Use ShippingMethods::getAvailableShippingMethods instead. Shipping Methods are now always returned in price order.');
-
-        return $this->getAvailableShippingMethods($cart);
-    }
-
-    /**
      * Get all available shipping methods.
      *
      * @param Order $order
@@ -190,11 +172,9 @@ class ShippingMethods extends Component
 
         /** @var ShippingMethod $method */
         foreach ($event->shippingMethods as $method) {
-
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
-
                 $availableMethods[$method->getHandle()] = [
                     'method' => $method,
                     'price' => $totalPrice, // Store the price so we can sort on it before returning
@@ -352,8 +332,6 @@ class ShippingMethods extends Component
         }
     }
 
-    // Private methods
-    // =========================================================================
 
     /**
      * Memoize a shipping method model by its ID and handle.

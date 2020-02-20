@@ -8,17 +8,21 @@
     <li><strong>{{ address.title }}</strong></li>
   {% endif %}
 
-  {% if address.firstName is not empty or address.lastName is not empty %}
+  {% if address.firstName or address.lastName %}
     <li>
-      <strong>
-        {% if address.firstName is not empty %}
-          {{ address.firstName }}
-        {% endif %}
+      {% if address.firstName is not empty %}
+        {{ address.firstName }}
+      {% endif %}
 
-        {% if address.lastName is not empty %}
-          {{ address.lastName }}
-        {% endif %}
-      </strong>
+      {% if address.lastName is not empty %}
+        {{ address.lastName }}
+      {% endif %}
+    </li>
+  {% endif %}
+
+  {% if address.fullName %}
+    <li>
+      {{ address.fullName }}
     </li>
   {% endif %}
 

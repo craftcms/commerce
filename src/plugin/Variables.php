@@ -18,9 +18,6 @@ use craft\commerce\elements\Donation;
  */
 trait Variables
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * Returns the donation purchasable
      *

@@ -18,9 +18,6 @@ use yii\base\Event;
  */
 class PurchaseVariantEvent extends Event
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var Variant The variant model
      */

@@ -25,9 +25,6 @@ use DateTime;
  */
 class OrderHistory extends Model
 {
-    // Properties
-    // =========================================================================
-
     /**
      * @var int ID
      */
@@ -63,8 +60,6 @@ class OrderHistory extends Model
      */
     public $dateCreated;
 
-    // Public Methods
-    // =========================================================================
 
     /**
      * @return Order|null
@@ -103,11 +98,13 @@ class OrderHistory extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        return [
-            [['orderId', 'customerId'], 'required'],
-        ];
+        $rules = parent::defineRules();
+
+        $rules[] = [['orderId', 'customerId'], 'required'];
+
+        return $rules;
     }
 }
 

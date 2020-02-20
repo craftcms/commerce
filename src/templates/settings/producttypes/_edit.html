@@ -24,14 +24,13 @@
         {{ forms.textField({
             first: true,
             label: "Name"|t('commerce'),
-            instructions: "What this product type will be called in the CP."|t('commerce'),
+            instructions: "What this product type will be called in the control panel."|t('commerce'),
             id: 'name',
             name: 'name',
             value: productType.name,
             errors: productType.getErrors('name'),
             autofocus: true,
-            required: true,
-            translatable: true
+            required: true
         }) }}
 
         {{ forms.textField({
@@ -42,6 +41,16 @@
             name: 'handle',
             value: productType.handle,
             errors: productType.getErrors('handle'),
+            required: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Title Field Label"|t('app'),
+            instructions: "What do you want the Title field to be called?"|t('app'),
+            id: 'titleLabel',
+            name: 'titleLabel',
+            value: productType.titleLabel,
+            errors: productType.getErrors('titleLabel'),
             required: true
         }) }}
 
@@ -118,8 +127,21 @@
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
                     reverseToggle: 'titleFormat-container',
+                    toggle: 'variantTitleLabel-container',
                     checked: productType.hasVariantTitleField
                 }) }}
+
+                <div id="variantTitleLabel-container" {% if not productType.hasVariantTitleField %}class="hidden"{% endif %}>
+                    {{ forms.textField({
+                        label: "Variant Title Field Label"|t('app'),
+                        instructions: "What do you want the Variant Title field to be called?"|t('app'),
+                        id: 'variantTitleLabel',
+                        name: 'variantTitleLabel',
+                        value: productType.variantTitleLabel,
+                        errors: productType.getErrors('variantTitleLabel'),
+                        required: true
+                    }) }}
+                </div>
 
                 <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ textField({
@@ -264,11 +286,7 @@
 {% endif %}
 
 {% js %}
-    if (!document.getElementById('hasVariants').checked){
-        $('#tab-variantFields').parent().addClass('hidden');
-    }
-
     $('#hasVariants').on('change', function() {
-        $('#tab-variantFields').parent().toggleClass('hidden');
+        Craft.cp.$tabs.filter($("[data-id='variantFields'")).find("#tab-variantFields").toggleClass('hidden');
     });
 {% endjs %}

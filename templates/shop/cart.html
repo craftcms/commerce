@@ -69,44 +69,45 @@
                         <td class="text-right">
                             {% if not lineItemHasErrors %}
                                 {% if item.onSale %}
-                                    <s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s>
+                                    <span title="{{ item.price}}"><s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s></span>
                                     <br>
-                                    Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}
+                                    <span title="{{ item.saleAmount}}">Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}</span>
                                     <br>
-                                    Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}
+                                    {% set itemSales = item.snapshot.sales ?? [] %}
+                                    {% for sale in itemSales %}
+                                    {% if loop.first %}
+                                    Sales Applied:
+                                    {% endif %}
+                                    {{ sale.name }}<br>
+                                    {% endfor %}
+                                    <span title="{{ item.salePrice}}">Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}</span>
                                     <br>
-                                    Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
+                                    <span title="{{ item.subtotal}}">Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}</span>
                                     <br>
                                 {% else %}
-                                    Price: {{ item.price|commerceCurrency(cart.currency) }}
+                                    <span title="{{ item.price}}">Price: {{ item.price|commerceCurrency(cart.currency) }}</span>
                                     <br>
-                                    Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}
+                                    <span title="{{ item.subtotal}}">Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}</span>
                                     <br>
                                 {% endif %}
                             {% endif %}
-
-                            {% set itemSales = item.snapshot.sales ?? [] %}
-                            {% for sale in itemSales %}
-                            {% if loop.first %}
-                              Sales Applied:
-                            {% endif %}
-                              {{ sale.name }}<br>
-                            {% endfor %}
                         </td>
                     </tr>
                     {% if not lineItemHasErrors %}
                         {% for adjustment in item.adjustments %}
                             <tr class="adjustment">
-                                <td>{{ adjustment.type }}</td>
+                                <td></td>
                                 <td>
-                                    <strong>{{ adjustment.type }} {{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
-                                    )
+                                  <strong>{{ adjustment.type|upper }}</strong> {{ adjustment.name|title }}
+                                  {% if adjustment.isEstimated %}<i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>
+                                  {{ adjustment.description }}
                                 </td>
-                                <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                              <td class="text-right">
+                                <span title="{{ adjustment.amount}}}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                              </td>
                             </tr>
                         {% endfor %}
                     {% endif %}
-
                 {% endfor %}
 
                 {% if not lineItemHasErrors %}
@@ -117,7 +118,7 @@
                                 <strong>{{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
                                 )
                             </td>
-                            <td class="text-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}</td>
+                            <td class="text-right"><span title="{{ adjustment.amount }}">{{ adjustment.amount|commerceCurrency(cart.currency) }}</span></td>
                         </tr>
                     {% endfor %}
                 {% endif %}
@@ -128,8 +129,8 @@
                         <h5 class="mt-0">{{ 'Shipping Estimate'|t('commerce') }}</h5>
 
                         <div class="estimate-fields text-sm">
-                          {% set countries = craft.commerce.countries.allCountriesAsList %}
-                          {% set states = craft.commerce.states.allStatesAsList %}
+                          {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
+                          {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
                           <label class="m-0" for="estimatedShippingAddress-countryId">{{ 'Country'|t('commerce') }}</label>
                           <select class="address-country w-full estimate-country" name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
                             {% for key, option in countries %}
@@ -195,7 +196,7 @@
                                     <label>
                                       <input type="radio" name="shippingMethodHandle" value="{{ handle }}" {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
                                       <strong>{{ method.name }}</strong>
-                                      <span class="price">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
+                                      <span class="price"><span title="{{ method.priceForOrder(cart) }}"></span> {{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
                                     </label>
                                   </div>
                                 {% endfor %}
@@ -210,22 +211,22 @@
                     </td>
                     <td class="text-right align-text-top">
                         {% if not lineItemHasErrors %}
-                            Item Sub Total: {{ cart.itemSubTotal|commerceCurrency(cart.currency) }}
+                      Item Sub Total: <span title="{{ cart.itemSubTotal }}">{{ cart.itemSubTotal|commerceCurrency(cart.currency) }}</span>
                             <br>
 
                             <br>
                             <strong>Adjustment Totals</strong>
                             <br>
-                            Total Discount: {{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}
+                            <span title="{{cart.getTotalDiscount()}}"> Total Discount: {{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}</span>
                             <br>
-                            Total Shipping: {{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}
+                            <span title="{{cart.getTotalShippingCost()}}"> Total Shipping: {{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}</span>
                             <br>
-                            Total Tax: {{ cart.getTotalTax()|commerceCurrency(cart.currency) }}
+                            <span title="{{cart.getTotalTax()}}"> Total Tax: {{ cart.getTotalTax()|commerceCurrency(cart.currency) }}</span>
                             <br>
-                            Total Tax (inc): {{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}
+                            <span title="{{cart.getTotalTaxIncluded()}}"> Total Tax (inc): {{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}</span>
                             <br>
 
-                            <h4>Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+                            <h4 title="{{ cart.totalPrice }}">Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
                         {% endif %}
                     </td>
                 </tr>
@@ -248,7 +249,7 @@
                 <tr>
                     <td colspan="3" class="text-right">
                         {% if not lineItemHasErrors %}
-                            <a class="button button-primary" href="{{ url('shop/checkout') }}">Checkout</a>
+                            <a class="checkout-button button button-primary" href="{{ url('shop/checkout') }}">Checkout</a>
                         {% endif %}
                     </td>
                 </tr>
@@ -261,7 +262,7 @@
         <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
     {% endif %}
   {% js %}
-    var states = {{ craft.commerce.states.allStatesAsList|json_encode|raw }};
+    var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   {% endjs %}
   {% js %}
     var $estimateShippingMethodsContainer = $('.estimate-shipping-methods');

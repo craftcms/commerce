@@ -20,14 +20,13 @@
     {{ forms.textField({
         first: true,
         label: "Name"|t('commerce'),
-        instructions: "What this state will be called in the CP."|t('commerce'),
+        instructions: "What this state will be called in the control panel."|t('commerce'),
         id: 'name',
         name: 'name',
         value: state.name,
         errors: state.getErrors('name'),
         autofocus: true,
-        required: true,
-        translatable: true
+        required: true
     }) }}
 
     {{ forms.textField({
@@ -49,12 +48,22 @@
         options: countries,
         class: 'selectize fullwidth',
     }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: state.enabled,
+        errors: state.getErrors('enabled'),
+        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.'|t('commerce') : null,
+    }) }}
 {% endblock %}
 
 {% js %}
     $(function() {
-    $('#countryId').selectize({
-    dropdownParent: 'body'
-    });
+        $('#countryId').selectize({
+            dropdownParent: 'body'
+        });
     });
 {% endjs %}

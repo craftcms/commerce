@@ -71,11 +71,11 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         if (this.address.id) {
             var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
             var addressStr = address.join(' ');
-            $("<a class='small btn right' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
+            $("<a class='small btn right' style='margin:2px' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
         }
 
         // Edit button
-        $("<a class='small btn right edit' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
+        $("<a class='small btn right edit' style='margin:2px' href='" + Craft.getCpUrl('commerce/addresses/' + this.address.id, {'redirect': window.location.pathname}) + "'>" + editLabel + "</a>").appendTo($buttons);
 
         this.$address.html("");
 
@@ -477,8 +477,6 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.orderId = this.settings.orderId;
             this.paymentForm = this.settings.paymentForm;
 
-            this.$status = $('#order-status');
-            this.$completion = $('#order-completion');
             this.$makePayment = $('#make-payment');
 
             this.billingAddress = new Craft.Commerce.AddressBox($('#billingAddressBox'), {
@@ -491,43 +489,27 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 order: true
             });
 
-            this.$completion.toggleClass('hidden');
-            this.addListener(this.$completion.find('.updatecompletion'), 'click', function(ev) {
-                ev.preventDefault();
-                this._markOrderCompleted();
-            });
-
-            this.$status.toggleClass('hidden');
-            this.addListener(this.$status.find('.updatestatus'), 'click', function(ev) {
-                ev.preventDefault();
-                this._openCreateUpdateStatusModal();
-            });
-
             this.addListener(this.$makePayment, 'click', 'makePayment');
 
             if (Object.keys(this.paymentForm.errors).length > 0) {
                 this.openPaymentModal();
             }
         },
-
         openPaymentModal: function() {
             if (!this.paymentModal) {
                 this.paymentModal = new Craft.Commerce.PaymentModal({
                     orderId: this.orderId,
                     paymentForm: this.paymentForm
                 })
-            }
-            else {
+            } else {
                 this.paymentModal.show();
             }
         },
-
         makePayment: function(ev) {
             ev.preventDefault();
 
             this.openPaymentModal();
         },
-
         _updateOrderAddress: function(name, address) {
             Craft.postActionRequest('commerce/orders/update-order-address', {
                 addressId: address.id,
@@ -537,43 +519,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 if (!response.success) {
                     alert(response.error);
                 }
-            });
-        },
-        _markOrderCompleted: function() {
-            Craft.postActionRequest('commerce/orders/complete-order', {orderId: this.orderId}, function(response) {
-                if (response.success) {
-                    //Reload for now, until we build a full order screen SPA
-                    window.location.reload();
-                } else {
-                    alert(response.error);
-                }
-            });
-        },
-        _openCreateUpdateStatusModal: function() {
-            var self = this;
-            var currentStatus = this.$status.find('.updatestatus').data('currentstatus');
-            var statuses = this.$status.find('.updatestatus').data('orderstatuses');
 
-            var id = this.orderId;
+                window.OrderDetailsApp.externalRefresh();
 
-            this.statusUpdateModal = new Craft.Commerce.UpdateOrderStatusModal(currentStatus, statuses, {
-                onSubmit: function(data) {
-                    data.orderId = id;
-                    Craft.postActionRequest('commerce/orders/update-status', data, function(response) {
-                        if (response.success) {
-                            self.$status.find('.updatestatus').data('currentstatus', self.statusUpdateModal.currentStatus);
-
-                            // Update the current status in header
-                            var html = "<span class='commerceStatusLabel'><span class='status " + self.statusUpdateModal.currentStatus.color + "'></span> " + self.statusUpdateModal.currentStatus.name + "</span>";
-                            self.$status.find('.commerceStatusLabel').html(html);
-                            Craft.cp.displayNotice(Craft.t('commerce', 'Status Updated.'));
-                            self.statusUpdateModal.hide();
-
-                        } else {
-                            alert(response.error);
-                        }
-                    });
-                }
             });
         },
         _getCountries: function() {
@@ -596,9 +544,26 @@ if (typeof Craft.Commerce === typeof undefined) {
  */
 Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
+    startDate: null,
+    endDate: null,
+
     init: function(elementType, $container, settings) {
         this.on('selectSource', $.proxy(this, 'updateSelectedSource'));
         this.base(elementType, $container, settings);
+
+        Craft.ui.createDateRangePicker({
+            onChange: function(startDate, endDate) {
+                this.startDate = startDate;
+                this.endDate = endDate;
+                this.updateElements();
+            }.bind(this),
+        }).appendTo(this.$toolbar);
+
+        if (window.orderEdit.currentUserPermissions['commerce-editOrders'] && window.orderEdit.edition != 'lite'){
+            // Add the New Order button
+            var $btn = $('<a class="btn submit icon add" href="'+Craft.getUrl('commerce/orders/create-new')+'">'+Craft.t('commerce', 'New Order')+'</a>');
+            this.addButton($btn);
+        }
     },
 
     updateSelectedSource() {
@@ -638,249 +603,28 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
         return this.base();
     },
 
-    getViewClass: function(mode) {
-        switch (mode) {
-            case 'table':
-                return Craft.Commerce.OrderTableView;
-            default:
-                return this.base(mode);
+    getViewParams: function() {
+        var params = this.base();
+
+        if (this.startDate || this.endDate) {
+            var dateAttr = this.$source.data('date-attr') || 'dateUpdated';
+            params.criteria[dateAttr] = ['and'];
+
+            if (this.startDate) {
+                params.criteria[dateAttr].push('>=' + (this.startDate.getTime() / 1000));
+            }
+
+            if (this.endDate) {
+                params.criteria[dateAttr].push('<' + (this.endDate.getTime() / 1000 + 86400));
+            }
         }
-    }
+
+        return params;
+    },
 });
 
 // Register the Commerce order index class
 Craft.registerElementIndexClass('craft\\commerce\\elements\\Order', Craft.Commerce.OrderIndex);
-
-if (typeof Craft.Commerce === typeof undefined) {
-    Craft.Commerce = {};
-}
-
-/**
- * Class Craft.Commerce.OrderTableView
- */
-Craft.Commerce.OrderTableView = Craft.TableElementIndexView.extend({
-
-        startDate: null,
-        endDate: null,
-
-        startDatepicker: null,
-        endDatepicker: null,
-
-        $chartExplorer: null,
-        $totalValue: null,
-        $chartContainer: null,
-        $spinner: null,
-        $error: null,
-        $chart: null,
-        $startDate: null,
-        $endDate: null,
-        $exportButton: null,
-
-        afterInit: function() {
-            this.$explorerContainer = $('<div class="chart-explorer-container"></div>').prependTo(this.$container);
-
-            this.createChartExplorer();
-
-            this.base();
-        },
-
-        getStorage: function(key) {
-            return Craft.Commerce.OrderTableView.getStorage(this.elementIndex._namespace, key);
-        },
-
-        setStorage: function(key, value) {
-            Craft.Commerce.OrderTableView.setStorage(this.elementIndex._namespace, key, value);
-        },
-
-        createChartExplorer: function() {
-            // chart explorer
-            var $chartExplorer = $('<div class="chart-explorer"></div>').appendTo(this.$explorerContainer),
-                $chartHeader = $('<div class="chart-header"></div>').appendTo($chartExplorer),
-                $exportButton = $('<div class="btn menubtn export-menubtn">' + Craft.t('commerce', 'Export') + '</div>').appendTo($chartHeader),
-                $exportMenu = $('<div class="menu"><ul><li><a data-format="csv">CSV</a> <a data-format="xls">XLS</a></li><li><a data-format="xlsx">XLSX</a></li><li><a data-format="ods">ODS</a></li></ul></div>').appendTo($chartHeader),
-                $dateRange = $('<div class="date-range" />').appendTo($chartHeader),
-                $startDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $to = $('<span class="to light">to</span>').appendTo($dateRange),
-                $endDateContainer = $('<div class="datewrapper"></div>').appendTo($dateRange),
-                $total = $('<div class="total"></div>').appendTo($chartHeader),
-                $totalLabel = $('<div class="total-label light">' + Craft.t('commerce', 'Total Revenue') + '</div>').appendTo($total),
-                $totalValueWrapper = $('<div class="total-value-wrapper"></div>').appendTo($total),
-                $totalValue = $('<span class="total-value">&nbsp;</span>').appendTo($totalValueWrapper);
-
-            this.$exportButton = $exportButton;
-            this.$chartExplorer = $chartExplorer;
-            this.$totalValue = $totalValue;
-            this.$chartContainer = $('<div class="chart-container"></div>').appendTo($chartExplorer);
-            this.$spinner = $('<div class="spinner hidden" />').prependTo($chartHeader);
-            this.$error = $('<div class="error"></div>').appendTo(this.$chartContainer);
-            this.$chart = $('<div class="chart"></div>').appendTo(this.$chartContainer);
-
-            this.$startDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($startDateContainer);
-            this.$endDate = $('<input type="text" class="text" size="20" autocomplete="off" />').appendTo($endDateContainer);
-
-            this.$startDate.datepicker($.extend({
-                onSelect: $.proxy(this, 'handleStartDateChange')
-            }, Craft.datepickerOptions));
-
-            this.$endDate.datepicker($.extend({
-                onSelect: $.proxy(this, 'handleEndDateChange')
-            }, Craft.datepickerOptions));
-
-            this.startDatepicker = this.$startDate.data('datepicker');
-            this.endDatepicker = this.$endDate.data('datepicker');
-
-            this.addListener(this.$startDate, 'keyup', 'handleStartDateChange');
-            this.addListener(this.$endDate, 'keyup', 'handleEndDateChange');
-
-            new Garnish.MenuBtn(this.$exportButton, {
-                onOptionSelect: $.proxy(this, 'handleClickExport')
-            });
-
-            // Set the start/end dates
-            var startTime = this.getStorage('startTime') || ((new Date()).getTime() - (60 * 60 * 24 * 7 * 1000)),
-                endTime = this.getStorage('endTime') || ((new Date()).getTime());
-
-            this.setStartDate(new Date(startTime));
-            this.setEndDate(new Date(endTime));
-
-            // Load the report
-            this.loadReport();
-        },
-        handleClickExport: function(option) {
-            var data = {};
-            data.source = this.settings.params.source;
-            data.format = option.dataset.format;
-            data.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
-            data.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
-            location.href = Craft.getActionUrl('commerce/downloads/export-order', data);
-
-        },
-        handleStartDateChange: function() {
-            if (this.setStartDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.startDatepicker))) {
-                this.loadReport();
-            }
-        },
-
-        handleEndDateChange: function() {
-            if (this.setEndDate(Craft.Commerce.OrderTableView.getDateFromDatepickerInstance(this.endDatepicker))) {
-                this.loadReport();
-            }
-        },
-
-        setStartDate: function(date) {
-            // Make sure it has actually changed
-            if (this.startDate && date.getTime() === this.startDate.getTime()) {
-                return false;
-            }
-
-            this.startDate = date;
-            this.setStorage('startTime', this.startDate.getTime());
-            this.$startDate.val(Craft.formatDate(this.startDate));
-
-            // If this is after the current end date, set the end date to match it
-            if (this.endDate && this.startDate.getTime() > this.endDate.getTime()) {
-                this.setEndDate(new Date(this.startDate.getTime()));
-            }
-
-            return true;
-        },
-
-        setEndDate: function(date) {
-            // Make sure it has actually changed
-            if (this.endDate && date.getTime() === this.endDate.getTime()) {
-                return false;
-            }
-
-            this.endDate = date;
-            this.setStorage('endTime', this.endDate.getTime());
-            this.$endDate.val(Craft.formatDate(this.endDate));
-
-            // If this is before the current start date, set the start date to match it
-            if (this.startDate && this.endDate.getTime() < this.startDate.getTime()) {
-                this.setStartDate(new Date(this.endDate.getTime()));
-            }
-
-            return true;
-        },
-
-        loadReport: function() {
-            var requestData = this.settings.params;
-
-            requestData.startDate = Craft.Commerce.OrderTableView.getDateValue(this.startDate);
-            requestData.endDate = Craft.Commerce.OrderTableView.getDateValue(this.endDate);
-
-            if (requestData.source.includes('carts:')) {
-                this.$exportButton.addClass('hidden');
-            } else {
-                this.$exportButton.removeClass('hidden');
-            }
-
-            this.$spinner.removeClass('hidden');
-            this.$error.addClass('hidden');
-            this.$chart.removeClass('error');
-
-
-            Craft.postActionRequest('commerce/charts/get-revenue-data', requestData, $.proxy(function(response, textStatus) {
-                this.$spinner.addClass('hidden');
-
-                if (textStatus === 'success' && typeof (response.error) === 'undefined') {
-                    if (!this.chart) {
-                        this.chart = new Craft.charts.Area(this.$chart);
-                    }
-
-                    var chartDataTable = new Craft.charts.DataTable(response.dataTable);
-
-                    var chartSettings = {
-                        formatLocaleDefinition: response.formatLocaleDefinition,
-                        orientation: response.orientation,
-                        formats: response.formats,
-                        dataScale: response.scale
-                    };
-
-                    this.chart.draw(chartDataTable, chartSettings);
-
-                    this.$totalValue.html(response.totalHtml);
-                } else {
-                    var msg = Craft.t('commerce', 'An unknown error occurred.');
-
-                    if (typeof (response) !== 'undefined' && response && typeof (response.error) !== 'undefined') {
-                        msg = response.error;
-                    }
-
-                    this.$error.html(msg);
-                    this.$error.removeClass('hidden');
-                    this.$chart.addClass('error');
-                }
-            }, this));
-        }
-    },
-    {
-        storage: {},
-
-        getStorage: function(namespace, key) {
-            if (Craft.Commerce.OrderTableView.storage[namespace] && Craft.Commerce.OrderTableView.storage[namespace][key]) {
-                return Craft.Commerce.OrderTableView.storage[namespace][key];
-            }
-
-            return null;
-        },
-
-        setStorage: function(namespace, key, value) {
-            if (typeof Craft.Commerce.OrderTableView.storage[namespace] === typeof undefined) {
-                Craft.Commerce.OrderTableView.storage[namespace] = {};
-            }
-
-            Craft.Commerce.OrderTableView.storage[namespace][key] = value;
-        },
-
-        getDateFromDatepickerInstance: function(inst) {
-            return new Date(inst.currentYear, inst.currentMonth, inst.currentDay);
-        },
-
-        getDateValue: function(date) {
-            return date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
-        }
-    });
 
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
@@ -952,207 +696,148 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
     },
     {});
 
-(function($) {
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
 
-    if (typeof Craft.Commerce === typeof undefined) {
-        Craft.Commerce = {};
-    }
+Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
+    {
+        id: null,
+        $cancelBtn: null,
+        $select: null,
+        $saveBtn: null,
+        $spinner: null,
 
-    /**
-     * Registration Form class
-     */
-    Craft.Commerce.RegistrationForm = Craft.BaseElementIndex.extend({
-        licenseKey: null,
-        licenseKeyStatus: null,
+        init: function(sales, settings) {
+            this.id = Math.floor(Math.random() * 1000000000);
 
-        $headers: null,
-        $views: null,
+            this.setSettings(settings, this.defaults);
+            this.$form = $('<form class="modal fitted" method="post" accept-charset="UTF-8"/>').appendTo(Garnish.$bod);
+            var $body = $('<div class="body"></div>').appendTo(this.$form);
+            var $inputs = $('<div class="content">' +
+                '<h2 class="first">' + Craft.t('commerce', "Add Product to Sale") + '</h2>' +
+                '<p>' + Craft.t('commerce', "Add this product to an existing sale. This will change the conditions of the sale, please review the sale.") + '</p>' +
+                '</div>').appendTo($body);
 
-        $validLicenseHeader: null,
-        $invalidLicenseHeader: null,
-        $mismatchedLicenseHeader: null,
-        $unknownLicenseHeader: null,
+            if (this.settings.purchasables.length) {
+                var $checkboxField = $('<div class="field" />');
+                $('<div class="heading"><label>'+Craft.t('commerce', 'Select Variants')+'</label></div>').appendTo($checkboxField);
+                var $inputContainer = $('<div class="input ltr" />');
+                $.each(this.settings.purchasables, function(key, purchasable) {
+                    $('<div>' +
+                    '<input class="checkbox" type="checkbox" name="ids[]" id="add-to-sale-purchasable-'+purchasable.id+'" value="'+purchasable.id+'" checked /> ' +
+                    '<label for="add-to-sale-purchasable-'+purchasable.id+'">' + purchasable.title +
+                    ' <span class="extralight">'+purchasable.sku+'</span>' +
+                    '</label>' +
+                    '</div>').appendTo($inputContainer);
+                });
 
-        $validLicenseView: null,
-        $updateLicenseView: null,
-
-        $updateLicenseForm: null,
-
-        $unregisterLicenseSpinner: null,
-        $updateLicenseSpinner: null,
-        $transferLicenseSpinner: null,
-
-        $licenseKeyLabel: null,
-        $licenseKeyInput: null,
-        $updateBtn: null,
-        $clearBtn: null,
-        $licenseKeyError: null,
-
-        init: function(hasLicenseKey) {
-            this.$headers = $('.reg-header');
-            this.$views = $('.reg-view');
-
-            this.$validLicenseHeader = $('#valid-license-header');
-            this.$invalidLicenseHeader = $('#invalid-license-header');
-            this.$mismatchedLicenseHeader = $('#mismatched-license-header');
-            this.$unknownLicenseHeader = $('#unknown-license-header');
-
-            this.$validLicenseView = $('#valid-license-view');
-            this.$updateLicenseView = $('#update-license-view');
-
-            this.$updateLicenseForm = $('#update-license-form');
-
-            this.$unregisterLicenseSpinner = $('#unregister-license-spinner');
-            this.$updateLicenseSpinner = $('#update-license-spinner');
-            this.$transferLicenseSpinner = $('#transfer-license-spinner');
-
-            this.$licenseKeyLabel = $('#license-key-label');
-            this.$licenseKeyInput = $('#license-key-input');
-            this.$updateBtn = $('#update-license-btn');
-            this.$clearBtn = $('#clear-license-btn');
-            this.$licenseKeyError = $('#license-key-error');
-
-            this.addListener(this.$updateLicenseForm, 'submit', 'handleUpdateLicenseFormSubmit');
-
-            this.addListener(this.$licenseKeyInput, 'focus', 'handleLicenseKeyFocus');
-            this.addListener(this.$licenseKeyInput, 'textchange', 'handleLicenseKeyTextChange');
-            this.addListener(this.$clearBtn, 'click', 'handleClearButtonClick');
-
-            if (hasLicenseKey) {
-                this.loadLicenseInfo();
-            } else {
-                this.unloadLoadingUi();
-                this.setLicenseKey(null);
-                this.setLicenseKeyStatus('unknown');
+                $inputContainer.appendTo($checkboxField);
+                $checkboxField.appendTo($inputs);
             }
-        },
 
-        unloadLoadingUi: function() {
-            $('#loading-license-info').remove();
-            $('#license-view-hr').removeClass('hidden');
-        },
+            if (sales && sales.length) {
+                this.$select = $('<select name="sale" />');
+                $('<option value="">----</option>').appendTo(this.$select);
 
-        loadLicenseInfo: function() {
-            Craft.postActionRequest('commerce/registration/get-license-info', $.proxy(function(response, textStatus) {
-                if (textStatus === 'success') {
-                    this.unloadLoadingUi();
-                    this.setLicenseKey(response.licenseKey);
-                    this.setLicenseKeyStatus(response.licenseKeyStatus);
-                } else {
-                    $('#loading-graphic').addClass('error');
-                    $('#loading-status').removeClass('light').text(Craft.t('commerce', 'Unable to load registration status at this time. Please try again later.'));
+                for (var i = 0; i < sales.length; i++) {
+                    var sale = sales[i];
+                    var disabled = false;
+
+                    if (this.settings.existingSaleIds && this.settings.existingSaleIds.length && this.settings.existingSaleIds.indexOf(sale.id) >= 0) {
+                        disabled = true;
+                    }
+
+                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+sale.name+'</option>'));
+                }
+                var $field = $('<div class="input ltr"></div>');
+                var $container = $('<div class="select" />');
+                this.$select.appendTo($container);
+                $container.appendTo($field);
+
+                var $fieldContainer = $('<div class="field"/>');
+                $('<div class="heading">' +
+                '<label>' + Craft.t('commerce', 'Sale') + '</label>' +
+                '</div>').appendTo($fieldContainer);
+                $container.appendTo($fieldContainer);
+
+                $fieldContainer.appendTo($inputs);
+
+                this.$select.on('change', $.proxy(this, 'handleSaleChange'));
+            }
+
+            // Error notice area
+            this.$error = $('<div class="error"/>').appendTo($inputs);
+
+            // Footer and buttons
+            var $footer = $('<div class="footer"/>').appendTo(this.$form);
+            var $newSaleBtnGroup = $('<div class="btngroup left"/>').appendTo($footer);
+            var $newSale = $('<a class="btn icon add" target="_blank" href="'+Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + this.settings.id)+'">'+Craft.t('commerce', 'Create Sale')+'</a>').appendTo($newSaleBtnGroup);
+
+            var $rightWrapper = $('<div class="right"/>').appendTo($footer);
+            var $mainBtnGroup = $('<div class="btngroup"/>').appendTo($rightWrapper);
+            this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
+            this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Save') + '"/>').appendTo($mainBtnGroup);
+            this.$spinner = $('<div class="spinner hidden" />').appendTo($rightWrapper);
+
+            this.$saveBtn.addClass('disabled');
+
+            this.addListener(this.$cancelBtn, 'click', 'hide');
+            this.addListener(this.$saveBtn, 'click', $.proxy(function(ev) {
+                ev.preventDefault();
+                if (!$(ev.target).hasClass('disabled')) {
+                    this.$spinner.removeClass('hidden');
+                    this.saveSale();
                 }
             }, this));
+
+            this.base(this.$form, this.settings);
         },
 
-        setLicenseKey: function(licenseKey) {
-            this.licenseKey = this.normalizeLicenseKey(licenseKey);
-            var formattedLicenseKey = this.formatLicenseKey(this.licenseKey);
-            this.$licenseKeyLabel.text(formattedLicenseKey);
-            this.$licenseKeyInput.val(formattedLicenseKey);
-            this.handleLicenseKeyTextChange();
-        },
+        saveSale: function() {
+            var saleId = this.$form.find('select[name="sale"]').val();
+            var ids = [];
 
-        setLicenseKeyStatus: function(licenseKeyStatus) {
-            this.$headers.addClass('hidden');
-            this.$views.addClass('hidden');
-
-            this.licenseKeyStatus = licenseKeyStatus;
-
-            // Show the proper header
-            this['$' + licenseKeyStatus + 'LicenseHeader'].removeClass('hidden');
-
-            // Show the proper form view
-            if (this.licenseKeyStatus === 'valid') {
-                this.$validLicenseView.removeClass('hidden');
-            } else {
-                this.$updateLicenseView.removeClass('hidden');
-                this.$licenseKeyError.addClass('hidden');
-
-                if (this.licenseKeyStatus === 'invalid') {
-                    this.$licenseKeyInput.addClass('error');
-                } else {
-                    this.$licenseKeyInput.removeClass('error');
-                }
+            if (this.settings.purchasables.length) {
+                this.$form.find('input.checkbox:checked').each(function(el) {
+                    ids.push($(this).val());
+                });
+            } else if (this.settings.id) {
+                ids = [this.settings.id];
             }
-        },
-
-        normalizeLicenseKey: function(licenseKey) {
-            if (licenseKey) {
-                return licenseKey.toUpperCase().replace(/[^A-Z0-9]/g, '');
-            }
-
-            return '';
-        },
-
-        formatLicenseKey: function(licenseKey) {
-            if (licenseKey) {
-                return licenseKey.match(/.{1,4}/g).join('-');
-            }
-
-            return '';
-        },
-
-        validateLicenseKey: function(licenseKey) {
-            return (licenseKey.length === 24);
-        },
-
-        handleUpdateLicenseFormSubmit: function(ev) {
-            ev.preventDefault();
-            var licenseKey = this.normalizeLicenseKey(this.$licenseKeyInput.val());
-
-            if (licenseKey && !this.validateLicenseKey(licenseKey)) {
-                return;
-            }
-
-            this.$updateLicenseSpinner.removeClass('hidden');
 
             var data = {
-                licenseKey: licenseKey
+                ids: ids,
+                saleId: saleId
             };
 
-            Craft.postActionRequest('commerce/registration/update-license-key', data, $.proxy(function(response, textStatus) {
-                this.$updateLicenseSpinner.addClass('hidden');
-                if (textStatus === 'success') {
-                    if (response.success) {
-                        this.setLicenseKey(response.licenseKey);
-                        this.setLicenseKeyStatus(response.licenseKeyStatus);
-                    } else {
-                        this.$licenseKeyError.removeClass('hidden').text(response.error || Craft.t('commerce', 'An unknown error occurred.'));
-                    }
+            Craft.postActionRequest('commerce/sales/add-purchasable-to-sale', data, $.proxy(function(response) {
+                if (response && response.error) {
+                    Craft.cp.displayError(response.error);
+                } else if (response && response.success ) {
+                    Craft.cp.displayNotice(Craft.t('commerce', 'Added to Sale.'));
+                    this.hide();
                 }
+                this.$spinner.addClass('hidden');
             }, this));
         },
 
-        handleLicenseKeyFocus: function() {
-            this.$licenseKeyInput.get(0).setSelectionRange(0, this.$licenseKeyInput.val().length);
-        },
-
-        handleLicenseKeyTextChange: function() {
-            this.$licenseKeyInput.removeClass('error');
-
-            var licenseKey = this.normalizeLicenseKey(this.$licenseKeyInput.val());
-
-            if (licenseKey) {
-                this.$clearBtn.removeClass('hidden');
+        handleSaleChange: function(ev) {
+            if (this.$select.val() != '') {
+                this.$saveBtn.removeClass('disabled');
             } else {
-                this.$clearBtn.addClass('hidden');
-            }
-
-            if (licenseKey !== this.licenseKey && (!licenseKey || this.validateLicenseKey(licenseKey))) {
-                this.$updateBtn.removeClass('disabled');
-            } else {
-                this.$updateBtn.addClass('disabled');
+                this.$saveBtn.addClass('disabled');
             }
         },
 
-        handleClearButtonClick: function() {
-            this.$licenseKeyInput.val('').focus();
-            this.handleLicenseKeyTextChange();
+        defaults: {
+            onSubmit: $.noop,
+            id: null,
+            productId: null,
+            purchasables: [],
+            existingSaleIds: []
         }
     });
-
-})(jQuery);
 
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
@@ -1337,7 +1022,7 @@ if (typeof Craft.Commerce === typeof undefined) {
 }
 
 /**
- * Class Craft.Commerce.RevenueWidget
+ * Class Craft.Commerce.VariantValuesInput
  */
 Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     startListening: function() {

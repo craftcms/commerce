@@ -3,14 +3,13 @@
 {{ forms.textField({
     first: true,
     label: "Name"|t('commerce'),
-    instructions: "What this shipping category will be called in the CP."|t('commerce'),
+    instructions: "What this shipping category will be called in the control panel."|t('commerce'),
     id: 'name',
     name: 'name',
     value: shippingCategory is defined ? shippingCategory.name,
     errors: shippingCategory is defined ? shippingCategory.getErrors('name'),
     autofocus: true,
-    required: true,
-    translatable: true
+    required: true
 }) }}
 
 {{ forms.textField({
