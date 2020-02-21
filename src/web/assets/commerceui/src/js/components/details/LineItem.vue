@@ -5,17 +5,20 @@
                 <!-- Description -->
                 <order-title>{{ lineItem.description }}</order-title>
 
+                <!-- Edit-->
+                <btn-link v-if="!editMode" @click="enableEditMode()">{{"Edit"|t('commerce')}}</btn-link>
+
                 <!-- SKU -->
                 <p><code>{{ lineItem.sku }}</code></p>
 
                 <!-- Status -->
-                <line-item-status :line-item="lineItem" :editing="editing" @change="updateLineItemStatusId"></line-item-status>
+                <line-item-status :line-item="lineItem" :editing="editing && editMode" @change="updateLineItemStatusId"></line-item-status>
             </div>
             <div class="w-2/3 order-flex">
                 <div class="order-flex-grow">
                     <ul>
                         <li class="order-flex">
-                            <template v-if="editing && recalculationMode === 'none'">
+                            <template v-if="editing && editMode && recalculationMode === 'none'">
                                 <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
                                     <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
                                 </field>
@@ -33,14 +36,14 @@
                 </div>
                 <div class="order-flex-grow">
                     <div class="order-flex">
-                        <template v-if="!editing">
-                            <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
-                            <span>{{ lineItem.qty }}</span>
-                        </template>
-                        <template v-else>
+                        <template v-if="editing && editMode">
                             <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
                                 <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
                             </field>
+                        </template>
+                        <template v-else>
+                            <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
+                            <span>{{ lineItem.qty }}</span>
                         </template>
                     </div>
                 </div>
@@ -71,15 +74,15 @@
             </div>
         </order-block>
 
-        <line-item-options :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
-        <line-item-notes :line-item="lineItem" :editing="editing" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
-        <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
+        <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
+        <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
+        <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
 
         <order-block class="text-right">
             <div>
                 <strong>{{ lineItem.totalAsCurrency }}</strong>
             </div>
-            <div v-if="editing && isProEdition">
+            <div v-if="editing && editMode && isProEdition">
                 <btn-link  button-class="btn-link btn-link--danger" @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
         </order-block>
@@ -87,7 +90,7 @@
 </template>
 
 <script>
-    import {mapGetters, mapState} from 'vuex'
+    import {mapActions, mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import InputError from '../InputError'
     import Field from '../Field'
@@ -121,6 +124,12 @@
             editing: {
                 type: Boolean,
             },
+        },
+
+        data() {
+            return {
+                editMode: false,
+            };
         },
 
         computed: {
@@ -188,6 +197,15 @@
         },
 
         methods: {
+            ...mapActions([
+                'edit',
+            ]),
+
+            enableEditMode() {
+                this.editMode = true;
+                this.edit();
+            },
+
             updateLineItemStatusId(lineItemStatusId) {
                 const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
