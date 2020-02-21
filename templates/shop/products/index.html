@@ -100,7 +100,7 @@
             $("#"+($(this).find(":selected").data('info'))).toggle();
         });
 
-        {#
+
         $('form.add-to-cart-form').submit(function(e){
             e.preventDefault();
             var purchasable = $(this).find('.purchasableId').val();
@@ -121,7 +121,7 @@
                 }
             });
         });
-        #}
+
     {% endjs %}
 
 {% endblock %}
