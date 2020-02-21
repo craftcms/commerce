@@ -1,13 +1,18 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when editing a product via related products hud. ([#1291](https://github.com/craftcms/commerce/pull/1291))
+
 ## 2.2.17 - 2020-02-12
 
-### Change
+### Changed
 - Improved the performance of the Orders index page.
 
 ## 2.2.16 - 2020-02-10
 
-### Change
+### Changed
 - Improved the performance of the Orders index page.
 
 ### Fixed
