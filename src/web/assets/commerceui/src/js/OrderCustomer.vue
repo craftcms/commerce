@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <template v-if="!editing">
+  <div v-if="draft">
+    <div v-show="!editing">
       <p v-if="hasCustomer">{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}}</p>
       <div class="order-flex order-box-sizing -mx-2">
         <div class="w-1/2 px-2">
@@ -20,9 +20,8 @@
           </template>
         </div>
       </div>
-
-    </template>
-    <template v-else>
+    </div>
+    <div v-show="editing">
       <div v-show="hasCustomer">
         <p>{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}} <btn-link class="btn-link btn-link--danger" @click="removeCustomer">{{$options.filters.t('Remove', 'commerce')}}</btn-link></p>
 
@@ -56,8 +55,7 @@
         <customer-select :order="draft.order"
           @update="updateCustomer"></customer-select>
       </div>
-
-    </template>
+    </div>
   </div>
 </template>
 
