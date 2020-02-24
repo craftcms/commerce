@@ -32,18 +32,20 @@ use yii\base\Exception;
 class OrderAdjustments extends Component
 {
     /**
-     * @event RegisterComponentTypesEvent This event is raised when compiling the list of adjusters for an order
-     *
-     * Plugins can register their own adjusters.
+     * @event RegisterComponentTypesEvent The event that is triggered for registration of additional adjusters.
      *
      * ```php
      * use craft\events\RegisterComponentTypesEvent;
      * use craft\commerce\services\OrderAdjustments;
      * use yii\base\Event;
      *
-     * Event::on(OrderAdjustments::class, OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS, function(RegisterComponentTypesEvent $e) {
-     *     $e->types[] = MyAdjuster::class;
-     * });
+     * Event::on(
+     *     OrderAdjustments::class,
+     *     OrderAdjustments::EVENT_REGISTER_ORDER_ADJUSTERS,
+     *     function(RegisterComponentTypesEvent $event) {
+     *         $event->types[] = MyAdjuster::class;
+     *     }
+     * );
      * ```
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
