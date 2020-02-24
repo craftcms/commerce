@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
+
 ### Fixed
 - Fixed an error that could occur when editing a variants stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
 - Fixed a bug where “As Currency” values returned 0 when adding to the cart via ajax. ([#1293](https://github.com/craftcms/commerce/issues/1293))
