@@ -6,7 +6,7 @@
 - Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
 
 ### Changed
-- Order Status counts now update after an using the update order status modal. ([#1217](https://github.com/craftcms/commerce/issues/1217))
+- The order index page now automatically updates the per-status order counts automatically after an using the “Update Order Status” action. ([#1217](https://github.com/craftcms/commerce/issues/1217))
 
 ### Fixed
 - Fixed an error that could occur when editing a variants stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
