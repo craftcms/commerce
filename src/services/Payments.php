@@ -37,121 +37,188 @@ use yii\base\Component;
 class Payments extends Component
 {
     /**
-     * @event TransactionEvent The event that is triggered after a payment transaction is made
-     *
-     * Plugins can get notified after a payment transaction is made
+     * @event TransactionEvent The event that is triggered after a payment transaction is made.
      *
      * ```php
      * use craft\commerce\events\TransactionEvent;
      * use craft\commerce\services\Payments;
+     * use craft\commerce\models\Transaction;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_AFTER_PAYMENT_TRANSACTION, function(TransactionEvent $e) {
-     *     // Do something - perhaps check if that was a authorize transaction and make sure that warehouse team is on top of it
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_AFTER_PAYMENT_TRANSACTION,
+     *     function(TransactionEvent $event) {
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *
+     *         // Check whether it was an authorize transaction
+     *         // and make sure that warehouse team is on top of it
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_PAYMENT_TRANSACTION = 'afterPaymentTransaction';
 
     /**
-     * @event TransactionEvent The event that is triggered before a transaction is captured
-     *
-     * Plugins can get notified before a payment transaction is captured
+     * @event TransactionEvent The event that is triggered before a payment transaction is captured.
      *
      * ```php
      * use craft\commerce\events\TransactionEvent;
      * use craft\commerce\services\Payments;
+     * use craft\commerce\models\Transaction;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_BEFORE_CAPTURE_TRANSACTION, function(TransactionEvent $e) {
-     *     // Do something - maybe check if the shipment is really ready before capturing
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_BEFORE_CAPTURE_TRANSACTION,
+     *     function(TransactionEvent $event) {
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *
+     *         // Check that shipment’s ready before capturing
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_CAPTURE_TRANSACTION = 'beforeCaptureTransaction';
 
     /**
-     * @event TransactionEvent The event that is triggered after a transaction is captured
-     *
-     * Plugins can get notified after a payment transaction is captured
+     * @event TransactionEvent The event that is triggered after a payment transaction is captured.
      *
      * ```php
      * use craft\commerce\events\TransactionEvent;
      * use craft\commerce\services\Payments;
+     * use craft\commerce\models\Transaction;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_AFTER_CAPTURE_TRANSACTION, function(TransactionEvent $e) {
-     *     // Do something - probably notify warehouse that we're ready to ship
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_AFTER_CAPTURE_TRANSACTION,
+     *     function(TransactionEvent $event) {
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *
+     *         // Notify the warehouse we're ready to ship
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
 
     /**
-     * @event TransactionEvent The event that is triggered before a transaction is refunded
-     *
-     * Plugins can get notified before a transaction is refunded
+     * @event TransactionEvent The event that is triggered before a transaction is refunded.
      *
      * ```php
      * use craft\commerce\events\RefundTransactionEvent;
      * use craft\commerce\services\Payments;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_BEFORE_REFUND_TRANSACTION, function(RefundTransactionEvent $e) {
-     *     // Do something - perhaps check if refund amount more than half the transaction and do something based on that
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_BEFORE_REFUND_TRANSACTION,
+     *     function(RefundTransactionEvent $event) {
+     *         // @var float $amount
+     *         $amount = $event->amount;
+     *         
+     *         // Do something else if the refund amount’s >50% of the transaction
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_REFUND_TRANSACTION = 'beforeRefundTransaction';
 
     /**
-     * @event TransactionEvent The event that is triggered after a transaction is refunded
-     *
-     * Plugins can get notified after a transaction is refunded
+     * @event TransactionEvent The event that is triggered after a transaction is refunded.
      *
      * ```php
      * use craft\commerce\events\RefundTransactionEvent;
      * use craft\commerce\services\Payments;
      * use yii\base\Event;
-     *
-     * Event::on(Payments::class, Payments::EVENT_AFTER_REFUND_TRANSACTION, function(RefundTransactionEvent $e) {
-     *     // Do something - perhaps check if refund amount more than half the transaction and do something based on that
-     * });
+     * 
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_AFTER_REFUND_TRANSACTION,
+     *     function(RefundTransactionEvent $event) {
+     *         // @var float $amount
+     *         $amount = $event->amount;
+     * 
+     *         // Do something else if the refund amount’s >50% of the transaction
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_REFUND_TRANSACTION = 'afterRefundTransaction';
 
     /**
-     * @event ProcessPaymentEvent The event is triggered before a payment is being processed
-     * You may set [[ProcessPaymentEvent::isValid]] to `false` to prevent the payment from being processed
+     * @event ProcessPaymentEvent The event that is triggered before a payment is processed.
      *
-     * Plugins can get notified before a payment is being processed
+     * You may set the `isValid` property to `false` on the event to prevent the payment from being processed.
      *
      * ```php
      * use craft\commerce\events\ProcessPaymentEvent;
      * use craft\commerce\services\Payments;
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\payments\BasePaymentForm;
+     * use craft\commerce\models\Transaction;
+     * use craft\commerce\base\RequestResponseInterface;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_BEFORE_PROCESS_PAYMENT, function(ProcessPaymentEvent $e) {
-     *     // Do something - perhaps check if the transaction is allowed for the order based on some business rules.
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_BEFORE_PROCESS_PAYMENT,
+     *     function(ProcessPaymentEvent $event) {
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var BasePaymentForm $form
+     *         $form = $event->form;
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *         // @var RequestResponseInterface $response
+     *         $response = $event->response;
+     *
+     *         // Check some business rules to see whether the transaction is allowed
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_PROCESS_PAYMENT = 'beforeProcessPaymentEvent';
 
     /**
-     * @event ProcessPaymentEvent The event is triggered after a payment is being processed
-     *
-     * Plugins can get notified after a payment is processed
+     * @event ProcessPaymentEvent The event that is triggered after a payment is processed.
      *
      * ```php
      * use craft\commerce\events\ProcessPaymentEvent;
      * use craft\commerce\services\Payments;
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\payments\BasePaymentForm;
+     * use craft\commerce\models\Transaction;
+     * use craft\commerce\base\RequestResponseInterface;
      * use yii\base\Event;
      *
-     * Event::on(Payments::class, Payments::EVENT_AFTER_PROCESS_PAYMENT, function(ProcessPaymentEvent $e) {
-     *     // Do something - maybe let accounting dept. know that a transaction went through for an order.
-     * });
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_AFTER_PROCESS_PAYMENT,
+     *     function(ProcessPaymentEvent $event) {
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var BasePaymentForm $form
+     *         $form = $event->form;
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *         // @var RequestResponseInterface $response
+     *         $response = $event->response;
+     *
+     *         // Let the accounting department know an order transaction went through
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';

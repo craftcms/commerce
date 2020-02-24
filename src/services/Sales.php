@@ -40,19 +40,33 @@ use function in_array;
 class Sales extends Component
 {
     /**
-     * @event SaleMatchEvent This event is raised after a sale has matched all other conditions
-     * You may set [[SaleMatchEvent::isValid]] to `false` to prevent the application of the matched sale.
+     * @event SaleMatchEvent The event that is triggered before Commerce attempts to match a sale to a purchasable.
      *
-     * Plugins can get notified when a purchasable matches a sale.
+     * The `isValid` event property can be set to `false` to prevent the application of the matched sale.
      *
      * ```php
      * use craft\commerce\events\SaleMatchEvent;
      * use craft\commerce\services\Sales;
+     * use craft\commerce\base\PurchasableInterface;
+     * use craft\commerce\models\Sale;
      * use yii\base\Event;
      *
-     * Event::on(Sales::class, Sales::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, function(SaleMatchEvent $e) {
-     *      // Perhaps prevent the purchasable match with sale based on some business logic.
-     * });
+     * Event::on(
+     *     Sales::class,
+     *     Sales::EVENT_BEFORE_MATCH_PURCHASABLE_SALE,
+     *     function(SaleMatchEvent $event) {
+     *         // @var Sale $sale
+     *         $sale = $event->sale;
+     *         // @var PurchasableInterface $purchasable
+     *         $purchasable = $event->purchasable;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     * 
+     *         // Use custom business logic to exclude purchasable from sale
+     *         // with `$event->isValid = false`
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_MATCH_PURCHASABLE_SALE = 'beforeMatchPurchasableSale';
@@ -60,12 +74,50 @@ class Sales extends Component
     /**
      * @event SaleEvent The event that is triggered before a sale is saved.
      * @since 2.2
+     *
+     * ```php
+     * use craft\commerce\events\SaleEvent;
+     * use craft\commerce\services\Sales;
+     * use craft\commerce\models\Sale;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Sales::class,
+     *     Sales::EVENT_BEFORE_SAVE_SALE,
+     *     function(SaleEvent $event) {
+     *         // @var Sale $sale
+     *         $sale = $event->sale;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_BEFORE_SAVE_SALE = 'beforeSaveSale';
 
     /**
      * @event SaleEvent The event that is triggered after a sale is saved.
      * @since 2.2
+     *
+     * ```php
+     * use craft\commerce\events\SaleEvent;
+     * use craft\commerce\services\Sales;
+     * use craft\commerce\models\Sale;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Sales::class,
+     *     Sales::EVENT_BEFORE_SAVE_SALE,
+     *     function(SaleEvent $event) {
+     *         // @var Sale $sale
+     *         $sale = $event->sale;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 

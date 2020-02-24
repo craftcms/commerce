@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
+
 ### Changed
 - Order Status counts now update after an using the update order status modal. ([#1217](https://github.com/craftcms/commerce/issues/1217))
 

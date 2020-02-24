@@ -43,19 +43,30 @@ use function count;
 class OrderStatuses extends Component
 {
     /**
-     * @event DefaultOrderStatusEvent The event that is triggered when getting a default status for an order.
-     * You may set [[DefaultOrderStatusEvent::orderStatus]] to a desired OrderStatus to override the default status set in CP
+     * @event DefaultOrderStatusEvent The event that is triggered when a default order status is being fetched.
      *
-     * Plugins can get notified when a default order status is being fetched
+     * Set the event object’s `orderStatus` property to override the default status set in the control panel.
      *
      * ```php
      * use craft\commerce\events\DefaultOrderStatusEvent;
      * use craft\commerce\services\OrderStatuses;
+     * use craft\commerce\models\OrderStatus;
+     * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(OrderStatuses::class, OrderStatuses::EVENT_DEFAULT_ORDER_STATUS, function(DefaultOrderStatusEvent $e) {
-     *     // Do something - perhaps figure out a better default order statues than the one set in CP
-     * });
+     * Event::on(
+     *     OrderStatuses::class,
+     *     OrderStatuses::EVENT_DEFAULT_ORDER_STATUS,
+     *     function(DefaultOrderStatusEvent $event) {
+     *         // @var OrderStatus $status
+     *         $status = $event->orderStatus;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         
+     *         // Choose a more appropriate order status than the control panel default
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
