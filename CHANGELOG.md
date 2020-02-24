@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Order Status counts now update after an using the update order status modal. ([#1217](https://github.com/craftcms/commerce/issues/1217))
+
 ### Fixed
 - Fixed an error that could occur when editing a variants stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
 - Fixed a bug where “As Currency” values returned 0 when adding to the cart via ajax. ([#1293](https://github.com/craftcms/commerce/issues/1293))

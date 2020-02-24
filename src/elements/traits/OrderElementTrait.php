@@ -213,14 +213,7 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $orderCountByStatus = (new Query())
-            ->select(['o.orderStatusId', 'count(o.id) as orderCount'])
-            ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
-            ->from(['{{%commerce_orders}} o'])
-            ->leftJoin(['{{%elements}} e'], '[[o.id]] = [[e.id]]')
-            ->groupBy('o.orderStatusId')
-            ->indexBy('orderStatusId')
-            ->all();
+        $orderCountByStatus = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
 
         $count = array_reduce($orderCountByStatus, static function($sum, $thing) {
             return $sum + (int)$thing['orderCount'];

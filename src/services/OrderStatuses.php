@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
@@ -157,6 +158,23 @@ class OrderStatuses extends Component
         }
 
         return $event->orderStatus;
+    }
+
+    /**
+     * @return array
+     * @since 3.x
+     */
+    public function getOrderCountByStatus()
+    {
+        return (new Query())
+            ->select(['o.orderStatusId', 'count(o.id) as orderCount', '[[os.handle]]'])
+            ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
+            ->from([Table::ORDERS . ' o'])
+            ->innerJoin(Table::ORDERSTATUSES . ' os', '[[os.id]] = [[o.orderStatusId]]')
+            ->leftJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
+            ->groupBy('o.orderStatusId')
+            ->indexBy('orderStatusId')
+            ->all();
     }
 
     /**
