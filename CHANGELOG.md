@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.11 - 2020-02-25
 
 ### Added
 - Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
