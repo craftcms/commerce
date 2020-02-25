@@ -109,6 +109,11 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
                 }
             }, this)
         });
+    },
+
+    setIndexAvailable: function(){
+        this.updateSourcesBadgeCounts();
+        this.base();
     }
 });
 

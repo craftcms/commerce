@@ -62,7 +62,7 @@ class OrderStatuses extends Component
      *         $status = $event->orderStatus;
      *         // @var Order $order
      *         $order = $event->order;
-     *         
+     *
      *         // Choose a more appropriate order status than the control panel default
      *         // ...
      *     }
@@ -177,15 +177,31 @@ class OrderStatuses extends Component
      */
     public function getOrderCountByStatus()
     {
-        return (new Query())
-            ->select(['o.orderStatusId', 'count(o.id) as orderCount', '[[os.handle]]'])
-            ->where(['o.isCompleted' => true, 'e.dateDeleted' => null])
+        $countGroupedByStatusId = (new Query())
+            ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
+            ->where(['[[o.isCompleted]]' => true, '[[e.dateDeleted]]' => null])
             ->from([Table::ORDERS . ' o'])
-            ->innerJoin(Table::ORDERSTATUSES . ' os', '[[os.id]] = [[o.orderStatusId]]')
             ->leftJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
-            ->groupBy('o.orderStatusId')
+            ->groupBy(['[[o.orderStatusId]]'])
             ->indexBy('orderStatusId')
             ->all();
+
+        // For those not in the groupBy
+        $allStatuses = $this->getAllOrderStatuses();
+        foreach ($allStatuses as $status) {
+            if (!isset($countGroupedByStatusId[$status->id])) {
+                $countGroupedByStatusId[$status->id] = [
+                    'orderStatusId' => $status->id,
+                    'handle' => $status->handle,
+                    'orderCount' => 0
+                ];
+            }
+
+            // Make sure all have their handle
+            $countGroupedByStatusId[$status->id]['handle'] = $status->handle;
+        }
+
+        return $countGroupedByStatusId;
     }
 
     /**

@@ -213,20 +213,13 @@ trait OrderElementTrait
      */
     protected static function defineSources(string $context = null): array
     {
-        $orderCountByStatus = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
-
-        $count = array_reduce($orderCountByStatus, static function($sum, $thing) {
-            return $sum + (int)$thing['orderCount'];
-        }, 0);
-
-
         $sources = [
             '*' => [
                 'key' => '*',
                 'label' => Plugin::t('All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count,
+                'badgeCount' => 0,
                 'data' => [
                     'date-attr' => 'dateOrdered',
                 ],
@@ -239,15 +232,13 @@ trait OrderElementTrait
             $key = 'orderStatus:' . $orderStatus->handle;
             $criteriaStatus = ['orderStatusId' => $orderStatus->id];
 
-            $count = $orderCountByStatus[$orderStatus->id]['orderCount'] ?? 0;
-
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
                 'label' => $orderStatus->name,
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
-                'badgeCount' => $count,
+                'badgeCount' => 0,
                 'data' => [
                     'handle' => $orderStatus->handle,
                     'date-attr' => 'dateOrdered',

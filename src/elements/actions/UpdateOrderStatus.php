@@ -71,7 +71,6 @@ class UpdateOrderStatus extends ElementAction
             var modal = new Craft.Commerce.UpdateOrderStatusModal(currentOrderStatus,orderStatuses, {
                 onSubmit: function(data){
                    Craft.elementIndex.submitAction({$type}, data);
-                   Craft.elementIndex.updateSourcesBadgeCounts();
                    modal.hide();
                    return false;
                 }
