@@ -30,7 +30,7 @@
 
                     <div v-if="recalculateLoading" class="spinner"></div>
 
-                    <div class="order-total-summary">
+                    <div class="order-total-summary pt">
                         <template v-if="orderAdjustments.length > 0 || editing">
                             <order-adjustments
                                     :adjustments="orderAdjustments"
@@ -38,11 +38,13 @@
                                     :recalculation-mode="recalculationMode"
                                     @updateOrderAdjustments="updateOrderAdjustments"
                             ></order-adjustments>
-
-                            <hr />
                         </template>
 
-                        <total :order="draft.order"></total>
+                        <div class="order-flex justify-end">
+                            <div class="w-3/4 orderedit-border-t orderedit-border-color pt">
+                                <total :order="draft.order"></total>
+                            </div>
+                        </div>
                     </div>
                 </template>
 
@@ -70,12 +72,7 @@
     }
 
     .order-total-summary {
-        background-color: #f3f7fc;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
-        border-top: 2px solid #eee;
-        margin: 20px -24px -24px;
-        padding: 34px 24px 24px;
+        border-top: 1px solid $lightGrey;
     }
 </style>
 

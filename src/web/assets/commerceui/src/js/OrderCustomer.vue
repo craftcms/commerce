@@ -1,57 +1,61 @@
 <template>
   <div v-if="draft">
-    <div v-show="!editing">
-      <p v-if="hasCustomer">{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}}</p>
-      <div class="order-flex order-box-sizing -mx-2">
-        <div class="w-1/2 px-2">
-          <template v-if="draft && draft.order.billingAddress">
-            <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
-          </template>
-          <template v-else>
-            <div class="zilch">{{$options.filters.t('No billing address', 'commerce')}}</div>
-          </template>
-        </div>
-        <div class="w-1/2 px-2">
-          <template v-if="draft && draft.order.shippingAddress">
-            <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
-          </template>
-          <template v-else>
-            <div class="zilch">{{$options.filters.t('No shipping address', 'commerce')}}</div>
-          </template>
-        </div>
+    <div class="pb" v-if="hasCustomer">
+      <div class="order-flex justify-between align-center pb">
+        <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
+        <template v-if="editing && editMode">
+          <btn-link class="btn-link btn-link--danger" @click="removeCustomer">{{$options.filters.t('Remove', 'commerce')}}</btn-link>
+        </template>
+        <template v-else>
+          <btn-link @click="enableEditMode()">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
+        </template>
       </div>
+      <div>{{draft.order.email}}</div>
     </div>
-    <div v-show="editing">
-      <div v-show="hasCustomer">
-        <p>{{$options.filters.t('Customer', 'commerce')}}: {{draft.order.email}} <btn-link class="btn-link btn-link--danger" @click="removeCustomer">{{$options.filters.t('Remove', 'commerce')}}</btn-link></p>
 
-        <div class="order-flex order-box-sizing -mx-2">
-          <div class="w-1/2 px-2">
-            <address-edit
-              :title="titles.billingAddress"
-              :address="draft.order.billingAddress"
-              :originalAddress="draft.order.billingAddress"
-              :customer-id="draft.order.customerId"
-              :empty-message="$options.filters.t('No billing address', 'commerce')"
-              :customer-updated="customerUpdatedTime"
-              @update="updateBillingAddress"
-            ></address-edit>
-          </div>
-
-          <div class="w-1/2 px-2">
-            <address-edit
-              :title="titles.shippingAddress"
-              :address="draft.order.shippingAddress"
-              :originalAddress="draft.order.shippingAddress"
-              :customer-id="draft.order.customerId"
-              :empty-message="$options.filters.t('No shipping address', 'commerce')"
-              :customer-updated="customerUpdatedTime"
-              @update="updateShippingAddress"
-            ></address-edit>
-          </div>
-        </div>
+    <div class="order-flex order-box-sizing -mx-2 orderedit-border-color pb" :class="{ 'pt': hasCustomer, 'orderedit-border-t': hasCustomer }">
+      <div class="w-1/2 px-2" v-show="!editing || !editMode">
+        <template v-if="draft && draft.order.billingAddress">
+          <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
+        </template>
+        <template v-else>
+          <div class="zilch">{{$options.filters.t('No billing address', 'commerce')}}</div>
+        </template>
       </div>
-      <div v-if="!hasCustomer">
+      <div class="w-1/2 px-2" v-show="!editing || !editMode">
+        <template v-if="draft && draft.order.shippingAddress">
+          <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
+        </template>
+        <template v-else>
+          <div class="zilch">{{$options.filters.t('No shipping address', 'commerce')}}</div>
+        </template>
+      </div>
+
+      <div class="w-1/2 px-2" v-show="hasCustomer && editing && editMode">
+        <address-edit
+                :title="titles.billingAddress"
+                :address="draft.order.billingAddress"
+                :originalAddress="draft.order.billingAddress"
+                :customer-id="draft.order.customerId"
+                :empty-message="$options.filters.t('No billing address', 'commerce')"
+                :customer-updated="customerUpdatedTime"
+                @update="updateBillingAddress"
+        ></address-edit>
+      </div>
+
+      <div class="w-1/2 px-2" v-show="hasCustomer && editing && editMode">
+        <address-edit
+                :title="titles.shippingAddress"
+                :address="draft.order.shippingAddress"
+                :originalAddress="draft.order.shippingAddress"
+                :customer-id="draft.order.customerId"
+                :empty-message="$options.filters.t('No shipping address', 'commerce')"
+                :customer-updated="customerUpdatedTime"
+                @update="updateShippingAddress"
+        ></address-edit>
+      </div>
+
+      <div class="w-full" v-if="!hasCustomer">
         <customer-select :order="draft.order"
           @update="updateCustomer"></customer-select>
       </div>
@@ -76,6 +80,7 @@
             return {
                 customerId: null,
                 customerUpdatedTime: null,
+                editMode: false,
                 titles: {
                     billingAddress: this.$options.filters.t('Billing Address', 'commerce'),
                     shippingAddress: this.$options.filters.t('Shipping Address', 'commerce'),
@@ -131,9 +136,15 @@
 
         methods: {
             ...mapActions([
-                'recalculateOrder',
+                'edit',
                 'getAddressById',
+                'recalculateOrder',
             ]),
+
+            enableEditMode() {
+                this.editMode = true;
+                this.edit();
+            },
 
             updateBillingAddress(address) {
                 this.updateAddress('billing', address);

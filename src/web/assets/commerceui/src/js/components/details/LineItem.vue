@@ -1,7 +1,7 @@
 <template>
     <div class="line-item" :class="{'new-line-item': isLineItemNew}">
         <order-block class="order-flex order-box-sizing">
-            <div class="w-3/10 pt">
+            <div class="w-1/4">
                 <!-- Description -->
                 <order-title>{{ lineItem.description }}</order-title>
                 <!-- SKU -->
@@ -26,12 +26,12 @@
                     <btn-link  button-class="btn-link btn-link--danger" @click="removeLineItem">{{"Remove"|t('commerce')}}</btn-link>
                 </div>
             </div>
-            <div class="w-7/10">
-                <div class="order-flex py">
+            <div class="w-3/4">
+                <div class="order-flex pb">
                     <ul class="line-item-section">
                         <li class="order-flex">
                             <template v-if="editing && editMode && recalculationMode === 'none'">
-                                <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
+                                <field :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
                                     <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
                                 </field>
                             </template>
@@ -48,7 +48,7 @@
                     <div class="line-item-section">
                         <div class="order-flex">
                             <template v-if="editing && editMode">
-                                <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
+                                <field :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
                                     <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
                                 </field>
                             </template>
@@ -62,8 +62,7 @@
                     </div>
                 </div>
 
-                <div class="">
-
+                <div>
                     <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
                     <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
                     <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
@@ -213,7 +212,7 @@
         transition: background-color 0.5s ease;
 
         &-section {
-            width: 43%;
+            width: 33.3333%;
         }
 
         &.new-line-item {

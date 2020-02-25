@@ -28,6 +28,14 @@
   justify-content: space-between;
 }
 
+.justify-center {
+  justify-content: center;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
 .align-center {
   align-items: center;
 }
@@ -167,6 +175,10 @@
 .px-4 {
   padding-left: 24px;
   padding-right: 24px;
+}
+
+.m-0 {
+  margin: 0;
 }
 
 .my-1 {

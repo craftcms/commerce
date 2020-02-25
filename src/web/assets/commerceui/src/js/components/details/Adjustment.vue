@@ -1,37 +1,35 @@
 <template>
-    <div class="adjustment order-flex" :class="{ 'align-center': !showLabels }">
+    <div class="adjustment" :class="{ 'align-center': !showLabels, 'order-flex': !editing}">
         <template v-if="editing && recalculationMode === 'none'">
-            <div class="order-flex-grow">
-                <div class="fields order-flex">
-                    <field :label="showLabels ? $options.filters.t('Type', 'commerce') : ''" :required="true" v-slot:default="slotProps">
-                        <div class="select">
-                            <select :id="slotProps.id" v-model="type">
-                                <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
-                                    {{adjustmentOption.label}}
-                                </option>
-                            </select>
-                        </div>
-                    </field>
+            <div class="fields order-flex">
+                <field :label="showLabels ? $options.filters.t('Type', 'commerce') : ''" :required="true" v-slot:default="slotProps">
+                    <div class="select">
+                        <select :id="slotProps.id" v-model="type">
+                            <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
+                                {{adjustmentOption.label}}
+                            </option>
+                        </select>
+                    </div>
+                </field>
 
-                    <field :label="showLabels ? $options.filters.t('Name', 'commerce') : ''" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="name" />
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Name', 'commerce') : ''" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="name" />
+                </field>
 
-                    <field :label="showLabels ? $options.filters.t('Description', 'commerce') : ''" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="description" />
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Description', 'commerce') : ''" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="description" />
+                </field>
 
-                    <field :label="showLabels ? $options.filters.t('Included', 'commerce') : ''"  v-slot:default="slotProps" :class="{'included-labels': showLabels, 'included': !showLabels, 'order-flex': true, 'align-center': true }">
-                        <input :id="slotProps.id" type="checkbox" class="checkbox" v-model="included"><label :for="slotProps.id">&nbsp;</label>
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Included', 'commerce') : ''"  v-slot:default="slotProps" :class="{'included-labels': showLabels, 'included': !showLabels, 'order-flex': true, 'align-center': true }">
+                    <input :id="slotProps.id" type="checkbox" class="checkbox" v-model="included"><label :for="slotProps.id">&nbsp;</label>
+                </field>
 
-                    <field :label="showLabels ? $options.filters.t('Amount', 'commerce') : ''" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Amount', 'commerce') : ''" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
+                </field>
+                <div class="order-flex justify-center flex-grow" :class="{'pt': showLabels }">
+                    <btn-link button-class="btn-link btn-link--danger" @click="$emit('remove')">{{"X"}}</btn-link>
                 </div>
-            </div>
-            <div class="px" :class="{'pt-lg': showLabels }">
-                <btn-link button-class="btn-link btn-link--danger" @click="$emit('remove')">{{"X"}}</btn-link>
             </div>
         </template>
         <template v-else>
@@ -194,20 +192,28 @@
         .fields {
             display: flex;
             box-sizing: inherit;
-            margin: 0 -10px;
+            margin: 0 -5px;
 
             .field {
                 margin: 0;
-                width: 25%;
-                padding: 0 10px;
+                width: 20%;
+                padding: 0 5px;
                 box-sizing: inherit;
+
+                &.included,
+                &.included-labels {
+                    width: 14%;
+
+                    .input {
+                        display: flex;
+                    }
+                }
 
                 &.included-labels {
                     display: flex;
                     flex-direction: column;
 
                     .input {
-                        display: flex;
                         flex-grow: 1;
                         align-items: center;
                     }
@@ -215,7 +221,6 @@
 
                 &.included {
                     .input {
-                        display: flex;
                         width: 100%;
                         justify-content: center;
                     }
