@@ -30,52 +30,72 @@ use yii\base\InvalidConfigException;
 class PaymentSources extends Component
 {
     /**
-     * @event PaymentSourceEvent The event that is triggered when a payment source is deleted
-     *
-     * Plugins can get notified when a payment source is deleted.
+     * @event PaymentSourceEvent The event that is triggered when a payment source is deleted.
      *
      * ```php
      * use craft\commerce\events\PaymentSourceEvent;
      * use craft\commerce\services\PaymentSources;
+     * use craft\commerce\models\PaymentSource;
      * use yii\base\Event;
      *
-     * Event::on(PaymentSources::class, PaymentSources::EVENT_DELETE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
-     *     // Do something - perhaps warn a user they have no valid payment sources saved.
-     * });
+     * Event::on(
+     *     PaymentSources::class,
+     *     PaymentSources::EVENT_DELETE_PAYMENT_SOURCE,
+     *     function(PaymentSourceEvent $event) {
+     *         // @var PaymentSource $source
+     *         $source = $event->paymentSource;
+     *         
+     *         // Warn a user they don’t have any valid payment sources saved
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_DELETE_PAYMENT_SOURCE = 'deletePaymentSource';
 
     /**
-     * @event PaymentSourceEvent The event that is triggered before a plan is saved.
-     *
-     * Plugins can get notified before a payment source is added.
+     * @event PaymentSourceEvent The event that is triggered before a payment source is added.
      *
      * ```php
      * use craft\commerce\events\PaymentSourceEvent;
      * use craft\commerce\services\PaymentSources;
+     * use craft\commerce\models\PaymentSource;
      * use yii\base\Event;
      *
-     * Event::on(PaymentSources::class, PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
-     *     // Do something
-     * });
+     * Event::on(
+     *     PaymentSources::class,
+     *     PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE,
+     *     function(PaymentSourceEvent $event) {
+     *         // @var PaymentSource $source
+     *         $source = $event->paymentSource;
+     *
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_SAVE_PAYMENT_SOURCE = 'beforeSavePaymentSource';
 
     /**
-     * @event PaymentSourceEvent The event that is triggered after a plan is saved.
-     *
-     * Plugins can get notified after a payment source is added.
+     * @event PaymentSourceEvent The event that is triggered after a payment source is added.
      *
      * ```php
      * use craft\commerce\events\PaymentSourceEvent;
      * use craft\commerce\services\PaymentSources;
+     * use craft\commerce\models\PaymentSource;
      * use yii\base\Event;
      *
-     * Event::on(PaymentSources::class, PaymentSources::EVENT_BEFORE_SAVE_PAYMENT_SOURCE, function(PaymentSourceEvent $e) {
-     *     // Do something - perhaps settle any outstanding balance
-     * });
+     * Event::on(
+     *     PaymentSources::class,
+     *     PaymentSources::EVENT_AFTER_SAVE_PAYMENT_SOURCE,
+     *     function(PaymentSourceEvent $event) {
+     *         // @var PaymentSource $source
+     *         $source = $event->paymentSource;
+     * 
+     *         // Settle any outstanding balance
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_SAVE_PAYMENT_SOURCE = 'afterSavePaymentSource';

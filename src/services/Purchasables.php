@@ -24,18 +24,22 @@ use yii\base\Component;
 class Purchasables extends Component
 {
     /**
-     * @event RegisterComponentTypesEvent The event that is triggered when registering element types.
+     * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
      *
-     * Plugins can register their own purchasables.
+     * This example adds an instance of `MyPurchasable` to the event object’s `types` array:
      *
      * ```php
      * use craft\events\RegisterComponentTypesEvent;
      * use craft\commerce\services\Purchasables;
      * use yii\base\Event;
-     *
-     * Event::on(Purchasables::class, Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
-     *     $e->types[] = MyPurchasable::class;
-     * });
+     * 
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES,
+     *     function(RegisterComponentTypesEvent $event) {
+     *         $event->types[] = MyPurchasable::class;
+     *     }
+     * );
      * ```
      */
     const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
