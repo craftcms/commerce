@@ -19,7 +19,7 @@
 
                 <!-- Snapshots-->
                 <div>
-                    <btn-link @click="enableEditMode()">{{"Snapshots"|t('commerce')}}</btn-link>
+                    <btn-link @click="openSnapshotModal()">{{"Snapshots"|t('commerce')}}</btn-link>
                 </div>
                 <!-- Edit-->
                 <div v-if="isProEdition">
@@ -75,10 +75,39 @@
                 </div>
             </div>
         </order-block>
+
+        <div class="hidden">
+            <div ref="snapshots" class="order-edit-modal modal fitted">
+                <div class="body">
+                    <h2>{{lineItem.description}}</h2>
+                    <h3>{{'Line Item'|t('commerce')}}</h3>
+                    <snapshot :show="true">{{lineItem.snapshot}}</snapshot>
+                    <hr>
+                    <h3 v-if="lineItem.adjustments.length">{{'Adjustments'|t('commerce')}}</h3>
+                    <template v-for="(adjustment, key) in lineItem.adjustments">
+                        <div
+                            :key="key"
+                        >
+                            <h4 class="m-0">{{adjustment.name}}<span v-if="adjustment.description"> - {{adjustment.description}}</span></h4>
+                            <h5 class="adjustment-type mt-tiny">{{adjustment.type}}</h5>
+                            <snapshot :show="true">{{adjustment.sourceSnapshot}}</snapshot>
+                            <hr>
+                        </div>
+                    </template>
+                </div>
+                <div class="footer">
+                    <div class="buttons right">
+                        <btn-link button-class="btn" @click="closeSnapshotModal()">{{$options.filters.t('Close', 'commerce')}}</btn-link>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
+    /* global Garnish */
+
     import {mapActions, mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import Field from '../Field'
@@ -86,6 +115,7 @@
     import LineItemOptions from './LineItemOptions'
     import LineItemNotes from './LineItemNotes'
     import LineItemAdjustments from './LineItemAdjustments'
+    import Snapshot from './Snapshot';
 
     export default {
         components: {
@@ -94,6 +124,7 @@
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
+            Snapshot,
         },
 
         props: {
@@ -114,6 +145,11 @@
         data() {
             return {
                 editMode: false,
+                modal: {
+                    ref: 'snapshots',
+                    modal: null,
+                    isVisible: false,
+                },
             };
         },
 
@@ -189,6 +225,41 @@
             enableEditMode() {
                 this.editMode = true;
                 this.edit();
+            },
+
+            _initSnapshotModal() {
+                if (!this.modal.modal) {
+                    let $this = this;
+
+                    this.modal.modal = new Garnish.Modal(this.$refs[this.modal.ref], {
+                        autoShow: false,
+                        resizable: false,
+                        onHide() {
+                            $this.onHideSnapshotModal();
+                        }
+                    });
+                }
+            },
+
+            openSnapshotModal() {
+                this._initSnapshotModal();
+
+                if (!this.modal.isVisible) {
+                    this.modal.isVisible = true;
+                    this.modal.modal.show();
+                }
+            },
+
+            closeSnapshotModal() {
+                this._initSnapshotModal();
+
+                if (this.modal.isVisible) {
+                    this.modal.modal.hide();
+                }
+            },
+
+            onHideSnapshotModal() {
+                this.modal.isVisible = false;
             },
 
             removeLineItem() {

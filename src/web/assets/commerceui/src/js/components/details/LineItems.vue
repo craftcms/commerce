@@ -15,7 +15,6 @@
                     :editing="editing"
                     @updateLineItem="updateLineItem($event, lineItemKey)"
                     @removeLineItem="removeLineItem(lineItemKey)"></line-item>
-            <hr v-bind:key="lineItemKey" v-if="editing || lineItemKey != (lineItems.length -1)">
         </template>
     </div>
 </template>

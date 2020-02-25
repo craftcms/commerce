@@ -246,19 +246,4 @@
 </script>
 
 <style lang="scss">
-  .order-address-modal.modal {
-    padding-bottom: 58px;
-
-    .body {
-      height: 100%;
-      overflow-y: scroll;
-    }
-
-    .footer {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-  }
 </style>

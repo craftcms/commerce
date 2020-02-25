@@ -39,7 +39,7 @@
     </div>
 
     <div class="hidden">
-      <div ref="newaddressmodal" class="order-address-modal modal fitted">
+      <div ref="newaddressmodal" class="order-edit-modal modal fitted">
         <div class="body">
           <address-form
             :title="title"
@@ -61,7 +61,7 @@
         </div>
       </div>
 
-      <div ref="addressmodal" class="order-address-modal modal fitted">
+      <div ref="addressmodal" class="order-edit-modal modal fitted">
         <div class="body">
           <address-form
             v-if="draftAddress"

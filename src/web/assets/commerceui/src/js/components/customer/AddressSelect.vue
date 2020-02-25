@@ -3,7 +3,7 @@
     <a @click.prevent="open">{{$options.filters.t('Select address', 'commerce')}}</a>
 
     <div class="hidden">
-      <div ref="addressselectmodal" class="order-address-modal modal fitted">
+      <div ref="addressselectmodal" class="order-edit-modal modal fitted">
         <div class="body">
           <admin-table
             :allow-multiple-selections="false"
