@@ -338,7 +338,7 @@ class States extends Component
      * @param array $ids
      * @return bool
      * @throws \yii\db\Exception
-     * @since 2.2
+     * @since 3.1
      */
     public function reorderStates(array $ids): bool
     {
