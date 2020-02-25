@@ -24,11 +24,13 @@
                         <add-line-item @addLineItem="addLineItem"></add-line-item>
                     </template>
 
-                    <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
-                        <btn-link class="recalculate-btn error" @click="autoRecalculate()">{{"Recalculate order"|t('commerce')}}</btn-link>
-                    </div>
+                    <div class="text-right pb" v-if="(editing && originalDraft.order.isCompleted) || recalculateLoading">
+                        <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
+                            <btn-link class="recalculate-btn error" @click="autoRecalculate()">{{"Recalculate order"|t('commerce')}}</btn-link>
+                        </div>
 
-                    <div v-if="recalculateLoading" class="spinner"></div>
+                        <div v-if="recalculateLoading" class="spinner"></div>
+                    </div>
 
                     <div class="order-total-summary pt">
                         <template v-if="orderAdjustments.length > 0 || editing">

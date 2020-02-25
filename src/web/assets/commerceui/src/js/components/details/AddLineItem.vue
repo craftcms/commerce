@@ -3,7 +3,6 @@
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
                 <div class="text-right">
-
                     <btn-link @click="showForm = true" button-class="btn submit">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
             </template>

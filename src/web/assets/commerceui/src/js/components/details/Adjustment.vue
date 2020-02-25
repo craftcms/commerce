@@ -1,5 +1,5 @@
 <template>
-    <div class="adjustment" :class="{ 'align-center': !showLabels, 'order-flex': !editing}">
+    <div class="adjustment order-flex" :class="{ 'align-center': !showLabels}">
         <template v-if="editing && recalculationMode === 'none'">
             <div class="fields order-flex">
                 <field :label="showLabels ? $options.filters.t('Type', 'commerce') : ''" :required="true" v-slot:default="slotProps">

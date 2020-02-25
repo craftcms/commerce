@@ -1,5 +1,8 @@
 <template>
     <div class="order-flex justify-end">
+        <div class="w-1/4">
+            <btn-link @click="enableEditMode()" v-if="!editMode">{{'Edit'|t('commerce')}}</btn-link>
+        </div>
         <div class="w-3/4">
             <adjustments
                     :editing="editing && editMode"
@@ -14,12 +17,14 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
     import Adjustments from './Adjustments'
+    import BtnLink from '../BtnLink';
 
     export default {
         components: {
             Adjustments,
+            BtnLink,
         },
 
         props: {
@@ -47,6 +52,10 @@
         },
 
         methods: {
+            ...mapActions([
+                'edit',
+            ]),
+
             addOrderAdjustment() {
                 const adjustment = {
                     id: null,
@@ -63,6 +72,11 @@
                 adjustments.push(adjustment)
 
                 this.$emit('updateOrderAdjustments', adjustments)
+            },
+
+            enableEditMode() {
+                this.editMode = true;
+                this.edit();
             },
 
             updateOrderAdjustment(adjustment, key) {
