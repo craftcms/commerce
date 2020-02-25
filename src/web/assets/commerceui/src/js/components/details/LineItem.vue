@@ -1,22 +1,34 @@
 <template>
     <div class="line-item" :class="{'new-line-item': isLineItemNew}">
-        <order-block class="order-flex">
-            <div class="w-1/3">
+        <order-block class="order-flex order-box-sizing">
+            <div class="w-3/10 pt">
                 <!-- Description -->
                 <order-title>{{ lineItem.description }}</order-title>
-
-                <!-- Edit-->
-                <btn-link v-if="!editMode" @click="enableEditMode()">{{"Edit"|t('commerce')}}</btn-link>
-
                 <!-- SKU -->
-                <p><code>{{ lineItem.sku }}</code></p>
+                <div><code class="extralight">{{ lineItem.sku }}</code></div>
 
                 <!-- Status -->
-                <line-item-status :line-item="lineItem" :editing="editing && editMode" @change="updateLineItemStatusId"></line-item-status>
+                <div class="my-1">
+                    <line-item-status :line-item="lineItem" :editing="editing && editMode" @change="updateLineItemStatusId"></line-item-status>
+                </div>
+
+                <!-- Edit-->
+                <div>
+                    <btn-link v-if="!editMode" @click="enableEditMode()">{{"Edit"|t('commerce')}}</btn-link>
+                </div>
+
+                <!-- Snapshots-->
+                <div>
+                    <btn-link @click="enableEditMode()">{{"Snapshots"|t('commerce')}}</btn-link>
+                </div>
+                <!-- Edit-->
+                <div v-if="isProEdition">
+                    <btn-link  button-class="btn-link btn-link--danger" @click="removeLineItem">{{"Remove"|t('commerce')}}</btn-link>
+                </div>
             </div>
-            <div class="w-2/3 order-flex">
-                <div class="order-flex-grow">
-                    <ul>
+            <div class="w-7/10">
+                <div class="order-flex py">
+                    <ul class="line-item-section">
                         <li class="order-flex">
                             <template v-if="editing && editMode && recalculationMode === 'none'">
                                 <field :label="$options.filters.t('Sale Price', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
@@ -33,57 +45,35 @@
                             <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
                         </template>
                     </ul>
-                </div>
-                <div class="order-flex-grow">
-                    <div class="order-flex">
-                        <template v-if="editing && editMode">
-                            <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
-                                <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
-                            </field>
-                        </template>
-                        <template v-else>
-                            <label class="light" for="quantity">{{"Quantity"|t('commerce')}}</label>
-                            <span>{{ lineItem.qty }}</span>
-                        </template>
+                    <div class="line-item-section">
+                        <div class="order-flex">
+                            <template v-if="editing && editMode">
+                                <field :label="$options.filters.t('Quantity', 'commerce')" :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
+                                    <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
+                                </field>
+                            </template>
+                            <template v-else>
+                                <span>{{ lineItem.qty }}</span>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="order-flex-grow text-right">
+                        {{lineItem.subtotalAsCurrency}}
                     </div>
                 </div>
-                <div class="order-flex-grow text-right">
-                    {{lineItem.subtotalAsCurrency}}
+
+                <div class="">
+
+                    <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
+                    <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
+                    <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
+
+                    <order-block class="text-right">
+                        <div>
+                            <strong>{{ lineItem.totalAsCurrency }}</strong>
+                        </div>
+                    </order-block>
                 </div>
-            </div>
-        </order-block>
-
-        <!-- Shipping & Tax -->
-        <order-block class="order-flex">
-            <div class="w-1/3">
-                <h3 class="light">{{"Shipping & Taxes"|t('commerce')}}</h3>
-            </div>
-            <div class="w-2/3">
-                <small>
-                    <ul>
-                        <li>
-                            {{shippingCategory}} <span class="light"><small>({{"Shipping"|t('commerce')}})</small></span>
-                            <input-error :error-key="'order.lineItems.'+lineItemKey+'.shippingCategoryId'"></input-error>
-                        </li>
-                        <li>{{taxCategory}} <span class="light">({{"Tax"|t('commerce')}})</span></li>
-                    </ul>
-                </small>
-
-                <!-- Snapshot -->
-                <snapshot>{{lineItem.snapshot}}</snapshot>
-            </div>
-        </order-block>
-
-        <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
-        <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
-        <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
-
-        <order-block class="text-right">
-            <div>
-                <strong>{{ lineItem.totalAsCurrency }}</strong>
-            </div>
-            <div v-if="editing && editMode && isProEdition">
-                <btn-link  button-class="btn-link btn-link--danger" @click="$emit('removeLineItem')">{{"Remove"|t('commerce')}}</btn-link>
             </div>
         </order-block>
     </div>
@@ -92,23 +82,19 @@
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
-    import InputError from '../InputError'
     import Field from '../Field'
     import LineItemStatus from './LineItemStatus'
     import LineItemOptions from './LineItemOptions'
     import LineItemNotes from './LineItemNotes'
     import LineItemAdjustments from './LineItemAdjustments'
-    import Snapshot from './Snapshot'
 
     export default {
         components: {
-            InputError,
             Field,
             LineItemStatus,
             LineItemOptions,
             LineItemNotes,
             LineItemAdjustments,
-            Snapshot,
         },
 
         props: {
@@ -206,6 +192,11 @@
                 this.edit();
             },
 
+            removeLineItem() {
+                this.enableEditMode();
+                this.$emit('removeLineItem');
+            },
+
             updateLineItemStatusId(lineItemStatusId) {
                 const lineItem = this.lineItem
                 lineItem.lineItemStatusId = lineItemStatusId
@@ -221,17 +212,16 @@
     .line-item {
         transition: background-color 0.5s ease;
 
+        &-section {
+            width: 43%;
+        }
+
         &.new-line-item {
             background: #FFFFF0;
         }
 
         label {
             @include margin-right(10px);
-        }
-
-        .order-block:first-child {
-            border-top: 0;
-            padding-top: 0;
         }
     }
 </style>

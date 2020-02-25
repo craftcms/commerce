@@ -1,7 +1,8 @@
 <template>
-    <div>
+    <div class="w-full">
         <template v-for="(adjustment, key) in adjustments">
             <adjustment
+                    :show-labels="key === 0 ? true : false"
                     :error-prefix="errorPrefix"
                     :key="key"
                     :adjustment="adjustment"

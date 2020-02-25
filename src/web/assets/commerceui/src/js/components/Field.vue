@@ -1,6 +1,6 @@
 <template>
     <div :id="'field-' + id" class="order-field field">
-        <div class="heading">
+        <div class="heading" v-if="label || instructions">
             <label v-if="label" :for="id" :class="{required: required, error: errors && errors.length}">{{label}}</label>
 
             <div v-if="instructions" class="instructions">

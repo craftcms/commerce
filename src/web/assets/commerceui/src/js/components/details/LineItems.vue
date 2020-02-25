@@ -1,5 +1,11 @@
 <template>
     <div>
+        <div class="order-flex order-box-sizing">
+            <div class="line-items-heading orderedit-border-color w-3/10"><h4 class="extralight">{{$options.filters.t('Item', 'commerce')}}</h4></div>
+            <div class="line-items-heading orderedit-border-color w-3/10"><h4 class="extralight">{{$options.filters.t('Unit Price', 'commerce')}}</h4></div>
+            <div class="line-items-heading orderedit-border-color w-3/10"><h4 class="extralight">{{$options.filters.t('Quantity', 'commerce')}}</h4></div>
+            <div class="line-items-heading orderedit-border-color text-right order-flex-grow"><h4 class="extralight">{{$options.filters.t('Total', 'commerce')}}</h4></div>
+        </div>
         <template v-for="(lineItem, lineItemKey) in lineItems">
             <line-item
                     :recalculation-mode="recalculationMode"
@@ -55,3 +61,12 @@
         },
     }
 </script>
+
+<style lang="scss">
+    .line-items-heading {
+        margin-top: 0;
+        border-top: 1px solid;
+        padding-bottom: 14px;
+        padding-top: 14px;
+    }
+</style>
