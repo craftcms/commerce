@@ -21,7 +21,9 @@
                     ></line-items>
 
                     <template v-if="editing && isProEdition">
-                        <add-line-item @addLineItem="addLineItem"></add-line-item>
+                        <div class="pb">
+                            <add-line-item @addLineItem="addLineItem"></add-line-item>
+                        </div>
                     </template>
 
                     <div class="text-right pb" v-if="(editing && originalDraft.order.isCompleted) || recalculateLoading">
