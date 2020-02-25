@@ -27,13 +27,54 @@ use yii\base\Exception;
 class Pdf extends Component
 {
     /**
-     * @event PdfEvent The event that is triggered before a PDF is rendered
-     * Event handlers can override Commerce's PDF generation by setting [[PdfEvent::pdf]] to a custom-rendered PDF.
+     * @event PdfEvent The event that is triggered before an order’s PDF is rendered.
+     *
+     * Event handlers can customize PDF rendering by modifying several properties on the event object:
+     *
+     * | Property    | Value                                                                                                                     |
+     * | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
+     * | `order`     | populated [Order](api:craft\commerce\elements\Order) model                                                                |
+     * | `template`  | optional Twig template path (string) to be used for rendering                                                             |
+     * | `variables` | populated with the variables availble to the template used for rendering                                                  |
+     * | `option`    | optional string for the template that can be used to show different details based on context (example: `receipt`, `ajax`) |
+     *
+     * ```php
+     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\services\Pdf;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdf::class,
+     *     Pdf::EVENT_BEFORE_RENDER_PDF,
+     *     function(PdfEvent $event) {
+     *         // Modify `$event->order`, `$event->option`, `$event->template`,
+     *         // and `$event->variables` to customize what gets rendered into a PDF
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_BEFORE_RENDER_PDF = 'beforeRenderPdf';
 
     /**
-     * @event PdfEvent The event that is triggered after a PDF is rendered
+     * @event PdfEvent The event that is triggered after an order’s PDF has been rendered.
+     *
+     * Event handlers can override Commerce’s PDF generation by setting the `pdf` property on the event to a custom-rendered PDF string. The event properties will be the same as those from `beforeRenderPdf`, but `pdf` will contain a rendered PDF string and is the only one for which setting a value will make any difference for the resulting PDF output.
+     *
+     * ```php
+     * use craft\commerce\events\PdfEvent;
+     * use craft\commerce\services\Pdf;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdf::class,
+     *     Pdf::EVENT_AFTER_RENDER_PDF,
+     *     function(PdfEvent $event) {
+     *         // Add a watermark to the PDF or forward it to the accounting department
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
 

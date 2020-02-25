@@ -32,7 +32,23 @@ use yii\base\Exception;
 class ShippingMethods extends Component
 {
     /**
-     * @event RegisterShippingMethods The event that is triggered when registering additional shipping methods for the cart.
+     * @event RegisterShippingMethods The event that is triggered for registration of additional shipping methods.
+     *
+     * This example adds an instance of `MyShippingMethod` to the event object’s `shippingMethods` array:
+     *
+     * ```php
+     * use craft\events\RegisterComponentTypesEvent;
+     * use craft\commerce\services\ShippingMethods;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     ShippingMethods::class,
+     *     ShippingMethods::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS,
+     *     function(RegisterComponentTypesEvent $event) {
+     *         $event->shippingMethods[] = MyShippingMethod::class;
+     *     }
+     * );
+     * ```
      */
     const EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS = 'registerAvailableShippingMethods';
 

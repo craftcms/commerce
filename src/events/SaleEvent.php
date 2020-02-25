@@ -7,6 +7,7 @@
 
 namespace craft\commerce\events;
 
+use craft\commerce\models\Sale;
 use yii\base\Event;
 
 /**

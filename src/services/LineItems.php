@@ -32,46 +32,106 @@ use yii\base\InvalidArgumentException;
 class LineItems extends Component
 {
     /**
-     * @event LineItemEvent The event that is raised before a line item is saved.
-     *
-     * Plugins can get notified before a line item is being saved
+     * @event LineItemEvent The event that is triggered before a line item is saved.
      *
      * ```php
      * use craft\commerce\events\LineItemEvent;
      * use craft\commerce\services\LineItems;
+     * use craft\commerce\models\LineItem;
      * use yii\base\Event;
      *
-     * Event::on(LineItems::class, LineItems::EVENT_BEFORE_SAVE_LINE_ITEM, function(LineItemEvent $e) {
-     *     // Do something - perhaps let a 3rd party service know about changes to an order
-     * });
+     * Event::on(
+     *     LineItems::class,
+     *     LineItems::EVENT_BEFORE_SAVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *
+     *         // Notify a third party service about changes to an order
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_SAVE_LINE_ITEM = 'beforeSaveLineItem';
 
     /**
-     * @event LineItemEvent The event that is raised after a line item is saved.
-     *
-     * Plugins can get notified after a line item is being saved
+     * @event LineItemEvent The event that is triggeredd after a line item is saved.
      *
      * ```php
      * use craft\commerce\events\LineItemEvent;
      * use craft\commerce\services\LineItems;
+     * use craft\commerce\models\LineItem;
      * use yii\base\Event;
      *
-     * Event::on(LineItems::class, LineItems::EVENT_AFTER_SAVE_LINE_ITEM, function(LineItemEvent $e) {
-     *     // Do something - perhaps reserve the stock
-     * });
+     * Event::on(
+     *     LineItems::class,
+     *     LineItems::EVENT_AFTER_SAVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *
+     *         // Reserve stock
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_SAVE_LINE_ITEM = 'afterSaveLineItem';
 
     /**
-     * @event LineItemEvent This event is raised when a new line item is created from a purchasable
+     * @event LineItemEvent The event that is triggered after a line item has been created from a purchasable.
+     *
+     * ```php
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\services\LineItems;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     LineItems::class,
+     *     LineItems::EVENT_CREATE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *
+     *         // Call a third party service based on the line item options
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_CREATE_LINE_ITEM = 'createLineItem';
 
     /**
-     * @event LineItemEvent This event is raised when a new line item is populated from a purchasable
+     * @event LineItemEvent The event that is triggered as a line item is being populated from a purchasable.
+     *
+     * ```php
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\services\LineItems;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     LineItems::class,
+     *     LineItems::EVENT_POPULATE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     * 
+     *         // Modify the price of a line item
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_POPULATE_LINE_ITEM = 'populateLineItem';
 
