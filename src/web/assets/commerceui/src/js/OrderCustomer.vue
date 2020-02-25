@@ -1,6 +1,6 @@
 <template>
   <div v-if="draft">
-    <div class="pb" v-if="hasCustomer">
+    <div class="pb orderedit-border-color" :class="{  'orderedit-border-b': hasCustomer }" v-if="hasCustomer">
       <div class="order-flex justify-between align-center pb">
         <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
         <template v-if="editing && editMode">
@@ -13,8 +13,8 @@
       <div>{{draft.order.email}}</div>
     </div>
 
-    <div class="order-flex order-box-sizing -mx-2 orderedit-border-color pb" :class="{ 'pt': hasCustomer, 'orderedit-border-t': hasCustomer }">
-      <div class="w-1/2 px-2" v-show="!editing || !editMode">
+    <div class="order-flex order-box-sizing -mx-4 py">
+      <div class="w-1/2 px-4" v-show="!editing || !editMode">
         <template v-if="draft && draft.order.billingAddress">
           <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
         </template>
@@ -22,7 +22,7 @@
           <div class="zilch">{{$options.filters.t('No billing address', 'commerce')}}</div>
         </template>
       </div>
-      <div class="w-1/2 px-2" v-show="!editing || !editMode">
+      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="!editing || !editMode">
         <template v-if="draft && draft.order.shippingAddress">
           <address-display :title="$options.filters.t('Shipping Address', 'commerce')" :address="draft.order.shippingAddress"></address-display>
         </template>
@@ -31,27 +31,25 @@
         </template>
       </div>
 
-      <div class="w-1/2 px-2" v-show="hasCustomer && editing && editMode">
+      <div class="w-1/2 px-4" v-show="hasCustomer && editing && editMode">
         <address-edit
-                :title="titles.billingAddress"
-                :address="draft.order.billingAddress"
-                :originalAddress="draft.order.billingAddress"
-                :customer-id="draft.order.customerId"
-                :empty-message="$options.filters.t('No billing address', 'commerce')"
-                :customer-updated="customerUpdatedTime"
-                @update="updateBillingAddress"
+          :title="titles.billingAddress"
+          :address="draft.order.billingAddress"
+          :customer-id="draft.order.customerId"
+          :empty-message="$options.filters.t('No billing address', 'commerce')"
+          :customer-updated="customerUpdatedTime"
+          @update="updateBillingAddress"
         ></address-edit>
       </div>
 
-      <div class="w-1/2 px-2" v-show="hasCustomer && editing && editMode">
+      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="hasCustomer && editing && editMode">
         <address-edit
-                :title="titles.shippingAddress"
-                :address="draft.order.shippingAddress"
-                :originalAddress="draft.order.shippingAddress"
-                :customer-id="draft.order.customerId"
-                :empty-message="$options.filters.t('No shipping address', 'commerce')"
-                :customer-updated="customerUpdatedTime"
-                @update="updateShippingAddress"
+          :title="titles.shippingAddress"
+          :address="draft.order.shippingAddress"
+          :customer-id="draft.order.customerId"
+          :empty-message="$options.filters.t('No shipping address', 'commerce')"
+          :customer-updated="customerUpdatedTime"
+          @update="updateShippingAddress"
         ></address-edit>
       </div>
 
@@ -246,4 +244,19 @@
 </script>
 
 <style lang="scss">
+  @import "../sass/app";
+
+  .order-edit-address-left-border {
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -1px;
+      border-left: 1px solid $lightGrey;
+    }
+  }
 </style>
