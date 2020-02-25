@@ -1,5 +1,32 @@
 # Release Notes for Craft Commerce
 
+## 3.0.11 - 2020-02-25
+
+### Added
+- Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
+
+### Changed
+- The order index page now updates the per-status order counts after using the “Update Order Status” action. ([#1217](https://github.com/craftcms/commerce/issues/1217))
+
+### Fixed
+- Fixed an error that could occur when editing variants’ stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
+- Fixed a bug where `0` values were being shown for order amounts. ([#1293](https://github.com/craftcms/commerce/issues/1293))
+
+## 3.0.10 - 2020-02-20
+
+### Fixed
+- Fixed an error that could occur when creating a new product.
+
+## 3.0.9 - 2020-02-19
+
+### Fixed
+- Fixed a migration error that could occur when updating. ([#1285](https://github.com/craftcms/commerce/issues/1285))
+
+## 3.0.8 - 2020-02-18
+
+### Fixed
+- Fixed an SQL error that could occur when updating to Commerce 3.
+
 ## 3.0.7 - 2020-02-18
 
 ### Added

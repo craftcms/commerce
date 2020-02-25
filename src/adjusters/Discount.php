@@ -32,17 +32,31 @@ class Discount extends Component implements AdjusterInterface
     const ADJUSTMENT_TYPE = 'discount';
 
     /**
-     * @event DiscountAdjustmentsEvent The event that is raised after a discount has matched the order and before it returns it's adjustments.
-     *
-     * Plugins can get notified before a line item is being saved
+     * @event DiscountAdjustmentsEvent The event that is triggered after a discount has matched the order and before it returns its adjustments.
      *
      * ```php
      * use craft\commerce\adjusters\Discount;
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\Discount as DiscountModel;
+     * use craft\commerce\models\OrderAdjustment;
+     * use craft\commerce\events\DiscountAdjustmentsEvent;
      * use yii\base\Event;
      *
-     * Event::on(Discount::class, Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, function(DiscountAdjustmentsEvent $e) {
-     *     // Do something - perhaps use a 3rd party to check order data and cancel all adjustments for this discount or modify the adjustments.
-     * });
+     * Event::on(
+     *     Discount::class,
+     *     Discount::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED,
+     *     function(DiscountAdjustmentsEvent $event) {
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var DiscountModel $discount
+     *         $discount = $event->discount;
+     *         // @var OrderAdjustment[] $adjustments
+     *         $adjustments = $event->adjustments;
+     * 
+     *         // Use a third party to check order data and modify the adjustments
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED = 'afterDiscountAdjustmentsCreated';

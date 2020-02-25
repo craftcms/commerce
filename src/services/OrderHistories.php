@@ -27,18 +27,30 @@ use yii\base\Exception;
 class OrderHistories extends Component
 {
     /**
-     * @event OrderStatusEvent The event that is triggered when order status is changed
+     * @event OrderStatusEvent The event that is triggered when an order status is changed.
      *
      * Plugins can get notified when an order status is changed
      *
      * ```php
      * use craft\commerce\events\OrderStatusEvent;
      * use craft\commerce\services\OrderHistories;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(OrderHistories::class, OrderHistories::EVENT_ORDER_STATUS_CHANGE, function(OrderStatusEvent $e) {
-     *      // Perhaps, let the delivery department know that the order is ready to be delivered.
-     * });
+     * Event::on(
+     *     OrderHistories::class,
+     *     OrderHistories::EVENT_ORDER_STATUS_CHANGE,
+     *     function(OrderStatusEvent $event) {
+     *         // @var OrderHistory $orderHistory
+     *         $orderHistory = $event->orderHistory;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         
+     *         // Let the delivery department know the order’s ready to be delivered
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';

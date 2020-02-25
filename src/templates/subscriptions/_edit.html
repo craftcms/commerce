@@ -144,6 +144,8 @@
                 </form>
             {% endif %}
         </div>
+
+        {% hook 'cp.commerce.subscriptions.edit.content' %}
     </div>
 
     <form id="customFields" method="POST">
@@ -236,6 +238,8 @@
             readonly: true,
             rows: 3
         }) }}
+
+        {% hook 'cp.commerce.subscriptions.edit.meta' %}
     </div>
 {% endblock %}
 

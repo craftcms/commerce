@@ -621,6 +621,37 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
 
         return params;
     },
+
+    updateSourcesBadgeCounts: function() {
+        $.ajax({
+            url: Craft.getActionUrl('commerce/orders/get-index-sources-badge-counts'),
+            type: 'GET',
+            dataType: 'json',
+            success: $.proxy(function(data) {
+                if (data.counts) {
+                    var $sidebar = this.$sidebar;
+                    $.each(data.counts, function(key, row) {
+                        var $item = $sidebar.find('nav a[data-key="orderStatus:' + row.handle + '"]');
+                        if ($item) {
+                            $item.find('.badge').text(row.orderCount);
+                        }
+                    });
+                }
+
+                if (data.total) {
+                    var $total = this.$sidebar.find('nav a[data-key="*"]');
+                    if ($total) {
+                        $total.find('.badge').text(data.total);
+                    }
+                }
+            }, this)
+        });
+    },
+
+    setIndexAvailable: function(){
+        this.updateSourcesBadgeCounts();
+        this.base();
+    }
 });
 
 // Register the Commerce order index class

@@ -132,110 +132,135 @@ class Order extends Element
     const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
 
     /**
-     * @event \yii\base\Event This event is raised before a line item has been added to the order
-     *
-     * Plugins can get notified before a new line item has been added to the order
+     * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
      *
      * ```php
      * use craft\commerce\elements\Order;
-     * use yii\events\CancelableEvent
+     * use craft\commerce\models\LineItem;
+     * use craft\commerce\events\LineItemEvent;
+     * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_BEFORE_ADD_LINE_ITEM, function(CancelableEvent $e) {
-     *     $lineItem = $e->lineItem;
-     *     $isNew = $e->isNew;
-     *     $isValid = $e->isValid;
-     *     // ...
-     * });
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_BEFORE_ADD_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // @var bool $isValid
+     *         $isValid = $event->isValid;
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_ADD_LINE_ITEM = 'beforeAddLineItemToOrder';
 
     /**
-     * @event \yii\base\Event This event is raised when a line item is added to the order
-     *
-     * Plugins can get notified after a line item has been added to the order
+     * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
      *
      * ```php
      * use craft\commerce\elements\Order;
-     * use yii\events\Event;
-     *
-     * Event::on(Order::class, Order::EVENT_AFTER_ADD_LINE_ITEM, function(Event $e) {
-     *     $lineItem = $e->lineItem;
-     *     $isNew = $e->isNew;
-     *     // ...
-     * });
-     * ```
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     * 
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_ADD_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
      */
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
     /**
-     * @event \yii\base\Event This event is raised when a line item is removed from the order
-     *
-     * Plugins can get notified after a line item has been removed from the order
+     * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`)
      *
      * ```php
      * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_REMOVE_LINE_ITEM, function(Event $e) {
-     *     $lineItem = $e->lineItem;
-     *     $isNew = $e->isNew;
-     *     // ...
-     * });
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_REMOVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
 
     /**
-     * @event \yii\base\Event This event is raised when an order is completed
-     *
-     * Plugins can get notified before an order is completed
+     * @event \yii\base\Event The event that is triggered before an order is completed.
      *
      * ```php
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_BEFORE_COMPLETE_ORDER, function(Event $e) {
-     *     // @var Order $order
-     *     $order = $e->sender;
-     *     // ...
-     * });
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_BEFORE_COMPLETE_ORDER,
+     *     function(Event $event) {
+     *         // @var Order $order
+     *         $order = $event->sender;
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_COMPLETE_ORDER = 'beforeCompleteOrder';
 
     /**
-     * @event \yii\base\Event This event is raised after an order is completed
-     *
-     * Plugins can get notified after an order is completed
+     * @event \yii\base\Event The event that is triggered after an order is completed.
      *
      * ```php
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(Order::class, Order::EVENT_AFTER_COMPLETE_ORDER, function(Event $e) {
-     *     // @var Order $order
-     *     $order = $e->sender;
-     *     // ...
-     * });
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_COMPLETE_ORDER,
+     *     function(Event $event) {
+     *         // @var Order $order
+     *         $order = $event->sender;
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_COMPLETE_ORDER = 'afterCompleteOrder';
 
     /**
-     * @event \yii\base\Event This event is raised after an order is paid and completed
-     *
-     * Plugins can get notified after an order is paid and completed
+     * @event \yii\base\Event The event that is triggered after an order is paid and completed.
      *
      * ```php
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
-     *
-     * Event::on(Order::class, Order::EVENT_AFTER_ORDER_PAID, function(Event $e) {
-     *     // @var Order $order
-     *     $order = $e->sender;
-     *     // ...
-     * });
+     * 
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_ORDER_PAID,
+     *     function(Event $event) {
+     *         // @var Order $order
+     *         $order = $event->sender;
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
@@ -1084,6 +1109,8 @@ class Order extends Element
 
         foreach ($this->currencyAttributes() as $attribute) {
             $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
+                // Substr because attribute is returned with 'AsCurrency' appended
+                $attribute = substr($attribute, 0, -10);
                 $amount = $model->$attribute ?? 0;
                 return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
             };
