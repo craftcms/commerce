@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
@@ -250,6 +251,12 @@ class CartController extends BaseFrontEndController
     private function _returnCart()
     {
         $request = Craft::$app->getRequest();
+
+        // Allow validation of custom fields when passing this param
+        $validateCustomFields = $request->getParam('validateCustomFields');
+        if ($validateCustomFields) {
+            $this->_cart->setScenario(Element::SCENARIO_LIVE);
+        }
 
         if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
             $error = Plugin::t('Unable to update cart.');
