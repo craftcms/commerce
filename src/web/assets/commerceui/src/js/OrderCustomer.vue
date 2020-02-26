@@ -18,7 +18,7 @@
          @update="updateCustomer"></customer-select>
     </div>
 
-    <hr v-if="hasCustomer || (!hasCustomer && draft.order.isCompleted)">
+    <hr v-if="!(editing && editMode && !hasCustomer && !draft.order.isCompleted)">
 
     <div class="order-flex order-box-sizing -mx-4 pb">
       <div class="w-1/2 px-4" v-show="!editing || !editMode">
@@ -177,30 +177,32 @@
                     draft.order.email = customer.email;
                     this.draft = draft;
 
-                    if (customer.primaryBillingAddressId && !customer.primaryShippingAddressId) {
-                      let billingPromise = true;
-                      if (customer.primaryBillingAddressId) {
-                          billingPromise = this.getAddressById(customer.primaryBillingAddressId)
-                            .then((address) => {
-                                if (address) {
-                                    $this.updateAddress('billing', address, false);
-                                }
-                            });
-                      }
+                    if (!draft.order.isCompleted && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
+                        let billingPromise = true;
+                        if (customer.primaryBillingAddressId) {
+                            billingPromise = this.getAddressById(customer.primaryBillingAddressId)
+                                .then((address) => {
+                                    if (address) {
+                                        $this.updateAddress('billing', address, false);
+                                    }
+                                });
+                        }
 
-                      let shippingPromise = true;
-                      if (customer.primaryShippingAddressId) {
-                          shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
-                            .then((address) => {
-                                if (address) {
-                                    $this.updateAddress('shipping', address, false);
-                                }
-                            });
-                      }
+                        let shippingPromise = true;
+                        if (customer.primaryShippingAddressId) {
+                            shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
+                                .then((address) => {
+                                    if (address) {
+                                        $this.updateAddress('shipping', address, false);
+                                    }
+                                });
+                        }
 
-                      Promise.all([billingPromise, shippingPromise]).then(() => {
-                          $this.recalculate();
-                      });
+                        Promise.all([billingPromise, shippingPromise]).then(() => {
+                            $this.recalculate();
+                        });
+                    } else {
+                        this.recalculate();
                     }
                 }
             },
