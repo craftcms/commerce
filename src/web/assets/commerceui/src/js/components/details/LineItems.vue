@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="order-flex order-box-sizing">
+        <div class="order-flex order-box-sizing" v-if="lineItems.length > 0">
             <div class="line-items-heading orderedit-border-color w-1/4"><h4 class="extralight">{{$options.filters.t('Item', 'commerce')}}</h4></div>
             <div class="line-items-heading orderedit-border-color w-1/4"><h4 class="extralight">{{$options.filters.t('Unit Price', 'commerce')}}</h4></div>
             <div class="line-items-heading orderedit-border-color w-1/4"><h4 class="extralight">{{$options.filters.t('Quantity', 'commerce')}}</h4></div>
