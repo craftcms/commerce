@@ -1,6 +1,6 @@
 <template>
   <div v-if="draft">
-    <div class="pb orderedit-border-color" :class="{  'orderedit-border-b': hasCustomer }" v-if="hasCustomer">
+    <div v-if="hasCustomer">
       <div class="order-flex justify-between align-center pb">
         <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
         <template v-if="editing && editMode">
@@ -13,7 +13,14 @@
       <div>{{draft.order.email}}</div>
     </div>
 
-    <div class="order-flex order-box-sizing -mx-4 py">
+    <div class="w-full" v-if="!hasCustomer">
+      <customer-select :order="draft.order"
+         @update="updateCustomer"></customer-select>
+    </div>
+
+    <hr v-if="hasCustomer || (!hasCustomer && draft.order.isCompleted)">
+
+    <div class="order-flex order-box-sizing -mx-4 pb">
       <div class="w-1/2 px-4" v-show="!editing || !editMode">
         <template v-if="draft && draft.order.billingAddress">
           <address-display :title="$options.filters.t('Billing Address', 'commerce')" :address="draft.order.billingAddress"></address-display>
@@ -31,7 +38,7 @@
         </template>
       </div>
 
-      <div class="w-1/2 px-4" v-show="hasCustomer && editing && editMode">
+      <div class="w-1/2 px-4" v-show="((!hasCustomer && draft.order.billingAddress && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
         <address-edit
           :title="titles.billingAddress"
           :address="draft.order.billingAddress"
@@ -42,7 +49,7 @@
         ></address-edit>
       </div>
 
-      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="hasCustomer && editing && editMode">
+      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="((!hasCustomer && draft.order.shippingAddress && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
         <address-edit
           :title="titles.shippingAddress"
           :address="draft.order.shippingAddress"
@@ -53,10 +60,6 @@
         ></address-edit>
       </div>
 
-      <div class="w-full" v-if="!hasCustomer">
-        <customer-select :order="draft.order"
-          @update="updateCustomer"></customer-select>
-      </div>
     </div>
   </div>
 </template>
@@ -207,10 +210,13 @@
                     let draft = this.draft;
                     draft.order.customerId = null;
                     draft.order.email = null;
-                    draft.order.billingAddressId = null;
-                    draft.order.billingAddress = null;
-                    draft.order.shippingAddressId = null;
-                    draft.order.shippingAddress = null;
+
+                    if (!draft.order.isCompleted) {
+                      draft.order.billingAddressId = null;
+                      draft.order.billingAddress = null;
+                      draft.order.shippingAddressId = null;
+                      draft.order.shippingAddress = null;
+                    }
 
                     this.draft = draft;
                 }
