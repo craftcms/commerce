@@ -12,7 +12,7 @@
                     </li>
                 </ul>
 
-                <template v-if="lineItems.length > 0">
+                <template v-if="lineItems.length > 0 || (editing && isProEdition)">
                     <line-items
                             :line-items="lineItems"
                             :editing="editing"
@@ -21,7 +21,7 @@
                     ></line-items>
 
                     <template v-if="editing && isProEdition">
-                        <div class="pb">
+                        <div class="pb" :class="{'orderedit-border-color orderedit-border-t pt': lineItems.length == 0}">
                             <add-line-item @addLineItem="addLineItem"></add-line-item>
                         </div>
                     </template>
@@ -34,7 +34,7 @@
                         <div v-if="recalculateLoading" class="spinner"></div>
                     </div>
 
-                    <div class="order-total-summary pt">
+                    <div class="order-total-summary pt" v-if="lineItems.length > 0">
                         <template v-if="orderAdjustments.length > 0 || editing">
                             <order-adjustments
                                     :adjustments="orderAdjustments"
