@@ -9,7 +9,7 @@
         <template v-for="(lineItem, lineItemKey) in lineItems">
             <line-item
                     :recalculation-mode="recalculationMode"
-                    :key="lineItemKey"
+                    :key="getLineItemKey(lineItem)"
                     :line-item="lineItem"
                     :line-item-key="lineItemKey"
                     :editing="editing"
@@ -56,7 +56,16 @@
                 const lineItems = this.lineItems
                 lineItems.splice(key, 1)
                 this.$emit('updateLineItems', lineItems)
-            }
+            },
+
+            getLineItemKey(lineItem) {
+                if (!lineItem.id) {
+                    let d = new Date();
+                    return (Math.floor(Math.random() * 1000) + 1) + d.getTime();
+                }
+
+                return lineItem.id;
+            },
         },
     }
 </script>
