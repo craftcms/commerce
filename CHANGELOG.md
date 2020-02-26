@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Updated the minimum required version to upgrade to `2.2.17`.
+
 ## 3.0.11 - 2020-02-25
 
 ### Added
