@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that occurred when editing a product via related products hud. ([#1291](https://github.com/craftcms/commerce/pull/1291))
+- Fixed an error that could occur when editing a variants stock value. ([#1306](https://github.com/craftcms/commerce/issues/1306))
 
 ## 2.2.17 - 2020-02-12
 
