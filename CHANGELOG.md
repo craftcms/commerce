@@ -278,6 +278,8 @@
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
+- Removed `craft\commerce\models\LineItem::getDescription()`. Use `craft\commerce\models\LineItem::$description` instead. 
+- Removed `craft\commerce\models\LineItem::getSku()`. Use `craft\commerce\models\LineItem::$sku` instead. 
 - Removed `craft\commerce\models\Order::getDiscount()`.
 - Removed `craft\commerce\models\Order::getShippingCost()`.
 - Removed `craft\commerce\models\Order::getTax()`.
