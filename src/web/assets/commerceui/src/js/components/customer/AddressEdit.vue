@@ -8,7 +8,7 @@
         <div class="zilch">{{emptyMsg}}</div>
       </template>
 
-      <div class="order-address-display-buttons order-flex">
+      <div class="order-address-display-buttons order-flex" v-show="hasCustomer">
         <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="addressmenubtn"></div>
         <div class="menu">
           <ul>
@@ -31,7 +31,10 @@
           <hr>
           <ul>
             <li>
-              <a class="error" @click.prevent="">{{$options.filters.t('Remove address', 'commerce')}}</a>
+              <a
+                :class="{ disabled: !draftAddress }"
+                :disabled="!draftAddress"
+                class="error" @click.prevent="">{{$options.filters.t('Remove address', 'commerce')}}</a>
             </li>
           </ul>
         </div>
@@ -209,6 +212,7 @@
         computed: {
             ...mapGetters([
                 'countries',
+                'hasCustomer',
                 'statesByCountryId',
             ]),
 

@@ -125,11 +125,6 @@
                       v-html="draft.order.paidStatusHtml"></span>
             </div>
 
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Customer"|t('commerce')}}</h5>
-                <p class="value" v-html="draft.order.customerLinkHtml"></p>
-            </div>
-
             <div class="data">
                 <h5 class="heading">{{"Total Price"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.totalPriceAsCurrency}}</span>

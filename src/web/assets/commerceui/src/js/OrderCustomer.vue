@@ -10,7 +10,7 @@
           <btn-link @click="enableEditMode()">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
         </template>
       </div>
-      <div>{{draft.order.email}}</div>
+      <div v-html="draft.order.customerLinkHtml"></div>
     </div>
 
     <div class="w-full" v-if="!hasCustomer">
