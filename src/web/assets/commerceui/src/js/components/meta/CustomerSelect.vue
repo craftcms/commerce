@@ -13,7 +13,7 @@
             @search="onSearch">
         <template v-slot:option="slotProps">
             <div class="customer-select-option">
-                <template v-if="!slotProps.option.customerId">
+                <template v-if="!slotProps.option.id">
                     {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
                 </template>
                 <template v-else>

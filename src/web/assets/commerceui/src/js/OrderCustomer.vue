@@ -173,7 +173,7 @@
                 if (customer) {
                     let $this = this;
                     let draft = JSON.parse(JSON.stringify(this.draft));
-                    draft.order.customerId = customer.customerId;
+                    draft.order.customerId = customer.id;
                     draft.order.email = customer.email;
                     this.draft = draft;
 

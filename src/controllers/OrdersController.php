@@ -541,44 +541,11 @@ class OrdersController extends Controller
             return $this->asJson($customers);
         }
 
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($query);
 
-        // First look for a user
-        $sqlQuery = (new Query())
-            ->select([
-                '[[customers.id]] customerId',
-                '[[users.id]] userId',
-                '[[users.email]] email',
-                '[[customers.primaryBillingAddressId]]',
-                '[[customers.primaryShippingAddressId]]',
-            ])
-            ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(CraftTable::USERS . ' users', '[[customers.userId]] = [[users.id]]')
-            ->andWhere([$likeOperator, '[[users.email]]', $query]);
+        $customersQuery->limit($limit);
 
-        $results = $sqlQuery->limit($limit)->all();
-
-        foreach ($results as $result) {
-            $customers[$result['customerId']] = $result;
-        }
-
-        $sqlQuery = (new Query())
-            ->select([
-                '[[customers.id]] as customerId',
-                '[[orders.email]] as email',
-                '[[customers.primaryBillingAddressId]]',
-                '[[customers.primaryShippingAddressId]]',
-            ])
-            ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
-            ->andWhere(['[[orders.isCompleted]]' => 1])
-            ->andWhere([$likeOperator, '[[orders.email]]', $query]);
-
-        foreach ($sqlQuery->limit($limit)->all() as $result) {
-            $customers[$result['customerId']] = $result;
-        }
-
-        return $this->asJson(array_values($customers));
+        return $this->asJson($customersQuery->all());
     }
 
     /**
