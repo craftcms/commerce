@@ -112,70 +112,7 @@ class CustomersController extends BaseCpController
         $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
 
-        $customersQuery = (new Query())
-            ->select([
-                'customers.id as id',
-                'userId',
-                'orders.email as email',
-                'primaryBillingAddressId',
-                'billing.firstName as billingFirstName',
-                'billing.lastName as billingLastName',
-                'billing.fullName as billingFullName',
-                'billing.address1 as billingAddress',
-                'shipping.firstName as shippingFirstName',
-                'shipping.lastName as shippingLastName',
-                'shipping.fullName as shippingFullName',
-                'shipping.address1 as shippingAddress',
-                'primaryShippingAddressId',
-            ])
-            ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders' , '[[orders.customerId]] = [[customers.id]]')
-            ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
-            ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
-            ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
-            ->groupBy([
-                'customers.id',
-                'orders.email',
-                'billing.firstName',
-                'billing.lastName',
-                'billing.fullName',
-                'billing.address1',
-                'shipping.firstName',
-                'shipping.lastName',
-                'shipping.fullName',
-                'shipping.address1',
-            ])
-
-            // Exclude customer records without a user or where there isn't any data
-            ->where(['or',
-                ['not', ['userId' => null]],
-                ['and',
-                    ['userId' => null],
-                    ['or',
-                        ['not', ['primaryBillingAddressId' => null]],
-                        ['not', ['primaryShippingAddressId' => null]],
-                    ]
-                ]
-            ])->andWhere(['[[orders.isCompleted]]' => 1]);
-
-        if ($search) {
-            $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-            $customersQuery->andWhere([
-                'or',
-                [$likeOperator, '[[billing.address1]]', $search],
-                [$likeOperator, '[[billing.firstName]]', $search],
-                [$likeOperator, '[[billing.fullName]]', $search],
-                [$likeOperator, '[[billing.lastName]]', $search],
-                [$likeOperator, '[[orders.email]]', $search],
-                [$likeOperator, '[[orders.reference]]', $search],
-                [$likeOperator, '[[orders.number]]', $search],
-                [$likeOperator, '[[shipping.address1]]', $search],
-                [$likeOperator, '[[shipping.firstName]]', $search],
-                [$likeOperator, '[[shipping.fullName]]', $search],
-                [$likeOperator, '[[shipping.lastName]]', $search],
-                [$likeOperator, '[[users.username]]', $search],
-            ]);
-        }
+        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($search);
 
         $total = $customersQuery->count();
 
