@@ -12,10 +12,10 @@ use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\Type;
 
 /**
- * Class Category
+ * Class Product
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.3.0
+ * @since 3.0
  */
 class Product extends ElementArguments
 {
