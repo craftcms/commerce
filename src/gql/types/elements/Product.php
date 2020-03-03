@@ -14,10 +14,10 @@ use craft\gql\types\elements\Element as ElementType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 /**
- * Class Category
+ * Class Product
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.3.0
+ * @since 3.0
  */
 class Product extends ElementType
 {
