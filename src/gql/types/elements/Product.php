@@ -28,7 +28,6 @@ class Product extends ElementType
     {
         $config['interfaces'] = [
             ProductInterface::getType(),
-            ElementInterface::getType(),
         ];
 
         parent::__construct($config);
