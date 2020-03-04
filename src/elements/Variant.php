@@ -752,6 +752,43 @@ class Variant extends Purchasable
     }
 
     /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 3.x
+     */
+    public function getGqlTypeName(): string
+    {
+        $product = $this->getProduct();
+
+        if (!$product || !$productType = $product->getType()) {
+            return 'Variant';
+        }
+
+        return static::gqlTypeNameByContext($productType);
+    }
+
+    /**
+     * @param mixed $context
+     * @return string
+     * @since 3.x
+     */
+    public static function gqlTypeNameByContext($context): string
+    {
+        return $context->handle . '_Variant';
+    }
+
+    /**
+     * @param mixed $context
+     * @return array
+     * @since 3.x
+     */
+    public static function gqlScopesByContext($context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew)
