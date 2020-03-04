@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `validateCustomFields` form parameter to allow custom field validation when posting to `commerce/cart/update-cart`. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+
+### Changed
+- Updated the minimum required version to upgrade to `2.2.17`.
+
 ## 3.0.11 - 2020-02-25
 
 ### Added
@@ -270,6 +278,8 @@
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
+- Removed `craft\commerce\models\LineItem::getDescription()`. Use `craft\commerce\models\LineItem::$description` instead. 
+- Removed `craft\commerce\models\LineItem::getSku()`. Use `craft\commerce\models\LineItem::$sku` instead. 
 - Removed `craft\commerce\models\Order::getDiscount()`.
 - Removed `craft\commerce\models\Order::getShippingCost()`.
 - Removed `craft\commerce\models\Order::getTax()`.
