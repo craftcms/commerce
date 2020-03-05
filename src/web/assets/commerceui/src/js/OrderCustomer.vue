@@ -38,7 +38,7 @@
         </template>
       </div>
 
-      <div class="w-1/2 px-4" v-show="((!hasCustomer && draft.order.billingAddress && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
+      <div class="w-1/2 px-4" v-show="((!hasCustomer && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
         <address-edit
           :title="titles.billingAddress"
           :address="draft.order.billingAddress"
@@ -49,7 +49,7 @@
         ></address-edit>
       </div>
 
-      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="((!hasCustomer && draft.order.shippingAddress && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
+      <div class="w-1/2 px-4 order-edit-address-left-border" v-show="((!hasCustomer && draft.order.isCompleted) || hasCustomer) && (editing && editMode)">
         <address-edit
           :title="titles.shippingAddress"
           :address="draft.order.shippingAddress"

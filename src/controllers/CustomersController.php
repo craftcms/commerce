@@ -164,6 +164,7 @@ class CustomersController extends BaseCpController
                     'url' => $user ? $user->getCpEditUrl() : null,
                     'status' => $user ? $user->getStatus() : null,
                 ] : null,
+                'photo' => $user ? $user->getThumbUrl(30) : null,
                 'addresses' => $addressCountByCustomerId[$customer['id']] ?? 0,
                 'billing' => Html::encode($billingName) . '<br>' . Html::encode($customer['billingAddress']),
                 'shipping' => Html::encode($shippingName) . '<br>' . Html::encode($customer['shippingAddress']),

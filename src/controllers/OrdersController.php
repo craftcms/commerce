@@ -536,6 +536,7 @@ class OrdersController extends Controller
     {
         $limit = 30;
         $customers = [];
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
         if ($query === null) {
             return $this->asJson($customers);
@@ -545,7 +546,19 @@ class OrdersController extends Controller
 
         $customersQuery->limit($limit);
 
-        return $this->asJson($customersQuery->all());
+        $customers = $customersQuery->all();
+
+        foreach ($customers as &$customer) {
+            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
+            $customer['user'] = $user ? [
+                'title' => $user ? $user->__toString() : null,
+                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
+                'status' => $user ? $user->getStatus() : null,
+            ] : null;
+            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
+        }
+
+        return $this->asJson($customers);
     }
 
     /**
