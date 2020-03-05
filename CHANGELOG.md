@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.18 - 2020-03-05
 
 ### Fixed
 - Fixed an error that occurred when editing a product from a Products field. ([#1291](https://github.com/craftcms/commerce/pull/1291))
