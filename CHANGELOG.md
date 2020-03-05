@@ -296,9 +296,20 @@
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
 
+## 2.2.18 - 2020-03-05
+
+### Fixed
+- Fixed an error that occurred when editing a product from a Products field. ([#1291](https://github.com/craftcms/commerce/pull/1291))
+- Fixed an error that could occur when editing a variant’s stock value. ([#1306](https://github.com/craftcms/commerce/issues/1306))
+
+## 2.2.17 - 2020-02-12
+
+### Changed
+- Improved the performance of the Orders index page.
+
 ## 2.2.16 - 2020-02-10
 
-### Change
+### Changed
 - Improved the performance of the Orders index page.
 
 ### Fixed
