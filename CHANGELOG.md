@@ -3,10 +3,11 @@
 ## Unreleased
 
 ### Added
-- Added `validateCustomFields` form parameter to allow custom field validation when posting to `commerce/cart/update-cart`. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- Requests to `commerce/cart/*` now accept an optional `validateCustomFields` parameter.
+Added `validateCustomFields` form parameter to allow custom field validation when posting to `commerce/cart/update-cart`. ([#1292](https://github.com/craftcms/commerce/issues/1292))
 
 ### Changed
-- Updated the minimum required version to upgrade to `2.2.17`.
+- Updated the minimum required version to upgrade to `2.2.18`.
 
 ## 3.0.11 - 2020-02-25
 
