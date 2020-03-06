@@ -149,6 +149,10 @@ export default new Vuex.Store({
                 return []
             }
         },
+
+        userPhotoFallback() {
+            return window.orderEdit.userPhotoFallback
+        }
     },
 
     actions: {

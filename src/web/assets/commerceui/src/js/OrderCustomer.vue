@@ -1,21 +1,33 @@
 <template>
   <div v-if="draft">
-    <div v-if="hasCustomer">
+    <div>
       <div class="order-flex justify-between align-center pb">
         <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
-        <template v-if="editing && editMode">
-          <btn-link class="btn-link btn-link--danger" @click="removeCustomer">{{$options.filters.t('Remove', 'commerce')}}</btn-link>
-        </template>
-        <template v-else>
+        <template v-if="hasCustomer && (!editing || !editMode)">
           <btn-link @click="enableEditMode()">{{$options.filters.t('Edit', 'commerce')}}</btn-link>
         </template>
       </div>
-      <div v-html="draft.order.customerLinkHtml"></div>
-    </div>
-
-    <div class="w-full" v-if="!hasCustomer">
-      <customer-select :order="draft.order"
-         @update="updateCustomer"></customer-select>
+      <div class="customer-select-wrapper">
+        <customer
+          v-if="hasCustomer"
+          :customer="{
+            email: draft.order.email,
+            photo: photo,
+            fullName: draft.order.billingAddress && draft.order.billingAddress.fullName ? draft.order.billingAddress.fullName : null,
+            firstName: draft.order.billingAddress && draft.order.billingAddress.firstName ? draft.order.billingAddress.firstName : null,
+            lastName: draft.order.billingAddress && draft.order.billingAddress.lastName ? draft.order.billingAddress.lastName : null,
+            user: user,
+          }"
+          :display="true"
+          :show-remove="editing && editMode"
+          @remove="removeCustomer"
+        ></customer>
+        <customer-select
+            :order="draft.order"
+            @update="updateCustomer"
+            v-if="!hasCustomer"
+        ></customer-select>
+      </div>
     </div>
 
     <hr v-if="!(editing && editMode && !hasCustomer && !draft.order.isCompleted)">
@@ -69,11 +81,13 @@
     import AddressDisplay from './components/customer/Address';
     import AddressEdit from './components/customer/AddressEdit';
     import CustomerSelect from './components/meta/CustomerSelect';
+    import Customer from './components/customer/Customer';
 
     export default {
         components: {
             AddressDisplay,
             AddressEdit,
+            Customer,
             CustomerSelect,
         },
 
@@ -99,7 +113,9 @@
                             modal: null,
                         }
                     }
-                }
+                },
+                user: null,
+                photo: null,
             }
         },
 
@@ -175,6 +191,8 @@
                     let draft = JSON.parse(JSON.stringify(this.draft));
                     draft.order.customerId = customer.id;
                     draft.order.email = customer.email;
+                    this.user = customer.user;
+                    this.photo = customer.photo;
                     this.draft = draft;
 
                     if (!draft.order.isCompleted && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
@@ -212,6 +230,8 @@
                     let draft = this.draft;
                     draft.order.customerId = null;
                     draft.order.email = null;
+                    this.user = null;
+                    this.photo = null;
 
                     if (!draft.order.isCompleted) {
                       draft.order.billingAddressId = null;
@@ -265,6 +285,14 @@
       bottom: 0;
       left: -1px;
       border-left: 1px solid $lightGrey;
+    }
+  }
+
+  .customer-select-wrapper {
+    width: 50%;
+
+    @media only screen and (max-width: 767px) {
+      width: 100%;
     }
   }
 </style>

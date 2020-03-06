@@ -2,6 +2,7 @@
     <select-input
             ref="vSelect"
             label="email"
+            class="customer-select"
             v-model="selectedCustomer"
             :options="customers"
             :filterable="false"
@@ -15,36 +16,30 @@
         <template v-slot:option="slotProps">
             <div class="customer-select-option">
                 <template v-if="!slotProps.option.id">
-                    {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
+                    <div class="order-flex align-center">
+
+                        <div class="customer-photo-wrapper">
+                            <div class="customer-photo order-flex customer-photo--initial justify-center align-center">
+                                <img class="w-full" :src="userPhotoFallback()" :alt="$options.filters.t('New Customer', 'commerce')">
+                            </div>
+                        </div>
+                        <div class="ml-1">
+                            {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
+                        </div>
+                    </div>
                 </template>
                 <template v-else>
                     <div class="customer-select-option">
-                        <div class="order-flex align-center">
-                            <div
-                                class="customer-photo order-flex justify-center align-center"
-                                :class="{ 'customer-photo--initial': !slotProps.option.photo }"
-                            >
-                                <img v-if="slotProps.option.photo" class="w-full" :src="slotProps.option.photo" :alt="slotProps.option.email">
-                                <div v-if="!slotProps.option.photo && slotProps.option.billingFullName">{{slotProps.option.billingFullName[0]}}</div>
-                                <div v-if="!slotProps.option.photo && !slotProps.option.billingFullName && slotProps.option.billingFirstName">{{slotProps.option.billingFirstName[0]}}</div>
-                            </div>
-                            <div class="ml-1">
-                                <div class="order-flex align-center" v-if="slotProps.option.billingFullName || slotProps.option.billingFirstName || slotProps.option.billingLastName || slotProps.option.user">
-                                    <div v-if="slotProps.option.billingFullName">{{slotProps.option.billingFullName}}</div>
-                                    <div v-if="!slotProps.option.billingFullName && (slotProps.option.billingFirstName || slotProps.option.billingLastName)">
-                                        {{slotProps.option.billingFirstName}}<span v-if="slotProps.option.billingFirstName && slotProps.option.billingLastName">&nbsp;</span>{{slotProps.option.billingLastName}}
-                                    </div>
-                                    <div v-if="slotProps.option.user" class="ml-2 customer-select-option-user">
-                                        <span class="status" :class="slotProps.option.user.status"></span>
-                                        <span class="cell-bold">{{slotProps.option.user.title}}</span>
-                                    </div>
-                                </div>
-                                <div class="order-flex">
-                                    <div class="light">{{slotProps.option.email}}</div>
-                                    <div class="ml-1" v-if="slotProps.option.user"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <customer
+                            :customer="{
+                                photo: slotProps.option.photo,
+                                user: slotProps.option.user,
+                                email: slotProps.option.email,
+                                fullName: slotProps.option.billingFullName,
+                                firstName: slotProps.option.billingFirstName,
+                                lastName: slotProps.option.billingLastName,
+                            }"
+                        ></customer>
                     </div>
                 </template>
             </div>
@@ -53,16 +48,18 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
     import {validationMixin} from 'vuelidate'
     import {email, required} from 'vuelidate/lib/validators'
+    import Customer from '../customer/Customer';
 
     export default {
         mixins: [validationMixin],
 
         components: {
+            Customer,
             SelectInput,
         },
 
@@ -97,6 +94,10 @@
         },
 
         methods: {
+            ...mapGetters([
+                'userPhotoFallback'
+            ]),
+
             createOption(searchText) {
                 if (this.$v.newCustomerEmail.$invalid) {
                     this.$store.dispatch('displayError', this.$options.filters.t("Invalid email.", 'commerce'))
@@ -142,35 +143,24 @@
 
 <style lang="scss">
     @import '../../../sass/app';
-    .customer-photo {
-        width: 30px;
-        height: 30px;
-        overflow: hidden;
-        border-radius: 50%;
 
-        &--initial {
-            background-color: $lightGrey;
-            color: $grey;
+    .customer-select {
+        .vs__dropdown-option {
+            border-top: 1px solid $lightGrey;
+            padding: 6px 14px;
+        }
+
+        .vs__dropdown-menu {
+            border-radius: $paneBorderRadius;
+            padding: 0;
+
+            li:first-child {
+                border-top: none;
+            }
+        }
+
+        .vs__dropdown-option--highlight {
+            background-color: $bgColor;
         }
     }
-
-    .customer-select-option {
-        &-user {
-            color: $black;
-            font-weight: bold;
-            font-size: .875em;
-        }
-    }
-
-    .customer-select-option .status {
-        body.ltr & {
-            margin-right: 4px;
-        }
-
-        body.rtl & {
-            margin-left: 4px;
-        }
-
-    }
-
 </style>

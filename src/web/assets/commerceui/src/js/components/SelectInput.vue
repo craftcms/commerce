@@ -2,6 +2,7 @@
     <div class="v-select-btn btn">
         <v-select
                 ref="vSelect"
+                :class="selectClass"
                 :clearable="clearable"
                 :clear-search-on-blur="clearSearchOnBlur"
                 :create-option="createOption"
@@ -58,6 +59,10 @@
         },
 
         props: {
+            selectClass: {
+                type: [String, Object],
+                default: '',
+            },
             clearable: {
                 type: Boolean,
             },
