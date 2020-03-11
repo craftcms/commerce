@@ -136,7 +136,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public $minVersionRequired = '2.2.17';
+    public $minVersionRequired = '2.2.18';
 
     use CommerceServices;
     use Variables;
