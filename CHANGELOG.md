@@ -10,6 +10,7 @@
 
 ### Fixed
 - Fixed an error that could occur when eager loading `product` on a variant query.
+- Fixed an error that could occur when all countries are disabled. ([#1314](https://github.com/craftcms/commerce/issues/1314))
 
 ## 3.0.11 - 2020-02-25
 
