@@ -288,6 +288,8 @@ class Customers extends Component
         if ($impersonating) {
             Plugin::getInstance()->getCarts()->forgetCart();
         }
+
+        Plugin::getInstance()->getCarts()->restorePreviousCartForCurrentUser();
     }
 
     /**
