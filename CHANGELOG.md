@@ -4,6 +4,7 @@
 
 ### Added
 - Requests to `commerce/cart/*` now accept an optional `validateCustomFields` parameter. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser`.
 
 ### Changed
 - Updated the minimum required version to upgrade to `2.2.18`.
@@ -11,6 +12,7 @@
 ### Fixed
 - Fixed an error that could occur when eager loading `product` on a variant query.
 - Fixed an error that could occur when all countries are disabled. ([#1314](https://github.com/craftcms/commerce/issues/1314))
+- Fixed a bug that could occur for logged in users when removing all items from the cart. ([#1319](https://github.com/craftcms/commerce/issues/1319))
 
 ## 3.0.11 - 2020-02-25
 
