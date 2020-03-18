@@ -41,7 +41,7 @@ class Countries extends Component
     /**
      * @var Country[]
      */
-    private $_enabledCountriesById;
+    private $_enabledCountriesById = [];
 
     /**
      * @var Country[][]

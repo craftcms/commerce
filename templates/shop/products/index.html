@@ -63,7 +63,7 @@
                     {% endif %}
 
                     {%- for purchasable in product.getVariants() -%}
-                        <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="js-purchasableInfo" style="display:none;">
+                        <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="js-purchasableInfo {{ purchasable.price != purchasable.salePrice ? 'on-sale' : '' }}" style="display:none;">
                             <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
                             <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>
                             {% if purchasable.sales %}<strong>Sales Applied:</strong><br>{% endif %}
@@ -83,10 +83,13 @@
     {% js %}
         $( ".js-purchasableId" ).change(function(e) {
             $(".js-purchasableInfo").hide();
-            $("#"+($(this).find(":selected").data('info'))).toggle();
+            var $purchasableInfo = $("#"+($(this).find(":selected").data('info')));
+            if ($purchasableInfo && $purchasableInfo.hasClass('on-sale')) {
+                $purchasableInfo.toggle();
+            }
         });
 
-
+        {#
         $('form.add-to-cart-form').submit(function(e){
             e.preventDefault();
             var purchasable = $(this).find('.js-purchasableId').val();
@@ -107,6 +110,7 @@
                 }
             });
         });
+        #}
 
     {% endjs %}
 
