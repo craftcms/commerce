@@ -44,74 +44,123 @@ use yii\validators\Validator;
 class Variant extends Purchasable
 {
     /**
-     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised before a variant's snapshot is captured
+     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered before a variant’s field data is captured, which makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
      *
-     * Plugins can get notified before we capture a variant's field data, and customize which fields are included.
+     * This example adds every custom field to the variant snapshot:
      *
      * ```php
      * use craft\commerce\elements\Variant;
      * use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+     * use yii\base\Event;
      *
-     * Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT, function(CustomizeVariantSnapshotFieldsEvent $e) {
-     *     $variant = $e->variant;
-     *     $fields = $e->fields;
-     *     // Modify fields, or set to `null` to capture all.
-     * });
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT,
+     *     function(CustomizeVariantSnapshotFieldsEvent $event) {
+     *         // @var Variant $variant
+     *         $variant = $event->variant;
+     *         // @var array|null $fields
+     *         $fields = $event->fields;
+     *
+     *         // Add every custom field to the snapshot
+     *         if (($fieldLayout = $variant->getFieldLayout()) !== null) {
+     *             foreach ($fieldLayout->getFields() as $field) {
+     *                 $fields[] = $field->handle;
+     *             }
+     *         }
+     *
+     *         $event->fields = $fields;
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
 
     /**
-     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent This event is raised after a variant's snapshot is captured.
-     *
-     * Plugins can get notified after we capture a variant's field data, and customize, extend, or redact the data to be persisted.
+     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
      *
      * ```php
      * use craft\commerce\elements\Variant;
-     * use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
+     * use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+     * use yii\base\Event;
      *
-     * Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT, function(CustomizeVariantSnapshotFieldsEvent $e) {
-     *     $variant = $e->variant;
-     *     $data = $e->fieldData;
-     *     // Modify or redact captured `$data`...
-     * });
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT,
+     *     function(CustomizeVariantSnapshotFieldsEvent $event) {
+     *         // @var Variant $variant
+     *         $variant = $event->variant;
+     *         // @var array|null $fields
+     *         $fields = $event->fields;
+     *
+     *         // Modify or redact captured `$data`
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT = 'afterCaptureVariantSnapshot';
 
     /**
-     * @event craft\commerce\events\CustomizeProductSnapshotFieldsEvent This event is raised before a product snapshot is captured.
+     * @event craft\commerce\events\CustomizeProductSnapshotFieldsEvent The event that is triggered before a product’s field data is captured. This makes it possible to customize which fields are included in the snapshot. Custom fields are not included by default.
      *
-     * Plugins can get notified before we capture a product's field data, and
-     * customize which fields are included.
+     * This example adds every custom field to the product snapshot:
      *
      * ```php
      * use craft\commerce\elements\Variant;
+     * use craft\commerce\elements\Product;
      * use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
+     * use yii\base\Event;
      *
-     * Event::on(Variant::class, Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
-     *     $product = $e->product;
-     *     $fields = $e->fields;
-     *     // Modify fields, or set to `null` to capture all.
-     * });
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT,
+     *     function(CustomizeProductSnapshotFieldsEvent $event) {
+     *         // @var Product $product
+     *         $product = $event->product;
+     *         // @var array|null $fields
+     *         $fields = $event->fields;
+     *
+     *         // Add every custom field to the snapshot
+     *         if (($fieldLayout = $product->getFieldLayout()) !== null) {
+     *             foreach ($fieldLayout->getFields() as $field) {
+     *                 $fields[] = $field->handle;
+     *             }
+     *         }
+     *
+     *         $event->fields = $fields;
+     *     }
+     * );
      * ```
+     *
+     * ::: warning
+     * Add with care! A huge amount of custom fields/data will increase your database size.
+     * :::
      */
     const EVENT_BEFORE_CAPTURE_PRODUCT_SNAPSHOT = 'beforeCaptureProductSnapshot';
 
     /**
-     * @event craft\commerce\events\CustomizeProductSnapshotDataEvent This event is raised before a product snapshot is captured
-     *
-     * Plugins can get notified after we capture a product's field data, and customize, extend, or redact the data to be persisted.
+     * @event craft\commerce\events\CustomizeProductSnapshotDataEvent The event that is triggered after a product’s field data is captured, which can be used to customize, extend, or redact the data to be persisted on the product instance.
      *
      * ```php
      * use craft\commerce\elements\Variant;
+     * use craft\commerce\elements\Product;
      * use craft\commerce\events\CustomizeProductSnapshotDataEvent;
+     * use yii\base\Event;
      *
-     * Event::on(Variant::class, Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT, function(CustomizeProductSnapshotFieldsEvent $e) {
-     *     $product = $e->product;
-     *     $data = $e->fieldData;
-     *     // Modify or redact captured `$data`...
-     * });
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT,
+     *     function(CustomizeProductSnapshotDataEvent $event) {
+     *         // @var Product $product
+     *         $product = $event->product;
+     *         // @var array $data
+     *         $data = $event->fieldData;
+     *
+     *         // Modify or redact captured `$data`
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';

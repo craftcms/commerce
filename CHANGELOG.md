@@ -1,22 +1,53 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.11 - 2020-02-25
 
 ### Added
+- Added the `cp.commerce.subscriptions.edit.content`, `cp.commerce.subscriptions.edit.meta`, and `cp.commerce.product.edit.content` template hooks. ([#1290](https://github.com/craftcms/commerce/pull/1290))
+
+### Changed
+- The order index page now updates the per-status order counts after using the “Update Order Status” action. ([#1217](https://github.com/craftcms/commerce/issues/1217))
+
+### Fixed
+- Fixed an error that could occur when editing variants’ stock value. ([#1288](https://github.com/craftcms/commerce/issues/1288))
+- Fixed a bug where `0` values were being shown for order amounts. ([#1293](https://github.com/craftcms/commerce/issues/1293))
+
+## 3.0.10 - 2020-02-20
+
+### Fixed
+- Fixed an error that could occur when creating a new product.
+
+## 3.0.9 - 2020-02-19
+
+### Fixed
+- Fixed a migration error that could occur when updating. ([#1285](https://github.com/craftcms/commerce/issues/1285))
+
+## 3.0.8 - 2020-02-18
+
+### Fixed
+- Fixed an SQL error that could occur when updating to Commerce 3.
+
+## 3.0.7 - 2020-02-18
+
+### Added
+- Order indexes can now have a “Totals” column.
 - Added `craft\commerce\models\LineItem::$sku`.
 - Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
 
 ### Changed
-- The SKU and description of the purchasable is now stored on line item, and not just in the line item snapshot.
+- Line items now store their purchasable’s SKU and description directly, in addition to within the snapshot.
+- Ajax requests to `commerce/cart/*` now include line items’ `subtotal` values in their responses. ([#1263](https://github.com/craftcms/commerce/issues/1263))
 
 ### Fixed
-- Fixed a bug that caused an adjustment’s “included” checkbox to be selected when editing another part of the order. ([#1234](https://github.com/craftcms/commerce/issues/1243))
-- Ajax requests to `commerce/cart/*` now include line items `subtotal` values. ([#1263](https://github.com/craftcms/commerce/issues/1263))
-- Fixed a JavaScript error that occurred when editing products. ([#1273](https://github.com/craftcms/commerce/issues/1273))
-- Restored missing “New Subscription Plan” button. ([#1271](https://github.com/craftcms/commerce/pull/1271))
-- Fixed an error that could occur when upgrading to 3.0 from pre 2.2.6. 
+- Fixed a bug where `commerce/cart/*` actions weren’t formatting `0` values correctly in their JSON responses. ([#1278](https://github.com/craftcms/commerce/issues/1278)) 
+- Fixed a bug that caused adjustments’ “Included” checkbox to be ticked when editing another part of the order. ([#1234](https://github.com/craftcms/commerce/issues/1243))
+- Fixed a JavaScript error that could occur when editing products. ([#1273](https://github.com/craftcms/commerce/issues/1273))
+- Restored the missing “New Subscription Plan” button. ([#1271](https://github.com/craftcms/commerce/pull/1271))
+- Fixed an error that could occur when updating to Commerce 3 from 2.2.5 or earlier.
+- Fixed a bug where the “Transactions” tab on Edit Order pages was disabled for incomplete orders. ([#1268](https://github.com/craftcms/commerce/issues/1268))
+- Fixed a error that prevented redirection back to the Edit Customer page after editing an address.
 
 ## 3.0.6 - 2020-02-06
 

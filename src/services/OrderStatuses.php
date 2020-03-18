@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
@@ -42,19 +43,30 @@ use function count;
 class OrderStatuses extends Component
 {
     /**
-     * @event DefaultOrderStatusEvent The event that is triggered when getting a default status for an order.
-     * You may set [[DefaultOrderStatusEvent::orderStatus]] to a desired OrderStatus to override the default status set in CP
+     * @event DefaultOrderStatusEvent The event that is triggered when a default order status is being fetched.
      *
-     * Plugins can get notified when a default order status is being fetched
+     * Set the event object’s `orderStatus` property to override the default status set in the control panel.
      *
      * ```php
      * use craft\commerce\events\DefaultOrderStatusEvent;
      * use craft\commerce\services\OrderStatuses;
+     * use craft\commerce\models\OrderStatus;
+     * use craft\commerce\elements\Order;
      * use yii\base\Event;
      *
-     * Event::on(OrderStatuses::class, OrderStatuses::EVENT_DEFAULT_ORDER_STATUS, function(DefaultOrderStatusEvent $e) {
-     *     // Do something - perhaps figure out a better default order statues than the one set in CP
-     * });
+     * Event::on(
+     *     OrderStatuses::class,
+     *     OrderStatuses::EVENT_DEFAULT_ORDER_STATUS,
+     *     function(DefaultOrderStatusEvent $event) {
+     *         // @var OrderStatus $status
+     *         $status = $event->orderStatus;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *
+     *         // Choose a more appropriate order status than the control panel default
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
@@ -157,6 +169,39 @@ class OrderStatuses extends Component
         }
 
         return $event->orderStatus;
+    }
+
+    /**
+     * @return array
+     * @since 3.x
+     */
+    public function getOrderCountByStatus()
+    {
+        $countGroupedByStatusId = (new Query())
+            ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
+            ->where(['[[o.isCompleted]]' => true, '[[e.dateDeleted]]' => null])
+            ->from([Table::ORDERS . ' o'])
+            ->leftJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
+            ->groupBy(['[[o.orderStatusId]]'])
+            ->indexBy('orderStatusId')
+            ->all();
+
+        // For those not in the groupBy
+        $allStatuses = $this->getAllOrderStatuses();
+        foreach ($allStatuses as $status) {
+            if (!isset($countGroupedByStatusId[$status->id])) {
+                $countGroupedByStatusId[$status->id] = [
+                    'orderStatusId' => $status->id,
+                    'handle' => $status->handle,
+                    'orderCount' => 0
+                ];
+            }
+
+            // Make sure all have their handle
+            $countGroupedByStatusId[$status->id]['handle'] = $status->handle;
+        }
+
+        return $countGroupedByStatusId;
     }
 
     /**

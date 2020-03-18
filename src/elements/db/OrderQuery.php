@@ -917,31 +917,31 @@ class OrderQuery extends ElementQuery
         $this->joinElementTable('commerce_orders');
 
         $this->query->select([
-            'commerce_orders.id',
-            'commerce_orders.number',
-            'commerce_orders.reference',
-            'commerce_orders.couponCode',
-            'commerce_orders.orderStatusId',
-            'commerce_orders.dateOrdered',
-            'commerce_orders.email',
-            'commerce_orders.isCompleted',
-            'commerce_orders.datePaid',
-            'commerce_orders.currency',
-            'commerce_orders.paymentCurrency',
-            'commerce_orders.lastIp',
-            'commerce_orders.orderLanguage',
-            'commerce_orders.message',
-            'commerce_orders.returnUrl',
-            'commerce_orders.cancelUrl',
-            'commerce_orders.billingAddressId',
-            'commerce_orders.shippingAddressId',
-            'commerce_orders.estimatedBillingAddressId',
-            'commerce_orders.estimatedShippingAddressId',
-            'commerce_orders.shippingMethodHandle',
-            'commerce_orders.gatewayId',
-            'commerce_orders.paymentSourceId',
-            'commerce_orders.customerId',
-            'commerce_orders.dateUpdated'
+            '[[commerce_orders.id]]',
+            '[[commerce_orders.number]]',
+            '[[commerce_orders.reference]]',
+            '[[commerce_orders.couponCode]]',
+            '[[commerce_orders.orderStatusId]]',
+            '[[commerce_orders.dateOrdered]]',
+            '[[commerce_orders.email]]',
+            '[[commerce_orders.isCompleted]]',
+            '[[commerce_orders.datePaid]]',
+            '[[commerce_orders.currency]]',
+            '[[commerce_orders.paymentCurrency]]',
+            '[[commerce_orders.lastIp]]',
+            '[[commerce_orders.orderLanguage]]',
+            '[[commerce_orders.message]]',
+            '[[commerce_orders.returnUrl]]',
+            '[[commerce_orders.cancelUrl]]',
+            '[[commerce_orders.billingAddressId]]',
+            '[[commerce_orders.shippingAddressId]]',
+            '[[commerce_orders.estimatedBillingAddressId]]',
+            '[[commerce_orders.estimatedShippingAddressId]]',
+            '[[commerce_orders.shippingMethodHandle]]',
+            '[[commerce_orders.gatewayId]]',
+            '[[commerce_orders.paymentSourceId]]',
+            '[[commerce_orders.customerId]]',
+            '[[commerce_orders.dateUpdated]]'
         ]);
 
         // Join shipping and billing address
@@ -958,8 +958,8 @@ class OrderQuery extends ElementQuery
         }
 
         if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.recalculationMode']);
-            $this->query->addSelect(['commerce_orders.origin']);
+            $this->query->addSelect(['[[commerce_orders.recalculationMode]]']);
+            $this->query->addSelect(['[[commerce_orders.origin]]']);
 
             if ($this->origin) {
                 $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
@@ -967,20 +967,20 @@ class OrderQuery extends ElementQuery
         }
 
         if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
-            $this->query->addSelect(['commerce_orders.dateAuthorized']);
+            $this->query->addSelect(['[[commerce_orders.dateAuthorized]]']);
             if ($this->dateAuthorized) {
                 $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
             }
         }
 
         if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
-            $this->query->addSelect(['commerce_orders.totalPrice as [[storedTotalPrice]]']);
-            $this->query->addSelect(['commerce_orders.totalPaid as [[storedTotalPaid]]']);
-            $this->query->addSelect(['commerce_orders.itemTotal as [[storedItemTotal]]']);
-            $this->query->addSelect(['commerce_orders.totalDiscount as [[storedTotalDiscount]]']);
-            $this->query->addSelect(['commerce_orders.totalShippingCost as [[storedTotalShippingCost]]']);
-            $this->query->addSelect(['commerce_orders.totalTax as [[storedTotalTax]]']);
-            $this->query->addSelect(['commerce_orders.totalTaxIncluded as [[storedTotalTaxIncluded]]']);
+            $this->query->addSelect(['[[commerce_orders.totalPrice]] as [[storedTotalPrice]]']);
+            $this->query->addSelect(['[[commerce_orders.totalPaid]] as [[storedTotalPaid]]']);
+            $this->query->addSelect(['[[commerce_orders.itemTotal]] as [[storedItemTotal]]']);
+            $this->query->addSelect(['[[commerce_orders.totalDiscount]] as [[storedTotalDiscount]]']);
+            $this->query->addSelect(['[[commerce_orders.totalShippingCost]] as [[storedTotalShippingCost]]']);
+            $this->query->addSelect(['[[commerce_orders.totalTax]] as [[storedTotalTax]]']);
+            $this->query->addSelect(['[[commerce_orders.totalTaxIncluded]] as [[storedTotalTaxIncluded]]']);
         }
 
         if ($this->number !== null) {

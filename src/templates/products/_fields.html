@@ -170,7 +170,7 @@
                     name: 'stock',
                     value: (variant.hasUnlimitedStock ? '' : (variant.stock == '0' ? '0': (variant.stock ? variant.stock : ''))),
                     placeholder: 'Enter stock'|t('commerce'),
-                    disabled: variant.hasUnlimitedStock
+                    disabled: variant.hasUnlimitedStock ? true : false,
                 }) }}
             </div>
             <div class="nowrap">
@@ -179,7 +179,7 @@
                     class: 'unlimited-stock',
                     label: 'Unlimited'|t('commerce'),
                     name: 'hasUnlimitedStock',
-                    checked: variant.hasUnlimitedStock,
+                    checked: variant.hasUnlimitedStock ? true : false,
                 }) }}
             </div>
         </div>

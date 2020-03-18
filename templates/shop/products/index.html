@@ -86,7 +86,7 @@
             $("#"+($(this).find(":selected").data('info'))).toggle();
         });
 
-        {#
+
         $('form.add-to-cart-form').submit(function(e){
             e.preventDefault();
             var purchasable = $(this).find('.js-purchasableId').val();
@@ -107,7 +107,7 @@
                 }
             });
         });
-        #}
+
     {% endjs %}
 
 {% endblock %}
