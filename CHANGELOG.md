@@ -10,6 +10,7 @@
 - Updated the minimum required version to upgrade to `2.2.18`.
 
 ### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions were not checked when removing shipping costs. ([#1321](https://github.com/craftcms/commerce/issues/1321))
 - Fixed an error that could occur when eager loading `product` on a variant query.
 - Fixed an error that could occur when all countries are disabled. ([#1314](https://github.com/craftcms/commerce/issues/1314))
 - Fixed a bug that could occur for logged in users when removing all items from the cart. ([#1319](https://github.com/craftcms/commerce/issues/1319))
