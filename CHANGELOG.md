@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.0.12 - 2020-03-20
 
 ### Added
 - Added the `validateCartCustomFieldsOnSubmission` config setting. ([#1292](https://github.com/craftcms/commerce/issues/1292))
