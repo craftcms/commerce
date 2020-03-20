@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+## Changed
+- Made some performance improvements for installations with a large amount of orders.
+
 ## 3.0.12 - 2020-03-20
 
 ### Added
