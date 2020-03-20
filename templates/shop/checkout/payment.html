@@ -126,7 +126,7 @@
                   {% endfor %}
                 {% endif %}
 
-                <form method="post" class="form-horizontal js-paymentSource-form max-w-md bg-gray-200" id="paymentForm">
+                <form method="post" class="js-paymentSource-form max-w-md bg-gray-200 p-3" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>

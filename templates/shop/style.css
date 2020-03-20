@@ -277,7 +277,7 @@ ul.address-data li {
     margin-bottom: 4px;
 }
 
-.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; padding:1em}
 .address-select .radio input { margin: 0 5px 0 0; position: relative; top: -1px; }
 
 .address-select .radio { padding: 14px 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -289,7 +289,7 @@ ul.address-data li {
 .address-select ul.address-data li span[data-key=lastName] { font-weight: bold; }
 
 
-.address-select .actions { float: right; padding: 14px 15px; font-size: 0.9em; }
+.address-select .actions { float: right; font-size: 0.9em; }
 .address-select .actions ul { margin:0; }
 .address-select .actions ul li { display: inline-block; margin: 0 0 0 1em; }
 .address-select .actions ul li a { color: #999; text-decoration: underline; }

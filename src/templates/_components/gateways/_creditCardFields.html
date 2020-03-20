@@ -1,12 +1,12 @@
 {% import "_includes/forms" as forms %}
 
-<fieldset class="card-holder">
+<fieldsets>
     <legend>{{ 'Card Holder'|t('commerce') }}</legend>
 
-    <div class="grid" data-cols="2">
+    <div class="">
 
         <!-- Card Holder Name -->
-        <div class="item" data-colspan="1">
+        <div class="">
             {{ forms.text({
                 name: 'firstName',
                 maxlength: 70,
@@ -18,7 +18,7 @@
             }) }}
         </div>
 
-        <div class="item" data-colspan="1">
+        <div>
             {{ forms.text({
                 name: 'lastName',
                 maxlength: 70,
@@ -37,14 +37,14 @@
     {% endfor %}
 
     {{ forms.errorList(errors) }}
-</fieldset>
+</fieldsets>
 
 <!-- Card Number -->
-<fieldset class="card-data">
+<fieldset>
     <legend>{{ 'Card'|t('commerce') }}</legend>
 
-    <div class="multitext">
-        <div class="multitextrow">
+    <div>
+        <div>
 
             {{ forms.text({
                 name: 'number',
@@ -57,7 +57,7 @@
 
         </div>
 
-        <div class="multitextrow">
+        <div>
             {{ forms.text({
                 class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
                 type: 'text',
