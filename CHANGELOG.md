@@ -4,8 +4,8 @@
 
 ### Added
 - Added the `validateCartCustomFieldsOnSubmission` config setting. ([#1292](https://github.com/craftcms/commerce/issues/1292))
-- It is now possible to search orders by line item SKUs. ([#1328](https://github.com/craftcms/commerce/issues/1328))
-- Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser`.
+- It is now possible to search orders by the SKUs being purchased. ([#1328](https://github.com/craftcms/commerce/issues/1328))
+- Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser()`.
 
 ### Changed
 - Updated the minimum required version to upgrade to `2.2.18`.
