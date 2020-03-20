@@ -1,12 +1,12 @@
 {% import "_includes/forms" as forms %}
 
-<fieldsets>
+<fieldset class="card-holder">
     <legend>{{ 'Card Holder'|t('commerce') }}</legend>
 
-    <div class="">
+    <div class="grid" data-cols="2">
 
         <!-- Card Holder Name -->
-        <div class="">
+        <div class="item" data-colspan="1">
             {{ forms.text({
                 name: 'firstName',
                 maxlength: 70,
@@ -40,12 +40,11 @@
 </fieldsets>
 
 <!-- Card Number -->
-<fieldset>
+<fieldset class="card-data">
     <legend>{{ 'Card'|t('commerce') }}</legend>
 
     <div>
         <div>
-
             {{ forms.text({
                 name: 'number',
                 maxlength: 19,
