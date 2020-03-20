@@ -78,7 +78,7 @@
     {{ forms.field({
         id: 'recipient-type',
         label: 'Recipient'|t('commerce'),
-        instructions: 'The recipient of the email.'|t('commerce'),
+        instructions: 'The recipient of the email. Twig code can be used here.'|t('commerce'),
         errors: email.getErrors('to'),
         required: true,
     }, recipientInput) }}
