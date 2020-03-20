@@ -8,10 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use LitEmoji\LitEmoji;
 use Throwable;
@@ -251,7 +253,23 @@ class CartController extends BaseFrontEndController
     {
         $request = Craft::$app->getRequest();
 
-        if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
+        // Allow validation of custom fields when passing this param
+        $validateCustomFields = Plugin::getInstance()->getSettings()->validateCartCustomFieldsOnSubmission;
+
+        // Do we want to validate fields submitted
+        $customFieldAttributes = [];
+
+        if ($validateCustomFields) {
+            // $fields will be null so
+            if ($submittedFields = $request->getBodyParam('fields')) {
+                $this->_cart->setScenario(Element::SCENARIO_LIVE);
+                $customFieldAttributes = array_keys($submittedFields);
+            }
+        }
+
+        $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
+
+        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
             $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {

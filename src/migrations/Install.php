@@ -838,6 +838,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::EMAILS);
         $this->dropTableIfExists(Table::GATEWAYS);
         $this->dropTableIfExists(Table::LINEITEMS);
+        $this->dropTableIfExists(Table::LINEITEMSTATUSES);
         $this->dropTableIfExists(Table::ORDERADJUSTMENTS);
         $this->dropTableIfExists(Table::ORDERHISTORIES);
         $this->dropTableIfExists(Table::ORDERS);

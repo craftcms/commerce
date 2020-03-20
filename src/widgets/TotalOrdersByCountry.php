@@ -77,7 +77,7 @@ class TotalOrdersByCountry extends Widget
         if ($this->type == 'billing') {
             $this->_title = Plugin::t('Total Orders by Billing Country');
         } else {
-            $this->_title = Plugin::t('Total Order by Shipping Country');
+            $this->_title = Plugin::t('Total Orders by Shipping Country');
             $this->type = 'shipping';
         }
 

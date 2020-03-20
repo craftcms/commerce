@@ -1,5 +1,21 @@
 # Release Notes for Craft Commerce
 
+## 3.0.12 - 2020-03-20
+
+### Added
+- Added the `validateCartCustomFieldsOnSubmission` config setting. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- It is now possible to search orders by the SKUs being purchased. ([#1328](https://github.com/craftcms/commerce/issues/1328))
+- Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser()`.
+
+### Changed
+- Updated the minimum required version to upgrade to `2.2.18`.
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions were not checked when removing shipping costs. ([#1321](https://github.com/craftcms/commerce/issues/1321))
+- Fixed an error that could occur when eager loading `product` on a variant query.
+- Fixed an PHP error that could occur when all countries are disabled. ([#1314](https://github.com/craftcms/commerce/issues/1314))
+- Fixed a bug that could occur for logged in users when removing all items from the cart. ([#1319](https://github.com/craftcms/commerce/issues/1319))
+
 ## 3.0.11 - 2020-02-25
 
 ### Added
@@ -270,6 +286,8 @@
 - Removed `craft\commerce\models\Discount::getFreeShipping()`.
 - Removed `craft\commerce\models\Discount::setFreeShipping()`.
 - Removed `craft\commerce\models\LineItem::fillFromPurchasable()`.
+- Removed `craft\commerce\models\LineItem::getDescription()`. Use `craft\commerce\models\LineItem::$description` instead. 
+- Removed `craft\commerce\models\LineItem::getSku()`. Use `craft\commerce\models\LineItem::$sku` instead. 
 - Removed `craft\commerce\models\Order::getDiscount()`.
 - Removed `craft\commerce\models\Order::getShippingCost()`.
 - Removed `craft\commerce\models\Order::getTax()`.
@@ -286,9 +304,20 @@
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
 
+## 2.2.18 - 2020-03-05
+
+### Fixed
+- Fixed an error that occurred when editing a product from a Products field. ([#1291](https://github.com/craftcms/commerce/pull/1291))
+- Fixed an error that could occur when editing a variant’s stock value. ([#1306](https://github.com/craftcms/commerce/issues/1306))
+
+## 2.2.17 - 2020-02-12
+
+### Changed
+- Improved the performance of the Orders index page.
+
 ## 2.2.16 - 2020-02-10
 
-### Change
+### Changed
 - Improved the performance of the Orders index page.
 
 ### Fixed
