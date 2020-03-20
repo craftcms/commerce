@@ -120,7 +120,7 @@
                   {% for key, errors in paymentForm.getErrors() %}
                     {% for error in errors %}
                       {% if loop.first %}<ul>{% endif %}
-                        <li class="text-red-100"><strong>{{ key }}</strong> {{ error }}</li>
+                        <li class="text-red-600"><strong>{{ key }}</strong> {{ error }}</li>
                       {% if loop.last %}</ul>{% endif %}
                     {% endfor %}
                   {% endfor %}
