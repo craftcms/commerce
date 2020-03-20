@@ -4,6 +4,7 @@
 
 ### Added
 - Requests to `commerce/cart/*` now accept an optional `validateCustomFields` parameter. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- It is now possible to search orders by line item SKUs. ([#1328](https://github.com/craftcms/commerce/issues/1328))
 - Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser`.
 
 ### Changed
