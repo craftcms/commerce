@@ -1,103 +1,107 @@
 <template>
-    <div class="line-item" :class="{'new-line-item': isLineItemNew}">
-        <order-block class="order-flex order-box-sizing">
-            <div class="w-1/4">
-                <!-- Description -->
-                <order-title>{{ lineItem.description }}</order-title>
-                <!-- SKU -->
-                <div><code class="extralight">{{ lineItem.sku }}</code></div>
+    <div class="line-item">
+        <div class="absolute line-item-bg" :class="{'new-line-item': isLineItemNew, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
+        <div class="relative">
 
-                <!-- Status -->
-                <div class="my-1">
-                    <line-item-status :line-item="lineItem" :editing="editing && editMode" @change="updateLineItemStatusId"></line-item-status>
-                </div>
+            <order-block class="order-flex order-box-sizing">
+                <div class="w-1/4">
+                    <!-- Description -->
+                    <order-title>{{ lineItem.description }}</order-title>
+                    <!-- SKU -->
+                    <div><code class="extralight">{{ lineItem.sku }}</code></div>
 
-                <!-- Edit-->
-                <div>
-                    <btn-link v-if="!editMode" @click="enableEditMode()">{{"Edit"|t('commerce')}}</btn-link>
-                </div>
+                    <!-- Status -->
+                    <div class="my-1">
+                        <line-item-status :line-item="lineItem" :editing="editing && editMode" @change="updateLineItemStatusId"></line-item-status>
+                    </div>
 
-                <!-- Snapshots-->
-                <div>
-                    <btn-link @click="openSnapshotModal()">{{"Snapshots"|t('commerce')}}</btn-link>
+                    <!-- Edit-->
+                    <div>
+                        <btn-link v-if="!editMode" @click="enableEditMode()">{{"Edit"|t('commerce')}}</btn-link>
+                    </div>
+
+                    <!-- Snapshots-->
+                    <div>
+                        <btn-link @click="openSnapshotModal()">{{"Snapshots"|t('commerce')}}</btn-link>
+                    </div>
+                    <!-- Edit-->
+                    <div v-if="isProEdition">
+                        <btn-link  button-class="btn-link btn-link--danger" @click="removeLineItem">{{"Remove"|t('commerce')}}</btn-link>
+                    </div>
                 </div>
-                <!-- Edit-->
-                <div v-if="isProEdition">
-                    <btn-link  button-class="btn-link btn-link--danger" @click="removeLineItem">{{"Remove"|t('commerce')}}</btn-link>
-                </div>
-            </div>
-            <div class="w-3/4">
-                <div class="order-flex pb">
-                    <ul class="line-item-section">
-                        <li class="order-flex">
-                            <template v-if="editing && editMode && recalculationMode === 'none'">
-                                <field :errors="getErrors('order.lineItems.'+lineItemKey+'.salePrice')" v-slot:default="slotProps">
-                                    <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" />
-                                </field>
+                <div class="w-3/4">
+                    <div class="order-flex pb">
+                        <ul class="line-item-section">
+                            <li class="order-flex">
+                                <template v-if="editing && editMode && recalculationMode === 'none'">
+                                    <field v-slot:default="slotProps">
+                                        <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" :class="{ 'error': getErrors('lineItems.'+lineItemKey+'.salePrice').length }" />
+                                    </field>
+                                </template>
+                                <template v-else>
+                                    <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
+                                    <div>{{ lineItem.salePriceAsCurrency }}</div>
+                                </template>
+                            </li>
+                            <template v-if="lineItem.onSale">
+                                <li><span class="light">{{"Original Price"|t('commerce')}}</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
+                                <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
                             </template>
-                            <template v-else>
-                                <label class="light" for="salePrice">{{"Sale Price"|t('commerce')}}</label>
-                                <div>{{ lineItem.salePriceAsCurrency }}</div>
-                            </template>
-                        </li>
-                        <template v-if="lineItem.onSale">
-                            <li><span class="light">{{"Original Price"|t('commerce')}}</span>&nbsp;<strike>{{ lineItem.priceAsCurrency }}</strike></li>
-                            <li><span class="light">{{"Sale Amount Off"|t('commerce')}}</span> {{ lineItem.saleAmountAsCurrency }}</li>
+                        </ul>
+                        <div class="line-item-section">
+                            <div class="order-flex">
+                                <template v-if="editing && editMode">
+                                    <field v-slot:default="slotProps">
+                                        <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" :class="{ 'error': getErrors('lineItems.'+lineItemKey+'.qty') }" />
+                                    </field>
+                                </template>
+                                <template v-else>
+                                    <span>{{ lineItem.qty }}</span>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="order-flex-grow text-right">
+                            {{lineItem.subtotalAsCurrency}}
+                        </div>
+                    </div>
+
+                    <div>
+                        <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
+                        <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
+                        <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
+
+                        <order-block class="text-right">
+                            <div>
+                                <strong>{{ lineItem.totalAsCurrency }}</strong>
+                            </div>
+                        </order-block>
+                    </div>
+                </div>
+            </order-block>
+
+            <div class="hidden">
+                <div ref="snapshots" class="order-edit-modal modal fitted">
+                    <div class="body">
+                        <h2>{{lineItem.description}}</h2>
+                        <h3>{{'Line Item'|t('commerce')}}</h3>
+                        <snapshot :show="true">{{lineItem.snapshot}}</snapshot>
+                        <hr>
+                        <h3 v-if="lineItem.adjustments.length">{{'Adjustments'|t('commerce')}}</h3>
+                        <template v-for="(adjustment, key) in lineItem.adjustments">
+                            <div
+                                :key="key"
+                            >
+                                <h4 class="m-0">{{adjustment.name}}<span v-if="adjustment.description"> - {{adjustment.description}}</span></h4>
+                                <h5 class="adjustment-type mt-tiny">{{adjustment.type}}</h5>
+                                <snapshot :show="true">{{adjustment.sourceSnapshot}}</snapshot>
+                                <hr>
+                            </div>
                         </template>
-                    </ul>
-                    <div class="line-item-section">
-                        <div class="order-flex">
-                            <template v-if="editing && editMode">
-                                <field :errors="getErrors('order.lineItems.'+lineItemKey+'.qty')" v-slot:default="slotProps">
-                                    <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" />
-                                </field>
-                            </template>
-                            <template v-else>
-                                <span>{{ lineItem.qty }}</span>
-                            </template>
-                        </div>
                     </div>
-                    <div class="order-flex-grow text-right">
-                        {{lineItem.subtotalAsCurrency}}
-                    </div>
-                </div>
-
-                <div>
-                    <line-item-adjustments :order-id="orderId" :line-item="lineItem" :editing="editing && editMode" :recalculation-mode="recalculationMode" :errorPrefix="'order.lineItems.'+lineItemKey+'.adjustments.'" @updateLineItem="$emit('updateLineItem', $event)"></line-item-adjustments>
-                    <line-item-options :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-options>
-                    <line-item-notes :line-item="lineItem" :editing="editing && editMode" @updateLineItem="$emit('updateLineItem', $event)"></line-item-notes>
-
-                    <order-block class="text-right">
-                        <div>
-                            <strong>{{ lineItem.totalAsCurrency }}</strong>
+                    <div class="footer">
+                        <div class="buttons right">
+                            <btn-link button-class="btn" @click="closeSnapshotModal()">{{$options.filters.t('Close', 'commerce')}}</btn-link>
                         </div>
-                    </order-block>
-                </div>
-            </div>
-        </order-block>
-
-        <div class="hidden">
-            <div ref="snapshots" class="order-edit-modal modal fitted">
-                <div class="body">
-                    <h2>{{lineItem.description}}</h2>
-                    <h3>{{'Line Item'|t('commerce')}}</h3>
-                    <snapshot :show="true">{{lineItem.snapshot}}</snapshot>
-                    <hr>
-                    <h3 v-if="lineItem.adjustments.length">{{'Adjustments'|t('commerce')}}</h3>
-                    <template v-for="(adjustment, key) in lineItem.adjustments">
-                        <div
-                            :key="key"
-                        >
-                            <h4 class="m-0">{{adjustment.name}}<span v-if="adjustment.description"> - {{adjustment.description}}</span></h4>
-                            <h5 class="adjustment-type mt-tiny">{{adjustment.type}}</h5>
-                            <snapshot :show="true">{{adjustment.sourceSnapshot}}</snapshot>
-                            <hr>
-                        </div>
-                    </template>
-                </div>
-                <div class="footer">
-                    <div class="buttons right">
-                        <btn-link button-class="btn" @click="closeSnapshotModal()">{{$options.filters.t('Close', 'commerce')}}</btn-link>
                     </div>
                 </div>
             </div>
@@ -159,6 +163,7 @@
             }),
 
             ...mapGetters([
+                'hasLineItemErrors',
                 'getErrors',
                 'shippingCategories',
                 'taxCategories',
@@ -281,14 +286,24 @@
 
     .line-item {
         transition: background-color 0.5s ease;
+        position: relative;
+
+        &-bg {
+            transition: background-color 0.5s ease;
+            height: 100%;
+            top: 0;
+            left: -24px;
+            right: -24px;
+
+            &.new-line-item {
+                background: #FFFFF0;
+            }
+        }
 
         &-section {
             width: 33.3333%;
         }
 
-        &.new-line-item {
-            background: #FFFFF0;
-        }
 
         label {
             @include margin-right(10px);

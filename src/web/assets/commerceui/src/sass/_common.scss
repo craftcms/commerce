@@ -146,14 +146,6 @@
   padding-top: 14px;
 }
 
-.p-t-lg {
-  padding-top: 24px;
-}
-
-.p-b-lg {
-  padding-top: 24px;
-}
-
 .p-1 {
   padding: 7px;
 }
@@ -226,6 +218,18 @@
 .\-mx-4 {
   margin-left: -24px;
   margin-right: -24px;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.error-bg {
+  background-color: #fce3e3;
 }
 
 .orderedit-border-t {

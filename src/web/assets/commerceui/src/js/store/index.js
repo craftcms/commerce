@@ -150,6 +150,24 @@ export default new Vuex.Store({
             }
         },
 
+        hasLineItemErrors(state) {
+            return (key) => {
+                if (state && state.draft && state.draft.order && state.draft.order.errors) {
+                    let errorKeys = Object.keys(state.draft.order.errors);
+                    let pattern = '^lineItems\\.' + key +'\\.';
+                    let regex = new RegExp(pattern, 'gm');
+                    for (let i = 0; i < errorKeys.length; i++) {
+                        let errorKey = errorKeys[i];
+                        if (errorKey.match(regex)) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        },
+
         userPhotoFallback() {
             return window.orderEdit.userPhotoFallback
         }
