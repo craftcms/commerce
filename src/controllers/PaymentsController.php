@@ -68,6 +68,7 @@ class PaymentsController extends BaseFrontEndController
         $session = Craft::$app->getSession();
         $currentUser = Craft::$app->getUser()->getIdentity();
         $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
+        $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
         if (($number = $request->getBodyParam('orderNumber')) !== null) {
@@ -90,8 +91,13 @@ class PaymentsController extends BaseFrontEndController
             $order = $plugin->getCarts()->getCart(true);
         }
 
-        $cartActiveAndHasPermission = !$order->getIsActiveCart() && !$currentUser->can('commerce-manageOrders');
-        if ($cartActiveAndHasPermission && $order->getEmail() !== $request->getParam('email')) {
+        /**
+         * Payments on completed orders can only be made if the order number and email
+         * address are passed to the payments controller. If this is via the CP it
+         * requires the user have the correct permission.
+         */
+        $checkPaymentCanBeMade = ($isSiteRequest || ($isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders'))) && $number && $order->getEmail() == $request->getParam('email');
+        if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
             $error = Plugin::t('Email required to make payments on a completed order.');
 
             if ($request->getAcceptsJson()) {
