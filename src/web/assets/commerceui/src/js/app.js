@@ -4,6 +4,7 @@ import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
 import OrderCustomer from './OrderCustomer'
+import OrderErrors from './OrderErrors'
 import OrderSecondaryActions from './OrderSecondaryActions'
 import store from './store'
 import {t} from './filters/craft'
@@ -33,7 +34,14 @@ window.OrderActionsApp = new Vue({
 }).$mount('#order-actions-app')
 
 
-// Order details
+// Order errors
+// =========================================================================
+window.OrderErrorsApp = new Vue({
+    render: h => h(OrderErrors),
+    store,
+}).$mount('#order-errors-app')
+
+// Order customer
 // =========================================================================
 window.OrderCustomerApp = new Vue({
     render: h => h(OrderCustomer),
