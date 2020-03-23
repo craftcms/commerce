@@ -62,7 +62,6 @@
                 </div>
             </template>
 
-
             <div class="field" id="shippingMethod-field">
                 <div class="heading">
                     <label id="shippingMethod-label" for="slug">{{"Shipping Method"|t('commerce')}}</label>
@@ -74,15 +73,42 @@
             </div>
         </div>
 
+        <div class="meta read-only" v-if="!editing">
+            <div class="data">
+                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
+                <p class="value">{{draft.order.reference}}</p>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{"Coupon Code"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.couponCode}}</span>
+            </div>
+
+            <template v-if="draft.order.isCompleted">
+                <div class="data">
+                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
+                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
+                </div>
+            </template>
+
+            <template v-if="draft.order.isCompleted">
+                <div class="data">
+                    <h5 class="heading">{{"Status"|t('commerce')}}</h5>
+                    <span class="value"
+                          v-html="draft.order.orderStatusHtml"></span>
+                </div>
+            </template>
+
+            <div class="data">
+                <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
+            </div>
+        </div>
+
         <div id="meta" class="meta read-only">
             <div class="data">
                 <h5 class="heading">{{"ID"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.id}}</p>
-            </div>
-
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
-                <p class="value">{{draft.order.reference}}</p>
             </div>
 
             <div class="data">
@@ -110,14 +136,6 @@
                     <btn-link @click="copy($refs.orderNumber)">{{"Copy"|t('commerce')}}</btn-link>
                 </div>
             </div>
-
-            <template v-if="draft.order.isCompleted && !editing">
-                <div class="data">
-                    <h5 class="heading">{{"Status"|t('commerce')}}</h5>
-                    <span class="value"
-                          v-html="draft.order.orderStatusHtml"></span>
-                </div>
-            </template>
 
             <div class="data">
                 <h5 class="heading">{{"Paid Status"|t('commerce')}}</h5>
@@ -148,23 +166,6 @@
                 <div class="data">
                     <h5 class="heading">{{"Date Paid"|t('commerce')}}</h5>
                     <span class="value">{{draft.order.datePaid.date}} {{draft.order.datePaid.time}}</span>
-                </div>
-            </template>
-
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
-            </div>
-
-            <div class="data" v-if="draft.order.couponCode && !editing">
-                <h5 class="heading">{{"Coupon Code"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.couponCode}}</span>
-            </div>
-
-            <template v-if="draft.order.isCompleted && !editing">
-                <div class="data">
-                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
-                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
                 </div>
             </template>
 
