@@ -13,9 +13,9 @@
     <h3 class="mt-0">Order Review</h3>
 
     {% if showShippingAddress %}
-        <h4>Shipping to</h4>
+        <h4 class="font-semibold">Shipping to</h4>
         {% if cart.shippingAddress %}
-            <div class="address-select border-0">
+            <div class="address-select js-address-select border-0">
                 {% include 'shop/_includes/addresses/address' with {'address': cart.shippingAddress} %}
             </div>
         {% else %}
@@ -28,7 +28,7 @@
     {% endif %}
 
     {% if showShippingMethod %}
-        <h4>Shipping method</h4>
+        <h4 class="font-semibold">Shipping method</h4>
 
         <p>
             {% if cart.shippingMethod %}
@@ -41,8 +41,8 @@
         <hr>
     {% endif %}
 
-    <h4>Items</h4>
-    <ul class="list-reset leading-normal">
+    <h4 class="font-semibold">Items</h4>
+    <ul class="leading-normal">
         {% for item in cart.lineItems %}
             <li>
                 <span>{{ item.description }}</span><span class="float-right">{{ item.subtotal|commerceCurrency(cart.currency) }}</span>

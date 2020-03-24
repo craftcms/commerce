@@ -36,28 +36,40 @@
             ║  └───────────────────────────────────────────┘   ║
             ╚══════════════════════════════════════════════════╝
 #}
-
+            <h3 class="font-semibold">Update Cart</h3>
             {% if availableGateways|length %}
-                <form method="POST" id="paymentPreferenceForm" class="form-inline">
+
+
+                <form method="post" id="paymentPreferenceForm" class="relative border-b-1 mb-4">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
-                    <label for="paymentMethod">Select a payment method:</label>
+
+
+                    <label for="paymentMethod">Choose cart gateway or payment source:</label>
                     <select id="paymentMethod" class="form-control">
-                        {% if not cart.gatewayId and not cart.paymentSourceId %}<option value="">---</option>{% endif %}
+
+                        {% if storedCards|length %}
+                            <optgroup label="Existing Payment Source">
+                        {% endif %}
 
                         {% for storedCard in storedCards %}
-                            <option value="card:{{ storedCard.id }}" {% if storedCard.id == cart.paymentSourceId %}selected{% endif %}>{{ storedCard.description }}</option>
+                            {# The option below prepends the `card:` to the front of the value, so that javascript below can submit the right formparam#}
+                            <option value="paymentSourceId:{{ storedCard.id }}" {% if storedCard.id == cart.paymentSourceId %}selected{% endif %}>Pay with: {{ storedCard.description }}</option>
                         {% endfor %}
-                        <option value="">---</option>
+                            </optgroup>
+
+                        <optgroup label="New Payment with Gateway">
                         {% for id,name in craft.commerce.gateways.allCustomerEnabledGateways %}
-                            <option value="gateway:{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}>{{ name }}</option>
+                            <option value="gatewayId:{{ id }}" {% if id == cart.gatewayId %}selected{% endif %}> Pay with: {{ name }}</option>
                         {% endfor %}
+                        </optgroup>
                     </select>
 
                     {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
                     {% if currencies|length > 1 %}
+                        <label for="paymentMethod">Choose payment currency:</label>
                         <select id="paymentCurrency" name="paymentCurrency"
                                 class="form-control">
                             {% for currency in currencies %}
@@ -65,6 +77,7 @@
                             {% endfor %}
                         </select>
                     {% endif %}
+                    <div id="cart-update-spinner" class="absolute hidden" style="top:0;right:0">{% include 'shop/_images/spinner.svg' %}</div>
                 </form>
             {% endif %}
 
@@ -76,57 +89,75 @@
 
                 $('#paymentMethod').change(function(ev){
                     $select = $(ev.currentTarget);
+                    $("#cart-update-spinner").toggleClass('hidden');
 
                     if ($select.val().length === 0) {
                         return;
                     }
-
                     var parts = $select.val().split(':');
-                    var name = 'gatewayId';
-
-                    if (parts[0] === 'card') {
-                        name = 'paymentSourceId';
-                    }
-
+                    var name = parts[0]; // get the form param NAME from the select value. Format: 'gatewayId:2' or 'paymentSourceId:1'
+                    var value = parts[1]; // // get the form param VALUE from the select value. Format: 'gatewayId:2' or 'paymentSourceId:1'
                     $select.prop('disabled', 'disabled');
-
-                    $('form#paymentPreferenceForm').append('<input type="hidden" name="' + name + '" value="' + parts[1] + '" />').submit();
+                    $('form#paymentPreferenceForm').append('<input type="hidden" name="' + name + '" value="' + value + '" />').submit();
+                    $('form#paymentPreferenceForm').append('<input type="hidden" name="cartUpdatedNotice" value="Updated the cart’s ' + name + '" />').submit();
                 });
             {% endjs %}
 
+{#
+          ╔══════════════════════════════════════════════════╗
+          ║  ┌───────────────────────────────────────────┐   ║
+          ║  │   This makes payment using the            │   ║
+          ║  │   payment form.                           │   ║
+          ║  └───────────────────────────────────────────┘   ║
+          ╚══════════════════════════════════════════════════╝
+#}
+
             {% if cart.gatewayId or cart.paymentSourceId %}
-                <form id="paymentForm" method="POST" class="form-horizontal paymentSource-form max-w-md">
+
+            <h3 class="font-semibold">Payment Form</h3>
+
+                {% if paymentForm is defined %}
+                  {% for key, errors in paymentForm.getErrors() %}
+                    {% for error in errors %}
+                      {% if loop.first %}<ul>{% endif %}
+                        <li class="text-red-600"><strong>{{ key }}</strong> {{ error }}</li>
+                      {% if loop.last %}</ul>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                {% endif %}
+
+                <form method="post" class="js-paymentSource-form max-w-md bg-gray-200 p-3" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
                     <input type="hidden" name="orderEmail" value="{{ cart.email }}"/>
 
                     {{ csrfInput() }}
+                    {% if cart.gatewayId %}
 
-                    <fieldset>
-                        {% if cart.gatewayId %}
-                            <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
-                            {{ cart.gateway.getPaymentFormHtml({})|raw }}
+                        <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
 
-                            {% if cart.gateway.supportsPaymentSources() and currentUser %}
-                                <div class="checkbox">
-                                    <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases"|t }}</label>
-                                </div><br />
-                            {% endif %}
+                        {{ cart.gateway.getPaymentFormHtml({})|raw }}
 
-                        {% else %}
-                            {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
+                        {% if cart.gateway.supportsPaymentSources() and currentUser %}
+                            <div class="checkbox">
+                                <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases"|t }}</label>
+                            </div><br />
                         {% endif %}
 
-                        {% set user = craft.users.email(cart.email).one() %}
-                        {% if not user %}
-                        <label for="registerUserOnOrderComplete">
-                            <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account"|t }}
-                        </label>
-                        {% endif %}
+                    {% else %}
+                        {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
+                    {% endif %}
 
-                        <button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>
-                    </fieldset>
+                    {% set user = craft.users.email(cart.email).one() %}
+                    {% if not user %}
+                    <label for="registerUserOnOrderComplete">
+                        <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account"|t }}
+                    </label>
+                    {% endif %}
+
+                    <button class="button button-primary" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>
+
                 </form>
             {% endif %}
         </div>

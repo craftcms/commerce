@@ -1,0 +1,20 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+
+<h1 class="text-xl font-semibold">Donations</h1>
+
+{% set donation = craft.commerce.donation %}
+{% if donation and donation.isAvailable %}
+<form method="post" class="pt-2 pb-8 text-center">
+  <input type="hidden" name="action" value="commerce/cart/update-cart">
+  {{ redirectInput('shop/cart') }}
+  {{ csrfInput() }}
+  <input type="hidden" name="purchasableId" value="{{ craft.commerce.donation.id }}">
+  <input type="text" name="options[donationAmount]" value="" placeholder="Enter Donation">
+  <input type="submit" value="Add Donation"/>
+</form>
+{% endif %}
+
+
+{% endblock %}

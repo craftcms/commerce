@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use yii\base\Exception;
@@ -55,6 +56,7 @@ class PaymentsController extends BaseFrontEndController
      * @return Response|null
      * @throws HttpException
      * @throws \yii\base\InvalidConfigException
+     * @throws NotSupportedException
      */
     public function actionPay()
     {
@@ -157,11 +159,9 @@ class PaymentsController extends BaseFrontEndController
         $originalTotalAdjustments = count($order->getAdjustments());
 
         // Set guest email address onto guest customer and order.
-        if (null !== $request->getParam('paymentCurrency')) {
-            $currency = $request->getParam('paymentCurrency'); // empty string vs null (strict type checking)
-
+        if ($paymentCurrency = $request->getParam('paymentCurrency')) {
             try {
-                $order->setPaymentCurrency($currency);
+                $order->setPaymentCurrency($paymentCurrency);
             } catch (CurrencyException $exception) {
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($exception->getMessage());
@@ -174,52 +174,44 @@ class PaymentsController extends BaseFrontEndController
             }
         }
 
-        $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
-
-        // Allow setting the payment method at time of submitting payment.
+        // Set Payment Gateway on cart
+        // Same as CartController::updateCart()
         if ($gatewayId = $request->getParam('gatewayId')) {
-            /** @var Gateway|null $gateway */
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
+            if ($gateway = $plugin->getGateways()->getGatewayById($gatewayId)) {
+                $order->setGatewayId($gatewayId);
+            }
+        }
 
-            if ($gateway && $gateway->availableForUseWithOrder($order)) {
-                if ($isSiteRequest && $gateway->isFrontendEnabled) {
-                    $order->setGatewayId($gatewayId);
-                }
-                if (!$isSiteRequest) {
-                    $order->setGatewayId($gatewayId);
+        // Submit payment source on cart
+        // See CartController::updateCart()
+        if ($paymentSourceId = $request->getParam('paymentSourceId')) {
+            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+                // The payment source can only be used by the same user as the cart's user.
+                $cartUserId = $order->getUser() ? $order->getUser()->id : null;
+                $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
+                $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
+                if ($allowedToUsePaymentSource) {
+                    $order->setPaymentSource($paymentSource);
                 }
             }
         }
 
-        // This will get the gateway from the payment source first, and the current gateway second.
+        // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if ($gateway) {
-            $gatewayAllowed = $gateway->availableForUseWithOrder($order);
-
-            if ($isSiteRequest && !$gateway->isFrontendEnabled) {
-                $gatewayAllowed = false;
-            }
-
-            if (!$gatewayAllowed) {
-                $error = Plugin::t('Gateway is not available.');
-                if ($request->getAcceptsJson()) {
-                    return $this->asErrorJson($error);
-                }
-
-                $order->addError('gatewayId', $error);
-                $session->setError($error);
-
-                return null;
-            }
-        }
-
-        /** @var Gateway $gateway */
-        if (!$gateway) {
-            $error = Plugin::t('There is no gateway or payment source selected for this order.');
+        if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
+            $error = Plugin::t('There is no gateway or payment source available for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
+            }
+
+            if ($order->gatewayId) {
+                $order->addError('gatewayId', $error);
+            }
+
+            if ($order->paymentSourceId) {
+                $order->addError('paymentSourceId', $error);
             }
 
             $session->setError($error);
@@ -227,51 +219,39 @@ class PaymentsController extends BaseFrontEndController
             return null;
         }
 
-        // Get the gateway's payment form
+        // We need the payment form whether we are populating it from the request or from the payment source.
         $paymentForm = $gateway->getPaymentFormModel();
-        $paymentForm->setAttributes($request->getBodyParams(), false);
 
-        try {
-            if ($request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources() && $userId = $userSession->getId()) {
-                $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm);
-                try {
-                    if ($userSession->getIsGuest() || !$paymentSource || $paymentSource->getUser()->id !== $userSession->getId()) {
-                        throw new PaymentSourceException(Plugin::t('Cannot select payment source.'));
-                    }
-                    $order->gatewayId = null;
-                    $order->paymentSourceId = $paymentSource->id;
-                } catch (PaymentSourceException $exception) {
-                    if ($request->getAcceptsJson()) {
-                        return $this->asErrorJson($exception->getMessage());
-                    }
+        /**
+         *
+         * Are we paying with:
+         *
+         * 1) The current order paymentSourceId
+         * OR
+         * 2) The current order gatewayId and a payment form populated from the request
+         *
+         */
 
-                    $session->setError($exception->getMessage());
-
-                    return null;
-                }
-            } else {
-                $paymentSource = $order->getPaymentSource();
+        // 1) Paying with the current order paymentSourceId
+        if ($order->paymentSourceId) {
+            /** @var PaymentSource $paymentSource */
+            $paymentSource = $order->getPaymentSource();
+            if ($gateway->supportsPaymentSources()) {
+                $paymentForm->populateFromPaymentSource($paymentSource);
             }
-        } catch (Exception $exception) {
-            // Just attempt to pay by card, then.
-            $paymentSource = null;
         }
 
-        // If we have a payment source, populate from that as well.
-        if ($paymentSource) {
-            try {
+        // 2) Paying with the current order gatewayId and a payment form populated from the request
+        if ($order->gatewayId && !$order->paymentSourceId) {
+
+            // Populate the payment form from the params
+            $paymentForm->setAttributes($request->getBodyParams(), false);
+
+            // Does the user want to save this card as a payment source?
+            if ($currentUser && $request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
+                $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+                $order->setPaymentSource($paymentSource);
                 $paymentForm->populateFromPaymentSource($paymentSource);
-            } catch (NotSupportedException $exception) {
-                $customError = Plugin::t('Unable to make payment at this time.');
-
-                if ($request->getAcceptsJson()) {
-                    return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
-                }
-
-                $session->setError($customError);
-                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-                return null;
             }
         }
 
@@ -322,36 +302,35 @@ class PaymentsController extends BaseFrontEndController
         // This also confirms the products are available and discounts are current.
         $order->recalculate();
         // Save the orders new values.
-        if (Craft::$app->getElements()->saveElement($order)) {
-            $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
-            $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
-            $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-            // Has the order changed in a significant way?
-            if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
-                if ($totalPriceChanged) {
-                    $order->addError('totalPrice', Plugin::t('The total price of the order changed.'));
-                }
+        $totalPriceChanged = $originalTotalPrice != $order->getOutstandingBalance();
+        $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
+        $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-                if ($totalQtyChanged) {
-                    $order->addError('totalQty', Plugin::t('The total quantity of items within the order changed.'));
-                }
-
-                if ($totalAdjustmentsChanged) {
-                    $order->addError('totalAdjustments', Plugin::t('The total number of order adjustments changed.'));
-                }
-
-                $customError = Plugin::t('Something changed with the order before payment, please review your order and submit payment again.');
-
-                if ($request->getAcceptsJson()) {
-                    return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
-                }
-
-                $session->setError($customError);
-                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-                return null;
+        // Has the order changed in a significant way?
+        if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
+            if ($totalPriceChanged) {
+                $order->addError('totalPrice', Plugin::t('The total price of the order changed.'));
             }
+
+            if ($totalQtyChanged) {
+                $order->addError('totalQty', Plugin::t('The total quantity of items within the order changed.'));
+            }
+
+            if ($totalAdjustmentsChanged) {
+                $order->addError('totalAdjustments', Plugin::t('The total number of order adjustments changed.'));
+            }
+
+            $customError = Plugin::t('Something changed with the order before payment, please review your order and submit payment again.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
+            }
+
+            $session->setError($customError);
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+            return null;
         }
 
         $redirect = '';
