@@ -109,6 +109,7 @@
                     {% endif %}
                 {% else %}
                     {% do cart.setPaymentCurrency(paymentCurrency) %}
+                    {% set canPay = true %}
                     <form id="paymentForm" method="POST" class="form-horizontal paymentSource-form max-w-md">
                         <input type="hidden" name="action" value="commerce/payments/pay"/>
                         {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
@@ -125,6 +126,7 @@
                                 {% set gateway = craft.commerce.gateways.getGatewayById(paymentMethodParts[1]) ?? null %}
 
                                 {% if not gateway %}
+                                    {% set canPay = false %}
                                     <div class="bg-red text-white mb-4">
                                         <div class="flash container mx-auto px-6 py-4">
                                             Unable to retrieve gateway.
@@ -141,8 +143,19 @@
                                     {% endif %}
                                 {% endif %}
 
-                            {% else if paymentMethodsParts[0] == 'card' %}
-                                <input type="hidden" name="paymentSourceId" value="{{ paymentMethodParts[1] }}">
+                            {% elseif paymentMethodParts[0] == 'card' %}
+                                {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentMethodParts[1]) ?? null %}
+                                {% if not paymentSource or not currentUser or (currentUser and currentUser.id != customer.userId) %}
+                                    {% set canPay = false %}
+                                    <div class="bg-red text-white mb-4">
+                                        <div class="flash container mx-auto px-6 py-4">
+                                            Payment source not applicable for current user.
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <p>Pay with: {{ paymentSource.description }}</p>
+                                    <input type="hidden" name="paymentSourceId" value="{{ paymentMethodParts[1] }}">
+                                {% endif %}
                             {% endif %}
 
                             <div class="mt-4">
@@ -154,7 +167,9 @@
                                         }) }}" class="button">Back</a>
                                     </div>
                                     <div class="w-1/2 text-right">
-                                        <button class="button button-primary" type="submit">Pay {{ cart.getOutstandingBalance()|commerceCurrency(paymentCurrency,convert=true) }}</button>
+                                        {% if canPay %}
+                                            <button class="button button-primary" type="submit">Pay {{ cart.getOutstandingBalance()|commerceCurrency(paymentCurrency,convert=true) }}</button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
