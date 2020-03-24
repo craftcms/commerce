@@ -19,7 +19,7 @@
             {#
                 Show form to be filled out allowing access to the payment form.
             #}
-            {% if (not number or not email) or (number and email and not cart) %}
+            {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
                 {#
                     Display errors if cart cannot be retrieved or if there is no
                     outstanding balance to be paid.
@@ -28,7 +28,7 @@
                     <div class="bg-red text-white mb-4">
                         <div class="flash container mx-auto px-6 py-4">
                             {% if cart and not cart.hasOutstandingBalance %}
-                                Nothing to pay on this order.
+                                No outstanding balance on this order.
                             {% else %}
                                 Unable to retrieve order.
                             {% endif %}
@@ -141,8 +141,8 @@
                                     {% endif %}
                                 {% endif %}
 
-                            {% else %}
-                                {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
+                            {% else if paymentMethodsParts[0] == 'card' %}
+                                <input type="hidden" name="paymentSourceId" value="{{ paymentMethodParts[1] }}">
                             {% endif %}
 
                             <div class="mt-4">
