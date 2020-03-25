@@ -32,7 +32,7 @@ class Variant extends Query
         }
 
         return [
-            'products' => [
+            'variants' => [
                 'type' => Type::listOf(VariantInterface::getType()),
                 'args' => VariantArguments::getArguments(),
                 'resolve' => VariantResolver::class . '::resolve',
