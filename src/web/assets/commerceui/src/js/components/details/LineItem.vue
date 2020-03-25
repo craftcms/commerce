@@ -52,7 +52,7 @@
                             <div class="order-flex">
                                 <template v-if="editing && editMode">
                                     <field v-slot:default="slotProps">
-                                        <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" :class="{ 'error': getErrors('lineItems.'+lineItemKey+'.qty') }" />
+                                        <input :id="slotProps.id" type="text" class="text" size="3" v-model="qty" :class="{ 'error': getErrors('lineItems.'+lineItemKey+'.qty').length }" />
                                     </field>
                                 </template>
                                 <template v-else>
