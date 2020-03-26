@@ -172,7 +172,7 @@ class Variant extends Purchasable
     public $productId;
 
     /**
-     * @var int $isDefault
+     * @var bool $isDefault
      */
     public $isDefault;
 
@@ -826,7 +826,7 @@ class Variant extends Purchasable
         $record->minQty = $this->minQty;
         $record->maxQty = $this->maxQty;
         $record->stock = $this->stock;
-        $record->isDefault = $this->isDefault;
+        $record->isDefault = (bool) $this->isDefault;
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
