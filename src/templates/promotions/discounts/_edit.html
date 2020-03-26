@@ -387,7 +387,7 @@
 
         {{ forms.field({
             label: "Flat Order Discount Amount Off"|t('commerce'),
-            instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in the same order as your tax categories, then highest price to lowest price, until the discount is used up."|t('commerce'),
+            instructions: "The amount of discount that is applied to the whole order. This amount is spread across line items in order of highest price to lowest price, until the discount is used up."|t('commerce'),
             id: 'baseDiscount',
             errors: discount.getErrors('baseDiscount'),
             warning: showWarning ? 'You have selected an option that will be removed in the next release of Craft Commerce. Use the “Per Item Discount” options to take a percentage off the whole order, or change this option to “Value”'|t('commerce') : null,
