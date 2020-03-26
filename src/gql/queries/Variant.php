@@ -7,20 +7,20 @@
 
 namespace craft\commerce\gql\queries;
 
-use craft\commerce\gql\arguments\elements\Product as ProductArguments;
-use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
-use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
+use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
+use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
+use craft\commerce\gql\resolvers\elements\Variant as VariantResolver;
 use craft\commerce\helpers\Gql as GqlHelper;
 use craft\gql\base\Query;
 use GraphQL\Type\Definition\Type;
 
 /**
- * Class Product
+ * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
+ * @since 3.x
  */
-class Product extends Query
+class Variant extends Query
 {
     /**
      * @inheritdoc
@@ -32,11 +32,11 @@ class Product extends Query
         }
 
         return [
-            'products' => [
-                'type' => Type::listOf(ProductInterface::getType()),
-                'args' => ProductArguments::getArguments(),
-                'resolve' => ProductResolver::class . '::resolve',
-                'description' => 'This query is used to query for products.'
+            'variants' => [
+                'type' => Type::listOf(VariantInterface::getType()),
+                'args' => VariantArguments::getArguments(),
+                'resolve' => VariantResolver::class . '::resolve',
+                'description' => 'This query is used to query for variants.'
             ],
         ];
     }
