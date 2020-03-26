@@ -186,6 +186,11 @@ class Discount extends Model
     public $ignoreSales = true;
 
     /**
+     * @var bool What the per item amount and per item percentage off amounts can apply to
+     */
+    public $appliedTo = DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
@@ -350,6 +355,13 @@ class Discount extends Model
                     DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
                 ]
         ];
+        $rules[] = [
+            ['appliedTo'], 'in', 'range' =>
+                [
+                    DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS,
+                    DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS
+                ]
+        ];
         $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
         $rules[] = [
             'hasFreeShippingForOrder', function($attribute, $params, $validator) {
@@ -364,7 +376,7 @@ class Discount extends Model
 
 
     /**
-     * Loads the sale relations
+     * Loads the discount relations
      */
     private function _loadRelations()
     {

@@ -38,6 +38,8 @@ class Shipping extends Component implements AdjusterInterface
     private $_isEstimated = false;
 
     /**
+     * Temporary feature flag for testing
+     *
      * @var bool
      */
     private $_consolidateShippingToSingleAdjustment = false;

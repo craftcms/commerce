@@ -121,7 +121,8 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.10';
+
+    public $schemaVersion = '3.1.0';
 
     /**
      * @inheritdoc

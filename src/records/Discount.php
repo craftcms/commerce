@@ -37,7 +37,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $name
  * @property string $percentageOffSubject
  * @property float $percentDiscount
- * @property int $perEmailLimit
+ * @property string $appliedTo
+ * @property string $perEmailLimit
  * @property float $perItemDiscount
  * @property int $perUserLimit
  * @property int $purchaseQty
@@ -66,6 +67,8 @@ class Discount extends ActiveRecord
     const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
     const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
+    const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
+    const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
     /**
      * @inheritdoc
