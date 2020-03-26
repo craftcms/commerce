@@ -756,7 +756,11 @@ class Variant extends Purchasable
 
             return [
                 'elementType' => Product::class,
-                'map' => $map
+                'map' => $map,
+                'criteria' => [
+                    'status' => null,
+                    'enabledForSite' => false,
+                ]
             ];
         }
 
@@ -903,7 +907,9 @@ class Variant extends Purchasable
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
-            $this->setProduct($product);
+            if ($product) {
+                $this->setProduct($product);
+            }
         } else {
             parent::setEagerLoadedElements($handle, $elements);
         }

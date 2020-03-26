@@ -2,12 +2,24 @@
 
 ## Unreleased
 
+## Changed
+- Made some performance improvements for installations with a large amount of orders.
+
+## 3.0.12 - 2020-03-20
+
 ### Added
-- Requests to `commerce/cart/*` now accept an optional `validateCustomFields` parameter.
-Added `validateCustomFields` form parameter to allow custom field validation when posting to `commerce/cart/update-cart`. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- Added the `validateCartCustomFieldsOnSubmission` config setting. ([#1292](https://github.com/craftcms/commerce/issues/1292))
+- It is now possible to search orders by the SKUs being purchased. ([#1328](https://github.com/craftcms/commerce/issues/1328))
+- Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser()`.
 
 ### Changed
 - Updated the minimum required version to upgrade to `2.2.18`.
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions were not checked when removing shipping costs. ([#1321](https://github.com/craftcms/commerce/issues/1321))
+- Fixed an error that could occur when eager loading `product` on a variant query.
+- Fixed an PHP error that could occur when all countries are disabled. ([#1314](https://github.com/craftcms/commerce/issues/1314))
+- Fixed a bug that could occur for logged in users when removing all items from the cart. ([#1319](https://github.com/craftcms/commerce/issues/1319))
 
 ## 3.0.11 - 2020-02-25
 

@@ -472,18 +472,46 @@ class Discounts extends Component
             return false;
         }
 
+        if ($discount->allPurchasables && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
+            return false;
+        }
+
+        if ($discount->allPurchasables && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+            return false;
+        }
+
+        if ($discount->allPurchasables && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
+            return false;
+        }
+
         // Check to see if we need to match on data related to the lineItems
         if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
             $lineItemMatch = false;
+            $matchingTotal = 0;
+            $matchingQty = 0;
             foreach ($order->getLineItems() as $lineItem) {
                 // Must mot match order as we would get an infinate recursion
                 if ($this->matchLineItem($lineItem, $discount, false)) {
                     $lineItemMatch = true;
+                    $matchingTotal += $lineItem->getSubtotal();
+                    $matchingQty += $lineItem->qty;
                     break;
                 }
             }
 
             if (!$lineItemMatch) {
+                return false;
+            }
+
+            if ($discount->purchaseTotal > 0 && $matchingTotal < $discount->purchaseTotal) {
+                return false;
+            }
+
+            if ($discount->purchaseQty > 0 && $matchingQty < $discount->purchaseQty) {
+                return false;
+            }
+
+            if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty) {
                 return false;
             }
         }

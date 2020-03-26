@@ -201,6 +201,11 @@ class Settings extends Model
      */
     public $showCustomerInfoTab = true;
 
+    /**
+     * @var bool
+     * @since 3.0.12
+     */
+     public $validateCartCustomFieldsOnSubmission = false;
 
     /**
      * @return array
