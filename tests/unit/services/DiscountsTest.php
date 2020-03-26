@@ -221,7 +221,7 @@ class DiscountsTest extends Unit
         $explanation = '';
         $result = $this->discounts->orderCouponAvailable($order, $explanation);
         $this->assertFalse($result);
-        $this->assertSame('This coupon limited to 1 uses.', $explanation);
+        $this->assertSame('This coupon is limited to 1 uses.', $explanation);
     }
 
     /**
