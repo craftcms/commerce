@@ -86,7 +86,7 @@ class OrderQuery extends ElementQuery
      * @var mixed The date the order was authorized in full.
      */
     public $dateAuthorized;
-    
+
     /**
      * @var int The Order Status ID that the resulting orders must have.
      */
@@ -972,8 +972,8 @@ class OrderQuery extends ElementQuery
                 $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
             }
         }
-
-        if ($commerce && version_compare($commerce['version'], '3.0.8', '>=')) {
+            
+        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
             $this->query->addSelect(['[[commerce_orders.totalPrice]] as [[storedTotalPrice]]']);
             $this->query->addSelect(['[[commerce_orders.totalPaid]] as [[storedTotalPaid]]']);
             $this->query->addSelect(['[[commerce_orders.itemTotal]] as [[storedItemTotal]]']);

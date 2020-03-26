@@ -634,7 +634,7 @@ class Customers extends Component
         }
 
         // already a user?
-        $user = User::find()->email($order->email)->one();
+        $user = User::find()->email($order->email)->status(null)->one();
         if ($user) {
             return;
         }

@@ -268,7 +268,7 @@ class Countries extends Component
      * @param array $ids
      * @return bool
      * @throws \yii\db\Exception
-     * @since 3.1
+     * @since 2.2
      */
     public function reorderCountries(array $ids): bool
     {

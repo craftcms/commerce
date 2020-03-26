@@ -42,57 +42,166 @@ use yii\web\ServerErrorHttpException;
 class Emails extends Component
 {
     /**
-     * @event MailEvent The event that is raised before an email is sent.
-     * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
+     * @event MailEvent The event that is triggered before an email is sent out.
      *
-     * Plugins can get notified before an email is being sent out.
+     * You may set the `isValid` property to `false` on the event to prevent the email from being sent.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\Email;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\mail\Message;
      * use yii\base\Event;
      *
-     * Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, function(MailEvent $e) {
-     *      // Maybe prevent the email based on some business rules or client preferences.
-     * });
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_BEFORE_SEND_MAIL,
+     *     function(MailEvent $event) {
+     *         // @var Message $message
+     *         $message = $event->craftEmail;
+     *         // @var Email $email
+     *         $email = $event->commerceEmail;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var OrderHistory $history
+     *         $history = $event->orderHistory;
+     * 
+     *         // Use `$event->isValid = false` to prevent sending
+     *         // based on some business rules or client preferences
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
     /**
-     * @event MailEvent The event that is raised after an email is sent
-     *
-     * Plugins can get notified after an email has been sent out.
+     * @event MailEvent The event that is triggered after an email has been sent out.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\models\Email;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\mail\Message;
      * use yii\base\Event;
-     *
-     * Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, function(MailEvent $e) {
-     *      // Perhaps add the email to a CRM system
-     * });
+     * 
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_AFTER_SEND_MAIL,
+     *     function(MailEvent $event) {
+     *         // @var Message $message
+     *         $message = $event->craftEmail;
+     *         // @var Email $email
+     *         $email = $event->commerceEmail;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var OrderHistory $history
+     *         $history = $event->orderHistory;
+     * 
+     *         // Add the email address to an external CRM
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is saved.
+     *
+     * ```php
+     * use craft\commerce\events\EmailEvent;
+     * use craft\commerce\services\Emails;
+     * use craft\commerce\models\Email;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_BEFORE_SAVE_EMAIL,
+     *     function(EmailEvent $event) {
+     *         // @var Email $email
+     *         $email = $event->email;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     * 
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_BEFORE_SAVE_EMAIL = 'beforeSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is saved.
+     *
+     * ```php
+     * use craft\commerce\events\EmailEvent;
+     * use craft\commerce\services\Emails;
+     * use craft\commerce\models\Email;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_AFTER_SAVE_EMAIL,
+     *     function(EmailEvent $event) {
+     *         // @var Email $email
+     *         $email = $event->email;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     * 
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_AFTER_SAVE_EMAIL = 'afterSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is deleted.
+     * 
+     * ```php
+     * use craft\commerce\events\EmailEvent;
+     * use craft\commerce\services\Emails;
+     * use craft\commerce\models\Email;
+     * use yii\base\Event;
+     * 
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_BEFORE_DELETE_EMAIL,
+     *     function(EmailEvent $event) {
+     *         // @var Email $email
+     *         $email = $event->email;
+     * 
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_BEFORE_DELETE_EMAIL = 'beforeDeleteEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is deleted.
+     * ```php
+     * use craft\commerce\events\EmailEvent;
+     * use craft\commerce\services\Emails;
+     * use craft\commerce\models\Email;
+     * use yii\base\Event;
+     * 
+     * Event::on(
+     *     Emails::class,
+     *     Emails::EVENT_AFTER_DELETE_EMAIL,
+     *     function(EmailEvent $event) {
+     *         // @var Email $email
+     *         $email = $event->email;
+     * 
+     *         // ...
+     *     }
+     * );
+     * ```
      */
     const EVENT_AFTER_DELETE_EMAIL = 'afterDeleteEmail';
 
