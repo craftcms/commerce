@@ -68,6 +68,16 @@ class Product extends Element
     public static function getFieldDefinitions(): array
     {
         return TypeManager::prepareFieldDefinitions(array_merge(parent::getFieldDefinitions(), [
+            'availableForPurchase' => [
+                'name' => 'availableForPurchase',
+                'type' => Type::boolean(),
+                'description' => 'If the product is available for purchase.'
+            ],
+            'defaultPrice' => [
+                'name' => 'defaultPrice',
+                'type' => Type::float(),
+                'description' => 'The price of the default variant for the product.'
+            ],
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
