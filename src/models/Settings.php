@@ -201,6 +201,17 @@ class Settings extends Model
      */
     public $showCustomerInfoTab = true;
 
+    /**
+     * @var bool
+     * @since 3.0.12
+     */
+     public $validateCartCustomFieldsOnSubmission = false;
+
+    /**
+     * @var string|null the uri to redirect to after using the load cart url
+     * @since 3.x
+     */
+     public $loadCartRedirectUrl = null;
 
     /**
      * @return array

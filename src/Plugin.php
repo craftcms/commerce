@@ -124,7 +124,8 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.10';
+
+    public $schemaVersion = '3.1.6';
 
     /**
      * @inheritdoc
@@ -139,7 +140,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public $minVersionRequired = '1.2.1360';
+    public $minVersionRequired = '2.2.18';
 
     use CommerceServices;
     use Variables;

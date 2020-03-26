@@ -604,6 +604,23 @@ class OrdersController extends Controller
         return $this->asErrorJson(Plugin::t('Could not update orders address.'));
     }
 
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 3.x
+     */
+    public function actionGetIndexSourcesBadgeCounts(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $counts = Plugin::getInstance()->getOrderStatuses()->getOrderCountByStatus();
+
+        $total = array_reduce($counts, static function($sum, $thing) {
+            return $sum + (int)$thing['orderCount'];
+        }, 0);
+
+        return $this->asJson(compact('counts', 'total'));
+    }
 
     /**
      * Returns Payment Modal

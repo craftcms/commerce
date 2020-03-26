@@ -12,6 +12,7 @@
 
 {% set fullPageForm = true %}
 {% set saveShortcutRedirect = continueEditingUrl %}
+{% do view.setIsDeltaRegistrationActive(true) %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/products/_fields" as productFields %}
@@ -128,6 +129,7 @@
                     {% include "_includes/fields" with {
                         fields: tab.getFields(),
                         element: product,
+                        registerDeltas: true,
                     } only %}
                 </div>
             {% endfor %}
@@ -153,6 +155,8 @@
             </div>
         </div>
     {% endif %}
+
+    {% hook "cp.commerce.product.edit.content" %}
 {% endblock %}
 
 
@@ -238,7 +242,7 @@
   {% js %}
       window.slugGenerator = new Craft.SlugGenerator('#title', '#slug');
   {% endjs %}
-{% else %}
+{% elseif product.id %}
   {% js %}
       new Craft.Commerce.ProductEdit({
         id: {{ product.id|raw }},

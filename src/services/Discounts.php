@@ -26,6 +26,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
@@ -43,70 +44,106 @@ use function in_array;
 class Discounts extends Component
 {
     /**
-     * @event DiscountEvent The event that is raised before an discount is saved.
-     *
-     * Plugins can get notified before an discount is being saved
+     * @event DiscountEvent The event that is triggered before a discount is saved.
      *
      * ```php
      * use craft\commerce\events\DiscountEvent;
      * use craft\commerce\services\Discounts;
+     * use craft\commerce\models\Discount;
      * use yii\base\Event;
      *
-     * Event::on(Discounts::class, Discounts::EVENT_BEFORE_SAVE_DISCOUNT, function(DiscountEvent $e) {
-     *     // Do something - perhaps let an external CRM system know about a client's new discount
-     * });
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_BEFORE_SAVE_DISCOUNT,
+     *     function(DiscountEvent $event) {
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *
+     *         // Let an external CRM know about a client’s new discount
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_SAVE_DISCOUNT = 'beforeSaveDiscount';
 
     /**
-     * @event DiscountEvent The event that is raised after an discount is saved.
-     *
-     * Plugins can get notified after an discount has been saved
+     * @event DiscountEvent The event that is triggered after a discount is saved.
      *
      * ```php
      * use craft\commerce\events\DiscountEvent;
      * use craft\commerce\services\Discounts;
+     * use craft\commerce\models\Discount;
      * use yii\base\Event;
      *
-     * Event::on(Discounts::class, Discounts::EVENT_AFTER_SAVE_DISCOUNT, function(DiscountEvent $e) {
-     *     // Do something - perhaps set this discount as default in an external CRM system
-     * });
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_AFTER_SAVE_DISCOUNT,
+     *     function(DiscountEvent $event) {
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *
+     *         // Set this discount as default in an external CRM
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_SAVE_DISCOUNT = 'afterSaveDiscount';
 
     /**
-     * @event DiscountEvent The event that is raised after an discount is deleted.
-     *
-     * Plugins can get notified after an discount has been deleted.
+     * @event DiscountEvent The event that is triggered after a discount is deleted.
      *
      * ```php
      * use craft\commerce\events\DiscountEvent;
      * use craft\commerce\services\Discounts;
+     * use craft\commerce\models\Discount;
      * use yii\base\Event;
      *
-     * Event::on(Discounts::class, Discounts::EVENT_AFTER_DELETE_DISCOUNT, function(DiscountEvent $e) {
-     *     // Do something - perhaps remove this discount from a payment gateway.
-     * });
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_AFTER_DELETE_DISCOUNT,
+     *     function(DiscountEvent $event) {
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *
+     *         // Remove this discount from a payment gateway
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_AFTER_DELETE_DISCOUNT = 'afterDeleteDiscount';
 
     /**
-     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount
-     * You may set [[MatchLineItemEvent::isValid]] to `false` to prevent the application of the matched discount.
+     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
      *
-     * Plugins can get notified before an item is removed from the cart.
+     * You may set the `isValid` property to `false` on the event to prevent the application of the matched discount.
      *
      * ```php
-     * use craft\commerce\events\MatchLineItemEvent;
      * use craft\commerce\services\Discounts;
+     * use craft\commerce\events\MatchLineItemEvent;
+     * use craft\commerce\models\Discount;
+     * use craft\commerce\models\LineItem;
      * use yii\base\Event;
      *
-     * Event::on(Discounts::class, Discounts::EVENT_BEFORE_MATCH_LINE_ITEM, function(MatchLineItemEvent $e) {
-     *      // Maybe check some business rules and prevent a match from happening in some cases.
-     * });
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_BEFORE_MATCH_LINE_ITEM,
+     *     function(MatchLineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *
+     *         // Check some business rules and prevent a match in special cases
+     *         // ...
+     *     }
+     * );
      * ```
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
@@ -131,13 +168,7 @@ class Discounts extends Component
      */
     public function getDiscountById($id)
     {
-        foreach ($this->getAllDiscounts() as $discount) {
-            if ($discount->id == $id) {
-                return $discount;
-            }
-        }
-
-        return null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), 'id', $id);
     }
 
     /**
@@ -293,7 +324,7 @@ class Discounts extends Component
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon limited to {limit} uses.', [
+            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -441,18 +472,46 @@ class Discounts extends Component
             return false;
         }
 
+        if ($discount->allPurchasables && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
+            return false;
+        }
+
+        if ($discount->allPurchasables && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+            return false;
+        }
+
+        if ($discount->allPurchasables && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
+            return false;
+        }
+
         // Check to see if we need to match on data related to the lineItems
         if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
             $lineItemMatch = false;
+            $matchingTotal = 0;
+            $matchingQty = 0;
             foreach ($order->getLineItems() as $lineItem) {
                 // Must mot match order as we would get an infinate recursion
                 if ($this->matchLineItem($lineItem, $discount, false)) {
                     $lineItemMatch = true;
+                    $matchingTotal += $lineItem->getSubtotal();
+                    $matchingQty += $lineItem->qty;
                     break;
                 }
             }
 
             if (!$lineItemMatch) {
+                return false;
+            }
+
+            if ($discount->purchaseTotal > 0 && $matchingTotal < $discount->purchaseTotal) {
+                return false;
+            }
+
+            if ($discount->purchaseQty > 0 && $matchingQty < $discount->purchaseQty) {
+                return false;
+            }
+
+            if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty) {
                 return false;
             }
         }
@@ -519,6 +578,7 @@ class Discounts extends Component
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignoreSales = $model->ignoreSales;
         $record->categoryRelationshipType = $model->categoryRelationshipType;
+        $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
@@ -957,41 +1017,48 @@ class Discounts extends Component
      */
     private function _createDiscountQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
-                'discounts.id',
-                'discounts.name',
-                'discounts.description',
-                'discounts.code',
-                'discounts.perUserLimit',
-                'discounts.perEmailLimit',
-                'discounts.totalDiscountUseLimit',
-                'discounts.totalDiscountUses',
-                'discounts.dateFrom',
-                'discounts.dateTo',
-                'discounts.purchaseTotal',
-                'discounts.purchaseQty',
-                'discounts.maxPurchaseQty',
-                'discounts.baseDiscount',
-                'discounts.baseDiscountType',
-                'discounts.perItemDiscount',
-                'discounts.percentDiscount',
-                'discounts.percentageOffSubject',
-                'discounts.excludeOnSale',
-                'discounts.hasFreeShippingForMatchingItems',
-                'discounts.hasFreeShippingForOrder',
-                'discounts.allGroups',
-                'discounts.allPurchasables',
-                'discounts.allCategories',
-                'discounts.categoryRelationshipType',
-                'discounts.enabled',
-                'discounts.stopProcessing',
-                'discounts.ignoreSales',
-                'discounts.sortOrder',
-                'discounts.dateCreated',
-                'discounts.dateUpdated',
+                '[[discounts.id]]',
+                '[[discounts.name]]',
+                '[[discounts.description]]',
+                '[[discounts.code]]',
+                '[[discounts.perUserLimit]]',
+                '[[discounts.perEmailLimit]]',
+                '[[discounts.totalDiscountUseLimit]]',
+                '[[discounts.totalDiscountUses]]',
+                '[[discounts.dateFrom]]',
+                '[[discounts.dateTo]]',
+                '[[discounts.purchaseTotal]]',
+                '[[discounts.purchaseQty]]',
+                '[[discounts.maxPurchaseQty]]',
+                '[[discounts.baseDiscount]]',
+                '[[discounts.baseDiscountType]]',
+                '[[discounts.perItemDiscount]]',
+                '[[discounts.percentDiscount]]',
+                '[[discounts.percentageOffSubject]]',
+                '[[discounts.excludeOnSale]]',
+                '[[discounts.hasFreeShippingForMatchingItems]]',
+                '[[discounts.hasFreeShippingForOrder]]',
+                '[[discounts.allGroups]]',
+                '[[discounts.allPurchasables]]',
+                '[[discounts.allCategories]]',
+                '[[discounts.categoryRelationshipType]]',
+                '[[discounts.enabled]]',
+                '[[discounts.stopProcessing]]',
+                '[[discounts.ignoreSales]]',
+                '[[discounts.sortOrder]]',
+                '[[discounts.dateCreated]]',
+                '[[discounts.dateUpdated]]',
             ])
             ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+        if ($commerce && version_compare($commerce['version'], '3.1', '>=')) {
+            $query->addSelect('[[discounts.appliedTo]]');
+        }
+
+        return $query;
     }
 }

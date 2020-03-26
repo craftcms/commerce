@@ -16,6 +16,8 @@
 - Added `craft\commerce\gql\arguments\types\generators\VariantType`.
 
 ### Changed
+- The amount of base discount in a discount action is now spread across the line items from highest priced to lowest.
 - A line item‘s `price` and `salePrice` are now rounded before being multiplied by the quantity.
 - Discount and Tax calculations are now more accurate.
+- The commerceCurrency twig filter now rounds consistently with currency rounding
 - Fixed an error that could occur when querying product GraphQL using product type. 
