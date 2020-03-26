@@ -67,8 +67,8 @@ class Discount extends ActiveRecord
     const CATEGORY_RELATIONSHIP_TYPE_TARGET = 'targetElement';
     const CATEGORY_RELATIONSHIP_TYPE_BOTH = 'element';
 
-    const APPLIED_TO_MATCHING_LINE_ITEMS= 'matchingLineItems';
-    const APPLIED_TO_ALL_LINE_ITEMS= 'allLineItems';
+    const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
+    const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
 
     /**
      * @inheritdoc
