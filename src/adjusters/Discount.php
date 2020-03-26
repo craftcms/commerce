@@ -82,8 +82,11 @@ class Discount extends Component implements AdjusterInterface
      *
      * @var bool
      */
-    private $_spreadBaseOrderDiscountsToLineItems = false;
+    private $_spreadBaseOrderDiscountsToLineItems = true;
 
+    /**
+     * @var array
+     */
     private $_discountUnitPricesByLineItem = [];
 
     /**
