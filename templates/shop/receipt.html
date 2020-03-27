@@ -38,7 +38,7 @@
     <tr>
         <td valign="top"><img src="" alt="Logo" width="150" /></td>
         <td align="right">
-            <h3>{{craft.app.systemName}}</h3>
+            <h3 class="font-semibold">{{craft.app.systemName}}</h3>
             {% if order.shippingAddress %}
                 {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
             {% endif %}
