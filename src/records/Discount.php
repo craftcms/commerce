@@ -43,6 +43,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $perUserLimit
  * @property int $purchaseQty
  * @property int $purchaseTotal
+ * @property string|null $orderConditionFormula
  * @property int $sortOrder
  * @property bool $stopProcessing
  * @property bool $ignoreSales
