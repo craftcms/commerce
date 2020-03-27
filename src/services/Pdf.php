@@ -116,7 +116,7 @@ class Pdf extends Component
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
-        if (!$templatePath || !$view->doesTemplateExist($templatePath)) {
+        if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
 
@@ -124,7 +124,7 @@ class Pdf extends Component
         }
 
         try {
-            $html = $view->renderTemplate($templatePath, $variables);
+            $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
