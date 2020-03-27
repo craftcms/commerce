@@ -46,7 +46,7 @@
     {% set flashNotice = craft.app.session.getFlash('notice') %}
 
     {% if flashNotice %}
-        <div class="bg-blue text-white">
+        <div class="bg-blue-500 text-white">
             <div class="flash container mx-auto px-6 py-4">
                 {{ flashNotice }}
             </div>
@@ -56,7 +56,7 @@
     {% set flashError = craft.app.session.getFlash('error') %}
 
     {% if flashError %}
-        <div class="bg-red text-white">
+        <div class="bg-red-500 text-white">
             <div class="flash container mx-auto px-6 py-4">
                 {{ flashError }}
             </div>
@@ -64,7 +64,7 @@
     {% endif %}
 
     {% if cart.errors|length %}
-        <div class="bg-red text-white">
+        <div class="bg-red-500 text-white">
             <div class="container mx-auto px-6 py-4">
                 {% for attribute, errors in cart.errors %}
                     {% if loop.first %}<ul>{% endif %}
