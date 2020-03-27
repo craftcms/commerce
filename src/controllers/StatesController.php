@@ -14,6 +14,8 @@ use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
+use craft\helpers\Json;
+use craft\helpers\UrlHelper;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -121,7 +123,7 @@ class StatesController extends BaseStoreSettingsController
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
             Craft::$app->getSession()->setNotice(Plugin::t('State saved.'));
-            $this->redirectToPostedUrl($state);
+            $this->redirect(UrlHelper::cpUrl('commerce/store-settings/countries/' . $state->getCountry()->id));
         } else {
             Craft::$app->getSession()->setError(Plugin::t('Couldn’t save state.'));
         }
@@ -175,5 +177,24 @@ class StatesController extends BaseStoreSettingsController
         $transaction->commit();
 
         Craft::$app->getSession()->setNotice(Plugin::t('States updated.'));
+    }
+
+    /**
+     * @return Response
+     * @throws \yii\db\Exception
+     * @throws BadRequestHttpException
+     * @since 3.1
+     */
+    public function actionReorder(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
+
+        if ($success = Plugin::getInstance()->getStates()->reorderStates($ids)) {
+            return $this->asJson(['success' => $success]);
+        }
+
+        return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
     }
 }

@@ -8,18 +8,18 @@
 namespace craft\commerce\gql\resolvers\elements;
 
 use craft\commerce\db\Table;
-use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\helpers\Gql as GqlHelper;
 use craft\gql\base\ElementResolver;
 use craft\helpers\Db;
 
 /**
- * Class Product
+ * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
+ * @since 3.x
  */
-class Product extends ElementResolver
+class Variant extends ElementResolver
 {
     /**
      * @inheritdoc
@@ -28,7 +28,7 @@ class Product extends ElementResolver
     {
         // If this is the beginning of a resolver chain, start fresh
         if ($source === null) {
-            $query = ProductElement::find();
+            $query = VariantElement::find();
             // If not, get the prepared element query
         } else {
             $query = $source->$fieldName;
@@ -53,7 +53,8 @@ class Product extends ElementResolver
             return [];
         }
 
-        $query->andWhere(['in', 'typeId', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
+        $query->innerJoin(Table::PRODUCTS . ' p', '[[p.id]] = [[commerce_variants.productId]]');
+        $query->andWhere(['in', '[[p.typeId]]', array_values(Db::idsByUids(Table::PRODUCTTYPES, $pairs['productTypes']))]);
 
         return $query;
     }
