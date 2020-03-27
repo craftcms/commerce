@@ -46,12 +46,12 @@ class States extends Component
     /**
      * @var State[]
      */
-    private $_statesOrderedByName = [];
+    private $_statesAsOrdered = [];
 
     /**
      * @var State[]
      */
-    private $_enabledStatesOrderedByName = [];
+    private $_enabledStatesAsOrdered = [];
 
     /**
      * @var State[][]
@@ -179,7 +179,7 @@ class States extends Component
             $results = $this->_createStatesQuery()
                 ->innerJoin(Table::COUNTRIES . ' countries', '[[states.countryId]] = [[countries.id]]')
                 ->addSelect('[[countries.enabled]] as countryEnabled')
-                ->orderBy(['countries.name' => SORT_ASC, 'states.name' => SORT_ASC])
+                ->orderBy(['countries.sortOrder' => SORT_ASC, 'states.sortOrder' => SORT_ASC])
                 ->all();
 
             foreach ($results as $row) {
@@ -188,18 +188,27 @@ class States extends Component
 
                 $state = new State($row);
                 $this->_statesById[$row['id']] = $state;
-                $this->_statesOrderedByName[] = $state;
+                $this->_statesAsOrdered[] = $state;
 
                 if ($state->enabled && $countryEnabled) {
                     $this->_enabledStatesById[$row['id']] = $state;
-                    $this->_enabledStatesOrderedByName[] = $state;
+                    $this->_enabledStatesAsOrdered[] = $state;
                 }
             }
 
             $this->_fetchedAllStates = true;
         }
 
-        return $this->_statesOrderedByName;
+        return $this->_statesAsOrdered;
+    }
+
+    /**
+     * @param int $countryId
+     * @return array
+     */
+    public function getStatesByCountryId(int $countryId): array
+    {
+        return ArrayHelper::where($this->getAllStates(), 'countryId', $countryId);
     }
 
     /**
@@ -212,7 +221,7 @@ class States extends Component
     {
         $this->getAllStates();
 
-        return $this->_enabledStatesOrderedByName;
+        return $this->_enabledStatesAsOrdered;
     }
 
     /**
@@ -281,7 +290,7 @@ class States extends Component
             $record = StateRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No state exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No state exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -326,6 +335,23 @@ class States extends Component
     }
 
     /**
+     * @param array $ids
+     * @return bool
+     * @throws \yii\db\Exception
+     * @since 3.1
+     */
+    public function reorderStates(array $ids): bool
+    {
+        $command = Craft::$app->getDb()->createCommand();
+
+        foreach ($ids as $index => $id) {
+            $command->update(Table::STATES, ['sortOrder' => $index + 1], ['id' => $id])->execute();
+        }
+
+        return true;
+    }
+
+    /**
      * Returns a Query object prepped for retrieving States.
      *
      * @return Query The query object.
@@ -339,8 +365,9 @@ class States extends Component
                 'states.abbreviation',
                 'states.countryId',
                 'states.enabled',
+                'states.sortOrder'
             ])
             ->from([Table::STATES . ' states'])
-            ->orderBy(['name' => SORT_ASC]);
+            ->orderBy(['states.sortOrder' => SORT_ASC]);
     }
 }

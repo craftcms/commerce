@@ -23,7 +23,7 @@ use GraphQL\Type\Definition\UnionType;
 class Gql extends GqlHelper
 {
     /**
-     * Return true if active schema can query entries.
+     * Return true if active schema can query products.
      *
      * @return bool
      */

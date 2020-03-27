@@ -7,19 +7,18 @@
 
 namespace craft\commerce\gql\types\elements;
 
-use craft\commerce\elements\Product as ProductElement;
-use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
-use craft\gql\interfaces\Element as ElementInterface;
+use craft\commerce\elements\Variant as VariantElement;
+use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
 use craft\gql\types\elements\Element as ElementType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 /**
- * Class Product
+ * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.0
+ * @since 3.x
  */
-class Product extends ElementType
+class Variant extends ElementType
 {
     /**
      * @inheritdoc
@@ -27,7 +26,7 @@ class Product extends ElementType
     public function __construct(array $config)
     {
         $config['interfaces'] = [
-            ProductInterface::getType(),
+            VariantInterface::getType(),
         ];
 
         parent::__construct($config);
@@ -38,14 +37,18 @@ class Product extends ElementType
      */
     protected function resolve($source, $arguments, $context, ResolveInfo $resolveInfo)
     {
-        /** @var ProductElement $source */
+        /** @var VariantElement $source */
         $fieldName = $resolveInfo->fieldName;
+        $product = $source->getProduct();
 
         switch ($fieldName) {
-            case 'productTypeHandle':
-                return $source->getType()->handle;
+            case 'productTitle':
+                return $product ? $product->title : '';
+            case 'productTypeId':
+                return $product ? $product->typeId : null;
         }
 
         return parent::resolve($source, $arguments, $context, $resolveInfo);
     }
+
 }

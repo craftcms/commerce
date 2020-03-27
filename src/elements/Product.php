@@ -552,7 +552,7 @@ class Product extends Element
 
     /**
      * @inheritdoc
-     * @since 3.3.0
+     * @since 3.0
      */
     public static function gqlScopesByContext($context): array
     {

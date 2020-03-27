@@ -20,8 +20,11 @@ use craft\commerce\exports\OrderExport;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\gql\arguments\elements\Product as GqlProductArgument;
+use craft\commerce\gql\arguments\elements\Variant as GqlVariantArgument;
+use craft\commerce\gql\interfaces\elements\Variant as GqlVariantInterface;
 use craft\commerce\gql\resolvers\elements\Product as GqlProductResolver;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
+use craft\commerce\gql\resolvers\elements\Variant as GqlVariantResolver;
 use craft\commerce\helpers\ProjectConfigData;
 use craft\commerce\migrations\Install;
 use craft\commerce\models\Settings;
@@ -121,7 +124,8 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.0.10';
+
+    public $schemaVersion = '3.1.6';
 
     /**
      * @inheritdoc
@@ -551,6 +555,7 @@ class Plugin extends BasePlugin
             // Add my GraphQL types
             $types = $event->types;
             $types[] = GqlProductInterface::class;
+            $types[] = GqlVariantInterface::class;
             $event->types = $types;
         });
     }
@@ -566,7 +571,12 @@ class Plugin extends BasePlugin
             $queries['products'] = [
                 'type' => GqlTypeDefinition::listOf(GqlProductInterface::getType()),
                 'args' => GqlProductArgument::getArguments(),
-                'resolve' => GqlProductResolver::class . '::resolve'
+                'resolve' => GqlProductResolver::class . '::resolve',
+            ];
+            $queries['variants'] = [
+                'type' => GqlTypeDefinition::listOf(GqlVariantInterface::getType()),
+                'args' => GqlVariantArgument::getArguments(),
+                'resolve' => GqlVariantResolver::class . '::resolve',
             ];
 
             $event->queries = $queries;
