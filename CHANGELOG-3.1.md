@@ -8,6 +8,7 @@
 - Added `defaultPrice` to product GraphQL fields and arguments.
 - Added `craft\commerce\elements\Variant::getGqlTypeName()`.
 - Added `craft\commerce\elements\Variant::gqlScopesByContext()`.
+- Added `craft\commerce\controllers\AddressesController::getCustomerAddress`.
 - Added `craft\commerce\elements\Variant::gqlTypeNameByContext()`.
 - Added `craft\commerce\gql\arguments\elements\Variant`.
 - Added `craft\commerce\gql\arguments\interfaces\Variant`.

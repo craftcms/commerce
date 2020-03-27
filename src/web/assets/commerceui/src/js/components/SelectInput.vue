@@ -2,11 +2,14 @@
     <div class="v-select-btn btn">
         <v-select
                 ref="vSelect"
+                :class="selectClass"
                 :clearable="clearable"
+                :clear-search-on-blur="clearSearchOnBlur"
                 :create-option="createOption"
                 :components="{OpenIndicator}"
                 :disabled="disabled"
                 :filterable="filterable"
+                :filter-by="filterBy"
                 :label="label"
                 :options="options"
                 :taggable="taggable"
@@ -56,6 +59,10 @@
         },
 
         props: {
+            selectClass: {
+                type: [String, Object],
+                default: '',
+            },
             clearable: {
                 type: Boolean,
             },
@@ -63,6 +70,10 @@
                 type: Function,
             },
             clearSearchOnSelect: {
+                type: Boolean,
+                default: true,
+            },
+            clearSearchOnBlur : {
                 type: Boolean,
                 default: true,
             },
@@ -89,6 +100,10 @@
                 type: String,
                 default: '',
             },
+            preFiltered: {
+                type: Boolean,
+                default: false,
+            },
             value: {},
         },
 
@@ -99,6 +114,16 @@
         },
 
         methods: {
+            filterBy(option, label, search) {
+                // This is a replication of the default in built filter by: https://github.com/sagalbot/vue-select/blob/master/src/components/Select.vue#L378
+                // The reason for including this is the combination of taggable and filterable still runs this function and sometimes we need to overwrite it.
+                if (this.preFiltered === true) {
+                    return true;
+                }
+
+                return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1;
+            },
+
             onSearch(searchText, loading) {
                 this.$emit('search', {searchText, loading})
 

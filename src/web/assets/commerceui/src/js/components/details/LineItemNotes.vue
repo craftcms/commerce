@@ -1,43 +1,39 @@
 <template>
-    <order-block v-if="note || privateNote || editing" class="order-flex">
-        <div class="w-1/3">
-            <h3 class="light">{{"Notes"|t('commerce')}}</h3>
-        </div>
+    <div class="w-full">
+        <order-block v-if="note || editing" class="order-flex w-full">
+            <div class="w-1/5">
+                <h3>{{'Customer Note'|t('commerce')}}</h3>
+            </div>
 
-        <div class="order-flex w-2/3">
-            <div class="order-flex-grow">
+            <div class="w-4/5">
                 <template v-if="!editing">
-                    <template v-if="note">
-                        {{note}}
-                    </template>
-                    <template v-else>
-                        <span class="light">{{ 'No customer note.' }}</span>
-                    </template>
+                    {{note}}
                 </template>
                 <template v-else>
-                    <field :label="this.$options.filters.t('Customer Note', 'commerce')" v-slot:default="slotProps">
+                    <field v-slot:default="slotProps">
                         <textarea :id="slotProps.id" v-model="note" class="text fullwidth"></textarea>
                     </field>
                 </template>
             </div>
+        </order-block>
 
-            <div class="order-flex-grow order-margin">
+        <order-block v-if="privateNote || editing" class="order-flex w-full">
+            <div class="w-1/5">
+                <h3>{{'Private Note'|t('commerce')}}</h3>
+            </div>
+
+            <div class="w-4/5">
                 <template v-if="!editing">
-                    <template v-if="privateNote">
-                        {{privateNote}}
-                    </template>
-                    <template v-else>
-                        <span class="light">{{ "No private Note."|t('commerce') }}</span>
-                    </template>
+                    {{privateNote}}
                 </template>
                 <template v-else>
-                    <field :label="this.$options.filters.t('Private Note', 'commerce')" v-slot:default="slotProps">
+                    <field v-slot:default="slotProps">
                         <textarea :id="slotProps.id" v-model="privateNote" class="text fullwidth"></textarea>
                     </field>
                 </template>
             </div>
-        </div>
-    </order-block>
+        </order-block>
+    </div>
 </template>
 
 <script>
@@ -68,7 +64,7 @@
                     const lineItem = this.lineItem
                     lineItem.note = val
                     this.$emit('updateLineItem', lineItem)
-                }, 1000)
+                }, 2000)
             },
 
             privateNote: {
@@ -80,7 +76,7 @@
                     const lineItem = this.lineItem
                     lineItem.privateNote = val
                     this.$emit('updateLineItem', lineItem)
-                }, 1000)
+                }, 2000)
             },
         }
     }

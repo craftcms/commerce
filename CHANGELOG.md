@@ -56,6 +56,8 @@
 - Added `craft\commerce\models\LineItem::$description`.
 - Added `craft\commerce\elements\Order::$dateAuthorized`.
 - Added `craft\commerce\elements\Order::EVENT_AFTER_ORDER_AUTHORIZED`.
+- Added `craft\commerce\models\LineItem::$sku`.
+- Added `craft\commerce\models\LineItem::$description`.
 
 ### Changed
 - Line items now store their purchasable’s SKU and description directly, in addition to within the snapshot.

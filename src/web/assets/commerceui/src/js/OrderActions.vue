@@ -4,10 +4,22 @@
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
 
             <template v-if="!editing">
-                <input id="order-edit-btn" type="button" class="btn" :value="$options.filters.t('Edit', 'commerce')" @click="edit()" />
+                <input
+                    id="order-edit-btn"
+                    type="button"
+                    class="btn"
+                    :value="$options.filters.t('Edit', 'commerce')"
+                    @click="edit()"
+                />
             </template>
             <template v-else>
-                <input id="order-cancel-btn" type="button" class="btn" :value="$options.filters.t('Cancel', 'commerce')" @click="cancel()" />
+                <input
+                    id="order-cancel-btn"
+                    type="button"
+                    class="btn"
+                    :value="$options.filters.t('Cancel', 'commerce')"
+                    @click="cancel()"
+                />
             </template>
         </div>
 

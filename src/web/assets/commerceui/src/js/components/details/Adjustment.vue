@@ -1,59 +1,55 @@
 <template>
-    <div class="adjustment order-flex">
-        <div class="order-flex-grow">
-            <template v-if="editing && recalculationMode === 'none'">
-                <div class="fields order-flex">
-                    <field :label="$options.filters.t('Type', 'commerce')" :required="true" v-slot:default="slotProps">
-                        <div class="select">
-                            <select :id="slotProps.id" v-model="type">
-                                <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
-                                    {{adjustmentOption.label}}
-                                </option>
-                            </select>
-                        </div>
-                    </field>
+    <div class="adjustment order-flex" :class="{ 'align-center': !showLabels}">
+        <template v-if="editing && recalculationMode === 'none'">
+            <div class="fields order-flex">
+                <field :label="showLabels ? $options.filters.t('Type', 'commerce') : ''" :required="true" v-slot:default="slotProps">
+                    <div class="select">
+                        <select :id="slotProps.id" v-model="type">
+                            <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
+                                {{adjustmentOption.label}}
+                            </option>
+                        </select>
+                    </div>
+                </field>
 
-                    <field :label="$options.filters.t('Name', 'commerce')" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="name" />
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Name', 'commerce') : ''" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="name" />
+                </field>
 
-                    <field :label="$options.filters.t('Description', 'commerce')" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="description" />
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Description', 'commerce') : ''" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="description" />
+                </field>
 
-                    <field :label="$options.filters.t('Amount', 'commerce')" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
-                        <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
+                <field :label="showLabels ? $options.filters.t('Included', 'commerce') : ''"  v-slot:default="slotProps" :class="{'included-labels': showLabels, 'included': !showLabels, 'order-flex': true, 'align-center': true }">
+                    <input :id="slotProps.id" type="checkbox" class="checkbox" v-model="included"><label :for="slotProps.id">&nbsp;</label>
+                </field>
 
-                        <div class="included">
-                            <input :id="_uid + '-included'" type="checkbox" class="checkbox" v-model="included" /> <label :for="_uid + '-included'">{{"Included"|t('commerce')}}</label>
-                        </div>
-                    </field>
+                <field :label="showLabels ? $options.filters.t('Amount', 'commerce') : ''" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
+                    <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
+                </field>
+                <div class="order-flex justify-center flex-grow" :class="{'pt': showLabels }">
+                    <btn-link button-class="btn-link btn-link--danger" @click="$emit('remove')">{{"X"}}</btn-link>
                 </div>
-            </template>
-
-            <template v-else>
-                {{name}}
-                <span class="light">({{type}})</span>
-                {{description}}
-
-                <snapshot>{{adjustment.sourceSnapshot}}</snapshot>
-            </template>
-        </div>
-
-        <div class="order-flex-grow text-right order-price">
-            <template v-if="adjustment.included !== '0' && adjustment.included !== false">
-                <div class="light">{{"{amount} included"|t('commerce', {amount: adjustment.amountAsCurrency})}}</div>
-            </template>
-            <template v-else>
-                {{adjustment.amountAsCurrency}}
-            </template>
-
-            <template v-if="editing && recalculationMode === 'none'">
-                <div>
-                    <btn-link @click="$emit('remove')">{{"Remove"|t('commerce')}}</btn-link>
+            </div>
+        </template>
+        <template v-else>
+            <div class="w-1/5">
+                <span class="adjustment-type">{{type}}</span>
+            </div>
+            <div class="w-4/5 order-flex">
+                <div class="w-2/3">
+                    {{name}}<span v-if="description"> - {{description}}</span>
                 </div>
-            </template>
-        </div>
+                <div class="w-1/3 text-right">
+                    <template v-if="adjustment.included !== '0' && adjustment.included !== false">
+                        <div class="light">{{"{amount} included"|t('commerce', {amount: adjustment.amountAsCurrency})}}</div>
+                    </template>
+                    <template v-else>
+                        {{adjustment.amountAsCurrency}}
+                    </template>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
@@ -61,12 +57,10 @@
     import debounce from 'lodash.debounce'
     import {mapGetters} from 'vuex'
     import Field from '../Field'
-    import Snapshot from './Snapshot'
 
     export default {
         components: {
             Field,
-            Snapshot,
         },
 
         props: {
@@ -84,6 +78,10 @@
             },
             editing: {
                 type: Boolean,
+            },
+            showLabels: {
+                type: Boolean,
+                default: false,
             }
         },
 
@@ -179,28 +177,54 @@
 </script>
 
 <style lang="scss">
+    @import "~craftcms-sass/src/mixins";
+
     .adjustment {
         padding-bottom: 10px;
-        padding-top: 10px;
 
-        &:not(:last-child) {
-            border-bottom: 1px solid rgba(0, 0, 20, 0.1);
-        }
-
-        &:first-child {
-            padding-top: 0px;
+        &-type {
+            color: $grey;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         .fields {
             display: flex;
             box-sizing: inherit;
-            margin: 0 -10px;
+            margin: 0 -5px;
 
             .field {
                 margin: 0;
-                width: 25%;
-                padding: 0 10px;
+                width: 20%;
+                padding: 0 5px;
                 box-sizing: inherit;
+
+                &.included,
+                &.included-labels {
+                    width: 14%;
+
+                    .input {
+                        display: flex;
+                    }
+                }
+
+                &.included-labels {
+                    display: flex;
+                    flex-direction: column;
+
+                    .input {
+                        flex-grow: 1;
+                        align-items: center;
+                    }
+                }
+
+                &.included {
+                    .input {
+                        width: 100%;
+                        justify-content: center;
+                    }
+                }
 
                 .input {
                     &::after {
@@ -218,10 +242,6 @@
 
                     input[type="text"] {
                         width: 100%;
-                    }
-
-                    .included {
-                        margin-top: 10px;
                     }
                 }
             }

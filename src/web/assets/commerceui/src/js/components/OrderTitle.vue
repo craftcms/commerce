@@ -4,6 +4,7 @@
 
 <style lang="scss">
     .order-title {
-        font-size: 1.2em;
+        font-size: 1em;
+        margin: 0;
     }
 </style>

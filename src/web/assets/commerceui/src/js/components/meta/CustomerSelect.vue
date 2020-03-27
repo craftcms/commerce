@@ -2,10 +2,12 @@
     <select-input
             ref="vSelect"
             label="email"
+            class="customer-select"
             v-model="selectedCustomer"
             :options="customers"
             :filterable="false"
             :clearable="false"
+            :pre-filtered="true"
             :create-option="createOption"
             :placeholder="$options.filters.t('Search…', 'commerce')"
             taggable
@@ -13,11 +15,32 @@
             @search="onSearch">
         <template v-slot:option="slotProps">
             <div class="customer-select-option">
-                <template v-if="!slotProps.option.customerId">
-                    {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
+                <template v-if="!slotProps.option.id">
+                    <div class="order-flex align-center">
+
+                        <div class="customer-photo-wrapper">
+                            <div class="customer-photo order-flex customer-photo--initial justify-center align-center">
+                                <img class="w-full" :src="userPhotoFallback()" :alt="$options.filters.t('New Customer', 'commerce')">
+                            </div>
+                        </div>
+                        <div class="ml-1">
+                            {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
+                        </div>
+                    </div>
                 </template>
                 <template v-else>
-                    {{slotProps.option.email}}
+                    <div class="customer-select-option">
+                        <customer
+                            :customer="{
+                                photo: slotProps.option.photo,
+                                user: slotProps.option.user,
+                                email: slotProps.option.email,
+                                fullName: slotProps.option.billingFullName,
+                                firstName: slotProps.option.billingFirstName,
+                                lastName: slotProps.option.billingLastName,
+                            }"
+                        ></customer>
+                    </div>
                 </template>
             </div>
         </template>
@@ -25,16 +48,18 @@
 </template>
 
 <script>
-    import {mapState} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
     import SelectInput from '../SelectInput'
     import {validationMixin} from 'vuelidate'
     import {email, required} from 'vuelidate/lib/validators'
+    import Customer from '../customer/Customer';
 
     export default {
         mixins: [validationMixin],
 
         components: {
+            Customer,
             SelectInput,
         },
 
@@ -69,6 +94,10 @@
         },
 
         methods: {
+            ...mapGetters([
+                'userPhotoFallback'
+            ]),
+
             createOption(searchText) {
                 if (this.$v.newCustomerEmail.$invalid) {
                     this.$store.dispatch('displayError', this.$options.filters.t("Invalid email.", 'commerce'))
@@ -98,10 +127,7 @@
             }, 350),
 
             onChange() {
-                const order = JSON.parse(JSON.stringify(this.order))
-                order.customerId = this.selectedCustomer.customerId
-                order.email = this.selectedCustomer.email
-                this.$emit('updateOrder', order)
+                this.$emit('update', this.selectedCustomer);
             }
         },
 
@@ -114,3 +140,27 @@
         }
     }
 </script>
+
+<style lang="scss">
+    @import '../../../sass/app';
+
+    .customer-select {
+        .vs__dropdown-option {
+            border-top: 1px solid $lightGrey;
+            padding: 6px 14px;
+        }
+
+        .vs__dropdown-menu {
+            border-radius: $paneBorderRadius;
+            padding: 0;
+
+            li:first-child {
+                border-top: none;
+            }
+        }
+
+        .vs__dropdown-option--highlight {
+            background-color: $bgColor;
+        }
+    }
+</style>

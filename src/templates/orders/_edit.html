@@ -101,43 +101,16 @@
 
 {% block details %}
     <div id="order-meta-app"></div>
-    <div class="meta read-only">
-      <div class="address-boxes">
-        {% set address = order.shippingAddress %}
-        <div id="shippingAddressBox" class="address-box address-box--full hidden"
-             data-title='{{ "Shipping Address"|t("commerce") }}'
-             data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-          <div class="address-box-content">
-            <div class="address-box-header"></div>
-            <div class="address"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="meta read-only">
-      <div class="address-boxes">
-        {% set address = order.billingAddress %}
-        <div id="billingAddressBox" class="address-box address-box--full hidden"
-             data-title='{{ "Billing Address"|t("commerce") }}'
-             data-address='{%- if address and address.id -%}{{ address|json_encode_filtered }}{%- endif %}'>
-          <div class="address-box-content">
-            <div class="address-box-header"></div>
-            <div class="address"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
 {% endblock %}
 
 {% block content %}
 
     <div id="orderDetailsTab">
-      <div id="order-details-app"></div>
+        <div id="order-errors-app"></div>
+        <div id="order-customer-app"></div>
+        <div id="order-details-app"></div>
 
-      {% hook "cp.commerce.order.edit.main-pane" %}
-
+        {% hook "cp.commerce.order.edit.main-pane" %}
     </div>
 
     {% include 'commerce/orders/_customFields' %}

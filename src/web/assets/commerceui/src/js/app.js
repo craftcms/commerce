@@ -3,6 +3,8 @@ import App from './OrderDetails'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './OrderMeta'
 import OrderActions from './OrderActions'
+import OrderCustomer from './OrderCustomer'
+import OrderErrors from './OrderErrors'
 import OrderSecondaryActions from './OrderSecondaryActions'
 import store from './store'
 import {t} from './filters/craft'
@@ -13,6 +15,9 @@ import OrderTitle from './components/OrderTitle'
 
 
 Vue.config.productionTip = false
+if (process.env.NODE_ENV === 'development') {
+    Vue.config.devtools = true
+}
 Vue.filter('t', t)
 Vue.filter('capitalize', capitalize)
 Vue.component('btn-link', BtnLink)
@@ -27,6 +32,21 @@ window.OrderActionsApp = new Vue({
     render: h => h(OrderActions),
     store,
 }).$mount('#order-actions-app')
+
+
+// Order errors
+// =========================================================================
+window.OrderErrorsApp = new Vue({
+    render: h => h(OrderErrors),
+    store,
+}).$mount('#order-errors-app')
+
+// Order customer
+// =========================================================================
+window.OrderCustomerApp = new Vue({
+    render: h => h(OrderCustomer),
+    store,
+}).$mount('#order-customer-app')
 
 
 // Order details

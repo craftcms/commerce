@@ -42,7 +42,7 @@ export default {
         const data = {}
 
         if (typeof query !== 'undefined') {
-            data.query = query
+            data.query = encodeURIComponent(query)
         }
 
         return axios.get(Craft.getActionUrl('commerce/orders/customer-search', data), {
