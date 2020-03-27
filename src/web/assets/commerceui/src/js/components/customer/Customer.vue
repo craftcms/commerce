@@ -52,9 +52,6 @@
                     'customer-avatar-purple',
                     'customer-avatar-blue',
                     'customer-avatar-turquoise',
-                    'customer-avatar-light',
-                    'customer-avatar-grey',
-                    'customer-avatar-black'
                 ]
             };
         },
@@ -173,38 +170,28 @@
 
   .customer-avatar {
     &-green {
-      background-color: lighten($green, 20%);
+      background-color: #e5f6e4;
     }
     &-orange {
-      background-color: lighten($orange, 20%);
+      background-color: #f6ebe4;
     }
     &-red {
-      background-color: lighten($red, 20%);
+      background-color: #f6e4e4;
     }
     &-yellow {
-      background-color: lighten($yellow, 20%);
+      background-color: #f6f5e4;
     }
     &-pink {
-      background-color: lighten($pink, 20%);
+      background-color: #f6e4e9;
     }
     &-purple {
-      background-color: lighten($purple, 20%);
+      background-color: #efe4f6;
     }
     &-blue {
-      background-color: lighten($blue, 20%);
+      background-color: #e4e6f6;
     }
     &-turquoise {
-      background-color: lighten($turquoise, 20%);
+      background-color: #e4f1f6;
     }
-    &-light {
-      background-color: lighten($light, 20%);
-    }
-    &-grey {
-      background-color: lighten($grey, 20%);
-    }
-    &-black {
-      background-color: lighten($black, 20%);
-    }
-
   }
 </style>
