@@ -116,6 +116,7 @@ class DiscountsController extends BaseCpController
         $discount->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
+        $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
 
         $baseDiscount = Localization::normalizeNumber($request->getBodyParam('baseDiscount'));
         $discount->baseDiscount = $baseDiscount * -1;

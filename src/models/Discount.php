@@ -86,6 +86,11 @@ class Discount extends Model
     public $purchaseTotal = 0;
 
     /**
+     * @var string|null Condition that must match to match the order, null or empty string means match all
+     */
+    public $orderConditionFormula;
+
+    /**
      * @var int Total minimum qty of matching items
      */
     public $purchaseQty = 0;
@@ -333,7 +338,6 @@ class Discount extends Model
         $rules[] = [['name'], 'required'];
         $rules[] = [
             [
-                'purchaseTotal',
                 'perUserLimit',
                 'perEmailLimit',
                 'totalDiscountUseLimit',

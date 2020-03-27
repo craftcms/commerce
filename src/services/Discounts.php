@@ -472,6 +472,14 @@ class Discounts extends Component
             return false;
         }
 
+        $orderDiscountConditionParams = [
+            'order' => $order->toArray()
+        ];
+
+        if ($discount->orderConditionFormula && !Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
+            return false;
+        }
+
         if ($discount->allPurchasables && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
             return false;
         }
@@ -563,6 +571,7 @@ class Discounts extends Component
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
         $record->purchaseTotal = $model->purchaseTotal;
+        $record->orderConditionFormula = $model->orderConditionFormula;
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
         $record->baseDiscount = $model->baseDiscount;
@@ -1030,6 +1039,7 @@ class Discounts extends Component
                 '[[discounts.dateFrom]]',
                 '[[discounts.dateTo]]',
                 '[[discounts.purchaseTotal]]',
+                '[[discounts.orderConditionFormula]]',
                 '[[discounts.purchaseQty]]',
                 '[[discounts.maxPurchaseQty]]',
                 '[[discounts.baseDiscount]]',
