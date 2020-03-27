@@ -4,11 +4,11 @@
       <div class="customer-photo-wrapper">
         <div
                 class="customer-photo order-flex justify-center align-center"
-                :class="{ 'customer-photo--initial': !customer.photo }"
+                :class="avatarClass"
         >
           <img v-if="customer.photo" class="w-full" :src="customer.photo" :alt="customer.email">
           <div v-if="!customer.photo && customer.fullName">{{customer.fullName[0]}}</div>
-          <div v-if="!customer.photo && !customer.fullName && customer.firstName">{{customer.firstName[0]}}</div>
+          <div :class="getBgColor(customer.firstName)" v-if="!customer.photo && !customer.fullName && customer.firstName">{{customer.firstName[0]}}</div>
         </div>
         <span class="status" :class="customer.user.status" v-if="customer.user"></span>
       </div>
@@ -40,6 +40,58 @@
                 default: false,
             }
         },
+
+        data() {
+            return {
+                colors: [
+                    'customer-avatar-green',
+                    'customer-avatar-orange',
+                    'customer-avatar-red',
+                    'customer-avatar-yellow',
+                    'customer-avatar-pink',
+                    'customer-avatar-purple',
+                    'customer-avatar-blue',
+                    'customer-avatar-turquoise',
+                    'customer-avatar-light',
+                    'customer-avatar-grey',
+                    'customer-avatar-black'
+                ]
+            };
+        },
+
+        methods: {
+            getBgColor(str) {
+                str = str.toLowerCase();
+                let charNum = str.charCodeAt(0) - 65;
+                let index = charNum % this.colors.length;
+
+                return this.colors[index];
+            }
+        },
+
+        computed: {
+            avatarClass() {
+                let customerName = this.customer.fullName;
+
+                if (!customerName) {
+                    customerName = this.customer.firstName;
+                }
+
+                if (!customerName) {
+                    customerName = this.customer.email;
+                }
+
+                let cl = {
+                    'customer-photo--initial': !this.customer.photo
+                };
+
+                if (!this.customer.photo) {
+                    cl[this.getBgColor(customerName)] = true;
+                }
+
+                return cl;
+            }
+        }
     }
 </script>
 
@@ -117,5 +169,42 @@
     &:hover {
       text-decoration: none;
     }
+  }
+
+  .customer-avatar {
+    &-green {
+      background-color: lighten($green, 20%);
+    }
+    &-orange {
+      background-color: lighten($orange, 20%);
+    }
+    &-red {
+      background-color: lighten($red, 20%);
+    }
+    &-yellow {
+      background-color: lighten($yellow, 20%);
+    }
+    &-pink {
+      background-color: lighten($pink, 20%);
+    }
+    &-purple {
+      background-color: lighten($purple, 20%);
+    }
+    &-blue {
+      background-color: lighten($blue, 20%);
+    }
+    &-turquoise {
+      background-color: lighten($turquoise, 20%);
+    }
+    &-light {
+      background-color: lighten($light, 20%);
+    }
+    &-grey {
+      background-color: lighten($grey, 20%);
+    }
+    &-black {
+      background-color: lighten($black, 20%);
+    }
+
   }
 </style>
