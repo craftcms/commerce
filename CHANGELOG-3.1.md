@@ -1,6 +1,7 @@
 # Running release notes for Craft Commerce 3.1
 
 ### Added
+- Added a new condition condition to discounts that allows a condition formula to be used.
 - Added variants GraphQL queries. 
 - States can now be re-ordered. ([#1284](https://github.com/craftcms/commerce/issues/1284))
 - Added `availableForPurchase` to product GraphQL fields and arguments.
