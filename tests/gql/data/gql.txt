@@ -1,0 +1,13 @@
+1000
+-----TOKEN DELIMITER-----
+{products (id: 1000) {title slug}}
+-----RESPONSE DELIMITER-----
+{"data":{"products":[{"title":"Rad Hoodie","slug":"rad-hoodie"}]}}
+
+-----TEST DELIMITER-----
+
+1000
+-----TOKEN DELIMITER-----
+{products (typeId: 2001) {title slug}}
+-----RESPONSE DELIMITER-----
+{"data":{"products":[{"title":"Hypercolor T-Shirt","slug":"hypercolor-tshirt"}]}}

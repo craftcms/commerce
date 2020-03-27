@@ -37,3 +37,9 @@ modules:
             cleanup: true
             transaction: true
             dbSetup: {clean: true, setupCraft: true}
+groups:
+    elements: [tests/unit/elements]
+    services: [tests/unit/services]
+    gql:
+        - 'tests/unit/gql'
+        - 'tests/gql'
