@@ -172,7 +172,8 @@ trait OrderElementTrait
             'shortNumber',
             'transactionReference',
             'username',
-            'reference'
+            'reference',
+            'skus',
         ];
     }
 
@@ -202,6 +203,8 @@ trait OrderElementTrait
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
                 return $this->getUser()->username ?? '';
+            case 'skus':
+                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
             default:
                 return parent::getSearchKeywords($attribute);
         }

@@ -13,7 +13,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
@@ -240,6 +242,72 @@ class CartController extends BaseFrontEndController
         return $this->_returnCart();
     }
 
+    /**
+     * @return Response|null
+     * @throws \craft\errors\MissingComponentException
+     * @since 3.x
+     */
+    public function actionLoadCart()
+    {
+        $request = Craft::$app->getRequest();
+        $number = $request->getParam('number');
+        $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
+
+        if (!$number) {
+            $error = Plugin::t('A cart number must be specified.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart) {
+            $error = Plugin::t('Unable to retrieve cart.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $cartCustomer = $cart->getCustomer();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if ($cartCustomer && $cartCustomer->userId && (!$currentUser || $currentUser->id != $cartCustomer->userId)) {
+            $error = Plugin::t('You must be logged in to load this cart.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $session = Craft::$app->getSession();
+        $carts = Plugin::getInstance()->getCarts();
+        $carts->forgetCart();
+        $session->set($carts::CART_NAME, $number);
+
+        $customers = Plugin::getInstance()->getCustomers();
+        $customers->forgetCustomer();
+        if ($cartCustomer) {
+            $session->set($customers::SESSION_CUSTOMER, $cartCustomer->id);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $request->getIsGet() ? $this->redirect($redirect) : $this->redirectToPostedUrl();
+    }
 
     /**
      * @return Response
@@ -253,12 +321,22 @@ class CartController extends BaseFrontEndController
         $request = Craft::$app->getRequest();
 
         // Allow validation of custom fields when passing this param
-        $validateCustomFields = $request->getParam('validateCustomFields');
+        $validateCustomFields = Plugin::getInstance()->getSettings()->validateCartCustomFieldsOnSubmission;
+
+        // Do we want to validate fields submitted
+        $customFieldAttributes = [];
+
         if ($validateCustomFields) {
-            $this->_cart->setScenario(Element::SCENARIO_LIVE);
+            // $fields will be null so
+            if ($submittedFields = $request->getBodyParam('fields')) {
+                $this->_cart->setScenario(Element::SCENARIO_LIVE);
+                $customFieldAttributes = array_keys($submittedFields);
+            }
         }
 
-        if (!$this->_cart->validate() || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
+        $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
+
+        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
             $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {

@@ -37,7 +37,14 @@ use function count;
 class Carts extends Component
 {
     /**
+     * Session key for storing the cart number
+     * @since 3.x
+     */
+    const CART_NAME = 'commerce_cart';
+
+    /**
      * @var string Session key for storing the cart number
+     * @deprecated 3.x use CART_NAME constant instead.
      */
     protected $cartName = 'commerce_cart';
 
@@ -122,7 +129,6 @@ class Carts extends Component
     private function _getCart()
     {
         $cart = null;
-        $currentUser = Craft::$app->getUser()->getIdentity();
         $isNumberCartInSession = $this->getHasSessionCartNumber();
 
         // Load the current cart if there is a cart number in the session
@@ -140,14 +146,6 @@ class Carts extends Component
             $cart = null; // continue
         }
 
-        // If the current cart is empty see if the logged in user has a previous cart
-        if ($cart && $currentUser && $cart->getIsEmpty()) {
-            // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-            if ($previousCart = Order::find()->user($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
-                $cart = $previousCart;
-            }
-        }
-
         return $cart;
     }
 
@@ -160,7 +158,7 @@ class Carts extends Component
     public function forgetCart()
     {
         $this->_cart = null;
-        Craft::$app->getSession()->remove($this->cartName);
+        Craft::$app->getSession()->remove(self::CART_NAME);
     }
 
     /**
@@ -200,7 +198,7 @@ class Carts extends Component
     public function getHasSessionCartNumber(): bool
     {
         $session = Craft::$app->getSession();
-        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
+        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has(self::CART_NAME);
     }
 
     /**
@@ -212,11 +210,11 @@ class Carts extends Component
     private function getSessionCartNumber(): string
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session->get($this->cartName);
+        $cartNumber = $session->get(self::CART_NAME);
 
         if (!$cartNumber) {
             $cartNumber = $this->generateCartNumber();
-            $session->set($this->cartName, $cartNumber);
+            $session->set(self::CART_NAME, $cartNumber);
         }
 
         return $cartNumber;
@@ -232,7 +230,28 @@ class Carts extends Component
     private function setSessionCartNumber(string $cartNumber)
     {
         $session = Craft::$app->getSession();
-        $session->set($this->cartName, $cartNumber);
+        $session->set(self::CART_NAME, $cartNumber);
+    }
+
+    /**
+     * Restores previous cart for the current user if their current cart is empty.
+     * Ideally this is only used when a user logs in.
+     *
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws MissingComponentException
+     * @throws Throwable
+     */
+    public function restorePreviousCartForCurrentUser()
+    {
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        $cart = $this->getCart();
+
+        // If the current cart is empty see if the logged in user has a previous cart
+        // Get any cart that is not empty, is not trashed or complete, and belongings to the user
+        if ($cart && $currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->user($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
+            $this->setSessionCartNumber($previousCart->number);
+        }
     }
 
     /**

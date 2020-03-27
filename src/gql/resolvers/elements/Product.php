@@ -40,7 +40,11 @@ class Product extends ElementResolver
         }
 
         foreach ($arguments as $key => $value) {
-            $query->$key($value);
+            if (method_exists($query, $key)) {
+                $query->$key($value);
+            } elseif (property_exists($query, $key)) {
+                $query->$key = $value;
+            }
         }
 
         $pairs = GqlHelper::extractAllowedEntitiesFromSchema('read');

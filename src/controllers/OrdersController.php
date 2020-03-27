@@ -1296,7 +1296,7 @@ class OrdersController extends Controller
                         'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
                     'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
-                    'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'paymentAmount' => $transaction->paymentAmount . ' <small class="light">(' . $transaction->paymentCurrency . ')</small>',
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
