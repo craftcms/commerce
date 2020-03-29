@@ -20,7 +20,7 @@
         <div class="w-full light">{{customer.email}}</div>
       </div>
     </div>
-    <a class="customer-remove" v-if="showRemove" @click.prevent="$emit('remove')">X</a>
+    <a class="customer-remove" v-if="showRemove" @click.prevent="$emit('remove')">&times;</a>
   </div>
 </template>
 
@@ -157,6 +157,7 @@
   .customer-remove {
     color: $grey;
     font-weight: bold;
+    font-size: 1.25em;
     cursor: pointer;
     position: absolute;
     top: 50%;

@@ -4,7 +4,7 @@
                 ref="vSelect"
                 :class="selectClass"
                 :clearable="clearable"
-                :clear-search-on-blur="clearSearchOnBlur"
+                :clear-search-on-blur="clearOnBlur"
                 :create-option="createOption"
                 :components="{OpenIndicator}"
                 :disabled="disabled"
@@ -44,6 +44,10 @@
                 <slot name="search" :search="search">
                     <input class="vs__search" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
                 </slot>
+            </template>
+
+            <template v-slot:no-options>
+                {{$options.filters.t('Sorry, no matching options.', 'commerce')}}
             </template>
         </v-select>
     </div>
@@ -124,6 +128,10 @@
                 return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1;
             },
 
+            clearOnBlur() {
+                return this.clearSearchOnBlur;
+            },
+
             onSearch(searchText, loading) {
                 this.$emit('search', {searchText, loading})
 
@@ -159,7 +167,27 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import '../../sass/app';
+
+    .v-select-btn .vs__search::placeholder {
+        color: $mediumDarkTextColor !important;
+    }
+
+    #main-container .v-select-btn .v-select .vs__actions .vs__spinner {
+        right: -36px;
+    }
+
+    #main-container .v-select-btn .vs__no-options {
+        padding-bottom: 6px;
+        padding-top: 6px;
+    }
+
+    .v-select-btn .vs__actions {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
     .vs__open-indicator:hover {
         cursor: pointer;
     }

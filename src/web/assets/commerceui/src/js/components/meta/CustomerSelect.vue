@@ -10,6 +10,7 @@
             :pre-filtered="true"
             :create-option="createOption"
             :placeholder="$options.filters.t('Search…', 'commerce')"
+            :clear-search-on-blur="false"
             taggable
             @input="onChange"
             @search="onSearch">
