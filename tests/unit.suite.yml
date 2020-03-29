@@ -5,7 +5,6 @@
 actor: UnitTester
 modules:
     enabled:
-        - \craft\test\Craft
         - Asserts
         - \Helper\Unit
-    step_decorators: ~
+        - \craft\test\Craft
