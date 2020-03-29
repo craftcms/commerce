@@ -17,9 +17,9 @@ class GqlCest
     public function _fixtures()
     {
         return [
-            // 'products' => [
-            //     'class' => ProductFixture::class
-            // ],
+            'products' => [
+                'class' => ProductFixture::class
+            ],
             'gqlSchemas' => [
                 'class' => GqlSchemasFixture::class
             ],
@@ -51,7 +51,6 @@ class GqlCest
      */
     public function testQuerying(FunctionalTester $I)
     {
-
         $queryTypes = [
             'products',
         ];
