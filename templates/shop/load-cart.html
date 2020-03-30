@@ -1,13 +1,12 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-  <form id="paymentForm" method="POST" class="form-horizontal paymentSource-form max-w-md">
+  <form method="POST" class="form-horizontal max-w-md">
     <input type="hidden" name="action" value="commerce/cart/load-cart"/>
     {{ redirectInput('/shop/cart') }}
     {{ csrfInput() }}
 
     <h1>Load Cart</h1>
-    {{ actionUrl('commerce/cart/load-cart') }}
     <p>Enter a cart number to load that cart into the current session.</p>
 
     <fieldset>
