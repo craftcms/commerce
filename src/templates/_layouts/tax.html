@@ -7,18 +7,31 @@
 {% set navItems = {} %}
 
 {% if currentUser.admin or currentUser.can('commerce-manageTaxes') %}
+    {% if craft.commerce.taxes.viewTaxRates %}
     {% set navItems = navItems|merge({
-        'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: 'pro' },
-        'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: 'pro' },
-        'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: 'pro' }
+        'taxrates': { title: "Tax Rates"|t('commerce'), minEdition: 'pro', url: 'commerce/tax/taxrates' },
     }) %}
+    {% endif %}
+
+    {% if craft.commerce.taxes.viewTaxCategories %}
+    {% set navItems = navItems|merge({
+        'taxcategories': { title: "Tax Categories"|t('commerce'), minEdition: 'pro', url: 'commerce/tax/taxcategories' },
+    }) %}
+    {% endif %}
+
+    {% if craft.commerce.taxes.viewTaxZones %}
+    {% set navItems = navItems|merge({
+        'taxzones': { title: "Tax Zones"|t('commerce'), minEdition: 'pro', url: 'commerce/tax/taxzones' },
+    }) %}
+    {% endif %}
+
+    {% set navItems = navItems|merge(craft.commerce.taxes.cpTaxNavSubItems) %}
+
 {% endif %}
 
 {% if selectedItem is not defined %}
-    {% set selectedItem = craft.app.request.getSegment(3) %}
+    {% set selectedItem = navItems|keys|first %}
 {% endif %}
-
-{% set docTitle = navItems[selectedItem].title~' - '~title %}
 
 {% block sidebar %}
     <nav>
@@ -28,7 +41,7 @@
                     <li class="heading"><span>{{ item.heading }}</span></li>
                 {% else %}
                     <li>
-                        <a href="{{ url('commerce/tax/'~handle) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
+                        <a href="{{ url(item.url) }}"{% if handle == selectedItem %} class="sel"{% endif %}>{{ item.title }}</a>
                     </li>
                 {% endif %}
             {% endfor %}

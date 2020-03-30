@@ -1537,6 +1537,7 @@ class Order extends Element
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
             }
         }
+
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
         $availableMethods = $this->getAvailableShippingMethods();
