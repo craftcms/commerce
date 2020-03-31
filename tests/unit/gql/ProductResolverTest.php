@@ -49,7 +49,7 @@ class ProductResolverTest extends Unit
      * @dataProvider productFieldTestDataProvider
      *
      * @param string $gqlTypeClass The Gql type class
-     * @param string $propertyName The propery being tested
+     * @param string $propertyName The property being tested
      * @param mixed $result True for exact match, false for non-existing or a callback for fetching the data
      * @throws \Exception
      */
