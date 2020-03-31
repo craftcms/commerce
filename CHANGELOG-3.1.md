@@ -33,3 +33,4 @@
 
 ### Fixed
 - Fixed a bug where it was possible to refund more than the remaining amount of a transaction. ([#1098](https://github.com/craftcms/commerce/issues/1098))
+- Fixed an error that could occur when entering localized numbers on Shipping Rules. ([#1332](https://github.com/craftcms/commerce/issues/1332))
