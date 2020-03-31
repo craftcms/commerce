@@ -112,6 +112,30 @@
             errors: discount.getErrors('dateTo'),
         }) }}
 
+        {% embed '_includes/forms/field' with {
+            label: 'Order Condition Formula'|t('commerce'),
+            id: 'orderConditionFormula',
+            rows: 5,
+            instructions: 'Use a formula to match this discount to the order. Leave this blank to match all orders. Use the `order` variable.',
+            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            errors: discount is defined ? discount.getErrors('orderConditionFormula'),
+            } %}
+            {% block input %}
+                {% import "_includes/forms" as forms %}
+                <div id="orderConditionFormulaField" class="flex flex-nowrap" style="align-items: stretch;">
+                    <div  class="order-condition">
+                        {{ forms.textarea({
+                            value: discount is defined ? discount.orderConditionFormula,
+                            name: 'orderConditionFormula',
+                            class: 'code',
+                            rows: 5,
+                            placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
+                        }) }}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
+
         {% if groups|length %}
             {{ forms.multiselectField({
                 label: 'User Groups'|t('commerce'),

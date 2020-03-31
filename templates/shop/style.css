@@ -119,7 +119,7 @@ fieldset legend {
 .button,
 input[type="submit"],
 button[type="submit"] {
-    padding: 8px 12px;
+    padding: 6px 8px;
     background: #fff;
     color: #000;
     border: 1px solid #ddd;
@@ -138,26 +138,6 @@ input.button-primary {
     background: #DA5A17;
     color: #fff;
     border-color: transparent;
-}
-
-.buttons {
-    margin-bottom: 20px;
-}
-
-/* Empty orders
-–––––––––––––––––––––––––––––––––––––––––––––––––– */
-
-.empty-index {
-    color: #aaa;
-    padding: 100px 0;
-    text-align: center;
-    line-height: 1.5em;
-}
-
-.empty-index i {
-    color: #ddd;
-    font-size: 100px;
-    margin-bottom: 20px;
 }
 
 /* Card
@@ -277,11 +257,6 @@ nav > ul > li > ul {
 /* Commerce Design
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
-#header .brand svg {
-    width: 252px;
-    height: 42px;
-}
-
 img.logo{ width:400px; }
 
 img.product { width: 100%; }
@@ -302,7 +277,7 @@ ul.address-data li {
     margin-bottom: 4px;
 }
 
-.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; }
+.address-select { background: #fff; border: 1px solid #eee; margin-bottom: 1em; position: relative; border-radius: 4px; padding:1em}
 .address-select .radio input { margin: 0 5px 0 0; position: relative; top: -1px; }
 
 .address-select .radio { padding: 14px 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -314,7 +289,7 @@ ul.address-data li {
 .address-select ul.address-data li span[data-key=lastName] { font-weight: bold; }
 
 
-.address-select .actions { float: right; padding: 14px 15px; font-size: 0.9em; }
+.address-select .actions { float: right; font-size: 0.9em; }
 .address-select .actions ul { margin:0; }
 .address-select .actions ul li { display: inline-block; margin: 0 0 0 1em; }
 .address-select .actions ul li a { color: #999; text-decoration: underline; }

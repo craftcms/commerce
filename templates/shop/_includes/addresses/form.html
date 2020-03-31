@@ -4,7 +4,7 @@
 {% set modelName = modelName is defined ? modelName : 'address' %}
 {% set model = address is defined ? address : null %}
 
-<div class="addressBox {{ modelName }}">
+<div class="js-addressBox {{ modelName }}">
 
     <div class="flex -mx-4">
         <div class="flex-1 mx-4">
@@ -155,13 +155,13 @@
                 <div class="flex-1 mx-4">
                     <label for="{{ modelName }}-state">State</label>
                     {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
-                    <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}" class="address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="{{ modelName }}[stateValue]">
+                    <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}" class="js-address-stateId w-full {% if options|length == 0 %}hidden{% endif %}" name="{{ modelName }}[stateValue]">
                         {% for key, option in options %}
                             {% set optionValue = (model ? model.stateId : '') %}
                             <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
                         {% endfor %}
                     </select>
-                    <input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %} value="{{ model ? model.stateName : '' }}">
+                    <input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName" class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full" {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %} value="{{ model ? model.stateName : '' }}">
                     {% if model and model.getErrors('stateValue') %}
                         <span class="flash">{{ model.getErrors('stateValue')|join }}</span>
                     {% endif %}
@@ -198,8 +198,8 @@ var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|j
     {
         // get the value of the selected country.
         var cid = $(this).val();
-        var $states = $(this).closest('.addressBox').find('select.address-stateId');
-        var $stateName = $(this).closest('.addressBox').find('input.address-stateName');
+        var $states = $(this).closest('.js-addressBox').find('select.js-address-stateId');
+        var $stateName = $(this).closest('.js-addressBox').find('input.js-address-stateName');
         $states.find('option').remove();
 
         if (states.hasOwnProperty(cid))

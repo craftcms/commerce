@@ -16,8 +16,8 @@ class m200320_161708_add_index_order_email extends Migration
      */
     public function safeUp()
     {
-        if (!MigrationHelper::doesIndexExist(Table::ORDERS, 'email', false)) {
-            $this->createIndex(null, Table::ORDERS, 'email', false);
+        if (!MigrationHelper::doesIndexExist('{{%commerce_orders}}', 'email', false)) {
+            $this->createIndex(null, '{{%commerce_orders}}', 'email', false);
         }
     }
 

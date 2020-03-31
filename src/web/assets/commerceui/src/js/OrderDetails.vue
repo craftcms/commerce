@@ -12,7 +12,7 @@
                     </li>
                 </ul>
 
-                <template v-if="lineItems.length > 0">
+                <template v-if="lineItems.length > 0 || (editing && isProEdition)">
                     <line-items
                             :line-items="lineItems"
                             :editing="editing"
@@ -20,44 +20,38 @@
                             @updateLineItems="updateLineItems"
                     ></line-items>
 
-                    <template v-if="orderAdjustments.length > 0 || editing">
-                        <order-adjustments
-                                :adjustments="orderAdjustments"
-                                :editing="editing"
-                                :recalculation-mode="recalculationMode"
-                                @updateOrderAdjustments="updateOrderAdjustments"
-                        ></order-adjustments>
-
-                        <hr />
+                    <template v-if="editing && isProEdition">
+                        <div class="pb" :class="{'orderedit-border-color orderedit-border-t pt': lineItems.length == 0}">
+                            <add-line-item @addLineItem="addLineItem"></add-line-item>
+                        </div>
                     </template>
 
-                    <total :order="draft.order"></total>
-                </template>
-
-                <template v-if="editing">
-                    <template v-if="lineItems.length > 0">
-                        <hr>
-                    </template>
-
-                    <template v-if="isProEdition">
-                        <add-line-item @addLineItem="addLineItem"></add-line-item>
-                    </template>
-
-                    <template v-if="lineItems.length > 0">
+                    <div class="text-right pb" v-if="(editing && originalDraft.order.isCompleted) || recalculateLoading">
                         <div class="recalculate-action" v-if="editing && originalDraft.order.isCompleted">
                             <btn-link class="recalculate-btn error" @click="autoRecalculate()">{{"Recalculate order"|t('commerce')}}</btn-link>
                         </div>
 
                         <div v-if="recalculateLoading" class="spinner"></div>
-                    </template>
-                </template>
-            </template>
+                    </div>
 
-            <template v-if="draftErrors.length">
-                <h4 class="error">{{this.$options.filters.t('There are errors on the order', 'commerce')}}</h4>
-                <ul class="errors">
-                    <li v-for="(error, index) in draftErrors" v-bind:key="index">{{error}}</li>
-                </ul>
+                    <div class="order-total-summary pt" v-if="lineItems.length > 0">
+                        <template v-if="orderAdjustments.length > 0 || editing">
+                            <order-adjustments
+                                    :adjustments="orderAdjustments"
+                                    :editing="editing"
+                                    :recalculation-mode="recalculationMode"
+                                    @updateOrderAdjustments="updateOrderAdjustments"
+                            ></order-adjustments>
+                        </template>
+
+                        <div class="order-flex justify-end">
+                            <div class="w-3/4 orderedit-border-t orderedit-border-color pt">
+                                <total :order="draft.order"></total>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
             </template>
         </div>
     </div>
@@ -72,6 +66,10 @@
         .recalculate-btn {
             display: inline-block;
         }
+    }
+
+    .order-total-summary {
+        border-top: 1px solid $lightGrey;
     }
 </style>
 
@@ -151,23 +149,6 @@
                     this.$store.commit('updateDraft', draft)
                 }
             },
-
-            draftErrors() {
-                let errors = [];
-
-                if (this.draft && this.draft.order && this.draft.order.errors) {
-                    var draftErrors = this.draft.order.errors;
-                    for (var key in draftErrors) {
-                        if (draftErrors.hasOwnProperty(key) && draftErrors[key].length) {
-                            for (var i = 0; i < draftErrors[key].length; i++) {
-                                errors.push(draftErrors[key][i]);
-                            }
-                        }
-                    }
-                }
-
-                return errors
-            }
         },
 
         methods: {

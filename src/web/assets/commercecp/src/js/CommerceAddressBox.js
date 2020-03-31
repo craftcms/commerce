@@ -14,15 +14,18 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         this.$address = this.$addressBox.find('.address');
         this.address = this.$addressBox.data('address');
-        this.saveEndpoint = this.$addressBox.data('saveendpoint');
-        if (!this.saveEndpoint) {
-            this.saveEndpoint = 'commerce/addresses/save';
+
+        if (this.$address && this.address) {
+            this.saveEndpoint = this.$addressBox.data('saveendpoint');
+            if (!this.saveEndpoint) {
+                this.saveEndpoint = 'commerce/addresses/save';
+            }
+            this.setSettings(settings, this.defaults);
+
+            this._renderAddress();
+
+            this.$addressBox.toggleClass('hidden');
         }
-        this.setSettings(settings, this.defaults);
-
-        this._renderAddress();
-
-        this.$addressBox.toggleClass('hidden');
     },
     _renderAddress: function() {
         var $header = this.$addressBox.find(".address-box-header");

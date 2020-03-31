@@ -19,11 +19,24 @@
 
 <script>
     export default {
+        props: {
+            show: {
+                type: Boolean,
+                default: false,
+            }
+        },
+
         data() {
             return {
                 showSnapshot: false,
             }
-        }
+        },
+
+        mounted() {
+            if (this.show) {
+                this.showSnapshot = true;
+            }
+        },
     }
 </script>
 

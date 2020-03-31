@@ -2,7 +2,15 @@
     <div id="order-save" class="order-flex">
         <template v-if="editing">
             <input type="hidden" name="orderData" id="test" v-model="orderData">
-            <input id="order-save-btn" type="button" class="btn submit" :value="$options.filters.t('Update order', 'commerce')" @click="save()"/>
+            <input
+                id="order-save-btn"
+                type="button"
+                class="btn submit"
+                :value="$options.filters.t('Update order', 'commerce')"
+                :class="{ disabled: !hasCustomer || !hasAddresses || draft.order.lineItems.length == 0 }"
+                :disabled="!hasCustomer || !hasAddresses || draft.order.lineItems.length == 0"
+                @click="save()"
+            />
 
             <div class="spacer"></div>
         </template>
@@ -11,7 +19,7 @@
             <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="updateMenuBtn"></div>
 
             <div class="menu">
-                <template v-if="editing">
+                <template v-if="editing && hasCustomer && hasAddresses">
                     <ul>
                         <li>
                             <a @click="save({redirect: ordersIndexUrl})">
@@ -23,7 +31,7 @@
                 </template>
 
                 <template v-if="canDelete">
-                    <template v-if="editing">
+                    <template v-if="editing && hasCustomer && hasAddresses">
                         <hr>
                     </template>
 
@@ -58,6 +66,8 @@
             ...mapGetters([
                 'orderId',
                 'canDelete',
+                'hasAddresses',
+                'hasCustomer',
             ]),
 
             ordersIndexUrl() {

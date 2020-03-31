@@ -1,14 +1,11 @@
 <template>
-    <div class="order-flex">
-        <div class="w-1/3">
-            <template v-if="recalculationMode != 'all' || adjustments.length">
-                <order-title>{{"Order Adjustments"|t('commerce')}}</order-title>
-            </template>
+    <div class="order-flex justify-end">
+        <div class="w-1/4">
+            <btn-link @click="enableEditMode()" v-if="!editMode">{{'Edit'|t('commerce')}}</btn-link>
         </div>
-
-        <div class="w-2/3">
+        <div class="w-3/4">
             <adjustments
-                    :editing="editing"
+                    :editing="editing && editMode"
                     :adjustments="adjustments"
                     :recalculation-mode="recalculationMode"
                     @addAdjustment="addOrderAdjustment"
@@ -20,12 +17,14 @@
 </template>
 
 <script>
-    import {mapGetters} from 'vuex'
+    import {mapActions, mapGetters} from 'vuex'
     import Adjustments from './Adjustments'
+    import BtnLink from '../BtnLink';
 
     export default {
         components: {
             Adjustments,
+            BtnLink,
         },
 
         props: {
@@ -40,6 +39,12 @@
             },
         },
 
+        data() {
+            return {
+                editMode: false,
+            };
+        },
+
         computed: {
             ...mapGetters([
                 'orderId',
@@ -47,6 +52,10 @@
         },
 
         methods: {
+            ...mapActions([
+                'edit',
+            ]),
+
             addOrderAdjustment() {
                 const adjustment = {
                     id: null,
@@ -63,6 +72,11 @@
                 adjustments.push(adjustment)
 
                 this.$emit('updateOrderAdjustments', adjustments)
+            },
+
+            enableEditMode() {
+                this.editMode = true;
+                this.edit();
             },
 
             updateOrderAdjustment(adjustment, key) {

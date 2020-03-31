@@ -6,17 +6,17 @@
     {% set subscription = craft.subscriptions.id(subscriptionId).first() %}
 
     {% if not subscription or currentUser is null or subscription.userId != currentUser.id %}
-        {% redirect 'shop/services' %}
+        {% redirect 'shop/plans' %}
     {% endif %}
 
-    <h1>Manage subscription</h1>
+    <h1 class="text-xl font-semibold">Manage subscription</h1>
 
     <div><strong>Subscribed to {{ subscription.plan.name }}</strong></div>
 
     {% set information = subscription.plan.getInformation() ?? null %}
     {% if information %}
         <div>
-            <h4>{{ 'Plan Information Entry'|t('commerce') }}</h4>
+            <h4 class="font-semibold">{{ 'Plan Information Entry'|t('commerce') }}</h4>
             <ul>
                 <li>{{ 'ID'|t }}: {{ information.id }}</li>
                 <li>{{ 'Title'|t }}: {{ information.title }}</li>
@@ -35,7 +35,7 @@
                 <form method="POST">
                     <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
                     <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                    {{ redirectInput('shop/services') }}
+                    {{ redirectInput('shop/plans') }}
                     {{ csrfInput() }}
 
                     <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
@@ -51,7 +51,7 @@
                     <input type="hidden" name="action" value="commerce/subscriptions/switch">
                     <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
                     <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                    {{ redirectInput('shop/services') }}
+                    {{ redirectInput('shop/plans') }}
                     {{ csrfInput() }}
 
                     {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
@@ -63,7 +63,7 @@
             <form method="POST">
                 <input type="hidden" name="action" value="commerce/subscriptions/cancel">
                 <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
-                {{ redirectInput('shop/services') }}
+                {{ redirectInput('shop/plans') }}
                 {{ csrfInput() }}
 
                 {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
@@ -73,7 +73,7 @@
         {% endif %}
     {% endif %}
 
-    <h2>Payment history</h2>
+    <h2 class="text-lg font-semibold">Payment history</h2>
     {% set payments = subscription.getAllPayments() %}
 
     {% for payment in payments %}

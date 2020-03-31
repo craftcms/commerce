@@ -80,13 +80,18 @@ class Formulas extends Component
      * @oaram string $formula
      * @oaram array $params data passed into the condition
      * @oaram string $name The name of the formula, useful for locating template errors in logs and exceptions
+     * @param string $formula
+     * @param $params
+     * @param string $name
      * @return mixed
+     * @throws SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     public function evaluateCondition(string $formula, $params, $name = 'Evalute Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');
-        };
+        }
 
         $twigCode = '{% if ';
         $twigCode .= $formula;
@@ -103,6 +108,8 @@ class Formulas extends Component
      * @oaram string|null $setType the type of the response data, passing nothing will leave as a string. Uses \settype().
      * @oaram string|null $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
+     * @throws SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     public function evaluateFormula(string $formula, $params, $setType = null, $name = 'Inline formula'): bool
     {

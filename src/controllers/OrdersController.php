@@ -13,19 +13,23 @@ use craft\base\Field;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceUiAsset;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
@@ -401,7 +405,7 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods'];
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
         return $order->toArray($orderFields, $extraFields);
     }
 
@@ -467,6 +471,64 @@ class OrdersController extends Controller
     }
 
     /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionPurchasablesTable()
+    {
+        $this->requirePermission('commerce-editOrder');
+        $this->requireAcceptsJson();
+
+        $request = Craft::$app->getRequest();
+        $page = $request->getParam('page', 1);
+        $sort = $request->getParam('sort', null);
+        $limit = $request->getParam('per_page', 10);
+        $search = $request->getParam('search', null);
+        $offset = ($page - 1) * $limit;
+
+        // Prepare purchasables query
+        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $sqlQuery = (new Query())
+            ->select(['id', 'price', 'description', 'sku'])
+            ->from('{{%commerce_purchasables}}');
+
+        // Are they searching for a SKU or purchasable description?
+        if ($search) {
+            $sqlQuery->where([
+                'or',
+                [$likeOperator, 'description', $search],
+                [$likeOperator, 'sku', $search]
+            ]);
+        }
+
+        $total = $sqlQuery->count();
+
+        $sqlQuery->limit($limit);
+        $sqlQuery->offset($offset);
+        $result = $sqlQuery->all();
+
+        $rows = [];
+
+        // Add the currency formatted price
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        foreach ($result as $row) {
+            /** @var PurchasableInterface $purchasable */
+            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
+                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $rows[] = $row;
+            }
+        }
+
+        return $this->asJson([
+            'pagination' => AdminTable::paginationLinks($page, $total, $limit),
+            'data' => $rows,
+        ]);
+    }
+
+    /**
      * @param null $query
      * @return Response
      */
@@ -474,45 +536,29 @@ class OrdersController extends Controller
     {
         $limit = 30;
         $customers = [];
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
         if ($query === null) {
             return $this->asJson($customers);
         }
 
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
+        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($query);
 
-        // First look for a user
-        $sqlQuery = (new Query())
-            ->select([
-                '[[customers.id]] customerId',
-                '[[customers.id]] userId',
-                '[[users.email]] email'
-            ])
-            ->from('{{%commerce_customers}} customers')
-            ->innerJoin('{{%users}} users', '[[customers.userId]] = [[users.id]]')
-            ->andWhere([$likeOperator, '[[users.email]]', $query]);
+        $customersQuery->limit($limit);
 
-        $results = $sqlQuery->limit($limit)->all();
+        $customers = $customersQuery->all();
 
-        foreach ($results as $result) {
-            $customers[$result['customerId']] = $result;
+        foreach ($customers as &$customer) {
+            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
+            $customer['user'] = $user ? [
+                'title' => $user ? $user->__toString() : null,
+                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
+                'status' => $user ? $user->getStatus() : null,
+            ] : null;
+            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
         }
 
-        $sqlQuery = (new Query())
-            ->select([
-                '[[customers.id]] as customerId',
-                '[[orders.email]] as email',
-            ])
-            ->from('{{%commerce_customers}} customers')
-            ->innerJoin('{{%commerce_orders}} orders', '[[customers.id]] = [[orders.customerId]]')
-            ->andWhere(['[[orders.isCompleted]]' => 1])
-            ->andWhere([$likeOperator, '[[orders.email]]', $query]);
-
-        foreach ($sqlQuery->limit($limit)->all() as $result) {
-            $customers[$result['customerId']] = $result;
-        }
-
-        return $this->asJson(array_values($customers));
+        return $this->asJson($customers);
     }
 
     /**
@@ -946,6 +992,26 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"');
+
+        $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
+
+        if (!empty($statesList)) {
+            foreach ($statesList as &$states) {
+                foreach ($states as $key => &$state) {
+                    $state = [
+                        'id' => $key,
+                        'name' => $state,
+                    ];
+                }
+                $states = array_values($states);
+            }
+        }
+
+        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode($statesList), View::POS_BEGIN);
+        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
+        $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
+        Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
         // TODO when we support multiple PDF templates, retrieve them all from a service
         $pdfUrls = [
@@ -1021,6 +1087,64 @@ class OrdersController extends Controller
             $order->paymentSourceId = null;
             $order->gatewayId = null;
         }
+
+        // Addresses
+        $billingAddressId = $orderRequestData['order']['billingAddressId'];
+        $shippingAddressId = $orderRequestData['order']['shippingAddressId'];
+        $billingAddress = null;
+        $shippingAddress = null;
+
+        // We need to create a new address if it belongs to a customer
+        if ($billingAddressId) {
+            $belongsToCustomer = CustomerAddress::find()
+                ->where(['[[addressId]]' => $billingAddressId])
+                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->exists();
+
+            if ($belongsToCustomer) {
+                $billingAddressId = 'new';
+            }
+        }
+
+        if ($shippingAddressId) {
+            $belongsToCustomer = CustomerAddress::find()
+                ->where(['[[addressId]]' => $shippingAddressId])
+                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->exists();
+
+            if ($belongsToCustomer) {
+                $shippingAddressId = 'new';
+            }
+        }
+
+        if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
+            $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
+            $billingAddress['isEstimated'] = false;
+            $billingAddress = new Address($billingAddress);
+
+            $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
+
+            // TODO figure out if we need to validate at this point;
+            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
+            $billingAddressId = $billingAddress->id;
+        }
+
+        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId ==$orderRequestData['order']['shippingAddress']['id'])) {
+            $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
+            $shippingAddress['isEstimated'] = false;
+            $shippingAddress = new Address($shippingAddress);
+
+            $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
+
+            // TODO figure out if we need to validate at this point;
+            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
+            $shippingAddressId = $shippingAddress->id;
+        }
+
+        $order->billingAddressId = $billingAddressId;
+        $order->shippingAddressId = $shippingAddressId;
+        $order->billingAddress = $billingAddress;
+        $order->shippingAddress = $shippingAddress;
 
         $lineItems = [];
         $adjustments = [];
@@ -1172,7 +1296,7 @@ class OrdersController extends Controller
                         'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
                     'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
-                    'paymentAmount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>',
+                    'paymentAmount' => $transaction->paymentAmount . ' <small class="light">(' . $transaction->paymentCurrency . ')</small>',
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
