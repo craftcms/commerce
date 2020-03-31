@@ -1596,7 +1596,13 @@ class Order extends Element
         $orderRecord->itemTotal = $this->getItemTotal();
         $orderRecord->email = $this->getEmail() ?: '';
         $orderRecord->isCompleted = $this->isCompleted;
-        $orderRecord->dateOrdered = $this->dateOrdered;
+
+        $dateOrdered = $this->dateOrdered;
+        if (!$dateOrdered && $orderRecord->isCompleted) {
+            $dateOrdered = Db::prepareDateForDb(new DateTime());
+        }
+        $orderRecord->dateOrdered = $dateOrdered;
+
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;

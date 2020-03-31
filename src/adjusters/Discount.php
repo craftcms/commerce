@@ -74,6 +74,11 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_discount;
 
+    /**
+     * @var array
+     */
+    private $_appliedDiscounts = [];
+
     /*
      * @var
      */
@@ -227,44 +232,13 @@ class Discount extends Component implements AdjusterInterface
 
         $this->_discount = $discount;
 
-        $now = new DateTime();
-        $from = $this->_discount->dateFrom;
-        $to = $this->_discount->dateTo;
-        if (($from && $from > $now) || ($to && $to < $now)) {
-            return false;
-        }
-
-        //checking items
-        $matchingQty = 0;
-        $matchingTotal = 0;
         $matchingLineIds = [];
         foreach ($this->_order->getLineItems() as $item) {
             $lineItemHashId = spl_object_hash($item);
             // Order is already a match to this discount, or we wouldn't get here.
             if (Plugin::getInstance()->getDiscounts()->matchLineItem($item, $this->_discount, false)) {
                 $matchingLineIds[] = $lineItemHashId;
-                $matchingQty += $item->qty;
-                $matchingTotal += $item->getSubtotal();
             }
-        }
-
-        if (!$matchingQty) {
-            return false;
-        }
-
-        // Have they entered a max qty?
-        if ($this->_discount->maxPurchaseQty > 0 && $matchingQty > $this->_discount->maxPurchaseQty) {
-            return false;
-        }
-
-        // Reject if they have not added enough matching items
-        if ($matchingQty < $this->_discount->purchaseQty) {
-            return false;
-        }
-
-        // Reject if the matching items values is not enough
-        if ($matchingTotal < $this->_discount->purchaseTotal) {
-            return false;
         }
 
         foreach ($this->_order->getLineItems() as $item) {
