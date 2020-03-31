@@ -153,7 +153,7 @@ class ShippingMethods extends Component
      * Get all available shipping methods.
      *
      * @param Order $order
-     * @return array
+     * @return ShippingMethod[]
      */
     public function getAvailableShippingMethods(Order $order): array
     {

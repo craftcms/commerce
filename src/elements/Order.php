@@ -31,6 +31,7 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Settings;
 use craft\commerce\models\ShippingMethod;
+use craft\commerce\models\ShippingMethodOption;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
@@ -1145,6 +1146,7 @@ class Order extends Element
     {
         $names = parent::extraFields();
         $names[] = 'availableShippingMethods';
+        $names[] = 'availableShippingMethodsOptions';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
         $names[] = 'customer';
@@ -1557,6 +1559,23 @@ class Order extends Element
     public function getAvailableShippingMethods(): array
     {
         return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+    }
+
+    /**
+     * @return ShippingMethodOption[]
+     */
+    public function getAvailableShippingMethodsOptions(): array
+    {
+        $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $options = [];
+
+        foreach ($methods as $method) {
+            $option = new ShippingMethodOption($method->attributes);
+            $option->setOrder($this);
+            $options[$option->handle] = $option;
+        }
+
+        return $options;
     }
 
     /**

@@ -56,11 +56,13 @@ class BaseFrontEndController extends BaseController
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethods',
+            'availableShippingMethodsOptions',
             'totalTax',
             'totalTaxIncluded',
             'totalShippingCost',
             'totalDiscount'
         ];
+
         $cartInfo = $cart->toArray([], $extraFields);
 
         // Fire a 'modifyCartContent' event
