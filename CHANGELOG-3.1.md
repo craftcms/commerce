@@ -6,20 +6,21 @@
 - States can now be re-ordered. ([#1284](https://github.com/craftcms/commerce/issues/1284))
 - Added `availableForPurchase` to product GraphQL fields and arguments.
 - Added `defaultPrice` to product GraphQL fields and arguments.
+- Added `craft\commerce\base\TaxEngineInterface`
+- Added `craft\commerce\controllers\AddressesController::getCustomerAddress`.
+- Added `craft\commerce\elements\Order::getAvailableShippingMethodsOptions()`.
 - Added `craft\commerce\elements\Variant::getGqlTypeName()`.
 - Added `craft\commerce\elements\Variant::gqlScopesByContext()`.
-- Added `craft\commerce\controllers\AddressesController::getCustomerAddress`.
 - Added `craft\commerce\elements\Variant::gqlTypeNameByContext()`.
+- Added `craft\commerce\engines\TaxEngine`
 - Added `craft\commerce\gql\arguments\elements\Variant`.
 - Added `craft\commerce\gql\arguments\interfaces\Variant`.
 - Added `craft\commerce\gql\arguments\queries\Variant`.
 - Added `craft\commerce\gql\arguments\resolvers\Variant`.
 - Added `craft\commerce\gql\arguments\types\elements\Variant`.
 - Added `craft\commerce\gql\arguments\types\generators\VariantType`.
-- Added `craft\commerce\services\Taxes`
-- Added `craft\commerce\base\TaxEngineInterface`
-- Added `craft\commerce\engines\TaxEngine`
 - Added `craft\commerce\models\ShippingMethodOption`
+- Added `craft\commerce\services\Taxes`
 - Ajax requests to `commerce/cart/*` actions will now get a `availableShippingMethodsOptions` key in the response JSON.
 
 ### Changed
