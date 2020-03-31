@@ -51,65 +51,54 @@
 {% macro behavioralMetaFields(product) %}
     {%- import "_includes/forms" as forms -%}
 
-    {% if product.getType().taxCategories|length > 1 %}
-        {% set taxCategories = [] %}
-        {% for taxCategory in product.getType().taxCategories %}
-            {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
-        {% endfor %}
-
-        {{ forms.selectField({
-            label: 'Tax Category'|t('commerce'),
-            name: 'taxCategoryId',
-            value: product.taxCategoryId,
-            required: true,
-            options: taxCategories
-        }) }}
-    {% else %}
-        {{ forms.hidden({
-            name: "taxCategoryId",
-            value: product.taxCategoryId
-        }) }}
-    {% endif %}
-
-    {% if product.getType().shippingCategories|length > 1 %}
-        {% set shippingCategories = [] %}
-        {% for shippingCategory in product.getType().shippingCategories %}
-            {% set shippingCategories = shippingCategories|merge([{'value': shippingCategory.id, 'label': shippingCategory.name}]) %}
-        {% endfor %}
-
-        {{ forms.selectField({
-            label: 'Shipping Category'|t('commerce'),
-            name: 'shippingCategoryId',
-            value: product.shippingCategoryId,
-            required: true,
-            options: shippingCategories
-        }) }}
-    {% else %}
-        {{ forms.hidden({
-            name: "shippingCategoryId",
-            value: product.shippingCategoryId
-        }) }}
-    {% endif %}
-
-    {{ forms.checkboxField({
-        id: 'available-for-purchase',
-        fieldLabel: 'Available for purchase'|t('commerce'),
-        name: 'availableForPurchase',
-        checked: product.availableForPurchase,
-    }) }}
-
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
+        label: 'Free Shipping'|t('commerce'),
         id: 'free-shipping',
-        fieldLabel: 'Free Shipping'|t('commerce'),
         name: 'freeShipping',
-        checked: product.freeShipping,
+        small: true,
+        on: product.freeShipping
     }) }}
 
-    {{ forms.checkboxField({
+    {{ forms.lightswitchField({
+        label: 'Promotable'|t('commerce'),
         id: 'promotable',
-        fieldLabel: 'Promotable'|t('commerce'),
         name: 'promotable',
-        checked: product.promotable,
+        small: true,
+        on: product.promotable
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: 'Available for purchase'|t('commerce'),
+        id: 'available-for-purchase',
+        name: 'availableForPurchase',
+        small: true,
+        on: product.availableForPurchase
+    }) }}
+
+    {% set taxCategories = [] %}
+    {% for taxCategory in product.getType().taxCategories %}
+        {% set taxCategories = taxCategories|merge([{'value': taxCategory.id, 'label': taxCategory.name}]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Tax'|t('commerce'),
+        name: 'taxCategoryId',
+        value: product.taxCategoryId,
+        required: true,
+        options: taxCategories
+    }) }}
+
+    {% set shippingCategories = [] %}
+    {% for shippingCategory in product.getType().shippingCategories %}
+        {% set shippingCategories = shippingCategories|merge([{'value': shippingCategory.id, 'label': shippingCategory.name}]) %}
+    {% endfor %}
+
+    {{ forms.selectField({
+        label: 'Shipping'|t('commerce'),
+        name: 'shippingCategoryId',
+        value: product.shippingCategoryId,
+        required: true,
+        options: shippingCategories
     }) }}
 {% endmacro %}
 

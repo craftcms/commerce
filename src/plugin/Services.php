@@ -40,6 +40,7 @@ use craft\commerce\services\ShippingZones;
 use craft\commerce\services\States;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\services\TaxCategories;
+use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
@@ -399,6 +400,16 @@ trait Services
     }
 
     /**
+     * Returns the taxes service
+     *
+     * @return Taxes The taxes service
+     */
+    public function getTaxes(): Taxes
+    {
+        return $this->get('taxes');
+    }
+
+    /**
      * Returns the taxCategories service
      *
      * @return TaxCategories The taxCategories service
@@ -488,6 +499,7 @@ trait Services
             'states' => States::class,
             'subscriptions' => Subscriptions::class,
             'taxCategories' => TaxCategories::class,
+            'taxes' => Taxes::class,
             'taxRates' => TaxRates::class,
             'taxZones' => TaxZones::class,
             'transactions' => Transactions::class,

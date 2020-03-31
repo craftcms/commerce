@@ -16,6 +16,9 @@
 - Added `craft\commerce\gql\arguments\resolvers\Variant`.
 - Added `craft\commerce\gql\arguments\types\elements\Variant`.
 - Added `craft\commerce\gql\arguments\types\generators\VariantType`.
+- Added `craft\commerce\services\Taxes`
+- Added `craft\commerce\base\TaxEngineInterface`
+- Added `craft\commerce\engines\TaxEngine`
 
 ### Changed
 - The amount of base discount in a discount action is now spread across the line items from highest priced to lowest.
