@@ -27,3 +27,7 @@
 - Updated the example templates
 - The commerceCurrency twig filter now rounds consistently with currency rounding
 - Fixed an error that could occur when querying product GraphQL using product type. 
+
+
+### Fixed
+- Fixed a bug where it was possible to refund more than the remaining amount of a transaction. ([#1098](https://github.com/craftcms/commerce/issues/1098))

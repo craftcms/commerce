@@ -818,8 +818,8 @@ class OrdersController extends Controller
             $amount = $transaction->getRefundableAmount();
         }
 
-        if ($amount > $transaction->paymentAmount) {
-            $error = Plugin::t('Can not refund amount greater than the original transaction');
+        if ($amount > $transaction->getRefundableAmount()) {
+            $error = Plugin::t('Can not refund amount greater than the remaining amount');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             } else {
