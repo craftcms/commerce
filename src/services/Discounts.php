@@ -473,7 +473,7 @@ class Discounts extends Component
         }
 
         $orderDiscountConditionParams = [
-            'order' => $order->toArray([], ['lineItems.snapshot'])
+            'order' => $order->toArray([], ['lineItems.snapshot','shippingAddress','billingAddress'])
         ];
 
         if ($discount->orderConditionFormula && !Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
