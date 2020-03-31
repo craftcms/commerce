@@ -204,6 +204,10 @@ class CartController extends BaseFrontEndController
             $this->_cart->registerUserOnOrderComplete = true;
         }
 
+        if ($request->getBodyParam('registerUserOnOrderComplete') === 'false') {
+            $this->_cart->registerUserOnOrderComplete = false;
+        }
+
         // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
