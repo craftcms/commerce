@@ -33,3 +33,4 @@
 ### Fixed
 - Fixed a bug where it was possible to refund more than the remaining amount of a transaction. ([#1098](https://github.com/craftcms/commerce/issues/1098))
 - Fixed a bug where incorrect results could be returned when using the `dateUpdated` order query parameter. ([#1345](https://github.com/craftcms/commerce/issues/1345))
+- Fixed a PHP error on the Edit Order page that could occur when viewing an order with a deleted customer. ([#1347](https://github.com/craftcms/commerce/issues/1347))
