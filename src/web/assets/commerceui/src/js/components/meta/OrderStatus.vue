@@ -30,7 +30,17 @@
 
         <template v-if="originalOrderStatusId !== orderStatusId">
             <div class="order-status-message">
-                <textarea class="text" placeholder="Message" v-model="message" maxlength="10000"></textarea>
+                <textarea
+                    ref="textarea"
+                    class="text"
+                    :class="{ disabled: isRecalculating }"
+                    :placeholder="$options.filters.t('Message', 'commerce')"
+                    v-model="message"
+                    maxlength="10000"
+                    :disabled="isRecalculating"
+                    @focus="textareaHasFocus = true"
+                    @blur="onTextareaBlur"
+                ></textarea>
             </div>
         </template>
     </div>
@@ -39,7 +49,7 @@
 <script>
     /* global Garnish */
 
-    import {mapGetters} from 'vuex'
+    import {mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
 
     export default {
@@ -52,10 +62,21 @@
             },
         },
 
+        data() {
+            return {
+                isRecalculating: false,
+                textareaHasFocus: false,
+            }
+        },
+
         computed: {
             ...mapGetters([
                 'orderStatuses',
             ]),
+
+            ...mapState({
+                'recalculateLoading': state => state.recalculateLoading,
+            }),
 
             orderStatus() {
                 if (this.orderStatusId !== 0) {
@@ -92,7 +113,7 @@
                     const order = JSON.parse(JSON.stringify(this.order))
                     order.message = value
                     this.$emit('updateOrder', order)
-                }, 1000)
+                }, 1200)
             },
         },
 
@@ -104,6 +125,23 @@
                     this.orderStatusId = parseInt(status.dataset.id)
                 }
             },
+
+            onTextareaBlur() {
+                if (this.textareaHasFocus && !this.recalculateLoading) {
+                    this.textareaHasFocus = false;
+                }
+            }
+        },
+
+        watch: {
+            recalculateLoading(val) {
+                this.isRecalculating = val;
+                if (val === false && this.textareaHasFocus) {
+                    this.$nextTick(() => {
+                        this.$refs.textarea.focus();
+                    });
+                }
+            }
         },
 
         mounted() {

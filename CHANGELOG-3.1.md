@@ -37,3 +37,4 @@
 - Fixed a PHP error on the Edit Order page that could occur when viewing an order with a deleted customer. ([#1347](https://github.com/craftcms/commerce/issues/1347))
 - Fixed an error that could occur when entering localized numbers on Shipping Rules. ([#1332](https://github.com/craftcms/commerce/issues/1332))
 - Fixed a bug that could occur when editing localized decimal prices on Discounts. ([#1174](https://github.com/craftcms/commerce/issues/1174))
+- Fixed a bug that could occur while typing an order status message during order recalculation. ([#1309](https://github.com/craftcms/commerce/issues/1309))
