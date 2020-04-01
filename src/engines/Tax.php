@@ -9,8 +9,13 @@ namespace craft\commerce\engines;
 
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\adjusters\Tax as TaxAdjuster;
-use craft\commerce\Plugin;
 
+/**
+ * Class Tax
+ *
+ * @package craft\commerce\engines
+ * @since 3.1
+ */
 class Tax implements TaxEngineInterface
 {
 
@@ -75,9 +80,37 @@ class Tax implements TaxEngineInterface
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function editTaxZones(): bool
     {
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createTaxZones(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteTaxZones(): bool
+    {
+        return true;
+    }
+
+
+    /**
+     * @inheritDoc
+     */
+    public function taxZoneActionHtml(): string
+    {
+        return '';
     }
 
     /**
@@ -88,9 +121,36 @@ class Tax implements TaxEngineInterface
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function createTaxRates(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteTaxRates(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function editTaxRates(): bool
     {
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function taxRateActionHtml(): string
+    {
+        return '';
     }
 
     /**

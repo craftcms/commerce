@@ -50,7 +50,7 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
-        if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
+        if (!Plugin::getInstance()->getTaxes()->viewTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
         }
 
@@ -184,7 +184,7 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionDelete()
     {
-        if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
+        if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
         }
 

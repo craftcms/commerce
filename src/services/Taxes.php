@@ -21,7 +21,7 @@ use yii\base\InvalidConfigException;
  * @package craft\commerce\services
  * @property TaxEngineInterface $engine
  */
-class Taxes extends Component
+class Taxes extends Component implements TaxEngineInterface
 {
 
     /**
@@ -136,5 +136,53 @@ class Taxes extends Component
     public function cpTaxNavSubItems(): array
     {
         return $this->getEngine()->cpTaxNavSubItems();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createTaxZones(): bool
+    {
+        return $this->getEngine()->createTaxZones();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteTaxZones(): bool
+    {
+        return $this->getEngine()->deleteTaxZones();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function taxZoneActionHtml(): string
+    {
+        return $this->getEngine()->taxZoneActionHtml();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createTaxRates(): bool
+    {
+        return $this->getEngine()->createTaxRates();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteTaxRates(): bool
+    {
+        return $this->getEngine()->deleteTaxRates();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function taxRateActionHtml(): string
+    {
+        return $this->getEngine()->taxRateActionHtml();
     }
 }

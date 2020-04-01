@@ -9,7 +9,7 @@
     {{ craft.commerce.taxes.taxCategoryActionHtml()|raw }}
 
     {% if craft.commerce.taxes.createTaxCategories() %}
-    <a href="{{ url('commerce/tax/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
+        <a href="{{ url('commerce/tax/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
     {% endif %}
 {% endblock %}
 
