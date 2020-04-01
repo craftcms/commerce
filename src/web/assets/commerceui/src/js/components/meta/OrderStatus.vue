@@ -33,13 +33,9 @@
                 <textarea
                     ref="textarea"
                     class="text"
-                    :class="{ disabled: isRecalculating }"
                     :placeholder="$options.filters.t('Message', 'commerce')"
                     v-model="message"
                     maxlength="10000"
-                    :disabled="isRecalculating"
-                    @focus="textareaHasFocus = true"
-                    @blur="onTextareaBlur"
                 ></textarea>
             </div>
         </template>
@@ -49,8 +45,7 @@
 <script>
     /* global Garnish */
 
-    import {mapGetters, mapState} from 'vuex'
-    import debounce from 'lodash.debounce'
+    import {mapGetters} from 'vuex'
 
     export default {
         props: {
@@ -73,10 +68,6 @@
             ...mapGetters([
                 'orderStatuses',
             ]),
-
-            ...mapState({
-                'recalculateLoading': state => state.recalculateLoading,
-            }),
 
             orderStatus() {
                 if (this.orderStatusId !== 0) {
@@ -109,11 +100,9 @@
                     return this.order.message
                 },
 
-                set: debounce(function(value) {
-                    const order = JSON.parse(JSON.stringify(this.order))
-                    order.message = value
-                    this.$emit('updateOrder', order)
-                }, 1200)
+                set(value) {
+                    this.$store.commit('updateDraftOrderMessage', value)
+                },
             },
         },
 
@@ -125,23 +114,6 @@
                     this.orderStatusId = parseInt(status.dataset.id)
                 }
             },
-
-            onTextareaBlur() {
-                if (this.textareaHasFocus && !this.recalculateLoading) {
-                    this.textareaHasFocus = false;
-                }
-            }
-        },
-
-        watch: {
-            recalculateLoading(val) {
-                this.isRecalculating = val;
-                if (val === false && this.textareaHasFocus) {
-                    this.$nextTick(() => {
-                        this.$refs.textarea.focus();
-                    });
-                }
-            }
         },
 
         mounted() {
