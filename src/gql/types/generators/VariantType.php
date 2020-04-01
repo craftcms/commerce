@@ -22,7 +22,7 @@ use craft\gql\TypeManager;
  * Class VariantType
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1
  */
 class VariantType implements GeneratorInterface
 {

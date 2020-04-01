@@ -49,7 +49,7 @@ class Addresses extends Component
      *         $address = $event->address;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     *         
+     *
      *         // Update customer’s address in an external CRM
      *         // ...
      *     }
@@ -75,7 +75,7 @@ class Addresses extends Component
      *         $address = $event->address;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     * 
+     *
      *         // Set the default address in an external CRM
      *         // ...
      *     }
@@ -92,14 +92,14 @@ class Addresses extends Component
      * use craft\commerce\services\Addresses;
      * use craft\commerce\models\Address;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Addresses::class,
      *     Addresses::EVENT_AFTER_DELETE_ADDRESS,
      *     function(AddressEvent $event) {
      *         // @var Address $address
      *         $address = $event->address;
-     * 
+     *
      *         // Remove this address from a payment gateway
      *         // ...
      *     }
@@ -407,7 +407,7 @@ class Addresses extends Component
     /**
      * @param array $address
      * @return array
-     * @since 3.x
+     * @since 3.1
      */
     public function removeReadOnlyAttributesFromArray(array $address): array
     {

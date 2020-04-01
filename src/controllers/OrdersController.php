@@ -653,7 +653,7 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.0.11
      */
     public function actionGetIndexSourcesBadgeCounts(): Response
     {

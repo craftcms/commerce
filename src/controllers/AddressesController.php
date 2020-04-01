@@ -261,7 +261,7 @@ class AddressesController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @simce 3.x
+     * @since 3.1
      */
     public function actionValidate(): Response
     {
@@ -292,7 +292,7 @@ class AddressesController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.1
      */
     public function actionGetAddressById(): Response
     {

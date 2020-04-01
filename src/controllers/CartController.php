@@ -249,7 +249,7 @@ class CartController extends BaseFrontEndController
     /**
      * @return Response|null
      * @throws \craft\errors\MissingComponentException
-     * @since 3.x
+     * @since 3.1
      */
     public function actionLoadCart()
     {

@@ -38,13 +38,13 @@ class Carts extends Component
 {
     /**
      * Session key for storing the cart number
-     * @since 3.x
+     * @since 3.1
      */
     const CART_NAME = 'commerce_cart';
 
     /**
      * @var string Session key for storing the cart number
-     * @deprecated 3.x use CART_NAME constant instead.
+     * @deprecated 3.1 use CART_NAME constant instead.
      */
     protected $cartName = 'commerce_cart';
 

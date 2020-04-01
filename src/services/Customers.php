@@ -474,7 +474,7 @@ class Customers extends Component
      *
      * @param string|null $search
      * @return Query
-     * @since 3.x
+     * @since 3.1
      */
     public function getCustomersQuery($search = null): Query
     {
