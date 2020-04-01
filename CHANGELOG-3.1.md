@@ -32,3 +32,4 @@
 
 ### Fixed
 - Fixed a bug where it was possible to refund more than the remaining amount of a transaction. ([#1098](https://github.com/craftcms/commerce/issues/1098))
+- Fixed a bug where incorrect results could be returned when using the `dateUpdated` order query parameter. ([#1345](https://github.com/craftcms/commerce/issues/1345))
