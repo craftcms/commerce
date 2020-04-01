@@ -305,16 +305,17 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        if ($variables['discount']->baseDiscount != 0) {
-            $variables['discount']->baseDiscount = Craft::$app->formatter->asDecimal((float)$variables['discount']->baseDiscount * -1);
-        }
+        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        foreach ($localizedNumberAttributes as $attr) {
+            if (!isset($variables['discount']->{$attr})) {
+                continue;
+            }
 
-        if ($variables['discount']->perItemDiscount != 0) {
-            $variables['discount']->perItemDiscount = Craft::$app->formatter->asDecimal((float)$variables['discount']->perItemDiscount * -1);
-        }
-
-        if ($variables['discount']->purchaseTotal != 0) {
-            $variables['discount']->purchaseTotal = Craft::$app->formatter->asDecimal((float)$variables['discount']->purchaseTotal);
+            if ($variables['discount']->{$attr} != 0) {
+                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal((float)$variables['discount']->{$attr} * -1);
+            } else {
+                $variables['discount']->{$attr} = 0;
+            }
         }
 
         $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;

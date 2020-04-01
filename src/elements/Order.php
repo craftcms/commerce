@@ -166,7 +166,7 @@ class Order extends Element
      * use craft\commerce\events\LineItemEvent;
      * use craft\commerce\models\LineItem;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Order::class,
      *     Order::EVENT_AFTER_ADD_LINE_ITEM,
@@ -252,7 +252,7 @@ class Order extends Element
      * ```php
      * use craft\commerce\elements\Order;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Order::class,
      *     Order::EVENT_AFTER_ORDER_PAID,
@@ -1563,6 +1563,7 @@ class Order extends Element
 
     /**
      * @return ShippingMethodOption[]
+     * @since 3.1
      */
     public function getAvailableShippingMethodsOptions(): array
     {

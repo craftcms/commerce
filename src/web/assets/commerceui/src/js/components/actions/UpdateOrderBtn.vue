@@ -7,8 +7,8 @@
                 type="button"
                 class="btn submit"
                 :value="$options.filters.t('Update order', 'commerce')"
-                :class="{ disabled: !hasCustomer || !hasAddresses || draft.order.lineItems.length == 0 }"
-                :disabled="!hasCustomer || !hasAddresses || draft.order.lineItems.length == 0"
+                :class="{ disabled: !hasCustomer || !hasAddresses || draft.order.lineItems.length == 0 || recalculateLoading }"
+                :disabled="!hasCustomer || !hasAddresses || draft.order.lineItems.length == 0 || recalculateLoading"
                 @click="save()"
             />
 
@@ -60,6 +60,7 @@
             ...mapState({
                 draft: state => state.draft,
                 saveLoading: state => state.saveLoading,
+                recalculateLoading: state => state.recalculateLoading,
                 editing: state => state.editing,
             }),
 
