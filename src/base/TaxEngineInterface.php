@@ -8,7 +8,7 @@ use yii\base\ComponentInterface;
  * Tax Engine Interface
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.
+ * @since 3.1
  */
 interface TaxEngineInterface extends \craft\base\ComponentInterface
 {
@@ -53,6 +53,7 @@ interface TaxEngineInterface extends \craft\base\ComponentInterface
 
     /**
      * Any action html to be added to the tax categories index header
+     *
      * @return string
      */
     public function taxCategoryActionHtml(): string;
@@ -66,12 +67,36 @@ interface TaxEngineInterface extends \craft\base\ComponentInterface
     public function viewTaxZones(): bool;
 
     /**
+     * Whether Craft Commerce should allow tax zones to be created by users.
+     * will not be called if viewTaxZones is returned as false;
+     *
+     * @return bool
+     */
+    public function createTaxZones(): bool;
+
+    /**
      * Whether Craft Commerce should allow tax zones to be edited.
      * will not be called if viewTaxZones is returned as false;
      *
      * @return bool
      */
     public function editTaxZones(): bool;
+
+    /**
+     * Whether Craft Commerce should allow tax zones to be deleted.
+     * will not be called if viewTaxZones is returned as false;
+     *
+     * @return bool
+     */
+    public function deleteTaxZones(): bool;
+
+    /**
+     * Any action html to be added to the tax zones index header
+     *
+     * @return string
+     */
+    public function taxZoneActionHtml(): string;
+
 
     /**
      * Whether Craft Commerce should show the tax rates interface
@@ -82,6 +107,14 @@ interface TaxEngineInterface extends \craft\base\ComponentInterface
     public function viewTaxRates(): bool;
 
     /**
+     * Whether Craft Commerce should allow tax rates to be created by users.
+     * will not be called if viewTaxRates is returned as false;
+     *
+     * @return bool
+     */
+    public function createTaxRates(): bool;
+
+    /**
      * Whether Craft Commerce should allow tax rates to be edited.
      * will not be called if viewTaxRates is returned as false;
      *
@@ -90,9 +123,23 @@ interface TaxEngineInterface extends \craft\base\ComponentInterface
     public function editTaxRates(): bool;
 
     /**
+     * Whether Craft Commerce should allow tax rates to be deleted.
+     * will not be called if viewTaxRates is returned as false;
+     *
+     * @return bool
+     */
+    public function deleteTaxRates(): bool;
+
+    /**
+     * Any action html to be added to the tax rates index header
+     *
+     * @return string
+     */
+    public function taxRateActionHtml(): string;
+
+    /**
      * The tax subNav items
      *
-     * @param array $subNav
      * @return array
      */
     public function cpTaxNavSubItems(): array;
