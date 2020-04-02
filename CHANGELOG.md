@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug that could occur when performing a fresh install. ([#1351](https://github.com/craftcms/commerce/issues/1351))
+- Fixed a bug where the `commerce_discounts` table was missing an `orderConditionFormula` column on fresh installs. ([#1351](https://github.com/craftcms/commerce/issues/1351))
 
 ## 3.1.0 - 2020-04-02
 
