@@ -56,7 +56,7 @@ class BaseFrontEndController extends BaseController
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethods',
-            'availableShippingMethodsOptions',
+            'availableShippingMethodOptions',
             'totalTax',
             'totalTaxIncluded',
             'totalShippingCost',
