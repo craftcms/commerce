@@ -1122,6 +1122,11 @@ class Product extends Element
                 'orderBy' => 'elements.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
+            [
+                'label' => Craft::t('app', 'ID'),
+                'orderBy' => 'elements.id',
+                'attribute' => 'id',
+            ],
         ];
     }
 

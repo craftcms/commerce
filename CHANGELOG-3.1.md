@@ -42,6 +42,7 @@
 - A line item‘s `salePrice` is now rounded before being multiplied by the quantity.
 - Improved the consistency of Discount and Tax calculations and rounding system wide.
 - Improved styles and behavior of the example templates.
+- Products and subscriptions can now be sorted by their IDs in the control panel.
 - The `commerceCurrency` twig filter now rounds consistently with currency rounding.
 
 ### Fixed
