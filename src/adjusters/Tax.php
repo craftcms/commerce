@@ -169,8 +169,7 @@ class Tax extends Component implements AdjusterInterface
                         $orderTaxableAmount = $this->_order->getTotalShippingCost();
                     }
 
-                    $amount = -($orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate)));
-                    $amount = Currency::round($amount);
+                    $amount = -$this->_getTaxAmount($orderTaxableAmount, $taxRate->rate, $taxRate->include);
 
                     if ($taxRate->taxable === TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE) {
                         $this->_costRemovedForOrderTotalPrice += $amount;
@@ -248,13 +247,7 @@ class Tax extends Component implements AdjusterInterface
                 $orderTaxableAmount += $this->_costRemovedForOrderShipping;
             }
 
-            if (!$taxRate->include) {
-                $amount = $taxRate->rate * $orderTaxableAmount;
-                $orderTax = Currency::round($amount);
-            } else {
-                $amount = $orderTaxableAmount - ($orderTaxableAmount / (1 + $taxRate->rate));
-                $orderTax = Currency::round($amount);
-            }
+            $orderTax = $this->_getTaxAmount($orderTaxableAmount, $taxRate->rate, $taxRate->include);
 
             $adjustment = $this->_createAdjustment($taxRate);
             // We need to display the adjustment that removed the included tax
@@ -278,13 +271,7 @@ class Tax extends Component implements AdjusterInterface
                 $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
                 $taxableAmount += $this->_costRemovedByLineItem[$objectId] ?? 0;
 
-                if (!$taxRate->include) {
-                    $amount = $taxRate->rate * $taxableAmount;
-                    $itemTax = Currency::round($amount);
-                } else {
-                    $amount = $taxableAmount - ($taxableAmount / (1 + $taxRate->rate));
-                    $itemTax = Currency::round($amount);
-                }
+                $itemTax = $this->_getTaxAmount($taxableAmount, $taxRate->rate, $taxRate->include);
 
                 $adjustment = $this->_createAdjustment($taxRate);
                 // We need to display the adjustment that removed the included tax
@@ -300,6 +287,28 @@ class Tax extends Component implements AdjusterInterface
         }
 
         return $adjustments;
+    }
+
+    /**
+     * @param $taxableAmount
+     * @param $rate
+     * @param $included
+     * @return float
+     * @since 3.1
+     */
+    private function _getTaxAmount($taxableAmount, $rate, $included)
+    {
+        if (!$included) {
+            $incTax = $taxableAmount * (1 + $rate);
+            $incTax = Currency::round($incTax);
+            $tax = $incTax - $taxableAmount;
+        } else {
+            $exTax = $taxableAmount / (1 + $rate);
+            $exTax = Currency::round($exTax);
+            $tax = $taxableAmount - $exTax;
+        }
+
+        return $tax;
     }
 
     /**

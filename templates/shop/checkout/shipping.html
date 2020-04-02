@@ -32,13 +32,13 @@
             {% endif %}
 
             {% if cart.availableShippingMethods|length %}
-                <form method="POST">
+                <form method="post">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
 
                     {% for handle, method in cart.availableShippingMethods %}
-                        <div class="shipping-select">
+                        <div class="js-shipping-select">
                             <label>
 
                                 <input type="radio" name="shippingMethodHandle" value="{{ handle }}"

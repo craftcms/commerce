@@ -1,0 +1,23 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+  <form method="POST" class="form-horizontal max-w-md">
+    <input type="hidden" name="action" value="commerce/cart/load-cart"/>
+    {{ redirectInput('/shop/cart') }}
+    {{ csrfInput() }}
+
+    <h1>Load Cart</h1>
+    <p>Enter a cart number to load that cart into the current session.</p>
+
+    <fieldset>
+      <div>
+        <label for="number">Cart Number</label>
+        <input type="text" id="number" class="w-full" name="number" value="">
+      </div>
+      <div class="mt-4 text-right">
+          <button class="button button-primary" type="submit">Load cart</button>
+      </div>
+
+    </fieldset>
+  </form>
+{% endblock %}

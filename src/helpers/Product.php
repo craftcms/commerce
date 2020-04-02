@@ -109,9 +109,10 @@ class Product
         $product->title = $request->getBodyParam('title', $product->title);
 
         $product->setFieldValuesFromRequest('fields');
-
-        if ($request->getBodyParam('variants')) {
-            $product->setVariants($request->getBodyParam('variants'));
+        if ($variants = $request->getBodyParam('variants')) {
+            $product->setVariants($variants);
+        } else {
+            $product->setVariants([]);
         }
 
         return $product;

@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
+use craft\helpers\UrlHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
@@ -203,6 +204,10 @@ class CartController extends BaseFrontEndController
             $this->_cart->registerUserOnOrderComplete = true;
         }
 
+        if ($request->getBodyParam('registerUserOnOrderComplete') === 'false') {
+            $this->_cart->registerUserOnOrderComplete = false;
+        }
+
         // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
@@ -241,6 +246,72 @@ class CartController extends BaseFrontEndController
         return $this->_returnCart();
     }
 
+    /**
+     * @return Response|null
+     * @throws \craft\errors\MissingComponentException
+     * @since 3.1
+     */
+    public function actionLoadCart()
+    {
+        $request = Craft::$app->getRequest();
+        $number = $request->getParam('number');
+        $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
+
+        if (!$number) {
+            $error = Plugin::t('A cart number must be specified.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $cart = Order::find()->number($number)->isCompleted(false)->one();
+
+        if (!$cart) {
+            $error = Plugin::t('Unable to retrieve cart.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $cartCustomer = $cart->getCustomer();
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        if ($cartCustomer && $cartCustomer->userId && (!$currentUser || $currentUser->id != $cartCustomer->userId)) {
+            $error = Plugin::t('You must be logged in to load this cart.');
+
+            if ($request->getAcceptsJson()) {
+                return $this->asErrorJson($error);
+            }
+
+            Craft::$app->getSession()->setError($error);
+            return $request->getIsGet() ? $this->redirect($redirect) : null;
+        }
+
+        $session = Craft::$app->getSession();
+        $carts = Plugin::getInstance()->getCarts();
+        $carts->forgetCart();
+        $session->set($carts->getCartName(), $number);
+
+        $customers = Plugin::getInstance()->getCustomers();
+        $customers->forgetCustomer();
+        if ($cartCustomer) {
+            $session->set($customers::SESSION_CUSTOMER, $cartCustomer->id);
+        }
+
+        if ($request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        return $request->getIsGet() ? $this->redirect($redirect) : $this->redirectToPostedUrl();
+    }
 
     /**
      * @return Response

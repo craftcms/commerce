@@ -20,16 +20,6 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
 
             this.$makePayment = $('#make-payment');
 
-            this.billingAddress = new Craft.Commerce.AddressBox($('#billingAddressBox'), {
-                onChange: $.proxy(this, '_updateOrderAddress', 'billingAddress'),
-                order: true
-            });
-
-            this.shippingAddress = new Craft.Commerce.AddressBox($('#shippingAddressBox'), {
-                onChange: $.proxy(this, '_updateOrderAddress', 'shippingAddress'),
-                order: true
-            });
-
             this.addListener(this.$makePayment, 'click', 'makePayment');
 
             if (Object.keys(this.paymentForm.errors).length > 0) {
@@ -51,20 +41,7 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
 
             this.openPaymentModal();
         },
-        _updateOrderAddress: function(name, address) {
-            Craft.postActionRequest('commerce/orders/update-order-address', {
-                addressId: address.id,
-                addressType: name,
-                orderId: this.orderId
-            }, function(response) {
-                if (!response.success) {
-                    alert(response.error);
-                }
 
-                window.OrderDetailsApp.externalRefresh();
-
-            });
-        },
         _getCountries: function() {
             return window.countries;
         }

@@ -1,20 +1,14 @@
 <template>
     <order-block v-if="editing || lineItem.adjustments.length" class="order-flex">
-        <div class="w-1/3">
-            <h3 class="light">{{"Adjustments"|t('commerce')}}</h3>
-        </div>
-
-        <div class="w-2/3">
-            <adjustments
-                    :editing="editing"
-                    :error-prefix="errorPrefix"
-                    :adjustments="adjustments"
-                    :recalculation-mode="recalculationMode"
-                    @addAdjustment="addAdjustment"
-                    @updateAdjustment="updateAdjustment"
-                    @removeAdjustment="removeAdjustment"
-            ></adjustments>
-        </div>
+        <adjustments
+                :editing="editing"
+                :error-prefix="errorPrefix"
+                :adjustments="adjustments"
+                :recalculation-mode="recalculationMode"
+                @addAdjustment="addAdjustment"
+                @updateAdjustment="updateAdjustment"
+                @removeAdjustment="removeAdjustment"
+        ></adjustments>
     </order-block>
 </template>
 

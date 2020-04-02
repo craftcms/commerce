@@ -529,8 +529,8 @@ class ProductQuery extends ElementQuery
         if ($commerce && version_compare($commerce['version'], '2.0.0-beta.5', '>=')) {
             $this->query->addSelect(['commerce_products.availableForPurchase']);
 
-            if ($this->availableForPurchase) {
-                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => true]);
+            if ($this->availableForPurchase !== null) {
+                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
             }
         }
 

@@ -172,7 +172,7 @@ class Variant extends Purchasable
     public $productId;
 
     /**
-     * @var int $isDefault
+     * @var bool $isDefault
      */
     public $isDefault;
 
@@ -805,6 +805,43 @@ class Variant extends Purchasable
     }
 
     /**
+     * @return string
+     * @throws InvalidConfigException
+     * @since 3.1
+     */
+    public function getGqlTypeName(): string
+    {
+        $product = $this->getProduct();
+
+        if (!$product || !$productType = $product->getType()) {
+            return 'Variant';
+        }
+
+        return static::gqlTypeNameByContext($productType);
+    }
+
+    /**
+     * @param mixed $context
+     * @return string
+     * @since 3.1
+     */
+    public static function gqlTypeNameByContext($context): string
+    {
+        return $context->handle . '_Variant';
+    }
+
+    /**
+     * @param mixed $context
+     * @return array
+     * @since 3.1
+     */
+    public static function gqlScopesByContext($context): array
+    {
+        /** @var ProductType $context */
+        return ['productTypes.' . $context->uid];
+    }
+
+    /**
      * @inheritdoc
      */
     public function afterSave(bool $isNew)
@@ -830,7 +867,7 @@ class Variant extends Purchasable
         $record->minQty = $this->minQty;
         $record->maxQty = $this->maxQty;
         $record->stock = $this->stock;
-        $record->isDefault = $this->isDefault;
+        $record->isDefault = (bool) $this->isDefault;
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 

@@ -10,7 +10,11 @@
 {% from "commerce/_includes/settings" import indexInlineList %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/tax/taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
+    {{ craft.commerce.taxes.taxZoneActionHtml()|raw }}
+
+    {% if craft.commerce.taxes.createTaxZones() %}
+        <a href="{{ url('commerce/tax/taxzones/new') }}" class="btn submit add icon">{{ 'New tax zone'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -84,7 +88,7 @@
     new Craft.VueAdminTable({
         columns: columns,
         container: '#tax-vue-admin-table',
-        deleteAction: 'commerce/tax-zones/delete',
+        deleteAction: {{ craft.commerce.taxes.deleteTaxZones() ? 'commerce/tax-zones/delete'|json_encode|raw : 'null' }},
         tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

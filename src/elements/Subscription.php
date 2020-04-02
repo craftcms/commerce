@@ -740,6 +740,11 @@ class Subscription extends Element
                 'orderBy' => 'commerce_subscriptions.dateCreated',
                 'attribute' => 'dateCreated'
             ],
+            [
+                'label' => Craft::t('app', 'ID'),
+                'orderBy' => 'elements.id',
+                'attribute' => 'id',
+            ],
         ];
     }
 
