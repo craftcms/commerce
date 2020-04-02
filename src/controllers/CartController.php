@@ -298,7 +298,7 @@ class CartController extends BaseFrontEndController
         $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
         $carts->forgetCart();
-        $session->set($carts::CART_NAME, $number);
+        $session->set($carts->cartName, $number);
 
         $customers = Plugin::getInstance()->getCustomers();
         $customers->forgetCustomer();
