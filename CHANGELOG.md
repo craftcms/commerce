@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.0 - 2020-04-02
 
 ### Added
 - It’s now possible to set dynamic condition formulas on discounts. ([#470](https://github.com/craftcms/commerce/issues/470))
