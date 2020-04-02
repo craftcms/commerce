@@ -6,7 +6,7 @@
 - States can now be re-ordered. ([#1284](https://github.com/craftcms/commerce/issues/1284))
 - Added the ability to load a cart into the current session. ([#1348](https://github.com/craftcms/commerce/issues/1348))
 - Added the ability to pay the outstanding balance on a cart or completed order.
-- Added the ability to submit a new`paymentSourceId` at the time of making payment. ([#1283](https://github.com/craftcms/commerce/issues/1283))
+- Added the ability to submit a new `paymentSourceId` at the time of making payment. ([#1283](https://github.com/craftcms/commerce/issues/1283))
 - Addresses are automatically populated when selecting a customer on the Edit Order page. ([#1295](https://github.com/craftcms/commerce/issues/1295))
 - Added the ability to select an existing customer’s address on the Edit Order page. ([#990](https://github.com/craftcms/commerce/issues/990))
 - Added `availableForPurchase` to product GraphQL fields and arguments.
