@@ -2340,6 +2340,15 @@ class Order extends Element
     }
 
     /**
+     * @since 3.1
+     */
+    public function removeShippingAddress()
+    {
+        $this->shippingAddressId = null;
+        $this->_shippingAddress = null;
+    }
+
+    /**
      * @return Address|null
      * @since 2.2
      */
@@ -2368,6 +2377,15 @@ class Order extends Element
     }
 
     /**
+     * @since 3.1
+     */
+    public function removeEstimatedShippingAddress()
+    {
+        $this->estimatedShippingAddressId = null;
+        $this->_estimatedShippingAddress = null;
+    }
+
+    /**
      * @return Address|null
      */
     public function getBillingAddress()
@@ -2390,6 +2408,15 @@ class Order extends Element
 
         $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
+    }
+
+    /**
+     * @since 3.1
+     */
+    public function removeBillingAddress()
+    {
+        $this->billingAddressId = null;
+        $this->_billingAddress = null;
     }
 
     /**
@@ -2419,6 +2446,16 @@ class Order extends Element
         $this->estimatedBillingAddressId = $address->id;
         $this->_estimatedBillingAddress = $address;
     }
+
+    /**
+     * @since 3.1
+     */
+    public function removeEstimatedBillingAddress()
+    {
+        $this->estimatedBillingAddressId = null;
+        $this->_estimatedBillingAddress = null;
+    }
+
 
     /**
      * @return int|null

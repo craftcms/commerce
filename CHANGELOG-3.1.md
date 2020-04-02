@@ -19,6 +19,10 @@
 - Added `craft\commerce\controllers\AddressesController::getAddressById()`.
 - Added `craft\commerce\controllers\CartController::actionLoadCart()`.
 - Added `craft\commerce\elements\Order::getAvailableShippingMethodsOptions()`.
+- Added `craft\commerce\elements\Order::removeBillingAddress()`.
+- Added `craft\commerce\elements\Order::removeEstimateBillingAddress()`.
+- Added `craft\commerce\elements\Order::removeEstimateShippingAddress()`.
+- Added `craft\commerce\elements\Order::removeShippingAddress()`.
 - Added `craft\commerce\elements\Variant::getGqlTypeName()`.
 - Added `craft\commerce\elements\Variant::gqlScopesByContext()`.
 - Added `craft\commerce\elements\Variant::gqlTypeNameByContext()`.
@@ -53,6 +57,7 @@
 - Fixed an error that could occur when entering localized numbers on Shipping Rules. ([#1332](https://github.com/craftcms/commerce/issues/1332))
 - Fixed a bug that could occur when editing localized decimal prices on Discounts. ([#1174](https://github.com/craftcms/commerce/issues/1174))
 - Fixed a bug that could occur while typing an order status message during order recalculation. ([#1309](https://github.com/craftcms/commerce/issues/1309))
+- Fixed a bug that could occur when deleting an address in the front end.
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Carts::$cartName`. `craft\commerce\services\Carts::CART_NAME` should be used instead.
