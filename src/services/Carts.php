@@ -39,7 +39,7 @@ class Carts extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    public $cartName = 'commerce_cart';
+    protected $cartName = 'commerce_cart';
 
     /**
      * @var Order
@@ -192,6 +192,15 @@ class Carts extends Component
     {
         $session = Craft::$app->getSession();
         return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
+    }
+
+    /**
+     * @return string
+     * @since 3.1
+     */
+    public function getCartName(): string
+    {
+        return $this->cartName;
     }
 
     /**
