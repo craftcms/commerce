@@ -37,12 +37,12 @@
 - Added `craft\commerce\services\Taxes`.
 
 ### Changed
-- Improved the line item adding and editing UI on the Edit Order page.
-- The amount of “base discount” in a discount action is now spread across the line items from highest priced to lowest.
-- A line item‘s `price` and `salePrice` are now rounded before being multiplied by the quantity.
+- Improved the “Add a line item” behavior and styling on the Edit Order page.
+- Discount adjustments are now only applied to line items, and not the whole order. “Base discount” amount is now spread across the line items from highest priced to lowest.
+- A line item‘s `salePrice` is now rounded before being multiplied by the quantity.
 - Improved the consistency of Discount and Tax calculations and rounding system wide.
-- Updated the example templates.
-- The commerceCurrency twig filter now rounds consistently with currency rounding.
+- Improved styles and behavior of the example templates.
+- The `commerceCurrency` twig filter now rounds consistently with currency rounding.
 
 ### Fixed
 - Fixed an error that could occur when querying product GraphQL using product type. 
