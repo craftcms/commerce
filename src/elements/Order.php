@@ -1146,7 +1146,7 @@ class Order extends Element
     {
         $names = parent::extraFields();
         $names[] = 'availableShippingMethods';
-        $names[] = 'availableShippingMethodsOptions';
+        $names[] = 'availableShippingMethodOptions';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
         $names[] = 'customer';
@@ -1565,7 +1565,7 @@ class Order extends Element
      * @return ShippingMethodOption[]
      * @since 3.1
      */
-    public function getAvailableShippingMethodsOptions(): array
+    public function getAvailableShippingMethodOptions(): array
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
         $options = [];
