@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>{{ "Craft Commerce"|t }}</title>
+    <title>Craft Commerce Example Templates</title>
 
     <meta name="description" content="{{ "The example templates for Craft Commerce"|t }}">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,27 +12,26 @@
     <script type="application/javascript" src="/shop/jquery.js"></script>
     <link rel="stylesheet" href="/shop/tailwind.css">
     <link rel="stylesheet" href="/shop/style.css">
-
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/html-inspector/0.8.2/html-inspector.js"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
 
     {% if extraHead is defined %}
         {{ extraHead }}
     {% endif %}
 </head>
-<body class="bg-grey-lightest">
+<body class="bg-gray-100">
 
     {% if cart is not defined %}
         {% set cart = craft.commerce.carts.cart %}
     {% endif %}
 
-
     {% if showNav is not defined %}
         {% set showNav = true %}
     {% endif %}
 
-    <div class="bg-grey-lighter">
+    <div class="bg-gray-200">
         <div id="header" class="container mx-auto md:flex justify-between items-center p-6 text-center">
-            <a href="{{ url('shop') }}" class="brand mb-6 md:mb-0 block">{%- include "shop/_images/logo" with {'class': 'logo'} -%}</a>
+            <h3 class="font-semibold">Example Templates</h3>
 
             {% if showNav %}
                 {% include "shop/_includes/nav" %}
@@ -47,7 +46,7 @@
     {% set flashNotice = craft.app.session.getFlash('notice') %}
 
     {% if flashNotice %}
-        <div class="bg-blue text-white">
+        <div class="bg-blue-500 text-white">
             <div class="flash container mx-auto px-6 py-4">
                 {{ flashNotice }}
             </div>
@@ -57,7 +56,7 @@
     {% set flashError = craft.app.session.getFlash('error') %}
 
     {% if flashError %}
-        <div class="bg-red text-white">
+        <div class="bg-red-500 text-white">
             <div class="flash container mx-auto px-6 py-4">
                 {{ flashError }}
             </div>
@@ -65,7 +64,7 @@
     {% endif %}
 
     {% if cart.errors|length %}
-        <div class="bg-red text-white">
+        <div class="bg-red-500 text-white">
             <div class="container mx-auto px-6 py-4">
                 {% for attribute, errors in cart.errors %}
                     {% if loop.first %}<ul>{% endif %}
@@ -82,52 +81,24 @@
         <div class="bg-white">
             <div id="main" class="container mx-auto p-6">
                 {% block main %}
-                    <h1>Default Content</h1>
+                    <h1 class="text-xl font-semibold">Default Content</h1>
                     <p>You should not see this.</p>
                 {% endblock %}
             </div>
         </div>
     {% endblock %}
 
-    <div>
-        <div class="container mx-auto p-6">
-            <h3>Commerce Cart Debug Info</h3>
-            <ul>
-                <li><strong>ID</strong> {{ cart.id }}</li>
-                <li><strong>Number</strong> {{ cart.number }}</li>
-                <li><strong>Short Number</strong> {{ cart.shortNumber }}</li>
-                <li><strong>Email</strong> {{ cart.email }}</li>
-                <li><strong>Customer ID</strong> {{ cart.customerId }}</li>
-                <li><strong>User</strong> {{ cart.user }}</li>
-                <li><strong>Shipping Address ID</strong> {{ cart.shippingAddressId }}</li>
-                <li><strong>Billing Address ID</strong> {{ cart.billingAddressId }}</li>
-                <li><strong>Estimated Shipping Address ID</strong> {{ cart.estimatedShippingAddressId }}</li>
-                <li><strong>Estimated Billing Address ID</strong> {{ cart.estimatedBillingAddressId }}</li>
-                <li><strong>Shipping Method Handle</strong> {{ cart.shippingMethodHandle }}</li>
-                <li><strong>Line Items Count</strong> {{ cart.lineItems|length }}</li>
-                <li><strong>Coupon</strong> {{ cart.couponCode }}</li>
-                <li><strong>Currency</strong> {{ cart.currency }}</li>
-                <li><strong>Payment Currency</strong> {{ cart.paymentCurrency }}</li>
-                <li><strong>Gateway ID</strong> {{ cart.gatewayId }}</li>
-                <li><strong>Payment Source ID</strong> {{ cart.paymentSourceId }}</li>
-                <li><strong>Language</strong> {{ cart.orderLanguage }}</li>
-                <li><strong>Payment Return URL</strong> {{ cart.returnUrl }}</li>
-                <li><strong>Payment Cancel URL</strong> {{ cart.cancelUrl }}</li>
-                <li><strong>Last IP</strong> {{ cart.lastIp }}</li>
-            </ul>
-        </div>
-    </div>
-    <footer>
-        <div class="container mx-auto p-6">
-            <h3>Welcome!</h3>
-            <p>These are the Craft Commerce example templates.</p>
-            <p>Resources:</p>
-            <ul>
-                <li><a href="https://craftcommerce.com/docs">Craft Commerce Documentation</a>.</li>
-                <li><a href="https://craftcms.com/docs/introduction">Craft CMS Documentation</a>.</li>
-                <li><a href="http://craftcms.stackexchange.com">Craft CMS Stack Exchange</a>. Use the <code>plugin-craftcommerce</code> tag.</li>
-                <li><a href="https://craftcms.com/discord">Craft Discord Community</a>. Use the <code>#commerce2</code> channel.</li>
-            </ul>
+    <footer class="container mx-auto p-2 pt-10">
+        <div class="flex flex-wrap">
+            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+                {% include 'shop/_includes/debug' %}
+            </div>
+            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+                {% include 'shop/_includes/shortcuts' %}
+            </div>
+            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+                {% include 'shop/_includes/help' %}
+            </div>
         </div>
     </footer>
 </body>

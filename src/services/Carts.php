@@ -60,7 +60,7 @@ class Carts extends Component
     {
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
-            $this->forgetCart(); // Remove the cart number from session if there was one.
+            $this->forgetCart(); // TODO: Probably remove this so we don't get a new cart number on every request?
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
         }
@@ -192,6 +192,15 @@ class Carts extends Component
     {
         $session = Craft::$app->getSession();
         return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
+    }
+
+    /**
+     * @return string
+     * @since 3.1
+     */
+    public function getCartName(): string
+    {
+        return $this->cartName;
     }
 
     /**

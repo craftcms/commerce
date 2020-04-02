@@ -62,7 +62,6 @@
                 </div>
             </template>
 
-
             <div class="field" id="shippingMethod-field">
                 <div class="heading">
                     <label id="shippingMethod-label" for="slug">{{"Shipping Method"|t('commerce')}}</label>
@@ -72,15 +71,37 @@
                                      @updateOrder="updateOrder"></shipping-method>
                 </div>
             </div>
+        </div>
 
-            <div class="field" id="customer-field">
-                <div class="heading">
-                    <label id="customer-label" for="customer">{{"Customer"|t('commerce')}}</label>
+        <div class="meta read-only" v-if="!editing">
+            <div class="data">
+                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
+                <p class="value">{{draft.order.reference}}</p>
+            </div>
+
+            <div class="data">
+                <h5 class="heading">{{"Coupon Code"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.couponCode}}</span>
+            </div>
+
+            <template v-if="draft.order.isCompleted">
+                <div class="data">
+                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
+                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
                 </div>
-                <div class="input ltr">
-                    <customer-select :order="order"
-                                     @updateOrder="updateOrder"></customer-select>
+            </template>
+
+            <template v-if="draft.order.isCompleted">
+                <div class="data">
+                    <h5 class="heading">{{"Status"|t('commerce')}}</h5>
+                    <span class="value"
+                          v-html="draft.order.orderStatusHtml"></span>
                 </div>
+            </template>
+
+            <div class="data">
+                <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
+                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
             </div>
         </div>
 
@@ -88,11 +109,6 @@
             <div class="data">
                 <h5 class="heading">{{"ID"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.id}}</p>
-            </div>
-
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
-                <p class="value">{{draft.order.reference}}</p>
             </div>
 
             <div class="data">
@@ -121,23 +137,10 @@
                 </div>
             </div>
 
-            <template v-if="draft.order.isCompleted && !editing">
-                <div class="data">
-                    <h5 class="heading">{{"Status"|t('commerce')}}</h5>
-                    <span class="value"
-                          v-html="draft.order.orderStatusHtml"></span>
-                </div>
-            </template>
-
             <div class="data">
                 <h5 class="heading">{{"Paid Status"|t('commerce')}}</h5>
                 <span class="value"
                       v-html="draft.order.paidStatusHtml"></span>
-            </div>
-
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Customer"|t('commerce')}}</h5>
-                <p class="value" v-html="draft.order.customerLinkHtml"></p>
             </div>
 
             <div class="data">
@@ -166,23 +169,6 @@
                 </div>
             </template>
 
-            <div class="data" v-if="!editing">
-                <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
-            </div>
-
-            <div class="data" v-if="draft.order.couponCode && !editing">
-                <h5 class="heading">{{"Coupon Code"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.couponCode}}</span>
-            </div>
-
-            <template v-if="draft.order.isCompleted && !editing">
-                <div class="data">
-                    <h5 class="heading">{{"Date Ordered"|t('commerce')}}</h5>
-                    <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
-                </div>
-            </template>
-
             <div class="data">
                 <h5 class="heading">{{"Last Updated"|t('commerce')}}</h5>
                 <span class="value">{{draft.order.dateUpdated.date}} {{draft.order.dateUpdated.time}}</span>
@@ -206,7 +192,6 @@
     import {mapActions, mapGetters, mapState} from 'vuex'
     import OrderStatus from './components/meta/OrderStatus'
     import ShippingMethod from './components/meta/ShippingMethod'
-    import CustomerSelect from './components/meta/CustomerSelect'
     import DateOrderedInput from './components/meta/DateOrderedInput'
     import Field from './components/Field'
     import mixins from './mixins'
@@ -217,7 +202,6 @@
         components: {
             OrderStatus,
             ShippingMethod,
-            CustomerSelect,
             DateOrderedInput,
             Field,
         },

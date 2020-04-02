@@ -66,7 +66,8 @@ class Extension extends AbstractExtension
         }
 
         if ($format) {
-            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
+            $options[\NumberFormatter::ROUNDING_MODE] = \NumberFormatter::ROUND_HALFUP;
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, $options, [], $stripZeros);
         }
 
         return $amount;

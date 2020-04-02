@@ -69,7 +69,8 @@ class OrderAdjustments extends Component
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
-            $adjusters[] = Tax::class;
+            $engine = Plugin::getInstance()->getTaxes()->getEngine();
+            $adjusters[] = $engine->taxAdjusterClass();
         }
 
         $event = new RegisterComponentTypesEvent([
@@ -143,7 +144,7 @@ class OrderAdjustments extends Component
             $record = OrderAdjustmentRecord::findOne($orderAdjustment->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No order Adjustment exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No order Adjustment exists with the ID “{id}”',
                     ['id' => $orderAdjustment->id]));
             }
         } else {

@@ -173,7 +173,7 @@ class OrderStatuses extends Component
 
     /**
      * @return array
-     * @since 3.x
+     * @since 3.0.11
      */
     public function getOrderCountByStatus()
     {

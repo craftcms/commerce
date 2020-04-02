@@ -2,11 +2,14 @@
     <div class="v-select-btn btn">
         <v-select
                 ref="vSelect"
+                :class="selectClass"
                 :clearable="clearable"
+                :clear-search-on-blur="clearOnBlur"
                 :create-option="createOption"
                 :components="{OpenIndicator}"
                 :disabled="disabled"
                 :filterable="filterable"
+                :filter-by="filterBy"
                 :label="label"
                 :options="options"
                 :taggable="taggable"
@@ -42,6 +45,10 @@
                     <input class="vs__search" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
                 </slot>
             </template>
+
+            <template v-slot:no-options>
+                {{$options.filters.t('Sorry, no matching options.', 'commerce')}}
+            </template>
         </v-select>
     </div>
 </template>
@@ -56,6 +63,10 @@
         },
 
         props: {
+            selectClass: {
+                type: [String, Object],
+                default: '',
+            },
             clearable: {
                 type: Boolean,
             },
@@ -63,6 +74,10 @@
                 type: Function,
             },
             clearSearchOnSelect: {
+                type: Boolean,
+                default: true,
+            },
+            clearSearchOnBlur : {
                 type: Boolean,
                 default: true,
             },
@@ -89,6 +104,10 @@
                 type: String,
                 default: '',
             },
+            preFiltered: {
+                type: Boolean,
+                default: false,
+            },
             value: {},
         },
 
@@ -99,6 +118,20 @@
         },
 
         methods: {
+            filterBy(option, label, search) {
+                // This is a replication of the default in built filter by: https://github.com/sagalbot/vue-select/blob/master/src/components/Select.vue#L378
+                // The reason for including this is the combination of taggable and filterable still runs this function and sometimes we need to overwrite it.
+                if (this.preFiltered === true) {
+                    return true;
+                }
+
+                return (label || '').toLowerCase().indexOf(search.toLowerCase()) > -1;
+            },
+
+            clearOnBlur() {
+                return this.clearSearchOnBlur;
+            },
+
             onSearch(searchText, loading) {
                 this.$emit('search', {searchText, loading})
 
@@ -134,7 +167,27 @@
     }
 </script>
 
-<style>
+<style lang="scss">
+    @import '../../sass/app';
+
+    .v-select-btn .vs__search::placeholder {
+        color: $mediumDarkTextColor !important;
+    }
+
+    #main-container .v-select-btn .v-select .vs__actions .vs__spinner {
+        right: -36px;
+    }
+
+    #main-container .v-select-btn .vs__no-options {
+        padding-bottom: 6px;
+        padding-top: 6px;
+    }
+
+    .v-select-btn .vs__actions {
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+
     .vs__open-indicator:hover {
         cursor: pointer;
     }

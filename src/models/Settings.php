@@ -208,6 +208,12 @@ class Settings extends Model
      public $validateCartCustomFieldsOnSubmission = false;
 
     /**
+     * @var string|null the uri to redirect to after using the load cart url
+     * @since 3.1
+     */
+     public $loadCartRedirectUrl = null;
+
+    /**
      * @return array
      */
     public function getWeightUnitsOptions(): array

@@ -5,10 +5,9 @@
         </template>
 
         <template v-else>
-            <template v-if="lineItemStatus.color">
-                <span class="status" :class="{[lineItemStatus.color]: true}"></span>
-                {{lineItemStatus.name}}
-            </template>
+            <span class="status" :class="{[lineItemStatus.color]: true}" v-if="lineItemStatus.color"></span>
+            <span class="status" v-else></span>
+            {{lineItemStatus.name}}
         </template>
     </div>
 </template>

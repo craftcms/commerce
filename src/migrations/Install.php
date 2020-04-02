@@ -228,6 +228,7 @@ class Install extends Migration
             'allGroups' => $this->boolean(),
             'allPurchasables' => $this->boolean(),
             'allCategories' => $this->boolean(),
+            'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
             'enabled' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
@@ -686,6 +687,7 @@ class Install extends Migration
             'countryId' => $this->integer()->notNull(),
             'name' => $this->string()->notNull(),
             'abbreviation' => $this->string(),
+            'sortOrder' => $this->integer(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -929,6 +931,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERS, 'gatewayId', false);
         $this->createIndex(null, Table::ORDERS, 'customerId', false);
         $this->createIndex(null, Table::ORDERS, 'orderStatusId', false);
+        $this->createIndex(null, Table::ORDERS, 'email', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);

@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -88,6 +89,28 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Plugin::t('Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Plugin::t('Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
 
+        if ($variables['shippingRule'] && $variables['shippingRule'] instanceof ShippingRule) {
+            // Localize numbers
+            $localizeAttributes = [
+                'minTotal',
+                'maxTotal',
+                'minWeight',
+                'maxWeight',
+                'baseRate',
+                'perItemRate',
+                'weightRate',
+                'percentageRate',
+                'minRate',
+                'maxRate',
+            ];
+
+            foreach ($localizeAttributes as $attr) {
+                if (isset($variables['shippingRule']->{$attr}) && $variables['shippingRule']->{$attr} !== null) {
+                    $variables['shippingRule']->{$attr} = Craft::$app->getFormatter()->asDecimal((float)$variables['shippingRule']->{$attr});
+                }
+            }
+        }
+
         return $this->renderTemplate('commerce/shipping/shippingrules/_edit', $variables);
     }
 
@@ -110,16 +133,16 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
         $shippingRule->minQty = $request->getBodyParam('minQty');
         $shippingRule->maxQty = $request->getBodyParam('maxQty');
-        $shippingRule->minTotal = $request->getBodyParam('minTotal');
-        $shippingRule->maxTotal = $request->getBodyParam('maxTotal');
-        $shippingRule->minWeight = $request->getBodyParam('minWeight');
-        $shippingRule->maxWeight = $request->getBodyParam('maxWeight');
-        $shippingRule->baseRate = $request->getBodyParam('baseRate');
-        $shippingRule->perItemRate = $request->getBodyParam('perItemRate');
-        $shippingRule->weightRate = $request->getBodyParam('weightRate');
-        $shippingRule->percentageRate = $request->getBodyParam('percentageRate');
-        $shippingRule->minRate = $request->getBodyParam('minRate');
-        $shippingRule->maxRate = $request->getBodyParam('maxRate');
+        $shippingRule->minTotal = Localization::normalizeNumber($request->getBodyParam('minTotal'));
+        $shippingRule->maxTotal = Localization::normalizeNumber($request->getBodyParam('maxTotal'));
+        $shippingRule->minWeight = Localization::normalizeNumber($request->getBodyParam('minWeight'));
+        $shippingRule->maxWeight = Localization::normalizeNumber($request->getBodyParam('maxWeight'));
+        $shippingRule->baseRate = Localization::normalizeNumber($request->getBodyParam('baseRate'));
+        $shippingRule->perItemRate = Localization::normalizeNumber($request->getBodyParam('perItemRate'));
+        $shippingRule->weightRate = Localization::normalizeNumber($request->getBodyParam('weightRate'));
+        $shippingRule->percentageRate = Localization::normalizeNumber($request->getBodyParam('percentageRate'));
+        $shippingRule->minRate = Localization::normalizeNumber( $request->getBodyParam('minRate'));
+        $shippingRule->maxRate = Localization::normalizeNumber($request->getBodyParam('maxRate'));
 
         $ruleCategories = [];
         $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');

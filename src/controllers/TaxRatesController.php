@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -49,6 +50,10 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
+        if (!Plugin::getInstance()->getTaxes()->viewTaxRates()) {
+            throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
+        }
+
         $variables = compact('id', 'taxRate');
 
         $plugin = Plugin::getInstance();
@@ -133,6 +138,10 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionSave()
     {
+        if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
+            throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
+        }
+
         $this->requirePostRequest();
 
         $taxRate = new TaxRate();
@@ -175,6 +184,10 @@ class TaxRatesController extends BaseTaxSettingsController
      */
     public function actionDelete()
     {
+        if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
+            throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
+        }
+
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 

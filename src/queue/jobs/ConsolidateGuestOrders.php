@@ -40,7 +40,7 @@ class ConsolidateGuestOrders extends BaseJob
     {
         $this->_queue = $queue;
 
-        $total = count($this->emails) + 1;
+        $total = count($this->emails);
 
         $step = 1;
 

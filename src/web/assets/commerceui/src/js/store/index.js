@@ -2,7 +2,8 @@
 
 import Vue from 'vue'
 import Vuex from 'vuex'
-import ordersApi from '../api/orders';
+import ordersApi from '../api/orders'
+import addressesApi from '../api/addresses'
 import utils from '../helpers/utils'
 
 Vue.use(Vuex)
@@ -32,6 +33,10 @@ export default new Vuex.Store({
 
         canEdit(state, getters) {
             return getters.currentUserPermissions['commerce-editOrders']
+        },
+
+        countries() {
+            return window.orderEdit.countries
         },
 
         forceEdit() {
@@ -70,6 +75,10 @@ export default new Vuex.Store({
             return window.orderEdit.shippingCategories
         },
 
+        statesByCountryId() {
+            return window.orderEdit.statesByCountryId
+        },
+
         pdfUrls() {
             return window.orderEdit.pdfUrls
         },
@@ -92,6 +101,22 @@ export default new Vuex.Store({
             }
 
             return false
+        },
+
+        hasAddresses(state) {
+            if (!state.draft) {
+                return false
+            }
+
+            return ((state.draft.order.billingAddressId && state.draft.order.shippingAddressId) || (state.draft.order.billingAddress && state.draft.order.shippingAddress))
+        },
+
+        hasCustomer(state) {
+            if (!state.draft) {
+                return false
+            }
+
+            return (state.draft.order.customerId && state.draft.order.email)
         },
 
         lineItemStatuses() {
@@ -124,6 +149,28 @@ export default new Vuex.Store({
                 return []
             }
         },
+
+        hasLineItemErrors(state) {
+            return (key) => {
+                if (state && state.draft && state.draft.order && state.draft.order.errors) {
+                    let errorKeys = Object.keys(state.draft.order.errors);
+                    let pattern = '^lineItems\\.' + key +'\\.';
+                    let regex = new RegExp(pattern, 'gm');
+                    for (let i = 0; i < errorKeys.length; i++) {
+                        let errorKey = errorKeys[i];
+                        if (errorKey.match(regex)) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            }
+        },
+
+        userPhotoFallback() {
+            return window.orderEdit.userPhotoFallback
+        }
     },
 
     actions: {
@@ -298,6 +345,42 @@ export default new Vuex.Store({
 
         sendEmail(context, emailTemplateId) {
             return ordersApi.sendEmail(emailTemplateId)
+        },
+
+        getAddressById(context, id) {
+            return addressesApi.getById(id)
+                .then((response) => {
+                    if (response.data && response.data.success && response.data.address) {
+                        return response.data.address;
+                    }
+
+                    return null;
+                })
+                .catch(() => {
+                    let errorMsg = 'Couldn’t retrieve address.';
+
+                    throw errorMsg;
+                });
+        },
+
+        validateAddress(context, address) {
+            return addressesApi.validate(address)
+                .then((response) => {
+                    if (response.data) {
+                        return response.data;
+                    }
+
+                    return response;
+                })
+                .catch((error) => {
+                    let errorMsg = "Couldn’t validate address."
+
+                    if (error.response.data.error) {
+                        errorMsg = error.response.data.error
+                    }
+
+                    throw errorMsg
+                });
         }
     },
 
@@ -308,6 +391,10 @@ export default new Vuex.Store({
 
         updateDraft(state, draft) {
             state.draft = draft
+        },
+
+        updateDraftOrderMessage(state, message) {
+            state.draft.order.message = message
         },
 
         updateOriginalDraft(state, originalDraft) {

@@ -12,8 +12,7 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-rates/save">
     {{ redirectInput('commerce/tax/taxrates') }}
-    {% if taxRate.id %}<input type="hidden" name="taxRateId"
-                              value="{{ taxRate.id }}">{% endif %}
+    {% if taxRate.id %}<input type="hidden" name="taxRateId" value="{{ taxRate.id }}">{% endif %}
     {% include "commerce/tax/taxrates/_fields" %}
 {% endblock %}
 

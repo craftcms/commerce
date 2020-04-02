@@ -1,1 +1,10 @@
-{% redirect 'commerce/tax/taxrates' %}
+{% extends "commerce/_layouts/tax" %}
+
+{% block content %}
+  {% set first = navItems|first %}
+  {% if first %}
+  {% redirect first.url %}
+  {% endif %}
+
+  {{ 'The {engine} is controlling taxes'|t('commerce',{'engine':craft.commerce.taxes.engine.displayName}) }}
+{% endblock %}

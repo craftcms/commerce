@@ -2,7 +2,7 @@
 
 <h1 align="center">Craft Commerce</h1>
 
-Craft Commerce is an amazingly powerful and flexible e-commerce platform for [Craft CMS](https://craftcms.com).
+Craft Commerce is an amazingly powerful and flexible ecommerce platform for [Craft CMS](https://craftcms.com).
 
 You can learn all about it at [craftcms.com/commerce](https://craftcms.com/commerce), and documentation is available at [docs.craftcms.com](https://docs.craftcms.com/commerce/v3/).
 

@@ -1,15 +1,15 @@
-<div class="address-fieldset {{ class }}">
-    <h2>{{ title }}</h2>
+<div class="js-address-fieldset {{ class }}">
+    <h2 class="text-lg font-semibold">{{ title }}</h2>
     {% if addresses and currentUser%}
         {% for address in addresses %}
-            <div class="address-select" data-address-id="{{ address.id }}">
+            <div class="address-select js-address-select" data-address-id="{{ address.id }}">
                 <div class="actions">
                     <ul>
                         <li><a class="edit" href="{{ url('shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath)}}">Edit</a>
                         </li>
                     </ul>
                 </div>
-                <div class="radio">
+                <div class="js-radio">
                     <input type="radio" name="{{ name }}Id"
                         {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
                         {% include 'shop/_includes/addresses/address' %}
@@ -18,7 +18,7 @@
         {% endfor %}
     {% endif %}
 
-    <div class="address-select">
+    <div class="address-select js-address-select">
 
         {% if attribute(cart, name~'Id') %}
             {% set addressHasErrors = attribute(cart, name).hasErrors() %}
@@ -27,7 +27,7 @@
         {% endif %}
 
         {% if currentUser %}
-            <div class="radio">
+            <div class="js-radio">
                 {# If we have no addresses expand the 'New Address" fields by default it to being checked. If we have errors on the address also check and expand. #}
                 <input type="radio" name="{{ name }}Id"
                        {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
@@ -35,7 +35,7 @@
             </div>
         {% endif %}
 
-        <div class="body {% if currentUser %}hidden{% endif %}">
+        <div class="js-body {% if currentUser %}hidden{% endif %}">
             {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
             {% include 'shop/_includes/addresses/form' with {
             'modelName': name,

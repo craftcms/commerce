@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.0.12",
+  "version": "3.1.0",
   "keywords": [
     "cms",
     "craftcms",
@@ -34,7 +34,7 @@
   "extra": {
     "handle": "commerce",
     "name": "Craft Commerce",
-    "description": "An amazingly powerful and flexible e-commerce platform for Craft CMS.",
+    "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://docs.craftcms.com/commerce/v2/"
   },

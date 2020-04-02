@@ -30,7 +30,13 @@
 
         <template v-if="originalOrderStatusId !== orderStatusId">
             <div class="order-status-message">
-                <textarea class="text" placeholder="Message" v-model="message" maxlength="10000"></textarea>
+                <textarea
+                    ref="textarea"
+                    class="text"
+                    :placeholder="$options.filters.t('Message', 'commerce')"
+                    v-model="message"
+                    maxlength="10000"
+                ></textarea>
             </div>
         </template>
     </div>
@@ -40,7 +46,6 @@
     /* global Garnish */
 
     import {mapGetters} from 'vuex'
-    import debounce from 'lodash.debounce'
 
     export default {
         props: {
@@ -50,6 +55,13 @@
             originalOrderStatusId: {
                 type: Number,
             },
+        },
+
+        data() {
+            return {
+                isRecalculating: false,
+                textareaHasFocus: false,
+            }
         },
 
         computed: {
@@ -88,11 +100,9 @@
                     return this.order.message
                 },
 
-                set: debounce(function(value) {
-                    const order = JSON.parse(JSON.stringify(this.order))
-                    order.message = value
-                    this.$emit('updateOrder', order)
-                }, 1000)
+                set(value) {
+                    this.$store.commit('updateDraftOrderMessage', value)
+                },
             },
         },
 
