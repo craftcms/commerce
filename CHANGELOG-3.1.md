@@ -9,6 +9,7 @@
 - Added the ability to submit a new `paymentSourceId` at the time of making payment. ([#1283](https://github.com/craftcms/commerce/issues/1283))
 - Addresses are automatically populated when selecting a customer on the Edit Order page. ([#1295](https://github.com/craftcms/commerce/issues/1295))
 - Added the ability to select an existing customer’s address on the Edit Order page. ([#990](https://github.com/craftcms/commerce/issues/990))
+- `commerce/cart/*` JSON responses now include an `availableShippingMethodsOptions` array of shipping method options with prices.
 - Added `availableForPurchase` to product GraphQL fields and arguments.
 - Added `defaultPrice` to product GraphQL fields and arguments.
 - Added `craft\commerce\adjusters\Tax::_getTaxAmount()`.
@@ -34,7 +35,6 @@
 - Added `craft\commerce\services\Carts::CART_NAME`.
 - Added `craft\commerce\services\Customers::getCustomersQuery()`.
 - Added `craft\commerce\services\Taxes`.
-- Ajax requests to `commerce/cart/*` actions will now get a `availableShippingMethodsOptions` key in the response JSON.
 
 ### Changed
 - Improved the line item adding and editing UI on the Edit Order page.
