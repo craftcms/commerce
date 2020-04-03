@@ -9,7 +9,11 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/tax/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+    {{ craft.commerce.taxes.taxRateActionHtml()|raw }}
+
+    {% if craft.commerce.taxes.createTaxRates() %}
+        <a href="{{ url('commerce/tax/taxrates/new') }}" class="btn submit add icon">{{ 'New tax rate'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -61,7 +65,7 @@ var columns = [
 new Craft.VueAdminTable({
     columns: columns,
     container: '#taxrate-vue-admin-table',
-    deleteAction: 'commerce/tax-rates/delete',
+    deleteAction: {{ craft.commerce.taxes.deleteTaxRates() ? 'commerce/tax-rates/delete'|json_encode|raw : 'null' }},
     tableData: {{ tableData|json_encode|raw }},
-    });
+});
 {% endjs %}

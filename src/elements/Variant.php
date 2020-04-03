@@ -807,7 +807,7 @@ class Variant extends Purchasable
     /**
      * @return string
      * @throws InvalidConfigException
-     * @since 3.x
+     * @since 3.1
      */
     public function getGqlTypeName(): string
     {
@@ -823,7 +823,7 @@ class Variant extends Purchasable
     /**
      * @param mixed $context
      * @return string
-     * @since 3.x
+     * @since 3.1
      */
     public static function gqlTypeNameByContext($context): string
     {
@@ -833,7 +833,7 @@ class Variant extends Purchasable
     /**
      * @param mixed $context
      * @return array
-     * @since 3.x
+     * @since 3.1
      */
     public static function gqlScopesByContext($context): array
     {

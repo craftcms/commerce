@@ -204,6 +204,10 @@ class CartController extends BaseFrontEndController
             $this->_cart->registerUserOnOrderComplete = true;
         }
 
+        if ($request->getBodyParam('registerUserOnOrderComplete') === 'false') {
+            $this->_cart->registerUserOnOrderComplete = false;
+        }
+
         // Set payment currency on cart
         if ($currency = $request->getParam('paymentCurrency')) {
             $this->_cart->paymentCurrency = $currency;
@@ -245,7 +249,7 @@ class CartController extends BaseFrontEndController
     /**
      * @return Response|null
      * @throws \craft\errors\MissingComponentException
-     * @since 3.x
+     * @since 3.1
      */
     public function actionLoadCart()
     {
@@ -294,7 +298,7 @@ class CartController extends BaseFrontEndController
         $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
         $carts->forgetCart();
-        $session->set($carts::CART_NAME, $number);
+        $session->set($carts->getCartName(), $number);
 
         $customers = Plugin::getInstance()->getCustomers();
         $customers->forgetCustomer();

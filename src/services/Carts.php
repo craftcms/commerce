@@ -37,14 +37,7 @@ use function count;
 class Carts extends Component
 {
     /**
-     * Session key for storing the cart number
-     * @since 3.x
-     */
-    const CART_NAME = 'commerce_cart';
-
-    /**
      * @var string Session key for storing the cart number
-     * @deprecated 3.x use CART_NAME constant instead.
      */
     protected $cartName = 'commerce_cart';
 
@@ -67,7 +60,7 @@ class Carts extends Component
     {
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
-            $this->forgetCart(); // Remove the cart number from session if there was one.
+            $this->forgetCart(); // TODO: Probably remove this so we don't get a new cart number on every request?
             $this->_cart = new Order();
             $this->_cart->number = $this->getSessionCartNumber();
         }
@@ -158,7 +151,7 @@ class Carts extends Component
     public function forgetCart()
     {
         $this->_cart = null;
-        Craft::$app->getSession()->remove(self::CART_NAME);
+        Craft::$app->getSession()->remove($this->cartName);
     }
 
     /**
@@ -198,7 +191,16 @@ class Carts extends Component
     public function getHasSessionCartNumber(): bool
     {
         $session = Craft::$app->getSession();
-        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has(self::CART_NAME);
+        return ($session->getHasSessionId() || $session->getIsActive()) && $session->has($this->cartName);
+    }
+
+    /**
+     * @return string
+     * @since 3.1
+     */
+    public function getCartName(): string
+    {
+        return $this->cartName;
     }
 
     /**
@@ -210,11 +212,11 @@ class Carts extends Component
     private function getSessionCartNumber(): string
     {
         $session = Craft::$app->getSession();
-        $cartNumber = $session->get(self::CART_NAME);
+        $cartNumber = $session->get($this->cartName);
 
         if (!$cartNumber) {
             $cartNumber = $this->generateCartNumber();
-            $session->set(self::CART_NAME, $cartNumber);
+            $session->set($this->cartName, $cartNumber);
         }
 
         return $cartNumber;
@@ -230,7 +232,7 @@ class Carts extends Component
     private function setSessionCartNumber(string $cartNumber)
     {
         $session = Craft::$app->getSession();
-        $session->set(self::CART_NAME, $cartNumber);
+        $session->set($this->cartName, $cartNumber);
     }
 
     /**

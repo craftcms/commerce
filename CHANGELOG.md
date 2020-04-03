@@ -2,8 +2,86 @@
 
 ## Unreleased
 
-## Changed
-- Made some performance improvements for installations with a large amount of orders.
+### Changed
+- Changed “saleAmount” to be an automatically calculated value.
+
+### Fixed
+- Fixed a bug when creating a new customer on the Edit Order page. ([#1354](https://github.com/craftcms/commerce/issues/1354))
+
+## 3.1.0.2 - 2020-04-03
+
+### Fixed
+- Fixed an error that could occur when using the `|commerceCurrency` Twig filter if the Intl extension wasn’t enabled. ([#1353])(https://github.com/craftcms/commerce/issues/1353))
+
+## 3.1.0.1 - 2020-04-02
+
+### Fixed
+- Fixed a bug where the `commerce_discounts` table was missing an `orderConditionFormula` column on fresh installs. ([#1351](https://github.com/craftcms/commerce/issues/1351))
+
+## 3.1.0 - 2020-04-02
+
+### Added
+- It’s now possible to set dynamic condition formulas on discounts. ([#470](https://github.com/craftcms/commerce/issues/470))
+- It’s now possible to reorder states. ([#1284](https://github.com/craftcms/commerce/issues/1284))
+- It’s now possible to load a previous cart into the current session. ([#1348](https://github.com/craftcms/commerce/issues/1348))
+- Customers can now pay the outstanding balance on a cart or completed order.
+- It’s now possible to pass a `paymentSourceId` param on `commerce/payments/pay` requests, to set the desired payment gateway at the time of payment. ([#1283](https://github.com/craftcms/commerce/issues/1283))
+- Edit Order pages now automatically populate the billing and shipping addresses when a new customer is selected. ([#1295](https://github.com/craftcms/commerce/issues/1295))
+- It’s now possible to populate the billing and shipping addresses on an order based on existing addresses in the customer’s address book. ([#990](https://github.com/craftcms/commerce/issues/990))
+- JSON responses for `commerce/cart/*` actions now include an `availableShippingMethodOptions` array, which lists all available shipping method options and their prices.
+- It’s now possible to query for variants via GraphQL. ([#1315](https://github.com/craftcms/commerce/issues/1315))
+- It’s now possible to set an `availableForPurchase` argument when querying for products via GraphQL.
+- It’s now possible to set a `defaultPrice` argument when querying for products via GraphQL.
+- Products now have an `availableForPurchase` field when queried via GraphQL.
+- Products now have a `defaultPrice` field when queried via GraphQL.
+- Added `craft\commerce\adjusters\Tax::_getTaxAmount()`.
+- Added `craft\commerce\base\TaxEngineInterface`.
+- Added `craft\commerce\controllers\AddressesController::actionValidate()`.
+- Added `craft\commerce\controllers\AddressesController::getAddressById()`.
+- Added `craft\commerce\controllers\AddressesController::getCustomerAddress()`.
+- Added `craft\commerce\controllers\CartController::actionLoadCart()`.
+- Added `craft\commerce\elements\Order::getAvailableShippingMethodsOptions()`.
+- Added `craft\commerce\elements\Order::removeBillingAddress()`.
+- Added `craft\commerce\elements\Order::removeEstimateBillingAddress()`.
+- Added `craft\commerce\elements\Order::removeEstimateShippingAddress()`.
+- Added `craft\commerce\elements\Order::removeShippingAddress()`.
+- Added `craft\commerce\elements\Variant::getGqlTypeName()`.
+- Added `craft\commerce\elements\Variant::gqlScopesByContext()`.
+- Added `craft\commerce\elements\Variant::gqlTypeNameByContext()`.
+- Added `craft\commerce\engines\TaxEngine`.
+- Added `craft\commerce\gql\arguments\elements\Variant`.
+- Added `craft\commerce\gql\arguments\interfaces\Variant`.
+- Added `craft\commerce\gql\arguments\queries\Variant`.
+- Added `craft\commerce\gql\arguments\resolvers\Variant`.
+- Added `craft\commerce\gql\arguments\types\elements\Variant`.
+- Added `craft\commerce\gql\arguments\types\generators\VariantType`.
+- Added `craft\commerce\models\Settings::$loadCartRedirectUrl`.
+- Added `craft\commerce\models\ShippingMethodOption`.
+- Added `craft\commerce\services\Addresses::removeReadOnlyAttributesFromArray()`.
+- Added `craft\commerce\services\Carts::getCartName()`.
+- Added `craft\commerce\services\Customers::getCustomersQuery()`.
+- Added `craft\commerce\services\Taxes`.
+
+### Changed
+- Improved performance for installations with millions of orders.
+- Improved the “Add a line item” behavior and styling on the Edit Order page.
+- Discount adjustments are now only applied to line items, not the whole order. The “Base discount” amount is now spread across all line items.
+- Line items’ sale prices are now rounded before being multiplied by the quantity.
+- Improved the consistency of discount and tax calculations and rounding logic across the system.
+- Products and subscriptions can now be sorted by their IDs in the control panel.
+- Improved the styling and behavior of the example templates.
+
+### Deprecated
+- Deprecated the ability to create percentage-based order-level discounts.
+
+### Fixed
+- Fixed an error that could occur when querying for products by type via GraphQL. 
+- Fixed a bug where it was possible to issue refunds for more than the remaining transaction amount. ([#1098](https://github.com/craftcms/commerce/issues/1098))
+- Fixed a bug where order queries could return orders in the wrong sequence when ordered by `dateUpdated`. ([#1345](https://github.com/craftcms/commerce/issues/1345))
+- Fixed a PHP error that could occur on the Edit Order page if the customer had been deleted. ([#1347](https://github.com/craftcms/commerce/issues/1347))
+- Fixed a bug where shipping rules and discounts weren’t properly supporting localized number formats. ([#1332](https://github.com/craftcms/commerce/issues/1332), [#1174](https://github.com/craftcms/commerce/issues/1174))
+- Fixed an error that could occur while updating an order status message, if the order was being recalculated at the same time. ([#1309](https://github.com/craftcms/commerce/issues/1309))
+- Fixed an error that could occur when deleting an address on the front end.
 
 ## 3.0.12 - 2020-03-20
 

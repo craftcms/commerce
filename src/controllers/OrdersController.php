@@ -653,7 +653,7 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.0.11
      */
     public function actionGetIndexSourcesBadgeCounts(): Response
     {
@@ -818,8 +818,8 @@ class OrdersController extends Controller
             $amount = $transaction->getRefundableAmount();
         }
 
-        if ($amount > $transaction->paymentAmount) {
-            $error = Plugin::t('Can not refund amount greater than the original transaction');
+        if ($amount > $transaction->getRefundableAmount()) {
+            $error = Plugin::t('Can not refund amount greater than the remaining amount');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             } else {
@@ -1058,8 +1058,23 @@ class OrdersController extends Controller
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
-        if (($dateOrdered = $orderRequestData['order']['dateOrdered']) !== null) {
-            $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
+        $dateOrdered = $orderRequestData['order']['dateOrdered'];
+        if ($dateOrdered !== null) {
+
+            if($orderRequestData['order']['dateOrdered']['time'] == ''){
+                $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
+                $dateOrdered['time'] = $dateTime->format('H:i');
+            }
+
+            if ($orderRequestData['order']['dateOrdered']['date'] == '' && $orderRequestData['order']['dateOrdered']['time'] == '') {
+                $order->dateOrdered = null;
+            } else {
+                $order->dateOrdered = DateTimeHelper::toDateTime($dateOrdered) ?: null;
+            }
+        }
+
+        if ($dateOrdered === null && $order->isCompleted) {
+            $order->dateOrdered = null;
         }
 
         // Only email set on the order
@@ -1129,7 +1144,7 @@ class OrdersController extends Controller
             $billingAddressId = $billingAddress->id;
         }
 
-        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId ==$orderRequestData['order']['shippingAddress']['id'])) {
+        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
             $shippingAddress = new Address($shippingAddress);
@@ -1176,6 +1191,8 @@ class OrdersController extends Controller
             $lineItem->privateNote = $privateNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
             $lineItem->setOptions($options);
+
+            $lineItem->setOrder($order);
 
             /** @var Purchasable $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {

@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
+use craft\helpers\Localization;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -192,9 +193,9 @@ class ShippingRules extends Component
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
                     'condition' => $ruleCategory->condition,
-                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
-                    'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
-                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? Localization::normalizeNumber($ruleCategory->perItemRate) : null,
+                    'weightRate' => is_numeric($ruleCategory->weightRate) ? Localization::normalizeNumber($ruleCategory->weightRate) : null,
+                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? Localization::normalizeNumber($ruleCategory->percentageRate) : null
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([

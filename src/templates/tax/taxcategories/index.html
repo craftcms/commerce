@@ -5,9 +5,12 @@
     'Default?',
 ]) %}
 
-
 {% block actionButton %}
-    <a href="{{ url('commerce/tax/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
+    {{ craft.commerce.taxes.taxCategoryActionHtml()|raw }}
+
+    {% if craft.commerce.taxes.createTaxCategories() %}
+        <a href="{{ url('commerce/tax/taxcategories/new') }}" class="btn submit add icon">{{ 'New tax category'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -70,7 +73,7 @@
     new Craft.VueAdminTable({
         columns: columns,
         container: '#tax-vue-admin-table',
-        deleteAction: 'commerce/tax-categories/delete',
+        deleteAction: {{ craft.commerce.taxes.deleteTaxCategories() ? 'commerce/tax-categories/delete'|json_encode|raw : 'null' }},
         tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

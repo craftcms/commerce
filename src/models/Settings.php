@@ -209,7 +209,7 @@ class Settings extends Model
 
     /**
      * @var string|null the uri to redirect to after using the load cart url
-     * @since 3.x
+     * @since 3.1
      */
      public $loadCartRedirectUrl = null;
 

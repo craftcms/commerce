@@ -420,13 +420,13 @@ class Product extends Element
                     }
                 }
             }
+        }
 
-            // Must have at least one
-            if (null === $this->_variants) {
-                $variant = new Variant();
-                $variant->isDefault = true;
-                $this->setVariants([$variant]);
-            }
+        if (empty($this->_variants) || null === $this->_variants) {
+            $variant = new Variant();
+            $variant->isDefault = true;
+            $this->setVariants([$variant]);
+            $this->_variants = [$variant];
         }
 
         return $this->_variants;
@@ -437,16 +437,16 @@ class Product extends Element
      *
      * @param Variant[]|array $variants
      */
-    public function setVariants(array $variants)
+    public function setVariants($variants)
     {
         $this->_variants = [];
-        $count = 1;
         $this->_defaultVariant = null;
 
-        if (empty($variants)) {
+        if (!$variants || empty($variants)) {
             return;
         }
 
+        $count = 1;
         foreach ($variants as $key => $variant) {
             if (!$variant instanceof Variant) {
                 $variant = ProductHelper::populateProductVariantModel($this, $variant, $key);
@@ -839,7 +839,11 @@ class Product extends Element
                 if (count(array_unique($skus)) < count($skus)) {
                     $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
                 }
-            }
+
+                if (empty($this->getVariants())) {
+                    $this->addError('variants', Plugin::t('Must have at least one variant.'));
+                }
+            }, 'skipOnEmpty' => false
         ];
 
         return $rules;
@@ -1117,6 +1121,11 @@ class Product extends Element
                 'label' => Craft::t('app', 'Date Updated'),
                 'orderBy' => 'elements.dateUpdated',
                 'attribute' => 'dateUpdated'
+            ],
+            [
+                'label' => Craft::t('app', 'ID'),
+                'orderBy' => 'elements.id',
+                'attribute' => 'id',
             ],
         ];
     }

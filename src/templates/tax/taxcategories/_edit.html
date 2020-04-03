@@ -14,7 +14,6 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-categories/save">
     {{ redirectInput('commerce/tax/taxcategories') }}
-    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId"
-                                  value="{{ taxCategory.id }}">{% endif %}
+    {% if taxCategory.id %}<input type="hidden" name="taxCategoryId" value="{{ taxCategory.id }}">{% endif %}
     {% include "commerce/tax/taxcategories/_fields" %}
 {% endblock %}

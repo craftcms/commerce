@@ -189,7 +189,7 @@
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),
             id: 'purchaseTotal',
             name: 'purchaseTotal',
-            value: discount.purchaseTotal != 0 ? discount.purchaseTotal : 0,
+            value: discount.purchaseTotal ? discount.purchaseTotal : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('purchaseTotal'),
@@ -326,7 +326,7 @@
             instructions: "The flat value which should discount each item. i.e “3” for $3 off each item."|t('commerce'),
             id: 'perItemDiscount',
             name: 'perItemDiscount',
-            value: discount.perItemDiscount != 0 ? discount.perItemDiscount : 0,
+            value: discount.perItemDiscount ? discount.perItemDiscount : 0,
             type: 'number',
             step: 'any',
             errors: discount.getErrors('perItemDiscount'),
@@ -387,7 +387,7 @@
                         type: 'number',
                         step: 'any',
                         size: 10,
-                        value: discount.baseDiscount != 0 ? discount.baseDiscount : 0,
+                        value: discount.baseDiscount ? discount.baseDiscount : 0,
                     }) }}
                 </td>
                 <td style="padding-left: 14px;">

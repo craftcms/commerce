@@ -18,7 +18,7 @@ use GraphQL\Type\Definition\Type;
  * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1
  */
 class Variant extends Query
 {

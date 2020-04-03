@@ -16,7 +16,7 @@ use GraphQL\Type\Definition\ResolveInfo;
  * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1
  */
 class Variant extends ElementType
 {

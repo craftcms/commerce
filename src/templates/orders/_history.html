@@ -32,7 +32,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if orderHistory.customer.user %}
+                            {% if orderHistory.customer and orderHistory.customer.user %}
                                 <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
                             {% else %}
                                 {{ orderHistory.order.email }}

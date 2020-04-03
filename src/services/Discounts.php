@@ -473,7 +473,7 @@ class Discounts extends Component
         }
 
         $orderDiscountConditionParams = [
-            'order' => $order->toArray([], ['lineItems.snapshot'])
+            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
         ];
 
         if ($discount->orderConditionFormula && !Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
@@ -878,7 +878,12 @@ class Discounts extends Component
      */
     private function _isDiscountDateValid(Order $order, Discount $discount): bool
     {
-        $now = $order->dateUpdated ?? new DateTime();
+        $now = new DateTime();
+
+        if ($order->isCompleted && $order->dateOrdered) {
+            $now = $order->dateOrdered;
+        }
+
         $from = $discount->dateFrom;
         $to = $discount->dateTo;
 

@@ -393,6 +393,10 @@ export default new Vuex.Store({
             state.draft = draft
         },
 
+        updateDraftOrderMessage(state, message) {
+            state.draft.order.message = message
+        },
+
         updateOriginalDraft(state, originalDraft) {
             state.originalDraft = originalDraft
         },
