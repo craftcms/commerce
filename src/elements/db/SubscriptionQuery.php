@@ -14,7 +14,6 @@ use craft\commerce\elements\Subscription;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
@@ -117,7 +116,6 @@ class SubscriptionQuery extends ElementQuery
      * @var array
      */
     protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
-
 
     /**
      * @inheritdoc
@@ -323,7 +321,6 @@ class SubscriptionQuery extends ElementQuery
         $this->gatewayId = $value;
         return $this;
     }
-
 
     /**
      * Narrows the query results based on the order, per its ID.
@@ -701,7 +698,6 @@ class SubscriptionQuery extends ElementQuery
     {
         return parent::status($value);
     }
-
 
     /**
      * @inheritdoc

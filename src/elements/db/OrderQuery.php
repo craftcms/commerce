@@ -19,9 +19,7 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
 use yii\db\Schema;
@@ -137,7 +135,6 @@ class OrderQuery extends ElementQuery
      * @inheritdoc
      */
     protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
-
 
     /**
      * @inheritdoc
@@ -909,7 +906,6 @@ class OrderQuery extends ElementQuery
         return $this;
     }
 
-
     /**
      * @inheritdoc
      */
@@ -973,7 +969,7 @@ class OrderQuery extends ElementQuery
                 $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
             }
         }
-            
+
         if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
             $this->query->addSelect([
                 'storedTotalPrice' => 'commerce_orders.totalPrice',

@@ -28,8 +28,6 @@ class DonationQuery extends ElementQuery
      */
     public $sku;
 
-
-
     /**
      * Narrows the query results based on the sku.
      *
