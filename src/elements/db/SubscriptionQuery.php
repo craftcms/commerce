@@ -763,7 +763,7 @@ class SubscriptionQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.nextPaymentDate', $this->nextPaymentDate));
         }
 
-        if ($this->isCanceled) {
+        if ($this->isCanceled !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isCanceled', $this->isCanceled, '=', false, Schema::TYPE_BOOLEAN));
         }
 
@@ -783,7 +783,7 @@ class SubscriptionQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateSuspended', $this->dateSuspended));
         }
 
-        if ($this->isExpired) {
+        if ($this->isExpired !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired, '=', false, Schema::TYPE_BOOLEAN));
         }
 
