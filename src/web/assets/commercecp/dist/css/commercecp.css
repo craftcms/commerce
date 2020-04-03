@@ -35,6 +35,9 @@
   margin: 0;
   width: 100%; }
 
+.variant-matrixblock > .fields {
+  padding-top: 0 !important; }
+
 .variant-matrixblock .text {
   background: transparent; }
 

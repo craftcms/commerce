@@ -12,6 +12,7 @@
 - Fixed a SQL error that could occur when querying for variants using the `hasStock` param on PostgreSQL. ([#1356](https://github.com/craftcms/commerce/issues/1356))
 - Fixed a SQL error that could occur when querying for orders using the `isPaid` or `isUnpaid` params on PostgreSQL.
 - Fixed a bug where passing `false` to a subscription query’s `isCanceled` or `isExpired` params would do nothing.
+- Fixed a bug where variant blocks were getting extra padding above their fields.
 
 ## 3.1.0.2 - 2020-04-03
 
