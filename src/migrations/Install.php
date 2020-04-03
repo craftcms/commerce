@@ -230,6 +230,7 @@ class Install extends Migration
             'allCategories' => $this->boolean(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
+            'orderConditionFormula' => $this->text(),
             'enabled' => $this->boolean(),
             'stopProcessing' => $this->boolean(),
             'ignoreSales' => $this->boolean()->notNull()->defaultValue(false),
