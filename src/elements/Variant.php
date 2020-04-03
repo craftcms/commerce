@@ -19,6 +19,8 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
+use craft\commerce\models\ShippingCategory;
+use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
@@ -867,7 +869,7 @@ class Variant extends Purchasable
         $record->minQty = $this->minQty;
         $record->maxQty = $this->maxQty;
         $record->stock = $this->stock;
-        $record->isDefault = (bool) $this->isDefault;
+        $record->isDefault = (bool)$this->isDefault;
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
@@ -934,11 +936,10 @@ class Variant extends Purchasable
             return false;
         }
 
-        if(!$this->hasUnlimitedStock && $this->stock < 1)
-        {
+        if (!$this->hasUnlimitedStock && $this->stock < 1) {
             return false;
         }
-        
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
