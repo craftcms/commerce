@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.1.0.1 - 2020-04-02
+
+### Fixed
+- Fixed a bug where the `commerce_discounts` table was missing an `orderConditionFormula` column on fresh installs. ([#1351](https://github.com/craftcms/commerce/issues/1351))
+
 ## 3.1.0 - 2020-04-02
 
 ### Added
