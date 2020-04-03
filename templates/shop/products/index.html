@@ -48,17 +48,22 @@
                             <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
                             {% endif %}
                             <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
-                            {% if product.hasUnlimitedStock or (product.hasUnlimitedStock == false and product.totalStock > 0 ) %}
-                            <button class="float-right" type="submit" name="purchasableId" value="{{purchasable.id}}">{{ "Add to cart"|t }}</button>
-                            {% else %}
-                                {{ "Out of Stock"|t }}
-                            {% endif %}
+
+                            <button {{ purchasable.isAvailable ? '' : 'disabled' }} class="float-right" type="submit" name="purchasableId" value="{{purchasable.id}}">{{ purchasable.isAvailable ? 'Add to cart' : 'Unavailable' }} </button>
+
+                            <div>
+                                <strong>Stock:</strong>
+                                {% if purchasable.hasUnlimitedStock %}Unlimited{% else %}{{ purchasable.stock }} Remaining{% endif %}
+                            </div>
+
                             <div>
                             {% for sale in purchasable.sales %}
                                 {% if loop.first %}<strong>Sales:</strong>{% endif %}
-                                <a href="{{ sale.cpEditUrl }}" target="_blank">{{sale.name}}</a>{% if not loop.last %}, {% else %}<br>{% endif %}
+                                <a href="{{ sale.cpEditUrl }}" target="_blank">{{sale.name}}</a>{% if not loop.last %}, {% else %}{% endif %}
                             {% endfor %}
+                            </div>
 
+                            <div>
                             {% if currentUser %}
                             {% set orders = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(purchasable).all() %}
                             {% for order in orders %}
