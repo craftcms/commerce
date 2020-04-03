@@ -20,11 +20,11 @@
     </form>
 
     {% for product in products %}
-        <div class="md:flex product bg-white mb-4 p-8 rounded items-center text-center md:text-left">
+        <div class="md:flex product bg-white mb-4 p-8 rounded items-center text-left">
             <div class="md:w-1/6 md:p-4">
                 {% include "shop/_images/product" with { number: '3' } %}
             </div>
-            <div class="md:w-2/6 md:p-4">
+            <div class="md:w-3/6 md:p-4">
                 <h3 class="font-semibold">{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h3>
                 {% if product.getVariants()|length %}
                     <form method="post" class="add-to-cart-form">
@@ -34,61 +34,49 @@
                         <input type="hidden" name="qty" value="1">
                         {{ csrfInput() }}
 
-                        <select name="purchasableId">
-                            {%- for purchasable in product.getVariants() -%}
-                                <option {% if not purchasable.isAvailable %}disabled {% endif %}
-                                        data-info="product-{{ product.id }}-purchasable-{{ purchasable.id }}"
-                                        value="{{ purchasable.id }}">
-                                        {{ purchasable.description }} {{ purchasable.salePrice|commerceCurrency(cart.currency) }}
-                                </option>
-                            {%- endfor -%}
-                        </select>
-
                         <select name="options[giftWrapped]">
                             <option value="no">No gift wrap.</option>
                             <option value="yes">Gift wrapped.</option>
                         </select>
-                        {% if product.hasUnlimitedStock or (product.hasUnlimitedStock == false and product.totalStock > 0 ) %}
-                            <button class="add-to-cart-button" type="submit">{{ "Add to cart"|t }}</button>
-                        {% else %}
-                            {{ "Out of Stock"|t }}
-                        {% endif %}
-                    </form>
 
-                    {% if currentUser %}
-                    {% set order = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(product.defaultVariant).all() %}
-                    {% if order|length %}
-                        <strong>I already own this product: </strong> <a href="/shop/customer/order?number={{ order[0].number }}">Order #{{ order[0].shortNumber }}</a>
-                    {% endif %}
-                    {% endif %}
+                        {% for purchasable in product.getVariants() %}
+                        <div class="p-2 pl-0 mt-1 pb-6">
+                            <span class="rounded-full bg-gray-500 uppercase px-2 py-1 text-gray-100 mr-2">{{ purchasable.sku }}</span>
+                            {{ purchasable.description }}
 
-                    {%- for purchasable in product.getVariants() -%}
-                        <div id="product-{{ product.id }}-purchasable-{{ purchasable.id }}" class="js-purchasableInfo {{ purchasable.price != purchasable.salePrice ? 'on-sale' : '' }}" style="display:none;">
-                            <strong>Regular Price: </strong><strike>{{ purchasable.price|commerceCurrency(cart.currency) }}</strike><br>
-                            <strong>Now: </strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}<br>
-                            {% if purchasable.sales %}<strong>Sales Applied:</strong><br>{% endif %}
-                            <ul>
-                                {% for sale in purchasable.sales  %}
-                                <li><strong>{{ sale.name }}</strong> {{ sale.description }}</li>
-                                {% endfor %}
-                            </ul>
+                            {% if purchasable.onSale %}
+                            <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
+                            {% endif %}
+                            <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
+                            {% if product.hasUnlimitedStock or (product.hasUnlimitedStock == false and product.totalStock > 0 ) %}
+                            <button class="float-right" type="submit" name="purchasableId" value="{{purchasable.id}}">{{ "Add to cart"|t }}</button>
+                            {% else %}
+                                {{ "Out of Stock"|t }}
+                            {% endif %}
+                            <div>
+                            {% for sale in purchasable.sales %}
+                                {% if loop.first %}<strong>Sales:</strong>{% endif %}
+                                <a href="{{ sale.cpEditUrl }}" target="_blank">{{sale.name}}</a>{% if not loop.last %}, {% else %}<br>{% endif %}
+                            {% endfor %}
+
+                            {% if currentUser %}
+                            {% set orders = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(purchasable).all() %}
+                            {% for order in orders %}
+                                {% if loop.first %}<strong>Purchased:</strong>{% endif %}
+                                <a href="/shop/customer/order?number={{ order.number }}" target="_blank">#{{ order.reference|upper }}</a>{% if not loop.last %}, {% else %}<br>{% endif %}
+                            {% endfor %}
+                            {% endif %}
+
+                            </div>
                         </div>
-                    {%- endfor -%}
-
+                        {% endfor %}
+                    </form>
                 {% endif %}
             </div>
         </div>
     {% endfor %}
 
     {% js %}
-        $( ".js-purchasableId" ).change(function(e) {
-            $(".js-purchasableInfo").hide();
-            var $purchasableInfo = $("#"+($(this).find(":selected").data('info')));
-            if ($purchasableInfo && $purchasableInfo.hasClass('on-sale')) {
-                $purchasableInfo.toggle();
-            }
-        });
-
         {#
         $('form.add-to-cart-form').submit(function(e){
             e.preventDefault();
