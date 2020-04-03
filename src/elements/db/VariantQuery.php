@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -110,7 +109,6 @@ class VariantQuery extends ElementQuery
      * @var
      */
     public $maxQty;
-
 
     /**
      * @inheritdoc
@@ -228,7 +226,6 @@ class VariantQuery extends ElementQuery
         $this->typeId = $value;
         return $this;
     }
-
 
     /**
      * Narrows the query results to only default variants.
@@ -393,8 +390,6 @@ class VariantQuery extends ElementQuery
         $this->maxQty = $value;
         return $this;
     }
-
-
 
     /**
      * @inheritdoc
