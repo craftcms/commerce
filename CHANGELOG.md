@@ -10,6 +10,7 @@
 - Fixed a bug where the order would not save during payment.
 - Fixed a bug where the `hasSales` variant query param could override most other params.
 - Fixed a SQL error that could occur when querying for variants using the `hasStock` param on PostgreSQL. ([#1356](https://github.com/craftcms/commerce/issues/1356))
+- Fixed a SQL error that could occur when querying for orders using the `isPaid` or `isUnpaid` params on PostgreSQL.
 
 ## 3.1.0.2 - 2020-04-03
 
