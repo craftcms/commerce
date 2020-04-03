@@ -9,6 +9,7 @@ namespace craft\commerce\web\twig;
 
 use Craft;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
 use Twig\Error\Error;
 use Twig\Extension\AbstractExtension;
@@ -54,11 +55,13 @@ class Extension extends AbstractExtension
      */
     public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): string
     {
-        $this->_validatePaymentCurrency($currency);
-
         // return input if no currency passed, and both convert and format are false.
         if (!$convert && !$format) {
             return $amount;
+        }
+
+        if ($convert) {
+            $this->_validatePaymentCurrency($currency); // must be a payment currency to convert
         }
 
         if ($convert) {
@@ -66,8 +69,13 @@ class Extension extends AbstractExtension
         }
 
         if ($format) {
-            $options[\NumberFormatter::ROUNDING_MODE] = \NumberFormatter::ROUND_HALFUP;
-            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, $options, [], $stripZeros);
+
+            // Round it before formatting
+            if ($currencyData = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)) {
+                $amount = Currency::round($amount, $currencyData); // Will round to the right minorUnits
+            }
+
+            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
         }
 
         return $amount;
