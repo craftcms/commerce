@@ -14,11 +14,11 @@ use craft\commerce\elements\Subscription;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
+use yii\db\Schema;
 
 /**
  * SubscriptionQuery represents a SELECT SQL statement for subscriptions in a way that is independent of DBMS.
@@ -116,7 +116,6 @@ class SubscriptionQuery extends ElementQuery
      * @var array
      */
     protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
-
 
     /**
      * @inheritdoc
@@ -322,7 +321,6 @@ class SubscriptionQuery extends ElementQuery
         $this->gatewayId = $value;
         return $this;
     }
-
 
     /**
      * Narrows the query results based on the order, per its ID.
@@ -701,7 +699,6 @@ class SubscriptionQuery extends ElementQuery
         return parent::status($value);
     }
 
-
     /**
      * @inheritdoc
      */
@@ -762,8 +759,8 @@ class SubscriptionQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.nextPaymentDate', $this->nextPaymentDate));
         }
 
-        if ($this->isCanceled) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isCanceled', $this->isCanceled));
+        if ($this->isCanceled !== null) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isCanceled', $this->isCanceled, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->dateCanceled) {
@@ -771,19 +768,19 @@ class SubscriptionQuery extends ElementQuery
         }
 
         if ($this->hasStarted !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.hasStarted', $this->hasStarted));
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.hasStarted', $this->hasStarted, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->isSuspended !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isSuspended', $this->isSuspended));
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isSuspended', $this->isSuspended, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->dateSuspended) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_subscriptions.dateSuspended', $this->dateSuspended));
         }
 
-        if ($this->isExpired) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired));
+        if ($this->isExpired !== null) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_subscriptions.isExpired', $this->isExpired, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->dateExpired) {

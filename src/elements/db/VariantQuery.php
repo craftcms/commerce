@@ -12,7 +12,6 @@ use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -20,6 +19,7 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
+use yii\db\Schema;
 
 /**
  * VariantQuery represents a SELECT SQL statement for variants in a way that is independent of DBMS.
@@ -109,7 +109,6 @@ class VariantQuery extends ElementQuery
      * @var
      */
     public $maxQty;
-
 
     /**
      * @inheritdoc
@@ -227,7 +226,6 @@ class VariantQuery extends ElementQuery
         $this->typeId = $value;
         return $this;
     }
-
 
     /**
      * Narrows the query results to only default variants.
@@ -393,8 +391,6 @@ class VariantQuery extends ElementQuery
         return $this;
     }
 
-
-
     /**
      * @inheritdoc
      */
@@ -445,8 +441,8 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
-        if ($this->isDefault || $this->isDefault === false) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault));
+        if ($this->isDefault !== null) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->minQty) {
@@ -461,17 +457,27 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
-        if (null !== $this->hasStock && (bool)$this->hasStock === true) {
-            $hasStockCondition = ['or', '(commerce_variants.stock > 0 AND commerce_variants.hasUnlimitedStock != 1)', 'commerce_variants.hasUnlimitedStock = 1'];
-            $this->subQuery->andWhere($hasStockCondition);
+        if ($this->hasStock !== null) {
+            if ($this->hasStock) {
+                $this->subQuery->andWhere([
+                    'or',
+                    ['commerce_variants.hasUnlimitedStock' => true],
+                    [
+                        'and',
+                        ['not', ['commerce_variants.hasUnlimitedStock' => true]],
+                        ['>', 'commerce_variants.stock', 0],
+                    ],
+                ]);
+            } else {
+                $this->subQuery->andWhere([
+                    'and',
+                    ['not', ['commerce_variants.hasUnlimitedStock' => true]],
+                    ['<', 'commerce_variants.stock', 1],
+                ]);
+            }
         }
 
-        if (null !== $this->hasStock && (bool)$this->hasStock === false) {
-            $hasStockCondition = ['and', 'commerce_variants.stock < 1', 'commerce_variants.hasUnlimitedStock != 1'];
-            $this->subQuery->andWhere($hasStockCondition);
-        }
-
-        if (null !== $this->hasSales) {
+        if ($this->hasSales !== null) {
             // We can't just clone the query as it may be modifying the select statement etc (i.e in the product query‘s hasVariant param)
             // But we want to use the same conditions so that we improve performance over searching all variants
             $query = Variant::find();
@@ -479,13 +485,13 @@ class VariantQuery extends ElementQuery
                 $query->$attribute = $this->$attribute;
             }
 
-            $query->andWhere(['commerce_products.promotable' => 1]);
+            $query->andWhere(['commerce_products.promotable' => true]);
             $query->hasSales = null;
             $query->limit = null;
             $variantIds = $query->ids();
 
             $productIds = Product::find()
-                ->andWhere(['promotable' => 1])
+                ->andWhere(['promotable' => true])
                 ->limit(null)
                 ->ids();
 
@@ -498,12 +504,23 @@ class VariantQuery extends ElementQuery
                 'sales.categoryRelationshipType',
             ])
                 ->from(Table::SALES . ' sales')
-                ->where(['[[enabled]]' => 1])
+                ->where(['enabled' => true])
                 ->andWhere([
                     'or',
-                    ['or', ['<>', '[[dateTo]]', null], ['>=', '[[dateTo]]', Db::prepareDateForDb($now)]],
-                    ['or', ['<>', '[[dateFrom]]', null], ['<=', '[[dateFrom]]', Db::prepareDateForDb($now)]],
-                    ['[[dateFrom]]' => null, '[[dateTo]]' => null],
+                    [
+                        'or',
+                        ['not', ['dateTo' => null]],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ],
+                    [
+                        'or',
+                        ['not', ['dateFrom' => null]],
+                        ['<=', 'dateFrom', Db::prepareDateForDb($now)],
+                    ],
+                    [
+                        'dateFrom' => null,
+                        'dateTo' => null,
+                    ],
                 ])
                 ->orderBy('sortOrder asc')
                 ->all();
@@ -543,8 +560,10 @@ class VariantQuery extends ElementQuery
                             ->select('sales.id')
                             ->from(Table::SALES . ' sales')
                             ->leftJoin(Table::SALE_USERGROUPS . ' su', '[[su.saleId]] = [[sales.id]]')
-                            ->where(['[[sales.id]]' => $activeSaleIds])
-                            ->andWhere(['in', 'userGroupId', $userGroupIds])
+                            ->where([
+                                'sales.id' => $activeSaleIds,
+                                'userGroupId' => $userGroupIds,
+                            ])
                             ->column();
 
                         foreach ($activeSales as $activeSale) {
@@ -568,7 +587,9 @@ class VariantQuery extends ElementQuery
                     $purchasableRestrictedIds = (new Query())
                         ->select('purchasableId')
                         ->from(Table::SALE_PURCHASABLES . ' sp')
-                        ->where(['in', 'saleId', ArrayHelper::getColumn($purchasableRestrictedSales, 'id')])
+                        ->where([
+                            'saleId' => ArrayHelper::getColumn($purchasableRestrictedSales, 'id'),
+                        ])
                         ->column();
 
                     $categoryRestrictedVariantIds = [];
@@ -596,7 +617,9 @@ class VariantQuery extends ElementQuery
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.targetId]] = [[sc.categoryId]]')
                                 ->leftJoin(CraftTable::ELEMENTS . ' elements', '[[elements.id]] = [[rel.sourceId]]')
-                                ->where(['in', 'saleId', ArrayHelper::getColumn($sourceSales, 'id')])
+                                ->where([
+                                    'saleId' => ArrayHelper::getColumn($sourceSales, 'id'),
+                                ])
                                 ->all();
 
                             $sourceProductIds = ArrayHelper::getColumn($sourceRows, function($row) {
@@ -623,7 +646,9 @@ class VariantQuery extends ElementQuery
                                 ->from(Table::SALE_CATEGORIES . ' sc')
                                 ->leftJoin(CraftTable::RELATIONS . ' rel', '[[rel.sourceId]] = [[sc.categoryId]]')
                                 ->leftJoin(CraftTable::ELEMENTS . ' elements', '[[elements.id]] = [[rel.targetId]]')
-                                ->where(['in', 'saleId', ArrayHelper::getColumn($targetSales, 'id')])
+                                ->where([
+                                    'saleId' => ArrayHelper::getColumn($targetSales, 'id'),
+                                ])
                                 ->all();
 
                             $targetProductIds = ArrayHelper::getColumn($targetRows, function($row) {
@@ -650,9 +675,17 @@ class VariantQuery extends ElementQuery
                 }
             }
 
-            $includeExcludePhrase = $this->hasSales ? 'in' : 'not in';
-            $this->subQuery->andWhere([$includeExcludePhrase, 'commerce_variants.id', $variantIds]);
-            $this->subQuery->orWhere([$includeExcludePhrase, 'commerce_variants.productId', $productIds]);
+            $hasSalesCondition = [
+                'or',
+                ['commerce_variants.id' => $variantIds],
+                ['commerce_variants.productId' => $productIds],
+            ];
+
+            if ($this->hasSales) {
+                $this->subQuery->andWhere($hasSalesCondition);
+            } else {
+                $this->subQuery->andWhere(['not', $hasSalesCondition]);
+            }
         }
 
         $this->_applyHasProductParam();
@@ -679,8 +712,7 @@ class VariantQuery extends ElementQuery
 
             // Remove any blank product IDs (if any)
             $productIds = array_filter($productIds);
-
-            $this->subQuery->andWhere(['in', 'commerce_products.id', $productIds]);
+            $this->subQuery->andWhere(['commerce_products.id' => $productIds]);
         }
     }
 }

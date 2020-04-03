@@ -155,7 +155,7 @@ class PaymentsController extends BaseFrontEndController
         if ($request->getBodyParam('registerUserOnOrderComplete') === 'false') {
             $order->registerUserOnOrderComplete = false;
         }
-        
+
         // These are used to compare if the order changed during its final
         // recalculation before payment.
         $originalTotalPrice = $order->getOutstandingBalance();
@@ -311,30 +311,32 @@ class PaymentsController extends BaseFrontEndController
         $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
         $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-        // Has the order changed in a significant way?
-        if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
-            if ($totalPriceChanged) {
-                $order->addError('totalPrice', Plugin::t('The total price of the order changed.'));
+        if (Craft::$app->getElements()->saveElement($order)) {
+            // Has the order changed in a significant way?
+            if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
+                if ($totalPriceChanged) {
+                    $order->addError('totalPrice', Plugin::t('The total price of the order changed.'));
+                }
+
+                if ($totalQtyChanged) {
+                    $order->addError('totalQty', Plugin::t('The total quantity of items within the order changed.'));
+                }
+
+                if ($totalAdjustmentsChanged) {
+                    $order->addError('totalAdjustments', Plugin::t('The total number of order adjustments changed.'));
+                }
+
+                $customError = Plugin::t('Something changed with the order before payment, please review your order and submit payment again.');
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
+                }
+
+                $session->setError($customError);
+                Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+                return null;
             }
-
-            if ($totalQtyChanged) {
-                $order->addError('totalQty', Plugin::t('The total quantity of items within the order changed.'));
-            }
-
-            if ($totalAdjustmentsChanged) {
-                $order->addError('totalAdjustments', Plugin::t('The total number of order adjustments changed.'));
-            }
-
-            $customError = Plugin::t('Something changed with the order before payment, please review your order and submit payment again.');
-
-            if ($request->getAcceptsJson()) {
-                return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
-            }
-
-            $session->setError($customError);
-            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
-
-            return null;
         }
 
         $redirect = '';

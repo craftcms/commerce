@@ -44,6 +44,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property int $taxIncluded
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
+ * @property-read float $saleAmount
+ * @property float salePrice
+ * @property float price
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -62,17 +65,12 @@ class LineItem extends Model
     /**
      * @var float Price is the original price of the purchasable
      */
-    public $price = 0;
-
-    /**
-     * @var float Sale amount off the price, based on the sales applied to the purchasable.
-     */
-    public $saleAmount = 0;
+    private $_price = 0;
 
     /**
      * @var float Sale price is the price of the line item. Sale price is price + saleAmount
      */
-    public $salePrice = 0;
+    private $_salePrice = 0;
 
     /**
      * @var float Weight
@@ -289,11 +287,58 @@ class LineItem extends Model
     }
 
     /**
+     * @return float
+     * @since 3.x
+     */
+    public function getPrice()
+    {
+        return CurrencyHelper::round($this->_price);
+    }
+
+    /**
+     * @param $price
+     * @since 3.x
+     */
+    public function setPrice($price)
+    {
+        $this->_price = $price;
+    }
+
+    /**
      * @return float Sale Price
      */
     public function getSalePrice()
     {
-        return CurrencyHelper::round($this->saleAmount + $this->price);
+        return CurrencyHelper::round($this->_salePrice);
+    }
+
+    /**
+     * @param $salePrice
+     * @since 3.x
+     */
+    public function setSalePrice($salePrice)
+    {
+        $this->_salePrice = $salePrice;
+    }
+
+    /**
+     * @param $saleAmount
+     * @throws \craft\errors\DeprecationException
+     * @since 3.x
+     * @deprecated in 3.x
+     */
+    public function setSaleAmount($saleAmount)
+    {
+        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of “saleAmount” has been deprecated. “saleAmount” is automatically calculated.');
+    }
+
+    /**
+     * @return float
+     * @since 3.x
+     */
+    public function getSaleAmount()
+    {
+        return $this->price - $this->salePrice;
     }
 
     /**
@@ -348,6 +393,9 @@ class LineItem extends Model
         $names[] = 'options';
         $names[] = 'optionsSignature';
         $names[] = 'onSale';
+        $names[] = 'price';
+        $names[] = 'saleAmount';
+        $names[] = 'salePrice';
         $names[] = 'sku';
         $names[] = 'total';
 
@@ -553,11 +601,6 @@ class LineItem extends Model
                 'isNew' => !$this->id
             ]));
         }
-
-        // Just in case they have not been rounded yet.
-        $this->price = CurrencyHelper::round($this->price);
-        $this->salePrice = CurrencyHelper::round($this->salePrice);
-        $this->saleAmount = $this->price - $this->salePrice; //  result is always rounded.
     }
 
     /**
@@ -565,11 +608,7 @@ class LineItem extends Model
      */
     public function getOnSale(): bool
     {
-        if (null !== $this->salePrice) {
-            return CurrencyHelper::round($this->salePrice) !== CurrencyHelper::round($this->price);
-        }
-
-        return false;
+        return $this->getSaleAmount() > 0;
     }
 
     /**

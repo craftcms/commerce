@@ -259,6 +259,10 @@
             if (this.draft) {
               this.customerId = this.draft.order.customerId;
             }
+
+            if (!this.hasCustomer) {
+                this.editMode = true;
+            }
         },
 
         updated() {
