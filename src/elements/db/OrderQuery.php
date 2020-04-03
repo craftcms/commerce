@@ -938,7 +938,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
-            'commerce_orders.dateUpdate]'
+            'commerce_orders.dateUpdated',
         ]);
 
         // Join shipping and billing address
