@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.1 - 2020-04-03
 
 ### Changed
 - Line items’ sale amounts are now calculated automatically.
@@ -9,15 +9,11 @@
 - Fixed a bug where orders weren’t saving properly during payment.
 - Fixed a bug where it wasn’t obvious how to set shipping and billing addresses on a new order. ([#1354](https://github.com/craftcms/commerce/issues/1354))
 - Fixed a bug where variant blocks were getting extra padding above their fields.
+- Fixed an error that could occur when using the `|commerceCurrency` Twig filter if the Intl extension wasn’t enabled. ([#1353](https://github.com/craftcms/commerce/issues/1353))
 - Fixed a bug where the `hasSales` variant query param could override most other params.
 - Fixed a SQL error that could occur when querying for variants using the `hasStock` param on PostgreSQL. ([#1356](https://github.com/craftcms/commerce/issues/1356))
 - Fixed a SQL error that could occur when querying for orders using the `isPaid` or `isUnpaid` params on PostgreSQL.
 - Fixed a bug where passing `false` to a subscription query’s `isCanceled` or `isExpired` params would do nothing.
-
-## 3.1.0.2 - 2020-04-03
-
-### Fixed
-- Fixed an error that could occur when using the `|commerceCurrency` Twig filter if the Intl extension wasn’t enabled. ([#1353])(https://github.com/craftcms/commerce/issues/1353))
 
 ## 3.1.0.1 - 2020-04-02
 
