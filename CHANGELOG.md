@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.0.2 - 2020-04-03
 
 ### Fixed
 - Fixed an error that could occur when using the `|commerceCurrency` Twig filter if the Intl extension wasn’t enabled. ([#1353])(https://github.com/craftcms/commerce/issues/1353))
