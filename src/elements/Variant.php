@@ -934,6 +934,11 @@ class Variant extends Purchasable
             return false;
         }
 
+        if(!$this->hasUnlimitedStock && $this->stock < 1)
+        {
+            return false;
+        }
+        
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
