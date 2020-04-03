@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.1 - 2020-04-03
 
 ### Changed
 - Line items’ sale amounts are now calculated automatically.
