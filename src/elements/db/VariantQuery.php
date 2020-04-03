@@ -445,7 +445,7 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
-        if ($this->isDefault || $this->isDefault === false) {
+        if ($this->isDefault !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault));
         }
 
