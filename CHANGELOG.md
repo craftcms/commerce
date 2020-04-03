@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Changed “saleAmount” to be an automatically calculated value.
+
 ## 3.1.0.2 - 2020-04-03
 
 ### Fixed
