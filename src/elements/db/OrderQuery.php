@@ -24,6 +24,7 @@ use craft\helpers\Db;
 use DateTime;
 use yii\db\Connection;
 use yii\db\Expression;
+use yii\db\Schema;
 
 /**
  * OrderQuery represents a SELECT SQL statement for orders in a way that is independent of DBMS.
@@ -1010,7 +1011,7 @@ class OrderQuery extends ElementQuery
 
         // Allow true ot false but not null
         if ($this->isCompleted !== null) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
         }
 
         if ($this->dateOrdered) {
