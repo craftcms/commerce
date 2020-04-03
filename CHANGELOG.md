@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug when creating a new customer on the Edit Order page. ([#1354](https://github.com/craftcms/commerce/issues/1354))
+- Fixed a bug where the order would not save during payment.
 
 ## 3.1.0.2 - 2020-04-03
 
