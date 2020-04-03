@@ -650,9 +650,17 @@ class VariantQuery extends ElementQuery
                 }
             }
 
-            $includeExcludePhrase = $this->hasSales ? 'in' : 'not in';
-            $this->subQuery->andWhere([$includeExcludePhrase, 'commerce_variants.id', $variantIds]);
-            $this->subQuery->orWhere([$includeExcludePhrase, 'commerce_variants.productId', $productIds]);
+            $hasSalesCondition = [
+                'or',
+                ['commerce_variants.id' => $variantIds],
+                ['commerce_variants.productId' => $productIds],
+            ];
+
+            if ($this->hasSales) {
+                $this->subQuery->andWhere($hasSalesCondition);
+            } else {
+                $this->subQuery->andWhere(['not', $hasSalesCondition]);
+            }
         }
 
         $this->_applyHasProductParam();
