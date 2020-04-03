@@ -3,16 +3,16 @@
 ## Unreleased
 
 ### Changed
-- Changed “saleAmount” to be an automatically calculated value.
+- Line items’ sale amounts are now calculated automatically.
 
 ### Fixed
-- Fixed a bug when creating a new customer on the Edit Order page. ([#1354](https://github.com/craftcms/commerce/issues/1354))
-- Fixed a bug where the order would not save during payment.
+- Fixed a bug where orders weren’t saving properly during payment.
+- Fixed a bug where it wasn’t obvious how to set shipping and billing addresses on a new order. ([#1354](https://github.com/craftcms/commerce/issues/1354))
+- Fixed a bug where variant blocks were getting extra padding above their fields.
 - Fixed a bug where the `hasSales` variant query param could override most other params.
 - Fixed a SQL error that could occur when querying for variants using the `hasStock` param on PostgreSQL. ([#1356](https://github.com/craftcms/commerce/issues/1356))
 - Fixed a SQL error that could occur when querying for orders using the `isPaid` or `isUnpaid` params on PostgreSQL.
 - Fixed a bug where passing `false` to a subscription query’s `isCanceled` or `isExpired` params would do nothing.
-- Fixed a bug where variant blocks were getting extra padding above their fields.
 
 ## 3.1.0.2 - 2020-04-03
 
