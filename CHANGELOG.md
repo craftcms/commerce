@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added variants to product GraphQL. 
+
 ### Fixed
 - Fixed an error that could occur when viewing a disabled country in the control panel.
 
