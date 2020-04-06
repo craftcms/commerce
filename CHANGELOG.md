@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when viewing a disabled country in the control panel.
+
 ## 3.1.1 - 2020-04-03
 
 ### Changed
