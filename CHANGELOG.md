@@ -5,8 +5,12 @@
 ### Added
 - Added variants to product GraphQL. 
 
+### Deprecated
+- Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead. 
+
 ### Fixed
 - Fixed an error that could occur when viewing a disabled country in the control panel.
+- Fixed a bug where consolidating guest orders could cause order save race conditions on after order complete.
 
 ## 3.1.1 - 2020-04-03
 
