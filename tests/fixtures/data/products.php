@@ -10,7 +10,11 @@ return [
         'typeId' => '2000',
         'title' => 'Rad Hoodie',
         'slug' => 'rad-hoodie',
+        'enabled' => 1,
+        'enabledForSite' => 1,
         'availableForPurchase' => 1,
+        'promotable' => 1,
+        'postDate' => (new DateTime('now')),
         '_variants' => [
             'new_0' => [
                 'title' => 'Rad Hoodie',
@@ -34,7 +38,11 @@ return [
         'typeId' => '2001',
         'title' => 'Hypercolor T-Shirt',
         'slug' => 'hypercolor-tshirt',
+        'enabled' => 1,
+        'enabledForSite' => 1,
         'availableForPurchase' => 1,
+        'promotable' => 1,
+        'postDate' => (new DateTime('now')),
         '_variants' => [
             'new1' => [
                 'title' => 'White',
