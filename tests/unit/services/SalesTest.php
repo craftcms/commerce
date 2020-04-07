@@ -75,7 +75,7 @@ class SalesTest extends Unit
         /** @var Sale $firstSale */
         $firstSale = $sales['1000'] ?? null;
         $this->assertNotNull($firstSale);
-        $this->assertSame('My Percentage Sale', $firstSale);
+        $this->assertSame('My Percentage Sale', $firstSale->name);
         $variant = Variant::find()->sku('rad-hood')->one();
         $this->assertSame([$variant->id], $firstSale->getPurchasableIds());
         $this->assertSame([], $firstSale->getUserGroupIds());
