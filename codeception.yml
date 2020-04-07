@@ -40,7 +40,6 @@ modules:
       fullMock: false
 groups:
   elements: [tests/unit/elements]
+  models: [tests/unit/models]
   services: [tests/unit/services]
-  gql:
-    - 'tests/unit/gql'
-    - 'tests/gql'
+  gql: [tests/unit/gql]
