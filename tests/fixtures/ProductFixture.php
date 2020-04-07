@@ -8,9 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
-use craft\base\Element;
 use craft\commerce\elements\Product;
-use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\ElementFixture;
 use yii\db\Exception;
