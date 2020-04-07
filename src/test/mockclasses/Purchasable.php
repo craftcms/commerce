@@ -20,6 +20,8 @@ class Purchasable extends BasePurchasable
 {
     public $isPromotable = true;
 
+    public $price = 25.10;
+
     /**
      * @return bool
      */
