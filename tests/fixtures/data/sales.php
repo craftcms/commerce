@@ -17,5 +17,22 @@ return [
         'ignorePrevious' => null,
         'stopProcessing' => null,
         'categoryRelationshipType' => 'sourceElement',
+    ],
+    [
+        'id' => '1001',
+        'name' => 'All Relationships',
+        'description' => 'All the relationships.',
+        'enabled' => 1,
+        'sortOrder' => 2,
+        'dateFrom' => null,
+        'dateTo' => null,
+        'apply' => 'byPercent',
+        'applyAmount' => -0.2000,
+        'allGroups' => 0,
+        'allPurchasables' => 0,
+        'allCategories' => 0,
+        'ignorePrevious' => null,
+        'stopProcessing' => null,
+        'categoryRelationshipType' => 'sourceElement',
     ]
 ];
