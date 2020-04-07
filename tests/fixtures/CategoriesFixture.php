@@ -23,6 +23,7 @@ class CategoriesFixture extends CategoryFixture
 
     public function init()
     {
+        // TODO: remove this when category fixtures are updated in Craft core.
         $structure = new Structure(['maxLevels' => 1]);
         if (!Craft::$app->getStructures()->saveStructure($structure)) {
             codecept_debug('Unable to save structure');
