@@ -17,7 +17,7 @@
         {% endif %}
     </h1>
 
-    <form method="post">
+    <form method="post" action="">
         {{ csrfInput() }}
         <input type="hidden" name="action" value="commerce/customer-addresses/save">
         {% if redirect %}

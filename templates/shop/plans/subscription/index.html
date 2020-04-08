@@ -16,10 +16,10 @@
     {% set information = subscription.plan.getInformation() ?? null %}
     {% if information %}
         <div>
-            <h4 class="font-semibold">{{ 'Plan Information Entry'|t('commerce') }}</h4>
+            <h4 class="font-semibold">{{ 'Plan Information Entry' }}</h4>
             <ul>
-                <li>{{ 'ID'|t }}: {{ information.id }}</li>
-                <li>{{ 'Title'|t }}: {{ information.title }}</li>
+                <li>{{ 'ID' }}: {{ information.id }}</li>
+                <li>{{ 'Title' }}: {{ information.title }}</li>
             </ul>
             <br>
         </div>
@@ -32,13 +32,13 @@
             <div>Your subscription was canceled on {{ subscription.dateCanceled|date('Y-m-d') }} and will expire on {{ subscription.nextPaymentDate|date('Y-m-d') }}.</div>
 
             {% if subscription.canReactivate() %}
-                <form method="POST">
+                <form method="post" action="">
                     <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
                     <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                     {{ redirectInput('shop/plans') }}
                     {{ csrfInput() }}
 
-                    <button type="submit" class="button link">{{ "Reactivate"|t }}</button>
+                    <button type="submit" class="button link">{{ "Reactivate" }}</button>
                 </form>
             {% endif %}
 
@@ -47,7 +47,7 @@
 
             {% for plan in subscription.alternativePlans %}
                 <div><strong>Switch to {{ plan.name }}</strong></div>
-                <form method="POST">
+                <form method="post" action="">
                     <input type="hidden" name="action" value="commerce/subscriptions/switch">
                     <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
                     <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
@@ -55,12 +55,12 @@
                     {{ csrfInput() }}
 
                     {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
-                    <button type="submit" class="button link">{{ "Switch"|t }}</button>
+                    <button type="submit" class="button link">{{ "Switch" }}</button>
                 </form>
                 <hr />
             {% endfor %}
 
-            <form method="POST">
+            <form method="post" action="">
                 <input type="hidden" name="action" value="commerce/subscriptions/cancel">
                 <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}" />
                 {{ redirectInput('shop/plans') }}
@@ -68,7 +68,7 @@
 
                 {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
-                <button type="submit">{{ "Unsubscribe"|t }}</button>
+                <button type="submit">{{ "Unsubscribe" }}</button>
             </form>
         {% endif %}
     {% endif %}

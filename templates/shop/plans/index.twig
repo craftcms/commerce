@@ -9,16 +9,16 @@
 
   {% if currentUser and plans|length %}
     {% for plan in plans %}
-      <div class="md:flex service">
+      <div class="service">
         <div class="md:w-1/4">
           <h2 class="mt-8">{{ plan.name }}</h2>
           {% set information = plan.getInformation() ?? null %}
           {% if information %}
             <div>
-              <h4 class="font-semibold">{{ 'Plan Information Entry'|t('commerce') }}</h4>
+              <h4 class="font-semibold">{{ 'Plan Information Entry' }}</h4>
               <ul>
-                <li>{{ 'ID'|t }}: {{ information.id }}</li>
-                <li>{{ 'Title'|t }}: {{ information.title }}</li>
+                <li>{{ 'ID' }}: {{ information.id }}</li>
+                <li>{{ 'Title' }}: {{ information.title }}</li>
               </ul>
               <br>
             </div>
@@ -55,7 +55,7 @@
       </div>
       <div class="md:w-3/4 md:pt-4">
         {% for plan in plans %}
-          <form method="post">
+          <form method="post" action="">
             <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
             <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
             {{ redirectInput('shop/plans') }}
@@ -81,7 +81,7 @@
               </div>
             {% endif %}
 
-            <button type="submit">{{ "Subscribe"|t }}</button>
+            <button type="submit">{{ "Subscribe" }}</button>
           </form>
         {% endfor %}
       </div>

@@ -110,7 +110,7 @@
                 {% else %}
                     {% do cart.setPaymentCurrency(paymentCurrency) %}
                     {% set canPay = true %}
-                    <form id="paymentForm" method="POST" class="form-horizontal paymentSource-form max-w-md">
+                    <form id="paymentForm" method="post" action="" class="form-horizontal paymentSource-form max-w-md">
                         <input type="hidden" name="action" value="commerce/payments/pay"/>
                         {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                         <input type="hidden" name="cancelUrl" value="{{ craft.app.request.getUrl()|hash }}"/>
@@ -138,7 +138,7 @@
 
                                     {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id  %}
                                         <div class="checkbox">
-                                            <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases"|t }}</label>
+                                            <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases" }}</label>
                                         </div><br />
                                     {% endif %}
                                 {% endif %}

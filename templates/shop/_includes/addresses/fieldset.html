@@ -31,7 +31,7 @@
                 {# If we have no addresses expand the 'New Address" fields by default it to being checked. If we have errors on the address also check and expand. #}
                 <input type="radio" name="{{ name }}Id"
                        {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
-                <strong>{{ "New"|t }} {{ title }}</strong>
+                <strong>{{ "New" }} {{ title }}</strong>
             </div>
         {% endif %}
 

@@ -168,7 +168,7 @@
                 </div>
                 <div class="flex-1 mx-4">
                     <label for="{{ modelName }}-countryId">Country *</label>
-                    <select class="address-country w-full" name="{{ modelName }}[countryId]">
+                    <select class="js-address-country w-full" name="{{ modelName }}[countryId]">
                         {% for key, option in countries %}
                             {% set optionValue = (model ? model.countryId : '') %}
                             <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
@@ -194,7 +194,7 @@
 {% js %}
 var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
 
-    $('select.address-country').change(function ()
+    $('select.js-address-country').change(function ()
     {
         // get the value of the selected country.
         var cid = $(this).val();

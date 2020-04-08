@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-  <form method="POST" class="form-horizontal max-w-md">
+  <form method="post" action="" class="form-horizontal max-w-md">
     <input type="hidden" name="action" value="commerce/cart/load-cart"/>
     {{ redirectInput('/shop/cart') }}
     {{ csrfInput() }}

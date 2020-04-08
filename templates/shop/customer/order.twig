@@ -23,10 +23,10 @@
             <h3 class="font-semibold">Details</h3>
 
             <ul class="">
-                <li><strong>{{ "Customer"|t }}:</strong> {{ order.customer.email }}<br></li>
-                <li><strong>{{ "Total"|t }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}<br></li>
-                <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}<br></li>
-                <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('D jS M Y') }}<br></li>
+                <li><strong>{{ "Customer" }}:</strong> {{ order.customer.email }}<br></li>
+                <li><strong>{{ "Total" }}:</strong> {{ order.totalPrice|commerceCurrency(cart.currency) }}<br></li>
+                <li><strong>{{ "Amount Paid" }}:</strong> {{ order.totalPaid|commerceCurrency(cart.currency) }}<br></li>
+                <li><strong>{{ "Date" }}:</strong> {{ order.dateOrdered|date('D jS M Y') }}<br></li>
                 {% if order.pdfUrl %}
                     <li><strong>Receipt:</strong> <a href="{{ order.getPdfUrl('receipt') }}">Download</a></li>
                 {% endif %}

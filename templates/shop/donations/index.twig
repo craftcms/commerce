@@ -6,7 +6,7 @@
 
 {% set donation = craft.commerce.donation %}
 {% if donation and donation.isAvailable %}
-<form method="post" class="pt-2 pb-8 text-center">
+<form method="post" action="" class="pt-2 pb-8 text-center">
   <input type="hidden" name="action" value="commerce/cart/update-cart">
   {{ redirectInput('shop/cart') }}
   {{ csrfInput() }}

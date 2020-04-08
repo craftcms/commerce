@@ -1,0 +1,73 @@
+{#<nav>#}
+{#    <ul class="">#}
+{#        {% set page = craft.app.request.getSegment(2) %}#}
+
+{#        <li>#}
+{#            <a class="{% if page == 'products' %}text-orange-700{% endif %}" href="{{ url('shop/products') }}">#}
+{#                {{ "Products" }}#}
+{#            </a>#}
+{#        </li>#}
+
+{#        <li>#}
+{#            <a class="{% if page == 'plans' %}text-orange-700{% endif %}" href="{{ url('shop/plans') }}">#}
+{#                {{ "Plans" }}#}
+{#            </a>#}
+{#        </li>#}
+
+{#        <li>#}
+{#            <a class="{% if page == 'donations' %}text-orange-700{% endif %}" href="{{ url('shop/donations') }}">#}
+{#                {{ "Donations" }}#}
+{#            </a>#}
+{#        </li>#}
+
+{#        <li>#}
+{#            <a class="{% if page == 'cart' %}text-orange-700{% endif %}" href="{{ url('shop/cart') }}">#}
+{#                {{ "Cart" }} <span class="rounded-full p-2 bg-gray-700 text-white">{{ craft.orders.number(cart.number).one().totalQty ?? 0}}</span>#}
+{#            </a>#}
+{#        </li>#}
+
+{#        {% if currentUser %}#}
+{#            <li class="account">#}
+{#                <a href="#"></i> Account</a>#}
+{#                <ul class="">#}
+{#                    <li><a href="{{ url('shop/customer') }}">{{ "My Orders" }}</a></li>#}
+{#                    <li><a href="{{ url('shop/customer/addresses') }}">{{ "My Addresses" }}</a></li>#}
+{#                    <li><a href="{{ url('shop/customer/cards') }}">{{ "My Cards" }}</a></li>#}
+{#                    <li><a href="{{ logoutUrl }}">Logout</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+{#        {% else %}#}
+{#            <li>{{ "Guest" }}</li>#}
+{#        {% endif %}#}
+{#    </ul>#}
+{#</nav>#}
+{% set steps = [
+    {
+        label: "Products",
+        url: 'shop/products'
+    },
+    {
+        label: "Plans",
+        url: 'shop/plans'
+    },
+    {
+        label: "Donations",
+        url: 'shop/donations'
+    }
+] %}
+<div class="container mx-auto justify-between items-center p-6">
+    <nav>
+        {% for key, step in steps %}
+            <a href="{{ url(step.url) }}" class="flex-1 rounded p-2
+             {% if craft.app.request.pathInfo == step.url %}
+             text-blue-800 focus:outline-none
+             {% else %}
+             text-blue-300 hover:text-blue-800
+             {% endif %}
+      ">{{ step.label }}</a>
+        {% endfor %}
+    </nav>
+    <div    >
+        <a href="shop/cart">Cart</a> <span class="rounded-full p-2 bg-gray-700 text-white">{{ craft.orders.number(cart.number).one().totalQty ?? 0}}</span>
+    </div>
+</div>

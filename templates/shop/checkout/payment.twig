@@ -40,7 +40,7 @@
             {% if availableGateways|length %}
 
 
-                <form method="post" id="paymentPreferenceForm" class="relative border-b-1 mb-4">
+                <form method="post" action="" id="paymentPreferenceForm" class="relative border-b-1 mb-4">
                     <input type="hidden" name="action" value="commerce/cart/update-cart">
                     {{ redirectInput('shop/checkout/payment') }}
                     {{ csrfInput() }}
@@ -126,7 +126,7 @@
                   {% endfor %}
                 {% endif %}
 
-                <form method="post" class="js-paymentSource-form max-w-md bg-gray-200 p-3" id="paymentForm">
+                <form method="post" action="" class="js-paymentSource-form max-w-md bg-gray-200 p-3" id="paymentForm">
                     <input type="hidden" name="action" value="commerce/payments/pay"/>
                     {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
                     <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
@@ -141,7 +141,7 @@
 
                         {% if cart.gateway.supportsPaymentSources() and currentUser %}
                             <div class="checkbox">
-                                <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases"|t }}</label>
+                                <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases" }}</label>
                             </div><br />
                         {% endif %}
 
@@ -153,7 +153,7 @@
                     {% if not user %}
                     <label for="registerUserOnOrderComplete">
                         <input type="hidden" name="registerUserOnOrderComplete" value="false"/>
-                        <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account"|t }}
+                        <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account" }}
                     </label>
                     {% endif %}
 
