@@ -190,7 +190,6 @@ class LineItem extends Model
                 'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
             ]
         ];
@@ -367,7 +366,7 @@ class LineItem extends Model
         ];
         $rules[] = [['qty'], 'integer', 'min' => 1];
         $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
-        $rules[] = [['price', 'salePrice', 'saleAmount'], 'number'];
+        $rules[] = [['price', 'salePrice'], 'number'];
         $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {
