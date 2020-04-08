@@ -88,6 +88,11 @@ class Product extends Element
                 'type' => Type::string(),
                 'description' => 'The handle of the product type that contains the product.'
             ],
+            'variants' => [
+                'name' => 'variants',
+                'type' => Type::listOf(Variant::getType()),
+                'description' => 'The product’s variants.',
+            ]
         ]), self::getName());
     }
 }

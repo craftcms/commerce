@@ -99,8 +99,9 @@ class CountriesController extends BaseStoreSettingsController
                 $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
             }
 
-            $variables['states'] = Plugin::getInstance()->getStates()->getAllStates();
         }
+
+        $variables['states'] = Plugin::getInstance()->getStates()->getAllStates();
 
         return $this->renderTemplate('commerce/store-settings/countries/_edit', $variables);
     }
