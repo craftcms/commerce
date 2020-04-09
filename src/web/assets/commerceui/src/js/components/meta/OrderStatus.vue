@@ -55,12 +55,16 @@
             originalOrderStatusId: {
                 type: Number,
             },
+            originalMessage: {
+                type: [String, null],
+            },
         },
 
         data() {
             return {
                 isRecalculating: false,
                 textareaHasFocus: false,
+                orderMessage: '',
             }
         },
 
@@ -97,10 +101,11 @@
 
             message: {
                 get() {
-                    return this.order.message
+                    return this.orderMessage
                 },
 
                 set(value) {
+                    this.orderMessage = value
                     this.$store.commit('updateDraftOrderMessage', value)
                 },
             },
