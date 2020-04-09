@@ -21,13 +21,6 @@ class m200207_161707_sku_description_on_lineitem extends Migration
         if (!$this->db->columnExists('{{%commerce_lineitems}}', 'description')) {
             $this->addColumn('{{%commerce_lineitems}}', 'description', $this->string());
         }
-
-        $query = (new Query())
-            ->select(['[[p.id]]', '[[p.]]', '[[p.sku]]', '[[p.description]]', '[[l.purchasableId]]'])
-            ->from('{{%commerce_lineitems}} l')
-            ->innerJoin('{{%commerce_purchasables}} p', '[[l.purchasableId]] = [[p.id]]')
-            ->innerJoin('{{%commerce_orders}} o', '[[l.orderId]] = [[o.id]]')
-            ->where(['[[o.isCompleted]]' => true]);
     }
 
     /**
