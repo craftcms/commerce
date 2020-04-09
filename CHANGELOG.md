@@ -14,6 +14,7 @@
 - Fixed a bug where consolidating guest orders could cause order save race conditions on after order complete.
 - Fixed the unnecessary logging of a deprecation error. ([#1365](https://github.com/craftcms/commerce/issues/1365))
 - Fixed and error that prevented payments on orders in the control panel. ([#1362](https://github.com/craftcms/commerce/issues/1362)) 
+- Fixed a bug that caused a redirect back to the Edit Customer page instead of the Edit User page editing an address from the Customer Info tab. ([#1368](https://github.com/craftcms/commerce/issues/1368)) 
 
 ## 3.1.1 - 2020-04-03
 
