@@ -3,7 +3,8 @@
 ## Unreleased
 
 ### Added
-- Added variants to product GraphQL. 
+- Added variants to product GraphQL.
+- It’s now possible to query for orders by multiple email addresses. ([#1361](https://github.com/craftcms/commerce/issues/1361))
 
 ### Deprecated
 - Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead. 
