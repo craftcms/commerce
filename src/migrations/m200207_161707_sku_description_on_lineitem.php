@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m200207_161707_sku_description_on_lineitem migration.
