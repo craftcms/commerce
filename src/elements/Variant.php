@@ -1011,6 +1011,21 @@ class Variant extends Purchasable
     }
 
     /**
+     * @param bool $isNew
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function beforeSave(bool $isNew): bool
+    {
+        // Set the field layout
+        /** @var ProductType $productType */
+        $productType = $this->getProduct()->getType();
+        $this->fieldLayoutId = $productType->getFieldLayout()->id;
+
+        return parent::beforeSave($isNew);
+    }
+
+    /**
      * @inheritdoc
      */
     public function beforeDelete(): bool
