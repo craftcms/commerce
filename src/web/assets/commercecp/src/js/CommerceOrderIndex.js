@@ -30,14 +30,8 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
     },
 
     updateSelectedSource() {
-        if (!this.$source) {
-            return;
-        }
-
-        var handle = this.$source.data('handle');
-        if (!handle) {
-            return;
-        }
+        var source = this.$source ? this.$source : 'all';
+        var handle = source !== 'all' ? this.$source.data('handle') : null;
 
         if (this.settings.context === 'index' && typeof history !== 'undefined') {
             var uri = 'commerce/orders';
