@@ -79,17 +79,17 @@ class Variant extends Purchasable
     const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
 
     /**
-     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
+     * @event craft\commerce\events\CustomizeVariantSnapshotDataEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
      *
      * ```php
      * use craft\commerce\elements\Variant;
-     * use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+     * use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
      * use yii\base\Event;
      *
      * Event::on(
      *     Variant::class,
      *     Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT,
-     *     function(CustomizeVariantSnapshotFieldsEvent $event) {
+     *     function(CustomizeVariantSnapshotDataEvent $event) {
      *         // @var Variant $variant
      *         $variant = $event->variant;
      *         // @var array|null $fields
