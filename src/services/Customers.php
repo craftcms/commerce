@@ -426,7 +426,7 @@ class Customers extends Component
         }
 
         // Consolidate guest orders
-        $this->consolidateGuestOrdersByEmail($order->email);
+        $this->consolidateGuestOrdersByEmail($order->email, $order);
     }
 
     /**
@@ -547,10 +547,11 @@ class Customers extends Component
      * Consolidate all guest orders for this email address to use one customer record.
      *
      * @param string $email
+     * @param Order|null $order
      * @throws \yii\db\Exception
      * @since 3.x
      */
-    public function consolidateGuestOrdersByEmail(string $email)
+    public function consolidateGuestOrdersByEmail(string $email, $order = null)
     {
         $customerId = (new Query())
             ->select('orders.customerId')
@@ -577,12 +578,16 @@ class Customers extends Component
             ->from(Table::ORDERS . ' orders')
             ->all();
 
-        foreach ($orders as $order) {
-            $userId = $order['userId'];
-            $orderId = $order['id'];
+        foreach ($orders as $orderRow) {
+            $userId = $orderRow['userId'];
+            $orderId = $orderRow['id'];
 
             if (!$userId) {
                 // Dont use element save, just update DB directly
+                if ($order && $order instanceof Order) {
+                    $order->customerId = $customerId;
+                }
+
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::ORDERS . ' orders', ['[[orders.customerId]]' => $customerId], ['[[orders.id]]' => $orderId])
                     ->execute();
