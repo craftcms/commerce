@@ -1569,9 +1569,15 @@ class Order extends Element
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
         $options = [];
+        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
-            $option = new ShippingMethodOption($method->attributes);
+
+            $option = new ShippingMethodOption();
+            foreach ($attributes as $attribute) {
+                $option->$attribute = $method->$attribute;
+            }
+
             $option->setOrder($this);
             $options[$option->handle] = $option;
         }

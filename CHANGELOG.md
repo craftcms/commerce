@@ -22,7 +22,8 @@
 - The `cp.commerce.product.edit.details` template hook is now positioned in the DOM consistent with all other elements in the CP. ([#1376](https://github.com/craftcms/commerce/issues/1376))
 - Fixed a bug that could occur when cancelling an order status update on the order index page. ([#1375](https://github.com/craftcms/commerce/issues/1375))
 - Fixed a bug where clicking edit on order adjustments would have no effect. ([#1374](https://github.com/craftcms/commerce/issues/1374))
- 
+- Fixed a PHP error that occurred when using a custom shipping method during checkout. ([#1378](https://github.com/craftcms/commerce/issues/1378)) 
+
 ## 3.1.1 - 2020-04-03
 
 ### Changed
