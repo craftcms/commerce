@@ -3,14 +3,14 @@
 ## Unreleased
 
 ### Added
-- Added variants to product GraphQL.
+- Added variants to Product element’s GraphQL schema definition.
 - It’s now possible to query for orders by multiple email addresses. ([#1361](https://github.com/craftcms/commerce/issues/1361))
 
 ### Deprecated
 - Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead. 
 
 ### Fixed
-- Fixed an error that could occur when viewing a disabled country in the control panel.
+- Fixed an PHP error that could occur when viewing a disabled country in the control panel.
 - Fixed a bug where consolidating guest orders could cause order save race conditions on after order complete.
 - Fixed the unnecessary logging of a deprecation error. ([#1365](https://github.com/craftcms/commerce/issues/1365))
 - Fixed and error that prevented payments on orders in the control panel. ([#1362](https://github.com/craftcms/commerce/issues/1362)) 
