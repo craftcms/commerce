@@ -15,7 +15,7 @@ use yii\base\InvalidCallException;
  * Shipping method option model.
  *
  * @property Order $order the order the shipping method options was create for.
- * @property float $price the price of the shipping method option for the order.
+ * @property-read float $price the price of the shipping method option for the order.
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1
  */
