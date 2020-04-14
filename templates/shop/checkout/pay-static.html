@@ -134,11 +134,11 @@
                                     </div>
                                 {% else %}
                                     <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
-                                    {% set params = {} %}
 
+                                    {% set params = {} %}
                                     {# Set gateway specific parameters #}
-                                    {% if className(cart.gateway) == 'craft\commerce\paypalcheckout\gateways\Gateway' %}
-                                        {% set params = { order: cart } %}
+                                    {% if className(gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
+                                        {% set params = { currency: cart.paymentCurrency } %}
                                     {% endif %}
 
                                     {{ gateway.getPaymentFormHtml(params)|raw }}

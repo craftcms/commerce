@@ -140,8 +140,8 @@
                         {% set params = {} %}
 
                         {# Set gateway specific parameters #}
-                        {% if className(cart.gateway) == 'craft\commerce\paypalcheckout\gateways\Gateway' %}
-                            {% set params = { order: cart } %}
+                        {% if className(cart.gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
+                            {% set params = { currency: cart.paymentCurrency } %}
                         {% endif %}
 
                         {{ cart.gateway.getPaymentFormHtml(params)|raw }}
