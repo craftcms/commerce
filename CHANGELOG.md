@@ -20,6 +20,7 @@
 - Fixed a bug that could occur when changing and order’s status on the Edit Order page. ([#1366](https://github.com/craftcms/commerce/issues/1366))
 - Fixed a bug where authorize payments from redirect gateways were not completing orders.
 - The `cp.commerce.product.edit.details` template hook is now positioned in the DOM consistent with all other elements in the CP. ([#1376](https://github.com/craftcms/commerce/issues/1376))
+- Fixed a bug that could occur when cancelling an order status update on the order index page. ([#1375](https://github.com/craftcms/commerce/issues/1375)) 
  
 ## 3.1.1 - 2020-04-03
 
