@@ -4,6 +4,7 @@
 
 ### Added
 - Added variants to Product element’s GraphQL schema definition.
+- It’s now possible to query for products and variants by their custom field values via GraphQL.
 - It’s now possible to query for orders by multiple email addresses. ([#1361](https://github.com/craftcms/commerce/issues/1361))
 
 ### Changed
