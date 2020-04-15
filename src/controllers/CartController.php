@@ -35,12 +35,12 @@ class CartController extends BaseFrontEndController
     /**
      * @var Order The cart element
      */
-    private $_cart;
+    protected $_cart;
 
     /**
      * @var string the name of the cart variable
      */
-    private $_cartVariable;
+    protected $_cartVariable;
 
 
     public function init()

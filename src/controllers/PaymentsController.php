@@ -98,7 +98,7 @@ class PaymentsController extends BaseFrontEndController
          * address are passed to the payments controller. If this is via the CP it
          * requires the user have the correct permission.
          */
-        $checkPaymentCanBeMade = ($isSiteRequest || ($isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders'))) && $number && $order->getEmail() == $request->getParam('email');
+        $checkPaymentCanBeMade = (($isSiteRequest && $order->getEmail() == $request->getParam('email')) || ($isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders'))) && $number;
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
             $error = Plugin::t('Email required to make payments on a completed order.');
 

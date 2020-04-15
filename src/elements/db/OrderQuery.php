@@ -288,7 +288,7 @@ class OrderQuery extends ElementQuery
      * @param string|string[]|null $value The property value
      * @return static self reference
      */
-    public function email(string $value)
+    public function email($value)
     {
         $this->email = $value;
         return $this;

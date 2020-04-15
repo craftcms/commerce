@@ -785,14 +785,23 @@ class Product extends Element
     public function afterDelete()
     {
         $variants = Variant::find()
-            ->productId($this->id)
+            ->productId([$this->id, ':empty:'])
             ->all();
 
         $elementsService = Craft::$app->getElements();
 
         foreach ($variants as $variant) {
+
+            $hardDelete = false;
             $variant->deletedWithProduct = true;
-            $elementsService->deleteElement($variant);
+
+            // The product ID is gone, so it has been hard deleted
+            if (!$variant->productId) {
+                $hardDelete = true;
+                $variant->deletedWithProduct = false;
+            }
+
+            $elementsService->deleteElement($variant, $hardDelete);
         }
 
         parent::afterDelete();
@@ -876,7 +885,7 @@ class Product extends Element
      */
     public function getFieldLayout()
     {
-        return $this->getType()->getFieldLayout();
+        return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
 
     /**

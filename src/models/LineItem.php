@@ -19,6 +19,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\validators\StringValidator;
@@ -60,7 +61,7 @@ class LineItem extends Model
     /**
      * @var string Description
      */
-    public $description;
+    private $_description;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -105,7 +106,7 @@ class LineItem extends Model
     /**
      * @var string SKU
      */
-    public $sku;
+    private $_sku;
 
     /**
      * @var string Note
@@ -189,7 +190,6 @@ class LineItem extends Model
                 'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'saleAmount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
             ]
         ];
@@ -279,6 +279,48 @@ class LineItem extends Model
     }
 
     /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        if (!$this->_description) {
+            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $this->_description = $snapshot['description'] ?? '';
+        }
+
+        return $this->_description;
+    }
+
+    /**
+     * @param $description
+     */
+    public function setDescription($description)
+    {
+        $this->_description = $description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSku()
+    {
+        if (!$this->_sku) {
+            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $this->_sku = $snapshot['sku'] ?? '';
+        }
+
+        return $this->_sku;
+    }
+
+    /**
+     * @param $sku
+     */
+    public function setSku($sku)
+    {
+        $this->_sku = $sku;
+    }
+
+    /**
      * Returns a unique hash of the line item options
      */
     public function getOptionsSignature()
@@ -288,7 +330,7 @@ class LineItem extends Model
 
     /**
      * @return float
-     * @since 3.x
+     * @since 3.1.1
      */
     public function getPrice()
     {
@@ -297,7 +339,7 @@ class LineItem extends Model
 
     /**
      * @param $price
-     * @since 3.x
+     * @since 3.1.1
      */
     public function setPrice($price)
     {
@@ -314,7 +356,7 @@ class LineItem extends Model
 
     /**
      * @param $salePrice
-     * @since 3.x
+     * @since 3.1.1
      */
     public function setSalePrice($salePrice)
     {
@@ -323,9 +365,9 @@ class LineItem extends Model
 
     /**
      * @param $saleAmount
-     * @throws \craft\errors\DeprecationException
-     * @since 3.x
-     * @deprecated in 3.x
+     * @throws DeprecationException
+     * @since 3.1.1
+     * @deprecated in 3.1.1
      */
     public function setSaleAmount($saleAmount)
     {
@@ -334,7 +376,7 @@ class LineItem extends Model
 
     /**
      * @return float
-     * @since 3.x
+     * @since 3.1.1
      */
     public function getSaleAmount()
     {
@@ -366,7 +408,7 @@ class LineItem extends Model
         ];
         $rules[] = [['qty'], 'integer', 'min' => 1];
         $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
-        $rules[] = [['price', 'salePrice', 'saleAmount'], 'number'];
+        $rules[] = [['price', 'salePrice'], 'number'];
         $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {

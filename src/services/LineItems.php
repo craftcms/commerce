@@ -126,7 +126,7 @@ class LineItems extends Component
      *         $lineItem = $event->lineItem;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     * 
+     *
      *         // Modify the price of a line item
      *         // ...
      *     }
@@ -293,6 +293,11 @@ class LineItems extends Component
                     'lineItem' => $lineItem,
                     'isNew' => $isNewLineItem,
                 ]));
+            }
+
+            // Clear cache on save
+            if (isset($this->_lineItemsByOrderId[$lineItem->orderId])) {
+                unset($this->_lineItemsByOrderId[$lineItem->orderId]);
             }
 
             return $success;

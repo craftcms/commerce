@@ -21,10 +21,9 @@
                         </select>
 
                         {% for purchasable in product.getVariants() %}
-                        <div class="p-2 pl-0 mt-1 pb-6">
-                            <span class="rounded-full bg-gray-500 uppercase px-2 py-1 text-gray-100 mr-2">{{ purchasable.sku }}</span>
-                            {{ purchasable.description }}
-
+                            <div class="p-2 pl-0 mt-1 pb-6">
+                                <span class="rounded-full bg-gray-500 uppercase px-2 py-1 text-gray-100 mr-2">{{ purchasable.sku }}</span>
+                                {{ purchasable.description }}
                             <div class="float-right">
                                 {% if purchasable.onSale %}
                                 <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
@@ -82,7 +81,7 @@
             });
         });
         #}
-
     {% endjs %}
 
 {% endblock %}
+

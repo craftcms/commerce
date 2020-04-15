@@ -3,14 +3,31 @@
 ## Unreleased
 
 ### Added
-- Added variants to product GraphQL. 
+- Added variants to Product element’s GraphQL schema definition.
+- It’s now possible to query for products and variants by their custom field values via GraphQL.
+- It’s now possible to query for orders by multiple email addresses. ([#1361](https://github.com/craftcms/commerce/issues/1361))
+
+### Changed
+- `craft\commerce\controllers\CartController::$_cart` and `craft\commerce\controllers\CartController::$_cartVariable` to protected properties. 
 
 ### Deprecated
 - Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead. 
 
 ### Fixed
-- Fixed an error that could occur when viewing a disabled country in the control panel.
+- Fixed an PHP error that could occur when viewing a disabled country in the control panel.
 - Fixed a bug where consolidating guest orders could cause order save race conditions on after order complete.
+- Fixed the unnecessary logging of a deprecation error. ([#1365](https://github.com/craftcms/commerce/issues/1365))
+- Fixed and error that prevented payments on orders in the control panel. ([#1362](https://github.com/craftcms/commerce/issues/1362)) 
+- Fixed a bug that caused a redirect back to the Edit Customer page instead of the Edit User page editing an address from the Customer Info tab. ([#1368](https://github.com/craftcms/commerce/issues/1368)) 
+- Hard deleting a product now correctly hard deletes orphaned variants. ([#1186](https://github.com/craftcms/commerce/issues/1186))
+- Fixed a bug when that occurred when selecting all orders on the order index page. ([#1367](https://github.com/craftcms/commerce/issues/1367))
+- Fixed a bug that could occur when changing and order’s status on the Edit Order page. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a bug where authorize payments from redirect gateways were not completing orders.
+- The `cp.commerce.product.edit.details` template hook is now positioned in the DOM consistent with all other elements in the CP. ([#1376](https://github.com/craftcms/commerce/issues/1376))
+- Fixed a bug that could occur when cancelling an order status update on the order index page. ([#1375](https://github.com/craftcms/commerce/issues/1375))
+- Fixed a bug where clicking edit on order adjustments would have no effect. ([#1374](https://github.com/craftcms/commerce/issues/1374))
+- Fixed a PHP error that occurred when using a custom shipping method during checkout. ([#1378](https://github.com/craftcms/commerce/issues/1378))
+- Fixed a bug that could occur when accessing order totals and line items after save. ([#1377](https://github.com/craftcms/commerce/issues/1377))
 
 ## 3.1.1 - 2020-04-03
 

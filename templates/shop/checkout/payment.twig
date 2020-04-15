@@ -137,7 +137,14 @@
 
                         <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
 
-                        {{ cart.gateway.getPaymentFormHtml({})|raw }}
+                        {% set params = {} %}
+
+                        {# Set gateway specific parameters #}
+                        {% if className(cart.gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
+                            {% set params = { currency: cart.paymentCurrency } %}
+                        {% endif %}
+
+                        {{ cart.gateway.getPaymentFormHtml(params)|raw }}
 
                         {% if cart.gateway.supportsPaymentSources() and currentUser %}
                             <div class="checkbox">
