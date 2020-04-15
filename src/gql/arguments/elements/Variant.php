@@ -7,10 +7,6 @@
 
 namespace craft\commerce\gql\arguments\elements;
 
-use Craft;
-use craft\base\GqlInlineFragmentFieldInterface;
-use craft\commerce\elements\Variant as VariantElement;
-use craft\commerce\helpers\Gql;
 use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
@@ -24,11 +20,6 @@ use GraphQL\Type\Definition\Type;
  */
 class Variant extends ElementArguments
 {
-    /**
-     * @var null|array
-     */
-    private static $_contentFieldCache = null;
-
     /**
      * @inheritdoc
      */
@@ -94,32 +85,6 @@ class Variant extends ElementArguments
      */
     public static function getContentArguments(): array
     {
-        if (null === self::$_contentFieldCache) {
-            $contentArguments = [];
-
-            foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $context) {
-                if (!$context->hasVariants) {
-                    continue;
-                }
-
-                if (!Gql::isSchemaAwareOf(VariantElement::gqlScopesByContext($context))) {
-                    continue;
-                }
-
-                $fieldLayout = $context->getVariantFieldLayout();
-                foreach ($fieldLayout->getFields() as $contentField) {
-                    if (!$contentField instanceof GqlInlineFragmentFieldInterface) {
-                        $contentArguments[$contentField->handle] = [
-                            'name' => $contentField->handle,
-                            'type' => Type::listOf(QueryArgument::getType()),
-                        ];
-                    }
-                }
-            }
-
-            self::$_contentFieldCache = $contentArguments;
-        }
-
-        return self::$_contentFieldCache;
+        return array_merge(parent::getContentArguments(), Plugin::getInstance()->getVariants()->getVariantGqlContentArguments());
     }
 }
