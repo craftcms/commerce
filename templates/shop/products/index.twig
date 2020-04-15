@@ -10,7 +10,7 @@
                 {% if product.getVariants()|length %}
                     <form method="post" action="" class="js-add-to-cart-form">
                         <input type="hidden" name="action" value="commerce/cart/update-cart">
-                        <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title}} to the cart.">
+                        <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
                         {{ redirectInput('shop/cart') }}
                         <input type="hidden" name="qty" value="1">
                         {{ csrfInput() }}
@@ -24,33 +24,38 @@
                             <div class="p-2 pl-0 mt-1 pb-6">
                                 <span class="rounded-full bg-gray-500 uppercase px-2 py-1 text-gray-100 mr-2">{{ purchasable.sku }}</span>
                                 {{ purchasable.description }}
-                            <div class="float-right">
-                                {% if purchasable.onSale %}
-                                <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
-                                {% endif %}
-                                <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
+                                <div class="float-right">
+                                    {% if purchasable.onSale %}
+                                        <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
+                                    {% endif %}
+                                    <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
 
-                                <button {{ purchasable.isAvailable ? '' : 'disabled' }} class="{{ purchasable.isAvailable ? '' : 'opacity-50 cursor-not-allowed' }} bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit" name="purchasableId" value="{{purchasable.id}}">
-                                {{ purchasable.isAvailable ? 'Add to cart' : 'Unavailable' }}
-                                </button>
+                                    <button {{ purchasable.isAvailable ? '' : 'disabled' }}
+                                            class="{{ purchasable.isAvailable ? '' : 'opacity-50 cursor-not-allowed' }} bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                            type="submit" name="purchasableId" value="{{ purchasable.id }}">
+                                        {{ purchasable.isAvailable ? 'Add to cart' : 'Unavailable' }}
+                                    </button>
+                                </div>
+                                <br>
+                                <strong>Stock:</strong>
+                                {% if purchasable.hasUnlimitedStock %}Unlimited{% else %}{{ purchasable.stock }} Remaining{% endif %}
+                                <br>
+                                {% for sale in purchasable.sales %}
+                                    {% if loop.first %}<strong>Sales:</strong>{% endif %}
+                                    <a href="{{ sale.cpEditUrl }}"
+                                       target="_blank">{{ sale.name }}</a>{% if not loop.last %}, {% else %}{% endif %}
+                                {% endfor %}
+                                <br>
+                                {% if currentUser %}
+                                    {% set orders = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(purchasable).all() %}
+                                    {% for order in orders %}
+                                        {% if loop.first %}<strong>Purchased:</strong>{% endif %}
+                                    <a href="/shop/customer/order?number={{ order.number }}" target="_blank">
+                                        #{{ order.reference|upper }}</a>{% if not loop.last %}, {% else %}
+                                        <br>{% endif %}
+                                    {% endfor %}
+                                {% endif %}
                             </div>
-                            <br>
-                            <strong>Stock:</strong>
-                            {% if purchasable.hasUnlimitedStock %}Unlimited{% else %}{{ purchasable.stock }} Remaining{% endif %}
-                            <br>
-                            {% for sale in purchasable.sales %}
-                                {% if loop.first %}<strong>Sales:</strong>{% endif %}
-                                <a href="{{ sale.cpEditUrl }}" target="_blank">{{sale.name}}</a>{% if not loop.last %}, {% else %}{% endif %}
-                            {% endfor %}
-                            <br>
-                            {% if currentUser %}
-                            {% set orders = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(purchasable).all() %}
-                            {% for order in orders %}
-                                {% if loop.first %}<strong>Purchased:</strong>{% endif %}
-                                <a href="/shop/customer/order?number={{ order.number }}" target="_blank">#{{ order.reference|upper }}</a>{% if not loop.last %}, {% else %}<br>{% endif %}
-                            {% endfor %}
-                            {% endif %}
-                        </div>
                         {% endfor %}
                     </form>
                 {% endif %}
