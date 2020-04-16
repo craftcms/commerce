@@ -31,6 +31,9 @@
 
 {% if selectedItem is not defined %}
     {% set selectedItem = craft.app.request.getSegment(3) %}
+    {% if not selectedItem %}
+        {% set selectedItem = navItems|keys|first %}
+    {% endif %}
 {% endif %}
 
 {% block sidebar %}
