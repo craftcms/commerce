@@ -1656,7 +1656,7 @@ class Order extends Element
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
 
-        // Use the same dateCreated and dateUpdated logic as elements.
+        // Use the same dateCreated and dateUpdated logic as elements. i.e don't update date when resaving or propagating
         if ($isNew) {
             if (isset($this->dateCreated)) {
                 $orderRecord->dateCreated = Db::prepareValueForDb($this->dateCreated);

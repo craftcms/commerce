@@ -27,6 +27,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -878,6 +879,22 @@ class Variant extends Purchasable
             $record->height = $this->height = 0;
             $record->length = $this->length = 0;
             $record->weight = $this->weight = 0;
+        }
+
+        // Use the same dateCreated and dateUpdated logic as elements. i.e don't update date when resaving or propagating
+        if ($isNew) {
+            if (isset($this->dateCreated)) {
+                $record->dateCreated = Db::prepareValueForDb($this->dateCreated);
+            }
+            if (isset($this->dateUpdated)) {
+                $record->dateUpdated = Db::prepareValueForDb($this->dateUpdated);
+            }
+        } else if ($this->propagating || $this->resaving) {
+            // Prevent ActiveRecord::prepareForDb() from changing the dateUpdated
+            $record->markAttributeDirty('dateUpdated');
+        } else {
+            // Force a new dateUpdated value
+            $record->dateUpdated = Db::prepareValueForDb(new \DateTime());
         }
 
         $record->save(false);
