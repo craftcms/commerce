@@ -13,14 +13,12 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 

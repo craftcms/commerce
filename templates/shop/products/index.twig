@@ -1,92 +1,85 @@
 {% extends 'shop/_layouts/main' %}
 
-{% set products = craft.products.limit(5).all() %}
-
 {% block main %}
-    {% for product in products %}
-        <div class="bg-white mb-4 p-8 rounded items-center text-left">
-            <div class="">
-                <h3 class="font-semibold">{% if product.url %}{{ product.link }}{% else %}{{ product.title }}{% endif %}</h3>
-                {% if product.getVariants()|length %}
-                    <form method="post" action="" class="js-add-to-cart-form">
-                        <input type="hidden" name="action" value="commerce/cart/update-cart">
-                        <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
-                        {{ redirectInput('shop/cart') }}
-                        <input type="hidden" name="qty" value="1">
-                        {{ csrfInput() }}
 
-                        <select name="options[giftWrapped]">
-                            <option value="no">No gift wrap.</option>
-                            <option value="yes">Gift wrapped.</option>
+    {% set products = craft.products.limit(5).all() %}
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+        {% for product in products %}
+            <div class="bg-white shadow m-2 p-3 rounded relative">
+                <div>
+                    <div style="background-image: url('')"
+                         class="bg-cover bg-center bg-gray-300 h-32 rounded">
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <p class="text-lg text-bold tracking-wide mb-2">
+                        {{ product.title }}
+                    </p>
+                    <p>Description of the item here.</p>
+                </div>
+                <form method="post" class="js-add-to-cart-form mt-6">
+                    <input type="hidden" name="action" value="commerce/cart/update-cart">
+                    <input type="hidden" name="cartUpdatedNotice"
+                           value="Added {{ product.title }} to the cart.">
+                    {{ redirectInput('shop/cart') }}
+                    {{ csrfInput() }}
+                    <div class="inline-block relative w-full">
+                        <select class="js-purchasableId block appearance-none w-full bg-white border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                            {% for variant in product.getVariants() %}
+                                <option value="{{ variant.id }}">{{ variant.title }}</option>
+                            {% endfor %}
                         </select>
-
-                        {% for purchasable in product.getVariants() %}
-                            <div class="p-2 pl-0 mt-1 pb-6">
-                                <span class="rounded-full bg-gray-500 uppercase px-2 py-1 text-gray-100 mr-2">{{ purchasable.sku }}</span>
-                                {{ purchasable.description }}
-                                <div class="float-right">
-                                    {% if purchasable.onSale %}
-                                        <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
-                                    {% endif %}
-                                    <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
-
-                                    <button {{ purchasable.isAvailable ? '' : 'disabled' }}
-                                            class="{{ purchasable.isAvailable ? '' : 'opacity-50 cursor-not-allowed' }} bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                            type="submit" name="purchasableId" value="{{ purchasable.id }}">
-                                        {{ purchasable.isAvailable ? 'Add to cart' : 'Unavailable' }}
-                                    </button>
-                                </div>
-                                <br>
-                                <strong>Stock:</strong>
-                                {% if purchasable.hasUnlimitedStock %}Unlimited{% else %}{{ purchasable.stock }} Remaining{% endif %}
-                                <br>
-                                {% for sale in purchasable.sales %}
-                                    {% if loop.first %}<strong>Sales:</strong>{% endif %}
-                                    <a href="{{ sale.cpEditUrl }}"
-                                       target="_blank">{{ sale.name }}</a>{% if not loop.last %}, {% else %}{% endif %}
-                                {% endfor %}
-                                <br>
-                                {% if currentUser %}
-                                    {% set orders = craft.orders.user(currentUser).isCompleted(true).hasPurchasables(purchasable).all() %}
-                                    {% for order in orders %}
-                                        {% if loop.first %}<strong>Purchased:</strong>{% endif %}
-                                    <a href="/shop/customer/order?number={{ order.number }}" target="_blank">
-                                        #{{ order.reference|upper }}</a>{% if not loop.last %}, {% else %}
-                                        <br>{% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                    </form>
-                {% endif %}
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 20 20">
+                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
+                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 bg-white border border-gray-200 hover:border-gray-300 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                               name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
+                        <button type="submit"
+                                class="rounded shadow-md shadow bg-blue-500 m-0 px-4 py-2 text-white hover:bg-blue-600">
+                            Add
+                        </button>
+                    </div>
+                </form>
             </div>
-        </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
 
-    {% js %}
-        {#
-        $('form.js-add-to-cart-form').submit(function(e){
+
+{% js %}
+    <script>
+        document.querySelector("form.js-add-to-cart-form").addEventListener("submit", function(e) {
             e.preventDefault();
-            var purchasable = $(this).find('.js-purchasableId').val();
-            $.ajax({
-                type: "POST",
-                dataType: 'json',
+            var purchasableId = $(this).find('.js-purchasableId').val();
+            console.log(purchasableId);
+
+            var body = {
+                'action': 'commerce/cart/update-cart',
+                'purchasableId': purchasableId,
+                'note': 'from ajax'
+            };
+            fetch('/', {
+                method: 'post',
                 headers: {
-                    "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
                 },
-                url: '',
-                data: {
-                    'action' : 'commerce/cart/update-cart',
-                    'purchasableId': purchasable,
-                    'note' : 'from ajax'
-                },
-                success: function(data){
-                    console.log(data);
-                }
-            });
+                body: JSON.stringify(body)
+            })
+                .then((response) => response.json())
+                .then((result) => {
+                    console.log('Success:', result);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
         });
-        #}
-    {% endjs %}
+    </script>
+{% endjs %}
 
 {% endblock %}
-

@@ -9,7 +9,7 @@
     <style>{% include('shop/tailwind.css') %}</style>
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
-<body>
+<body class="text-gray-800">
 
     {% if cart is not defined %}
         {% set cart = craft.commerce.carts.cart %}
