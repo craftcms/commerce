@@ -9,27 +9,27 @@
 
 ### Changed
 - It’s now possible to query for orders using multiple email addresses. ([#1361](https://github.com/craftcms/commerce/issues/1361))
-- `craft\commerce\controllers\CartController::$_cart` is now a protected property.
-- `craft\commerce\controllers\CartController::$_cartVariable` is now a protected property.
+- `craft\commerce\controllers\CartController::$_cart` is now protected.
+- `craft\commerce\controllers\CartController::$_cartVariable` is now protected.
 
 ### Deprecated
 - Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead.
 
 ### Fixed
 - Fixed a bug where orders weren’t marked as complete when using an offsite gateway and the “authorize” payment type.
-- Fixed an error that prevented payments on orders in the control panel. ([#1362](https://github.com/craftcms/commerce/issues/1362))
+- Fixed an error that occurred when attempting to pay for an order from the control panel. ([#1362](https://github.com/craftcms/commerce/issues/1362))
 - Fixed a PHP error that occurred when using a custom shipping method during checkout. ([#1378](https://github.com/craftcms/commerce/issues/1378))
-- Edit Address pages now redirect correctly after save. ([#1368](https://github.com/craftcms/commerce/issues/1368))
-- Fixed a bug where clicking the “All Orders” link on the Orders index page wouldn’t be set in the browser’s history. ([#1367](https://github.com/craftcms/commerce/issues/1367))
+- Fixed a bug where Edit Address pages weren’t redirecting back to the Edit User page on save. ([#1368](https://github.com/craftcms/commerce/issues/1368))
+- Fixed a bug where selecting the “All Orders” source on the Orders index page wouldn’t update the browser’s history. ([#1367](https://github.com/craftcms/commerce/issues/1367))
 - Fixed a bug where the Orders index page wouldn’t work as expected after cancelling an order status update. ([#1375](https://github.com/craftcms/commerce/issues/1375))
-- Fixed a bug where the previous order status message was retained when changing an order’s status on the Edit Order page. ([#1366](https://github.com/craftcms/commerce/issues/1366))
-- Fixed a bug where consolidating guest orders could cause order save race conditions on after order complete.
-- Fixed a bug where the Edit Order page was showing the order-level adjustments “edit” link for carts. ([#1374](https://github.com/craftcms/commerce/issues/1374))
+- Fixed a bug where the Edit Order pages would continue showing the previous order status message after it had been changed. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a race condition that could occur when consolidating guest orders.
+- Fixed a bug where the Edit Order page was showing order-level adjustments’ “Edit” links for incomplete orders. ([#1374](https://github.com/craftcms/commerce/issues/1374))
 - Fixed a PHP error that could occur when viewing a disabled country in the control panel.
-- Fixed a bug where `craft\commerce\models\LineItem::saleAmount` was being incorrectly validated. ([#1365](https://github.com/craftcms/commerce/issues/1365))
-- Hard deleting a product now hard deletes orphaned variants. ([#1186](https://github.com/craftcms/commerce/issues/1186))
-- The `cp.commerce.product.edit.details` template hook is now positioned correctly on the Edit Product page. ([#1376](https://github.com/craftcms/commerce/issues/1376))
-- Fixed a bug where line items caches were not being invalidated on line item save. ([#1377](https://github.com/craftcms/commerce/issues/1377))
+- Fixed a bug where `craft\commerce\models\LineItem::$saleAmount` was being incorrectly validated. ([#1365](https://github.com/craftcms/commerce/issues/1365))
+- Fixed a bug where variants weren’t getting deleted when a product was hard-deleted. ([#1186](https://github.com/craftcms/commerce/issues/1186))
+- Fixed a bug where the `cp.commerce.product.edit.details` template hook was getting called in the wrong place in Edit Product pages. ([#1376](https://github.com/craftcms/commerce/issues/1376))
+- Fixed a bug where line items’ caches were not being invalidated on save. ([#1377](https://github.com/craftcms/commerce/issues/1377))
 
 ## 3.1.1 - 2020-04-03
 
