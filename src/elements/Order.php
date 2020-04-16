@@ -1656,6 +1656,22 @@ class Order extends Element
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
 
+        // Use the same dateCreated and dateUpdated logic as elements.
+        if ($isNew) {
+            if (isset($this->dateCreated)) {
+                $orderRecord->dateCreated = Db::prepareValueForDb($this->dateCreated);
+            }
+            if (isset($this->dateUpdated)) {
+                $orderRecord->dateUpdated = Db::prepareValueForDb($this->dateUpdated);
+            }
+        } else if ($this->propagating || $this->resaving) {
+            // Prevent ActiveRecord::prepareForDb() from changing the dateUpdated
+            $orderRecord->markAttributeDirty('dateUpdated');
+        } else {
+            // Force a new dateUpdated value
+            $orderRecord->dateUpdated = Db::prepareValueForDb(new \DateTime());
+        }
+
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
