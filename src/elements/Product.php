@@ -707,21 +707,9 @@ class Product extends Element
         $record->defaultWidth = (float)$this->getDefaultVariant()->width;
         $record->defaultWeight = (float)$this->getDefaultVariant()->weight;
 
-        // Use the same dateCreated and dateUpdated logic as elements. i.e don't update date when resaving or propagating
-        if ($isNew) {
-            if (isset($this->dateCreated)) {
-                $record->dateCreated = Db::prepareValueForDb($this->dateCreated);
-            }
-            if (isset($this->dateUpdated)) {
-                $record->dateUpdated = Db::prepareValueForDb($this->dateUpdated);
-            }
-        } else if ($this->propagating || $this->resaving) {
-            // Prevent ActiveRecord::prepareForDb() from changing the dateUpdated
-            $record->markAttributeDirty('dateUpdated');
-        } else {
-            // Force a new dateUpdated value
-            $record->dateUpdated = Db::prepareValueForDb(new \DateTime());
-        }
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $record->dateUpdated = $this->dateUpdated;
+        $record->dateCreated = $this->dateCreated;
 
         $record->save(false);
 

@@ -1656,21 +1656,9 @@ class Order extends Element
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
 
-        // Use the same dateCreated and dateUpdated logic as elements. i.e don't update date when resaving or propagating
-        if ($isNew) {
-            if (isset($this->dateCreated)) {
-                $orderRecord->dateCreated = Db::prepareValueForDb($this->dateCreated);
-            }
-            if (isset($this->dateUpdated)) {
-                $orderRecord->dateUpdated = Db::prepareValueForDb($this->dateUpdated);
-            }
-        } else if ($this->propagating || $this->resaving) {
-            // Prevent ActiveRecord::prepareForDb() from changing the dateUpdated
-            $orderRecord->markAttributeDirty('dateUpdated');
-        } else {
-            // Force a new dateUpdated value
-            $orderRecord->dateUpdated = Db::prepareValueForDb(new \DateTime());
-        }
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $orderRecord->dateUpdated = $this->dateUpdated;
+        $orderRecord->dateCreated = $this->dateCreated;
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];

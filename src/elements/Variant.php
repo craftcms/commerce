@@ -874,27 +874,15 @@ class Variant extends Purchasable
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $record->dateUpdated = $this->dateUpdated;
+        $record->dateCreated = $this->dateCreated;
+
         if (!$this->getProduct()->getType()->hasDimensions) {
             $record->width = $this->width = 0;
             $record->height = $this->height = 0;
             $record->length = $this->length = 0;
             $record->weight = $this->weight = 0;
-        }
-
-        // Use the same dateCreated and dateUpdated logic as elements. i.e don't update date when resaving or propagating
-        if ($isNew) {
-            if (isset($this->dateCreated)) {
-                $record->dateCreated = Db::prepareValueForDb($this->dateCreated);
-            }
-            if (isset($this->dateUpdated)) {
-                $record->dateUpdated = Db::prepareValueForDb($this->dateUpdated);
-            }
-        } else if ($this->propagating || $this->resaving) {
-            // Prevent ActiveRecord::prepareForDb() from changing the dateUpdated
-            $record->markAttributeDirty('dateUpdated');
-        } else {
-            // Force a new dateUpdated value
-            $record->dateUpdated = Db::prepareValueForDb(new \DateTime());
         }
 
         $record->save(false);
