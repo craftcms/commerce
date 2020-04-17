@@ -47,7 +47,7 @@ class ConsolidateGuestOrders extends BaseJob
         foreach ($this->emails as $email) {
             $this->setProgress($this->_queue, $step / $total, Plugin::t('Email {step} of {total}', compact('step', 'total')));
             try {
-                $this->consolidate($email);
+                Plugin::getInstance()->getCustomers()->consolidateGuestOrdersByEmail($email);
             } catch (\Throwable $e) {
                 Craft::warning('Could not consolidate orders for guest email'.$email, 'commerce');
             }
@@ -61,6 +61,7 @@ class ConsolidateGuestOrders extends BaseJob
 
     /**
      * @inheritDoc
+     * @deprecated in 3.x. Use [[\craft\commerce\services\Customers::consolidateGuestOrdersByEmail()]] instead.
      */
     public function consolidate($email)
     {
@@ -98,7 +99,6 @@ class ConsolidateGuestOrders extends BaseJob
             }
         }
     }
-
 
     /**
      * @inheritdoc

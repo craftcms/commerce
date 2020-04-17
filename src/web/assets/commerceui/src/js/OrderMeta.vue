@@ -56,6 +56,7 @@
                     <div class="input ltr">
                         <order-status
                                 :originalOrderStatusId="originalDraft.order.orderStatusId"
+                                :original-message="originalDraft.order.message"
                                 :order="order"
                                 @updateOrder="updateOrder"></order-status>
                     </div>

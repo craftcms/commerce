@@ -77,7 +77,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 onOptionSelect: $.proxy(this, 'onSelectStatus')
             });
 
-            this.addListener(this.$cancelBtn, 'click', 'hide');
+            this.addListener(this.$cancelBtn, 'click', 'onCancelClick');
             this.addListener(this.$updateBtn, 'click', function(ev) {
                 ev.preventDefault();
                 if (!$(ev.target).hasClass('disabled')) {
@@ -86,6 +86,12 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
             this.base($form, settings);
         },
+
+        onCancelClick: function() {
+            Craft.elementIndex.setIndexAvailable();
+            this.hide();
+        },
+
         onSelectStatus: function(status) {
             this.deselectStatus();
 

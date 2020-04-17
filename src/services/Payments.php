@@ -123,7 +123,7 @@ class Payments extends Component
      *     function(RefundTransactionEvent $event) {
      *         // @var float $amount
      *         $amount = $event->amount;
-     *         
+     *
      *         // Do something else if the refund amount’s >50% of the transaction
      *         // ...
      *     }
@@ -139,14 +139,14 @@ class Payments extends Component
      * use craft\commerce\events\RefundTransactionEvent;
      * use craft\commerce\services\Payments;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Payments::class,
      *     Payments::EVENT_AFTER_REFUND_TRANSACTION,
      *     function(RefundTransactionEvent $event) {
      *         // @var float $amount
      *         $amount = $event->amount;
-     * 
+     *
      *         // Do something else if the refund amount’s >50% of the transaction
      *         // ...
      *     }
@@ -415,12 +415,13 @@ class Payments extends Component
         // 1) The transaction completed successfully with the gateway, and is now marked as complete.
         // 2) The result of the gateway request was successful but also got a redirect response. We now need to redirect if $redirect is not null.
         $success = $response->isSuccessful() || $response->isProcessing();
+        $isParentTransactionRedirect = ($transaction->status === TransactionRecord::STATUS_REDIRECT);
 
-        if ($success && $transaction->status === TransactionRecord::STATUS_SUCCESS) {
+        if ($success && ($transaction->status === TransactionRecord::STATUS_SUCCESS || ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_SUCCESS))) {
             $transaction->order->updateOrderPaidInformation();
         }
 
-        if ($success && $transaction->status === TransactionRecord::STATUS_PROCESSING) {
+        if ($success && ($transaction->status === TransactionRecord::STATUS_PROCESSING || ($isParentTransactionRedirect && $childTransaction->status == TransactionRecord::STATUS_PROCESSING))) {
             $transaction->order->markAsComplete();
         }
 
@@ -483,18 +484,31 @@ class Payments extends Component
      */
     public function getTotalAuthorizedOnlyForOrder(Order $order): float
     {
-        $amount = 0;
+        $authorized = 0;
+        $captured = 0;
         if ($order->id) {
-            $transactions = Plugin::getInstance()->getTransactions()->getAllTopLevelTransactionsByOrderId($order->id);
+            $transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($order->id);
             foreach ($transactions as $transaction) {
                 $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
                 $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
-                if ($isSuccess && $isAuth && !$transaction->getChildTransactions()) {
-                    $amount += $transaction->amount;
+                $isCapture = ($transaction->type == TransactionRecord::TYPE_CAPTURE);
+
+                if (!$isSuccess) {
+                    continue;
+                }
+
+                if ($isAuth) {
+                    $authorized += $transaction->amount;
+                    continue;
+                }
+
+                if ($isCapture) {
+                    $captured += $transaction->amount;
                 }
             }
         }
-        return $amount;
+
+        return $authorized - $captured;
     }
 
     /**

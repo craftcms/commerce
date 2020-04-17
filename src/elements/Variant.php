@@ -27,6 +27,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -79,17 +80,17 @@ class Variant extends Purchasable
     const EVENT_BEFORE_CAPTURE_VARIANT_SNAPSHOT = 'beforeCaptureVariantSnapshot';
 
     /**
-     * @event craft\commerce\events\CustomizeVariantSnapshotFieldsEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
+     * @event craft\commerce\events\CustomizeVariantSnapshotDataEvent The event that is triggered after a variant’s field data is captured. This makes it possible to customize, extend, or redact the data to be persisted on the variant instance.
      *
      * ```php
      * use craft\commerce\elements\Variant;
-     * use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+     * use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
      * use yii\base\Event;
      *
      * Event::on(
      *     Variant::class,
      *     Variant::EVENT_AFTER_CAPTURE_VARIANT_SNAPSHOT,
-     *     function(CustomizeVariantSnapshotFieldsEvent $event) {
+     *     function(CustomizeVariantSnapshotDataEvent $event) {
      *         // @var Variant $variant
      *         $variant = $event->variant;
      *         // @var array|null $fields
@@ -873,6 +874,10 @@ class Variant extends Purchasable
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
 
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $record->dateUpdated = $this->dateUpdated;
+        $record->dateCreated = $this->dateCreated;
+
         if (!$this->getProduct()->getType()->hasDimensions) {
             $record->width = $this->width = 0;
             $record->height = $this->height = 0;
@@ -1008,6 +1013,21 @@ class Variant extends Purchasable
         $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
+    }
+
+    /**
+     * @param bool $isNew
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function beforeSave(bool $isNew): bool
+    {
+        // Set the field layout
+        /** @var ProductType $productType */
+        $productType = $this->getProduct()->getType();
+        $this->fieldLayoutId = $productType->getFieldLayout()->id;
+
+        return parent::beforeSave($isNew);
     }
 
     /**

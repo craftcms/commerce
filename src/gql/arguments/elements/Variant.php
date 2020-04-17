@@ -7,6 +7,7 @@
 
 namespace craft\commerce\gql\arguments\elements;
 
+use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\Type;
@@ -24,7 +25,7 @@ class Variant extends ElementArguments
      */
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(), [
+        return array_merge(parent::getArguments(), self::getContentArguments(), [
             'hasSales' => [
                 'name' => 'hasSales',
                 'type' => Type::boolean(),
@@ -76,5 +77,14 @@ class Variant extends ElementArguments
                 'description' => 'Narrows the query results based on the variant’s product’s type ID.',
             ]
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.x
+     */
+    public static function getContentArguments(): array
+    {
+        return array_merge(parent::getContentArguments(), Plugin::getInstance()->getVariants()->getVariantGqlContentArguments());
     }
 }

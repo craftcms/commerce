@@ -232,9 +232,8 @@
       <h5 class="heading">{{ "Date Updated"|t('commerce') }}</h5>
       <div class="value">{{ product.dateUpdated|date('short') }} {{ product.dateUpdated|time('short') }}</div>
     </div>
-
-    {% hook "cp.commerce.product.edit.details" %}
   </div>
+  {% hook "cp.commerce.product.edit.details" %}
 {% endif %}
 {% endblock %}
 

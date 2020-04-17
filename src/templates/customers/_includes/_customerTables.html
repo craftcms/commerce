@@ -17,6 +17,7 @@
   'Subscription',
   'Subscription',
   'Yes',
+  'View address',
 ]) %}
 
 {% set addresses = customer.getAddresses() ?? null %}
@@ -46,7 +47,7 @@
 
   {% set tableData = tableData|merge([{
     id: address.id,
-    title: address.address1,
+    title: address.address1 != '' ? address.address1|e : 'View address'|t('commerce'),
     url: address.cpEditUrl ~ (addressRedirect is defined and addressRedirect ? '?redirect=' ~ addressRedirect : ''),
     zipCode: address.zipCode|e,
     billing: (customer.primaryBillingAddressId == address.id),

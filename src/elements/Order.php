@@ -1569,9 +1569,15 @@ class Order extends Element
     {
         $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
         $options = [];
+        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
-            $option = new ShippingMethodOption($method->attributes);
+
+            $option = new ShippingMethodOption();
+            foreach ($attributes as $attribute) {
+                $option->$attribute = $method->$attribute;
+            }
+
             $option->setOrder($this);
             $options[$option->handle] = $option;
         }
@@ -1649,6 +1655,10 @@ class Order extends Element
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
+
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $orderRecord->dateUpdated = $this->dateUpdated;
+        $orderRecord->dateCreated = $this->dateCreated;
 
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];

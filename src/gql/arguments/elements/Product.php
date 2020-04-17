@@ -7,6 +7,9 @@
 
 namespace craft\commerce\gql\arguments\elements;
 
+use Craft;
+use craft\commerce\elements\Product as ProductElement;
+use craft\commerce\Plugin;
 use craft\gql\base\ElementArguments;
 use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\Type;
@@ -24,7 +27,7 @@ class Product extends ElementArguments
      */
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(), [
+        return array_merge(parent::getArguments(),  self::getContentArguments(), [
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),
@@ -51,5 +54,16 @@ class Product extends ElementArguments
                 'description' => 'Narrows the query results based on the product types the products belong to, per the product type IDs.'
             ],
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.x
+     */
+    public static function getContentArguments(): array
+    {
+        $productTypeFieldArguments = Craft::$app->getGql()->getContentArguments(Plugin::getInstance()->getProductTypes()->getAllProductTypes(), ProductElement::class);
+
+        return array_merge(parent::getContentArguments(), $productTypeFieldArguments);
     }
 }

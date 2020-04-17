@@ -547,14 +547,8 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
     },
 
     updateSelectedSource() {
-        if (!this.$source) {
-            return;
-        }
-
-        var handle = this.$source.data('handle');
-        if (!handle) {
-            return;
-        }
+        var source = this.$source ? this.$source : 'all';
+        var handle = source !== 'all' ? this.$source.data('handle') : null;
 
         if (this.settings.context === 'index' && typeof history !== 'undefined') {
             var uri = 'commerce/orders';
@@ -974,7 +968,7 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
                 onOptionSelect: $.proxy(this, 'onSelectStatus')
             });
 
-            this.addListener(this.$cancelBtn, 'click', 'hide');
+            this.addListener(this.$cancelBtn, 'click', 'onCancelClick');
             this.addListener(this.$updateBtn, 'click', function(ev) {
                 ev.preventDefault();
                 if (!$(ev.target).hasClass('disabled')) {
@@ -983,6 +977,12 @@ Craft.Commerce.UpdateOrderStatusModal = Garnish.Modal.extend(
             });
             this.base($form, settings);
         },
+
+        onCancelClick: function() {
+            Craft.elementIndex.setIndexAvailable();
+            this.hide();
+        },
+
         onSelectStatus: function(status) {
             this.deselectStatus();
 

@@ -44,6 +44,9 @@ class Variant extends ElementResolver
                 $query->$key($value);
             } elseif (property_exists($query, $key)) {
                 $query->$key = $value;
+            } else {
+                // Catch custom field queries
+                $query->$key($value);
             }
         }
 
