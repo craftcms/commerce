@@ -61,7 +61,7 @@ class LineItem extends Model
     /**
      * @var string Description
      */
-    public $description;
+    private $_description;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -106,7 +106,7 @@ class LineItem extends Model
     /**
      * @var string SKU
      */
-    public $sku;
+    private $_sku;
 
     /**
      * @var string Note
@@ -276,6 +276,48 @@ class LineItem extends Model
         } else {
             $this->_options = $cleanEmojiValues($options);
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription()
+    {
+        if (!$this->_description) {
+            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $this->_description = $snapshot['description'] ?? '';
+        }
+
+        return $this->_description;
+    }
+
+    /**
+     * @param $description
+     */
+    public function setDescription($description)
+    {
+        $this->_description = $description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSku()
+    {
+        if (!$this->_sku) {
+            $snapshot = Json::decodeIfJson($this->snapshot, true);
+            $this->_sku = $snapshot['sku'] ?? '';
+        }
+
+        return $this->_sku;
+    }
+
+    /**
+     * @param $sku
+     */
+    public function setSku($sku)
+    {
+        $this->_sku = $sku;
     }
 
     /**

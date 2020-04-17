@@ -617,6 +617,10 @@ class Subscription extends Element
         $subscriptionRecord->isSuspended = $this->isSuspended;
         $subscriptionRecord->dateSuspended = $this->dateSuspended;
 
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $subscriptionRecord->dateUpdated = $this->dateUpdated;
+        $subscriptionRecord->dateCreated = $this->dateCreated;
+
         // Some properties of the subscription are immutable
         if ($isNew) {
             $subscriptionRecord->gatewayId = $this->gatewayId;
