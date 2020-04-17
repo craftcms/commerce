@@ -119,15 +119,16 @@ class ProductFixture extends ElementFixture
                     }
                 }
 
-                if ($element && !Craft::$app->getElements()->deleteElement($element, true)) {
-                    throw new InvalidElementException($element, 'Unable to delete element.');
-                }
-
                 foreach ($variants as $variant) {
                     if (!Craft::$app->getElements()->deleteElement($variant, true)) {
                         throw new InvalidElementException($variant, 'Unable to delete variant ' . $variant->title . '.');
                     }
                 }
+
+                if ($element && !Craft::$app->getElements()->deleteElement($element, true)) {
+                    throw new InvalidElementException($element, 'Unable to delete element.');
+                }
+
             }
 
             $this->data = [];
