@@ -11,69 +11,118 @@
 </head>
 <body class="text-gray-800">
 
-    {% if cart is not defined %}
-        {% set cart = craft.commerce.carts.cart %}
-    {% endif %}
-
-    <header>
-    {% include "shop/_includes/main-nav" %}
-    {% if extraHeader is defined %}{{ extraHeader }}{% endif %}
-    </header>
+{% if cart is not defined %}
+    {% set cart = craft.commerce.carts.cart %}
+{% endif %}
 
 
-    {% set flashNotice = craft.app.session.getFlash('notice') %}
-    {% if flashNotice %}
-        <div class="bg-blue-500 text-white">
-            <div class="container mx-auto px-6 py-4">
-                {{ flashNotice }}
-            </div>
+<header>
+
+    {#
+    ========================
+    Main Navigation
+    ========================
+
+    The following is the main navigation for the example templates.
+
+    We create a `pages` variable that holds our page names, and their URLs.
+    This allows us to loop over them and check if the current URL the user is on
+    matches the URL of the page, so we can highlight it as the current page.
+
+
+    #}
+
+    {% set pages = [
+        {
+            label: "Products",
+            url: 'shop/products'
+        },
+        {
+            label: "Plans",
+            url: 'shop/plans'
+        },
+        {
+            label: "Donations",
+            url: 'shop/donations'
+        }
+    ] %}
+    <div class="container mx-auto justify-between items-center p-6">
+        <div>
+            {% for step in steps %}
+                <a href="{{ url(step.url) }}"
+                   class="flex-1 rounded p-2 {{ (craft.app.request.pathInfo == step.url) ? 'text-blue-800 focus:outline-none' : 'text-blue-300 hover:text-blue-800' }}">{{ step.label }}</a>
+            {% endfor %}
         </div>
-    {% endif %}
-
-    {% set flashError = craft.app.session.getFlash('error') %}
-    {% if flashError %}
-        <div class="bg-red-500 text-white">
-            <div class="container mx-auto px-6 py-4">
-                {{ flashError }}
-            </div>
+        <div>
+            <a href="shop/cart">Cart</a>
+            <span class="rounded-full p-2 bg-gray-700 text-white">{{ craft.orders.number(cart.number).one().totalQty ?? 0 }}</span>
         </div>
-    {% endif %}
+    </div>
 
-    {% if cart.errors|length %}
-        <div class="bg-red-500 text-white">
-            <div class="container mx-auto px-6 py-4">
-                {% for attribute, errors in cart.errors %}
-                    {% if loop.first %}<ul>{% endif %}
-                    {% for key, error in errors %}
-                        <li>{{ attribute }}: {{ error }}</li>
-                    {% endfor %}
-                    {% if loop.last %}</ul>{% endif %}
+    {% include 'shop/_includes/checkout-nav' %}
+</header>
+
+{#
+Flash Notice
+========================
+
+
+
+#}
+
+{% set flashNotice = craft.app.session.getFlash('notice') %}
+{% if flashNotice %}
+    <div class="bg-blue-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {{ flashNotice }}
+        </div>
+    </div>
+{% endif %}
+
+{% set flashError = craft.app.session.getFlash('error') %}
+{% if flashError %}
+    <div class="bg-red-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {{ flashError }}
+        </div>
+    </div>
+{% endif %}
+
+{% if cart.errors|length %}
+    <div class="bg-red-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {% for attribute, errors in cart.errors %}
+                {% if loop.first %}<ul>{% endif %}
+                {% for key, error in errors %}
+                    <li>{{ attribute }}: {{ error }}</li>
                 {% endfor %}
-            </div>
+                {% if loop.last %}</ul>{% endif %}
+            {% endfor %}
         </div>
-    {% endif %}
+    </div>
+{% endif %}
 
-    {% block body %}
-        <div class="container mx-auto p-6">
-            {% block main %}
-                <h1 class="text-xl font-semibold">Default Content</h1>
-                <p>You should not see this.</p>
-            {% endblock %}
-        </div>
-    {% endblock %}
+{% block body %}
+    <div class="container mx-auto p-6">
+        {% block main %}
+            <h1 class="text-xl font-semibold">Default Content</h1>
+            <p>You should not see this.</p>
+        {% endblock %}
+    </div>
+{% endblock %}
 
-    <footer class="container mx-auto p-2 pt-10">
-        <div class="flex flex-wrap">
-            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
-                {% include 'shop/_includes/debug' %}
-            </div>
-            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
-                {% include 'shop/_includes/shortcuts' %}
-            </div>
-            <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
-                {% include 'shop/_includes/help' %}
-            </div>
+<footer class="container mx-auto p-2 pt-10">
+    <div class="flex flex-wrap">
+        <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+            {% include 'shop/_includes/debug' %}
         </div>
-    </footer>
+        <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+            {% include 'shop/_includes/shortcuts' %}
+        </div>
+        <div class="flex-grow bg-white rounded m-2 p-6 pt-0 shadow-inner">
+            {% include 'shop/_includes/help' %}
+        </div>
+    </div>
+</footer>
 </body>
 </html>
