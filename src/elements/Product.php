@@ -30,6 +30,7 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\UrlHelper;
 use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
@@ -705,6 +706,10 @@ class Product extends Element
         $record->defaultLength = (float)$this->getDefaultVariant()->length;
         $record->defaultWidth = (float)$this->getDefaultVariant()->width;
         $record->defaultWeight = (float)$this->getDefaultVariant()->weight;
+
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $record->dateUpdated = $this->dateUpdated;
+        $record->dateCreated = $this->dateCreated;
 
         $record->save(false);
 

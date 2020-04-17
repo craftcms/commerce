@@ -1656,6 +1656,10 @@ class Order extends Element
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
 
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $orderRecord->dateUpdated = $this->dateUpdated;
+        $orderRecord->dateCreated = $this->dateCreated;
+
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 

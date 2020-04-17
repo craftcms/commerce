@@ -27,6 +27,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Db;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -872,6 +873,10 @@ class Variant extends Purchasable
         $record->isDefault = (bool)$this->isDefault;
         $record->sortOrder = $this->sortOrder;
         $record->hasUnlimitedStock = $this->hasUnlimitedStock;
+
+        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+        $record->dateUpdated = $this->dateUpdated;
+        $record->dateCreated = $this->dateCreated;
 
         if (!$this->getProduct()->getType()->hasDimensions) {
             $record->width = $this->width = 0;

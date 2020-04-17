@@ -8,7 +8,12 @@
 namespace craft\commerce\services;
 
 use Craft;
+use craft\base\GqlInlineFragmentFieldInterface;
 use craft\commerce\elements\Variant;
+use craft\commerce\helpers\Gql as GqlCommerceHelper;
+use craft\commerce\Plugin;
+use craft\gql\types\QueryArgument;
+use GraphQL\Type\Definition\Type;
 use yii\base\Component;
 
 /**
@@ -19,6 +24,12 @@ use yii\base\Component;
  */
 class Variants extends Component
 {
+    /**
+     * @var array
+     * @since 3.x
+     */
+    private $_contentFieldCache = [];
+
     /**
      * Returns a product's variants, per the product's ID.
      *
@@ -43,5 +54,40 @@ class Variants extends Component
     public function getVariantById(int $variantId, int $siteId = null)
     {
         return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
+    }
+
+    /**
+     * @return array
+     * @since 3.x
+     */
+    public function getVariantGqlContentArguments(): array
+    {
+        if (empty($this->_contentFieldCache)) {
+            $contentArguments = [];
+
+            foreach (Plugin::getInstance()->getProductTypes()->getAllProductTypes() as $productType) {
+                if (!$productType->hasVariants) {
+                    continue;
+                }
+
+                if (!GqlCommerceHelper::isSchemaAwareOf(Variant::gqlScopesByContext($productType))) {
+                    continue;
+                }
+
+                $fieldLayout = $productType->getVariantFieldLayout();
+                foreach ($fieldLayout->getFields() as $contentField) {
+                    if (!$contentField instanceof GqlInlineFragmentFieldInterface) {
+                        $contentArguments[$contentField->handle] = [
+                            'name' => $contentField->handle,
+                            'type' => Type::listOf(QueryArgument::getType()),
+                        ];
+                    }
+                }
+            }
+
+            $this->_contentFieldCache = $contentArguments;
+        }
+
+        return $this->_contentFieldCache;
     }
 }
