@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.2 - 2020-04-17
 
 ### Added
 - It’s now possible to query for products and variants by their custom field values via GraphQL.
