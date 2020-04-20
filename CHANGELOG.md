@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when processing Project Config changes that also included new sites.
+
 ## 3.1.2 - 2020-04-17
 
 ### Added
