@@ -33,6 +33,6 @@ return [
         'allCategories' => 0,
         'ignorePrevious' => null,
         'stopProcessing' => null,
-        'categoryRelationshipType' => 'sourceElement',
+        'categoryRelationshipType' => 'element',
     ]
 ];
