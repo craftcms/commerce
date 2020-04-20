@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed an error that could occur when processing Project Config changes that also included new sites.
+- Fixed an error that could occur when processing Project Config changes that also included new sites. ([#1390](https://github.com/craftcms/commerce/issues/1390))
 
 ## 3.1.2 - 2020-04-17
 
