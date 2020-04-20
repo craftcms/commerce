@@ -422,6 +422,11 @@
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
 
+## 2.2.19 - 2020-04-15
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions were not checked when removing shipping costs. ([#1321](https://github.com/craftcms/commerce/issues/1321))
+
 ## 2.2.18 - 2020-03-05
 
 ### Fixed
