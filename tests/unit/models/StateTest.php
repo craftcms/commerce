@@ -32,7 +32,7 @@ class StateTest extends Unit
         $state->countryId = $country->id;
         $stateCountry = $state->getCountry();
         $this->assertIsObject($stateCountry);
-        $this->assertSame($country->toArray(), $stateCountry->toArray());
+        $this->assertEquals($country, $stateCountry);
     }
 
     public function testGetCountry()
@@ -43,7 +43,7 @@ class StateTest extends Unit
 
         $stateCountry = $state->getCountry();
         $this->assertIsObject($stateCountry);
-        $this->assertSame($country->toArray(), $stateCountry->toArray());
+        $this->assertEquals($country, $stateCountry);
     }
 
     public function testGetLabel()
