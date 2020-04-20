@@ -1,4 +1,5 @@
 <?php
+
 namespace craftcommercetests\fixtures;
 
 use Craft;
@@ -6,7 +7,6 @@ use craft\models\CategoryGroup;
 use craft\models\CategoryGroup_SiteSettings;
 use craft\models\Structure;
 use craft\test\fixtures\elements\CategoryFixture;
-use crafttests\fixtures\FieldLayoutFixture;
 
 /**
  * Categories Fixture
@@ -19,7 +19,9 @@ class CategoriesFixture extends CategoryFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/categories.php';
+    public $dataFile = __DIR__ . '/data/categories.php';
+
+    public $depends = [FieldLayoutFixture::class, ProductFixture::class];
 
     public function init()
     {
