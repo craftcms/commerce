@@ -57,4 +57,10 @@ return [
         'custom4' => 'Biff',
         'isEstimated' => false,
     ],
+    [
+        'id' => '1001',
+        'isStoreLocation' => false,
+        'fullName' => 'Orphaned Address',
+        'isEstimated' => false,
+    ]
 ];
