@@ -3,8 +3,9 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a PHP error that occurred when saving variants. ([#1403](https://github.com/craftcms/commerce/pull/1403))
 - Fixed an error that could occur when processing Project Config changes that also included new sites. ([#1390](https://github.com/craftcms/commerce/issues/1390))
-- Fixed a bug where min/max quantity conditions weren’t matching correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
 
 ## 3.1.2 - 2020-04-17
 
