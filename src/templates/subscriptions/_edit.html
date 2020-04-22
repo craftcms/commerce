@@ -172,75 +172,67 @@
 
 {% block details %}
 
-    <div class="meta">
+<div id="meta" class="meta read-only">
 
-        <h3>{{ 'Subscription information'|t('commerce') }}</h3>
-        <div class="data">
-            <h5 class="heading">User</h5>
-            <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
-        </div>
-        <hr />
-        {{ forms.textField({
-            label: 'Plan'|t('commerce'),
-            value: subscription.getPlan().name,
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'User'|t('commerce') }}</h5>
+    <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
+</div>
 
-        {{ forms.textField({
-            label: 'Reference'|t('commerce'),
-            value: subscription.reference,
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Plan'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.getPlan().name }}</p>
+</div>
 
-        {{ forms.textField({
-            label: 'Created'|t('commerce'),
-            value: subscription.dateCreated|datetime,
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Reference'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.reference }}</p>
+</div>
 
-        {{ forms.textField({
-            label: 'Trial days credited'|t('commerce'),
-            value: subscription.trialDays,
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Created'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.dateCreated|datetime }}</p>
+</div>
 
-        {% if subscription.trialDays %}
-            {{ forms.textField({
-                label: 'Trial expiration'|t('commerce'),
-                value: subscription.trialExpires|datetime,
-                readonly: true
-            }) }}
-        {% endif %}
+<div class="data">
+    <h5 class="heading">{{ 'Trial days credited'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.trialDays }}</p>
+</div>
 
-        <h3>{{ 'Billing'|t('commerce')}}</h3>
+{% if subscription.trialDays %}
+<div class="data">
+    <h5 class="heading">{{ 'Trial expiration'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.trialExpires|datetime }}</p>
+</div>
+{% endif %}
 
-        {{ forms.textField({
-            label: 'Next payment'|t('commerce'),
-            value: subscription.nextPaymentDate|datetime,
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Next payment'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.nextPaymentDate|datetime }}</p>
+</div>
 
-        {{ forms.textField({
-            label: 'Expiry'|t('commerce'),
-            value: subscription.dateExpired ? subscription.dateExpired|datetime : '-',
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.nextPaymentDate|datetime }}</p>
+</div>
 
-        {{ forms.textField({
-            label: 'Cancellation'|t('commerce'),
-            value: subscription.dateCanceled ? subscription.dateCanceled|datetime : '-',
-            readonly: true
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.dateExpired ? subscription.dateExpired|datetime : '' }}</p>
+</div>
 
-        {{ forms.textAreaField({
-            label: 'Billing issues'|t('commerce'),
-            value: subscription.getBillingIssueDescription(),
-            readonly: true,
-            rows: 3
-        }) }}
+<div class="data">
+    <h5 class="heading">{{ 'Cancellation'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.dateCanceled ? subscription.dateCanceled|datetime : '' }}</p>
+</div>
 
-        {% hook 'cp.commerce.subscriptions.edit.meta' %}
-    </div>
+<div class="data">
+    <h5 class="heading">{{ 'Billing issues'|t('commerce') }}</h5>
+    <p class="value">{{ subscription.getBillingIssueDescription() }}</p>
+</div>
+
+</div>
+{% hook 'cp.commerce.subscriptions.edit.meta' %}
 {% endblock %}
 
 {% js %}

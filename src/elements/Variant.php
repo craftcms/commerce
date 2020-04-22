@@ -1025,7 +1025,7 @@ class Variant extends Purchasable
         // Set the field layout
         /** @var ProductType $productType */
         $productType = $this->getProduct()->getType();
-        $this->fieldLayoutId = $productType->getFieldLayout()->id;
+        $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
         return parent::beforeSave($isNew);
     }

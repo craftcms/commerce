@@ -503,7 +503,6 @@ class Discounts extends Component
                     $lineItemMatch = true;
                     $matchingTotal += $lineItem->getSubtotal();
                     $matchingQty += $lineItem->qty;
-                    break;
                 }
             }
 

@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+## 3.1.3 - 2020-04-22
+
+### Fixed
+- Fixed a PHP error that occurred when saving variants. ([#1403](https://github.com/craftcms/commerce/pull/1403))
+- Fixed an error that could occur when processing Project Config changes that also included new sites. ([#1390](https://github.com/craftcms/commerce/issues/1390))
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+
 ## 3.1.2 - 2020-04-17
 
 ### Added
@@ -421,6 +428,11 @@
 - Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
+
+## 2.2.19 - 2020-04-15
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions were not checked when removing shipping costs. ([#1321](https://github.com/craftcms/commerce/issues/1321))
 
 ## 2.2.18 - 2020-03-05
 
