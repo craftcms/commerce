@@ -196,8 +196,8 @@
 
 <script>
     import _debounce from 'lodash.debounce'
-    import Field from '../Field';
-    import SelectInput from '../SelectInput';
+    import Field from '../../../base/components/Field';
+    import SelectInput from '../../../base/components/SelectInput';
 
     export default {
         components: {

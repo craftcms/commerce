@@ -55,7 +55,7 @@
 
 <script>
     import VSelect from 'vue-select'
-    import OpenIndicator from './meta/OpenIndicator'
+    import OpenIndicator from '../../order/components/meta/OpenIndicator'
 
     export default {
         components: {
@@ -168,7 +168,7 @@
 </script>
 
 <style lang="scss">
-    @import '../../sass/app';
+    @import '../../../sass/order/app';
 
     .v-select-btn .vs__search::placeholder {
         color: $mediumDarkTextColor !important;

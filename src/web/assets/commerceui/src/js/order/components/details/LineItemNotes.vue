@@ -38,7 +38,7 @@
 
 <script>
     import debounce from 'lodash.debounce'
-    import Field from '../Field'
+    import Field from '../../../base/components/Field'
 
     export default {
         components: {

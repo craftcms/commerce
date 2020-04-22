@@ -35,8 +35,8 @@ module.exports = {
 
         // Add new entry points
         config
-            .entry('app')
-            .add('./src/js/app.js')
+            .entry('order')
+            .add('./src/js/order/app.js')
             .end()
     }
 }

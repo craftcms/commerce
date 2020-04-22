@@ -114,7 +114,7 @@
 
     import {mapActions, mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
-    import Field from '../Field'
+    import Field from '../../../base/components/Field'
     import LineItemStatus from './LineItemStatus'
     import LineItemOptions from './LineItemOptions'
     import LineItemNotes from './LineItemNotes'
@@ -282,7 +282,7 @@
 </script>
 
 <style lang="scss">
-    @import "~craftcms-sass/src/mixins";
+    @import "../../../../../node_modules/craftcms-sass/src/mixins";
 
     .line-item {
         transition: background-color 0.5s ease;

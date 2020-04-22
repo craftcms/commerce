@@ -18,7 +18,7 @@
 </template>
 
 <script>
-    import SelectInput from '../SelectInput'
+    import SelectInput from '../../../base/components/SelectInput'
 
     export default {
         components: {

@@ -51,7 +51,7 @@
 <script>
     import {mapGetters, mapState} from 'vuex'
     import debounce from 'lodash.debounce'
-    import SelectInput from '../SelectInput'
+    import SelectInput from '../../../base/components/SelectInput'
     import {validationMixin} from 'vuelidate'
     import {email, required} from 'vuelidate/lib/validators'
     import Customer from '../customer/Customer';
@@ -143,7 +143,7 @@
 </script>
 
 <style lang="scss">
-    @import '../../../sass/app';
+    @import '../../../../sass/order/app';
 
     .customer-select {
         .vs__dropdown-option {

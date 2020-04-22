@@ -78,10 +78,10 @@
 
 <script>
     import {mapGetters, mapState, mapActions} from 'vuex';
-    import AddressDisplay from './components/customer/Address';
-    import AddressEdit from './components/customer/AddressEdit';
-    import CustomerSelect from './components/meta/CustomerSelect';
-    import Customer from './components/customer/Customer';
+    import AddressDisplay from '../components/customer/Address';
+    import AddressEdit from '../components/customer/AddressEdit';
+    import CustomerSelect from '../components/meta/CustomerSelect';
+    import Customer from '../components/customer/Customer';
 
     export default {
         components: {
@@ -276,7 +276,7 @@
 </script>
 
 <style lang="scss">
-  @import "../sass/app";
+  @import "../../../sass/order/app";
 
   .order-edit-address-left-border {
     position: relative;

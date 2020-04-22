@@ -1,21 +1,4 @@
 /* General */
-
-.order-box-sizing * {
-  box-sizing: border-box;
-}
-
-.order-flex {
-  display: flex;
-}
-
-.order-flex-grow {
-  flex-grow: 1;
-}
-
-.order-opacity-50 {
-  opacity: .5;
-}
-
 .text-right {
   text-align: right;
 }
@@ -230,16 +213,4 @@
 
 .error-bg {
   background-color: #fce3e3;
-}
-
-.orderedit-border-t {
-  border-top: 1px solid;
-}
-
-.orderedit-border-b {
-  border-bottom: 1px solid;
-}
-
-.orderedit-border-color {
-  border-color: #eee;
 }

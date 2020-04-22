@@ -93,7 +93,7 @@
 </script>
 
 <style lang="scss">
-  @import '../../../sass/app';
+  @import '../../../../sass/order/app';
 
   .customer-info-container {
     max-width: calc(100% - 30px - 6px);

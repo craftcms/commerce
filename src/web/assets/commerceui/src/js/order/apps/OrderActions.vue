@@ -32,7 +32,7 @@
 
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
-    import UpdateOrderBtn from './components/actions/UpdateOrderBtn'
+    import UpdateOrderBtn from '../components/actions/UpdateOrderBtn'
 
     export default {
         components: {

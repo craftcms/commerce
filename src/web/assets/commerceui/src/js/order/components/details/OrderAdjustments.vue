@@ -19,7 +19,7 @@
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
     import Adjustments from './Adjustments'
-    import BtnLink from '../BtnLink';
+    import BtnLink from '../../../base/components/BtnLink';
 
     export default {
         components: {

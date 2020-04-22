@@ -191,11 +191,11 @@
 <script>
     import debounce from 'lodash.debounce'
     import {mapActions, mapGetters, mapState} from 'vuex'
-    import OrderStatus from './components/meta/OrderStatus'
-    import ShippingMethod from './components/meta/ShippingMethod'
-    import DateOrderedInput from './components/meta/DateOrderedInput'
-    import Field from './components/Field'
-    import mixins from './mixins'
+    import OrderStatus from '../components/meta/OrderStatus'
+    import ShippingMethod from '../components/meta/ShippingMethod'
+    import DateOrderedInput from '../components/meta/DateOrderedInput'
+    import Field from '../../base/components/Field'
+    import mixins from '../mixins'
 
     export default {
         name: 'order-meta-app',
@@ -328,7 +328,7 @@
 </script>
 
 <style lang="scss">
-    @import "~craftcms-sass/src/mixins";
+    @import "../../../../node_modules/craftcms-sass/src/mixins";
 
     .order-number-value {
         display: flex;

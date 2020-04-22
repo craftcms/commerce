@@ -181,7 +181,7 @@
 </script>
 
 <style lang="scss">
-    @import "~craftcms-sass/src/mixins";
+    @import "../../../../../node_modules/craftcms-sass/src/mixins";
 
     /* Starter */
 

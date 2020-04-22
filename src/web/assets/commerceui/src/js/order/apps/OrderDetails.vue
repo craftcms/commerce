@@ -58,7 +58,7 @@
 </template>
 
 <style lang="scss">
-    @import '../sass/app';
+    @import '../../../sass/order/app';
 
     .recalculate-action {
         margin-top: 14px;
@@ -75,10 +75,10 @@
 
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
-    import LineItems from './components/details/LineItems'
-    import AddLineItem from './components/details/AddLineItem'
-    import OrderAdjustments from './components/details/OrderAdjustments'
-    import Total from './components/details/Total'
+    import LineItems from '../components/details/LineItems'
+    import AddLineItem from '../components/details/AddLineItem'
+    import OrderAdjustments from '../components/details/OrderAdjustments'
+    import Total from '../components/details/Total'
 
     export default {
         name: 'order-details-app',
