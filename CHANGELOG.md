@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.3 - 2020-04-22
 
 ### Fixed
 - Fixed a PHP error that occurred when saving variants. ([#1403](https://github.com/craftcms/commerce/pull/1403))
