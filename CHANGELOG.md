@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an SQL error that could occur when saving an Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
+
 ## 3.1.3 - 2020-04-22
 
 ### Fixed
