@@ -28,7 +28,7 @@
                     <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
                 </field>
                 <div class="order-flex justify-center flex-grow" :class="{'pt': showLabels }">
-                    <btn-link button-class="btn-link btn-link--danger" @click="$emit('remove')">{{"X"}}</btn-link>
+                    <btn-link button-class="btn-link btn-link--danger icon delete" @click="$emit('remove')"></btn-link>
                 </div>
             </div>
         </template>
