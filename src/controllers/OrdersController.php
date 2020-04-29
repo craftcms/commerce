@@ -406,7 +406,17 @@ class OrdersController extends Controller
         $order->typeCastAttributes();
 
         $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
-        return $order->toArray($orderFields, $extraFields);
+
+        $orderArray = $order->toArray($orderFields, $extraFields);
+
+        if (!empty($orderArray['lineItems'])) {
+            foreach ($orderArray['lineItems'] as &$lineItem) {
+                $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+            }
+            unset($lineItem);
+        }
+
+        return $orderArray;
     }
 
     /**
