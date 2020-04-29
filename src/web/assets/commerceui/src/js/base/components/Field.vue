@@ -8,7 +8,7 @@
             </div>
         </div>
 
-        <div class="input">
+        <div class="input" :class="inputClass">
             <slot :id="id"></slot>
         </div>
 
@@ -34,6 +34,9 @@
                 default: function () {
                     return 'order-field-id-' + this._uid;
                 },
+            },
+            inputClass: {
+                type: [Object, String],
             },
             instructions: {
                 type: String,
