@@ -278,6 +278,13 @@
                 this.$emit('updateLineItem', lineItem)
             },
         },
+
+        mounted() {
+            // new line items should always be in edit mode
+            if (!this.lineItem.id) {
+                this.editMode = true;
+            }
+        },
     }
 </script>
 
