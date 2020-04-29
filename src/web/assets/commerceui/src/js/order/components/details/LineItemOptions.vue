@@ -7,21 +7,20 @@
         <div class="w-4/5">
             <template v-if="!editing">
                 <template v-if="Object.keys(lineItem.options).length">
-                    <ul :id="'info-' + lineItem.id">
-                        <template v-for="(option, key) in lineItem.options">
-                            <li :key="'option-'+key">
-                                <code>
-                                    {{key}}:
 
-                                    <template v-if="Array.isArray(option)">
+                        <template v-for="(option, key) in lineItem.options">
+                            <div class="order-flex" :key="'option-'+key">
+
+                            <span :key="'option-'+key" style="font-weight: bold; opacity: 0.7;">{{key}}:</span>
+                            <span :key="'option-'+key" style="margin-left: 0.25em;">
+                                    <template v-if="Array.isArray(option) || isObjectLike(option)">
                                         <code>{{ option }}</code>
                                     </template>
 
                                     <template v-else>{{ option }}</template>
-                                </code>
-                            </li>
+                            </span>
+                            </div>
                         </template>
-                    </ul>
                 </template>
             </template>
             <template v-else>
