@@ -48,7 +48,7 @@ class ShippingMethodOption extends ShippingMethod
                 // Substr because attribute is returned with 'AsCurrency' appended
                 $attribute = substr($attribute, 0, -10);
                 $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->_order->currency, [], [], true);
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->_order->currency);
             };
         }
 

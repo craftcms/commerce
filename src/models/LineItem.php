@@ -456,7 +456,7 @@ class LineItem extends Model
                 $attribute = substr($attribute, 0, -10);
                 if (!empty($model->$attribute)) {
                     if (is_numeric($model->$attribute)) {
-                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
+                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency);
                     }
                 }
 
