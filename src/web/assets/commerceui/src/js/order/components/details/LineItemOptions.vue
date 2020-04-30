@@ -7,20 +7,30 @@
         <div class="w-4/5">
             <template v-if="!editing">
                 <template v-if="Object.keys(lineItem.options).length">
-
+                    <template v-if="lineItem.showForm">
                         <template v-for="(option, key) in lineItem.options">
                             <div class="order-flex" :key="'option-'+key">
+                                <div class="line-item-option-key" :key="'option-'+key">{{key}}:</div>
+                                <div class="line-item-option-value" :key="'option-'+key">
+                                        <template v-if="Array.isArray(option) || isObjectLike(option)">
+                                            <code>{{ option }}</code>
+                                        </template>
 
-                            <span :key="'option-'+key" style="font-weight: bold; opacity: 0.7;">{{key}}:</span>
-                            <span :key="'option-'+key" style="margin-left: 0.25em;">
-                                    <template v-if="Array.isArray(option) || isObjectLike(option)">
-                                        <code>{{ option }}</code>
-                                    </template>
-
-                                    <template v-else>{{ option }}</template>
-                            </span>
+                                        <template v-else>{{ option }}</template>
+                                </div>
                             </div>
                         </template>
+                    </template>
+                    <template v-else>
+                        <template v-if="Array.isArray(lineItem.options) && lineItem.options.length">
+                            <ul class="line-item-options-list bullets">
+                                <li v-for="(row, key) in lineItem.options" :key="key">{{row}}</li>
+                            </ul>
+                        </template>
+                        <template v-else>
+                            <code>{{lineItem.options}}</code>
+                        </template>
+                    </template>
                 </template>
             </template>
             <template v-else>
@@ -323,13 +333,10 @@
 </script>
 
 <style lang="scss">
+    @import "../../../../../node_modules/craftcms-sass/src/mixins";
     /* PrismJS fix for .token conflict with Craft’s styles */
 
     .prism-editor-wrapper {
-
-        /*&.text {*/
-        /*    padding: 0;*/
-        /*}*/
 
         pre[class*="language-"] {
             padding: 0;
@@ -357,5 +364,28 @@
 
     .options-form .force-height {
         height: 100%;
+    }
+
+    .line-item-options-list.bullets {
+        list-style-position: inside;
+
+        body.ltr &, body.rtl & {
+            padding: 0;
+        }
+    }
+
+    .line-item-option-key {
+        color: $mediumDarkTextColor;
+        font-weight: bold;
+    }
+
+    .line-item-option-value {
+        body.ltr & {
+            padding-left: .25em;
+        }
+
+        body.rtl & {
+            padding-right: .25em;
+        }
     }
 </style>
