@@ -263,7 +263,7 @@ class Address extends Model
         $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
 
         $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
-            return ($model->countryId == null || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+            return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
         }];
         $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
