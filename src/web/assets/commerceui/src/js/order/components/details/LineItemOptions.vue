@@ -31,10 +31,13 @@
                     </template>
                 </template>
             </template>
-            <btn-link :button-class="'btn edit icon'"
-                      ref="editButton"
-                      @click="onEditOptions">{{$options.filters.t('Edit options', 'commerce')}}
-            </btn-link>
+
+            <div :class="{ pt: Object.keys(lineItem.options).length || lineItem.options.length }" v-if="editing">
+                <btn-link :button-class="'btn edit icon'"
+                          ref="editButton"
+                          @click="onEditOptions">{{$options.filters.t('Edit options', 'commerce')}}
+                </btn-link>
+            </div>
         </div>
 
         <modal :show-footer="true" :show="showModal" :hide="hideModal" @onHide="onModalHide" @onShow="onModalShow">
@@ -367,7 +370,7 @@
                 if (options !== false) {
                     lineItem.options = options;
                     this.$emit('updateLineItem', lineItem);
-                    this.hideModal = true;
+                    this.closeModal();
                 }
 
             },
