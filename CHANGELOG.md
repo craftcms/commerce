@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+- Improved the editing of line item options on the Edit Order page.
+- Made `craft\commerce\web\assets\commerceui\CommerceUiAsset` an abstract class. Use `craft\commerce\web\assets\commerceui\CommerceOrderAsset` instead.
+
 ### Fixed
 - Fixed an SQL error that could occur when saving an Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
 
