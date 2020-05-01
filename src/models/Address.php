@@ -260,7 +260,11 @@ class Address extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
+        $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
+
+        $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
+            return ($model->countryId == null || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+        }];
         $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
         $rules[] = [[
