@@ -478,7 +478,7 @@ class OrdersController extends Controller
      */
     public function actionPurchasablesTable()
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
