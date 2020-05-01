@@ -108,7 +108,7 @@
                                 <btn-link v-if="lineItem.showForm"
                                           :button-class="'btn add icon'"
                                           ref="addButton"
-                                          @click="onAddOption">{{$options.filters.t('Add option', 'commerce')}}
+                                          @click="onAddOption">{{$options.filters.t('Add an option', 'commerce')}}
                                 </btn-link>
                                 <div class="pl"
                                      :class="{hidden: !isWaiting}">
@@ -333,7 +333,7 @@
 
                     this.isWaiting = false;
                     if (!jsonValid) {
-                        this.errors = ['Invalid JSON']
+                        this.errors = [this.$options.filters.t('Invalid JSON', 'commerce')]
                         return false;
                     }
 
