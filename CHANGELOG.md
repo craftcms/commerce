@@ -11,6 +11,7 @@
 - Fixed a bug where it wasn’t possible to add a line item on the Edit Order page. ([#1424](https://github.com/craftcms/commerce/issues/1424))
 - Fixed a bug where user groups would be unset when saving a primary address on the Edit User page. ([#1421](https://github.com/craftcms/commerce/issues/1421))
 - Fixed an error that could occur when saving an address. ([#1417](https://github.com/craftcms/commerce/issues/1417))
+- Fixed a bug where entering a localized number for a base discount value would save incorrectly. ([#1400](https://github.com/craftcms/commerce/issues/1400))
 
 ## 3.1.3 - 2020-04-22
 
