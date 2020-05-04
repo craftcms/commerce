@@ -120,39 +120,39 @@ class Order extends Element
 
 
     /**
-     * Order payment exceeds amount due.
+     * Payments exceed order total.
      */
     const PAID_STATUS_OVERPAID = 'overPaid';
 
     /**
-     * Order payment equal to amount due.
+     * Payments equal order total.
      */
     const PAID_STATUS_PAID = 'paid';
 
     /**
-     * Order payment less than amount due.
+     * Payments less than order total.
      */
     const PAID_STATUS_PARTIAL = 'partial';
 
     /**
-     * No payments made for the order.
+     * Payments total zero on non-free order.
      */
     const PAID_STATUS_UNPAID = 'unpaid';
 
     /**
-     * Recalculates line item sales, populates from purchasables, and regenerates adjustments.
+     * Recalculates line items, populates from purchasables, and regenerates adjustments.
      */
     const RECALCULATION_MODE_ALL = 'all';
 
     /**
-     * Does not recalculate sales, populate from purchasable, or regenerate adjustments.
-     */
-    const RECALCULATION_MODE_NONE = 'none';
-
-    /**
-     * Does not recalculate sales or populate from purchasable; only regenerates adjustments.
+     * Recalculates adjustments only; does not recalculate line items or populate from purchasables.
      */
     const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
+
+    /**
+     * Does not recalculate anything on the order.
+     */
+    const RECALCULATION_MODE_NONE = 'none';
 
     /**
      * Order created from the front end.
@@ -165,7 +165,7 @@ class Order extends Element
     const ORIGIN_CP = 'cp';
 
     /**
-     * Order created by a remote API.
+     * Order created by a remote source.
      */
     const ORIGIN_REMOTE = 'remote';
 
