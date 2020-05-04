@@ -119,18 +119,55 @@ class Order extends Element
     use OrderElementTrait;
 
 
+    /**
+     * Order payment exceeds amount due.
+     */
     const PAID_STATUS_OVERPAID = 'overPaid';
+
+    /**
+     * Order payment equal to amount due.
+     */
     const PAID_STATUS_PAID = 'paid';
+
+    /**
+     * Order payment less than amount due.
+     */
     const PAID_STATUS_PARTIAL = 'partial';
+
+    /**
+     * No payments made for the order.
+     */
     const PAID_STATUS_UNPAID = 'unpaid';
 
-    const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
-    const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
-    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
+    /**
+     * Recalculates line item sales, populates from purchasables, and regenerates adjustments.
+     */
+    const RECALCULATION_MODE_ALL = 'all';
 
-    const ORIGIN_WEB = 'web'; // Did the order get created from the front-end
-    const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
-    const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
+    /**
+     * Does not recalculate sales, populate from purchasable, or regenerate adjustments.
+     */
+    const RECALCULATION_MODE_NONE = 'none';
+
+    /**
+     * Does not recalculate sales or populate from purchasable; only regenerates adjustments.
+     */
+    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
+
+    /**
+     * Order created from the front end.
+     */
+    const ORIGIN_WEB = 'web';
+
+    /**
+     * Order created from the control panel.
+     */
+    const ORIGIN_CP = 'cp';
+
+    /**
+     * Order created by a remote API.
+     */
+    const ORIGIN_REMOTE = 'remote';
 
     /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
