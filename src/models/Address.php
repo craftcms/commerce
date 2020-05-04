@@ -202,6 +202,7 @@ class Address extends Model
         $names = parent::attributes();
         $names[] = 'fullName';
         $names[] = 'countryText';
+        $names[] = 'countryIso';
         $names[] = 'stateText';
         $names[] = 'stateValue';
         $names[] = 'abbreviationText';
@@ -356,6 +357,16 @@ class Address extends Model
     public function getCountry()
     {
         return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
+    }
+
+    /**
+     * @return string
+     * @since 3.x
+     */
+    public function getCountryIso(): string
+    {
+        $country = $this->getCountry();
+        return $country ? $country->iso : '';
     }
 
     /**

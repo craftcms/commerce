@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
+- Added `craft\commerce\models\Address::getCountryIso()`.
+
 ### Fixed
 - Fixed an SQL error that could occur when saving a Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
 - Fixed a bug where it wasn’t possible to add a line item on the Edit Order page. ([#1424](https://github.com/craftcms/commerce/issues/1424))
