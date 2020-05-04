@@ -1158,8 +1158,14 @@ class OrdersController extends Controller
 
         $order->billingAddressId = $billingAddressId;
         $order->shippingAddressId = $shippingAddressId;
-        $order->billingAddress = $billingAddress;
-        $order->shippingAddress = $shippingAddress;
+
+        if ($billingAddress) {
+            $order->setBillingAddress($billingAddress);
+        }
+
+        if ($shippingAddress) {
+            $order->setShippingAddress($shippingAddress);
+        }
 
         $lineItems = [];
         $adjustments = [];

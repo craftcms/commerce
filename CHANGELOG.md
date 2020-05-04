@@ -12,6 +12,7 @@
 - Fixed a bug where user groups would be unset when saving a primary address on the Edit User page. ([#1421](https://github.com/craftcms/commerce/issues/1421))
 - Fixed an error that could occur when saving an address. ([#1417](https://github.com/craftcms/commerce/issues/1417))
 - Fixed a bug where entering a localized number for a base discount value would save incorrectly. ([#1400](https://github.com/craftcms/commerce/issues/1400))
+- Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
 
 ## 3.1.3 - 2020-04-22
 
