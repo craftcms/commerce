@@ -215,6 +215,7 @@ class Order extends Element
      *         // ...
      *     }
      * );
+     * ```
      */
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
