@@ -14,6 +14,7 @@
 - Fixed a bug where entering a localized number for a base discount value would save incorrectly. ([#1400](https://github.com/craftcms/commerce/issues/1400))
 - Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
 - Fixed a bug where orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
+- Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
 
 ## 3.1.3 - 2020-04-22
 
