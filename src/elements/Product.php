@@ -1247,4 +1247,18 @@ class Product extends Element
             }
         }
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setScenario($value)
+    {
+        foreach ($this->getVariants() as $variant){
+            $variant->setScenario($value);
+        }
+
+        parent::setScenario($value);
+    }
+
+
 }
