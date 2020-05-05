@@ -58,7 +58,7 @@ class Product extends ElementArguments
 
     /**
      * @inheritdoc
-     * @since 3.x
+     * @since 3.1.2
      */
     public static function getContentArguments(): array
     {
