@@ -4,9 +4,12 @@
 
 ### Added
 - Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
+- Added `craft\commerce\fields\Products::getContentGqlType()`.
+- Added `craft\commerce\fields\Variants::getContentGqlType()`.
 - Added `craft\commerce\models\Address::getCountryIso()`.
 
 ### Fixed
+- Fixed a bug where Product and Variant fields were returning the incorrect type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
 - Fixed an SQL error that could occur when saving a Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
 - Fixed a bug where it wasn’t possible to add a line item on the Edit Order page. ([#1424](https://github.com/craftcms/commerce/issues/1424))
 - Fixed a bug where user groups would be unset when saving a primary address on the Edit User page. ([#1421](https://github.com/craftcms/commerce/issues/1421))
