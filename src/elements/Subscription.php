@@ -334,7 +334,7 @@ class Subscription extends Element
         if (null === $this->_gateway) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
             if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
-                throw new InvalidConfigException('The gateway set for subscription does not support subsriptions.');
+                throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');
             }
         }
 
