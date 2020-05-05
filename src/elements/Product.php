@@ -24,6 +24,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
+use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQuery;
@@ -1035,6 +1036,9 @@ class Product extends Element
             }
 
             if ($canManage) {
+                // Duplicate
+                $actions[] = Duplicate::class;
+
                 // Allow deletion
                 $deleteAction = Craft::$app->getElements()->createAction([
                     'type' => DeleteProduct::class,
