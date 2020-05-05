@@ -118,7 +118,7 @@ class Product
         }
 
         if ($product === null) {
-            $product = static::productFromPost($product);
+            $product = static::productFromPost($request);
         }
 
         $product->enabled = (bool)$request->getBodyParam('enabled');
