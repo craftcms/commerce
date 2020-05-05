@@ -547,7 +547,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the Gql things
+     * Register the Gql interfaces
      */
     private function _registerGqlInterfaces()
     {
@@ -561,7 +561,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the Gql things
+     * Register the Gql queries
      */
     private function _registerGqlQueries()
     {
@@ -584,7 +584,7 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register the Gql things
+     * Register the Gql permissions
      */
     private function _registerGqlPermissions()
     {

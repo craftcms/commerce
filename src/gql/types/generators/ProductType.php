@@ -21,7 +21,7 @@ use craft\gql\TypeManager;
  * Class ProductType
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3
+ * @since 3.0
  */
 class ProductType implements GeneratorInterface
 {
