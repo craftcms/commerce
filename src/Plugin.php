@@ -588,7 +588,7 @@ class Plugin extends BasePlugin
 
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
-                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('app', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                    $productPermissions[$suffix . ':read'] = ['label' => self::t('View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
                 }
 
                 $permissions[$label] = $productPermissions;
