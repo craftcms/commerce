@@ -38,6 +38,12 @@ class Product extends Query
                 'resolve' => ProductResolver::class . '::resolve',
                 'description' => 'This query is used to query for products.'
             ],
+            'product' => [
+                'type' => ProductInterface::getType(),
+                'args' => ProductArguments::getArguments(),
+                'resolve' => ProductResolver::class . '::resolveOne',
+                'description' => 'This query is used to query for a product.'
+            ],
         ];
     }
 }

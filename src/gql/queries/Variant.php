@@ -38,6 +38,12 @@ class Variant extends Query
                 'resolve' => VariantResolver::class . '::resolve',
                 'description' => 'This query is used to query for variants.'
             ],
+            'variant' => [
+                'type' => VariantInterface::getType(),
+                'args' => VariantArguments::getArguments(),
+                'resolve' => VariantResolver::class . '::resolveOne',
+                'description' => 'This query is used to query for a variant.'
+            ],
         ];
     }
 }
