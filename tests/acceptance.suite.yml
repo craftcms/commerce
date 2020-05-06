@@ -7,8 +7,6 @@
 actor: AcceptanceTester
 modules:
     enabled:
-        - \craft\test\Craft
         - PhpBrowser:
             url: http://localhost/myapp
         - \Helper\Acceptance
-    step_decorators: ~
