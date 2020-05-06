@@ -61,7 +61,7 @@ class Subscriptions extends Component
      *     function(SubscriptionEvent $event) {
      *         // @var Subscription $subscription
      *         $subscription = $event->subscription;
-     *         
+     *
      *         // Make a call to third party service to de-authorize a user
      *         // ...
      *     }
@@ -93,7 +93,7 @@ class Subscriptions extends Component
      *         $plan = $event->plan;
      *         // @var SubscriptionForm $params
      *         $params = $event->parameters;
-     * 
+     *
      *         // Set the trial days based on some business logic
      *         // ...
      *     }
@@ -110,14 +110,14 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use craft\commerce\elements\Subscription;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_AFTER_CREATE_SUBSCRIPTION,
      *     function(SubscriptionEvent $event) {
      *         // @var Subscription $subscription
      *         $subscription = $event->subscription;
-     * 
+     *
      *         // Call a third party service to authorize a user
      *         // ...
      *     }
@@ -136,14 +136,14 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use craft\commerce\elements\Subscription;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION,
      *     function(SubscriptionEvent $event) {
      *         // @var Subscription $subscription
      *         $subscription = $event->subscription;
-     * 
+     *
      *         // Use business logic to determine whether the user can reactivate
      *         // ...
      *     }
@@ -160,14 +160,14 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use craft\commerce\elements\Subscription;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_AFTER_REACTIVATE_SUBSCRIPTION,
      *     function(SubscriptionEvent $event) {
      *         // @var Subscription $subscription
      *         $subscription = $event->subscription;
-     * 
+     *
      *         // Re-authorize the user with a third-party service
      *         // ...
      *     }
@@ -201,7 +201,7 @@ class Subscriptions extends Component
      *         $newPlan = $event->newPlan;
      *         // @var SwitchPlansForm $params
      *         $params = $event->parameters;
-     * 
+     *
      *         // Modify the switch parameters based on some business logic
      *         // ...
      *     }
@@ -220,7 +220,7 @@ class Subscriptions extends Component
      * use craft\commerce\elements\Subscription;
      * use craft\commerce\models\subscriptions\SwitchPlansForm;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_AFTER_SWITCH_SUBSCRIPTION_PLAN,
@@ -233,7 +233,7 @@ class Subscriptions extends Component
      *         $newPlan = $event->newPlan;
      *         // @var SwitchPlansForm $params
      *         $params = $event->parameters;
-     * 
+     *
      *         // Adjust the user’s permissions on a third party service
      *         // ...
      *     }
@@ -253,7 +253,7 @@ class Subscriptions extends Component
      * use craft\commerce\elements\Subscription;
      * use craft\commerce\models\subscriptions\CancelSubscriptionForm;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_BEFORE_CANCEL_SUBSCRIPTION,
@@ -262,7 +262,7 @@ class Subscriptions extends Component
      *         $subscription = $event->subscription;
      *         // @var CancelSubscriptionForm $params
      *         $params = $event->parameters;
-     * 
+     *
      *         // Check whether the user is permitted to cancel the subscription
      *         // ...
      *     }
@@ -306,14 +306,14 @@ class Subscriptions extends Component
      * use craft\commerce\services\Subscriptions;
      * use craft\commerce\elements\Subscription;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Subscriptions::class,
      *     Subscriptions::EVENT_BEFORE_UPDATE_SUBSCRIPTION,
      *     function(SubscriptionEvent $event) {
      *         // @var Subscription $subscription
      *         $subscription = $event->subscription;
-     * 
+     *
      *         // ...
      *     }
      * );
@@ -503,18 +503,18 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_CREATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Plugin::t( 'Subscription for {user} to {plan} prevented by a plugin.', [
+            $error = Plugin::t('Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
                 'plan' => (string)$plan
             ]);
 
             Craft::error($error, __METHOD__);
 
-            throw new SubscriptionException(Plugin::t( 'Unable to subscribe at this time.'));
+            throw new SubscriptionException(Plugin::t('Unable to subscribe at this time.'));
         }
 
         $response = $gateway->subscribe($user, $plan, $parameters);
-        
+
         $failedToStart = $response->isInactive();
 
         $subscription = new Subscription();
@@ -574,7 +574,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Plugin::t( 'Subscription "{reference}" reactivation was cancelled by a plugin.', [
+            $error = Plugin::t('Subscription "{reference}" reactivation was cancelled by a plugin.', [
                 'reference' => $subscription->reference,
             ]);
 
@@ -639,7 +639,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
-            $error = Plugin::t( 'Subscription "{reference}" switch to "{plan}" was cancelled by a plugin.', [
+            $error = Plugin::t('Subscription "{reference}" switch to "{plan}" was cancelled by a plugin.', [
                 'reference' => $subscription->reference,
                 'plan' => $plan->reference
             ]);
@@ -694,7 +694,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_CANCEL_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Plugin::t( 'Subscription "{reference}" cancellation was prevented by a plugin.', [
+            $error = Plugin::t('Subscription "{reference}" cancellation was prevented by a plugin.', [
                 'reference' => $subscription->reference,
             ]);
 
@@ -718,7 +718,7 @@ class Subscriptions extends Component
                 $subscription->dateExpired = Db::prepareDateForDb(new DateTime());
             }
 
-            $subscription->subscriptionData = $response->getData();
+            $subscription->setSubscriptionData($response->getData());
 
             try {
                 Craft::$app->getElements()->saveElement($subscription, false);
@@ -730,7 +730,7 @@ class Subscriptions extends Component
             } catch (Throwable $exception) {
                 Craft::warning('Failed to cancel subscription ' . $subscription->reference . ': ' . $exception->getMessage());
 
-                throw new SubscriptionException(Plugin::t( 'Unable to cancel subscription at this time.'));
+                throw new SubscriptionException(Plugin::t('Unable to cancel subscription at this time.'));
             }
         }
 

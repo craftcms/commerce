@@ -16,7 +16,7 @@
 
         <template v-if="editing && recalculationMode === 'none'">
             <div class="adjustment-actions">
-                <btn-link @click="$emit('addAdjustment')">{{"Add an adjustment"|t('commerce')}}</btn-link>
+                <btn-link button-class="btn add icon" @click="$emit('addAdjustment')">{{"Add an adjustment"|t('commerce')}}</btn-link>
             </div>
         </template>
     </div>
