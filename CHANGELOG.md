@@ -9,6 +9,10 @@
 - Added `craft\commerce\fields\Variants::getContentGqlType()`.
 - Added `craft\commerce\models\Address::getCountryIso()`.
 
+### Changed
+- Improved the editing of line item options on the Edit Order page.
+- Made `craft\commerce\web\assets\commerceui\CommerceUiAsset` an abstract class. Use `craft\commerce\web\assets\commerceui\CommerceOrderAsset` instead.
+
 ### Fixed
 - Fixed a bug where Product and Variant fields were returning the incorrect type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
 - Fixed an SQL error that could occur when saving a Product ([#1407](https://github.com/craftcms/commerce/pull/1407))

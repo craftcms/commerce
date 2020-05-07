@@ -20,8 +20,18 @@ use craft\web\assets\vue\VueAsset;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class CommerceUiAsset extends AssetBundle
+abstract class CommerceUiAsset extends AssetBundle
 {
+    /**
+     * @var string
+     */
+    protected $appJs = 'app.js';
+
+    /**
+     * @var string
+     */
+    protected $appCss = 'app.css';
+
     /**
      * @inheritdoc
      */
@@ -39,13 +49,13 @@ class CommerceUiAsset extends AssetBundle
         if ($this->getDevServer()) {
             // Development
             $devServer = static::getDevServer();
-            $this->js[] = $devServer.'/app.js';
+            $this->js[] = $devServer . '/' . $this->appJs;
         } else {
             // Production
             $this->js[] = 'js/chunk-vendors.js';
-            $this->js[] = 'js/app.js';
+            $this->js[] = 'js/' . $this->appJs;
             $this->css[] = 'css/chunk-vendors.css';
-            $this->css[] = 'css/app.css';
+            $this->css[] = 'css/' . $this->appCss;
         }
 
         parent::init();

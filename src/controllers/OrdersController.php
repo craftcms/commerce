@@ -27,7 +27,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\commerce\web\assets\commerceui\CommerceUiAsset;
+use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
@@ -406,7 +406,17 @@ class OrdersController extends Controller
         $order->typeCastAttributes();
 
         $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
-        return $order->toArray($orderFields, $extraFields);
+
+        $orderArray = $order->toArray($orderFields, $extraFields);
+
+        if (!empty($orderArray['lineItems'])) {
+            foreach ($orderArray['lineItems'] as &$lineItem) {
+                $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+            }
+            unset($lineItem);
+        }
+
+        return $orderArray;
     }
 
     /**
@@ -963,7 +973,7 @@ class OrdersController extends Controller
      */
     private function _registerJavascript(array $variables)
     {
-        Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
+        Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
