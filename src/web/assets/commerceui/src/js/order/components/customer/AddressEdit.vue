@@ -34,7 +34,7 @@
               <a
                 :class="{ disabled: !draftAddress }"
                 :disabled="!draftAddress"
-                class="error" @click.prevent="">{{$options.filters.t('Remove address', 'commerce')}}</a>
+                class="error" @click.prevent="$emit('remove')">{{$options.filters.t('Remove address', 'commerce')}}</a>
             </li>
           </ul>
         </div>

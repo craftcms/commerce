@@ -1,5 +1,5 @@
 <template>
-  <div v-if="draft">
+  <div v-if="draft" :class="{'order-opacity-50': recalculateLoading || saveLoading}">
     <div>
       <div class="order-flex justify-between align-center pb">
         <h3 class="m-0">{{$options.filters.t('Customer', 'commerce')}}</h3>
@@ -58,6 +58,7 @@
           :empty-message="$options.filters.t('No billing address', 'commerce')"
           :customer-updated="customerUpdatedTime"
           @update="updateBillingAddress"
+          @remove="removeBillingAddress"
         ></address-edit>
       </div>
 
@@ -69,6 +70,7 @@
           :empty-message="$options.filters.t('No shipping address', 'commerce')"
           :customer-updated="customerUpdatedTime"
           @update="updateShippingAddress"
+          @remove="removeShippingAddress"
         ></address-edit>
       </div>
 
@@ -171,12 +173,26 @@
                 this.updateAddress('shipping', address);
             },
 
+            removeBillingAddress() {
+                this.updateAddress('billing', null);
+            },
+
+            removeShippingAddress() {
+                this.updateAddress('shipping', null);
+            },
+
             updateAddress(type, address, recalculate = true) {
                 let draft = this.draft;
                 let key = type + 'Address';
                 let idKey = key + 'Id'
-                draft.order[key] = address;
-                draft.order[idKey] = address.id;
+
+                if (address) {
+                    draft.order[key] = address;
+                    draft.order[idKey] = address.id;
+                } else {
+                    draft.order[key] = null;
+                    draft.order[idKey] = null;
+                }
 
                 this.draft = draft;
 
