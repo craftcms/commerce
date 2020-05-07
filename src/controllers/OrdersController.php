@@ -488,7 +488,7 @@ class OrdersController extends Controller
      */
     public function actionPurchasablesTable()
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
@@ -1168,8 +1168,14 @@ class OrdersController extends Controller
 
         $order->billingAddressId = $billingAddressId;
         $order->shippingAddressId = $shippingAddressId;
-        $order->billingAddress = $billingAddress;
-        $order->shippingAddress = $shippingAddress;
+
+        if ($billingAddress) {
+            $order->setBillingAddress($billingAddress);
+        }
+
+        if ($shippingAddress) {
+            $order->setShippingAddress($shippingAddress);
+        }
 
         $lineItems = [];
         $adjustments = [];

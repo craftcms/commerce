@@ -2,12 +2,27 @@
 
 ## Unreleased
 
+### Added
+- It’s now possible to query for a single product or variant via GraphQL.
+- Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
+- Added `craft\commerce\fields\Products::getContentGqlType()`.
+- Added `craft\commerce\fields\Variants::getContentGqlType()`.
+- Added `craft\commerce\models\Address::getCountryIso()`.
+
 ### Changed
 - Improved the editing of line item options on the Edit Order page.
 - Made `craft\commerce\web\assets\commerceui\CommerceUiAsset` an abstract class. Use `craft\commerce\web\assets\commerceui\CommerceOrderAsset` instead.
 
 ### Fixed
-- Fixed an SQL error that could occur when saving an Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
+- Fixed a bug where Product and Variant fields were returning the incorrect type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
+- Fixed an SQL error that could occur when saving a Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
+- Fixed a bug where it wasn’t possible to add a line item on the Edit Order page. ([#1424](https://github.com/craftcms/commerce/issues/1424))
+- Fixed a bug where user groups would be unset when saving a primary address on the Edit User page. ([#1421](https://github.com/craftcms/commerce/issues/1421))
+- Fixed an error that could occur when saving an address. ([#1417](https://github.com/craftcms/commerce/issues/1417))
+- Fixed a bug where entering a localized number for a base discount value would save incorrectly. ([#1400](https://github.com/craftcms/commerce/issues/1400))
+- Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
+- Fixed a bug where orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
+- Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
 
 ## 3.1.3 - 2020-04-22
 

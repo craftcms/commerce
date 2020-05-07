@@ -417,6 +417,7 @@ class Addresses extends Component
 
         // Remove readonly attributes
         $readOnly = [
+            'countryIso',
             'countryText',
             'stateText',
             'abbreviationText',

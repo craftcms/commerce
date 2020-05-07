@@ -119,18 +119,55 @@ class Order extends Element
     use OrderElementTrait;
 
 
+    /**
+     * Payments exceed order total.
+     */
     const PAID_STATUS_OVERPAID = 'overPaid';
+
+    /**
+     * Payments equal order total.
+     */
     const PAID_STATUS_PAID = 'paid';
+
+    /**
+     * Payments less than order total.
+     */
     const PAID_STATUS_PARTIAL = 'partial';
+
+    /**
+     * Payments total zero on non-free order.
+     */
     const PAID_STATUS_UNPAID = 'unpaid';
 
-    const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
-    const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
-    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
+    /**
+     * Recalculates line items, populates from purchasables, and regenerates adjustments.
+     */
+    const RECALCULATION_MODE_ALL = 'all';
 
-    const ORIGIN_WEB = 'web'; // Did the order get created from the front-end
-    const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
-    const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
+    /**
+     * Recalculates adjustments only; does not recalculate line items or populate from purchasables.
+     */
+    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
+
+    /**
+     * Does not recalculate anything on the order.
+     */
+    const RECALCULATION_MODE_NONE = 'none';
+
+    /**
+     * Order created from the front end.
+     */
+    const ORIGIN_WEB = 'web';
+
+    /**
+     * Order created from the control panel.
+     */
+    const ORIGIN_CP = 'cp';
+
+    /**
+     * Order created by a remote source.
+     */
+    const ORIGIN_REMOTE = 'remote';
 
     /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
@@ -178,6 +215,7 @@ class Order extends Element
      *         // ...
      *     }
      * );
+     * ```
      */
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
