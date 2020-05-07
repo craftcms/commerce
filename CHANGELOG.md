@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- It’s now possible to query for a single product or variant via GraphQL.
 - Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
 - Added `craft\commerce\fields\Products::getContentGqlType()`.
 - Added `craft\commerce\fields\Variants::getContentGqlType()`.

@@ -12,6 +12,7 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\services\Discounts;
 use craft\commerce\test\mockclasses\Purchasable;
@@ -59,7 +60,6 @@ class DiscountsTest extends Unit
             ]
         ];
     }
-
 
     /**
      *
@@ -221,7 +221,7 @@ class DiscountsTest extends Unit
         $explanation = '';
         $result = $this->discounts->orderCouponAvailable($order, $explanation);
         $this->assertFalse($result);
-        $this->assertSame('This coupon limited to 1 uses.', $explanation);
+        $this->assertSame('This coupon is limited to 1 uses.', $explanation);
     }
 
     /**
@@ -278,12 +278,23 @@ class DiscountsTest extends Unit
     {
         // TODO: Update this test to create a full real order that saves.
 
+
+        /** @var Order $order */
+        $order = $this->make(Order::class, [
+            'getAdjustmentsByType' => function($type) {
+                $adjustment = new OrderAdjustment();
+                $adjustment->sourceSnapshot = ['discountUseId' => 1000];
+
+                return [$adjustment];
+            }
+        ]);
+        $order->couponCode = 'discount_1';
+        $order->customerId = '1000';
+
         $this->updateOrderCoupon([
             'perUserLimit' => '0',
             'perEmailLimit' => '0'
         ]);
-
-        $order = new Order(['couponCode' => 'discount_1', 'customerId' => '1000']);
 
         $this->discounts->orderCompleteHandler($order);
 
@@ -294,7 +305,7 @@ class DiscountsTest extends Unit
             ->where(['code' => 'discount_1'])
             ->scalar();
 
-        $this->assertSame(3, $totalUses);
+        $this->assertSame(1, $totalUses);
 
         // Get the Customer Discount Uses
         $customerUses = (new Query())
