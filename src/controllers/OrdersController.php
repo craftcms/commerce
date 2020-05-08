@@ -446,7 +446,7 @@ class OrdersController extends Controller
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
             ->select(['id', 'price', 'description', 'sku'])
-            ->from('{{%commerce_purchasables}}');
+            ->from(Table::PURCHASABLES);
 
         // Are they searching for a purchasable ID?
         if (is_numeric($query)) {
@@ -502,7 +502,7 @@ class OrdersController extends Controller
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
             ->select(['id', 'price', 'description', 'sku'])
-            ->from('{{%commerce_purchasables}}');
+            ->from(Table::PURCHASABLES);
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {
