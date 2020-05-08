@@ -83,6 +83,10 @@ export default new Vuex.Store({
             return window.orderEdit.pdfUrls
         },
 
+        originalCustomer() {
+            return window.orderEdit.originalCustomer
+        },
+
         maxLineItems(state, getters) {
             if (getters.edition === 'lite') {
                 return 1
@@ -170,7 +174,7 @@ export default new Vuex.Store({
 
         userPhotoFallback() {
             return window.orderEdit.userPhotoFallback
-        }
+        },
     },
 
     actions: {

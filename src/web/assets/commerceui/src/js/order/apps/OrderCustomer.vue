@@ -17,6 +17,7 @@
             firstName: draft.order.billingAddress && draft.order.billingAddress.firstName ? draft.order.billingAddress.firstName : null,
             lastName: draft.order.billingAddress && draft.order.billingAddress.lastName ? draft.order.billingAddress.lastName : null,
             user: user,
+            url: customerUrl,
           }"
           :display="true"
           :show-remove="editing && editMode"
@@ -97,6 +98,7 @@
             return {
                 customerId: null,
                 customerUpdatedTime: null,
+                customerUrl: null,
                 editMode: false,
                 titles: {
                     billingAddress: this.$options.filters.t('Billing Address', 'commerce'),
@@ -125,6 +127,7 @@
             ...mapGetters([
                 'hasCustomer',
                 'hasAddresses',
+                'originalCustomer',
             ]),
 
             ...mapState({
@@ -209,6 +212,7 @@
                     draft.order.email = customer.email;
                     this.user = customer.user;
                     this.photo = customer.photo;
+                    this.customerUrl = customer.url;
                     this.draft = draft;
 
                     if (!draft.order.isCompleted && (customer.primaryBillingAddressId || customer.primaryShippingAddressId)) {
@@ -278,6 +282,11 @@
 
             if (!this.hasCustomer) {
                 this.editMode = true;
+            }
+
+            if (this.originalCustomer) {
+                this.customerUrl = this.originalCustomer.url;
+                this.user = this.originalCustomer.user;
             }
         },
 

@@ -546,7 +546,6 @@ class OrdersController extends Controller
     {
         $limit = 30;
         $customers = [];
-        $currentUser = Craft::$app->getUser()->getIdentity();
 
         if ($query === null) {
             return $this->asJson($customers);
@@ -558,15 +557,7 @@ class OrdersController extends Controller
 
         $customers = $customersQuery->all();
 
-        foreach ($customers as &$customer) {
-            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
-            $customer['user'] = $user ? [
-                'title' => $user ? $user->__toString() : null,
-                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
-                'status' => $user ? $user->getStatus() : null,
-            ] : null;
-            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
-        }
+        $customers = $this->_prepCustomersArray($customers);
 
         return $this->asJson($customers);
     }
@@ -1002,7 +993,18 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"');
+        Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
+
+        $customer = null;
+        if ($variables['order']->customerId) {
+            $customerQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery()->andWhere(['customers.id' => $variables['order']->customerId]);
+            $customers = $this->_prepCustomersArray($customerQuery->all());
+
+            if (!empty($customers)) {
+                $customer = ArrayHelper::firstValue($customers);
+            }
+        }
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = '. Json::encode($customer), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1378,5 +1380,32 @@ class OrdersController extends Controller
             }
         }
         return $purchasables;
+    }
+
+    /**
+     * @param array $customers
+     * @return array
+     * @since 3.x
+     */
+    private function _prepCustomersArray(array $customers): array
+    {
+        if (empty($customers)) {
+            return [];
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        foreach ($customers as &$customer) {
+            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
+            $customer['user'] = $user ? [
+                'title' => $user ? $user->__toString() : null,
+                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
+                'status' => $user ? $user->getStatus() : null,
+            ] : null;
+            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
+            $customer['url'] = $currentUser->can('commerce-manageCustomers') ? UrlHelper::cpUrl('commerce/customers/' . $customer['id']) : null;
+        }
+
+        return $customers;
     }
 }
