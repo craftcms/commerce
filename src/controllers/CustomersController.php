@@ -14,9 +14,12 @@ use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -70,9 +73,13 @@ class CustomersController extends BaseCpController
     }
 
     /**
+     * @return Response|null
      * @throws HttpException
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave(): Response
+    public function actionSave()
     {
         $this->requirePostRequest();
 
@@ -99,7 +106,7 @@ class CustomersController extends BaseCpController
 
     /**
      * @return Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
      */
     public function actionCustomersTable(): Response
     {
