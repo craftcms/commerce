@@ -969,7 +969,7 @@ class Product extends Element
 
             $sources[$key] = [
                 'key' => $key,
-                'label' => $productType->name,
+                'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
                     'editable' => $canEditProducts
