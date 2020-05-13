@@ -414,7 +414,7 @@ class Variant extends Purchasable
         }
 
         // If title is not set yet default to blank string
-        return $description;
+        return (string)$description;
     }
 
     /**
