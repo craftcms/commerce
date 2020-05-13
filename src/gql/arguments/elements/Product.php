@@ -36,7 +36,7 @@ class Product extends ElementArguments
             'defaultPrice' => [
                 'name' => 'defaultPrice',
                 'type' => Type::listOf(QueryArgument::getType()),
-                'description' => 'Narrows the query results based on teh default price on the product.'
+                'description' => 'Narrows the query results based on the default price on the product.'
             ],
             'editable' => [
                 'name' => 'editable',
@@ -58,7 +58,7 @@ class Product extends ElementArguments
 
     /**
      * @inheritdoc
-     * @since 3.x
+     * @since 3.1.2
      */
     public static function getContentArguments(): array
     {

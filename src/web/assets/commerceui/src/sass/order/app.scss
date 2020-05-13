@@ -1,0 +1,35 @@
+@import "../../../node_modules/craftcms-sass/src/mixins";
+$lightGrey: #eee;
+
+@import "../base/craft-classes";
+@import "../base/vue-select";
+@import "../base/common";
+@import "./modal";
+
+.order-box-sizing * {
+  box-sizing: border-box;
+}
+
+.order-flex {
+  display: flex;
+}
+
+.order-flex-grow {
+  flex-grow: 1;
+}
+
+.order-opacity-50 {
+  opacity: .5;
+}
+
+.orderedit-border-t {
+  border-top: 1px solid;
+}
+
+.orderedit-border-b {
+  border-bottom: 1px solid;
+}
+
+.orderedit-border-color {
+  border-color: #eee;
+}

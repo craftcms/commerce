@@ -119,18 +119,55 @@ class Order extends Element
     use OrderElementTrait;
 
 
+    /**
+     * Payments exceed order total.
+     */
     const PAID_STATUS_OVERPAID = 'overPaid';
+
+    /**
+     * Payments equal order total.
+     */
     const PAID_STATUS_PAID = 'paid';
+
+    /**
+     * Payments less than order total.
+     */
     const PAID_STATUS_PARTIAL = 'partial';
+
+    /**
+     * Payments total zero on non-free order.
+     */
     const PAID_STATUS_UNPAID = 'unpaid';
 
-    const RECALCULATION_MODE_ALL = 'all'; // Recalculates line item sales, populates from purchasables, and regenerates adjustments
-    const RECALCULATION_MODE_NONE = 'none'; // Does not recalc sales, or populate from purchasable, or regenerate adjustments
-    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly'; // Does not recalc sales, or populate from purchasable, and only regenerate adjustments
+    /**
+     * Recalculates line items, populates from purchasables, and regenerates adjustments.
+     */
+    const RECALCULATION_MODE_ALL = 'all';
 
-    const ORIGIN_WEB = 'web'; // Did the order get created from the front-end
-    const ORIGIN_CP = 'cp'; // Did the order get created from the control panel
-    const ORIGIN_REMOTE = 'remote'; // Was the order created by a remote API
+    /**
+     * Recalculates adjustments only; does not recalculate line items or populate from purchasables.
+     */
+    const RECALCULATION_MODE_ADJUSTMENTS_ONLY = 'adjustmentsOnly';
+
+    /**
+     * Does not recalculate anything on the order.
+     */
+    const RECALCULATION_MODE_NONE = 'none';
+
+    /**
+     * Order created from the front end.
+     */
+    const ORIGIN_WEB = 'web';
+
+    /**
+     * Order created from the control panel.
+     */
+    const ORIGIN_CP = 'cp';
+
+    /**
+     * Order created by a remote source.
+     */
+    const ORIGIN_REMOTE = 'remote';
 
     /**
      * @event \yii\base\Event The event that is triggered before a new line item has been added to the order.
@@ -178,6 +215,7 @@ class Order extends Element
      *         // ...
      *     }
      * );
+     * ```
      */
     const EVENT_AFTER_ADD_LINE_ITEM = 'afterAddLineItemToOrder';
 
@@ -1671,7 +1709,8 @@ class Order extends Element
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
             // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
+            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
@@ -1684,7 +1723,8 @@ class Order extends Element
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
             // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
+            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);

@@ -394,7 +394,6 @@ class LineItems extends Component
                 'id',
                 'options',
                 'price',
-                'saleAmount',
                 'salePrice',
                 'sku',
                 'description',

@@ -23,6 +23,7 @@ use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use craft\events\ModelEvent;
+use craft\events\UserEvent as CraftUserEvent;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -862,8 +863,22 @@ class Customers extends Component
         $customer = $this->getCustomerByUserId($event->sender->id);
 
         // Create a new customer for a user that does not have a customer
-        if (!$customer) {
-            $customer = new Customer(['userId' => $event->sender->id]);
+        if (!$customer && $event->sender->email) {
+            $existingCustomerIdByEmail = (new Query())
+                ->select('orders.customerId')
+                ->from(Table::ORDERS . ' orders')
+                ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
+                ->where(['orders.email' => $event->sender->email])
+                ->andWhere(['orders.isCompleted' => true])
+                ->orderBy('[[orders.dateOrdered]] ASC')
+                ->scalar(); // get the first customerId in the result
+
+            if ($customer = $this->getCustomerById($existingCustomerIdByEmail)) {
+                $customer->userId = $event->sender->id;
+            } else {
+                $customer = new Customer(['userId' => $event->sender->id]);
+            }
+
             $this->saveCustomer($customer);
         }
     }

@@ -181,7 +181,7 @@ class OrderStatuses extends Component
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
             ->where(['[[o.isCompleted]]' => true, '[[e.dateDeleted]]' => null])
             ->from([Table::ORDERS . ' o'])
-            ->leftJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
+            ->innerJoin([CraftTable::ELEMENTS . ' e'], '[[o.id]] = [[e.id]]')
             ->groupBy(['[[o.orderStatusId]]'])
             ->indexBy('orderStatusId')
             ->all();

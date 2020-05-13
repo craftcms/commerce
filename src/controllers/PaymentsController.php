@@ -343,6 +343,11 @@ class PaymentsController extends BaseFrontEndController
         $transaction = null;
         $paymentForm->validate();
 
+        // Make sure during this payment request the order does not recalculate.
+        // We don't want to save the order in this mode in case the payment fails. The customer should still be able to edit and recalculate the cart.
+        // When the order is marked as complete from a payment later, the order will be set to 'recalculate none' mode permanently.
+        $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
                 $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);

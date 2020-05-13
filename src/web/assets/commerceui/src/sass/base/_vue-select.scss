@@ -1,0 +1,110 @@
+@import "../../../node_modules/vue-select/src/scss/global/variables";
+
+$vs-state-active-bg: $lightSelColor;
+$vs-state-active-color: $textColor;
+
+@import "../../../node_modules/vue-select/src/scss/global/component";
+@import "../../../node_modules/vue-select/src/scss/global/animations";
+@import "../../../node_modules/vue-select/src/scss/global/states";
+
+@import "../../../node_modules/vue-select/src/scss/modules/dropdown-toggle";
+@import "../../../node_modules/vue-select/src/scss/modules/open-indicator";
+@import "../../../node_modules/vue-select/src/scss/modules/clear";
+@import "../../../node_modules/vue-select/src/scss/modules/dropdown-menu";
+@import "../../../node_modules/vue-select/src/scss/modules/dropdown-option";
+@import "../../../node_modules/vue-select/src/scss/modules/selected";
+@import "../../../node_modules/vue-select/src/scss/modules/search-input";
+@import "../../../node_modules/vue-select/src/scss/modules/spinner";
+
+
+/* VSelect */
+
+.v-select-btn {
+  display: flex;
+  min-width: 0;
+  padding: 0;
+
+  .v-select {
+    flex: 1;
+    min-width: 0;
+
+    &.vs--searching {
+      .vs__dropdown-toggle {
+        .vs__selected-options {
+          .vs__search,
+          .vs__search:focus {
+            padding: 6px 12px;
+          }
+        }
+      }
+    }
+
+    &.vs--loading {
+      .vs__open-indicator {
+        display: none;
+      }
+    }
+
+    .vs__dropdown-toggle {
+      border: 0;
+      border-radius: 0;
+      min-width: 0;
+      padding: 0;
+
+      .vs__selected-options {
+        min-width: 0;
+        flex-wrap: nowrap;
+        padding: 0;
+
+        .vs__search,
+        .vs__search:focus {
+          padding: 6px 12px;
+          margin: 0;
+          min-width: 0;
+        }
+
+        .vs__search::placeholder {
+          color: $lightTextColor;
+        }
+
+        .vs__selected {
+          min-width: 0;
+          margin: 0;
+          padding: 6px 12px;
+          @include padding-right(20px);
+          left: 0;
+          right: 0;
+          text-align: left;
+          position: absolute;
+          overflow: hidden;
+
+          & > div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+      }
+    }
+
+    .vs__actions {
+      .spinner-wrapper, .vs__spinner {
+        position: relative;
+        width: 24px;
+        height: 24px;
+        overflow: hidden;
+        background: none;
+
+        .spinner {
+          position: absolute;
+          top: -6px;
+          right: 0px;
+        }
+      }
+
+      .vs__open-indicator {
+        width: 24px;
+      }
+    }
+  }
+}
