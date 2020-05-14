@@ -1709,7 +1709,8 @@ class Order extends Element
         // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
             // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
+            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 Plugin::getInstance()->getCustomers()->saveAddress($shippingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
@@ -1722,7 +1723,8 @@ class Order extends Element
         // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
             // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted) {
+            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
+            if ($customer && ($noCustomerUserOrCurrentUser || !$currentUserDoesntMatchCustomerUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 Plugin::getInstance()->getCustomers()->saveAddress($billingAddress, $customer, false);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
