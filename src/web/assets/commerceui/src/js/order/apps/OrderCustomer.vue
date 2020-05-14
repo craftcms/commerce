@@ -55,10 +55,12 @@
         <address-edit
           :title="titles.billingAddress"
           :address="draft.order.billingAddress"
+          :copy-to-address="$options.filters.t('shipping address', 'commerce')"
           :customer-id="draft.order.customerId"
           :empty-message="$options.filters.t('No billing address', 'commerce')"
           :customer-updated="customerUpdatedTime"
           @update="updateBillingAddress"
+          @copy="copyAddress('shipping')"
           @remove="removeBillingAddress"
         ></address-edit>
       </div>
@@ -67,10 +69,12 @@
         <address-edit
           :title="titles.shippingAddress"
           :address="draft.order.shippingAddress"
+          :copy-to-address="$options.filters.t('billing address', 'commerce')"
           :customer-id="draft.order.customerId"
           :empty-message="$options.filters.t('No shipping address', 'commerce')"
           :customer-updated="customerUpdatedTime"
           @update="updateShippingAddress"
+          @copy="copyAddress('billing')"
           @remove="removeShippingAddress"
         ></address-edit>
       </div>
@@ -166,6 +170,24 @@
             enableEditMode() {
                 this.editMode = true;
                 this.edit();
+            },
+
+            copyAddress(destinationAddress) {
+                if (destinationAddress == 'shipping'
+                    && this.hasShippingAddress
+                    && !confirm(this.$options.filters.t('Are you sure you want to overwrite the shipping address?', 'commerce'))
+                ) {
+                    return;
+                } else if (destinationAddress == 'billing'
+                    && this.hasBillingAddress
+                    && !confirm(this.$options.filters.t('Are you sure you want to overwrite the billing address?', 'commerce'))
+                ) {
+                    return;
+                }
+
+                let addressToCopy = (destinationAddress == 'shipping') ? this.draft.order.billingAddress : this.draft.order.shippingAddress;
+
+                this.updateAddress(destinationAddress, addressToCopy);
             },
 
             updateBillingAddress(address) {
