@@ -1,0 +1,33 @@
+{% set templates = [
+    {
+        label: "products/index.twig",
+        url: 'shop/products'
+    },
+    {
+        label: "plans/index.twig",
+        url: 'shop/plans'
+    },
+    {
+        label: "donations/index.twig",
+        url: 'shop/donations'
+    },
+    {
+        label: "cart/index.twig",
+        url: 'shop/cart'
+    },
+    {
+        label: "products/index.twig",
+        url: 'shop/products'
+    }
+] %}
+
+<div class="bg-gray-100">
+<div class="container mx-auto p-6">
+    <h2 class="text-2xl">Templates</h2>
+    <nav>
+        {% for template in templates %}
+            <a href="{{ url(template.url) }}" class="flex-1 pr-6 underline text-gray-600 hover:text-gray-900"><code>{{ template.label }}</code></a><br>
+        {% endfor %}
+    </nav>
+</div>
+</div>

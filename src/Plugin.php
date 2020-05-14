@@ -36,6 +36,7 @@ use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Subscriptions;
+use craft\commerce\web\panel\CommercePanel;
 use craft\commerce\web\twig\CraftVariableBehavior;
 use craft\commerce\web\twig\Extension;
 use craft\commerce\widgets\AverageOrderTotal;
@@ -77,6 +78,7 @@ use craft\services\ProjectConfig;
 use craft\services\Sites;
 use craft\services\UserPermissions;
 use craft\utilities\ClearCaches;
+use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 use yii\base\Exception;
@@ -171,6 +173,17 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerElementExports();
         $this->_defineResaveCommand();
+
+        Event::on(
+            Application::class,
+            Application::EVENT_BEFORE_REQUEST,
+            function() {
+                /** @var \yii\debug\Module */
+                $debugModule = Craft::$app->getModule('debug');
+
+                $debugModule->panels['commerce'] = new CommercePanel(['module' => $debugModule]);
+            }
+        );
 
         Craft::setAlias('@commerceLib',  Craft::getAlias('@craft/commerce/../lib'));
     }

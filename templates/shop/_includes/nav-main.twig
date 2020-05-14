@@ -1,0 +1,36 @@
+{% set pages = [
+    {
+        label: "Products",
+        url: 'shop/products'
+    },
+    {
+        label: "Plans",
+        url: 'shop/plans'
+    },
+    {
+        label: "Donations",
+        url: 'shop/donations'
+    },
+    {
+        label: "Cart",
+        url: 'shop/cart'
+    }
+] %}
+
+{% if currentUser %}
+    {% set pages = pages|merge([{
+        label: "My Account",
+        url: 'shop/customer'
+    }]) %}
+{%  endif %}
+
+<div class="bg-gray-100">
+<div class="container mx-auto justify-between items-center p-6">
+    <nav>
+        {% for page in pages %}
+            <a href="{{ url(page.url) }}"
+               class="flex-1 pr-6 underline text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">{{ page.label }}</a>
+        {% endfor %}
+    </nav>
+</div>
+</div>

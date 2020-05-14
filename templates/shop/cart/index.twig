@@ -1,7 +1,6 @@
 {% extends "shop/_layouts/main" %}
 
 {% block main %}
-    <h1>Here’s what’s in your cart</h1>
 
     {% if cart.lineItems|length %}
         <table class="w-full">
@@ -98,7 +97,7 @@
                             <tr class="adjustment">
                                 <td></td>
                                 <td>
-                                  <strong>{{ adjustment.type|upper }}</strong> {{ adjustment.nameitle }}
+                                  <strong>{{ adjustment.type|upper }}</strong> {{ adjustment.name }}
                                   {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
                                   {{ adjustment.description }}
                                 </td>

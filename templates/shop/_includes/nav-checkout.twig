@@ -1,0 +1,43 @@
+{% set checkoutSteps = [
+    {
+        label: "Email",
+        url: 'shop/checkout/email'
+    },
+    {
+        label: "Account",
+        url: 'shop/checkout/register-signin'
+    },
+    {
+        label: "Address",
+        url: 'shop/checkout/addresses'
+    },
+    {
+        label: "Shipping",
+        url: 'shop/checkout/shipping'
+    },
+    {
+        label: "Payment",
+        url: 'shop/checkout/payment'
+    }
+] %}
+
+{% set totalSteps = checkoutSteps|length %}
+
+{% if width is not defined %}
+    {% set width = 0 %}
+{% endif %}
+
+<div class="container mx-auto justify-between items-center p-6 text-center">
+    <nav class="flex">
+        {% for step in checkoutSteps %}
+            {% if step.url in craft.app.request.pathInfo  %}
+                {% set width = ((loop.index) * 100 / totalSteps - 10 ) %}
+            {% endif %}
+            <a href="{{ url(step.url) }}" class="flex-1 text-gray-600 pb-2
+            {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
+      ">{{ step.label }}</a>
+        {% endfor %}
+    </nav>
+    <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
+    <div class="h-2 bg-blue-600 rounded -mt-2" style="width:{{ width }}%;"></div>
+</div>

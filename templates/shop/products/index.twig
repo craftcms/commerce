@@ -2,11 +2,11 @@
 
 {% block main %}
 
-    {% set products = craft.products.limit(5).all() %}
+    {% set products = craft.products.limit(10).all() %}
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 -mx-2">
         {% for product in products %}
-            <div class="bg-white shadow m-2 p-3 rounded relative">
+            <div class="bg-white p-2 relative">
                 <div>
                     <div style="background-image: url('')"
                          class="bg-cover bg-center bg-gray-300 h-32 rounded">
@@ -25,7 +25,7 @@
                     {{ redirectInput('shop/cart') }}
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
-                        <select class="js-purchasableId block appearance-none w-full bg-white border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <select class="js-purchasableId block appearance-none w-full bg-white border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline">
                             {% for variant in product.getVariants() %}
                                 <option value="{{ variant.id }}">{{ variant.title }}</option>
                             {% endfor %}
@@ -38,10 +38,10 @@
                         </div>
                     </div>
                     <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 bg-white border border-gray-200 hover:border-gray-300 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 bg-white border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
                                name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
                         <button type="submit"
-                                class="rounded shadow-md shadow bg-blue-500 m-0 px-4 py-2 text-white hover:bg-blue-600">
+                                class="rounded bg-gray-500 m-0 px-4 py-2 text-white hover:bg-blue-600">
                             Add
                         </button>
                     </div>
@@ -52,7 +52,6 @@
 
 
 {% js %}
-    <script>
         document.querySelector("form.js-add-to-cart-form").addEventListener("submit", function(e) {
             e.preventDefault();
             var purchasableId = $(this).find('.js-purchasableId').val();
@@ -79,7 +78,6 @@
                     console.error('Error:', error);
                 });
         });
-    </script>
 {% endjs %}
 
 {% endblock %}
