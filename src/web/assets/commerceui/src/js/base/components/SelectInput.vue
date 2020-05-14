@@ -174,7 +174,8 @@
         color: $mediumDarkTextColor !important;
     }
 
-    #main-container .v-select-btn .v-select .vs__actions .vs__spinner {
+    #main-container .v-select-btn .v-select .vs__actions .vs__spinner, .vs__actions .spinner-wrapper {
+        position: relative;
         right: -36px;
     }
 
