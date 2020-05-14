@@ -1,92 +1,114 @@
 <template>
-  <div ref="container">
-    <div class="order-address-display">
-      <template v-if="address">
-        <address-display :title="title" :address="address"></address-display>
-      </template>
-      <template v-else>
-        <div class="zilch">{{emptyMsg}}</div>
-      </template>
+    <div ref="container">
+        <div class="order-address-display">
+            <template v-if="address">
+                <address-display :title="title" :address="address"></address-display>
+            </template>
+            <template v-else>
+                <div class="zilch">{{emptyMsg}}</div>
+            </template>
 
-      <div class="order-address-display-buttons order-flex" v-show="hasCustomer">
-        <div class="btn menubtn" data-icon="settings" :title="$options.filters.t('Actions', 'commerce')" ref="addressmenubtn"></div>
-        <div class="menu">
-          <ul>
-            <li>
-              <a
-                :class="{ disabled: !draftAddress }"
-                :disabled="!draftAddress"
-                @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
-            </li>
-            <li>
-              <address-select
-                :customer-id="customerId"
-                @update="handleSelect"
-              ></address-select>
-            </li>
-            <li>
-              <a @click.prevent="open('new')">{{$options.filters.t('New address', 'commerce')}}</a>
-            </li>
-          </ul>
-          <hr>
-          <ul>
-            <li>
-              <a
-                :class="{ disabled: !draftAddress }"
-                :disabled="!draftAddress"
-                class="error" @click.prevent="$emit('remove')">{{$options.filters.t('Remove address', 'commerce')}}</a>
-            </li>
-          </ul>
+            <div class="order-address-display-buttons order-flex" v-show="hasCustomer">
+                <div class="btn menubtn"
+                     data-icon="settings"
+                     :title="$options.filters.t('Actions', 'commerce')"
+                     ref="addressmenubtn"></div>
+                <div class="menu">
+                    <ul>
+                        <li>
+                            <a
+                                :class="{ disabled: !draftAddress }"
+                                :disabled="!draftAddress"
+                                @click.prevent="open('edit')">{{$options.filters.t('Edit address', 'commerce')}}</a>
+                        </li>
+                        <li>
+                            <address-select
+                                :customer-id="customerId"
+                                @update="handleSelect"
+                            ></address-select>
+                        </li>
+                        <li>
+                            <a @click.prevent="open('new')">{{$options.filters.t('New address', 'commerce')}}</a>
+                        </li>
+                        <li v-if="copyToAddress">
+                            <a
+                                :class="{ disabled: !draftAddress }"
+                                :diabled="!draftAddress"
+                                @click.prevent="$emit('copy')">{{$options.filters.t('Copy to {location}', 'commerce', { location: copyToAddress })}}</a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <ul>
+                        <li>
+                            <a
+                                :class="{ disabled: !draftAddress }"
+                                :disabled="!draftAddress"
+                                class="error" @click.prevent="$emit('remove')">{{$options.filters.t('Remove address',
+                                'commerce')}}</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="hidden">
+            <div ref="newaddressmodal" class="order-edit-modal modal fitted">
+                <div class="body">
+                    <address-form
+                        :title="title"
+                        :address="newAddress"
+                        :states="statesByCountryId"
+                        :countries="countries"
+                        :reset="!modals.new.isVisible"
+                        :new-address="true"
+                        @countryUpdate="handleCountrySelect($event, 'new')"
+                        @stateUpdate="handleStateSelect($event, 'new')"
+                        @errors="handleFormErrors($event, 'new')"
+                    ></address-form>
+                </div>
+                <div class="footer">
+                    <div class="buttons right">
+                        <btn-link button-class="btn" @click="close('new')">{{$options.filters.t('Cancel',
+                            'commerce')}}
+                        </btn-link>
+                        <btn-link button-class="btn submit"
+                                  @click="done('new')"
+                                  :class="{ 'disabled': modals.new.hasErrors }"
+                                  :disabled="modals.new.hasErrors">{{$options.filters.t('Done', 'commerce')}}
+                        </btn-link>
+                    </div>
+                </div>
+            </div>
+
+            <div ref="addressmodal" class="order-edit-modal modal fitted">
+                <div class="body">
+                    <address-form
+                        v-if="draftAddress"
+                        :title="title"
+                        :address="draftAddress"
+                        :states="statesByCountryId"
+                        :countries="countries"
+                        :reset="!modals.edit.isVisible"
+                        @countryUpdate="handleCountrySelect($event, 'edit')"
+                        @stateUpdate="handleStateSelect($event, 'edit')"
+                        @errors="handleFormErrors($event, 'edit')"
+                    ></address-form>
+                </div>
+                <div class="footer">
+                    <div class="buttons right">
+                        <btn-link button-class="btn" @click="close('edit')">{{$options.filters.t('Cancel',
+                            'commerce')}}
+                        </btn-link>
+                        <btn-link button-class="btn submit"
+                                  @click="done('edit')"
+                                  :class="{ 'disabled': modals.edit.hasErrors }"
+                                  :disabled="modals.edit.hasErrors">{{$options.filters.t('Done', 'commerce')}}
+                        </btn-link>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div class="hidden">
-      <div ref="newaddressmodal" class="order-edit-modal modal fitted">
-        <div class="body">
-          <address-form
-            :title="title"
-            :address="newAddress"
-            :states="statesByCountryId"
-            :countries="countries"
-            :reset="!modals.new.isVisible"
-            :new-address="true"
-            @countryUpdate="handleCountrySelect($event, 'new')"
-            @stateUpdate="handleStateSelect($event, 'new')"
-            @errors="handleFormErrors($event, 'new')"
-          ></address-form>
-        </div>
-        <div class="footer">
-          <div class="buttons right">
-            <btn-link button-class="btn" @click="close('new')">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-            <btn-link button-class="btn submit" @click="done('new')" :class="{ 'disabled': modals.new.hasErrors }" :disabled="modals.new.hasErrors">{{$options.filters.t('Done', 'commerce')}}</btn-link>
-          </div>
-        </div>
-      </div>
-
-      <div ref="addressmodal" class="order-edit-modal modal fitted">
-        <div class="body">
-          <address-form
-            v-if="draftAddress"
-            :title="title"
-            :address="draftAddress"
-            :states="statesByCountryId"
-            :countries="countries"
-            :reset="!modals.edit.isVisible"
-            @countryUpdate="handleCountrySelect($event, 'edit')"
-            @stateUpdate="handleStateSelect($event, 'edit')"
-            @errors="handleFormErrors($event, 'edit')"
-            ></address-form>
-        </div>
-        <div class="footer">
-          <div class="buttons right">
-            <btn-link button-class="btn" @click="close('edit')">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-            <btn-link button-class="btn submit" @click="done('edit')" :class="{ 'disabled': modals.edit.hasErrors }" :disabled="modals.edit.hasErrors">{{$options.filters.t('Done', 'commerce')}}</btn-link>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </template>
 
 <style scoped lang="scss">
@@ -122,6 +144,10 @@
         props: {
             address: {
                 type: [Object, null],
+                default: null,
+            },
+            copyToAddress: {
+                type: [String, null],
                 default: null,
             },
             customerId: {

@@ -169,7 +169,20 @@ class LineItem extends Model
      */
     private $_options = [];
 
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        $this->note = LitEmoji::shortcodeToUnicode($this->note);
+        $this->privateNote = LitEmoji::shortcodeToUnicode($this->privateNote);
 
+        parent::init();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -409,7 +422,6 @@ class LineItem extends Model
         $rules[] = [['qty'], 'integer', 'min' => 1];
         $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
         $rules[] = [['price', 'salePrice'], 'number'];
-        $rules[] = [['note', 'privateNote'], StringValidator::class, 'disallowMb4' => true];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */

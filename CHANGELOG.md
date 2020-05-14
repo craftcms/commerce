@@ -3,8 +3,10 @@
 ## Unreleased
 
 ### Added
+- Emoji are now supported in the line items’ `note` and address `notes` fields.
 - It’s now possible to query for a single product or variant via GraphQL.
 - It’s now possible to access the Edit Customer page from the Edit Order page. ([#1397](https://github.com/craftcms/commerce/issues/1397))
+- It’s now possible to copy an address between address types on the Edit Order page. ([#1412](https://github.com/craftcms/commerce/issues/1412))
 - Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
 - Added `craft\commerce\fields\Products::getContentGqlType()`.
 - Added `craft\commerce\fields\Variants::getContentGqlType()`.
@@ -26,7 +28,9 @@
 - Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
 - Fixed a bug where orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
 - Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
+- Fixed a bug where removing a variant field layout from a product type would not re-save variants. ([#1359](https://github.com/craftcms/commerce/issues/1359))
 - Fixed an error that could occur when saving a discount.
+- Fixed an SQL error that occurred when emoji were submitted in an address fields.
 
 ## 3.1.3 - 2020-04-22
 
