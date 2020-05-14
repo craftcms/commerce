@@ -494,7 +494,7 @@ class Variant extends Purchasable
      */
     public function getCpEditUrl(): string
     {
-        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : null;
+        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
 
     /**
