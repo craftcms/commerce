@@ -26,6 +26,7 @@
 - Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
 - Fixed a bug where orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
 - Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
+- Fixed a bug where removing a variant field layout from a product type would not re-save variants. ([#1359](https://github.com/craftcms/commerce/issues/1359))
 - Fixed an error that could occur when saving a discount.
 
 ## 3.1.3 - 2020-04-22
