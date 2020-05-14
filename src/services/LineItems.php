@@ -18,6 +18,7 @@ use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -257,8 +258,8 @@ class LineItems extends Component
         $lineItemRecord->height = $lineItem->height;
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
-        $lineItemRecord->note = $lineItem->note;
-        $lineItemRecord->privateNote = $lineItem->privateNote ?? '';
+        $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
+        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote ?? '');
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
