@@ -362,21 +362,19 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
-     * @return Variant
+     * @return null|Variant
      */
-    public function getDefaultVariant(): Variant
+    public function getDefaultVariant()
     {
-        if ($this->_defaultVariant) {
-            return $this->_defaultVariant;
-        }
+        $defaultVariant = null;
 
         foreach ($this->getVariants() as $variant) {
-            if (null === $this->_defaultVariant || $variant->isDefault) {
-                $this->_defaultVariant = $variant;
+            if (null === $defaultVariant || $variant->isDefault) {
+                $defaultVariant = $variant;
             }
         }
 
-        return $this->_defaultVariant;
+        return $defaultVariant;
     }
 
     /**
@@ -442,11 +440,6 @@ class Product extends Element
     public function setVariants($variants)
     {
         $this->_variants = [];
-        $this->_defaultVariant = null;
-
-        if (!$variants || empty($variants)) {
-            return;
-        }
 
         $count = 1;
         foreach ($variants as $key => $variant) {
@@ -456,15 +449,7 @@ class Product extends Element
             $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
-            if ($variant->isDefault) {
-                $this->_defaultVariant = $variant;
-            }
-
             $this->_variants[] = $variant;
-        }
-
-        if ($this->_defaultVariant === null) {
-            $this->_variants[0]->isDefault = true;
         }
     }
 
@@ -701,12 +686,12 @@ class Product extends Element
         $record->taxCategoryId = $this->taxCategoryId;
         $record->shippingCategoryId = $this->shippingCategoryId;
 
-        $record->defaultSku = $this->getDefaultVariant()->sku;
-        $record->defaultPrice = (float)$this->getDefaultVariant()->price;
-        $record->defaultHeight = (float)$this->getDefaultVariant()->height;
-        $record->defaultLength = (float)$this->getDefaultVariant()->length;
-        $record->defaultWidth = (float)$this->getDefaultVariant()->width;
-        $record->defaultWeight = (float)$this->getDefaultVariant()->weight;
+        $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+        $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
+        $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
+        $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
+        $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
+        $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $record->dateUpdated = $this->dateUpdated;
@@ -907,14 +892,6 @@ class Product extends Element
         $shippingCategoryIds = array_keys($this->getType()->getShippingCategories());
         if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false)) {
             $this->shippingCategoryId = $shippingCategoryIds[0];
-        }
-
-        $defaultVariant = null;
-        foreach ($this->getVariants() as $variant) {
-            // Make the first variant (or the last one that isDefault) the default.
-            if ($defaultVariant === null || $variant->isDefault) {
-                $this->_defaultVariant = $defaultVariant = $variant;
-            }
         }
 
         // Make sure the field layout is set correctly
