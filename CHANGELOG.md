@@ -3,19 +3,19 @@
 ## Unreleased
 
 ### Added
-- Emoji are now supported in the line items’ `note` and address `notes` fields.
-- It’s now possible to query for a single product or variant via GraphQL.
+- Added “Duplicate” action to the Products index page.
+- It’s now possible to add multiple line items at a time on the Edit Order page. ([#1446](https://github.com/craftcms/commerce/issues/1446))
+- `craft\commerce\models\Address::$notes` and `craft\commerce\models\LineItem::$note` attributes now support emoji characters. ([#1426](https://github.com/craftcms/commerce/issues/1426))
 - It’s now possible to access the Edit Customer page from the Edit Order page. ([#1397](https://github.com/craftcms/commerce/issues/1397))
-- It’s now possible to copy an address between address types on the Edit Order page. ([#1412](https://github.com/craftcms/commerce/issues/1412))
-- Address models now include `countryIso`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
+- It’s now possible to copy an address between billing and shipping addresses on the Edit Order page. ([#1412](https://github.com/craftcms/commerce/issues/1412))
+- It’s now possible to query for a single product or variant via GraphQL.
+- Added `craft\commerce\models\Address::getCountryIso()`. ([#1419](https://github.com/craftcms/commerce/issues/1419))
 - Added `craft\commerce\fields\Products::getContentGqlType()`.
 - Added `craft\commerce\fields\Variants::getContentGqlType()`.
-- Added `craft\commerce\models\Address::getCountryIso()`.
+- Added `craft\commerce\web\assets\commerceui\CommerceOrderAsset`.
 
 ### Changed
-- Improved the editing of line item options on the Edit Order page.
-- It’s now possible to add multiple line items at a time on the Edit Order page. ([#1446](https://github.com/craftcms/commerce/issues/1446))
-- Made `craft\commerce\web\assets\commerceui\CommerceUiAsset` an abstract class. Use `craft\commerce\web\assets\commerceui\CommerceOrderAsset` instead.
+- Improved the line item options layout on the Edit Order page. 
 
 ### Fixed
 - Fixed a bug where duplicate addresses were saved when updating a cart from the Edit Order page. ([#1435](https://github.com/craftcms/commerce/issues/1435))
@@ -31,7 +31,7 @@
 - Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
 - Fixed a bug where removing a variant field layout from a product type would not re-save variants. ([#1359](https://github.com/craftcms/commerce/issues/1359))
 - Fixed an error that could occur when saving a discount.
-- Fixed an SQL error that occurred when emoji were submitted in an address fields.
+- Fixed an SQL error that occurred when emoji were submitted in an address fields. ([#1426](https://github.com/craftcms/commerce/issues/1426))
 
 ## 3.1.3 - 2020-04-22
 
