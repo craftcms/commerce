@@ -4,8 +4,8 @@
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Attention', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.attention" @input="update($event, self())" />
+        <field :label="$options.filters.t('Attention', 'commerce')" :errors="getErrors('attention')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('attention') }" v-model="address.attention" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
@@ -17,59 +17,59 @@
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Title', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.title" @input="update($event, self())" />
+        <field :label="$options.filters.t('Title', 'commerce')" :errors="getErrors('title')" v-slot:default="slotProps" >
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('title') }" v-model="address.title" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('First Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.firstName" @input="update($event, self())" />
+        <field :label="$options.filters.t('First Name', 'commerce')" :errors="getErrors('firstName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('firstName') }" v-model="address.firstName" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Last Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.lastName" @input="update($event, self())" />
+        <field :label="$options.filters.t('Last Name', 'commerce')" :errors="getErrors('lastName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('lastName') }" v-model="address.lastName" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex">
       <div class="w-full">
-        <field :label="$options.filters.t('Address 1', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address1" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 1', 'commerce')" :errors="getErrors('address1')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address1') }" v-model="address.address1" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
-        <field :label="$options.filters.t('Address 2', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address2" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 2', 'commerce')" :errors="getErrors('address2')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address2') }" v-model="address.address2" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Address 3', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.address3" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 3', 'commerce')" :errors="getErrors('address3')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address3') }" v-model="address.address3" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
-        <field :label="$options.filters.t('City', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.city" @input="update($event, self())" />
+        <field :label="$options.filters.t('City', 'commerce')" :errors="getErrors('city')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('city') }" v-model="address.city" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Zip Code', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.zipCode" @input="update($event, self())" />
+        <field :label="$options.filters.t('Zip Code', 'commerce')" :errors="getErrors('zipCode')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('zipCode') }" v-model="address.zipCode" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('State', 'commerce')" v-slot:default="slotProps">
+        <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
           <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
           <select-input
                   ref="vSelect"
@@ -96,7 +96,7 @@
         </field>
       </div>
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Country', 'commerce')" v-slot:default="slotProps">
+        <field :label="$options.filters.t('Country', 'commerce')" :errors="getErrors('countryId')" v-slot:default="slotProps">
           <select-input
                   ref="vSelect"
                   label="name"
@@ -124,70 +124,70 @@
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Phone', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.phone" @input="update($event, self())" />
+        <field :label="$options.filters.t('Phone', 'commerce')" :errors="getErrors('phone')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('phone') }" v-model="address.phone" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Phone (Alt)', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.alternativePhone" @input="update($event, self())" />
+        <field :label="$options.filters.t('Phone (Alt)', 'commerce')" :errors="getErrors('alternativePhone')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('alternativePhone') }" v-model="address.alternativePhone" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Label', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.label" @input="update($event, self())" />
+        <field :label="$options.filters.t('Label', 'commerce')" :errors="getErrors('label')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('label') }" v-model="address.label" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-2/3 px-1">
-        <field :label="$options.filters.t('Notes', 'commerce')" v-slot:default="slotProps">
-          <textarea :id="slotProps.id" type="text" class="text w-full" v-model="address.notes" @input="update($event, self())"></textarea>
+        <field :label="$options.filters.t('Notes', 'commerce')" :errors="getErrors('notes')" v-slot:default="slotProps">
+          <textarea :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('notes') }" v-model="address.notes" @input="update($event, self())"></textarea>
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Business Name', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessName" @input="update($event, self())" />
+        <field :label="$options.filters.t('Business Name', 'commerce')" :errors="getErrors('businessName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('businessName') }" v-model="address.businessName" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/4 px-1">
-        <field :label="$options.filters.t('Business Tax ID', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessTaxId" @input="update($event, self())" />
+        <field :label="$options.filters.t('Business Tax ID', 'commerce')" :errors="getErrors('businessTaxId')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('businessTaxId') }" v-model="address.businessTaxId" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/4 px-1">
-        <field :label="$options.filters.t('Business ID', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.businessId" @input="update($event, self())" />
+        <field :label="$options.filters.t('Business ID', 'commerce')" :errors="getErrors('businessId')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('businessId') }" v-model="address.businessId" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Custom 1', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom1" @input="update($event, self())" />
+        <field :label="$options.filters.t('Custom 1', 'commerce')" :errors="getErrors('custom1')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('custom1') }" v-model="address.custom1" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Custom 2', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom2" @input="update($event, self())" />
+        <field :label="$options.filters.t('Custom 2', 'commerce')" :errors="getErrors('custom2')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('custom2') }" v-model="address.custom2" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Custom 3', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom3" @input="update($event, self())" />
+        <field :label="$options.filters.t('Custom 3', 'commerce')" :errors="getErrors('custom3')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('custom3') }" v-model="address.custom3" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Custom 4', 'commerce')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.custom4" @input="update($event, self())" />
+        <field :label="$options.filters.t('Custom 4', 'commerce')" :errors="getErrors('custom4')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('custom4') }" v-model="address.custom4" @input="update($event, self())" />
         </field>
       </div>
     </div>

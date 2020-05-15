@@ -103,7 +103,7 @@ class TaxCategories extends Component
     /**
      * Get a tax category by its handle.
      *
-     * @param int $taxCategoryHandle
+     * @param string $taxCategoryHandle
      * @return TaxCategory|null
      */
     public function getTaxCategoryByHandle($taxCategoryHandle)

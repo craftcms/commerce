@@ -14,6 +14,7 @@
 
 ### Changed
 - Improved the editing of line item options on the Edit Order page.
+- It’s now possible to add multiple line items at a time on the Edit Order page. ([#1446](https://github.com/craftcms/commerce/issues/1446))
 - Made `craft\commerce\web\assets\commerceui\CommerceUiAsset` an abstract class. Use `craft\commerce\web\assets\commerceui\CommerceOrderAsset` instead.
 
 ### Fixed
