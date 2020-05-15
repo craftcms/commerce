@@ -21,6 +21,7 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\InvalidElementException;
 use craft\errors\MissingComponentException;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -214,12 +215,28 @@ class ProductsController extends BaseCpController
         // Get the requested product
         $request = Craft::$app->getRequest();
         $product = ProductHelper::productFromPost($request);
+        $variants = $request->getBodyParam('variants');
         $this->enforceProductPermissions($product);
 
         // If we're duplicating the product, swap $product with the duplicate
         if ($duplicate) {
             try {
+                $originalVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
                 $product = Craft::$app->getElements()->duplicateElement($product);
+                $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
+
+                $newVariants = [];
+                foreach ($variants as $key => $postedVariant) {
+                    if (strpos($key, 'new') === 0) {
+                        $newVariants[$key] = $postedVariant;
+                    } else {
+                        $index = array_search($key, $originalVariantIds);
+                        if ($index !== false) {
+                            $newVariants[$duplicatedVariantIds[$index]] = $postedVariant;
+                        }
+                    }
+                }
+                $variants = $newVariants;
             } catch (InvalidElementException $e) {
                 /** @var Product $clone */
                 $clone = $e->element;
@@ -247,6 +264,8 @@ class ProductsController extends BaseCpController
 
         // Now populate the rest of it from the post data
         ProductHelper::populateProductFromPost($product, $request);
+
+        $product->setVariants($variants);
 
         // Save the product (finally!)
         if ($product->enabled && $product->enabledForSite) {
