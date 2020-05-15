@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- Added “Duplicate” action to the Products index page.
+- Added a “Duplicate” action to the Products index page.
 - It’s now possible to add multiple line items at a time on the Edit Order page. ([#1446](https://github.com/craftcms/commerce/issues/1446))
 - `craft\commerce\models\Address::$notes` and `craft\commerce\models\LineItem::$note` attributes now support emoji characters. ([#1426](https://github.com/craftcms/commerce/issues/1426))
 - It’s now possible to access the Edit Customer page from the Edit Order page. ([#1397](https://github.com/craftcms/commerce/issues/1397))
