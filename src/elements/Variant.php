@@ -332,9 +332,9 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function extraFields(): array
+    public function attributes(): array
     {
-        $names = parent::extraFields();
+        $names = parent::attributes();
         $names[] = 'product';
         return $names;
     }
@@ -415,7 +415,7 @@ class Variant extends Purchasable
         }
 
         // If title is not set yet default to blank string
-        return $description;
+        return (string)$description;
     }
 
     /**

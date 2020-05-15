@@ -8,7 +8,6 @@
 namespace craft\commerce;
 
 use Craft;
-use craft\base\Element;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Order;

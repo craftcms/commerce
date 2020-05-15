@@ -82,10 +82,8 @@
                 </li>
                 {% if product.id %}
                     <li>
-                        <a class="formsubmit" data-param="productId"
-                           data-value=""
-                           data-redirect="{{ continueEditingUrl|hash }}">
-                            {{ "Save as a new product"|t('commerce') }}
+                        <a class="formsubmit" data-action="commerce/products/duplicate-product" data-redirect="{{ '{cpEditUrl}'|hash }}">
+                            {{ "Save as a new {type}"|t('app', { type: product.lowerDisplayName() }) }}
                         </a>
                     </li>
                 {% endif %}
