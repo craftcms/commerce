@@ -18,20 +18,21 @@
 - Improved the line item options layout on the Edit Order page. 
 
 ### Fixed
-- Fixed a bug where duplicate addresses were saved when updating a cart from the Edit Order page. ([#1435](https://github.com/craftcms/commerce/issues/1435))
-- Fixed a bug where Product and Variant fields were returning the incorrect type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
-- Fixed an SQL error that could occur when saving a Product ([#1407](https://github.com/craftcms/commerce/pull/1407))
+- Fixed a bug where product and variants would duplicate incorrectly when saving as a new product. ([#1442](https://github.com/craftcms/commerce/issues/1442))
+- Fixed a bug where addresses were being incorrectly duplicated when updating a cart from the Edit Order page. ([#1435](https://github.com/craftcms/commerce/issues/1435))
+- Fixed a bug where `product` and `variant` fields were returning the wrong type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
+- Fixed an SQL error that could occur when saving a product. ([#1407](https://github.com/craftcms/commerce/pull/1407))
 - Fixed a bug where it wasn’t possible to add a line item on the Edit Order page. ([#1424](https://github.com/craftcms/commerce/issues/1424))
 - Fixed a bug where it wasn’t possible to remove an address on the Edit Order page. ([#1436](https://github.com/craftcms/commerce/issues/1436))
 - Fixed a bug where user groups would be unset when saving a primary address on the Edit User page. ([#1421](https://github.com/craftcms/commerce/issues/1421))
-- Fixed an error that could occur when saving an address. ([#1417](https://github.com/craftcms/commerce/issues/1417))
+- Fixed a PHP error that could occur when saving an address. ([#1417](https://github.com/craftcms/commerce/issues/1417))
 - Fixed a bug where entering a localized number for a base discount value would save incorrectly. ([#1400](https://github.com/craftcms/commerce/issues/1400))
 - Fixed a bug where blank address models were being set on an order on the Edit Order page. ([#1401](https://github.com/craftcms/commerce/issues/1401))
-- Fixed a bug where orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
-- Fixed a bug where an order could recalculate during a payment request in some cases. ([#1431](https://github.com/craftcms/commerce/issues/1431))
+- Fixed a bug where past orders weren’t being consolidated to new users. ([#1423](https://github.com/craftcms/commerce/issues/1423))
+- Fixed a bug where unnecessary order recalculation could occur during a payment request. ([#1431](https://github.com/craftcms/commerce/issues/1431))
 - Fixed a bug where removing a variant field layout from a product type would not re-save variants. ([#1359](https://github.com/craftcms/commerce/issues/1359))
-- Fixed an error that could occur when saving a discount.
-- Fixed an SQL error that occurred when emoji were submitted in an address fields. ([#1426](https://github.com/craftcms/commerce/issues/1426))
+- Fixed an PHP error that could occur when saving a discount.
+- Fixed an SQL error that occurred when emoji characters were submitted in an address. ([#1426](https://github.com/craftcms/commerce/issues/1426))
 
 ## 3.1.3 - 2020-04-22
 
