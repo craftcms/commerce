@@ -391,7 +391,7 @@ class DiscountsController extends BaseCpController
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable && $purchasable instanceof Product) {
-                    $purchasableIds[] = $purchasable->defaultVariantId;
+                    $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
                     $purchasableIds[] = $purchasableId;
                 }
@@ -399,6 +399,8 @@ class DiscountsController extends BaseCpController
         } else {
             $purchasableIds = $variables['discount']->getPurchasableIds();
         }
+
+        $purchasableIds = array_filter($purchasableIds);
 
         $purchasables = [];
         foreach ($purchasableIds as $purchasableId) {
