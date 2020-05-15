@@ -15,7 +15,7 @@
 - Added `craft\commerce\web\assets\commerceui\CommerceOrderAsset`.
 
 ### Changed
-- Improved the line item options layout on the Edit Order page. 
+- Improved the line item options layout on the Edit Order page.
 
 ### Fixed
 - Fixed a bug where product and variants would duplicate incorrectly when saving as a new product. ([#1442](https://github.com/craftcms/commerce/issues/1442))
