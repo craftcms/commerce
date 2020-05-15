@@ -158,11 +158,6 @@ class Product extends Element
     private $_variants;
 
     /**
-     * @var Variant This product's default variant
-     */
-    private $_defaultVariant;
-
-    /**
      * @var Variant This product's cheapest variant
      */
     private $_cheapestVariant;
