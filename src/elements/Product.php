@@ -366,15 +366,11 @@ class Product extends Element
      */
     public function getDefaultVariant()
     {
-        $defaultVariant = null;
+        $variants = $this->getVariants();
 
-        foreach ($this->getVariants() as $variant) {
-            if (null === $defaultVariant || $variant->isDefault) {
-                $defaultVariant = $variant;
-            }
-        }
+        $defaultVariant = ArrayHelper::firstWhere($variants, 'isDefault', true, false);
 
-        return $defaultVariant;
+        return $defaultVariant ?: ArrayHelper::firstValue($variants);
     }
 
     /**
