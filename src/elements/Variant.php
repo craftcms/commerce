@@ -332,9 +332,9 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function extraFields(): array
+    public function attributes(): array
     {
-        $names = parent::extraFields();
+        $names = parent::attributes();
         $names[] = 'product';
         return $names;
     }
