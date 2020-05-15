@@ -9,7 +9,6 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\SaleUserGroup;
 use craft\test\Fixture;
-use crafttests\fixtures\UserGroupsFixture;
 
 /**
  * Sale User Groups Fixture
