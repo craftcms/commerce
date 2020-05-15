@@ -408,6 +408,13 @@ class Product extends Element
      */
     public function getVariants(): array
     {
+        // If we are currently duplicating a product, we dont want to have any variants.
+        // We will be duplicating variants and adding them back.
+        if ($this->duplicateOf) {
+            $this->_variants = [];
+            return $this->_variants;
+        }
+
         if (null === $this->_variants) {
             if ($this->id) {
                 if ($this->getType()->hasVariants) {
@@ -843,7 +850,12 @@ class Product extends Element
                 if (empty($this->getVariants())) {
                     $this->addError('variants', Plugin::t('Must have at least one variant.'));
                 }
-            }, 'skipOnEmpty' => false
+            },
+            'skipOnEmpty' => false,
+            'when' => static function($model) {
+                /** @var Variant $model */
+                return !$model->duplicateOf;
+            }
         ];
 
         return $rules;
@@ -1230,12 +1242,29 @@ class Product extends Element
      */
     public function setScenario($value)
     {
-        foreach ($this->getVariants() as $variant){
+        foreach ($this->getVariants() as $variant) {
             $variant->setScenario($value);
         }
 
         parent::setScenario($value);
     }
 
-
+    /**
+     * @inheritDoc
+     */
+    public function afterPropagate(bool $isNew)
+    {
+        /** @var Product $original */
+        if ($original = $this->duplicateOf) {
+            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($original->id, $original->siteId);
+            $newVariants = [];
+            foreach ($variants as $variant) {
+                $variant->sku .= '-1';
+                $variant = Craft::$app->getElements()->duplicateElement($variant, ['product' => $this]);
+                $newVariants[] = $variant;
+            }
+            $this->setVariants($newVariants);
+        }
+        parent::afterPropagate($isNew);
+    }
 }
