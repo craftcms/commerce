@@ -332,9 +332,9 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function extraFields(): array
+    public function attributes(): array
     {
-        $names = parent::extraFields();
+        $names = parent::attributes();
         $names[] = 'product';
         return $names;
     }
@@ -344,6 +344,7 @@ class Variant extends Purchasable
      */
     public function getFieldLayout()
     {
+        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
         return parent::getFieldLayout() ?? $this->getProduct()->getType()->getVariantFieldLayout();
     }
 
@@ -414,7 +415,7 @@ class Variant extends Purchasable
         }
 
         // If title is not set yet default to blank string
-        return $description;
+        return (string)$description;
     }
 
     /**
@@ -493,7 +494,7 @@ class Variant extends Purchasable
      */
     public function getCpEditUrl(): string
     {
-        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : "";
+        return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
 
     /**

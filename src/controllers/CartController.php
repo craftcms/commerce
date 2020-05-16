@@ -15,7 +15,6 @@ use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
-use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -84,7 +83,7 @@ class CartController extends BaseFrontEndController
 
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
-            $note = LitEmoji::unicodeToShortcode($request->getParam('note', ''));
+            $note = $request->getParam('note', '');
             $options = $request->getParam('options') ?: [];
             $qty = (int)$request->getParam('qty', 1);
 
@@ -110,7 +109,7 @@ class CartController extends BaseFrontEndController
             $purchasablesByKey = [];
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
-                $note = LitEmoji::unicodeToShortcode($request->getParam("purchasables.{$key}.note", ''));
+                $note = $request->getParam("purchasables.{$key}.note", '');
                 $options = $request->getParam("purchasables.{$key}.options") ?: [];
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
@@ -154,7 +153,7 @@ class CartController extends BaseFrontEndController
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
                 $lineItemId = $key;
-                $note = LitEmoji::unicodeToShortcode($request->getParam("lineItems.{$key}.note"));
+                $note = $request->getParam("lineItems.{$key}.note");
                 $options = $request->getParam("lineItems.{$key}.options");
                 $qty = $request->getParam("lineItems.{$key}.qty");
                 $removeLine = $request->getParam("lineItems.{$key}.remove");

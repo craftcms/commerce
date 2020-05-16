@@ -159,7 +159,7 @@
 
         computed: {
             ...mapState({
-                lastPurchasableId: state => state.lastPurchasableId,
+                lastPurchasableIds: state => state.lastPurchasableIds,
             }),
 
             ...mapGetters([
@@ -218,7 +218,7 @@
             },
 
             isLineItemNew() {
-                return !this.lineItem.id && this.lastPurchasableId === this.lineItem.purchasableId
+                return !this.lineItem.id && this.lastPurchasableIds.length && this.lastPurchasableIds.indexOf(this.lineItem.purchasableId) >= 0
             }
         },
 

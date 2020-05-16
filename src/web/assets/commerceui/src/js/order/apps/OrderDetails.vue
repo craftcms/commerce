@@ -156,15 +156,20 @@
                 'recalculateOrder',
             ]),
 
-            addLineItem(lineItem) {
+            addLineItem(items) {
                 const lineItems = this.lineItems
-                lineItems.push(lineItem)
+                let purchasableIds = [];
+                for (let i = 0; i < items.length; i++) {
+                    purchasableIds.push(items[i].purchasableId);
+                    lineItems.push(items[i]);
+                }
+
                 this.updateLineItems(lineItems)
                     .then(() => {
-                        this.$store.commit('updateLastPurchasableId', lineItem.purchasableId)
+                        this.$store.commit('updateLastPurchasableIds', purchasableIds)
 
                         setTimeout(function() {
-                            this.$store.commit('updateLastPurchasableId', null)
+                            this.$store.commit('updateLastPurchasableIds', [])
                         }.bind(this), 4000)
                     })
             },

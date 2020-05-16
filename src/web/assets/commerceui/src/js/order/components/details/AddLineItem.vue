@@ -28,7 +28,7 @@
                     </form>
                 </div>
                 <admin-table
-                        :allow-multiple-selections="false"
+                        :allow-multiple-selections="true"
                         table-data-endpoint="commerce/orders/purchasables-table"
                         :checkboxes="true"
                         :columns="purchasableTableColumns"
@@ -69,7 +69,7 @@
         data() {
             return {
                 showForm: false,
-                selectedPurchasable: null,
+                selectedPurchasables: [],
                 currentTableData: null,
                 purchasableTableColumns: [
                     { name: 'description', title: this.$options.filters.t('Description', 'commerce') },
@@ -100,20 +100,15 @@
             },
 
             submitDisabled() {
-                if (!this.canAddLineItem || !this.selectedPurchasable) {
+                if (!this.canAddLineItem || !this.selectedPurchasables.length) {
                     return true
                 }
 
-                if(this.selectedPurchasable.isAvailable == false)
-                {
-                    return true;
-                }
-
-                return false
+                return false;
             },
 
             lineItems() {
-                return this.$store.state.draft.order.lineItems
+                return this.$store.state.draft.order.lineItems;
             }
         },
 
@@ -125,38 +120,51 @@
             lineItemAdd() {
                 if (!this.canAddLineItem) {
                     this.displayError(this.$options.filters.t("You are not allowed to add a line item.", 'commerce'));
-                    return
+                    return;
                 }
 
-                this.addLineItem(this.selectedPurchasable)
+                this.addLineItem();
             },
 
             addLineItem() {
-                const lineItem = {
-                    id: null,
-                    lineItemStatusId: null,
-                    salePrice: this.selectedPurchasable.price,
-                    qty: "1",
-                    note: "",
-                    privateNote: "",
-                    orderId: this.orderId,
-                    purchasableId: this.selectedPurchasable.id,
-                    sku: this.selectedPurchasable.sku,
-                    options: [],
-                    adjustments: [],
+                if (this.selectedPurchasables.length) {
+                    let lineItems = [];
+                    for (let i = 0; i < this.selectedPurchasables.length; i++) {
+                        let purchasable = this.selectedPurchasables[i];
+                        if (purchasable && purchasable.isAvailable) {
+                            lineItems.push({
+                                id: null,
+                                lineItemStatusId: null,
+                                salePrice: purchasable.price,
+                                qty: '1',
+                                note: '',
+                                privateNote: '',
+                                orderId: this.orderId,
+                                purchasableId: purchasable.id,
+                                sku: purchasable.sku,
+                                options: [],
+                                adjustments: [],
+                            });
+                        }
+                    }
+
+                    if (lineItems.length) {
+                        this.$emit('addLineItem', lineItems);
+                    }
                 }
 
-                this.$emit('addLineItem', lineItem)
-                this.selectedPurchasable = null
-                this.showForm = false
+                this.selectedPurchasables = [];
+                this.showForm = false;
             },
 
             handleCheckboxSelect(ids) {
                 if (ids && ids.length) {
-                    var id = ids[0];
-                    this.selectedPurchasable = _find(this.currentTableData, { id: id });
+                    let $this = this;
+                    this.selectedPurchasables = ids.map(id => {
+                        return _find($this.currentTableData, { id: id });
+                    });
                 } else {
-                    this.selectedPurchasable = null;
+                    this.selectedPurchasables = [];
                 }
             },
 
