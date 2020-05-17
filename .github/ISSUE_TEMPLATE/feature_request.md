@@ -1,3 +1,11 @@
+---
+name: Feature request
+about: Suggest an idea or enhancement
+title: ''
+labels: enhancement new
+assignees: ''
+
+---
 **What are you trying to do?**
 A description of what you want to happen.
 
