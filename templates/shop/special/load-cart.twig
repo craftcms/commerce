@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-  <form method="post" action="" class="form-horizontal max-w-md">
+  <form method="post" action="" class="">
     <input type="hidden" name="action" value="commerce/cart/load-cart"/>
     {{ redirectInput('/shop/cart') }}
     {{ csrfInput() }}
@@ -12,10 +12,11 @@
     <fieldset>
       <div>
         <label for="number">Cart Number</label>
-        <input type="text" id="number" class="w-full" name="number" value="">
+        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 bg-white border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
+               type="text" id="number" name="number" value="">
       </div>
-      <div class="mt-4 text-right">
-          <button class="button button-primary" type="submit">Load cart</button>
+      <div class="">
+          <button class="" type="submit">Load cart</button>
       </div>
 
     </fieldset>
