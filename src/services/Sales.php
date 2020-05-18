@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
+use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -61,7 +62,7 @@ class Sales extends Component
      *         $purchasable = $event->purchasable;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     * 
+     *
      *         // Use custom business logic to exclude purchasable from sale
      *         // with `$event->isValid = false`
      *         // ...
@@ -381,7 +382,7 @@ class Sales extends Component
             $salePrice = 0;
         }
 
-        return $salePrice;
+        return CurrencyHelper::round($salePrice);
     }
 
     /**
@@ -580,6 +581,8 @@ class Sales extends Component
 
             $transaction->commit();
 
+            $this->_clearCaches();
+
             // Fire an 'beforeSaveSection' event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
@@ -609,6 +612,8 @@ class Sales extends Component
                 ->execute();
         }
 
+        $this->_clearCaches();
+
         return true;
     }
 
@@ -626,6 +631,7 @@ class Sales extends Component
         $sale = SaleRecord::findOne($id);
 
         if ($sale) {
+            $this->_clearCaches();
             return $sale->delete();
         }
 
@@ -653,5 +659,16 @@ class Sales extends Component
         }
 
         return $this->_allActiveSales;
+    }
+
+    /**
+     * Clear memoization caches
+     * @since 3.1.4
+     */
+    private function _clearCaches()
+    {
+        $this->_allActiveSales = null;
+        $this->_allSales = null;
+        $this->_purchasableSaleMatch = [];
     }
 }

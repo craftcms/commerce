@@ -30,6 +30,7 @@ use craft\helpers\Db;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\StringHelper;
 use craft\models\FieldLayout;
+use craft\queue\jobs\ResaveElements;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -355,7 +356,11 @@ class ProductTypes extends Component
         };
 
         $configData['productFieldLayouts'] = $generateLayoutConfig($productType->getFieldLayout());
-        $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
+        $configData['variantFieldLayouts'] = [];
+        if ($productType->hasVariants) {
+            $configData['variantFieldLayouts'] = $generateLayoutConfig($productType->getVariantFieldLayout());
+        }
+
 
         // Get the site settings
         $allSiteSettings = $productType->getSiteSettings();
@@ -397,6 +402,7 @@ class ProductTypes extends Component
     {
         $productTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
+        $shouldResaveProducts = false;
 
         // Make sure fields and sites are processed
         ProjectConfigHelper::ensureAllSitesProcessed();
@@ -416,15 +422,35 @@ class ProductTypes extends Component
             $productTypeRecord->uid = $productTypeUid;
             $productTypeRecord->name = $data['name'];
             $productTypeRecord->handle = $data['handle'];
-
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
-            $productTypeRecord->hasVariants = $data['hasVariants'];
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
-            $productTypeRecord->titleFormat = $data['titleFormat'] ?? '{product.title}';
             $productTypeRecord->titleLabel = $data['titleLabel'] ?? 'Title';
             $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'] ?? 'Title';
-            $productTypeRecord->skuFormat = $data['skuFormat'] ?? '';
-            $productTypeRecord->descriptionFormat = $data['descriptionFormat'];
+
+            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->hasVariants = $data['hasVariants'];
+
+
+            $titleFormat = $data['titleFormat'] ?? '{product.title}';
+            if ($productTypeRecord->titleFormat != $titleFormat) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->titleFormat = $titleFormat;
+
+
+            $skuFormat = $data['skuFormat'] ?? '';
+            if ($productTypeRecord->skuFormat != $skuFormat) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->skuFormat = $skuFormat;
+
+            $descriptionFormat = $data['descriptionFormat'] ?? '';
+            if ($productTypeRecord->descriptionFormat != $descriptionFormat) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->descriptionFormat = $descriptionFormat;
 
             if (!empty($data['productFieldLayouts']) && !empty($config = reset($data['productFieldLayouts']))) {
                 // Save the main field layout
@@ -570,6 +596,17 @@ class ProductTypes extends Component
             }
 
             $transaction->commit();
+
+            if ($shouldResaveProducts) {
+                Craft::$app->getQueue()->push(new ResaveElements([
+                    'elementType' => Product::class,
+                    'criteria' => [
+                        'siteId' => '*',
+                        'status' => null,
+                        'enabledForSite' => false
+                    ]
+                ]));
+            }
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;

@@ -48,7 +48,7 @@ class LineItemStatuses extends Component
      * use craft\commerce\services\LineItemStatuses;
      * use yii\base\Event;
      *
-     * Event::on(LineItemStatuses::class, LineItemStatuses::EVENT_DEFAULT_ORDER_STATUS, function(DefaultLineItemStatusEvent $e) {
+     * Event::on(LineItemStatuses::class, LineItemStatuses::EVENT_DEFAULT_LINE_ITEM_STATUS, function(DefaultLineItemStatusEvent $e) {
      *     // Do something - perhaps figure out a better default line item status than the one set in CP
      * });
      * ```

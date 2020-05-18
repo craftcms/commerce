@@ -1,0 +1,3 @@
+[*.vue]
+indent_size = 4
+ij_html_attribute_wrap = on_every_item

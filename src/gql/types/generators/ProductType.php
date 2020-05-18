@@ -11,7 +11,7 @@ use craft\base\Field;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\types\elements\Product as ProductTypeElement;
-use craft\commerce\helpers\Gql as CommmerceGqlHelper;
+use craft\commerce\helpers\Gql as CommerceGqlHelper;
 use craft\commerce\Plugin;
 use craft\gql\base\GeneratorInterface;
 use craft\gql\GqlEntityRegistry;
@@ -21,7 +21,7 @@ use craft\gql\TypeManager;
  * Class ProductType
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3
+ * @since 3.0
  */
 class ProductType implements GeneratorInterface
 {
@@ -38,7 +38,7 @@ class ProductType implements GeneratorInterface
             $typeName = ProductElement::gqlTypeNameByContext($productType);
             $requiredContexts = ProductElement::gqlScopesByContext($productType);
 
-            if (!CommmerceGqlHelper::isSchemaAwareOf($requiredContexts)) {
+            if (!CommerceGqlHelper::isSchemaAwareOf($requiredContexts)) {
                 continue;
             }
 

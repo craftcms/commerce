@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Craft Commerce Documentation
+    url: https://docs.craftcms.com/commerce/v3/
+    about: Read the official documentation.
+  - name: Craft CMS Stack Exchange
+    url: http://craftcms.stackexchange.com/
+    about: Community-run Q&A for Craft developers. Please ask and answer questions here.
+  - name: Craft Discord
+    url: https://craftcms.com/discord
+    about: Community discussion and support.

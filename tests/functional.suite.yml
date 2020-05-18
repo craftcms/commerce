@@ -3,11 +3,10 @@
 # Suite for functional tests
 # Emulate web requests and make application process them
 # Include one of framework modules (Symfony2, Yii2, Laravel5) to use it
-# Remove this suite if you don't use frameworks
 
-actor: FunctionalTester
+class_name: FunctionalTester
 modules:
     enabled:
+        - Asserts
         - \craft\test\Craft
         - \Helper\Functional
-    step_decorators: ~

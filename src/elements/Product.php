@@ -24,6 +24,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
+use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQuery;
@@ -155,11 +156,6 @@ class Product extends Element
      * @var Variant[] This product’s variants
      */
     private $_variants;
-
-    /**
-     * @var Variant This product's default variant
-     */
-    private $_defaultVariant;
 
     /**
      * @var Variant This product's cheapest variant
@@ -361,21 +357,15 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
-     * @return Variant
+     * @return null|Variant
      */
-    public function getDefaultVariant(): Variant
+    public function getDefaultVariant()
     {
-        if ($this->_defaultVariant) {
-            return $this->_defaultVariant;
-        }
+        $variants = $this->getVariants();
 
-        foreach ($this->getVariants() as $variant) {
-            if (null === $this->_defaultVariant || $variant->isDefault) {
-                $this->_defaultVariant = $variant;
-            }
-        }
+        $defaultVariant = ArrayHelper::firstWhere($variants, 'isDefault', true, false);
 
-        return $this->_defaultVariant;
+        return $defaultVariant ?: ArrayHelper::firstValue($variants);
     }
 
     /**
@@ -409,6 +399,13 @@ class Product extends Element
      */
     public function getVariants(): array
     {
+        // If we are currently duplicating a product, we dont want to have any variants.
+        // We will be duplicating variants and adding them back.
+        if ($this->duplicateOf) {
+            $this->_variants = [];
+            return $this->_variants;
+        }
+
         if (null === $this->_variants) {
             if ($this->id) {
                 if ($this->getType()->hasVariants) {
@@ -441,11 +438,6 @@ class Product extends Element
     public function setVariants($variants)
     {
         $this->_variants = [];
-        $this->_defaultVariant = null;
-
-        if (!$variants || empty($variants)) {
-            return;
-        }
 
         $count = 1;
         foreach ($variants as $key => $variant) {
@@ -455,15 +447,7 @@ class Product extends Element
             $variant->sortOrder = $count++;
             $variant->setProduct($this);
 
-            if ($variant->isDefault) {
-                $this->_defaultVariant = $variant;
-            }
-
             $this->_variants[] = $variant;
-        }
-
-        if ($this->_defaultVariant === null) {
-            $this->_variants[0]->isDefault = true;
         }
     }
 
@@ -694,18 +678,18 @@ class Product extends Element
         $record->postDate = $this->postDate;
         $record->expiryDate = $this->expiryDate;
         $record->typeId = $this->typeId;
-        $record->promotable = $this->promotable;
-        $record->availableForPurchase = $this->availableForPurchase;
-        $record->freeShipping = $this->freeShipping;
+        $record->promotable = (bool)$this->promotable;
+        $record->availableForPurchase = (bool)$this->availableForPurchase;
+        $record->freeShipping = (bool)$this->freeShipping;
         $record->taxCategoryId = $this->taxCategoryId;
         $record->shippingCategoryId = $this->shippingCategoryId;
 
-        $record->defaultSku = $this->getDefaultVariant()->sku;
-        $record->defaultPrice = (float)$this->getDefaultVariant()->price;
-        $record->defaultHeight = (float)$this->getDefaultVariant()->height;
-        $record->defaultLength = (float)$this->getDefaultVariant()->length;
-        $record->defaultWidth = (float)$this->getDefaultVariant()->width;
-        $record->defaultWeight = (float)$this->getDefaultVariant()->weight;
+        $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+        $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
+        $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
+        $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
+        $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
+        $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $record->dateUpdated = $this->dateUpdated;
@@ -857,7 +841,12 @@ class Product extends Element
                 if (empty($this->getVariants())) {
                     $this->addError('variants', Plugin::t('Must have at least one variant.'));
                 }
-            }, 'skipOnEmpty' => false
+            },
+            'skipOnEmpty' => false,
+            'when' => static function($model) {
+                /** @var Variant $model */
+                return !$model->duplicateOf;
+            }
         ];
 
         return $rules;
@@ -906,14 +895,6 @@ class Product extends Element
         $shippingCategoryIds = array_keys($this->getType()->getShippingCategories());
         if (!in_array($this->shippingCategoryId, $shippingCategoryIds, false)) {
             $this->shippingCategoryId = $shippingCategoryIds[0];
-        }
-
-        $defaultVariant = null;
-        foreach ($this->getVariants() as $variant) {
-            // Make the first variant (or the last one that isDefault) the default.
-            if ($defaultVariant === null || $variant->isDefault) {
-                $this->_defaultVariant = $defaultVariant = $variant;
-            }
         }
 
         // Make sure the field layout is set correctly
@@ -969,7 +950,7 @@ class Product extends Element
 
             $sources[$key] = [
                 'key' => $key,
-                'label' => $productType->name,
+                'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
                     'editable' => $canEditProducts
@@ -1035,6 +1016,9 @@ class Product extends Element
             }
 
             if ($canManage) {
+                // Duplicate
+                $actions[] = Duplicate::class;
+
                 // Allow deletion
                 $deleteAction = Craft::$app->getElements()->createAction([
                     'type' => DeleteProduct::class,
@@ -1242,5 +1226,36 @@ class Product extends Element
                 return parent::tableAttributeHtml($attribute);
             }
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setScenario($value)
+    {
+        foreach ($this->getVariants() as $variant) {
+            $variant->setScenario($value);
+        }
+
+        parent::setScenario($value);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function afterPropagate(bool $isNew)
+    {
+        /** @var Product $original */
+        if ($original = $this->duplicateOf) {
+            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($original->id, $original->siteId);
+            $newVariants = [];
+            foreach ($variants as $variant) {
+                $variant->sku .= '-1';
+                $variant = Craft::$app->getElements()->duplicateElement($variant, ['product' => $this]);
+                $newVariants[] = $variant;
+            }
+            $this->setVariants($newVariants);
+        }
+        parent::afterPropagate($isNew);
     }
 }

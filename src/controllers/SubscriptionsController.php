@@ -17,7 +17,6 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;

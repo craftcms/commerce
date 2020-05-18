@@ -18,8 +18,10 @@ use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\commerce\web\assets\productindex\ProductIndexAsset;
 use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidElementException;
 use craft\errors\MissingComponentException;
 use craft\errors\SiteNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\models\Site;
@@ -31,6 +33,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Products Controller
@@ -196,6 +199,7 @@ class ProductsController extends BaseCpController
     /**
      * Save a new or existing product.
      *
+     * @param bool $duplicate Whether the product should be duplicated
      * @return Response|null
      * @throws Exception
      * @throws HttpException
@@ -204,22 +208,68 @@ class ProductsController extends BaseCpController
      * @throws MissingComponentException
      * @throws BadRequestHttpException
      */
-    public function actionSaveProduct()
+    public function actionSaveProduct(bool $duplicate = false)
     {
         $this->requirePostRequest();
 
+        // Get the requested product
         $request = Craft::$app->getRequest();
-
-        $product = ProductHelper::populateProductFromPost();
-
+        $product = ProductHelper::productFromPost($request);
+        $variants = $request->getBodyParam('variants');
         $this->enforceProductPermissions($product);
 
-        // Save the entry (finally!)
+        // If we're duplicating the product, swap $product with the duplicate
+        if ($duplicate) {
+            try {
+                $originalVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
+                $product = Craft::$app->getElements()->duplicateElement($product);
+                $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
+
+                $newVariants = [];
+                foreach ($variants as $key => $postedVariant) {
+                    if (strpos($key, 'new') === 0) {
+                        $newVariants[$key] = $postedVariant;
+                    } else {
+                        $index = array_search($key, $originalVariantIds);
+                        if ($index !== false) {
+                            $newVariants[$duplicatedVariantIds[$index]] = $postedVariant;
+                        }
+                    }
+                }
+                $variants = $newVariants;
+            } catch (InvalidElementException $e) {
+                /** @var Product $clone */
+                $clone = $e->element;
+
+                if ($request->getAcceptsJson()) {
+                    return $this->asJson([
+                        'success' => false,
+                        'errors' => $clone->getErrors(),
+                    ]);
+                }
+
+                Craft::$app->getSession()->setError(Plugin::t('Couldn’t duplicate product.'));
+
+                // Send the original entry back to the template, with any validation errors on the clone
+                $product->addErrors($clone->getErrors());
+                Craft::$app->getUrlManager()->setRouteParams([
+                    'product' => $product
+                ]);
+
+                return null;
+            } catch (\Throwable $e) {
+                throw new ServerErrorHttpException(Plugin::t('An error occurred when duplicating the product.'), 0, $e);
+            }
+        }
+
+        // Now populate the rest of it from the post data
+        ProductHelper::populateProductFromPost($product, $request);
+
+        $product->setVariants($variants);
+
+        // Save the product (finally!)
         if ($product->enabled && $product->enabledForSite) {
             $product->setScenario(Element::SCENARIO_LIVE);
-            foreach ($product->getVariants() as $variant) {
-                $variant->setScenario(Element::SCENARIO_LIVE);
-            }
         }
 
         if (!Craft::$app->getElements()->saveElement($product)) {
@@ -256,6 +306,16 @@ class ProductsController extends BaseCpController
         return $this->redirectToPostedUrl($product);
     }
 
+    /**
+     * Duplicates a product.
+     *
+     * @return Response|null
+     * @since 3.1.3
+     */
+    public function actionDuplicateProduct()
+    {
+        return $this->runAction('save-product', ['duplicate' => true]);
+    }
 
     /**
      * @param Product $product

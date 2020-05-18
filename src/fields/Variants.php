@@ -9,8 +9,12 @@ namespace craft\commerce\fields;
 
 use Craft;
 use craft\commerce\elements\Variant;
+use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
+use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
+use craft\commerce\gql\resolvers\elements\Variant as VariantResolver;
 use craft\commerce\Plugin;
 use craft\fields\BaseRelationField;
+use GraphQL\Type\Definition\Type;
 
 /**
  * Class Variant Field
@@ -36,6 +40,19 @@ class Variants extends BaseRelationField
         return Plugin::t('Add a variant');
     }
 
+    /**
+     * @inheritdoc
+     * @since 3.1.4
+     */
+    public function getContentGqlType()
+    {
+        return [
+            'name' => $this->handle,
+            'type' => Type::listOf(VariantInterface::getType()),
+            'args' => VariantArguments::getArguments(),
+            'resolve' => VariantResolver::class . '::resolve',
+        ];
+    }
 
     /**
      * @inheritdoc

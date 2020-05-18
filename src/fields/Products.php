@@ -10,9 +10,13 @@ namespace craft\commerce\fields;
 use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\gql\arguments\elements\Product as ProductArguments;
+use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
+use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\fields\BaseRelationField;
+use GraphQL\Type\Definition\Type;
 
 /**
  * Class Product Field
@@ -51,6 +55,19 @@ class Products extends BaseRelationField
         return parent::getInputHtml($value, $element);
     }
 
+    /**
+     * @inheritdoc
+     * @since 3.1.4
+     */
+    public function getContentGqlType()
+    {
+        return [
+            'name' => $this->handle,
+            'type' => Type::listOf(ProductInterface::getType()),
+            'args' => ProductArguments::getArguments(),
+            'resolve' => ProductResolver::class . '::resolve',
+        ];
+    }
 
     /**
      * @inheritdoc

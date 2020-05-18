@@ -13,6 +13,8 @@ use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
+use craft\web\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use yii\web\HttpException;
 
 /**
@@ -70,12 +72,19 @@ class Product
     }
 
     /**
+     * Instantiates the product specified by the post data.
+     *
+     * @param Request|null $request
      * @return ProductModel
      * @throws HttpException
+     * @since 3.1.3
      */
-    public static function populateProductFromPost(): ProductModel
+    public static function productFromPost(Request $request = null): ProductModel
     {
-        $request = Craft::$app->getRequest();
+        if ($request === null) {
+            $request = Craft::$app->getRequest();
+        }
+
         $productId = $request->getBodyParam('productId');
         $siteId = $request->getBodyParam('siteId');
 
@@ -83,14 +92,35 @@ class Product
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new HttpException(404, Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
+                throw new NotFoundHttpException(Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new ProductModel();
+            $product->typeId = $request->getBodyParam('typeId');
+            $product->siteId = $siteId ?? $product->siteId;
         }
 
-        $product->typeId = $request->getBodyParam('typeId');
-        $product->siteId = $siteId ?? $product->siteId;
+        return $product;
+    }
+
+    /**
+     * Populates a product from the post data.
+     *
+     * @param ProductModel|null $product
+     * @param Request|null $request
+     * @return ProductModel
+     * @throws HttpException
+     */
+    public static function populateProductFromPost(ProductModel $product = null, Request $request = null): ProductModel
+    {
+        if ($request === null) {
+            $request = Craft::$app->getRequest();
+        }
+
+        if ($product === null) {
+            $product = static::productFromPost($request);
+        }
+
         $product->enabled = (bool)$request->getBodyParam('enabled');
         if (($postDate = $request->getBodyParam('postDate')) !== null) {
             $product->postDate = DateTimeHelper::toDateTime($postDate) ?: null;

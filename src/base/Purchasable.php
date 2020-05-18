@@ -171,9 +171,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function defineRules(): array
     {
-        $rules = parent::rules();
+        $rules = parent::defineRules();
 
         $rules[] = [
             ['sku'],

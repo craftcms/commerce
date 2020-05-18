@@ -17,6 +17,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use LitEmoji\LitEmoji;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
 use yii\caching\TagDependency;
@@ -240,7 +241,7 @@ class Addresses extends Component
         $addressRecord->phone = $addressModel->phone;
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
         $addressRecord->label = $addressModel->label;
-        $addressRecord->notes = $addressModel->notes;
+        $addressRecord->notes = LitEmoji::unicodeToShortcode($addressModel->notes);
         $addressRecord->businessName = $addressModel->businessName;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
@@ -417,6 +418,7 @@ class Addresses extends Component
 
         // Remove readonly attributes
         $readOnly = [
+            'countryIso',
             'countryText',
             'stateText',
             'abbreviationText',

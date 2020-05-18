@@ -244,6 +244,8 @@ class Countries extends Component
         // Now that we have a record ID, save it on the model
         $country->id = $record->id;
 
+        $this->_clearCaches();
+
         return true;
     }
 
@@ -258,6 +260,7 @@ class Countries extends Component
         $record = CountryRecord::findOne($id);
 
         if ($record) {
+            $this->_clearCaches();
             return (bool)$record->delete();
         }
 
@@ -278,9 +281,25 @@ class Countries extends Component
             $command->update(Table::COUNTRIES, ['sortOrder' => $index + 1], ['id' => $id])->execute();
         }
 
+        $this->_clearCaches();
+
         return true;
     }
 
+    /**
+     * Clear memoization caches
+     * @since 3.1.4
+     */
+    private function _clearCaches()
+    {
+        // Clear all caches
+        // TODO refactor memoization
+        $this->_fetchedAllCountries = false;
+        $this->_countriesById = [];
+        $this->_countriesByShippingZoneId = [];
+        $this->_countriesByTaxZoneId = [];
+        $this->_enabledCountriesById = [];
+    }
 
     /**
      * Returns a Query object prepped for retrieving Countries.

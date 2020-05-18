@@ -27,7 +27,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
-use craft\commerce\web\assets\commerceui\CommerceUiAsset;
+use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
@@ -406,7 +406,17 @@ class OrdersController extends Controller
         $order->typeCastAttributes();
 
         $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
-        return $order->toArray($orderFields, $extraFields);
+
+        $orderArray = $order->toArray($orderFields, $extraFields);
+
+        if (!empty($orderArray['lineItems'])) {
+            foreach ($orderArray['lineItems'] as &$lineItem) {
+                $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+            }
+            unset($lineItem);
+        }
+
+        return $orderArray;
     }
 
     /**
@@ -436,7 +446,7 @@ class OrdersController extends Controller
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
             ->select(['id', 'price', 'description', 'sku'])
-            ->from('{{%commerce_purchasables}}');
+            ->from(Table::PURCHASABLES);
 
         // Are they searching for a purchasable ID?
         if (is_numeric($query)) {
@@ -478,7 +488,7 @@ class OrdersController extends Controller
      */
     public function actionPurchasablesTable()
     {
-        $this->requirePermission('commerce-editOrder');
+        $this->requirePermission('commerce-editOrders');
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
@@ -492,7 +502,7 @@ class OrdersController extends Controller
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
             ->select(['id', 'price', 'description', 'sku'])
-            ->from('{{%commerce_purchasables}}');
+            ->from(Table::PURCHASABLES);
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {
@@ -536,7 +546,6 @@ class OrdersController extends Controller
     {
         $limit = 30;
         $customers = [];
-        $currentUser = Craft::$app->getUser()->getIdentity();
 
         if ($query === null) {
             return $this->asJson($customers);
@@ -548,15 +557,7 @@ class OrdersController extends Controller
 
         $customers = $customersQuery->all();
 
-        foreach ($customers as &$customer) {
-            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
-            $customer['user'] = $user ? [
-                'title' => $user ? $user->__toString() : null,
-                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
-                'status' => $user ? $user->getStatus() : null,
-            ] : null;
-            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
-        }
+        $customers = $this->_prepCustomersArray($customers);
 
         return $this->asJson($customers);
     }
@@ -963,7 +964,7 @@ class OrdersController extends Controller
      */
     private function _registerJavascript(array $variables)
     {
-        Craft::$app->getView()->registerAssetBundle(CommerceUiAsset::class);
+        Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
         Craft::$app->getView()->registerJs('window.orderEdit = {};', View::POS_BEGIN);
 
@@ -992,7 +993,18 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
-        Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"');
+        Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
+
+        $customer = null;
+        if ($variables['order']->customerId) {
+            $customerQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery()->andWhere(['customers.id' => $variables['order']->customerId]);
+            $customers = $this->_prepCustomersArray($customerQuery->all());
+
+            if (!empty($customers)) {
+                $customer = ArrayHelper::firstValue($customers);
+            }
+        }
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = '. Json::encode($customer), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1109,11 +1121,11 @@ class OrdersController extends Controller
         $billingAddress = null;
         $shippingAddress = null;
 
-        // We need to create a new address if it belongs to a customer
-        if ($billingAddressId) {
+        // We need to create a new address if it belongs to a customer and the order is completed
+        if ($billingAddressId && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
-                ->where(['[[addressId]]' => $billingAddressId])
-                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->where(['addressId' => $billingAddressId])
+                ->andWhere(['not', ['customerId' => null]])
                 ->exists();
 
             if ($belongsToCustomer) {
@@ -1121,10 +1133,10 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId) {
+        if ($shippingAddressId && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
-                ->where(['[[addressId]]' => $shippingAddressId])
-                ->andWhere(['not', ['[[customerId]]' => null]])
+                ->where(['addressId' => $shippingAddressId])
+                ->andWhere(['not', ['customerId' => null]])
                 ->exists();
 
             if ($belongsToCustomer) {
@@ -1158,8 +1170,14 @@ class OrdersController extends Controller
 
         $order->billingAddressId = $billingAddressId;
         $order->shippingAddressId = $shippingAddressId;
-        $order->billingAddress = $billingAddress;
-        $order->shippingAddress = $shippingAddress;
+
+        if ($billingAddress) {
+            $order->setBillingAddress($billingAddress);
+        }
+
+        if ($shippingAddress) {
+            $order->setShippingAddress($shippingAddress);
+        }
 
         $lineItems = [];
         $adjustments = [];
@@ -1362,5 +1380,32 @@ class OrdersController extends Controller
             }
         }
         return $purchasables;
+    }
+
+    /**
+     * @param array $customers
+     * @return array
+     * @since 3.1.4
+     */
+    private function _prepCustomersArray(array $customers): array
+    {
+        if (empty($customers)) {
+            return [];
+        }
+
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        foreach ($customers as &$customer) {
+            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
+            $customer['user'] = $user ? [
+                'title' => $user ? $user->__toString() : null,
+                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
+                'status' => $user ? $user->getStatus() : null,
+            ] : null;
+            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
+            $customer['url'] = $currentUser->can('commerce-manageCustomers') ? UrlHelper::cpUrl('commerce/customers/' . $customer['id']) : null;
+        }
+
+        return $customers;
     }
 }

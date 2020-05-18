@@ -10,9 +10,12 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use craft\validators\StringValidator;
 use DvK\Vat\Validator;
 use Exception;
+use LitEmoji\LitEmoji;
 
 /**
  * Address Model
@@ -185,6 +188,15 @@ class Address extends Model
      */
     private $_vatValidator;
 
+    /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
+
+        parent::init();
+    }
 
     /**
      * @return string
@@ -202,6 +214,7 @@ class Address extends Model
         $names = parent::attributes();
         $names[] = 'fullName';
         $names[] = 'countryText';
+        $names[] = 'countryIso';
         $names[] = 'stateText';
         $names[] = 'stateValue';
         $names[] = 'abbreviationText';
@@ -260,36 +273,50 @@ class Address extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['stateId'], 'validateState', 'skipOnEmpty' => false];
+        $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
+
+        $rules[] = [
+            ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
+                return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+            }
+        ];
         $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
-        $rules[] = [[
-            'firstName',
-            'lastName',
-            'fullName',
-            'attention',
-            'title',
-            'address1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'businessName',
-            'businessId',
-            'businessTaxId',
-            'countryId',
-            'stateId',
-            'stateName',
-            'stateValue',
-            'custom1',
-            'custom2',
-            'custom3',
-            'custom4',
-            'notes',
-            'label',
-        ], 'trim'];
+        $textAttributes =
+            [
+                'firstName',
+                'lastName',
+                'fullName',
+                'attention',
+                'title',
+                'address1',
+                'address2',
+                'address3',
+                'city',
+                'zipCode',
+                'phone',
+                'alternativePhone',
+                'businessName',
+                'stateName',
+                'stateValue',
+                'custom1',
+                'custom2',
+                'custom3',
+                'custom4',
+                'notes',
+                'label'
+            ];
+
+        // Trim all text attributes
+        $rules[] = [$textAttributes, 'trim'];
+
+        // Copy string attributes to new array to manipulate
+        $textAttributesMinusMb4Allowed = $textAttributes;
+        // Allow notes to contain emoji
+        ArrayHelper::removeValue($textAttributesMinusMb4Allowed, 'notes');
+
+        // Don't allow Mb4 for any strings
+        $rules[] = [$textAttributesMinusMb4Allowed, StringValidator::class, 'disallowMb4' => true];
 
         return $rules;
     }
@@ -338,6 +365,7 @@ class Address extends Model
         }
     }
 
+
     /**
      * @return string
      */
@@ -352,6 +380,16 @@ class Address extends Model
     public function getCountry()
     {
         return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
+    }
+
+    /**
+     * @return string
+     * @since 3.1.4
+     */
+    public function getCountryIso(): string
+    {
+        $country = $this->getCountry();
+        return $country ? $country->iso : '';
     }
 
     /**
