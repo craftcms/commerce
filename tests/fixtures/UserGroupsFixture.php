@@ -17,7 +17,7 @@ use yii\base\Exception;
  * Class UserGroupsFixture.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.4
  */
 class UserGroupsFixture extends Fixture
 {

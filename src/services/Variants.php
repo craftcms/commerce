@@ -26,7 +26,7 @@ class Variants extends Component
 {
     /**
      * @var array
-     * @since 3.x
+     * @since 3.1.4
      */
     private $_contentFieldCache = [];
 
@@ -58,7 +58,7 @@ class Variants extends Component
 
     /**
      * @return array
-     * @since 3.x
+     * @since 3.1.4
      */
     public function getVariantGqlContentArguments(): array
     {
