@@ -60,8 +60,7 @@ class ConsolidateGuestOrders extends BaseJob
     }
 
     /**
-     * @inheritDoc
-     * @deprecated in 3.x. Use [[\craft\commerce\services\Customers::consolidateGuestOrdersByEmail()]] instead.
+     * @deprecated in 3.1.4. Use [[\craft\commerce\services\Customers::consolidateGuestOrdersByEmail()]] instead.
      */
     public function consolidate($email)
     {

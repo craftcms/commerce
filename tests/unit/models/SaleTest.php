@@ -16,7 +16,7 @@ use craft\commerce\services\Sales;
  * SaleTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.4
  */
 class SaleTest extends Unit
 {

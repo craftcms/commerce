@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.4 - 2020-05-18
 
 ### Added
 - Added a “Duplicate” action to the Products index page.
