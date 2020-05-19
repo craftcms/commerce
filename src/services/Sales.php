@@ -663,7 +663,7 @@ class Sales extends Component
 
     /**
      * Clear memoization caches
-     * @since 3.x
+     * @since 3.1.4
      */
     private function _clearCaches()
     {

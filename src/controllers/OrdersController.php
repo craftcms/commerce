@@ -1385,7 +1385,7 @@ class OrdersController extends Controller
     /**
      * @param array $customers
      * @return array
-     * @since 3.x
+     * @since 3.1.4
      */
     private function _prepCustomersArray(array $customers): array
     {

@@ -9,7 +9,7 @@ use craft\test\fixtures\FieldLayoutFixture as BaseFieldLayoutFixture;
  * Field Layout Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.4
  */
 class FieldLayoutFixture extends BaseFieldLayoutFixture
 {

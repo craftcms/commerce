@@ -12,7 +12,7 @@ use craft\test\fixtures\elements\CategoryFixture;
  * Categories Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.4
  */
 class CategoriesFixture extends CategoryFixture
 {

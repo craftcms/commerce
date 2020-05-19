@@ -550,7 +550,7 @@ class Customers extends Component
      * @param string $email
      * @param Order|null $order
      * @throws \yii\db\Exception
-     * @since 3.x
+     * @since 3.1.4
      */
     public function consolidateGuestOrdersByEmail(string $email, $order = null)
     {

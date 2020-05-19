@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+=======
+---
+name: Feature request
+about: Suggest an idea or enhancement
+title: ''
+labels: 💡 enhancement, New
+assignees: ''
+
+---
+>>>>>>> develop
 **What are you trying to do?**
 A description of what you want to happen.
 

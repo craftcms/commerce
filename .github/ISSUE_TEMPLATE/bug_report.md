@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+=======
+---
+name: Bug Report
+about: Create a report to help us improve
+title: ''
+labels: New
+assignees: ''
+
+---
+
+>>>>>>> develop
 **Description**
 Describe what the problem is.
 
