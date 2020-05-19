@@ -345,6 +345,7 @@ class CartController extends BaseFrontEndController
                     'error' => $error,
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
+                    'message' => $error,
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
             }
@@ -359,9 +360,17 @@ class CartController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
+
+            if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+                $message = Html::encode($cartUpdatedNotice);
+            } else {
+                $message = Plugin::t('Cart updated.');
+            }
+
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
-                $this->_cartVariable => $this->cartArray($this->_cart)
+                $this->_cartVariable => $this->cartArray($this->_cart),
+                'message' => $message,
             ]);
         }
 
