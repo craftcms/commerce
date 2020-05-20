@@ -220,7 +220,7 @@ class Variant extends Purchasable
     public $stock;
 
     /**
-     * @var int $hasUnlimitedStock
+     * @var bool $hasUnlimitedStock
      */
     public $hasUnlimitedStock;
 
