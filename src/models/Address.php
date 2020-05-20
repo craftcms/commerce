@@ -371,7 +371,8 @@ class Address extends Model
      */
     public function getCountryText(): string
     {
-        return $this->countryId ? $this->getCountry()->name : '';
+        $country = $this->getCountry();
+        return $country ? $country->name : '';
     }
 
     /**
@@ -397,11 +398,16 @@ class Address extends Model
      */
     public function getStateText(): string
     {
+        $state = $this->getState();
         if ($this->stateName) {
-            return $this->stateId ? $this->getState()->name : $this->stateName;
+            if ($this->stateId && $state === null) {
+                return '';
+            }
+
+            return $this->stateId ? $state->name : $this->stateName;
         }
 
-        return $this->stateId ? $this->getState()->name : '';
+        return $state ? $state->name : '';
     }
 
     /**
@@ -409,7 +415,8 @@ class Address extends Model
      */
     public function getAbbreviationText(): string
     {
-        return $this->stateId ? $this->getState()->abbreviation : '';
+        $state = $this->getState();
+        return $state ? $state->abbreviation : '';
     }
 
     /**
