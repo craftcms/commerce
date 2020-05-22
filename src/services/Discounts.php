@@ -14,6 +14,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
+use craft\commerce\events\MatchOrderEvent;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -122,7 +123,8 @@ class Discounts extends Component
     /**
      * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
      *
-     * You may set the `isValid` property to `false` on the event to prevent the application of the matched discount.
+     * This event will be raised if all standard conditions are met.
+     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount to the line item.
      *
      * ```php
      * use craft\commerce\services\Discounts;
@@ -147,6 +149,65 @@ class Discounts extends Component
      * ```
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
+
+    /**
+     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
+     *
+     * This event will be raised if all standard conditions are met.
+     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount to the line item.
+     *
+     * ```php
+     * use craft\commerce\services\Discounts;
+     * use craft\commerce\events\MatchLineItemEvent;
+     * use craft\commerce\models\Discount;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM,
+     *     function(MatchLineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *
+     *         // Check some business rules and prevent a match in special cases
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'beforeMatchLineItem';
+
+    /**
+     * @event MatchOrderEvent The event that is triggered when an order is matched with a discount.
+     *
+     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount with the order.
+     *
+     * ```php
+     * use craft\commerce\services\Discounts;
+     * use craft\commerce\events\MatchOrderEvent;
+     * use craft\commerce\models\Discount;
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Discounts::class,
+     *     Discounts::EVENT_DISCOUNT_MATCHES_ORDER,
+     *     function(MatchLineOrder $event) {
+     *         // @var Order $order
+     *         $order = $event->order;
+     *         // @var Discount $discount
+     *         $discount = $event->discount;
+     *
+     *         // Check some business rules and prevent a match in special cases
+     *         // ... $event->isValid = false; // set to false if you want it to NOT match as it would.
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_DISCOUNT_MATCHES_ORDER = 'beforeMatchOrder';
 
 
     /**
@@ -426,10 +487,14 @@ class Discounts extends Component
             }
         }
 
-        // Raise the 'beforeMatchLineItem' event
         $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
+        $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
 
-        $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
+            Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
+            $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
+            $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
+        }
 
         return $event->isValid;
     }
@@ -441,6 +506,7 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
+
         if (!$discount->enabled) {
             return false;
         }
@@ -523,7 +589,12 @@ class Discounts extends Component
             }
         }
 
-        return true;
+        // Raise the 'beforeMatchLineItem' event
+        $event = new MatchOrderEvent(compact('order', 'discount'));
+
+        $this->trigger(self::EVENT_DISCOUNT_MATCHES_ORDER, $event);
+
+        return $event->isValid;
     }
 
 
