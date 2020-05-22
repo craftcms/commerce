@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
+
+### Deprecated
+- Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. Use `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM` instead.
+
 ## 3.1.4 - 2020-05-18
 
 ### Added
