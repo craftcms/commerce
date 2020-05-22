@@ -27,6 +27,7 @@
     {% set width = 0 %}
 {% endif %}
 
+{% if 'checkout' in craft.app.request.pathInfo %}
 <div class="container mx-auto justify-between items-center p-6 text-center">
     <nav class="flex">
         {% for step in checkoutSteps %}
@@ -41,3 +42,4 @@
     <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
     <div class="h-2 bg-blue-600 rounded -mt-2" style="width:{{ width }}%;"></div>
 </div>
+{% endif %}

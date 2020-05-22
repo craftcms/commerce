@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Shop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script type="application/javascript" src="/shop/jquery.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
     <style>{% include('shop/tailwind.css') %}</style>
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
@@ -23,13 +23,9 @@
         </div>
     </div>
 
-    {% if 'checkout' not in craft.app.request.pathInfo %}
-        {% include 'shop/_includes/nav-main' %}
-    {% endif %}
+    {% include 'shop/_includes/nav-main' %}
 
-    {% if 'checkout' in craft.app.request.pathInfo %}
-        {% include 'shop/_includes/nav-checkout' %}
-    {% endif %}
+    {% include 'shop/_includes/nav-checkout' %}
 
 </header>
 
@@ -74,9 +70,9 @@
 {% endblock %}
 
 <footer>
-{% include 'shop/_includes/nav-templates' %}
+    {% include 'shop/_includes/nav-templates' %}
 
-{% include 'shop/_includes/footer' %}
+    {% include 'shop/_includes/footer' %}
 </footer>
 
 {% if devMode %}
