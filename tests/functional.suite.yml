@@ -8,5 +8,8 @@ class_name: FunctionalTester
 modules:
     enabled:
         - Asserts
+        - REST:
+            url: 'http://localhost:9999/'
+            depends: PhpBrowser
         - \craft\test\Craft
         - \Helper\Functional

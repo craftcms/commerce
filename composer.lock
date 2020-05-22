@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab5353eddd095e7dfc0b26e251f1395f",
+    "content-hash": "a500305600eca00a98dbac5886a2d73a",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -6004,6 +6004,46 @@
                 "yii2"
             ],
             "time": "2020-01-28T12:56:17+00:00"
+        },
+        {
+            "name": "codeception/phpbuiltinserver",
+            "version": "v1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tiger-seo/PhpBuiltinServer.git",
+                "reference": "730206313b7e85d9ed4838ba02a0aee24fce1239"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tiger-seo/PhpBuiltinServer/zipball/730206313b7e85d9ed4838ba02a0aee24fce1239",
+                "reference": "730206313b7e85d9ed4838ba02a0aee24fce1239",
+                "shasum": ""
+            },
+            "require": {
+                "codeception/codeception": ">=2.0.2",
+                "php": ">=5.4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Codeception": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "tiger-seo",
+                    "email": "tiger.seo@gmail.com"
+                }
+            ],
+            "description": "PhpBuiltinServer extension for Codeception",
+            "keywords": [
+                "codeception"
+            ],
+            "time": "2014-09-19T10:14:07+00:00"
         },
         {
             "name": "codeception/phpunit-wrapper",

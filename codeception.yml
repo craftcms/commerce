@@ -38,6 +38,16 @@ modules:
       transaction: true
       dbSetup: {clean: true, setupCraft: true}
       fullMock: false
+extensions:
+  enabled:
+    - Codeception\Extension\PhpBuiltinServer
+  config:
+    Codeception\Extension\PhpBuiltinServer:
+      hostname: localhost
+      port: 9999
+      autostart: true
+      documentRoot: ./tests
+      startDelay: 1
 groups:
   elements: [tests/unit/elements]
   models: [tests/unit/models]
