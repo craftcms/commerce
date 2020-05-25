@@ -1,0 +1,25 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+    <div>
+        <h1 class="text-3xl block sm:inline">{{ product.defaultVariant.title }}</h1>
+        <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <form method="post" class="js-form">
+            <input type="hidden" name="action" value="commerce/cart/update-cart">
+            <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.defaultVariant.title }} to the cart.">
+            <input type="hidden" name="purchasableId" value="{{ product.defaultVariant.id }}">
+            {{ csrfInput() }}
+            <div class="p-2 relative">
+                {{ product.defaultVariant.title }}
+                <span class="italic">{{ product.defaultVariant.price|currency(cart.currency) }}</span>
+                <button type="submit"
+                        class="float-right md:float-none md:ml-10 text-gray-600 underline hover:text-gray-500 cursor-pointer">
+                    Add to cart
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

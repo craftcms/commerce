@@ -2,96 +2,18 @@
 
 {% block main %}
 
-    <h1 class="text-3xl mb-4">Products</h1>
+    <h1 class="text-3xl block sm:inline">Products</h1>
+    <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
 
-    {% set products = craft.products.limit(10).all() %}
+    {% paginate craft.products.limit(4) as pageInfo, pageProducts %}
 
-    
-    <h2 class="text-2xl mt-20">Simple product list of default variants</h2>
-    <p class="mb-4 text-gray-400">This is an example of a simple list of products and their default variant. If the product has additional variants, they will no be listed here.
-    No `qty` needs to be submitted because it defaults to 1.</p>
-    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 -mx-2 pb-4">
-        {% for product in products %}
-            <form method="post" class="js-form">
-                <input type="hidden" name="action" value="commerce/cart/update-cart">
-                <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.defaultVariant.title }} to the cart.">
-                <input type="hidden" name="purchasableId" value="{{ product.defaultVariant.id }}">
-                {{ redirectInput('shop/cart') }}
-                {{ csrfInput() }}
-                <div class="p-2 relative">
-                    {{ product.defaultVariant.title }} <span class="italic">{{ product.defaultVariant.price|currency(cart.currency) }}</span>
-                    <button type="submit" class="float-right md:block md:float-none text-gray-600 underline hover:text-gray-500 cursor-pointer">Add to cart</button>
-                </div>
-            </form>
-        {% endfor %}
-    </div>
+    {% include 'shop/products/_includes/pagination' with { products: pageProducts, pageInfo: pageInfo } %}
 
+    {% include 'shop/products/_includes/simple-list' with { products: pageProducts } %}
 
-    <h2 class="text-2xl mt-20">Product grid with variant dropdown and quantity</h2>
-    <p class="mb-4 text-gray-400">A listing of products with their variants in a dropdown, with a qty box.
-        {% if craft.commerce.edition == 'lite' %}
-        Because you are running the <a href="https://docs.craftcms.com/commerce/v3/editions.html" target="_blank"> {{ craft.commerce.edition|upper }} edition</a> you can only have one item in your cart at a time.
-        {% endif %}
-    </p>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -mx-4 -my-4">
-        {% for product in products %}
-            <div class="p-4 relative">
-                <div>
-                    <div style="background-image: url('')"
-                         class="bg-cover bg-center bg-gray-300 h-32 rounded">
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <p class="text-lg text-bold tracking-wide mb-2">
-                        {{ product.title }}
-                    </p>
-                    <p>Description of the item here.</p>
-                </div>
-                <form method="post" class="js-form mt-6">
-                    <input type="hidden" name="action" value="commerce/cart/update-cart">
-                    <input type="hidden" name="cartUpdatedNotice"
-                           value="Added {{ product.title }} to the cart.">
-                    {{ redirectInput('shop/cart') }}
-                    {{ csrfInput() }}
-                    <div class="inline-block relative w-full">
-                        <select name="purchasableId" class="js-purchasableId block appearance-none w-full border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline">
-                            {% for variant in product.getVariants() %}
-                                <option value="{{ variant.id }}">{{ variant.title }} {{ variant.sku }} {{ variant.salePrice|currency(cart.currency) }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                 viewBox="0 0 20 20">
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
-                               name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
-                        <button type="submit" class="rounded bg-gray-500 m-0 px-4 py-2 text-white hover:bg-gray-600">Add</button>
-                    </div>
-                </form>
-            </div>
-        {% endfor %}
-    </div>
+    {% include 'shop/products/_includes/grid' with { products: pageProducts } %}
 
-    <h2 class="text-2xl mt-20">Product details with sales and purchase history</h2>
-    <p class="mb-4 text-gray-400">This is an example of a listing of a single product with multiple variants that also shows addition information about sales.</p>
-    {% set product = craft.products.one() %}
-    <form method="post" class="js-form">
-        <input type="hidden" name="action" value="commerce/cart/update-cart">
-        <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.defaultVariant.title }} to the cart.">
-        <input type="hidden" name="purchasableId" value="{{ product.defaultVariant.id }}">
-        {{ redirectInput('shop/cart') }}
-        {{ csrfInput() }}
-        <div class="p-2 relative">
-            {{ product.defaultVariant.title }} <span class="italic">{{ product.defaultVariant.price|currency(cart.currency) }}</span>
-            <button type="submit" class="float-right md:float-none md:ml-10 text-gray-600 underline hover:text-gray-500 cursor-pointer">Add to cart</button>
-        </div>
-    </form>
-
-
+    {% include 'shop/products/_includes/pagination' with { products: pageProducts, pageInfo: pageInfo } %}
 
     {# The following javascript, when enabled, will submit forms on this page over http and receive a json response #}
 

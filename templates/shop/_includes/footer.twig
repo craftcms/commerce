@@ -1,10 +1,19 @@
+{% if craft.commerce.edition == 'lite' %}
+<div class="bg-red-800 text-white">
+    <div class="container mx-auto p-6">
+        Because you are running Craft Commerce <span class="bg-white text-red-800 tracking-wide px-2 py-1 mx-1 rounded"> {{ craft.commerce.edition|upper }}</span> you can only have one item in your cart at a time. <a class="underline " href="https://docs.craftcms.com/commerce/v3/editions.html">Learn More</a>.
+    </div>
+</div>
+{% endif %}
+
 <div class="bg-gray-900 text-white">
     <div class="container mx-auto p-6">
-        <h3 class="text-2xl pb-2">Example Templates</h3>
+        <h3 class="text-2xl">Footer</h3>
+        <div class="text-gray-700 text-xs tracking-widest font-mono pb-2">templates/{{ _self }}.twig</div>
         <p class="pb-2 max-w-2xl">These are the example templates for Craft Commerce 3.2</p>
         <p class="pb-2 max-w-2xl">We do not recommend using these example templates as-is for your site, but suggest
             extracting portions and customizing them as appropriate.</p>
-        <p class="pb-2">Here are some resources to get you started:</p>
+        <p class="pb-2">Here are some other resources to get you started:</p>
         <ul class="list-disc list-inside pb-2">
             <li><a href="https://docs.craftcms.com/commerce" class="underline">Craft Commerce Documentation</a>.</li>
             <li><a href="https://docs.craftcms.com/" class="underline">Craft CMS Documentation</a>.</li>

@@ -9,27 +9,29 @@
     <style>{% include('shop/tailwind.css') %}</style>
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
-<body class="text-gray-700 flex flex-col min-h-screen">
+<body class="relative text-gray-800 flex flex-col min-h-screen">
 
 {% if cart is not defined %}
     {% set cart = craft.commerce.carts.cart %}
 {% endif %}
+{% set flashNotice = craft.app.session.getFlash('notice') %}
+{% set flashError = craft.app.session.getFlash('error') %}
 
 <header>
-
     <div class="bg-gray-300">
         <div class="container mx-auto p-6">
             <h1 class="text-3xl"><a href="/shop">Shop</a></h1>
         </div>
     </div>
 
+    {% include 'shop/_includes/floating-cart' %}
     {% include 'shop/_includes/nav-main' %}
-
     {% include 'shop/_includes/nav-checkout' %}
+
 
 </header>
 
-{% set flashNotice = craft.app.session.getFlash('notice') %}
+
 {% if flashNotice %} {# Add `or true` to this if condition to temporarily see what this flash notice would look like if you have a flash message #}
     <div class="bg-blue-500 text-white">
         <div class="container mx-auto px-6 py-4">
@@ -38,7 +40,7 @@
     </div>
 {% endif %}
 
-{% set flashError = craft.app.session.getFlash('error') %}
+
 {% if flashError %} {# Add `or true` to this if condition to temporarily see what this flash error would look like if you have a flash message #}
     <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
@@ -70,8 +72,6 @@
 {% endblock %}
 
 <footer>
-    {% include 'shop/_includes/nav-templates' %}
-
     {% include 'shop/_includes/footer' %}
 </footer>
 

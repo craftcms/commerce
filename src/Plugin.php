@@ -172,18 +172,7 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerElementExports();
         $this->_defineResaveCommand();
-
-        Event::on(
-            Application::class,
-            Application::EVENT_BEFORE_REQUEST,
-            function() {
-                /** @var \yii\debug\Module */
-                $debugModule = Craft::$app->getModule('debug');
-
-                $debugModule->panels['commerce'] = new CommercePanel(['module' => $debugModule]);
-            }
-        );
-
+        
         Craft::setAlias('@commerceLib',  Craft::getAlias('@craft/commerce/../lib'));
     }
 
