@@ -73,6 +73,11 @@ class Variant extends Element
                 'type' => Type::boolean(),
                 'description' => 'If the variant is the default for the product.',
             ],
+            'isAvailable' => [
+                'name' => 'isAvailable',
+                'type' => Type::boolean(),
+                'description' => 'If the variant is available to be purchased.',
+            ],
             'price' => [
                 'name' => 'price',
                 'type' => Type::float(),
