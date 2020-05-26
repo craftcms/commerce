@@ -337,7 +337,7 @@ class CartController extends BaseFrontEndController
 
         $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
 
-        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
+        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, false)) {
             $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
