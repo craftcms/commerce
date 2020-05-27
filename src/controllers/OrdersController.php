@@ -1330,8 +1330,8 @@ class OrdersController extends Controller
                         'key' => $transaction->status,
                         'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
-                    'amount' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->amount, $transaction->currency) . ' <small class="light">(' . $transaction->currency . ')</small>',
-                    'paymentAmount' => $transaction->paymentAmount . ' <small class="light">(' . $transaction->paymentCurrency . ')</small>',
+                    'paymentAmount' => Craft::$app->getFormatter()->asCurrency($transaction->paymentAmount, $transaction->paymentCurrency),
+                    'amount' => Craft::$app->getFormatter()->asCurrency($transaction->amount, $transaction->currency),
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
