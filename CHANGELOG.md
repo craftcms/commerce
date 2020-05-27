@@ -2,18 +2,18 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a PHP error that could occur when using Craft 3.5 Beta. ([#1471](https://github.com/craftcms/commerce/issues/1471))
-- Fixed a bug where the “Purchase Total” discount condition would show a negative value.
-- Fixed an issue where payment transaction amounts where not being formatted correctly on Edit Order pages. ([#1463](https://github.com/craftcms/commerce/issues/1463)) 
-- Fixed a bug where free shipping discounts could apply incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
-
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
 - Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. Use `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM` instead.
+
+### Fixed
+- Fixed a PHP error that could occur when using Craft 3.5 Beta. ([#1471](https://github.com/craftcms/commerce/issues/1471))
+- Fixed a bug where the “Purchase Total” discount condition would show a negative value.
+- Fixed an issue where payment transaction amounts where not being formatted correctly on Edit Order pages. ([#1463](https://github.com/craftcms/commerce/issues/1463)) 
+- Fixed a bug where free shipping discounts could apply incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
 
 ## 3.1.4 - 2020-05-18
 
