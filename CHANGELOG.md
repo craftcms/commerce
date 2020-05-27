@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.5 - 2020-05-27
 
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
