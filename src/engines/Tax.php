@@ -7,6 +7,7 @@
 
 namespace craft\commerce\engines;
 
+use craft\base\Component;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\adjusters\Tax as TaxAdjuster;
 
@@ -16,7 +17,7 @@ use craft\commerce\adjusters\Tax as TaxAdjuster;
  * @package craft\commerce\engines
  * @since 3.1
  */
-class Tax implements TaxEngineInterface
+class Tax extends Component implements TaxEngineInterface
 {
 
     /**
