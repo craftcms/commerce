@@ -1004,7 +1004,7 @@ class OrdersController extends Controller
                 $customer = ArrayHelper::firstValue($customers);
             }
         }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = '. Json::encode($customer), View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1073,7 +1073,7 @@ class OrdersController extends Controller
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
 
-            if($orderRequestData['order']['dateOrdered']['time'] == ''){
+            if ($orderRequestData['order']['dateOrdered']['time'] == '') {
                 $dateTime = (new \DateTime('now', new \DateTimeZone($dateOrdered['timezone'])));
                 $dateOrdered['time'] = $dateTime->format('H:i');
             }
