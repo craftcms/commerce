@@ -484,15 +484,15 @@ class Discounts extends Component
             }
         }
 
-        if ($discount->allPurchasables && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
+        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
             return false;
         }
 
-        if ($discount->allPurchasables && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
             return false;
         }
 
-        if ($discount->allPurchasables && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
+        if (($discount->allPurchasables && $discount->allCategories) && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
             return false;
         }
 
