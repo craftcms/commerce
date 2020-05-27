@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
 - Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
 
 ### Deprecated
