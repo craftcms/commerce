@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fixed a PHP error that could occur when using Craft 3.5 Beta. ([#1471](https://github.com/craftcms/commerce/issues/1471))
+
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
 - Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
