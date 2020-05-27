@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a PHP error that could occur when using Craft 3.5 Beta. ([#1471](https://github.com/craftcms/commerce/issues/1471))
 - Fixed a bug where the “Purchase Total” discount condition would show a negative value.
+- Fixed a bug where free shipping discounts could apply incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
 
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
