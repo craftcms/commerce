@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
 - Fixed a bug where transaction information could show as undefined. ([#1467](https://github.com/craftcms/commerce/issues/1467))
+- Fixed a bug where addresses weren’t being set when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
 
 ## 3.1.5 - 2020-05-27
 
