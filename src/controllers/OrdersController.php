@@ -1319,6 +1319,11 @@ class OrdersController extends Controller
                     );
                 }
 
+                $transactionResponse = Json::decodeIfJson($transaction->response);
+                if (is_array($transactionResponse)) {
+                    $transactionResponse = Json::htmlEncode($transactionResponse);
+                }
+
                 $return[] = [
                     'id' => $transaction->id,
                     'level' => $level,
@@ -1342,7 +1347,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? ''],
                         ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
-                        ['label' => Html::encode(Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transaction->response],
+                        ['label' => Html::encode(Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
                     ],
                     'actions' => $refundCapture,
                 ];
