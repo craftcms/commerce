@@ -198,8 +198,8 @@ class SalesTest extends Unit
             ->orderBy('sortOrder asc')
             ->all();
         $dbOrder = ArrayHelper::getColumn($dbOrder, 'id', false);
-        $this->assertNotSame($originalOrder, $dbOrder);
-        $this->assertSame($newOrder, $dbOrder);
+        $this->assertNotEquals($originalOrder, $dbOrder);
+        $this->assertEquals($newOrder, $dbOrder);
 
         // Make sure the order has updated if we retrieve the sales again in the same request
         $sales = $this->sales->getAllSales();

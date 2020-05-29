@@ -284,6 +284,7 @@ class LineItem extends Model
             return $options;
         };
 
+        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change.
         if (Craft::$app->getDb()->getSupportsMb4()) {
             $this->_options = $options;
         } else {

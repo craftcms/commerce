@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\LineItem;
 use craft\commerce\test\mockclasses\Purchasable;
@@ -96,11 +97,20 @@ class LineItemTest extends Unit
         ];
 
 
+        // TODO change this when set options for emojis is refactored
         $lineItem->setOptions($options);
-        $this->assertSame($output, $lineItem->getOptions());
+        if (Craft::$app->getDb()->getSupportsMb4()) {
+            $this->assertSame($options, $lineItem->getOptions());
+        } else {
+            $this->assertSame($output, $lineItem->getOptions());
+        }
 
         $lineItem->setOptions($jsonOptions);
-        $this->assertSame($output, $lineItem->getOptions());
+        if (Craft::$app->getDb()->getSupportsMb4()) {
+            $this->assertSame($options, $lineItem->getOptions());
+        } else {
+            $this->assertSame($output, $lineItem->getOptions());
+        }
     }
 
     public function testConsistentOptionsSignatures()
