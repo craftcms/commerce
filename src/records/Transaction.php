@@ -39,6 +39,7 @@ class Transaction extends ActiveRecord
 {
     const TYPE_AUTHORIZE = 'authorize';
     const TYPE_CAPTURE = 'capture';
+    const TYPE_VOID = 'void';
     const TYPE_PURCHASE = 'purchase';
     const TYPE_REFUND = 'refund';
     const STATUS_PENDING = 'pending';

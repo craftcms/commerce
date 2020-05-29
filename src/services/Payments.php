@@ -110,6 +110,54 @@ class Payments extends Component
     const EVENT_AFTER_CAPTURE_TRANSACTION = 'afterCaptureTransaction';
 
     /**
+     * @event TransactionEvent The event that is triggered before a payment transaction is voided.
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use craft\commerce\models\Transaction;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_BEFORE_VOID_TRANSACTION,
+     *     function(TransactionEvent $event) {
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *
+     *         // Check that order isn't already processing
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_BEFORE_VOID_TRANSACTION = 'beforeVoidTransaction';
+
+    /**
+     * @event TransactionEvent The event that is triggered after a payment transaction is voided.
+     *
+     * ```php
+     * use craft\commerce\events\TransactionEvent;
+     * use craft\commerce\services\Payments;
+     * use craft\commerce\models\Transaction;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Payments::class,
+     *     Payments::EVENT_AFTER_VOID_TRANSACTION,
+     *     function(TransactionEvent $event) {
+     *         // @var Transaction $transaction
+     *         $transaction = $event->transaction;
+     *
+     *         // Notify customer their transaction has been voided
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_VOID_TRANSACTION = 'afterVoidTransaction';
+
+    /**
      * @event TransactionEvent The event that is triggered before a transaction is refunded.
      *
      * ```php
@@ -339,6 +387,34 @@ class Payments extends Component
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
+
+        return $transaction;
+    }
+
+    /**
+     * Void a transaction.
+     *
+     * @param Transaction $transaction the transaction to void.
+     * @return Transaction
+     * @throws TransactionException if something went wrong when saving the transaction
+     */
+    public function voidTransaction(Transaction $transaction): Transaction
+    {
+        // Raise 'beforeVoidTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_VOID_TRANSACTION)) {
+            $this->trigger(self::EVENT_BEFORE_VOID_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
+
+        $transaction = $this->_void($transaction);
+
+        // Raise 'afterVoidTransaction' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_VOID_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_VOID_TRANSACTION, new TransactionEvent([
                 'transaction' => $transaction
             ]));
         }
@@ -582,7 +658,7 @@ class Payments extends Component
     }
 
     /**
-     * Process a capture or refund exception.
+     * Process a capture transaction.
      *
      * @param Transaction $parent
      * @return Transaction
@@ -609,7 +685,34 @@ class Payments extends Component
     }
 
     /**
-     * Process a capture or refund exception.
+     * Process a void transaction.
+     *
+     * @param Transaction $parent
+     * @return Transaction
+     * @throws TransactionException if unable to save transaction
+     */
+    private function _void(Transaction $parent): Transaction
+    {
+        $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_VOID);
+
+        $gateway = $parent->getGateway();
+
+        try {
+            $response = $gateway->void($child, (string)$parent->reference);
+            $this->_updateTransaction($child, $response);
+        } catch (Exception $e) {
+            $child->status = TransactionRecord::STATUS_FAILED;
+            $child->message = $e->getMessage();
+            $this->_saveTransaction($child);
+
+            Craft::error($e->getMessage());
+        }
+
+        return $child;
+    }
+
+    /**
+     * Process a refund transaction.
      *
      * @param Transaction $parent
      * @param float|null $amount
