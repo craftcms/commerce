@@ -348,7 +348,12 @@ class Customers extends Component
 
                 if ($order->isCompleted && !$belongsToAnotherUser) {
                     $order->customerId = $toCustomer->id;
-                    Craft::$app->getElements()->saveElement($order);
+
+                    // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
+                    $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+                    $updateSearchIndex = ($order->isCompleted || $updateCartSearchIndexes);
+
+                    Craft::$app->getElements()->saveElement($order, false, false, $updateSearchIndex);
                 }
             }
 
@@ -423,7 +428,8 @@ class Customers extends Component
         $this->_createUserFromOrder($order);
 
         if ($orderAddressesMutated) {
-            Craft::$app->getElements()->saveElement($order, false);
+            // We don't need to update search indexes since the addresses are the same.
+            Craft::$app->getElements()->saveElement($order, false, false, false);
         }
 
         // Consolidate guest orders
