@@ -47,7 +47,7 @@ class CountriesTest extends Unit
         $this->assertIsObject($country);
         $this->assertInstanceOf(Country::class, $country);
         $this->assertSame('United States', $country->name);
-        $this->assertSame('233', $country->id);
+        $this->assertEquals(233, $country->id);
     }
 
     public function testGetCountryByIso()
@@ -59,7 +59,7 @@ class CountriesTest extends Unit
         $this->assertIsObject($country);
         $this->assertInstanceOf(Country::class, $country);
         $this->assertSame('United States', $country->name);
-        $this->assertSame('233', $country->id);
+        $this->assertEquals(233, $country->id);
     }
 
     public function testGetAllCountries()

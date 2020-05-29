@@ -112,9 +112,9 @@ class SalesTest extends Unit
         $purchasableIds = Variant::find()->sku('hct-white')->ids();
         $userGroupsIds = ['1002'];
 
-        $this->assertSame($categoryIds, $sale->getCategoryIds());
-        $this->assertSame($purchasableIds, $sale->getPurchasableIds());
-        $this->assertSame($userGroupsIds, $sale->getUserGroupIds());
+        $this->assertEquals($categoryIds, $sale->getCategoryIds());
+        $this->assertEquals($purchasableIds, $sale->getPurchasableIds());
+        $this->assertEquals($userGroupsIds, $sale->getUserGroupIds());
     }
 
     public function testGetSalesForPurchasable()
@@ -204,7 +204,7 @@ class SalesTest extends Unit
         // Make sure the order has updated if we retrieve the sales again in the same request
         $sales = $this->sales->getAllSales();
         $newOrderFromGetSales = ArrayHelper::getColumn($sales, 'id', false);
-        $this->assertSame($newOrderFromGetSales, $dbOrder);
+        $this->assertEquals($newOrderFromGetSales, $dbOrder);
     }
 
     public function testDeleteSaleById()
