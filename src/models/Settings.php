@@ -214,6 +214,12 @@ class Settings extends Model
      public $loadCartRedirectUrl = null;
 
     /**
+     * @var bool Should the search index for a cart be updated when saving the cart on the front-end.
+     * @since 3.1.5
+     */
+    public $updateCartSearchIndexes = true;
+
+    /**
      * @return array
      */
     public function getWeightUnitsOptions(): array

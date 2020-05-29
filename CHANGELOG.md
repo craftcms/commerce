@@ -2,11 +2,26 @@
 
 ## Unreleased
 
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+- Fixed a bug where transaction information could show as undefined. ([#1467](https://github.com/craftcms/commerce/issues/1467))
+- Fixed a bug where addresses weren’t being set when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
+- Fixed a bug where the `updateCartSearchIndexes` config setting was ignored during `commerce/pay/*` and `commerce/customer-addresses/*` requests.
+
+## 3.1.5 - 2020-05-27
+
 ### Added
+- Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
 - Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
 
 ### Deprecated
-- Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. Use `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM` instead.
+- Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. `EVENT_DISCOUNT_MATCHES_LINE_ITEM` should be used instead.
+
+### Fixed
+- Fixed a PHP error that could occur on Craft 3.5. ([#1471](https://github.com/craftcms/commerce/issues/1471))
+- Fixed a bug where the “Purchase Total” discount condition would show a negative value.
+- Fixed a bug where payment transaction amounts where not being formatted correctly on Edit Order pages. ([#1463](https://github.com/craftcms/commerce/issues/1463)) 
+- Fixed a bug where free shipping discounts could be applied incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
 
 ## 3.1.4 - 2020-05-18
 
@@ -61,7 +76,7 @@
 - `craft\commerce\controllers\CartController::$_cartVariable` is now protected.
 
 ### Deprecated
-- Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. Use `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` instead.
+- Deprecated `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`. `craft\commerce\services\Customers::consolidateGuestOrdersByEmail()` should be used instead.
 
 ### Fixed
 - Fixed a bug where orders weren’t marked as complete when using an offsite gateway and the “authorize” payment type.
@@ -417,7 +432,7 @@
 
 ## Deprecated
 - Deprecated `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` and `setShouldRecalculateAdjustments()`. `craft\commerce\elements\Order::$recalculationMode` should be used instead.
-- Deprecated `craft\commerce\serviced\Customers::consolidateOrdersToUser()`. `craft\commerce\queue\ConsolidateGuestOrders` job should be used instead.
+- Deprecated `craft\commerce\serviced\Customers::consolidateOrdersToUser()`. `craft\commerce\queue\ConsolidateGuestOrders` jobs should be used instead.
 - Deprecated `craft\commerce\services\Orders::cartArray()`. `craft\commerce\elements\Order::toArray()` should be used instead.
 
 ## Removed
@@ -1654,7 +1669,7 @@
 - Updated the Stripe gateway library to 2.4.1.
 
 ### Deprecated
-- Deprecated the `update` variable in email templates. Use `orderHistory` instead, which returns the same `Commerce_OrderHistoryModel`.
+- Deprecated the `update` variable in email templates. The `orderHistory` variable should be used instead.
 
 ### Fixed
 - Fixed a bug where `Commerce_OrderService::completeOrder()` was not checking to make sure the order was not already completed before doing its thing.
@@ -1898,9 +1913,9 @@
 - `Commerce_PaymentsService::processPayment()` and `completePayment()` no longer respond to the request directly, unless the gateway requires a redirect via POST. They now return `true` or `false` indicating whether the operation was successful, and leave it up to the controller to handle the client response.
 
 ### Deprecated
-- The “commerce/cartPayment/pay” controller action has been deprecated. Templates should be updated to use “commerce/payments/pay” instead.
-- The “commerce/cartPayment/completePayment” controller action has been deprecated. Templates should be updated to use “commerce/payments/completePayment” instead.
-- The “withVariant” product criteria parameter has been deprecated. Templates should be updated to use “hasVariant” instead.
+- The `commerce/cartPayment/pay` action has been deprecated. `commerce/payments/pay` should be used instead.
+- The `commerce/cartPayment/completePayment` action has been deprecated. `commerce/payments/completePayment` should be used instead.
+- The `withVariant` product criteria parameter has been deprecated. `hasVariant` should be used instead.
 
 ## 1.0.1190 - 2016-02-26
 

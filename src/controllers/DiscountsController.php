@@ -308,13 +308,19 @@ class DiscountsController extends BaseCpController
         }
 
         $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         foreach ($localizedNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
                 continue;
             }
 
             if ($variables['discount']->{$attr} != 0) {
-                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal((float)$variables['discount']->{$attr} * -1);
+                $number = (float)$variables['discount']->{$attr};
+                if (in_array($attr, $flipNegativeNumberAttributes)) {
+                    $number *= -1;
+                }
+
+                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal($number);
             } else {
                 $variables['discount']->{$attr} = 0;
             }
