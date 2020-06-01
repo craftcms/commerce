@@ -27,10 +27,10 @@
 {% if 'checkout' not in craft.app.request.pathInfo %}
 <div class="bg-gray-100">
 <div class="container mx-auto justify-between items-center p-6">
-    <nav class="">
+    <nav class="-ml-2">
         {% for page in pages %}
             <a href="{{ url(page.url) }}"
-               class="flex-1 pr-6 underline text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">{{ page.label }}</a>
+               class="flex-1 mr-6 rounded px-2 py-1 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">{{ page.label }}</a>
         {% endfor %}
     </nav>
 </div>
