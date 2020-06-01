@@ -178,7 +178,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'beforeMatchLineItem';
+    const EVENT_DISCOUNT_MATCHES_LINE_ITEM = 'discountMatchesLineItem';
 
     /**
      * @event MatchOrderEvent The event that is triggered when an order is matched with a discount.
@@ -207,7 +207,7 @@ class Discounts extends Component
      * );
      * ```
      */
-    const EVENT_DISCOUNT_MATCHES_ORDER = 'beforeMatchOrder';
+    const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
 
     /**
@@ -488,7 +488,10 @@ class Discounts extends Component
         }
 
         $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
-        $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
+
+        if ($this->hasEventHandlers(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM)) {
+            $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
+        }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
             Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
@@ -592,7 +595,9 @@ class Discounts extends Component
         // Raise the 'beforeMatchLineItem' event
         $event = new MatchOrderEvent(compact('order', 'discount'));
 
-        $this->trigger(self::EVENT_DISCOUNT_MATCHES_ORDER, $event);
+        if ($this->hasEventHandlers(self::EVENT_DISCOUNT_MATCHES_ORDER)) {
+            $this->trigger(self::EVENT_DISCOUNT_MATCHES_ORDER, $event);
+        }
 
         return $event->isValid;
     }
