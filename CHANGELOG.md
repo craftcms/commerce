@@ -13,7 +13,8 @@
 
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
-- Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
+- Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`.
+- Renamed the `Totals` column to `All Totals` and `Total` to `Total Price` on the Orders index page. ([#1482](https://github.com/craftcms/commerce/issues/1482))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. `EVENT_DISCOUNT_MATCHES_LINE_ITEM` should be used instead.
