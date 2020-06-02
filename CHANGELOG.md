@@ -7,7 +7,8 @@
 - Fixed a bug where transaction information could show as undefined. ([#1467](https://github.com/craftcms/commerce/issues/1467))
 - Fixed a bug where addresses weren’t being set when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
 - Fixed a bug where the `updateCartSearchIndexes` config setting was ignored during `commerce/pay/*` and `commerce/customer-addresses/*` requests.
-- Fixed a PHP error when completing an order with the `registerUserOnOrderComplete` parameter during checkout. ([#1456](https://github.com/craftcms/commerce/issues/1456))
+- Fixed a bug where orders lost their customer when the `registerUserOnOrderComplete` was used during checkout. ([#1483](https://github.com/craftcms/commerce/issues/1483))  
+- Fixed a PHP error that occurred when the `registerUserOnOrderComplete` was used during checkout. ([#1456](https://github.com/craftcms/commerce/issues/1456))
 - Fixed a deprecation warning. ([#1481](https://github.com/craftcms/commerce/issues/1481))
 - Fixed a bug where it wasn’t possible to save an order with blank addresses on the Edit Order page. ([#1484](https://github.com/craftcms/commerce/issues/1484))
 
