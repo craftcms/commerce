@@ -12,6 +12,7 @@ namespace craft\commerce\base;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @mixin PlanTrait
  */
 interface PlanInterface
 {
