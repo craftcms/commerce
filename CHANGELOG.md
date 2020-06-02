@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- `craft\commerce\services\Customers::consolidateOrdersToUser()` is no longer deprecated.
+
 ### Fixed
 - Fixed a bug where the “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
 - Fixed a bug where a customer could be deleted if `Order::$registerUserOnOrderComplete` was set to `true` on order completion. ([#1483](https://github.com/craftcms/commerce/issues/1483))

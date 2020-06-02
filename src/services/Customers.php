@@ -312,7 +312,6 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
-     * @deprecated in 3.0 use ConsolidateGuestOrders job instead
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
