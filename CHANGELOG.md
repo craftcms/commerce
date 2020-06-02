@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.6 - 2020-06-02
 
 ### Changed
 - `craft\commerce\services\Customers::consolidateOrdersToUser()` is no longer deprecated.
