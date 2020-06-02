@@ -595,7 +595,11 @@ class Customers extends Component
                 }
 
                 Craft::$app->getDb()->createCommand()
-                    ->update(Table::ORDERS . ' orders', ['[[orders.customerId]]' => $customerId], ['[[orders.id]]' => $orderId])
+                    ->update(Table::ORDERS, [
+                        'customerId' => $customerId,
+                    ], [
+                        'id' => $orderId,
+                    ])
                     ->execute();
             }
         }

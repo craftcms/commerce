@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+### Unreleased
+
+### Fixed
+- Fixed a SQL error that could occur during order consolidation on PostgreSQL. 
+
 ## 3.1.6 - 2020-06-02
 
 ### Changed
