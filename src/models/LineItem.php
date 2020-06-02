@@ -490,6 +490,7 @@ class LineItem extends Model
         return [
             'lineItemStatus',
             'order',
+            'purchasable',
             'shippingCategory',
             'snapshot',
             'taxCategory',
