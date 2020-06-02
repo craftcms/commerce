@@ -4,11 +4,11 @@
 
 ### Fixed
 - Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
-- Fixed a bug where transaction information was displayed incorrectly on the Edit Order page. ([#1467](https://github.com/craftcms/commerce/issues/1467))
-- Fixed a bug where addresses weren’t being set automatically when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
-- Fixed a bug where `commerce/pay/*` and `commerce/customer-addresses/*` actions ignored the `updateCartSearchIndexes` config setting.
 - Fixed a bug where a customer could be deleted when `Order::$registerUserOnOrderComplete` was set to `true` on order completion. ([#1483](https://github.com/craftcms/commerce/issues/1483))
 - Fixed a bug where it wasn’t possible to save an order without addresses on the Edit Order page. ([#1484](https://github.com/craftcms/commerce/issues/1484))
+- Fixed a bug where addresses weren’t being set automatically when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
+- Fixed a bug where transaction information was displayed incorrectly on the Edit Order page. ([#1467](https://github.com/craftcms/commerce/issues/1467))
+- Fixed a bug where `commerce/pay/*` and `commerce/customer-addresses/*` actions ignored the `updateCartSearchIndexes` config setting.
 - Fixed a deprecation warning. ([#1481](https://github.com/craftcms/commerce/issues/1481))
 
 ## 3.1.5 - 2020-05-27
