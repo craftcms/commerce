@@ -1718,6 +1718,10 @@ class Order extends Element
 
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
+        } else {
+            // Allow shipping address to be removed from an order/cart
+            $orderRecord->shippingAddressId = null;
+            $this->setShippingAddress(null);
         }
 
         // Save billing address, it has already been validated.
@@ -1732,6 +1736,10 @@ class Order extends Element
 
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
+        } else {
+            // Allow shipping address to be removed from an order/cart
+            $orderRecord->billingAddressId = null;
+            $this->setBillingAddress(null);
         }
 
         if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
