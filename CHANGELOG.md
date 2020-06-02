@@ -1,10 +1,25 @@
 # Release Notes for Craft Commerce
 
+## 3.1.6 - 2020-06-02
+
+### Changed
+- `craft\commerce\services\Customers::consolidateOrdersToUser()` is no longer deprecated.
+
+### Fixed
+- Fixed a bug where the “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+- Fixed a bug where a customer could be deleted if `Order::$registerUserOnOrderComplete` was set to `true` on order completion. ([#1483](https://github.com/craftcms/commerce/issues/1483))
+- Fixed a bug where it wasn’t possible to save an order without addresses on the Edit Order page. ([#1484](https://github.com/craftcms/commerce/issues/1484))
+- Fixed a bug where addresses weren’t being set automatically when retrieving a cart. ([#1476](https://github.com/craftcms/commerce/issues/1476))
+- Fixed a bug where transaction information wasn’t being displayed correctly on the Edit Order page. ([#1467](https://github.com/craftcms/commerce/issues/1467))
+- Fixed a bug where `commerce/pay/*` and `commerce/customer-addresses/*` actions ignored the `updateCartSearchIndexes` config setting.
+- Fixed a deprecation warning. ([#1481](https://github.com/craftcms/commerce/issues/1481))
+
 ## 3.1.5 - 2020-05-27
 
 ### Added
 - Added the `updateCartSearchIndexes` config setting. ([#1416](https://github.com/craftcms/commerce/issues/1416))
-- Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`. 
+- Added `craft\commerce\services\Discounts::EVENT_DISCOUNT_MATCHES_ORDER`.
+- Renamed the `Totals` column to `All Totals` and `Total` to `Total Price` on the Orders index page. ([#1482](https://github.com/craftcms/commerce/issues/1482))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. `EVENT_DISCOUNT_MATCHES_LINE_ITEM` should be used instead.

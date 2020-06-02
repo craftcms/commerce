@@ -7,7 +7,7 @@ env:
   - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
 branches:
   only:
-  - 3.0
+  - develop
   - feature/tests
 services:
 - mysql
@@ -85,3 +85,4 @@ notifications:
     - brad@craftcms.com
     - brandon@craftcms.com
     - luke@craftcms.com
+    - nathaniel@craftcms.com

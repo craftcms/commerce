@@ -311,7 +311,10 @@ class PaymentsController extends BaseFrontEndController
         $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
         $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-        if (Craft::$app->getElements()->saveElement($order)) {
+        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateSearchIndex = ($order->isCompleted || $updateCartSearchIndexes);
+
+        if (Craft::$app->getElements()->saveElement($order, true, false, $updateSearchIndex)) {
             // Has the order changed in a significant way?
             if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
                 if ($totalPriceChanged) {

@@ -221,7 +221,7 @@
 
                 this.draft = draft;
 
-                if (recalculate && this.hasCustomer && this.hasAddresses) {
+                if (recalculate && this.hasCustomer) {
                   this.recalculate();
                 }
             },
