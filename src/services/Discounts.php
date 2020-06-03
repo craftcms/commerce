@@ -742,7 +742,7 @@ class Discounts extends Component
         $result = (bool)$discountRecord->delete();
 
         //Raise the afterDeleteDiscount event
-        if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
+        if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
             $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
                 'discount' => $discount,
                 'isNew' => false
