@@ -122,6 +122,30 @@ class Sales extends Component
      */
     const EVENT_AFTER_SAVE_SALE = 'afterSaveSale';
 
+    /**
+     * @event SaleEvent The event that is triggered after a sale is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\SaleEvent;
+     * use craft\commerce\services\Sales;
+     * use craft\commerce\models\Sale;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Sales::class,
+     *     Sales::EVENT_AFTER_DELETE_SALE,
+     *     function(SaleEvent $event) {
+     *         // @var Sale $sale
+     *         $sale = $event->sale;
+     *
+     *         // do something
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
+
 
     /**
      * @var Sale[]
@@ -628,14 +652,27 @@ class Sales extends Component
      */
     public function deleteSaleById($id): bool
     {
-        $sale = SaleRecord::findOne($id);
+        $saleRecord = SaleRecord::findOne($id);
 
-        if ($sale) {
-            $this->_clearCaches();
-            return $sale->delete();
+        if (!$saleRecord) {
+            return false;
         }
 
-        return false;
+        $sale = $this->getSaleById($saleRecord->id);
+
+        $this->_clearCaches();
+        $result = (bool)$saleRecord->delete();
+
+        //Raise the afterDeleteSale event
+        if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_SALE)) {
+            $this->trigger(self::EVENT_AFTER_DELETE_SALE, new SaleEvent([
+                'sale' => $sale,
+                'isNew' => false
+            ]));
+        }
+
+
+        return $result;
     }
 
 
@@ -663,6 +700,7 @@ class Sales extends Component
 
     /**
      * Clear memoization caches
+     *
      * @since 3.1.4
      */
     private function _clearCaches()

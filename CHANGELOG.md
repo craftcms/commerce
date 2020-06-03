@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
+
 ## 3.1.7 - 2020-06-02
 
 ### Fixed
