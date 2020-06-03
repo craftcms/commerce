@@ -22,6 +22,7 @@ use Throwable;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @mixin GatewayTrait
  */
 interface GatewayInterface extends SavableComponentInterface
 {

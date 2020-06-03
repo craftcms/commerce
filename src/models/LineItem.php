@@ -488,11 +488,12 @@ class LineItem extends Model
     public function extraFields(): array
     {
         return [
-            'order',
-            'shippingCategory',
-            'taxCategory',
             'lineItemStatus',
-            'snapshot'
+            'order',
+            'purchasable',
+            'shippingCategory',
+            'snapshot',
+            'taxCategory',
         ];
     }
 

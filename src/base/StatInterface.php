@@ -11,6 +11,7 @@ namespace craft\commerce\base;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
+ * @mixin StatTrait
  */
 interface StatInterface
 {
