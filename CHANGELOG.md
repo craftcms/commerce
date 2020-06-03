@@ -3,6 +3,7 @@
 ### Unreleased
 
 ### Fixed
+- Fixed a bug where blank addresses were being automatically created on new carts. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
 - Fixed a SQL error that could occur during order consolidation on PostgreSQL. 
 
 ## 3.1.6 - 2020-06-02
