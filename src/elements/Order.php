@@ -2385,16 +2385,18 @@ class Order extends Element
     }
 
     /**
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setShippingAddress($address)
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if ($address === null) {
+            $this->shippingAddressId = null;
+            $this->_shippingAddress = null;
+        } else {
+            $address = is_array($address) ? new Address($address) : $address;
+            $this->shippingAddressId = $address->id;
+            $this->_shippingAddress = $address;
         }
-
-        $this->shippingAddressId = $address->id;
-        $this->_shippingAddress = $address;
     }
 
     /**
@@ -2460,12 +2462,14 @@ class Order extends Element
      */
     public function setBillingAddress($address)
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if ($address === null) {
+            $this->billingAddressId = null;
+            $this->_billingAddress = null;
+        } else {
+            $address = is_array($address) ? new Address($address) : $address;
+            $this->billingAddressId = $address->id;
+            $this->_billingAddress = $address;
         }
-
-        $this->billingAddressId = $address->id;
-        $this->_billingAddress = $address;
     }
 
     /**
