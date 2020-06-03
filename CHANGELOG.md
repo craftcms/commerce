@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-### Unreleased
+## 3.1.7 - 2020-06-02
 
 ### Fixed
 - Fixed a bug where blank addresses were being automatically created on new carts. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
