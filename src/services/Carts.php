@@ -25,7 +25,7 @@ use yii\base\Exception;
 use function count;
 
 /**
- * Cart service. This manages the cart currently in the session.
+ * Cart service. This manages the cart currently in the session, this service should mainly be used by web controller actions.
  *
  * @property-read string|mixed $sessionCartNumber
  * @property bool $hasSessionCartNumber
@@ -46,7 +46,6 @@ class Carts extends Component
      */
     private $_cart;
 
-
     /**
      * Get the current cart for this session.
      *
@@ -62,7 +61,6 @@ class Carts extends Component
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
-            $this->forgetCart(); // TODO: Probably remove this so we don't get a new cart number on every request?
             $this->_cart = new Order(['customerId' => $customerId]);
             $this->_cart->number = $this->getSessionCartNumber();
         }
@@ -80,9 +78,9 @@ class Carts extends Component
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
         $this->_cart->orderLanguage = Craft::$app->language;
-        $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->customerId = $customerId;
+        $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
         $changedIp = $originalIp != $this->_cart->lastIp;
