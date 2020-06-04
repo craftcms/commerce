@@ -73,6 +73,7 @@ class CartController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
 
         // Get the cart from the request or from the session.
+        // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
         // Services we will be using.
@@ -84,7 +85,7 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
             $note = $request->getParam('note', '');
-            $options = $request->getParam('options') ?: [];
+            $options = $request->getParam('options', []);
             $qty = (int)$request->getParam('qty', 1);
 
             if ($qty > 0) {
@@ -110,7 +111,7 @@ class CartController extends BaseFrontEndController
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
                 $note = $request->getParam("purchasables.{$key}.note", '');
-                $options = $request->getParam("purchasables.{$key}.options") ?: [];
+                $options = $request->getParam("purchasables.{$key}.options", []);
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
                 $purchasable = [];
