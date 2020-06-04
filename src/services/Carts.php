@@ -71,7 +71,6 @@ class Carts extends Component
         // Track the things that might change on this cart
         $originalIp = $this->_cart->lastIp;
         $originalOrderLanguage = $this->_cart->orderLanguage;
-        $originalCurrency = $this->_cart->currency;
         $originalPaymentCurrency = $this->_cart->paymentCurrency;
         $originalCustomerId = $this->_cart->customerId;
 
@@ -80,12 +79,10 @@ class Carts extends Component
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
         $this->_cart->customerId = $customerId;
-        $this->_cart->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $this->_cart->origin = Order::ORIGIN_WEB;
 
         $changedIp = $originalIp != $this->_cart->lastIp;
         $changedOrderLanguage = $originalOrderLanguage != $this->_cart->orderLanguage;
-        $changedCurrency = $originalCurrency != $this->_cart->currency;
         $changedPaymentCurrency = $originalPaymentCurrency != $this->_cart->paymentCurrency;
         $changedCustomerId = $originalCustomerId != $this->_cart->customerId;
 
@@ -103,7 +100,7 @@ class Carts extends Component
             }
         }
 
-        $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCurrency || $changedCustomerId || $changedPaymentCurrency);
+        $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         if (($this->_cart->id && $somethingChangedOnTheCart) || $forceSave) {
