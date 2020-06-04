@@ -346,7 +346,7 @@ class Orders extends Component
         foreach ($remove as $r) {
             unset($data[$r]);
         }
-
+        ksort($data);
         return $data;
     }
 }
