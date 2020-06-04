@@ -108,6 +108,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
+ * @property ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -117,7 +118,6 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
-
 
     /**
      * Payments exceed order total.
@@ -1589,18 +1589,6 @@ class Order extends Element
                 return;
             }
         }
-    }
-
-    /**
-     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
-     * @deprecated 3.1.8
-     *
-     */
-    public function getAvailableShippingMethods(): array
-    {
-        Craft::$app->getDeprecator()->log('Order::getAvailableShippingMethods()', 'Order::getAvailableShippingMethods() has been deprecated. Use Order::getAvailableShippingMethodOptions().');
-
-        return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
     }
 
     /**
