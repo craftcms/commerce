@@ -2365,6 +2365,8 @@ class Order extends Element
     }
 
     /**
+     * * Get the shipping address on the order.
+     *
      * @return Address|null
      */
     public function getShippingAddress()
@@ -2377,6 +2379,8 @@ class Order extends Element
     }
 
     /**
+     * Set the shipping address on the order.
+     *
      * @param Address|array|null $address
      */
     public function setShippingAddress($address)
@@ -2438,6 +2442,8 @@ class Order extends Element
     }
 
     /**
+     * Get the billing address on the order.
+     *
      * @return Address|null
      */
     public function getBillingAddress()
@@ -2450,6 +2456,8 @@ class Order extends Element
     }
 
     /**
+     * Set the billing address on the order.
+     *
      * @param Address|array $address
      */
     public function setBillingAddress($address)
