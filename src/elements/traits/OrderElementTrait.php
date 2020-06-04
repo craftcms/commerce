@@ -418,7 +418,7 @@ trait OrderElementTrait
             'number' => Plugin::t('Number'),
             'reference' => Plugin::t('Reference'),
             'orderStatusId' => Plugin::t('Order Status'),
-            'totalPrice' => Plugin::t('Total Payable'),
+            'totalPrice' => Plugin::t('Total Price'),
             'totalPaid' => Plugin::t('Total Paid'),
             [
                 'label' => Plugin::t('Shipping First Name'),
