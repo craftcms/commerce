@@ -6,6 +6,7 @@
 - Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
 
 ### Fixed
+- Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
 - Fixed a bug where reporting widgets were including deleted orders in calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
 
 ## 3.1.7 - 2020-06-02

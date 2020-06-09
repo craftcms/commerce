@@ -253,7 +253,26 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
-                $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+
+                try {
+                    $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+                } catch (PaymentSourceException $exception) {
+                    Craft::$app->getErrorHandler()->logException($exception);
+                    $error = Plugin::t('Could not create the payment source.');
+
+                    if ($request->getAcceptsJson()) {
+                        return $this->asJson([
+                            'error' => $error,
+                            'paymentFormErrors' => $paymentForm->getErrors(),
+                        ]);
+                    }
+
+                    $session->setError($error);
+                    Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+                    return null;
+                }
+
                 $order->setPaymentSource($paymentSource);
                 $paymentForm->populateFromPaymentSource($paymentSource);
             }
