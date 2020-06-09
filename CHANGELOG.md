@@ -5,6 +5,9 @@
 ### Added
 - Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
 
+### Fixed
+- Fixed a bug where reporting widgets were including deleted orders in calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
+
 ## 3.1.7 - 2020-06-02
 
 ### Fixed
