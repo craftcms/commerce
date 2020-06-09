@@ -200,8 +200,7 @@ class PaymentSources extends Component
         try {
             $source = $gateway->createPaymentSource($paymentForm, $userId);
         } catch (\Throwable $exception) {
-            Craft::$app->getErrorHandler()->logException($exception);
-            throw new PaymentSourceException(Plugin::t( 'Could not create the payment source.'));
+            throw new PaymentSourceException($exception->getMessage());
         }
 
         $source->userId = $userId;
