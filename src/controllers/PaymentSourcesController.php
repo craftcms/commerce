@@ -84,7 +84,9 @@ class PaymentSourcesController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    // TODO remove `paymentForm` key at next breaking changing
                     'paymentForm' => $paymentForm->getErrors(),
+                    'paymentFormErrors' => $paymentForm->getErrors(),
                 ]);
             }
 
