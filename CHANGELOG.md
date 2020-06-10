@@ -6,7 +6,7 @@
 - Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
 
 ### Changed
-- Custom adjuster types now show as read only on the Edit Order page. ([#1460](https://github.com/craftcms/commerce/issues/1460))
+- Custom adjuster types now show as read-only on the Edit Order page. ([#1460](https://github.com/craftcms/commerce/issues/1460))
 
 ### Fixed
 - Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
