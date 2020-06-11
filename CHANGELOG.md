@@ -1,5 +1,22 @@
 # Release Notes for Craft Commerce
 
+## 3.1.8 - 2020-06-11
+
+### Added
+- Added `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE`.
+
+### Changed
+- Custom adjuster types now show as read-only on the Edit Order page. ([#1460](https://github.com/craftcms/commerce/issues/1460))
+- Variant SKU, price, and stock validation is now more lenient unless the product and variant are enabled.
+
+### Fixed
+- Fixed a bug where empty carts would get new cart numbers on every request. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
+- Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
+- Fixed a bug where deleted orders were being included in reporting widget calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
+- Fixed the styling of line item option values on the Edit Order page.
+- Fixed a SQL error that occurred when duplicating a product on a multi-site Craft install. ([#1491](https://github.com/craftcms/commerce/issues/1491))
+- Fixed a bug where products could be duplicated even if there was a validation error that made it look like the product hadn’t been duplicated.
+
 ## 3.1.7 - 2020-06-02
 
 ### Fixed
@@ -39,7 +56,7 @@
 ## 3.1.4 - 2020-05-18
 
 ### Added
-- Added a “Duplicate” action to the Products index page.
+- Added a “Duplicate” action to the Products index page. ([#1107](https://github.com/craftcms/commerce/issues/1107))
 - It’s now possible to query for a single product or variant via GraphQL.
 - Address and line item notes now support emoji characters. ([#1426](https://github.com/craftcms/commerce/issues/1426))
 - Added `craft\commerce\fields\Products::getContentGqlType()`.
@@ -54,7 +71,7 @@
 - Improved the line item options layout on the Edit Order page.
 
 ### Fixed
-- Fixed a bug where products weren’t getting duplicate correctly when the “Save as a new product” option was selected. ([#1442](https://github.com/craftcms/commerce/issues/1442))
+- Fixed a bug where products weren’t getting duplicate correctly when the “Save as a new product” option was selected. ([#1393](https://github.com/craftcms/commerce/issues/1393))
 - Fixed a bug where addresses were being incorrectly duplicated when updating a cart from the Edit Order page. ([#1435](https://github.com/craftcms/commerce/issues/1435))
 - Fixed a bug where `product` and `variant` fields were returning the wrong type in GraphQL queries. ([#1434](https://github.com/craftcms/commerce/issues/1434))
 - Fixed a SQL error that could occur when saving a product. ([#1407](https://github.com/craftcms/commerce/pull/1407))

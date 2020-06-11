@@ -54,16 +54,16 @@ class TopCustomers extends Stat
         $topCustomers = $this->_createStatQuery()
             ->select([
                 new Expression('SUM([[total]]) as total'),
-                new Expression('ROUND((SUM([[total]]) / COUNT([[id]])), 4) as average'),
+                new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4) as average'),
                 'customerId',
                 '[[orders.email]] as email',
-                new Expression('COUNT([[id]]) as count'),
+                new Expression('COUNT([[orders.id]]) as count'),
             ])
             ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {
-            $topCustomers->orderBy(new Expression('ROUND((SUM([[total]]) / COUNT([[id]])), 4) DESC'));
+            $topCustomers->orderBy(new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4) DESC'));
         } else {
             $topCustomers->orderBy(new Expression('SUM([[total]]) DESC'));
         }

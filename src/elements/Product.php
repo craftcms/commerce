@@ -664,43 +664,42 @@ class Product extends Element
      */
     public function afterSave(bool $isNew)
     {
-        if (!$isNew) {
-            $record = ProductRecord::findOne($this->id);
-
-            if (!$record) {
-                throw new Exception('Invalid product ID: ' . $this->id);
-            }
-        } else {
-            $record = new ProductRecord();
-            $record->id = $this->id;
-        }
-
-        $record->postDate = $this->postDate;
-        $record->expiryDate = $this->expiryDate;
-        $record->typeId = $this->typeId;
-        $record->promotable = (bool)$this->promotable;
-        $record->availableForPurchase = (bool)$this->availableForPurchase;
-        $record->freeShipping = (bool)$this->freeShipping;
-        $record->taxCategoryId = $this->taxCategoryId;
-        $record->shippingCategoryId = $this->shippingCategoryId;
-
-        $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
-        $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
-        $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
-        $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
-        $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
-        $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
-
-        $record->save(false);
-
-        $this->id = $record->id;
-
-        // Only save variants once (since they will propagate themselves the first time.
         if (!$this->propagating) {
+            if (!$isNew) {
+                $record = ProductRecord::findOne($this->id);
+
+                if (!$record) {
+                    throw new Exception('Invalid product ID: ' . $this->id);
+                }
+            } else {
+                $record = new ProductRecord();
+                $record->id = $this->id;
+            }
+
+            $record->postDate = $this->postDate;
+            $record->expiryDate = $this->expiryDate;
+            $record->typeId = $this->typeId;
+            $record->promotable = (bool)$this->promotable;
+            $record->availableForPurchase = (bool)$this->availableForPurchase;
+            $record->freeShipping = (bool)$this->freeShipping;
+            $record->taxCategoryId = $this->taxCategoryId;
+            $record->shippingCategoryId = $this->shippingCategoryId;
+
+            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+            $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
+            $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
+            $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
+            $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
+            $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            $record->save(false);
+
+            $this->id = $record->id;
+
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
@@ -827,40 +826,46 @@ class Product extends Element
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
 
         $rules[] = [
-            ['variants'], function($model) {
-                /** @var Product $model */
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    $skus[] = $variant->sku;
-                }
-
-                if (count(array_unique($skus)) < count($skus)) {
-                    $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
-                }
-
+            ['variants'],
+            function() {
                 if (empty($this->getVariants())) {
                     $this->addError('variants', Plugin::t('Must have at least one variant.'));
                 }
             },
             'skipOnEmpty' => false,
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->duplicateOf;
-            }
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                $skus = [];
+                foreach ($this->getVariants() as $variant) {
+                    if (isset($skus[$variant->sku])) {
+                        $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
+                        break;
+                    }
+                    $skus[$variant->sku] = true;
+                }
+            },
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                foreach ($this->getVariants() as $i => $variant) {
+                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                        $variant->setScenario(self::SCENARIO_LIVE);
+                    }
+                    if (!$variant->validate()) {
+                        $this->addModelErrors($variant, "variants[$i]");
+                    }
+                }
+            },
         ];
 
         return $rules;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterValidate()
-    {
-        if (!Model::validateMultiple($this->getVariants())) {
-            $this->addError('variants', Plugin::t('Error saving variants'));
-        }
-        parent::afterValidate();
     }
 
     /**

@@ -35,7 +35,7 @@ class RepeatCustomers extends Stat
             ->count();
 
         $repeatRows = $this->_createStatQuery()
-            ->select([new Expression('COUNT([[id]])')])
+            ->select([new Expression('COUNT([[orders.id]])')])
             ->groupBy('customerId')
             ->column();
 

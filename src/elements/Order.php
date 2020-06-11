@@ -108,6 +108,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
+ * @property ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -117,7 +118,6 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
-
 
     /**
      * Payments exceed order total.
@@ -1151,7 +1151,7 @@ class Order extends Element
                 // Substr because attribute is returned with 'AsCurrency' appended
                 $attribute = substr($attribute, 0, -10);
                 $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             };
         }
 
@@ -1580,23 +1580,15 @@ class Order extends Element
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethods = $this->getAvailableShippingMethods();
+        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
         if ($this->shippingMethodHandle) {
-            if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
+            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
                 $this->recalculate();
 
                 return;
             }
         }
-    }
-
-    /**
-     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
-     */
-    public function getAvailableShippingMethods(): array
-    {
-        return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
     }
 
     /**
@@ -2373,6 +2365,8 @@ class Order extends Element
     }
 
     /**
+     * * Get the shipping address on the order.
+     *
      * @return Address|null
      */
     public function getShippingAddress()
@@ -2385,6 +2379,8 @@ class Order extends Element
     }
 
     /**
+     * Set the shipping address on the order.
+     *
      * @param Address|array|null $address
      */
     public function setShippingAddress($address)
@@ -2446,6 +2442,8 @@ class Order extends Element
     }
 
     /**
+     * Get the billing address on the order.
+     *
      * @return Address|null
      */
     public function getBillingAddress()
@@ -2458,6 +2456,8 @@ class Order extends Element
     }
 
     /**
+     * Set the billing address on the order.
+     *
      * @param Address|array $address
      */
     public function setBillingAddress($address)
@@ -2542,14 +2542,14 @@ class Order extends Element
         if (isset($shippingMethods[$this->shippingMethodHandle])) {
             return $shippingMethods[$this->shippingMethodHandle];
         }
-        $handles = [];
 
+        $handles = [];
         /** @var ShippingMethod $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
             $handles[] = $shippingMethod->getHandle();
         }
 
-        if (!empty($shippingMethods)) {
+        if (!empty($handles)) {
             /** @var ShippingMethod $firstAvailable */
             $firstAvailable = array_values($shippingMethods)[0];
             if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
