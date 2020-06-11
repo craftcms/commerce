@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fixed a bug that caused a new cart number to be generated on every request for empty carts. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
+
 ### Added
 - Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
 
