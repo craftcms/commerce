@@ -126,15 +126,18 @@ class Carts extends Component
             $number = $this->getSessionCartNumber();
             // Get the cart based on the number in the session.
             // It might be completed or trashed, but we still want to load it so we can determine this and forget it.
-            $cart = Order::find()->number($number)->one();
+            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->one();
         }
 
         // If the cart is already completed or trashed, forget the cart and start again.
-        if ($cart && ($cart->isCompleted || $cart->trashed)) {
-            $this->forgetCart();
-            Plugin::getInstance()->getCustomers()->forgetCustomer();
-            $cart = null; // continue
+        if ($cart) {
+            if ($cart->isCompleted || $cart->trashed) {
+                $this->forgetCart();
+                Plugin::getInstance()->getCustomers()->forgetCustomer(); // safely forget the customer. If they are logged in the right customer will be loaded again.
+                $cart = null; // continue
+            }
         }
+
 
         return $cart;
     }
