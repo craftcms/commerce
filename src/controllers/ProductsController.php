@@ -28,6 +28,7 @@ use craft\models\Site;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\Model;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -214,17 +215,18 @@ class ProductsController extends BaseCpController
 
         // Get the requested product
         $request = Craft::$app->getRequest();
-        $product = ProductHelper::productFromPost($request);
+        $oldProduct = ProductHelper::productFromPost($request);
         $variants = $request->getBodyParam('variants');
-        $this->enforceProductPermissions($product);
+        $this->enforceProductPermissions($oldProduct);
+        $elementsService = Craft::$app->getElements();
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             // If we're duplicating the product, swap $product with the duplicate
             if ($duplicate) {
                 try {
-                    $originalVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
-                    $product = Craft::$app->getElements()->duplicateElement($product);
+                    $originalVariantIds = ArrayHelper::getColumn($oldProduct->getVariants(), 'id');
+                    $product = $elementsService->duplicateElement($oldProduct);
                     $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
 
                     $newVariants = [];
@@ -254,16 +256,18 @@ class ProductsController extends BaseCpController
 
                     Craft::$app->getSession()->setError(Plugin::t('Couldn’t duplicate product.'));
 
-                    // Send the original entry back to the template, with any validation errors on the clone
-                    $product->addErrors($clone->getErrors());
+                    // Send the original product back to the template, with any validation errors on the clone
+                    $oldProduct->addErrors($clone->getErrors());
                     Craft::$app->getUrlManager()->setRouteParams([
-                        'product' => $product
+                        'product' => $oldProduct
                     ]);
 
                     return null;
                 } catch (\Throwable $e) {
                     throw new ServerErrorHttpException(Plugin::t('An error occurred when duplicating the product.'), 0, $e);
                 }
+            } else {
+                $product = $oldProduct;
             }
 
             // Now populate the rest of it from the post data
@@ -276,7 +280,15 @@ class ProductsController extends BaseCpController
                 $product->setScenario(Element::SCENARIO_LIVE);
             }
 
-            if (!Craft::$app->getElements()->saveElement($product)) {
+            $success = $elementsService->saveElement($product);
+            if (!$success && $duplicate && $product->getScenario() === Element::SCENARIO_LIVE) {
+                // Try again with the product disabled
+                $product->enabled = false;
+                $product->setScenario(Model::SCENARIO_DEFAULT);
+                $success = $elementsService->saveElement($product);
+            }
+
+            if (!$success) {
                 $transaction->rollBack();
 
                 if ($request->getAcceptsJson()) {
@@ -288,9 +300,12 @@ class ProductsController extends BaseCpController
 
                 Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product.'));
 
-                // Send the category back to the template
+                if ($duplicate) {
+                    // Add validation errors on the original product
+                    $oldProduct->addErrors($product->getErrors());
+                }
                 Craft::$app->getUrlManager()->setRouteParams([
-                    'product' => $product
+                    'product' => $oldProduct
                 ]);
 
                 return null;

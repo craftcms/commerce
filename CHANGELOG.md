@@ -7,6 +7,7 @@
 
 ### Changed
 - Custom adjuster types now show as read-only on the Edit Order page. ([#1460](https://github.com/craftcms/commerce/issues/1460))
+- Variant SKU, price, and stock validation is now more lenient unless the product and variant are enabled.
 
 ### Fixed
 - Fixed a bug that caused the generation of a new cart number for empty carts on every request. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 

@@ -826,40 +826,46 @@ class Product extends Element
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
 
         $rules[] = [
-            ['variants'], function($model) {
-                /** @var Product $model */
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    $skus[] = $variant->sku;
-                }
-
-                if (count(array_unique($skus)) < count($skus)) {
-                    $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
-                }
-
+            ['variants'],
+            function() {
                 if (empty($this->getVariants())) {
                     $this->addError('variants', Plugin::t('Must have at least one variant.'));
                 }
             },
             'skipOnEmpty' => false,
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->duplicateOf;
-            }
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                $skus = [];
+                foreach ($this->getVariants() as $variant) {
+                    if (isset($skus[$variant->sku])) {
+                        $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
+                        break;
+                    }
+                    $skus[$variant->sku] = true;
+                }
+            },
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                foreach ($this->getVariants() as $i => $variant) {
+                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                        $variant->setScenario(self::SCENARIO_LIVE);
+                    }
+                    if (!$variant->validate()) {
+                        $this->addModelErrors($variant, "variants[$i]");
+                    }
+                }
+            },
         ];
 
         return $rules;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterValidate()
-    {
-        if (!Model::validateMultiple($this->getVariants())) {
-            $this->addError('variants', Plugin::t('Error saving variants'));
-        }
-        parent::afterValidate();
     }
 
     /**
