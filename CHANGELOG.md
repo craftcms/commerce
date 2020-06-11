@@ -3,14 +3,14 @@
 ## Unreleased
 
 ### Added
-- Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
+- Added `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE`.
 
 ### Changed
 - Custom adjuster types now show as read-only on the Edit Order page. ([#1460](https://github.com/craftcms/commerce/issues/1460))
 - Variant SKU, price, and stock validation is now more lenient unless the product and variant are enabled.
 
 ### Fixed
-- Fixed a bug that caused the generation of a new cart number for empty carts on every request. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
+- Fixed a bug where empty carts would get new cart numbers on every request. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
 - Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
 - Fixed a bug where deleted orders were being included in reporting widget calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
 - Fixed the styling of line item option values on the Edit Order page.
