@@ -13,6 +13,7 @@
 - Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
 - Fixed a bug where deleted orders were being included in reporting widget calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
 - Fixed the styling of line item option values on the Edit Order page.
+- Fixed a SQL error that occurred when duplicating a product on a multi-site Craft install. ([#1491](https://github.com/craftcms/commerce/issues/1491))
 
 ## 3.1.7 - 2020-06-02
 

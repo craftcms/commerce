@@ -664,43 +664,42 @@ class Product extends Element
      */
     public function afterSave(bool $isNew)
     {
-        if (!$isNew) {
-            $record = ProductRecord::findOne($this->id);
-
-            if (!$record) {
-                throw new Exception('Invalid product ID: ' . $this->id);
-            }
-        } else {
-            $record = new ProductRecord();
-            $record->id = $this->id;
-        }
-
-        $record->postDate = $this->postDate;
-        $record->expiryDate = $this->expiryDate;
-        $record->typeId = $this->typeId;
-        $record->promotable = (bool)$this->promotable;
-        $record->availableForPurchase = (bool)$this->availableForPurchase;
-        $record->freeShipping = (bool)$this->freeShipping;
-        $record->taxCategoryId = $this->taxCategoryId;
-        $record->shippingCategoryId = $this->shippingCategoryId;
-
-        $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
-        $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
-        $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
-        $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
-        $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
-        $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
-
-        $record->save(false);
-
-        $this->id = $record->id;
-
-        // Only save variants once (since they will propagate themselves the first time.
         if (!$this->propagating) {
+            if (!$isNew) {
+                $record = ProductRecord::findOne($this->id);
+
+                if (!$record) {
+                    throw new Exception('Invalid product ID: ' . $this->id);
+                }
+            } else {
+                $record = new ProductRecord();
+                $record->id = $this->id;
+            }
+
+            $record->postDate = $this->postDate;
+            $record->expiryDate = $this->expiryDate;
+            $record->typeId = $this->typeId;
+            $record->promotable = (bool)$this->promotable;
+            $record->availableForPurchase = (bool)$this->availableForPurchase;
+            $record->freeShipping = (bool)$this->freeShipping;
+            $record->taxCategoryId = $this->taxCategoryId;
+            $record->shippingCategoryId = $this->shippingCategoryId;
+
+            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+            $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
+            $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
+            $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
+            $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
+            $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            $record->save(false);
+
+            $this->id = $record->id;
+
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
