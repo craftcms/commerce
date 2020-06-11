@@ -438,6 +438,8 @@
     }
 
     .line-item-option-value {
+        overflow: auto;
+
         body.ltr & {
             padding-left: .25em;
         }
