@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug that caused a new cart number to be generated on every request for empty carts. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
+- Fixed a bug that caused the generation of a new cart number for empty carts on every request. ([#1486](https://github.com/craftcms/commerce/issues/1486)) 
 
 ### Added
 - Added the `craft\commerce\services\Sales::EVENT_AFTER_DELETE_SALE` event.
@@ -13,8 +13,8 @@
 
 ### Fixed
 - Fixed a PHP error that occurred when saving a payment source using an erroneous card. ([#1492](https://github.com/craftcms/commerce/issues/1492))
-- Fixed a bug where reporting widgets were including deleted orders in calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
-- Fixed the styling of the line item option values on the Edit Order page.
+- Fixed a bug where deleted orders were being included in reporting widget calculations. ([#1490](https://github.com/craftcms/commerce/issues/1490))
+- Fixed the styling of line item option values on the Edit Order page.
 
 ## 3.1.7 - 2020-06-02
 
