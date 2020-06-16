@@ -23,7 +23,7 @@ use yii\caching\DummyCache;
  * AddressTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.8
  */
 class AddressTest extends Unit
 {

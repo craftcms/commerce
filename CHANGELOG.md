@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
+
+### Changed
+- Discounts now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
+
 ## 3.1.8 - 2020-06-11
 
 ### Added
