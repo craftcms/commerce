@@ -166,7 +166,26 @@ class Variant extends Purchasable
      * );
      * ```
      */
-    const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
+	const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
+	
+		/**
+     * @event craft\commerce\events\VariantStockEvent The event that is triggered when a variant's stock is requested via $variant->getStock().
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_GET_VARIANT_STOCK,
+     *     function(Event $event) {
+     *         // @var Variant $variant
+     *         $variant = $event->sender;
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_GET_VARIANT_STOCK = 'variantStock';
 
 
     /**
@@ -644,8 +663,23 @@ class Variant extends Purchasable
      */
     public function hasStock(): bool
     {
-        return $this->stock > 0 || $this->hasUnlimitedStock;
-    }
+        return $this->getStock() > 0 || $this->hasUnlimitedStock;
+	}
+	
+	/**
+     * Returns this variant's stock allowing plugin to modify.
+     *
+     * @return int
+     */
+    public function getStock(): int
+    {
+        // Allow plugins to modify Variant stock
+        if ($this->hasEventHandlers(self::EVENT_VARIANT_STOCK)) {
+            $this->trigger(self::EVENT_VARIANT_STOCK);
+		}
+		//Craft::dd($this->stock);
+        return $this->stock;
+	}
 
     /**
      * @inheritdoc
@@ -700,8 +734,8 @@ class Variant extends Purchasable
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
-                    if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                    if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->getStock()) {
+                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->getStock(), 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
@@ -776,8 +810,8 @@ class Variant extends Purchasable
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-            $lineItem->qty = $this->stock;
+        if (($lineItem->qty > $this->getStock()) && !$this->hasUnlimitedStock) {
+            $lineItem->qty = $this->getStock();
         }
 
         $lineItem->weight = (float)$this->weight; //converting nulls
@@ -942,11 +976,7 @@ class Variant extends Purchasable
             return false;
         }
 
-        if (!$this->hasUnlimitedStock && $this->stock < 1) {
-            return false;
-        }
-
-        return $this->stock >= 1 || $this->hasUnlimitedStock;
+        return $this->hasStock();
     }
 
     /**
