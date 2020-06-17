@@ -180,4 +180,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function availableForUseWithOrder(Order $order): bool;
+
+    /**
+     * Retrieves the transaction hash from the webhook data. This could be a query string
+     * param or part of the response data.
+     *
+     * @return mixed
+     * @since 2.2.21
+     */
+    public function getTransactionHashFromWebhook();
 }

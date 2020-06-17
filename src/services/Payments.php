@@ -326,9 +326,17 @@ class Payments extends Component
             return false;
         }
 
+        $transactionLockName = 'commerceTransaction:' . $transaction->hash;
+        $mutex = Craft::$app->getMutex();
+
+        if (!$mutex->acquire($transactionLockName, 5)) {
+            throw new \Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
+        }
+
         // If it's successful already, we're good.
         if (Plugin::getInstance()->getTransactions()->isTransactionSuccessful($transaction)) {
             $transaction->order->updateOrderPaidInformation();
+            $mutex->release($transactionLockName);
             return true;
         }
 
@@ -343,6 +351,7 @@ class Payments extends Component
                 $response = $gateway->completeAuthorize($transaction);
                 break;
             default:
+                $mutex->release($transactionLockName);
                 return false;
         }
 
@@ -363,6 +372,7 @@ class Payments extends Component
         }
 
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
+            $mutex->release($transactionLockName);
             $this->_handleRedirect($response, $redirect);
             Craft::$app->getResponse()->redirect($redirect);
             Craft::$app->end();
@@ -371,6 +381,8 @@ class Payments extends Component
         if (!$success) {
             $customError = $response->getMessage();
         }
+
+        $mutex->release($transactionLockName);
 
         return $success;
     }

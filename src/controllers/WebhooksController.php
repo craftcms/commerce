@@ -50,7 +50,20 @@ class WebhooksController extends BaseController
 
         try {
             if ($gateway && $gateway->supportsWebhooks()) {
+                $transactionHash = $gateway->getTransactionHashFromWebhook();
+                $useMutex = $transactionHash ? true : false;
+                $transactionLockName = 'commerceTransaction:' . $transactionHash;
+                $mutex = Craft::$app->getMutex();
+
+                if ($useMutex && !$mutex->acquire($transactionLockName, 5)) {
+                    throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
+                }
+
                 $response = $gateway->processWebHook();
+
+                if ($useMutex) {
+                    $mutex->release($transactionLockName);
+                }
             }
         } catch (Throwable $exception) {
             $message = 'Exception while processing webhook: ' . $exception->getMessage() . "\n";
