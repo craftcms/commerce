@@ -7,6 +7,7 @@
 
 ### Changed
 - Discounts now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
+- Improved performance when retrieving order statuses ([#1497](https://github.com/craftcms/commerce/issues/1497))
 
 ### Fixed
 - Fixed a bug where countries and states would not return in their sorted order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
