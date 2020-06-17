@@ -125,4 +125,15 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * @return string|null
      */
     abstract public function getPaymentFormHtml(array $params);
+
+    /**
+     * Returns the transaction hash based on a webhook request
+     *
+     * @return string|null
+     * @since 3.x
+     */
+    public function getTransactionHashFromWebhook()
+    {
+        return null;
+    }
 }
