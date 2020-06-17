@@ -13,6 +13,7 @@
 - Fixed a bug where countries and states would not return in their sorted order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
 - Fixed a deprecation warning. ([#1508](https://github.com/craftcms/commerce/issues/1508))
 - Fixed a bug where zero stock items would be removed from the order before accepting payment. ([#1503](https://github.com/craftcms/commerce/issues/1503))
+- Fixed an error that occurred when saving an order with a deleted variant on the Edit Order page. ([#1504](https://github.com/craftcms/commerce/issues/1504)) 
 
 ## 3.1.8 - 2020-06-11
 

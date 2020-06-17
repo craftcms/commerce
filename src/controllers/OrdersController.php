@@ -1212,12 +1212,13 @@ class OrdersController extends Controller
 
             $lineItem->setOrder($order);
 
-            /** @var Purchasable $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($purchasableId)) {
-                $lineItem->setPurchasable($purchasable);
-                if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
-                    $lineItem->refreshFromPurchasable();
-                }
+            // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
+            if ($purchasableId && !Craft::$app->getElements()->getElementById($purchasableId)) {
+                $lineItem->purchasableId = null;
+            }
+
+            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
+                $lineItem->refreshFromPurchasable();
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
