@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.9 - 2020-06-17
 
 ### Added
 - Added `craft\commerce\base\Gateway::getTransactionHashFromWebhook()`.

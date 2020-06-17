@@ -51,7 +51,7 @@ class OrderAdjustments extends Component
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional adjusters.
-     * @since 3.x
+     * @since 3.1.9
      *
      * ```php
      * use craft\events\RegisterComponentTypesEvent;

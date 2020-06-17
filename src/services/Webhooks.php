@@ -17,7 +17,7 @@ use yii\web\Response;
  * Webhooks service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.9
  */
 class Webhooks extends Component
 {
