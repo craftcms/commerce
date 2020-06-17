@@ -4,8 +4,8 @@
 
 ### Added
 - Added `craft\commerce\base\Gateway::getTransactionHashFromWebhook()`;
-- Added `craft\commerce\services\Webhooks`;
 - Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
+- Added `craft\commerce\services\Webhooks`;
 
 ### Changed
 - Discount calculations now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
