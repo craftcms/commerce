@@ -40,6 +40,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -1491,7 +1492,7 @@ class Order extends Element
         }
 
         if (!$replaced) {
-            $lineItems[] = $lineItem;
+            ArrayHelper::prepend($lineItems, $lineItem);
         }
 
         $this->setLineItems($lineItems);

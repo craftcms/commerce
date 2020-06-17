@@ -45,6 +45,7 @@ use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
 use craft\commerce\services\Variants;
+use craft\commerce\services\Webhooks;
 
 /**
  * Trait Services
@@ -459,6 +460,17 @@ trait Services
         return $this->get('variants');
     }
 
+    /**
+     * Returns the webhooks service
+     *
+     * @return Webhooks The variants service
+     * @since 3.1.9
+     */
+    public function getWebhooks(): Webhooks
+    {
+        return $this->get('webhooks');
+    }
+
 
     /**
      * Sets the components of the commerce plugin
@@ -579,6 +591,9 @@ trait Services
             ],
             'variants' => [
                 'class' => Variants::class,
+            ],
+            'webhooks' => [
+                'class' => Webhooks::class,
             ],
         ]);
     }

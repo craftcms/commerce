@@ -31,7 +31,6 @@ class WebhooksController extends BaseController
      */
     public $enableCsrfValidation = false;
 
-
     /**
      * @return Response
      * @throws HttpException If webhook not expected.
@@ -41,23 +40,6 @@ class WebhooksController extends BaseController
         $gatewayId = Craft::$app->getRequest()->getRequiredParam('gateway');
         $gateway = Plugin::getInstance()->getGateways()->getGatewayById($gatewayId);
 
-        $response = null;
-
-        try {
-            if ($gateway && $gateway->supportsWebhooks()) {
-                $response = $gateway->processWebHook();
-            }
-        } catch (Throwable $exception) {
-            $message = 'Exception while processing webhook: ' . $exception->getMessage() . "\n";
-            $message .= 'Exception thrown in ' . $exception->getFile() . ':' . $exception->getLine() . "\n";
-            $message .= 'Stack trace:' . "\n" . $exception->getTraceAsString();
-
-            Craft::error($message, 'commerce');
-
-            $response = Craft::$app->getResponse();
-            $response->setStatusCodeByException($exception);
-        }
-
-        return $response;
+        return Plugin::getInstance()->getWebhooks()->processWebhook($gateway);
     }
 }

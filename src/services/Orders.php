@@ -209,12 +209,7 @@ class Orders extends Component
         $data['totalPrice'] = $cart->getTotalPrice();
         $data['recalculationMode'] = $cart->getRecalculationMode();
 
-        $availableShippingMethods = $cart->getAvailableShippingMethods();
-        $data['availableShippingMethods'] = [];
-        foreach ($availableShippingMethods as $shippingMethod) {
-            $data['availableShippingMethods'][$shippingMethod->getHandle()] = $shippingMethod->toArray();
-            $data['availableShippingMethods'][$shippingMethod->getHandle()]['price'] = $shippingMethod->getPriceForOrder($cart);
-        }
+        $data['availableShippingMethods'] = $cart->getAvailableShippingMethodOptions();
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {

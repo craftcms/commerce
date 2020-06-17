@@ -89,8 +89,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
         } else {
-            /** @var Order $order */
-            $order = $plugin->getCarts()->getCart(true);
+            $order = $plugin->getCarts()->getCart();
         }
 
         /**
