@@ -2792,7 +2792,15 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
-                $previousLineItem->delete();
+				$lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
+				$previousLineItem->delete();
+				
+				// Raising the 'afterRemoveLineItemToOrder' event
+				if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
+					$this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
+						'lineItem' => $lineItem,
+					]));
+				}
             }
         }
 
