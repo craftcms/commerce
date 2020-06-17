@@ -8,15 +8,15 @@
 - Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
 
 ### Changed
-- Improved handling of race conditions when processing a webhook and completing and order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
-- Discounts now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
-- Improved performance when retrieving order statuses ([#1497](https://github.com/craftcms/commerce/issues/1497))
+- Discount calculations now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
+- Improved handling of race conditions between processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
+- Improved performance when retrieving order statuses. ([#1497](https://github.com/craftcms/commerce/issues/1497))
 
 ### Fixed
-- Fixed a bug where countries and states would not return in their sorted order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
-- Fixed a deprecation warning. ([#1508](https://github.com/craftcms/commerce/issues/1508))
 - Fixed a bug where zero stock items would be removed from the order before accepting payment. ([#1503](https://github.com/craftcms/commerce/issues/1503))
 - Fixed an error that occurred when saving an order with a deleted variant on the Edit Order page. ([#1504](https://github.com/craftcms/commerce/issues/1504)) 
+- Fixed a bug where countries and states weren’t being returned in the correct order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
+- Fixed a deprecation warning. ([#1508](https://github.com/craftcms/commerce/issues/1508))
 
 ## 3.1.8 - 2020-06-11
 
