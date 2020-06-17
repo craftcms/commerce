@@ -674,8 +674,8 @@ class Variant extends Purchasable
     public function getStock(): int
     {
         // Allow plugins to modify Variant stock
-        if ($this->hasEventHandlers(self::EVENT_VARIANT_STOCK)) {
-            $this->trigger(self::EVENT_VARIANT_STOCK);
+        if ($this->hasEventHandlers(self::EVENT_GET_VARIANT_STOCK)) {
+            $this->trigger(self::EVENT_GET_VARIANT_STOCK);
 		}
 		//Craft::dd($this->stock);
         return $this->stock;
