@@ -11,6 +11,7 @@
 
 ### Fixed
 - Fixed a bug where countries and states would not return in their sorted order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
+- Fixed a deprecation warning. ([#1508](https://github.com/craftcms/commerce/issues/1508))
 
 ## 3.1.8 - 2020-06-11
 
