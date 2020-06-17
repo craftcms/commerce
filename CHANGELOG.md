@@ -8,7 +8,7 @@
 - Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
 
 ### Changed
-- Improved handling of race conditions when processing a webhook and completing and order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
+- Improved handling of race conditions when processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
 - Discounts now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
 - Improved performance when retrieving order statuses ([#1497](https://github.com/craftcms/commerce/issues/1497))
 
