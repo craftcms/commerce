@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.21 - 2020-06-17
 
 ### Changed
 - Improved handling of race conditions between processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
