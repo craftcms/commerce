@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Selected shipping method now shows both name and handle for completed orders on the Order Edit page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
+
 ### Fixed
 - Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
 
