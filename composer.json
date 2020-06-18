@@ -16,7 +16,7 @@
     "issues": "https://github.com/craftcms/commerce/issues?state=open",
     "forum": "https://craftcms.stackexchange.com/",
     "source": "https://github.com/craftcms/commerce",
-    "docs": "https://docs.craftcms.com/commerce/v2/",
+    "docs": "https://docs.craftcms.com/commerce/v3/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
