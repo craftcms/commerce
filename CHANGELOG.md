@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where the current user’s email was being used when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
+- Fixed a bug where a validation error would show when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
 - Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
 
 ## 3.1.9 - 2020-06-17
