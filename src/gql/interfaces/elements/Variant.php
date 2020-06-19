@@ -87,12 +87,12 @@ class Variant extends Element
             'salePrice' => [
                 'name' => 'salePrice',
                 'type' => Type::float(),
-                'description' => 'The sale price of the variant. CAUTION: This will not take into account sales that use user group conditions.',
+                'description' => 'The sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
             ],
             'sales' => [
                 'name' => 'sales',
                 'type' => Type::listOf(SaleType::getType()),
-                'description' => 'The sales that apply to the variant. CAUTION: This will not take into account sales that use user group conditions.',
+                'description' => 'The sales that apply to the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
             ],
             'sortOrder' => [
                 'name' => 'sortOrder',
