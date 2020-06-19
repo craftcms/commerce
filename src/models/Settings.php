@@ -29,6 +29,9 @@ class Settings extends Model
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
 
+    const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
+    const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
+
     const VIEW_URI_ORDERS = 'commerce/orders';
     const VIEW_URI_PRODUCTS = 'commerce/products';
     const VIEW_URI_CUSTOMERS = 'commerce/customers';
@@ -92,6 +95,16 @@ class Settings extends Model
      * @var string
      */
     public $minimumTotalPriceStrategy = 'default';
+
+    /**
+     * @var string
+     */
+    public $freeOrderPaymentStrategy = 'complete';
+
+    /**
+     * @var bool
+     */
+    public $mergeLastCartOnLogin = true;
 
     /**
      * @var array
@@ -254,6 +267,17 @@ class Settings extends Model
             self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getFreeOrderPaymentStrategyOptions(): array
+    {
+        return [
+            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Plugin::t('Free orders complete immediately'),
+            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Plugin::t('Free orders are processed by the payment gateway'),
         ];
     }
 
