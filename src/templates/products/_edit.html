@@ -185,6 +185,9 @@
 
 {% if not productType.hasVariants %}
     {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
+        <input class="default-input" type="hidden"
+             name="isDefault"
+             value="1">
         <div class="meta">
             {{ productFields.generalVariantFields(product.defaultVariant, product) }}
         </div>
