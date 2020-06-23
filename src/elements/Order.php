@@ -1609,7 +1609,8 @@ class Order extends Element
                 $option->$attribute = $method->$attribute;
             }
 
-            $option->setOrder($this);
+            $option->price = $method->getPriceForOrder($this);
+
             $options[$option->handle] = $option;
         }
 
