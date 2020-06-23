@@ -14,6 +14,7 @@
 - Fixed a bug where a validation error would show when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
 - Fixed a bug where `defaultVariantId` wasn’t being set when saving a Product. ([#1529](https://github.com/craftcms/commerce/issues/1529))
 - Fixed a bug where custom shipping methods would show a zero price. ([#1532](https://github.com/craftcms/commerce/issues/1532))
+- Fixed a bug where the payment form modal was showing incorrectly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
 - Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
 
 ## 3.1.9 - 2020-06-17
