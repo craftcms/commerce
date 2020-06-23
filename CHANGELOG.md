@@ -5,6 +5,7 @@
 ### Added
 - Added the `salePrice` and `sales` fields to GraphQL variant queries. ([#1525](https://github.com/craftcms/commerce/issues/1525))
 - Added `craft\commerce\gql\types\SaleType`.
+- Added support for non-parameterized gateway webhook URLs. ([#1530](https://github.com/craftcms/commerce/issues/1530))
 
 ### Changed
 - Selected shipping method now shows both name and handle for completed orders on the Order Edit page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
