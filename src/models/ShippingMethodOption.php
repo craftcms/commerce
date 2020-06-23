@@ -20,6 +20,11 @@ use craft\commerce\elements\Order;
 class ShippingMethodOption extends ShippingMethod
 {
     /**
+     * @var mixed
+     */
+    private $_order;
+
+    /**
      * @var float Price of the shipping method option
      */
     public $price;
@@ -62,5 +67,14 @@ class ShippingMethodOption extends ShippingMethod
     public function getPrice()
     {
         return $this->price;
+    }
+
+    /**
+     * @param $order
+     * @since 3.x
+     */
+    public function setOrder($order)
+    {
+        $this->_order = $order;
     }
 }
