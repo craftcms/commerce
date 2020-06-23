@@ -9,7 +9,6 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\elements\Order;
-use yii\base\InvalidCallException;
 
 /**
  * Shipping method option model.
@@ -21,20 +20,10 @@ use yii\base\InvalidCallException;
  */
 class ShippingMethodOption extends ShippingMethod
 {
-    private $_price;
-
-    private $_order;
-
     /**
-     * @inheritDoc
+     * @var float Price of the shipping method option
      */
-    public function attributes()
-    {
-        $attributes = parent::attributes();
-        $attributes[] = 'price';
-
-        return $attributes;
-    }
+    public $price;
 
     /**
      * @return array
@@ -69,24 +58,10 @@ class ShippingMethodOption extends ShippingMethod
     }
 
     /**
-     * @param Order $order
-     */
-    public function setOrder(Order $order)
-    {
-        $this->_order = $order;
-    }
-
-    /**
      * @return float
      */
     public function getPrice()
     {
-        if (!$this->_order) {
-            throw new InvalidCallException('Can not call getPrice() before setting the order.');
-        }
-
-        $this->_price = $this->getPriceForOrder($this->_order);
-
-        return $this->_price;
+        return $this->price;
     }
 }
