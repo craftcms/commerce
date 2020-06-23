@@ -8,14 +8,14 @@
 - Added `craft\commerce\gql\types\SaleType`.
 
 ### Changed
-- Selected shipping method now shows both name and handle for completed orders on the Edit Order page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
+- The selected shipping method now shows both name and handle for completed orders on the Edit Order page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
 
 ### Fixed
-- Fixed a bug where the current user’s email was being used when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
-- Fixed a bug where a validation error would show when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
+- Fixed a bug where the current user’s email was unintentionally being used as a fallback when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
+- Fixed a bug where an incorrect validation error would be shown when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
 - Fixed a bug where `defaultVariantId` wasn’t being set when saving a Product. ([#1529](https://github.com/craftcms/commerce/issues/1529))
 - Fixed a bug where custom shipping methods would show a zero price. ([#1532](https://github.com/craftcms/commerce/issues/1532))
-- Fixed a bug where the payment form modal was showing incorrectly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
+- Fixed a bug where the payment form modal wasn’t getting sized correctly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
 - Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
 - Fixed a deprecation warning for `Order::getAvailableShippingMethods()` on the Edit Order page. ([#1518](https://github.com/craftcms/commerce/issues/1518))
 
