@@ -1196,7 +1196,7 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return $this->product->title;
+                return '<span class="status '. $this->product->getStatus().'"></span>' . $this->product->title;
             }
             case 'price':
             {
