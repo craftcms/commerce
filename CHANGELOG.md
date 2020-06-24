@@ -1,5 +1,24 @@
 # Release Notes for Craft Commerce
 
+## 3.1.10 - 2020-06-23
+
+### Added
+- Added the `salePrice` and `sales` fields to GraphQL variant queries. ([#1525](https://github.com/craftcms/commerce/issues/1525))
+- Added support for non-parameterized gateway webhook URLs. ([#1530](https://github.com/craftcms/commerce/issues/1530))
+- Added `craft\commerce\gql\types\SaleType`.
+
+### Changed
+- The selected shipping method now shows both name and handle for completed orders on the Edit Order page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
+
+### Fixed
+- Fixed a bug where the current user’s email was unintentionally being used as a fallback when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
+- Fixed a bug where an incorrect validation error would be shown when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
+- Fixed a bug where `defaultVariantId` wasn’t being set when saving a Product. ([#1529](https://github.com/craftcms/commerce/issues/1529))
+- Fixed a bug where custom shipping methods would show a zero price. ([#1532](https://github.com/craftcms/commerce/issues/1532))
+- Fixed a bug where the payment form modal wasn’t getting sized correctly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
+- Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
+- Fixed a deprecation warning for `Order::getAvailableShippingMethods()` on the Edit Order page. ([#1518](https://github.com/craftcms/commerce/issues/1518))
+
 ## 3.1.9 - 2020-06-17
 
 ### Added

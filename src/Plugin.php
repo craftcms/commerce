@@ -150,6 +150,7 @@ class Plugin extends BasePlugin
         parent::init();
         $this->_setPluginComponents();
         $this->_registerCpRoutes();
+        $this->_registerSiteRoutes();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
         $this->_registerRedactorLinkOptions();

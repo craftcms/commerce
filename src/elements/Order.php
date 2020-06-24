@@ -1605,11 +1605,13 @@ class Order extends Element
         foreach ($methods as $method) {
 
             $option = new ShippingMethodOption();
+            $option->setOrder($this);
             foreach ($attributes as $attribute) {
                 $option->$attribute = $method->$attribute;
             }
 
-            $option->setOrder($this);
+            $option->price = $method->getPriceForOrder($this);
+
             $options[$option->handle] = $option;
         }
 
