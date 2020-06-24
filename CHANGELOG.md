@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.10 - 2020-06-23
 
 ### Added
 - Added the `salePrice` and `sales` fields to GraphQL variant queries. ([#1525](https://github.com/craftcms/commerce/issues/1525))
