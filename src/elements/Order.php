@@ -923,6 +923,19 @@ class Order extends Element
      */
     private $_email;
 
+    /**
+     * @var Customer
+     * @see Order::getCustomer()
+     * @see Order::setCustomer()
+     * ---
+     * ```php
+     * echo $order->customer;
+     * ```
+     * ```twig
+     * {{ order.customer }}
+     * ```
+     */
+    private $_customer;
 
     /**
      * @inheritdoc
@@ -1058,7 +1071,7 @@ class Order extends Element
 
         // Get the customer ID from the session
         if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+            $this->setCustomer(Plugin::getInstance()->getCustomers()->getCustomer());
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
@@ -1858,11 +1871,24 @@ class Order extends Element
      */
     public function getCustomer()
     {
-        if ($this->customerId) {
-            return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($this->_customer !== null) {
+            return $this->_customer;
         }
 
-        return null;
+        if ($this->customerId) {
+            $this->_customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        }
+
+        return $this->_customer;
+    }
+
+    /**
+     * @param Customer $customer
+     */
+    public function setCustomer(Customer $customer)
+    {
+        $this->_customer = $customer;
+        $this->customerId = $customer->id;
     }
 
     /**

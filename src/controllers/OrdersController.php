@@ -113,7 +113,7 @@ class OrdersController extends Controller
             Plugin::getInstance()->getCustomers()->saveCustomer($customer);
         }
 
-        $order->customerId = $customer->id;
+        $order->setCustomer($customer);
         $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
@@ -1063,7 +1063,12 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
-        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
+        $customerId = $orderRequestData['order']['customerId'] ?? null;
+        if ($customerId) {
+            $order->setCustomer(Plugin::getInstance()->getCustomers()->getCustomerById($customerId));
+        } else {
+            $order->customerId = null;
+        }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
@@ -1103,7 +1108,7 @@ class OrdersController extends Controller
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
 
-            $order->customerId = $customer->id;
+            $order->setCustomer($customer);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.

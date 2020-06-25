@@ -39,7 +39,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $addressId = Craft::$app->getRequest()->getBodyParam('address.id');
 
         $customerService = Plugin::getInstance()->getCustomers();
-        $customerId = $customerService->getCustomerId();
+        $customerId = $customerService->getCustomer()->id;
         $addressIds = $customerService->getAddressIds($customerId);
         $customer = $customerService->getCustomerById($customerId);
 
@@ -170,7 +170,7 @@ class CustomerAddressesController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+        $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
         $cart = Plugin::getInstance()->getCarts()->getCart(true);
 
