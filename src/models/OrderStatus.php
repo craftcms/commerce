@@ -35,7 +35,6 @@ class OrderStatus extends Model
         behaviors as softDeleteBehaviors;
     }
 
-
     /**
      * @var int ID
      */
@@ -80,8 +79,6 @@ class OrderStatus extends Model
      * @var string UID
      */
     public $uid;
-
-
 
     /**
      * @return array

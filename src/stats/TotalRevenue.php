@@ -32,7 +32,7 @@ class TotalRevenue extends Stat
         return $this->_createChartQuery(
             [
                 new Expression('SUM([[total]]) as revenue'),
-                new Expression('COUNT([[id]]) as count'),
+                new Expression('COUNT([[orders.id]]) as count'),
             ],
             [
                 'revenue' => 0,

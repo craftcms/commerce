@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
-use craft\commerce\adjusters\Tax;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
 use craft\commerce\models\OrderAdjustment;
@@ -50,6 +49,26 @@ class OrderAdjustments extends Component
      */
     const EVENT_REGISTER_ORDER_ADJUSTERS = 'registerOrderAdjusters';
 
+    /**
+     * @event RegisterComponentTypesEvent The event that is triggered for registration of additional adjusters.
+     * @since 3.1.9
+     *
+     * ```php
+     * use craft\events\RegisterComponentTypesEvent;
+     * use craft\commerce\services\OrderAdjustments;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrderAdjustments::class,
+     *     OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS,
+     *     function(RegisterComponentTypesEvent $event) {
+     *         $event->types[] = MyDiscountAdjuster::class;
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_REGISTER_DISCOUNT_ADJUSTERS = 'registerDiscountAdjusters';
+
 
     /**
      * Get all order adjusters.
@@ -65,7 +84,15 @@ class OrderAdjustments extends Component
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
-            $adjusters[] = Discount::class;
+            $discountEvent = new RegisterComponentTypesEvent([
+                'types' => []
+            ]);
+            if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
+                $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
+            }
+            $discountEvent->types[] = Discount::class;
+
+            array_push($adjusters, ...$discountEvent->types);
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
@@ -78,7 +105,9 @@ class OrderAdjustments extends Component
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
-            $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+            if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_ADJUSTERS)) {
+                $this->trigger(self::EVENT_REGISTER_ORDER_ADJUSTERS, $event);
+            }
         }
 
         return $event->types;

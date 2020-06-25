@@ -128,8 +128,7 @@ export default new Vuex.Store({
         },
 
         shippingMethods(state) {
-            const shippingMethodsObject = JSON.parse(JSON.stringify(state.draft.order.availableShippingMethods))
-
+            const shippingMethodsObject = JSON.parse(JSON.stringify(state.draft.order.availableShippingMethodOptions))
             const shippingMethods = []
 
             for (let key in shippingMethodsObject) {

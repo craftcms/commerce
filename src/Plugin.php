@@ -123,7 +123,7 @@ class Plugin extends BasePlugin
      * @inheritDoc
      */
 
-    public $schemaVersion = '3.1.11';
+    public $schemaVersion = '3.1.13';
 
     /**
      * @inheritdoc
@@ -152,6 +152,7 @@ class Plugin extends BasePlugin
         parent::init();
         $this->_setPluginComponents();
         $this->_registerCpRoutes();
+        $this->_registerSiteRoutes();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
         $this->_registerRedactorLinkOptions();

@@ -1427,7 +1427,15 @@ class Install extends Migration
             ['ZW', 'Zimbabwe'],
         ];
 
-        $this->batchInsert(Table::COUNTRIES, ['iso', 'name'], $countries);
+        $orderNumber = 1;
+        foreach ($countries as $key => $country)
+        {
+            $country[] = $orderNumber;
+            $countries[$key] = $country;
+            $orderNumber++;
+        }
+
+        $this->batchInsert(Table::COUNTRIES, ['iso', 'name', 'sortOrder'], $countries);
     }
 
     /**
@@ -1525,12 +1533,14 @@ class Install extends Migration
 
         $rows = [];
         foreach ($states as $iso => $list) {
+            $sortNumber = 1;
             foreach ($list as $abbr => $name) {
-                $rows[] = [$code2id[$iso], $abbr, $name];
+                $rows[] = [$code2id[$iso], $abbr, $name, $sortNumber];
+                $sortNumber++;
             }
         }
 
-        $this->batchInsert(State::tableName(), ['countryId', 'abbreviation', 'name'], $rows);
+        $this->batchInsert(State::tableName(), ['countryId', 'abbreviation', 'name', 'sortOrder'], $rows);
     }
 
     /**

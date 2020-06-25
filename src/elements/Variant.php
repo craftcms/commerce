@@ -220,7 +220,7 @@ class Variant extends Purchasable
     public $stock;
 
     /**
-     * @var int $hasUnlimitedStock
+     * @var bool $hasUnlimitedStock
      */
     public $hasUnlimitedStock;
 
@@ -311,20 +311,18 @@ class Variant extends Purchasable
         $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'string', 'max' => 255];
-        $rules[] = [['sku', 'price'], 'required'];
+        $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
         $rules[] = [['price'], 'number'];
         $rules[] = [
-            ['stock'], 'required', 'when' => static function($model) {
+            ['stock'],
+            'required',
+            'when' => static function($model) {
                 /** @var Variant $model */
                 return !$model->hasUnlimitedStock;
-            }
+            },
+            'on' => self::SCENARIO_LIVE,
         ];
-        $rules[] = [
-            ['stock'], 'number', 'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->hasUnlimitedStock;
-            }
-        ];
+        $rules[] = [['stock'], 'number'];
 
         return $rules;
     }
@@ -850,43 +848,45 @@ class Variant extends Purchasable
      */
     public function afterSave(bool $isNew)
     {
-        if (!$isNew) {
-            $record = VariantRecord::findOne($this->id);
+        if (!$this->propagating) {
+            if (!$isNew) {
+                $record = VariantRecord::findOne($this->id);
 
-            if (!$record) {
-                throw new Exception('Invalid variant ID: ' . $this->id);
+                if (!$record) {
+                    throw new Exception('Invalid variant ID: ' . $this->id);
+                }
+            } else {
+                $record = new VariantRecord();
+                $record->id = $this->id;
             }
-        } else {
-            $record = new VariantRecord();
-            $record->id = $this->id;
+
+            $record->productId = $this->productId;
+            $record->sku = $this->sku;
+            $record->price = $this->price;
+            $record->width = $this->width;
+            $record->height = $this->height;
+            $record->length = $this->length;
+            $record->weight = $this->weight;
+            $record->minQty = $this->minQty;
+            $record->maxQty = $this->maxQty;
+            $record->stock = $this->stock;
+            $record->isDefault = (bool)$this->isDefault;
+            $record->sortOrder = $this->sortOrder;
+            $record->hasUnlimitedStock = $this->hasUnlimitedStock;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            if (!$this->getProduct()->getType()->hasDimensions) {
+                $record->width = $this->width = 0;
+                $record->height = $this->height = 0;
+                $record->length = $this->length = 0;
+                $record->weight = $this->weight = 0;
+            }
+
+            $record->save(false);
         }
-
-        $record->productId = $this->productId;
-        $record->sku = $this->sku;
-        $record->price = $this->price;
-        $record->width = $this->width;
-        $record->height = $this->height;
-        $record->length = $this->length;
-        $record->weight = $this->weight;
-        $record->minQty = $this->minQty;
-        $record->maxQty = $this->maxQty;
-        $record->stock = $this->stock;
-        $record->isDefault = (bool)$this->isDefault;
-        $record->sortOrder = $this->sortOrder;
-        $record->hasUnlimitedStock = $this->hasUnlimitedStock;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
-
-        if (!$this->getProduct()->getType()->hasDimensions) {
-            $record->width = $this->width = 0;
-            $record->height = $this->height = 0;
-            $record->length = $this->length = 0;
-            $record->weight = $this->weight = 0;
-        }
-
-        $record->save(false);
 
         return parent::afterSave($isNew);
     }
@@ -1196,7 +1196,7 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return $this->product->title;
+                return '<span class="status '. $this->product->getStatus().'"></span>' . $this->product->title;
             }
             case 'price':
             {

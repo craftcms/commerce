@@ -40,6 +40,7 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use craft\helpers\Template;
@@ -108,6 +109,7 @@ use yii\log\Logger;
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
+ * @property ShippingMethodOption[] $availableShippingMethodOptions
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -117,7 +119,6 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
-
 
     /**
      * Payments exceed order total.
@@ -931,12 +932,12 @@ class Order extends Element
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
             $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
-            if ($hasPrimaryShippingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryShippingAddressId)) !== null) {
-                $this->setShippingAddress($address);
+            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
+                $this->setShippingAddress($shippingAddress);
             }
             $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
-            if ($hasPrimaryBillingAddress && ($address = Plugin::getInstance()->getAddresses()->getAddressById($this->getCustomer()->primaryBillingAddressId)) !== null) {
-                $this->setBillingAddress($address);
+            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
+                $this->setBillingAddress($billingAddress);
             }
         }
 
@@ -1151,7 +1152,7 @@ class Order extends Element
                 // Substr because attribute is returned with 'AsCurrency' appended
                 $attribute = substr($attribute, 0, -10);
                 $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency, [], [], true);
+                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
             };
         }
 
@@ -1491,7 +1492,7 @@ class Order extends Element
         }
 
         if (!$replaced) {
-            $lineItems[] = $lineItem;
+            ArrayHelper::prepend($lineItems, $lineItem);
         }
 
         $this->setLineItems($lineItems);
@@ -1580,23 +1581,15 @@ class Order extends Element
 
         // Since shipping adjusters run on the original price, pre discount, let's recalculate
         // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethods = $this->getAvailableShippingMethods();
+        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
         if ($this->shippingMethodHandle) {
-            if (!isset($availableMethods[$this->shippingMethodHandle]) || empty($availableMethods)) {
+            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
                 $this->recalculate();
 
                 return;
             }
         }
-    }
-
-    /**
-     * @return ShippingMethodInterface[]|\craft\commerce\base\ShippingMethod[]
-     */
-    public function getAvailableShippingMethods(): array
-    {
-        return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
     }
 
     /**
@@ -1612,11 +1605,13 @@ class Order extends Element
         foreach ($methods as $method) {
 
             $option = new ShippingMethodOption();
+            $option->setOrder($this);
             foreach ($attributes as $attribute) {
                 $option->$attribute = $method->$attribute;
             }
 
-            $option->setOrder($this);
+            $option->price = $method->getPriceForOrder($this);
+
             $options[$option->handle] = $option;
         }
 
@@ -1718,6 +1713,10 @@ class Order extends Element
 
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
+        } else {
+            // Allow shipping address to be removed from an order/cart
+            $orderRecord->shippingAddressId = null;
+            $this->setShippingAddress(null);
         }
 
         // Save billing address, it has already been validated.
@@ -1732,6 +1731,10 @@ class Order extends Element
 
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
+        } else {
+            // Allow shipping address to be removed from an order/cart
+            $orderRecord->billingAddressId = null;
+            $this->setBillingAddress(null);
         }
 
         if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
@@ -2365,6 +2368,8 @@ class Order extends Element
     }
 
     /**
+     * * Get the shipping address on the order.
+     *
      * @return Address|null
      */
     public function getShippingAddress()
@@ -2377,16 +2382,20 @@ class Order extends Element
     }
 
     /**
-     * @param Address|array $address
+     * Set the shipping address on the order.
+     *
+     * @param Address|array|null $address
      */
     public function setShippingAddress($address)
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if ($address === null) {
+            $this->shippingAddressId = null;
+            $this->_shippingAddress = null;
+        } else {
+            $address = is_array($address) ? new Address($address) : $address;
+            $this->shippingAddressId = $address->id;
+            $this->_shippingAddress = $address;
         }
-
-        $this->shippingAddressId = $address->id;
-        $this->_shippingAddress = $address;
     }
 
     /**
@@ -2436,6 +2445,8 @@ class Order extends Element
     }
 
     /**
+     * Get the billing address on the order.
+     *
      * @return Address|null
      */
     public function getBillingAddress()
@@ -2448,16 +2459,20 @@ class Order extends Element
     }
 
     /**
+     * Set the billing address on the order.
+     *
      * @param Address|array $address
      */
     public function setBillingAddress($address)
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if ($address === null) {
+            $this->billingAddressId = null;
+            $this->_billingAddress = null;
+        } else {
+            $address = is_array($address) ? new Address($address) : $address;
+            $this->billingAddressId = $address->id;
+            $this->_billingAddress = $address;
         }
-
-        $this->billingAddressId = $address->id;
-        $this->_billingAddress = $address;
     }
 
     /**
@@ -2530,14 +2545,14 @@ class Order extends Element
         if (isset($shippingMethods[$this->shippingMethodHandle])) {
             return $shippingMethods[$this->shippingMethodHandle];
         }
-        $handles = [];
 
+        $handles = [];
         /** @var ShippingMethod $shippingMethod */
         foreach ($shippingMethods as $shippingMethod) {
             $handles[] = $shippingMethod->getHandle();
         }
 
-        if (!empty($shippingMethods)) {
+        if (!empty($handles)) {
             /** @var ShippingMethod $firstAvailable */
             $firstAvailable = array_values($shippingMethods)[0];
             if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {

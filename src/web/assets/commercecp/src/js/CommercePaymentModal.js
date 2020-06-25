@@ -27,6 +27,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 
                 if (textStatus === 'success') {
                     if (response.success) {
+                        var $this = this;
                         this.$container.append(response.modalHtml);
                         Craft.appendHeadHtml(response.headHtml);
                         Craft.appendFootHtml(response.footHtml);
@@ -41,12 +42,16 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                             $('.gateway-form').addClass('hidden');
                             $('#gateway-' + id + '-form').removeClass('hidden');
                             Craft.initUiElements(this.$container);
-                            this.updateSizeAndPosition();
+                            setTimeout(function() {
+                                $this.updateSizeAndPosition();
+                            }, 200);
                         }, this)).trigger('change');
 
-                        this.updateSizeAndPosition();
-
                         Craft.initUiElements(this.$container);
+
+                        setTimeout(function() {
+                            $this.updateSizeAndPosition();
+                        }, 200);
                     }
                     else {
                         var error = Craft.t('commerce', 'An unknown error occurred.');
