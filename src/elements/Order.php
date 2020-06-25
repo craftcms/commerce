@@ -37,6 +37,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -923,6 +924,19 @@ class Order extends Element
      */
     private $_email;
 
+    /**
+     * @var string
+     * @see Order::getTransactions()
+     * ---
+     * ```php
+     * echo $order->transactions;
+     * ```
+     * ```twig
+     * {{ order.transactions }}
+     * ```
+     */
+    private $_transactions;
+
 
     /**
      * @inheritdoc
@@ -1254,8 +1268,10 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
+        $this->_transactions = null; // clear order's transaction cache
+
         $paidInFull = !$this->hasOutstandingBalance();
-        $authorizedInFull = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this) >= $this->getTotalPrice();
+        $authorizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
 
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
@@ -1289,7 +1305,7 @@ class Order extends Element
 
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
-            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this);
+            $totalAuthorized = $this->getTotalAuthorized();
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
@@ -2078,7 +2094,64 @@ class Order extends Element
      */
     public function getTotalPaid(): float
     {
-        return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+        if (!$this->id) {
+            return 0;
+        }
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
+        });
+
+        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
+        });
+
+        $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
+        $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
+
+        return $paid - $refunded;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalAuthorized()
+    {
+        if (!$this->id) {
+            return 0;
+        }
+
+        $authorized = 0;
+        $captured = 0;
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        foreach ($this->_transactions as $transaction) {
+            $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
+            $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
+            $isCapture = ($transaction->type == TransactionRecord::TYPE_CAPTURE);
+
+            if (!$isSuccess) {
+                continue;
+            }
+
+            if ($isAuth) {
+                $authorized += $transaction->amount;
+                continue;
+            }
+
+            if ($isCapture) {
+                $captured += $transaction->amount;
+            }
+        }
+
+        return $authorized - $captured;
     }
 
     /**
@@ -2667,9 +2740,7 @@ class Order extends Element
      */
     public function getHistories(): array
     {
-        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
-
-        return $histories;
+        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
 
     /**
@@ -2677,7 +2748,15 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
+        if (!$this->id) {
+            $this->_transactions = [];
+        }
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        return $this->_transactions;
     }
 
     /**

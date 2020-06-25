@@ -354,7 +354,7 @@ class OrdersController extends Controller
                 'title' => $order->reference,
                 'url' => $order->getCpEditUrl(),
                 'date' => $order->dateOrdered->format('D jS M Y'),
-                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPrice(), $order->currency, [], [], false),
                 'orderStatus' => $order->getOrderStatusHtml(),
             ];
         }
