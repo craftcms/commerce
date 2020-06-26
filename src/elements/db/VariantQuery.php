@@ -499,13 +499,37 @@ class VariantQuery extends ElementQuery
                 'sales.allCategories',
             ])
                 ->from(Table::SALES . ' sales')
-                ->where(['[[enabled]]' => 1])
-                ->andWhere([
+                ->where([
                     'or',
-                    ['or', ['<>', '[[dateTo]]', null], ['>=', '[[dateTo]]', Db::prepareDateForDb($now)]],
-                    ['or', ['<>', '[[dateFrom]]', null], ['<=', '[[dateFrom]]', Db::prepareDateForDb($now)]],
-                    ['[[dateFrom]]' => null, '[[dateTo]]' => null],
+                    // Only a from date
+                    [
+                        'and',
+                        ['dateTo' => null],
+                        ['not', ['dateFrom' => null]],
+                        ['<=', 'dateFrom', Db::prepareDateForDb($now)],
+                    ],
+                    // Only a to date
+                    [
+                        'and',
+                        ['dateFrom' => null],
+                        ['not', ['dateTo' => null]],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ],
+                    // no dates
+                    [
+                        'dateFrom' => null,
+                        'dateTo' => null,
+                    ],
+                    // to and from dates
+                    [
+                        'and',
+                        ['not', ['dateFrom' => null]],
+                        ['not', ['dateTo' => null]],
+                        ['<=', 'dateFrom', Db::prepareDateForDb($now)],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ]
                 ])
+                ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
                 ->all();
 

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+
 ## 2.2.21 - 2020-06-17
 
 ### Changed
