@@ -5,6 +5,9 @@
 ### Added
 - Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
 
+### Fixed
+- Fixed a bug were is wasn’t possible to delete all line item statuses.
+
 ## 3.1.10 - 2020-06-23
 
 ### Added
