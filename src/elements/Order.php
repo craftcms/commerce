@@ -1909,7 +1909,7 @@ class Order extends Element
     public function setCustomer($customer)
     {
         if ($customer !== null && $customer instanceof Customer) {
-            if ($customer->id) {
+            if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
 
