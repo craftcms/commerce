@@ -157,24 +157,11 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function fields(): array
+    protected function getCurrency(): string
     {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-                if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
-                }
-
-                return $model->$attribute;
-            };
-        }
-
-        return $fields;
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**

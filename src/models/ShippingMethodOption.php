@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\elements\Order;
 
 /**
@@ -20,7 +19,7 @@ use craft\commerce\elements\Order;
 class ShippingMethodOption extends ShippingMethod
 {
     /**
-     * @var mixed
+     * @var Order
      */
     private $_order;
 
@@ -30,35 +29,25 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
-     * @return array
-     */
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                // Substr because attribute is returned with 'AsCurrency' appended
-                $attribute = substr($attribute, 0, -10);
-                $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->_order->currency, [], [], true);
-            };
-        }
-
-        return $fields;
-    }
-
-    /**
      * The attributes on the order that should be made available as formatted currency.
      *
      * @return array
      */
     public function currencyAttributes(): array
     {
-        $attributes = [];
+        $attributes = parent::currencyAttributes();
+
         $attributes[] = 'price';
 
         return $attributes;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrency(): string
+    {
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**

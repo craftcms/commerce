@@ -462,23 +462,8 @@ class LineItem extends Model
      */
     public function fields(): array
     {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-                if (!empty($model->$attribute)) {
-                    if (is_numeric($model->$attribute)) {
-                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
-                    }
-                }
-
-                return $model->$attribute;
-            };
-        }
-
+        $fields = parent::fields(); // get the currency and date fields formatted
         $fields['subtotal'] = 'subtotal';
-
         return $fields;
     }
 
@@ -504,7 +489,8 @@ class LineItem extends Model
      */
     public function currencyAttributes(): array
     {
-        $attributes = [];
+        $attributes = parent::currencyAttributes();
+
         $attributes[] = 'price';
         $attributes[] = 'saleAmount';
         $attributes[] = 'salePrice';
@@ -512,6 +498,14 @@ class LineItem extends Model
         $attributes[] = 'total';
 
         return $attributes;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrency(): string
+    {
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**
