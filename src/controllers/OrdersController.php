@@ -1064,10 +1064,10 @@ class OrdersController extends Controller
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
         $customerId = $orderRequestData['order']['customerId'] ?? null;
-        if ($customerId) {
-            $order->setCustomer(Plugin::getInstance()->getCustomers()->getCustomerById($customerId));
+        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $order->setCustomer($customer);
         } else {
-            $order->customerId = null;
+            $order->setCustomer(null);
         }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];

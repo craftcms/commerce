@@ -1887,24 +1887,38 @@ class Order extends Element
      */
     public function getCustomer()
     {
-        if ($this->_customer !== null) {
+        if ($this->_customer !== null && $this->_customer->id == $this->customerId) {
             return $this->_customer;
         }
 
         if ($this->customerId) {
             $this->_customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+
+            if ($this->_customer == null) {
+                $this->customerId = null;
+            }
         }
 
         return $this->_customer;
     }
 
     /**
-     * @param Customer $customer
+     * @param Customer|null $customer
+     * @since 3.x
      */
-    public function setCustomer(Customer $customer)
+    public function setCustomer($customer)
     {
-        $this->_customer = $customer;
-        $this->customerId = $customer->id;
+        if ($customer !== null && $customer instanceof Customer) {
+            if ($customer->id) {
+                throw new InvalidCallException('Customer must have an ID');
+            }
+
+            $this->_customer = $customer;
+            $this->customerId = $customer->id;
+        } else {
+            $this->_customer = null;
+            $this->customerId = null;
+        }
     }
 
     /**
