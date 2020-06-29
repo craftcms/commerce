@@ -859,11 +859,6 @@ class Customers extends Component
         $customer = $this->getCustomerByUserId($user->id);
         $email = $user->email;
 
-        // Update the email address in the DB for this customer
-        if ($customer && $email) {
-            $this->_updatePreviousOrderEmails($customer->id, $email);
-        }
-
         // Create a new customer for a user that does not have a customer
         if (!$customer && $user->email) {
             $existingCustomerIdByEmail = (new Query())
@@ -883,6 +878,13 @@ class Customers extends Component
 
             $this->saveCustomer($customer);
         }
+
+        // Update the email address in the DB for this customer
+        if ($email) {
+            $this->_updatePreviousOrderEmails($customer->id, $email);
+        }
+
+        $this->consolidateGuestOrdersByEmail($email);
     }
 
     /**
