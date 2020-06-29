@@ -134,6 +134,16 @@ class Customers extends Component
             $this->_customer = $customer;
         }
 
+        // Always ensure the customer is saved.
+        if (!$this->_customer->id) {
+            if ($this->saveCustomer($this->_customer)) {
+                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $this->_customer->id);
+            } else {
+                $errors = implode(', ', $this->_customer->errors);
+                throw new Exception('Error saving customer: ' . $errors);
+            }
+        }
+
         return $this->_customer;
     }
 
@@ -150,7 +160,7 @@ class Customers extends Component
     {
         // default to customer in session.
         if (null === $customer) {
-            $customer = $this->_getSavedCustomer();
+            $customer = $this->getCustomer();
         }
 
         if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
@@ -346,7 +356,7 @@ class Customers extends Component
                 // Only consolidate completed orders, not carts and orders that don't belong to another user.
 
                 if ($order->isCompleted && !$belongsToAnotherUser) {
-                    $order->customerId = $toCustomer->id;
+                    $order->setCustomer($toCustomer);
 
                     // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
                     $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
@@ -440,10 +450,13 @@ class Customers extends Component
      *
      * @return int
      * @throws Exception
+     * @deprecated 3.x
      */
     public function getCustomerId(): int
     {
-        return $this->_getSavedCustomer()->id;
+        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', 'Customers::getCustomerId() has been deprecated. Use Customers::getCustomer()->id, since it is guaranteed to have a ID.');
+
+        return $this->getCustomer()->id;
     }
 
     /**
@@ -498,7 +511,7 @@ class Customers extends Component
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders' , '[[orders.customerId]] = [[customers.id]]')
+            ->innerJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -516,11 +529,14 @@ class Customers extends Component
             ])
 
             // Exclude customer records without a user or where there isn't any data
-            ->where(['or',
+            ->where([
+                'or',
                 ['not', ['userId' => null]],
-                ['and',
+                [
+                    'and',
                     ['userId' => null],
-                    ['or',
+                    [
+                        'or',
                         ['not', ['primaryBillingAddressId' => null]],
                         ['not', ['primaryShippingAddressId' => null]],
                     ]
@@ -591,7 +607,11 @@ class Customers extends Component
             if (!$userId) {
                 // Dont use element save, just update DB directly
                 if ($order && $order instanceof Order) {
-                    $order->customerId = $customerId;
+                    $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+                    if (!$customer) {
+                        throw new Exception('Can’t find customer to assign order to');
+                    }
+                    $order->setCustomer($customer);
                 }
 
                 Craft::$app->getDb()->createCommand()
@@ -603,28 +623,6 @@ class Customers extends Component
                     ->execute();
             }
         }
-    }
-
-    /**
-     * Get the current customer.
-     *
-     * @return Customer
-     * @throws Exception if failed to save customer.
-     */
-    private function _getSavedCustomer(): Customer
-    {
-        $customer = $this->getCustomer();
-
-        if (!$customer->id) {
-            if ($this->saveCustomer($customer)) {
-                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
-            } else {
-                $errors = implode(', ', $customer->errors);
-                throw new Exception('Error saving customer: ' . $errors);
-            }
-        }
-
-        return $customer;
     }
 
     /**
