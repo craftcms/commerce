@@ -937,6 +937,7 @@ class Order extends Element
      */
     private $_transactions;
 
+    /**
      * @var Customer
      * @see Order::getCustomer()
      * @see Order::setCustomer()
