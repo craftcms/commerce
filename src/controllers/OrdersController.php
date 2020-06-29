@@ -1095,7 +1095,7 @@ class OrdersController extends Controller
         }
 
         // Only email set on the order
-        if ($order->customerId == null && $order->email) {
+        if ($order->getCustomer() == null && $order->email) {
             // See if there is a user with that email
             $user = User::find()->email($order->email)->one();
             $customer = null;
