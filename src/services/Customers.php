@@ -23,7 +23,6 @@ use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use craft\events\ModelEvent;
-use craft\events\UserEvent as CraftUserEvent;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
