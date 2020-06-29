@@ -21,7 +21,7 @@ trait Routes
 {
 
     /**
-     * @since 3.x
+     * @since 3.1.10
      */
     private function _registerSiteRoutes()
     {

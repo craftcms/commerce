@@ -71,7 +71,7 @@ class ShippingMethodOption extends ShippingMethod
 
     /**
      * @param $order
-     * @since 3.x
+     * @since 3.1.10
      */
     public function setOrder($order)
     {

@@ -68,7 +68,9 @@ class BaseFrontEndController extends BaseController
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
+            'cart' => $cart
         ]);
+
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);
 
         return $event->cartInfo;
