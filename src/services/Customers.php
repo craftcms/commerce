@@ -48,7 +48,6 @@ class Customers extends Component
 {
     const SESSION_CUSTOMER = 'commerce_customer';
 
-
     /**
      * @var Customer
      */
@@ -464,24 +463,14 @@ class Customers extends Component
      *
      * @param Event $event
      * @throws Exception
+     * @deprecated 3.x
      */
     public function saveUserHandler(Event $event)
     {
-        $user = $event->sender;
-        $customer = $this->getCustomerByUserId($user->id);
-        $email = $user->email;
+        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', 'Customers::saveUserHandler() has been deprecated. Use Customers::afterSaveUserHandler() instead.');
 
-        // Update the email address on orders for this customer.
-        if ($customer) {
-            $orders = (new Query())
-                ->select(['orders.id'])
-                ->from([Table::ORDERS . ' orders'])
-                ->where(['orders.customerId' => $customer->id])
-                ->column();
-
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::ORDERS, ['email' => $email], ['id' => $orders])
-                ->execute();
+        if ($customer = $this->getCustomerByUserId($event->sender->id)) {
+            $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
         }
     }
 
@@ -867,27 +856,55 @@ class Customers extends Component
      */
     public function afterSaveUserHandler(ModelEvent $event)
     {
-        // Check to see if there is a customer record for the user
-        $customer = $this->getCustomerByUserId($event->sender->id);
+        $user = $event->sender;
+        $customer = $this->getCustomerByUserId($user->id);
+        $email = $user->email;
+
+        // Update the email address in the DB for this customer
+        if ($customer && $email) {
+            $this->_updatePreviousOrderEmails($customer->id, $email);
+        }
 
         // Create a new customer for a user that does not have a customer
-        if (!$customer && $event->sender->email) {
+        if (!$customer && $user->email) {
             $existingCustomerIdByEmail = (new Query())
                 ->select('orders.customerId')
                 ->from(Table::ORDERS . ' orders')
                 ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
-                ->where(['orders.email' => $event->sender->email])
+                ->where(['orders.email' => $user->email])
                 ->andWhere(['orders.isCompleted' => true])
                 ->orderBy('[[orders.dateOrdered]] ASC')
                 ->scalar(); // get the first customerId in the result
 
             if ($customer = $this->getCustomerById($existingCustomerIdByEmail)) {
-                $customer->userId = $event->sender->id;
+                $customer->userId = $user->id;
             } else {
-                $customer = new Customer(['userId' => $event->sender->id]);
+                $customer = new Customer(['userId' => $user->id]);
             }
 
             $this->saveCustomer($customer);
         }
     }
+
+    /**
+     * @param $customerId
+     * @param $email
+     * @throws \yii\db\Exception
+     */
+    private function _updatePreviousOrderEmails(int $customerId, string $email)
+    {
+        $orderIds = (new Query())
+            ->select(['orders.id'])
+            ->from([Table::ORDERS . ' orders'])
+            ->where(['orders.customerId' => $customerId])
+            ->andWhere(['not', ['orders.email' => $email]])
+            ->column();
+
+        if (!empty($orderIds)) {
+            Craft::$app->getDb()->createCommand()
+                ->update(Table::ORDERS, ['email' => $email], ['id' => $orderIds])
+                ->execute();
+        }
+    }
+
 }
