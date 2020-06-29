@@ -529,7 +529,15 @@ class Customers extends Component
                         ['not', ['primaryShippingAddressId' => null]],
                     ]
                 ]
-            ])->andWhere(['[[orders.isCompleted]]' => 1]);
+            ])->andWhere([
+                'or',
+                ['orders.isCompleted' => true],
+                [
+                    'and',
+                    ['orders.isCompleted' => false],
+                    ['not', ['customers.userId' => null]],
+                ]
+            ]);
 
         if ($search) {
             $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
