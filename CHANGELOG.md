@@ -4,6 +4,8 @@
 
 ### Added
 - Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
+- Added the `hasVariant` argument to GraphQL product queries. ([#1544](https://github.com/craftcms/commerce/issues/1544))
+- Added `craft\commerce\gql\types\input\Variant`.
 
 ### Fixed
 - Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
