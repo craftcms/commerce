@@ -130,7 +130,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Returns the transaction hash based on a webhook request
      *
      * @return string|null
-     * @since 3.x
+     * @since 3.1.9
      */
     public function getTransactionHashFromWebhook()
     {

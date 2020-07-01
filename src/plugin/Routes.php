@@ -19,6 +19,20 @@ use yii\base\Event;
  */
 trait Routes
 {
+
+    /**
+     * @since 3.1.10
+     */
+    private function _registerSiteRoutes()
+    {
+        Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
+            $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
+        });
+    }
+
+    /**
+     * @since 2.0
+     */
     private function _registerCpRoutes()
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {

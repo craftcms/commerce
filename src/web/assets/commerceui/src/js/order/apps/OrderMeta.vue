@@ -102,7 +102,12 @@
 
             <div class="data">
                 <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
-                <span class="value code">{{draft.order.shippingMethodHandle}}</span>
+                <div class="value" v-if="shippingMethod">
+                    <span v-if="typeof shippingMethod == 'object'">{{shippingMethod.name}}</span>
+                    <span v-if="typeof shippingMethod == 'object'" class="small code shipping-method-handle"><br>{{shippingMethod.handle}}</span>
+
+                    <span class="code" v-if="typeof shippingMethod == 'string'">{{shippingMethod}}</span>
+                </div>
             </div>
         </div>
 
@@ -274,6 +279,23 @@
                             this.$store.dispatch('displayError', error);
                         })
                 }
+            },
+
+            shippingMethod() {
+                let handle = this.draft.order.shippingMethodHandle;
+
+                if (!handle) {
+                    return null;
+                }
+
+                let shippingMethods = this.$store.getters.shippingMethods;
+                if (!shippingMethods || !shippingMethods.length) {
+                    return null;
+                }
+
+                let shippingMethod = shippingMethods.find(method => method.handle && method.handle == handle);
+
+                return shippingMethod ? shippingMethod : handle;
             }
         },
 
@@ -351,5 +373,9 @@
         .btn-link {
             @include margin-left(7px);
         }
+    }
+
+    .shipping-method-handle {
+        color: $mediumTextColor;
     }
 </style>

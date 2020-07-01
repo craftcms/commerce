@@ -128,7 +128,9 @@
             }, 350),
 
             onChange() {
-                this.$emit('update', this.selectedCustomer);
+                if (this.selectedCustomer && this.selectedCustomer.email) {
+                    this.$emit('update', this.selectedCustomer);
+                }
             }
         },
 

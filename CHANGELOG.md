@@ -3,18 +3,50 @@
 ## Unreleased
 
 ### Added
-- Added `craft\commerce\base\Gateway::getTransactionHashFromWebhook()`;
-- Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
-- Added `craft\commerce\services\Webhooks`;
+- Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
+- Added the `hasVariant` argument to GraphQL product queries. ([#1544](https://github.com/craftcms/commerce/issues/1544))
+- Added `craft\commerce\gql\types\input\Variant`.
+
+### Fixed
+- Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+- Fixed a bug where the Edit Order page would save the previous order status message after only changing the status. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a bug where it wasn’t possible to delete all line item statuses.
+
+## 3.1.10 - 2020-06-23
+
+### Added
+- Added the `salePrice` and `sales` fields to GraphQL variant queries. ([#1525](https://github.com/craftcms/commerce/issues/1525))
+- Added support for non-parameterized gateway webhook URLs. ([#1530](https://github.com/craftcms/commerce/issues/1530))
+- Added `craft\commerce\gql\types\SaleType`.
 
 ### Changed
-- Discount calculations now take into account discount adjustments created by custom discount adjusters. ([#1506](https://github.com/craftcms/commerce/issues/1506))
+- The selected shipping method now shows both name and handle for completed orders on the Edit Order page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
+
+### Fixed
+- Fixed a bug where the current user’s email was unintentionally being used as a fallback when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
+- Fixed a bug where an incorrect validation error would be shown when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
+- Fixed a bug where `defaultVariantId` wasn’t being set when saving a Product. ([#1529](https://github.com/craftcms/commerce/issues/1529))
+- Fixed a bug where custom shipping methods would show a zero price. ([#1532](https://github.com/craftcms/commerce/issues/1532))
+- Fixed a bug where the payment form modal wasn’t getting sized correctly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
+- Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
+- Fixed a deprecation warning for `Order::getAvailableShippingMethods()` on the Edit Order page. ([#1518](https://github.com/craftcms/commerce/issues/1518))
+
+## 3.1.9 - 2020-06-17
+
+### Added
+- Added `craft\commerce\base\Gateway::getTransactionHashFromWebhook()`.
+- Added `craft\commerce\services\OrderAdjustments::EVENT_REGISTER_DISCOUNT_ADJUSTERS`.
+- Added `craft\commerce\services\Webhooks`.
+
+### Changed
+- Discount calculations now take adjustments created by custom discount adjusters into account. ([#1506](https://github.com/craftcms/commerce/issues/1506))
 - Improved handling of race conditions between processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
 - Improved performance when retrieving order statuses. ([#1497](https://github.com/craftcms/commerce/issues/1497))
 
 ### Fixed
 - Fixed a bug where zero stock items would be removed from the order before accepting payment. ([#1503](https://github.com/craftcms/commerce/issues/1503))
-- Fixed an error that occurred when saving an order with a deleted variant on the Edit Order page. ([#1504](https://github.com/craftcms/commerce/issues/1504)) 
+- Fixed an error that occurred when saving an order with a deleted variant on the Edit Order page. ([#1504](https://github.com/craftcms/commerce/issues/1504))
+- Fixed a bug where line items weren’t being returned in the correct order after adding a new line item to the card via Ajax. ([#1496](https://github.com/craftcms/commerce/issues/1496))
 - Fixed a bug where countries and states weren’t being returned in the correct order. ([#1512](https://github.com/craftcms/commerce/issues/1512))
 - Fixed a deprecation warning. ([#1508](https://github.com/craftcms/commerce/issues/1508))
 

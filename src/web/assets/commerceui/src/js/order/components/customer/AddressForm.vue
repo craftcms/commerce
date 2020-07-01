@@ -244,12 +244,22 @@
         methods: {
             handleCountryChange(option) {
                 this.countrySelect = option;
+                this.address.countryId = this.countrySelect.id;
                 this.$emit('countryUpdate', this.countrySelect);
+
+                if (!this.hasStates) {
+                    this.address.stateName = null;
+                    this.address.stateValue = null;
+                }
+                this.validate(this.address);
             },
 
             handleStateChange(option) {
                 this.stateSelect = option;
+                this.address.stateName = null;
+                this.address.stateValue = this.stateSelect.id;
                 this.$emit('stateUpdate', this.stateSelect);
+                this.validate(this.address);
             },
 
             hasErrors(key) {
