@@ -475,6 +475,7 @@ class Variant extends Purchasable
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function getIsEditable(): bool
     {

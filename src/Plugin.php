@@ -158,7 +158,6 @@ class Plugin extends BasePlugin
         $this->_registerRedactorLinkOptions();
         $this->_registerPermissions();
         $this->_registerCraftEventListeners();
-        $this->_registerSessionEventListeners();
         $this->_registerProjectConfigEventListeners();
         $this->_registerWidgets();
         $this->_registerVariables();
@@ -173,8 +172,8 @@ class Plugin extends BasePlugin
         $this->_registerGarbageCollection();
         $this->_registerElementExports();
         $this->_defineResaveCommand();
-        
-        Craft::setAlias('@commerceLib',  Craft::getAlias('@craft/commerce/../lib'));
+
+        Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
     }
 
     /**
@@ -381,18 +380,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * Register Commerce’s session event listeners
-     */
-    private function _registerSessionEventListeners()
-    {
-        if (!Craft::$app->getRequest()->getIsConsoleRequest()) {
-            Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'saveUserHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
-        }
-    }
-
-    /**
      * Register Commerce’s project config event listeners
      */
     private function _registerProjectConfigEventListeners()
@@ -449,9 +436,14 @@ class Plugin extends BasePlugin
      */
     private function _registerCraftEventListeners()
     {
+        if (!Craft::$app->getRequest()->isConsoleRequest) {
+            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
+        }
+
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler'], null, false); // Lets run this before other plugins if we can
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }

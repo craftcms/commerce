@@ -54,7 +54,7 @@ class VariantType implements GeneratorInterface
 
             $fields = TypeManager::prepareFieldDefinitions(array_merge(VariantInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
 
-            // Generate a type for each entry type
+            // Generate a type for each product type
             $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new Variant([
                 'name' => $typeName,
                 'fields' => function() use ($fields) {
