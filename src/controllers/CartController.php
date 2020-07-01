@@ -99,6 +99,7 @@ class CartController extends BaseFrontEndController
                 }
 
                 $lineItem->note = $note;
+                $lineItem->setOrder($this->_cart);
 
                 $this->_cart->addLineItem($lineItem);
             }
@@ -145,6 +146,7 @@ class CartController extends BaseFrontEndController
                     }
 
                     $lineItem->note = $purchasable['note'];
+                    $lineItem->setOrder($this->_cart);
                     $this->_cart->addLineItem($lineItem);
                 }
             }
@@ -185,6 +187,7 @@ class CartController extends BaseFrontEndController
                 if ($removeLine) {
                     $this->_cart->removeLineItem($lineItem);
                 } else {
+                    $lineItem->setOrder($this->_cart);
                     $this->_cart->addLineItem($lineItem);
                 }
             }
