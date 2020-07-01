@@ -3,7 +3,7 @@
 {% block main %}
 
     <h1 class="text-3xl block sm:inline">Products</h1>
-    <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
+    <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}/index.twig</span>
 
     {% paginate craft.products.limit(4) as pageInfo, pageProducts %}
 
