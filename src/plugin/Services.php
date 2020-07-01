@@ -464,7 +464,7 @@ trait Services
      * Returns the webhooks service
      *
      * @return Webhooks The variants service
-     * @since 3.x
+     * @since 3.1.9
      */
     public function getWebhooks(): Webhooks
     {

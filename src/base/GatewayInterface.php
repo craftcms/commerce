@@ -209,7 +209,7 @@ interface GatewayInterface extends SavableComponentInterface
      * param or part of the response data.
      *
      * @return mixed
-     * @since 3.x
+     * @since 3.1.9
      */
     public function getTransactionHashFromWebhook();
 }

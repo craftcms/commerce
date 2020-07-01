@@ -11,13 +11,14 @@ use Craft;
 use craft\commerce\base\Gateway;
 use Throwable;
 use yii\base\Component;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
  * Webhooks service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.9
  */
 class Webhooks extends Component
 {
@@ -42,6 +43,8 @@ class Webhooks extends Component
         try {
             if ($gateway && $gateway->supportsWebhooks()) {
                 $response = $gateway->processWebhook();
+            } else {
+                throw new BadRequestHttpException('Gateway not found or does not support webhooks.');
             }
         } catch (Throwable $exception) {
             $message = 'Exception while processing webhook: ' . $exception->getMessage() . "\n";

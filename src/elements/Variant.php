@@ -220,7 +220,7 @@ class Variant extends Purchasable
     public $stock;
 
     /**
-     * @var int $hasUnlimitedStock
+     * @var bool $hasUnlimitedStock
      */
     public $hasUnlimitedStock;
 
@@ -475,6 +475,7 @@ class Variant extends Purchasable
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function getIsEditable(): bool
     {
@@ -1196,7 +1197,7 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return $this->product->title;
+                return '<span class="status '. $this->product->getStatus().'"></span>' . $this->product->title;
             }
             case 'price':
             {
