@@ -113,7 +113,7 @@ class OrdersController extends Controller
             Plugin::getInstance()->getCustomers()->saveCustomer($customer);
         }
 
-        $order->customerId = $customer->id;
+        $order->setCustomer($customer);
         $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
@@ -354,7 +354,7 @@ class OrdersController extends Controller
                 'title' => $order->reference,
                 'url' => $order->getCpEditUrl(),
                 'date' => $order->dateOrdered->format('D jS M Y'),
-                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPrice(), $order->currency, [], [], false),
                 'orderStatus' => $order->getOrderStatusHtml(),
             ];
         }
@@ -1063,7 +1063,12 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
-        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
+        $customerId = $orderRequestData['order']['customerId'] ?? null;
+        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $order->setCustomer($customer);
+        } else {
+            $order->setCustomer(null);
+        }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
@@ -1090,7 +1095,7 @@ class OrdersController extends Controller
         }
 
         // Only email set on the order
-        if ($order->customerId == null && $order->email) {
+        if ($order->getCustomer() == null && $order->email) {
             // See if there is a user with that email
             $user = User::find()->email($order->email)->one();
             $customer = null;
@@ -1103,7 +1108,7 @@ class OrdersController extends Controller
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
 
-            $order->customerId = $customer->id;
+            $order->setCustomer($customer);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
