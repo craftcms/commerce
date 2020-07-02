@@ -1,4 +1,4 @@
-<div x-data="{ expanded: {{ flashNotice ? "true" : "false" }} }">
+<div x-data="{ expanded: {{ flashNotice and 'shop/cart' not in craft.app.request.pathInfo ? "true" : "false" }} }">
     <div class="absolute right-0 top-0 transition duration-500 ease-in-out transform hover:scale-110 " >
         <div @click="expanded = true" class="cursor-pointer m-6 p-3 bg-white rounded-lg relative shadow-lg hover:shadow-xl">
             {% if cart.totalQty %}<span x-show="!expanded" class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
