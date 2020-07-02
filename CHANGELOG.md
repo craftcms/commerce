@@ -8,10 +8,11 @@
 - Added `craft\commerce\gql\types\input\Variant`.
 
 ### Fixed
+- Improved performance when adding items to the cart. ([#1543](https://github.com/craftcms/commerce/pull/1543),[#1520](https://github.com/craftcms/commerce/issues/1520))
 - Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
 - Fixed a bug where the Edit Order page would save the previous order status message after only changing the status. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a bug where it wasn’t possible to update the rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
 - Fixed a bug where it wasn’t possible to delete all line item statuses.
-- Improved performance when adding items to the cart. ([#1543](https://github.com/craftcms/commerce/pull/1543),[#1520](https://github.com/craftcms/commerce/issues/1520))
 
 ## 3.1.10 - 2020-06-23
 
