@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+- Fixed a bug where it wasn’t possible to update the rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
 
 ## 2.2.21 - 2020-06-17
 
