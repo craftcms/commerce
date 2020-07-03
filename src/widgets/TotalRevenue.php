@@ -9,6 +9,7 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
@@ -91,7 +92,7 @@ class TotalRevenue extends Widget
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
         $total = round(array_sum($revenue), 0, PHP_ROUND_HALF_DOWN);
 
-        $formattedTotal = Craft::$app->getFormatter()->asCurrency($total, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(), [], [], true);
+        $formattedTotal = Currency::formatAsCurrency($total, null, false, true, true);
 
         return Plugin::t('{total} in total revenue', ['total' => $formattedTotal]);
     }

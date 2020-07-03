@@ -19,6 +19,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
@@ -354,7 +355,7 @@ class OrdersController extends Controller
                 'title' => $order->reference,
                 'url' => $order->getCpEditUrl(),
                 'date' => $order->dateOrdered->format('D jS M Y'),
-                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPrice(), $order->currency, [], [], false),
+                'total' => $order->totalAsCurrency,
                 'orderStatus' => $order->getOrderStatusHtml(),
             ];
         }
@@ -519,22 +520,11 @@ class OrdersController extends Controller
         $sqlQuery->offset($offset);
         $result = $sqlQuery->all();
 
-        $rows = [];
-
-        // Add the currency formatted price
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        foreach ($result as $row) {
-            /** @var PurchasableInterface $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-                $row['isAvailable'] = $purchasable->getIsAvailable();
-                $rows[] = $row;
-            }
-        }
+        $purchasables = $this->_addLivePurchasableInfo($result);
 
         return $this->asJson([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
-            'data' => $rows,
+            'data' => $purchasables,
         ]);
     }
 
@@ -1341,8 +1331,8 @@ class OrdersController extends Controller
                         'key' => $transaction->status,
                         'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
-                    'paymentAmount' => Craft::$app->getFormatter()->asCurrency($transaction->paymentAmount, $transaction->paymentCurrency),
-                    'amount' => Craft::$app->getFormatter()->asCurrency($transaction->amount, $transaction->currency),
+                    'paymentAmount' => $transaction->paymentAmountAsCurrency,
+                    'amount' => $transaction->amountAsCurrency,
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
@@ -1385,7 +1375,7 @@ class OrdersController extends Controller
         foreach ($results as $row) {
             /** @var PurchasableInterface $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 $row['isAvailable'] = $purchasable->getIsAvailable();
                 $purchasables[] = $row;
             }

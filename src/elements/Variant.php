@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
@@ -28,9 +29,11 @@ use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\i18n\Locale;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\Expression;
 use yii\validators\Validator;
 
@@ -247,6 +250,55 @@ class Variant extends Purchasable
      */
     private $_product;
 
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+            'salePrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -1197,13 +1249,11 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return '<span class="status '. $this->product->getStatus().'"></span>' . $this->product->title;
+                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
             }
             case 'price':
             {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return $this->priceAsCurrency;
             }
             case 'weight':
             {

@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
@@ -93,7 +94,7 @@ class OrderAdjustment extends Model
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
@@ -107,9 +108,14 @@ class OrderAdjustment extends Model
             ]
         ];
 
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
         return $behaviors;
     }
-
 
     /**
      * @inheritdoc

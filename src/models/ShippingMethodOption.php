@@ -7,7 +7,10 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Shipping method option model.
@@ -29,16 +32,37 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
      * The attributes on the order that should be made available as formatted currency.
      *
      * @return array
      */
     public function currencyAttributes(): array
     {
-        $attributes = parent::currencyAttributes();
-
+        $attributes = [];
         $attributes[] = 'price';
-
         return $attributes;
     }
 
