@@ -29,8 +29,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class Transaction extends Model
 {
-    const EVENT_DEFINE_FIELDS = 'defineFields';
-
     /**
      * @var int ID
      */
