@@ -7,7 +7,6 @@
 
 namespace craft\commerce\elements;
 
-use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
@@ -17,7 +16,6 @@ use craft\commerce\records\Donation as DonationRecord;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\validators\Validator;
 
 /**

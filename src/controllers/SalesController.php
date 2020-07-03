@@ -20,14 +20,14 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
 use Exception;
-use function explode;
-use function get_class;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use function explode;
+use function get_class;
 
 /**
  * Class Sales Controller

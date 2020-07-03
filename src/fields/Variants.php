@@ -7,7 +7,6 @@
 
 namespace craft\commerce\fields;
 
-use Craft;
 use craft\commerce\elements\Variant;
 use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;

@@ -9,7 +9,6 @@ namespace craft\commerce\elements\db;
 
 use Craft;
 use craft\base\Element;
-use craft\base\ElementInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
@@ -19,7 +18,6 @@ use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
-use craft\helpers\StringHelper;
 use yii\db\Connection;
 use yii\db\Schema;
 

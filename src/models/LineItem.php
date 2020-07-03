@@ -23,7 +23,6 @@ use craft\commerce\services\Orders;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use craft\validators\StringValidator;
 use DateTime;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;

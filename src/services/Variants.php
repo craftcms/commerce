@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use Craft;
-use craft\base\ElementInterface;
 use craft\base\GqlInlineFragmentFieldInterface;
 use craft\commerce\elements\Variant;
 use craft\commerce\helpers\Gql as GqlCommerceHelper;

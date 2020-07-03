@@ -8,7 +8,6 @@
 namespace craft\commerce\services;
 
 use craft\base\Component;
-use craft\base\ComponentInterface;
 use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\engines\Tax;
 use craft\commerce\events\TaxEngineEvent;

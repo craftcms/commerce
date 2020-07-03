@@ -9,9 +9,7 @@ namespace craft\commerce\gql\types\input;
 
 use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\gql\GqlEntityRegistry;
-use craft\gql\types\QueryArgument;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\Type;
 
 /**
  * Class Variant

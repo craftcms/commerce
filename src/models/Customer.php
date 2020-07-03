@@ -14,9 +14,6 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\helpers\UrlHelper;
-use DateInterval;
-use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Customer model

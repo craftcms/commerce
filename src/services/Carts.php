@@ -18,7 +18,6 @@ use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
 use DateTime;
-use phpDocumentor\Reflection\Types\This;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;

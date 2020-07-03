@@ -16,7 +16,6 @@ use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use craft\web\assets\d3\D3Asset;
 
 /**
  * Total Revenue widget

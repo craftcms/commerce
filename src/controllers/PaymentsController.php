@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
