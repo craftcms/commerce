@@ -28,8 +28,8 @@
                     {{ cart.totalPrice|currency(cart.currency) }}<br>
                   </div>
                   <div class="pt-2">
-                    <a class="rounded py-1 px-2 bg-gray-500 text-white text-sm hover:bg-gray-600" href="/shop/cart">View Cart</a>
-                    <a class="rounded py-1 px-2 bg-blue-500 text-white text-sm hover:bg-blue-600" href="/shop/checkout">Checkout</a>
+                    <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.grey }}" href="/shop/cart">View Cart</a>
+                    <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }}" href="/shop/checkout">Checkout</a>
                   </div>
                 </div>
               {% endif %}

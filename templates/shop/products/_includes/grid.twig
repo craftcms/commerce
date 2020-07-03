@@ -38,10 +38,9 @@
                         <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
                                name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
                         <button type="submit"
-                                class="rounded bg-blue-500 hover:bg-blue-600 rounded m-0 px-4 py-2 text-white">Add to
-                            cart
-                        </button>
+                                class="m-0 {{ classes.btn.base ~ ' ' ~ classes.btn.blue }}">Add to cart</button>
                     </div>
+                    <div class="mt-1"><label><input type="checkbox" name="options[giftWrapped]" value="yes"> Gift wrap item</label></div>
                 </form>
             </div>
         {% endfor %}
