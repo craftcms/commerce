@@ -6,7 +6,19 @@
     <title>Shop</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-    <style>{% include('shop/tailwind.css') %}</style>
+    <style>
+      {% include('shop/tailwind.css') %}
+
+      a {
+        /* blue 500 */
+        color: #4299e1;
+      }
+
+      a:hover {
+        /* blue 600 */
+        color: #3182ce;
+      }
+    </style>
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen">
@@ -16,6 +28,20 @@
 {% endif %}
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
+{% set classes = {
+  input: 'border border-gray-200 hover:border-gray-500 px-4 py-2 leading-tight rounded',
+  box: {
+    base: 'bg-gray-100 border-gray-300 border-b-2 p-6',
+    error: 'bg-red-100 border-red-500 border-b-2 p-6'
+  },
+  btn: {
+    base: 'cursor-pointer rounded px-4 py-2 inline-block',
+    small: 'cursor-pointer rounded px-2 py-1 text-sm inline-block',
+    grey: 'bg-gray-500 hover:bg-gray-600 text-white hover:text-white',
+    blue: 'bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
+  }
+} %}
+
 
 <header>
     <div class="bg-gray-300">
