@@ -21,7 +21,7 @@
                         <select name="purchasableId">
                             {% for purchasable in product.variants %}
                                 <option {% if purchasable.stock <= 0 and purchasable.hasUnlimitedStock == false %}disabled {% endif %}
-                                        value="{{ purchasable.id }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.price|commerceCurrency(cart.currency) }}</option>
+                                        value="{{ purchasable.id }}">{{ purchasable.sku }} {{ purchasable.description }} {{ purchasable.priceAsCurrency }}</option>
                             {% endfor %}
                         </select>
                     </div>

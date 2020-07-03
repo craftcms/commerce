@@ -13,11 +13,12 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\db\Table;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
@@ -996,12 +997,15 @@ class Order extends Element
         return parent::init();
     }
 
+    /**
+     * @return array
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'number' => AttributeTypecastBehavior::TYPE_STRING,
@@ -1024,7 +1028,21 @@ class Order extends Element
                 'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
                 'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
             ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
+            'attributeCurrencyMap' => []
         ];
 
         return $behaviors;
@@ -1164,6 +1182,15 @@ class Order extends Element
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
         $attributes[] = 'totalDiscount';
+
+        $attributes[] = 'storedTotalPrice';
+        $attributes[] = 'storedTotalPaid';
+        $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedTotalShippingCost';
+        $attributes[] = 'storedTotalDiscount';
+        $attributes[] = 'storedTotalTax';
+        $attributes[] = 'storedTotalTaxIncluded';
+
         return $attributes;
     }
 
@@ -1173,15 +1200,6 @@ class Order extends Element
     public function fields(): array
     {
         $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                // Substr because attribute is returned with 'AsCurrency' appended
-                $attribute = substr($attribute, 0, -10);
-                $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-            };
-        }
 
         foreach ($this->datetimeAttributes() as $attribute) {
             $fields[$attribute] = function($model, $attribute) {
@@ -1198,9 +1216,18 @@ class Order extends Element
             };
         }
 
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
+        $fields['totalTax'] = 'totalTax';
+        $fields['totalTaxIncluded'] = 'totalTaxIncluded';
+        $fields['totalShippingCost'] = 'totalShippingCost';
+        $fields['totalDiscount'] = 'totalDiscount';
 
         return $fields;
     }
@@ -1224,10 +1251,6 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
-        $names[] = 'totalTax';
-        $names[] = 'totalTaxIncluded';
-        $names[] = 'totalShippingCost';
-        $names[] = 'totalDiscount';
         return $names;
     }
 
@@ -2406,7 +2429,7 @@ class Order extends Element
             }
         }
 
-        return $value;
+        return (float)$value;
     }
 
     /**
@@ -2847,19 +2870,6 @@ class Order extends Element
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
-
-
-    /**
-     * @param $value
-     * @return string
-     * @throws InvalidConfigException
-     */
-    private function _asCurrency($value)
-    {
-        $value = $value ?? 0;
-        return Craft::$app->getFormatter()->asCurrency($value, $this->currency);
-    }
-
 
     /**
      * Updates the adjustments, including deleting the old ones.

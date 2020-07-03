@@ -9,7 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
-use craft\base\Model;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
@@ -31,13 +31,12 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
 use craft\helpers\UrlHelper;
-use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Product model.
@@ -162,6 +161,53 @@ class Product extends Element
      */
     private $_cheapestVariant;
 
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'defaultPrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -1185,9 +1231,7 @@ class Product extends Element
             }
             case 'defaultPrice':
             {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return $this->defaultPriceAsCurrency;
             }
             case 'stock':
             {

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\base;
 
-use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;

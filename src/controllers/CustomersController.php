@@ -12,8 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
-use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\Html;

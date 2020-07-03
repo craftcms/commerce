@@ -45,14 +45,14 @@
     <ul class="leading-normal">
         {% for item in cart.lineItems %}
             <li>
-                <span>{{ item.description }}</span><span class="float-right">{{ item.subtotal|commerceCurrency(cart.currency) }}</span>
+                <span>{{ item.description }}</span><span class="float-right">{{ item.subtotalAsCurrency }}</span>
             </li>
         {% endfor %}
 
 
         {% for adjustment in cart.adjustments %}
             <li>
-                <strong>{{ adjustment.name }}</strong> <span class="float-right">{{ adjustment.amount|commerceCurrency(cart.currency) }}
+                <strong>{{ adjustment.name }}</strong> <span class="float-right">{{ adjustment.amountAsCurrency }}
                     ({{ adjustment.description }})</span>
             </li>
         {% endfor %}
@@ -72,7 +72,7 @@
         {% endif %}
 
         <li>
-            <strong>Total {{ cart.currency }}:</strong> <span class="float-right">{{ cart.totalPrice|commerceCurrency(cart.currency) }}</span>
+            <strong>Total {{ cart.currency }}:</strong> <span class="float-right">{{ cart.totalPriceAsCurrency }}</span>
         </li>
         {% if cart.currency != cart.paymentCurrency and cart.totalPrice == cart.getOutstandingBalance() %}
             <li>

@@ -24,7 +24,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\elements\Asset;
 use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;

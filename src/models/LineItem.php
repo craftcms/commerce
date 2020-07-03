@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
@@ -22,7 +23,6 @@ use craft\commerce\services\Orders;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use craft\validators\StringValidator;
 use DateTime;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
@@ -46,8 +46,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
  * @property-read float $saleAmount
- * @property float salePrice
- * @property float price
+ * @property float $salePrice
+ * @property float $price
+ * @property-read string $subtotalAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -205,6 +206,12 @@ class LineItem extends Model
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
             ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
         ];
 
         return $behaviors;
@@ -462,22 +469,12 @@ class LineItem extends Model
      */
     public function fields(): array
     {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-                if (!empty($model->$attribute)) {
-                    if (is_numeric($model->$attribute)) {
-                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
-                    }
-                }
-
-                return $model->$attribute;
-            };
-        }
-
+        $fields = parent::fields(); // get the currency and date fields formatted
         $fields['subtotal'] = 'subtotal';
+
+        if($this->getBehavior('currencyAttributes')){
+            array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
 
         return $fields;
     }
@@ -510,6 +507,11 @@ class LineItem extends Model
         $attributes[] = 'salePrice';
         $attributes[] = 'subtotal';
         $attributes[] = 'total';
+        $attributes[] = 'discount';
+        $attributes[] = 'shippingCost';
+        $attributes[] = 'tax';
+        $attributes[] = 'taxIncluded';
+        $attributes[] = 'adjustmentsTotal';
 
         return $attributes;
     }

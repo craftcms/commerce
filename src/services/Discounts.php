@@ -495,7 +495,6 @@ class Discounts extends Component
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
             Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
-            $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
             $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 

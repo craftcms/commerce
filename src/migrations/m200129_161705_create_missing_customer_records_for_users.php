@@ -2,10 +2,8 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 
 /**
  * m200129_161705_create_missing_customer_records_for_users migration.
