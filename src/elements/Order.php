@@ -1028,6 +1028,13 @@ class Order extends Element
                 'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
                 'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
             ]
         ];
 
@@ -1217,6 +1224,10 @@ class Order extends Element
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
+        $fields['totalTax'] = 'totalTax';
+        $fields['totalTaxIncluded'] = 'totalTaxIncluded';
+        $fields['totalShippingCost'] = 'totalShippingCost';
+        $fields['totalDiscount'] = 'totalDiscount';
 
         return $fields;
     }
@@ -1240,10 +1251,6 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
-        $names[] = 'totalTax';
-        $names[] = 'totalTaxIncluded';
-        $names[] = 'totalShippingCost';
-        $names[] = 'totalDiscount';
         return $names;
     }
 
@@ -2422,7 +2429,7 @@ class Order extends Element
             }
         }
 
-        return $value;
+        return (float)$value;
     }
 
     /**
