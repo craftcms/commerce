@@ -21,6 +21,8 @@
     {% set userExists = craft.users.email(cart.email).one() %}
 
     <h1 class="text-xl font-bold">Account</h1>
+    <div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</div>
+
     <div class="flex -mx-8 pt-8">
         <div class="w-1/2 pl-8">
             <div class="{{ classes.box.base }}">

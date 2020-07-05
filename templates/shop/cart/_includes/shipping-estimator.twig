@@ -81,6 +81,7 @@
       {% endif %}
     </div>
   </div>
+  <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
   {% js %}
     var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   {% endjs %}

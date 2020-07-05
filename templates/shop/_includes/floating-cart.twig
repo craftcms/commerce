@@ -1,4 +1,4 @@
-<div x-data="{ expanded: {{ flashNotice and 'shop/cart' not in craft.app.request.pathInfo ? "true" : "false" }} }">
+<div x-data="{ expanded: {{ flashNotice and 'shop/cart' not in craft.app.request.pathInfo and 'shop/checkout' not in craft.app.request.pathInfo ? "true" : "false" }} }">
     <div class="absolute right-0 top-0 transition duration-500 ease-in-out transform hover:scale-110 " >
         <div @click="expanded = true" class="cursor-pointer m-6 p-3 bg-white rounded-lg relative shadow-lg hover:shadow-xl">
             {% if cart.totalQty %}<span x-show="!expanded" class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
@@ -12,24 +12,38 @@
                 <span @click="expanded = false"  class="cursor-pointer uppercase text-gray-400 hover:text-gray-800">&times;</span>
             </div>
             <div class="mt-6">
+              <div class="text-sm">
                 {% for item in cart.lineItems %}
-                    {{ item.description }} <span class="text-gray-400 text-sm uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</span>
-                    <span class="float-right">{{ item.salePrice|currency(cart.currency) }}</span><br>
+                    <div class="flex w-full justify-between">
+                      <div>
+                        {{ item.description }} <span class="text-gray-500 text-xs uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</span>
+                      </div>
+                      <div>
+                        {{ item.subtotal|currency(cart.currency) }}
+                      </div>
+                    </div>
                 {% else %}
                     <div class="mb-3">
                         <p>Nothing in your cart yet, <a class="underline text-blue-500" href="/shop/products">add something</a>.</p>
                     </div>
                 {% endfor %}
+              </div>
 
               {% if cart.lineItems|length %}
                 <div class="mt-2 border-t-2 border-gray-200 text-right">
                   <div class="pt-2">
-                    <span class="uppercase text-gray-400 text-sm">TOTAL</span>
-                    {{ cart.totalPrice|currency(cart.currency) }}<br>
+                    <span class="text-gray-600 text-sm">Subtotal:</span>
+                    <strong class="text-lg">{{ cart.itemSubtotal|currency(cart.currency) }}</strong>
                   </div>
                   <div class="pt-2">
-                    <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.grey }}" href="/shop/cart">View Cart</a>
-                    <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }}" href="/shop/checkout">Checkout</a>
+                    <div class="flex w-full justify-between">
+                      <div>
+                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.grey }}" href="/shop/cart">View Cart</a>
+                      </div>
+                      <div>
+                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }}" href="/shop/checkout">Checkout</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               {% endif %}

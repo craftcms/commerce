@@ -16,6 +16,10 @@
         url: 'shop/checkout/shipping'
     },
     {
+        label: "Payment Method",
+        url: 'shop/checkout/payment-method'
+    },
+    {
         label: "Payment",
         url: 'shop/checkout/payment'
     }
@@ -28,11 +32,11 @@
 {% endif %}
 
 {% if 'checkout' in craft.app.request.pathInfo %}
-<div class="container mx-auto justify-between items-center p-6 text-center">
+<div class="container mx-auto justify-between items-center p-6 text-center text-xs">
     <nav class="flex">
         {% for step in checkoutSteps %}
             {% if step.url in craft.app.request.pathInfo  %}
-                {% set width = ((loop.index) * 100 / totalSteps - 10 ) %}
+                {% set width = ((loop.index) * 100 / totalSteps - 10) %}
             {% endif %}
             <a href="{{ url(step.url) }}" class="flex-1 text-gray-600 pb-2
             {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
