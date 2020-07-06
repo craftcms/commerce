@@ -25,7 +25,7 @@
 
 {% set couponClasses = "" %}
 {% if(discount.getErrors('code')) %}
-    {% set conditionsClasses = "error" %}
+    {% set couponClasses = "error" %}
 {% endif %}
 
 {% set tabs = {
