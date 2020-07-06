@@ -48,7 +48,16 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read float $saleAmount
  * @property float $salePrice
  * @property float $price
+ * @property-read string $priceAsCurrency
+ * @property-read string $saleAmountAsCurrency
+ * @property-read string $salePriceAsCurrency
  * @property-read string $subtotalAsCurrency
+ * @property-read string $totalAsCurrency
+ * @property-read string $discountAsCurrency
+ * @property-read string $shippingCostAsCurrency
+ * @property-read string $taxAsCurrency
+ * @property-read string $taxIncludedAsCurrency
+ * @property-read string $adjustmentsTotalAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
