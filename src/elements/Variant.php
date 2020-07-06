@@ -40,6 +40,8 @@ use yii\validators\Validator;
  * @property bool $onSale
  * @property Product $product the product associated with this variant
  * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property string $priceAsCurrency
+ * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

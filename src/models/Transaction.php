@@ -24,6 +24,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Order $order
  * @property Transaction $parent
  * @property-read float $refundableAmount
+ * @property-read string $amountAsCurrency
+ * @property-read string $paymentAmountAsCurrency
+ * @property-read string $refundableAmountAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -192,7 +195,8 @@ class Transaction extends Model
     {
         return [
             'amount',
-            'paymentAmount'
+            'paymentAmount',
+            'refundableAmount'
         ];
     }
 

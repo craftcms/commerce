@@ -21,6 +21,9 @@ use yii\validators\Validator;
 /**
  * Donation purchasable.
  *
+ * @property-read $priceAsCurrency
+ * @property-read $salePriceAsCurrency
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -56,9 +59,12 @@ class Donation extends Purchasable
     /**
      * @return string[]
      */
-    public function currencyAttributes()
+    public function currencyAttributes(): array
     {
-        return ['price', 'salePrice'];
+        return [
+            'price',
+            'salePrice'
+        ];
     }
 
     /**

@@ -105,6 +105,27 @@ use yii\log\Logger;
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
  * @property-read string $customerLinkHtml
+ * @property-read string $adjustmentSubtotalAsCurrency
+ * @property-read string $adjustmentsTotalAsCurrency
+ * @property-read string $itemSubtotalAsCurrency
+ * @property-read string $itemTotalAsCurrency
+ * @property-read string $outstandingBalanceAsCurrency
+ * @property-read string $totalPaidAsCurrency
+ * @property-read string $totalAsCurrency
+ * @property-read string $totalPriceAsCurrency
+ * @property-read string $totalSaleAmountAsCurrency
+ * @property-read string $totalTaxablePriceAsCurrency
+ * @property-read string $totalTaxAsCurrency
+ * @property-read string $totalTaxIncludedAsCurrency
+ * @property-read string $totalShippingCostAsCurrency
+ * @property-read string $totalDiscountAsCurrency
+ * @property-read string $storedTotalPriceAsCurrency
+ * @property-read string $storedTotalPaidAsCurrency
+ * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedTotalShippingCostAsCurrency
+ * @property-read string $storedTotalDiscountAsCurrency
+ * @property-read string $storedTotalTaxAsCurrency
+ * @property-read string $storedTotalTaxIncludedAsCurrency
  * @property null|array|Address $estimatedBillingAddress
  * @property float $totalDiscount
  * @property null|array|Address $estimatedShippingAddress
@@ -1182,7 +1203,6 @@ class Order extends Element
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
         $attributes[] = 'totalDiscount';
-
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';

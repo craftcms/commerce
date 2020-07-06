@@ -51,6 +51,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Variant $cheapestVariant
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
+ * @property-read string $defaultPriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
