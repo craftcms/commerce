@@ -9,10 +9,12 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Gateway;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Class Transaction
@@ -157,6 +159,41 @@ class Transaction extends Model
         $this->hash = md5(uniqid(mt_rand(), true));
 
         parent::__construct($attributes);
+    }
+
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'hash' => AttributeTypecastBehavior::TYPE_STRING,
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
+            'attributeCurrencyMap' => [
+                'paymentAmount' => $this->paymentCurrency
+            ]
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'amount',
+            'paymentAmount'
+        ];
     }
 
     /**

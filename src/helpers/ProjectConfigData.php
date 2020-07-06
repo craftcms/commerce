@@ -9,8 +9,8 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Order as OrderElement;
+use craft\commerce\elements\Subscription;
 use craft\db\Query;
 use craft\helpers\Json;
 

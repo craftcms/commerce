@@ -30,7 +30,7 @@
                         <td><a href="{{ url('shop/customer/order', { number: order.number }) }}">Order {{ order.reference }}</a></td>
                         <td>{{ order.dateOrdered|date }}</td>
                         <td>{{ order.totalQty }} items</td>
-                        <td>{{ order.totalPrice|commerceCurrency(cart.currency) }}</td>
+                        <td>{{ order.totalPriceAsCurrency }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

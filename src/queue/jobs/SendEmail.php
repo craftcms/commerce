@@ -7,8 +7,8 @@
 
 namespace craft\commerce\queue\jobs;
 
-use craft\commerce\Plugin;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 
 class SendEmail extends BaseJob

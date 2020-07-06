@@ -18,7 +18,6 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
-use DateTime;
 
 /**
  * Discount Adjuster

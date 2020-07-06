@@ -7,8 +7,10 @@
 
 namespace craft\commerce\models;
 
-use Craft;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Shipping method option model.
@@ -20,7 +22,7 @@ use craft\commerce\elements\Order;
 class ShippingMethodOption extends ShippingMethod
 {
     /**
-     * @var mixed
+     * @var Order
      */
     private $_order;
 
@@ -32,20 +34,24 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @return array
      */
-    public function fields(): array
+    public function behaviors(): array
     {
-        $fields = parent::fields();
+        $behaviors = parent::behaviors();
 
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                // Substr because attribute is returned with 'AsCurrency' appended
-                $attribute = substr($attribute, 0, -10);
-                $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->_order->currency, [], [], true);
-            };
-        }
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER
+            ]
+        ];
 
-        return $fields;
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
     }
 
     /**
@@ -57,8 +63,15 @@ class ShippingMethodOption extends ShippingMethod
     {
         $attributes = [];
         $attributes[] = 'price';
-
         return $attributes;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getCurrency(): string
+    {
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**

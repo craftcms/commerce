@@ -2,10 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\adjusters\Discount;
-use craft\commerce\adjusters\Shipping;
-use craft\commerce\adjusters\Tax;
-use craft\commerce\db\Table;
 use craft\db\Migration;
 use craft\db\Query as CraftQuery;
 
