@@ -40,7 +40,6 @@ class DiscountsController extends BaseCpController
     const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
     const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
-
     /**
      * @inheritdoc
      */

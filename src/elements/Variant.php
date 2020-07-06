@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
@@ -19,18 +20,16 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Db;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\Expression;
 use yii\validators\Validator;
 
@@ -41,6 +40,8 @@ use yii\validators\Validator;
  * @property bool $onSale
  * @property Product $product the product associated with this variant
  * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property string $priceAsCurrency
+ * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -247,6 +248,55 @@ class Variant extends Purchasable
      */
     private $_product;
 
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+            'salePrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -475,6 +525,7 @@ class Variant extends Purchasable
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function getIsEditable(): bool
     {
@@ -1196,13 +1247,11 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return $this->product->title;
+                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
             }
             case 'price':
             {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return $this->priceAsCurrency;
             }
             case 'weight':
             {

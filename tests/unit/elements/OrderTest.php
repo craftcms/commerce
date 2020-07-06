@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Discount;
-use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;

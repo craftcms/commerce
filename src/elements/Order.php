@@ -13,11 +13,12 @@ use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
+use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\db\Table;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
@@ -37,6 +38,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -103,6 +105,27 @@ use yii\log\Logger;
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
  * @property-read string $customerLinkHtml
+ * @property-read string $adjustmentSubtotalAsCurrency
+ * @property-read string $adjustmentsTotalAsCurrency
+ * @property-read string $itemSubtotalAsCurrency
+ * @property-read string $itemTotalAsCurrency
+ * @property-read string $outstandingBalanceAsCurrency
+ * @property-read string $totalPaidAsCurrency
+ * @property-read string $totalAsCurrency
+ * @property-read string $totalPriceAsCurrency
+ * @property-read string $totalSaleAmountAsCurrency
+ * @property-read string $totalTaxablePriceAsCurrency
+ * @property-read string $totalTaxAsCurrency
+ * @property-read string $totalTaxIncludedAsCurrency
+ * @property-read string $totalShippingCostAsCurrency
+ * @property-read string $totalDiscountAsCurrency
+ * @property-read string $storedTotalPriceAsCurrency
+ * @property-read string $storedTotalPaidAsCurrency
+ * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedTotalShippingCostAsCurrency
+ * @property-read string $storedTotalDiscountAsCurrency
+ * @property-read string $storedTotalTaxAsCurrency
+ * @property-read string $storedTotalTaxIncludedAsCurrency
  * @property null|array|Address $estimatedBillingAddress
  * @property float $totalDiscount
  * @property null|array|Address $estimatedShippingAddress
@@ -923,6 +946,32 @@ class Order extends Element
      */
     private $_email;
 
+    /**
+     * @var string
+     * @see Order::getTransactions()
+     * ---
+     * ```php
+     * echo $order->transactions;
+     * ```
+     * ```twig
+     * {{ order.transactions }}
+     * ```
+     */
+    private $_transactions;
+
+    /**
+     * @var Customer
+     * @see Order::getCustomer()
+     * @see Order::setCustomer()
+     * ---
+     * ```php
+     * echo $order->customer;
+     * ```
+     * ```twig
+     * {{ order.customer }}
+     * ```
+     */
+    private $_customer;
 
     /**
      * @inheritdoc
@@ -969,12 +1018,15 @@ class Order extends Element
         return parent::init();
     }
 
+    /**
+     * @return array
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'number' => AttributeTypecastBehavior::TYPE_STRING,
@@ -997,7 +1049,21 @@ class Order extends Element
                 'billingSameAsShipping' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'shippingMethodHandle' => AttributeTypecastBehavior::TYPE_STRING,
                 'customerId' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
             ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
+            'attributeCurrencyMap' => []
         ];
 
         return $behaviors;
@@ -1058,7 +1124,7 @@ class Order extends Element
 
         // Get the customer ID from the session
         if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+            $this->setCustomer(Plugin::getInstance()->getCustomers()->getCustomer());
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
@@ -1137,6 +1203,14 @@ class Order extends Element
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
         $attributes[] = 'totalDiscount';
+        $attributes[] = 'storedTotalPrice';
+        $attributes[] = 'storedTotalPaid';
+        $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedTotalShippingCost';
+        $attributes[] = 'storedTotalDiscount';
+        $attributes[] = 'storedTotalTax';
+        $attributes[] = 'storedTotalTaxIncluded';
+
         return $attributes;
     }
 
@@ -1146,15 +1220,6 @@ class Order extends Element
     public function fields(): array
     {
         $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                // Substr because attribute is returned with 'AsCurrency' appended
-                $attribute = substr($attribute, 0, -10);
-                $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->currency);
-            };
-        }
 
         foreach ($this->datetimeAttributes() as $attribute) {
             $fields[$attribute] = function($model, $attribute) {
@@ -1171,9 +1236,18 @@ class Order extends Element
             };
         }
 
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
+        $fields['totalTax'] = 'totalTax';
+        $fields['totalTaxIncluded'] = 'totalTaxIncluded';
+        $fields['totalShippingCost'] = 'totalShippingCost';
+        $fields['totalDiscount'] = 'totalDiscount';
 
         return $fields;
     }
@@ -1197,10 +1271,6 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
-        $names[] = 'totalTax';
-        $names[] = 'totalTaxIncluded';
-        $names[] = 'totalShippingCost';
-        $names[] = 'totalDiscount';
         return $names;
     }
 
@@ -1254,8 +1324,10 @@ class Order extends Element
      */
     public function updateOrderPaidInformation()
     {
+        $this->_transactions = null; // clear order's transaction cache
+
         $paidInFull = !$this->hasOutstandingBalance();
-        $authorizedInFull = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this) >= $this->getTotalPrice();
+        $authorizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
 
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
@@ -1289,7 +1361,7 @@ class Order extends Element
 
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
-            $totalAuthorized = Plugin::getInstance()->getPayments()->getTotalAuthorizedOnlyForOrder($this);
+            $totalAuthorized = $this->getTotalAuthorized();
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
@@ -1858,11 +1930,38 @@ class Order extends Element
      */
     public function getCustomer()
     {
-        if ($this->customerId) {
-            return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($this->_customer !== null && $this->_customer->id == $this->customerId) {
+            return $this->_customer;
         }
 
-        return null;
+        if ($this->customerId) {
+            $this->_customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+
+            if ($this->_customer == null) {
+                $this->customerId = null;
+            }
+        }
+
+        return $this->_customer;
+    }
+
+    /**
+     * @param Customer|null $customer
+     * @since 3.x
+     */
+    public function setCustomer($customer)
+    {
+        if ($customer !== null && $customer instanceof Customer) {
+            if (!$customer->id) {
+                throw new InvalidCallException('Customer must have an ID');
+            }
+
+            $this->_customer = $customer;
+            $this->customerId = $customer->id;
+        } else {
+            $this->_customer = null;
+            $this->customerId = null;
+        }
     }
 
     /**
@@ -2078,7 +2177,64 @@ class Order extends Element
      */
     public function getTotalPaid(): float
     {
-        return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+        if (!$this->id) {
+            return 0;
+        }
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        $paidTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS && ($transaction->type == TransactionRecord::TYPE_PURCHASE || $transaction->type == TransactionRecord::TYPE_CAPTURE);
+        });
+
+        $refundedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
+        });
+
+        $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
+        $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
+
+        return $paid - $refunded;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalAuthorized()
+    {
+        if (!$this->id) {
+            return 0;
+        }
+
+        $authorized = 0;
+        $captured = 0;
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        foreach ($this->_transactions as $transaction) {
+            $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
+            $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
+            $isCapture = ($transaction->type == TransactionRecord::TYPE_CAPTURE);
+
+            if (!$isSuccess) {
+                continue;
+            }
+
+            if ($isAuth) {
+                $authorized += $transaction->amount;
+                continue;
+            }
+
+            if ($isCapture) {
+                $captured += $transaction->amount;
+            }
+        }
+
+        return $authorized - $captured;
     }
 
     /**
@@ -2161,8 +2317,7 @@ class Order extends Element
             if (empty($lineItems)) {
                 $this->_lineItems = [];
             } else {
-                $last = array_values(array_slice($lineItems, -1))[0];
-                $this->_lineItems = [$last];
+                $this->_lineItems = [array_shift($lineItems)];
             }
         } else {
             $this->_lineItems = $lineItems;
@@ -2293,7 +2448,7 @@ class Order extends Element
             }
         }
 
-        return $value;
+        return (float)$value;
     }
 
     /**
@@ -2667,9 +2822,7 @@ class Order extends Element
      */
     public function getHistories(): array
     {
-        $histories = Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
-
-        return $histories;
+        return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
     }
 
     /**
@@ -2677,7 +2830,15 @@ class Order extends Element
      */
     public function getTransactions(): array
     {
-        return $this->id ? Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id) : [];
+        if (!$this->id) {
+            $this->_transactions = [];
+        }
+
+        if ($this->_transactions === null) {
+            $this->_transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($this->id);
+        }
+
+        return $this->_transactions;
     }
 
     /**
@@ -2728,19 +2889,6 @@ class Order extends Element
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
-
-
-    /**
-     * @param $value
-     * @return string
-     * @throws InvalidConfigException
-     */
-    private function _asCurrency($value)
-    {
-        $value = $value ?? 0;
-        return Craft::$app->getFormatter()->asCurrency($value, $this->currency);
-    }
-
 
     /**
      * Updates the adjustments, including deleting the old ones.

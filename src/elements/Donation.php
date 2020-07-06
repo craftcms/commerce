@@ -7,8 +7,8 @@
 
 namespace craft\commerce\elements;
 
-use Craft;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
@@ -20,6 +20,9 @@ use yii\validators\Validator;
 
 /**
  * Donation purchasable.
+ *
+ * @property-read $priceAsCurrency
+ * @property-read $salePriceAsCurrency
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -35,6 +38,49 @@ class Donation extends Purchasable
      * @var string The SKU
      */
     private $_sku;
+
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
+            'attributeCurrencyMap' => []
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+            'salePrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
 
     /**

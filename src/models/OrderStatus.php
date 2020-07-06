@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -15,9 +14,9 @@ use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
-use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 use craft\validators\UniqueValidator;
+use yii\behaviors\AttributeTypecastBehavior;
+
 /**
  * Order status model.
  *

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**

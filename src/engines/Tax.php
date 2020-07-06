@@ -8,8 +8,8 @@
 namespace craft\commerce\engines;
 
 use craft\base\Component;
-use craft\commerce\base\TaxEngineInterface;
 use craft\commerce\adjusters\Tax as TaxAdjuster;
+use craft\commerce\base\TaxEngineInterface;
 
 /**
  * Class Tax

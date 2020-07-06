@@ -9,7 +9,7 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
 use craft\commerce\events\ModifyCartInfoEvent;
-use craft\commerce\Plugin;
+use craft\helpers\Json;
 
 /**
  * Class BaseFrontEndController
@@ -55,12 +55,8 @@ class BaseFrontEndController extends BaseController
 
         $extraFields = [
             'lineItems.snapshot',
-            'availableShippingMethods',
             'availableShippingMethodOptions',
-            'totalTax',
-            'totalTaxIncluded',
-            'totalShippingCost',
-            'totalDiscount'
+            'availableShippingMethods'
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);
@@ -68,7 +64,9 @@ class BaseFrontEndController extends BaseController
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
+            'cart' => $cart
         ]);
+
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);
 
         return $event->cartInfo;

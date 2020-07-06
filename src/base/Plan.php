@@ -7,7 +7,6 @@
 
 namespace craft\commerce\base;
 
-use function count;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin as Commerce;
@@ -17,6 +16,7 @@ use craft\elements\User;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
 use yii\base\InvalidConfigException;
+use function count;
 
 /**
  * Plan model

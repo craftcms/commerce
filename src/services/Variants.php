@@ -41,6 +41,10 @@ class Variants extends Component
     {
         $variants = Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
 
+        foreach ($variants as $variant) {
+            $variant->typecastAttributes();
+        }
+
         return $variants;
     }
 
@@ -53,7 +57,13 @@ class Variants extends Component
      */
     public function getVariantById(int $variantId, int $siteId = null)
     {
-        return Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
+        $variant = Craft::$app->getElements()->getElementById($variantId, Variant::class, $siteId);
+
+        if ($variant) {
+            $variant->typecastAttributes();
+        }
+
+        return $variant;
     }
 
     /**

@@ -504,24 +504,37 @@ class VariantQuery extends ElementQuery
                 'sales.categoryRelationshipType',
             ])
                 ->from(Table::SALES . ' sales')
-                ->where(['enabled' => true])
-                ->andWhere([
+                ->where([
                     'or',
+                    // Only a from date
                     [
-                        'or',
-                        ['not', ['dateTo' => null]],
-                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
-                    ],
-                    [
-                        'or',
+                        'and',
+                        ['dateTo' => null],
                         ['not', ['dateFrom' => null]],
                         ['<=', 'dateFrom', Db::prepareDateForDb($now)],
                     ],
+                    // Only a to date
+                    [
+                        'and',
+                        ['dateFrom' => null],
+                        ['not', ['dateTo' => null]],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ],
+                    // no dates
                     [
                         'dateFrom' => null,
                         'dateTo' => null,
                     ],
+                    // to and from dates
+                    [
+                        'and',
+                        ['not', ['dateFrom' => null]],
+                        ['not', ['dateTo' => null]],
+                        ['<=', 'dateFrom', Db::prepareDateForDb($now)],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ]
                 ])
+                ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
                 ->all();
 
