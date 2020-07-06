@@ -2297,8 +2297,7 @@ class Order extends Element
             if (empty($lineItems)) {
                 $this->_lineItems = [];
             } else {
-                $last = array_values(array_slice($lineItems, -1))[0];
-                $this->_lineItems = [$last];
+                $this->_lineItems = [array_shift($lineItems)];
             }
         } else {
             $this->_lineItems = $lineItems;
