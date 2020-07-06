@@ -17,7 +17,7 @@
 - Fixed a bug where it wasn’t possible to delete all line item statuses.
 - JSON responses for `commerce/cart/*` actions now format any zero currency values correctly. [#1539](https://github.com/craftcms/commerce/issues/1539)
 - Fixed a bug that would not add the correct line item to the cart when using the Lite Edition. [#1552](https://github.com/craftcms/commerce/issues/1552)
-- Fixed a bug where the wrong tab showed a validation error when a coupon code was invalid. [#1549](https://github.com/craftcms/commerce/issues/1549)
+- Fixed a bug where a validation error was being shown incorrectly on the Discount edit page. [#1549](https://github.com/craftcms/commerce/issues/1549)
 
 ## 3.1.10 - 2020-06-23
 
