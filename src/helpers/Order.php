@@ -7,9 +7,7 @@
 
 namespace craft\commerce\helpers;
 
-use Craft;
 use craft\commerce\elements\Order as OrderElement;
-use yii\base\InvalidArgumentException;
 
 /**
  * Order helper

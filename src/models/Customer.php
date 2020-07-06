@@ -14,9 +14,6 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\helpers\UrlHelper;
-use DateInterval;
-use DateTime;
-use yii\base\InvalidConfigException;
 
 /**
  * Customer model
@@ -88,7 +85,6 @@ class Customer extends Model
      * Returns the user element associated with this customer.
      *
      * @return User|null
-     * @throws InvalidConfigException if [[userId]] is invalid
      */
     public function getUser()
     {
@@ -100,11 +96,9 @@ class Customer extends Model
             return null;
         }
 
-        if (($user = Craft::$app->getUsers()->getUserById($this->userId)) === null) {
-            return null; // They are probably soft-deleted
-        }
+        $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
 
-        return $this->_user = $user;
+        return $this->_user;
     }
 
     /**

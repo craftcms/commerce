@@ -8,7 +8,6 @@
 namespace craft\commerce\stats;
 
 use craft\commerce\base\Stat;
-use craft\helpers\DateTimeHelper;
 use yii\db\Expression;
 
 /**

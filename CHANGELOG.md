@@ -3,14 +3,19 @@
 ## Unreleased
 
 ### Added
-- Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
+- Added new `*AsCurrency` magic properties to all currency attributes on orders, line items, products, variants, adjustments and transactions.
 - Added the `hasVariant` argument to GraphQL product queries. ([#1544](https://github.com/craftcms/commerce/issues/1544))
+- Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
+- Added `craft\commerce\behaviors\CurrencyAttributeBehavior`.
 - Added `craft\commerce\gql\types\input\Variant`.
 
 ### Fixed
-- Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+- Improved performance when adding items to the cart. ([#1543](https://github.com/craftcms/commerce/pull/1543),[#1520](https://github.com/craftcms/commerce/issues/1520))
+- Fixed a bug where products where incorrectly showing as having sales when using the `hasSales` query parameter.
 - Fixed a bug where the Edit Order page would save the previous order status message after only changing the status. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a bug where it wasn’t possible to update the rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
 - Fixed a bug where it wasn’t possible to delete all line item statuses.
+- JSON responses for `commerce/cart/*` actions now format any zero currency values correctly. [#1539](https://github.com/craftcms/commerce/issues/1539)
 
 ## 3.1.10 - 2020-06-23
 

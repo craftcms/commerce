@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;

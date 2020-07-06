@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\records\ProductType;
 use craft\commerce\records\ProductTypeSite;
 use craft\test\Fixture;
 

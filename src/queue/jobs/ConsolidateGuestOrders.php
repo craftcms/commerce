@@ -9,11 +9,9 @@ namespace craft\commerce\queue\jobs;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\queue\BaseJob;
-use craft\queue\QueueInterface;
 
 /**
  * ConsolidateGuestOrders job
