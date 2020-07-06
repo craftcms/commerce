@@ -141,8 +141,8 @@
                   <td></td>
                   <td colspan="2" class="text-right pr-3 pb-3">
                     <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3" title="{{ cart.itemSubTotal }}">
-                      <div class="text-sm text-gray-600 pr-2">Item Subtotal:</div>
-                      <div class="font-bold">{{ cart.itemSubTotal|commerceCurrency(cart.currency) }}</div>
+                      <div class="text-sm text-gray-600 pr-2">Items Total:</div>
+                      <div class="font-bold">{{ cart.itemTotalAsCurrency }}</div>
                     </div>
                   </td>
                 </tr>
