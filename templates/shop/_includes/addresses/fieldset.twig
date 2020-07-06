@@ -1,8 +1,10 @@
 <div class="js-address-fieldset {{ class }}">
     <h2 class="text-lg font-bold">{{ title }}</h2>
-    {% if addresses and currentUser%}
+    {% if addresses and currentUser %}
+      <div class="flex flex-wrap -mx-4 pb-4">
         {% for address in addresses %}
-            <div class="address-select js-address-select" data-address-id="{{ address.id }}">
+          <div class="px-2 w-1/2 pb-2">
+            <label class="block address-select js-address-select {{ classes.box.base }}" data-address-id="{{ address.id }}">
                 <div class="actions">
                     <ul>
                         <li><a class="edit" href="{{ url('shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath)}}">Edit</a>
@@ -14,8 +16,10 @@
                         {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
                         {% include 'shop/_includes/addresses/address' %}
                 </div>
-            </div>
+            </label>
+          </div>
         {% endfor %}
+      </div>
     {% endif %}
 
     <div class="address-select js-address-select">
