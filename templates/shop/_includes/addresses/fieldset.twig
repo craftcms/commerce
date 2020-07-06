@@ -5,16 +5,17 @@
         {% for address in addresses %}
           <div class="px-2 w-1/2 pb-2">
             <label class="block address-select js-address-select {{ classes.box.base }}" data-address-id="{{ address.id }}">
-                <div class="actions">
-                    <ul>
-                        <li><a class="edit" href="{{ url('shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath)}}">Edit</a>
-                        </li>
-                    </ul>
-                </div>
                 <div class="js-radio">
                     <input type="radio" name="{{ name }}Id"
                         {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %} value="{{ address.id }}"/>
                         {% include 'shop/_includes/addresses/address' %}
+                </div>
+                <div class="actions">
+                  <ul>
+                    <li>
+                      <a class="edit" href="{{ url('shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath)}}">Edit</a>
+                    </li>
+                  </ul>
                 </div>
             </label>
           </div>
