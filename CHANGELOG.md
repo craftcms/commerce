@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.1.11 - 2020-07-06
 
 ### Added
 - Added new `*AsCurrency` attributes to all currency attributes on orders, line items, products, variants, adjustments and transactions.
