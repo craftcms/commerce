@@ -6,7 +6,7 @@
         {% for product in products %}
             <div class="p-4 relative">
                 <div>
-                    <div style="background-image: url('')"
+                    <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? ''}}')"
                          class="bg-cover bg-center bg-gray-300 h-32 rounded">
                     </div>
                 </div>

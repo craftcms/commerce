@@ -26,8 +26,10 @@
 {% if cart is not defined %}
     {% set cart = craft.commerce.carts.cart %}
 {% endif %}
+
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
+
 {% set classes = {
   input: 'border border-gray-200 hover:border-gray-500 px-4 py-2 leading-tight rounded',
   box: {
@@ -41,7 +43,6 @@
     blue: 'bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
   }
 } %}
-
 
 <header>
     <div class="bg-gray-300">
