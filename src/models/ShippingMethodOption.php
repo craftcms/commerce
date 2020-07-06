@@ -16,6 +16,8 @@ use yii\behaviors\AttributeTypecastBehavior;
  * Shipping method option model.
  *
  * @property float $price the price of the shipping method option for the order.
+ * @property Order $order
+ * @property string $currency
  * @property-read string $priceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1
