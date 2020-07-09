@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a bug where the wrong shipping method was being shown when an order’s shipping method had been disabled. ([#1557](https://github.com/craftcms/commerce/issues/1557))
 - Fixed a bug where an address’ state wasn’t showing in a customer’s address table in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
 
 ## 3.1.11 - 2020-07-06

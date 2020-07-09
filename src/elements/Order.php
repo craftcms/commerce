@@ -2694,17 +2694,20 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        if ($this->isCompleted) {
+            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        } else {
+            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        }
 
         // Do we have a shipping method available based on the current selection?
-        if (isset($shippingMethods[$this->shippingMethodHandle])) {
-            return $shippingMethods[$this->shippingMethodHandle];
+        if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
+            return $shippingMethod;
         }
 
         $handles = [];
-        /** @var ShippingMethod $shippingMethod */
-        foreach ($shippingMethods as $shippingMethod) {
-            $handles[] = $shippingMethod->getHandle();
+        foreach ($shippingMethods as $method) {
+            $handles[] = $method->getHandle();
         }
 
         if (!empty($handles)) {
@@ -2715,7 +2718,7 @@ class Order extends Element
             }
         }
 
-        return $shippingMethods[$this->shippingMethodHandle] ?? null;
+        return ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle);
     }
 
     /**
