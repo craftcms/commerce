@@ -219,6 +219,12 @@ class Customers extends Component
         $customerRecord->save(false);
         $customer->id = $customerRecord->id;
 
+        // kill the memoization of customer in case this customer was the one cached
+        // Micro optimisation would be to just set the momoized customer here
+        if ($this->_customer && $this->_customer->id == $customer->id) {
+            $this->_customer = null;
+        }
+
         return true;
     }
 

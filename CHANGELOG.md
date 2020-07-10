@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where the wrong shipping method was being shown when an order’s shipping method had been disabled. ([#1557](https://github.com/craftcms/commerce/issues/1557))
+- Fixed a bug where it wasn’t possible to update a customer’s primary billing or shipping from the front end. ([#1562](https://github.com/craftcms/commerce/issues/1562))
 - Fixed a bug where an address’ state wasn’t showing in a customer’s address table in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
 - Fixed a bug that could occur if a gateway had truncated its returned message.
 
