@@ -1317,6 +1317,9 @@ class OrdersController extends Controller
                     $transactionResponse = Json::htmlEncode($transactionResponse);
                 }
 
+                $transactionMessage = Json::decodeIfJson($transaction->message);
+                $transactionMessage = Json::htmlEncode($transactionMessage);
+
                 $return[] = [
                     'id' => $transaction->id,
                     'level' => $level,
@@ -1336,7 +1339,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id],
                         ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
-                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message],
+                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
                         ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? ''],
                         ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
