@@ -615,7 +615,7 @@ class Product extends Element
             $map = (new Query())
                 ->select('productId as source, id as target')
                 ->from([Table::VARIANTS])
-                ->where(['in', 'productId', $sourceElementIds])
+                ->where(['productId' => $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
 
