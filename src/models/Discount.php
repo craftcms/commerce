@@ -210,6 +210,14 @@ class Discount extends Model
      */
     private $_userGroupIds;
 
+    public function init()
+    {
+        if ($this->categoryRelationshipType === null) {
+            $this->categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
+        }
+
+        parent::init();
+    }
 
     /**
      * @inheritdoc
