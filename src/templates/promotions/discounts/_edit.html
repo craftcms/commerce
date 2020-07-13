@@ -113,11 +113,7 @@
             errors: discount.getErrors('categories'),
         }) }}
 
-        {{ forms.checkboxField({
-            label: "Advanced"|t('commerce'),
-            id: 'categoryAdvanced',
-            checked: (discount.categoryRelationshipType  != 'element' ),
-        }) }}
+        <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}" data-target="categoryRelationshipType-advanced">Advanced</a>
 
         <div id="categoryRelationshipType-advanced" class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
             {{ forms.selectField({
@@ -490,10 +486,6 @@
                 }else{
                     $("#hasFreeShippingForMatchingItems").prop("disabled", false);
                 }
-            });
-
-            $("#categoryAdvanced").click(function (){
-                $("#categoryRelationshipType-advanced").toggleClass('hidden');
             });
 
             $('.clear-btn').click(function(event) {
