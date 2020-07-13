@@ -7,6 +7,7 @@
 - Fixed a bug where it wasn’t possible to update a customer’s primary billing or shipping from the front end. ([#1562](https://github.com/craftcms/commerce/issues/1562))
 - Fixed a bug where an address’ state wasn’t showing in a customer’s address table in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
 - Fixed a bug that could occur if a gateway had truncated its returned message.
+- Fixed a bug that could remove the wrong line item when removing it from an order programatically. ([#1555](https://github.com/craftcms/commerce/issues/1555))
 
 ## 3.1.11 - 2020-07-06
 

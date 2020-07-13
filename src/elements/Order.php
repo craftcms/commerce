@@ -1522,7 +1522,7 @@ class Order extends Element
     {
         $lineItems = $this->getLineItems();
         foreach ($lineItems as $key => $item) {
-            if ($lineItem->id == $item->id || $lineItem === $item) {
+            if (($item->id !== null && $lineItem->id == $item->id) || $lineItem === $item) {
                 unset($lineItems[$key]);
                 $this->setLineItems($lineItems);
             }
