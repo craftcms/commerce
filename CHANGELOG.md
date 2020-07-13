@@ -8,6 +8,7 @@
 - Fixed a bug where an address’ state wasn’t showing in a customer’s address table in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
 - Fixed a bug that could occur if a gateway had truncated its returned message.
 - Fixed a bug that could remove the wrong line item when removing it from an order programatically. ([#1555](https://github.com/craftcms/commerce/issues/1555))
+- Fixed a PHP error that could occur when using the `currency` Twig filter. ([#1554](https://github.com/craftcms/commerce/issues/1554))
 
 ## 3.1.11 - 2020-07-06
 
