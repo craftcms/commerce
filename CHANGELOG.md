@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a Craft Commerce 3 migration that did not maintain the original “Categories Relationship Type” behaviour for sales and discounts. ([#1565](https://github.com/craftcms/commerce/pull/1565))
+- Improved the “Categories Relationship Type” field option labels and instructions on Sale and Discount edit pages. ([#1565](https://github.com/craftcms/commerce/pull/1565))
 - Fixed a bug where the wrong shipping method could be selected for completed orders on the Order edit page. ([#1557](https://github.com/craftcms/commerce/issues/1557))
 - Fixed a bug where it wasn’t possible to update a customer’s primary billing or shipping address from the front end. ([#1562](https://github.com/craftcms/commerce/issues/1562))
 - Fixed a bug where an address’ state wasn’t showing in a customer’s address table in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
