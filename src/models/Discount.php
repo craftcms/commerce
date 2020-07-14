@@ -210,6 +210,9 @@ class Discount extends Model
      */
     private $_userGroupIds;
 
+    /**
+     * @inheritDoc
+     */
     public function init()
     {
         if ($this->categoryRelationshipType === null) {

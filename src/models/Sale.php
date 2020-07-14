@@ -120,6 +120,18 @@ class Sale extends Model
 
 
     /**
+     * @inheritDoc
+     */
+    public function init()
+    {
+        if ($this->categoryRelationshipType === null) {
+            $this->categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
+        }
+
+        parent::init();
+    }
+
+    /**
      * @inheritdoc
      */
     public function defineRules(): array
