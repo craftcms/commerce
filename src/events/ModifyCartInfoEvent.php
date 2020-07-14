@@ -29,7 +29,7 @@ class ModifyCartInfoEvent extends Event
      * Do not mutate this object.
      *
      * @var Order|null
-     * @since 3.x
+     * @since 3.1.11
      */
     public $cart;
 }
