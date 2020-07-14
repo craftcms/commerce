@@ -1950,7 +1950,7 @@ class Order extends Element
 
     /**
      * @param Customer|null $customer
-     * @since 3.x
+     * @since 3.1.11
      */
     public function setCustomer($customer)
     {
