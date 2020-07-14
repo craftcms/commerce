@@ -540,9 +540,9 @@ Craft.Commerce.OrderIndex = Craft.BaseElementIndex.extend({
             }.bind(this),
         }).appendTo(this.$toolbar);
 
-        if (window.orderEdit.currentUserPermissions['commerce-editOrders'] && window.orderEdit.edition != 'lite'){
+        if (window.orderEdit && window.orderEdit.currentUserPermissions['commerce-editOrders'] && window.orderEdit.edition != 'lite'){
             // Add the New Order button
-            var $btn = $('<a class="btn submit icon add" href="'+Craft.getUrl('commerce/orders/create-new')+'">'+Craft.t('commerce', 'New Order')+'</a>');
+            var $btn = $('<a class="btn submit icon add" href="' + Craft.getUrl('commerce/orders/create-new') + '">' + Craft.t('commerce', 'New Order') + '</a>');
             this.addButton($btn);
         }
     },
