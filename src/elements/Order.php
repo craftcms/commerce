@@ -1143,12 +1143,15 @@ class Order extends Element
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
         $attributes = parent::datetimeAttributes();
-        $attributes[] = 'datePaid';
+
         if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
             $attributes[] = 'dateAuthorized';
         }
+
+        $attributes[] = 'datePaid';
         $attributes[] = 'dateOrdered';
         $attributes[] = 'dateUpdated';
+
         return $attributes;
     }
 
@@ -1344,12 +1347,12 @@ class Order extends Element
 
         // If it was just paid set the date paid to now.
         if ($justPaid) {
-            $this->datePaid = Db::prepareDateForDb(new DateTime());
+            $this->datePaid = new DateTime();
         }
 
         // If it was just authorized set the date authorized to now.
         if ($justAuthorized) {
-            $this->dateAuthorized = Db::prepareDateForDb(new DateTime());
+            $this->dateAuthorized = new DateTime();
         }
 
         // Lock for recalculation
@@ -1439,7 +1442,7 @@ class Order extends Element
         }
 
         $this->isCompleted = true;
-        $this->dateOrdered = Db::prepareDateForDb(new DateTime());
+        $this->dateOrdered = new DateTime();
 
         // Reset estimated address relations
         $this->estimatedShippingAddressId = null;
