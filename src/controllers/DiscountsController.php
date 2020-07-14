@@ -378,8 +378,8 @@ class DiscountsController extends BaseCpController
         $variables['categories'] = $categories;
 
         $variables['categoryRelationshipTypeOptions'] = [
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source - The category relation field is on the purchasable'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target - The purchasable relation field is on the category'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source - The category relationship field is on the purchasable'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target - The purchasable relationship field is on the category'),
             DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Either (Default) - The relationship field is on the purchasable or the category'),
         ];
 
