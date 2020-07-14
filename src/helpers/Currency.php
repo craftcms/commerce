@@ -63,7 +63,7 @@ class Currency
      */
     public static function formatAsCurrency($amount, $currency = null, $convert = false, $format = true, $stripZeros = false): string
     {
-        if($currency === null){
+        if ($currency === null) {
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
         // return input if no currency passed, and both convert and format are false.
@@ -79,7 +79,7 @@ class Currency
         }
 
         if ($convert) {
-            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert($amount, $currency);
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert((float)$amount, $currency);
         }
 
         if ($format) {

@@ -15,7 +15,7 @@ use GraphQL\Type\Definition\InputObjectType;
  * Class Variant
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.1.11
  */
 class Variant extends InputObjectType
 {

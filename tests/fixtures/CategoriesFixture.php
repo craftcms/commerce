@@ -40,14 +40,18 @@ class CategoriesFixture extends CategoryFixture
             $allSiteSettings[$site->id] = $siteSettings;
         }
 
-        $categoryGroup = new CategoryGroup();
-        $categoryGroup->name = 'Categories';
-        $categoryGroup->handle = 'categories';
-        $categoryGroup->structureId = $structure->id;
-        $categoryGroup->setSiteSettings($allSiteSettings);
+        $catGroup = Craft::$app->getCategories()->getGroupByHandle('categories');
+        if (!$catGroup) {
+            $categoryGroup = new CategoryGroup();
+            $categoryGroup->name = 'Categories';
+            $categoryGroup->handle = 'categories';
+            $categoryGroup->structureId = $structure->id;
+            $categoryGroup->setSiteSettings($allSiteSettings);
 
-        if (!Craft::$app->getCategories()->saveGroup($categoryGroup)) {
-            codecept_debug('Unable to save category group');
+            if (!Craft::$app->getCategories()->saveGroup($categoryGroup)) {
+                codecept_debug('Unable to save category group');
+                codecept_debug($categoryGroup->getErrors());
+            }
         }
 
         parent::init();

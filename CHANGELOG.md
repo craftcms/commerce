@@ -1,5 +1,20 @@
 # Release Notes for Craft Commerce
 
+## 3.1.12 - 2020-07-14
+
+### Changed
+- Improved the wording of the “Categories Relationship Type” setting’s instructions and option labels on Edit Sale and Edit Discount pages. ([#1565](https://github.com/craftcms/commerce/pull/1565))
+
+### Fixed
+- Fixed a bug where existing sales and discounts would get the wrong “Categories Relationship Type” seletion when upgrading to Commerce 3. ([#1565](https://github.com/craftcms/commerce/pull/1565))
+- Fixed a bug where the wrong shipping method could be selected for completed orders on the Edit Order page. ([#1557](https://github.com/craftcms/commerce/issues/1557))
+- Fixed a bug where it wasn’t possible to update a customer’s primary billing or shipping address from the front end. ([#1562](https://github.com/craftcms/commerce/issues/1562))
+- Fixed a bug where customers’ states weren’t always shown in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
+- Fixed a bug where programmatically removing an unsaved line item could remove the wrong line item. ([#1555](https://github.com/craftcms/commerce/issues/1555))
+- Fixed a PHP error that could occur when using the `currency` Twig filter. ([#1554](https://github.com/craftcms/commerce/issues/1554))
+- Fixed a PHP error that could occur on the order completion template when outputting dates. ([#1030](https://github.com/craftcms/commerce/issues/1030)) 
+- Fixed a bug that could occur if a gateway had truncated its “Gateway Message”.
+
 ## 3.1.11 - 2020-07-06
 
 ### Added

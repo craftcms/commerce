@@ -481,7 +481,7 @@ class LineItem extends Model
         $fields = parent::fields(); // get the currency and date fields formatted
         $fields['subtotal'] = 'subtotal';
 
-        if($this->getBehavior('currencyAttributes')){
+        if ($this->getBehavior('currencyAttributes')) {
             array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
 
