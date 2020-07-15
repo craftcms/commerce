@@ -27,6 +27,7 @@ use DateTime;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
+use yii\validators\Validator;
 
 /**
  * Line Item model representing a line item on an order.
@@ -444,11 +445,30 @@ class LineItem extends Model
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                array_push($rules, ...$purchasableRules);
+                foreach ($purchasableRules as $rule) {
+                    $this->_normalizePurchasableRule($rule);
+                    $rules[] = $rule;
+                }
             }
         }
 
         return $rules;
+    }
+
+    /**
+     * Normalizes a purchasable’s validation rule.
+     *
+     * @param Validator|array $rule
+     */
+    private function _normalizePurchasableRule(&$rule)
+    {
+        if (is_array($rule) && isset($rule[1]) && $rule[1] instanceof \Closure) {
+            // Wrap the closure in another one, so InlineValidator doesn’t bind it to the model
+            $method = $rule[1];
+            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
+                $method($attribute, $params, $validator, $current);
+            };
+        }
     }
 
     /**
