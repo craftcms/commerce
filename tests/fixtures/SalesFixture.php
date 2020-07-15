@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\fixtures;
 
+use craft\commerce\Plugin;
 use craft\commerce\records\Sale;
 use craft\test\Fixture;
 
@@ -28,5 +29,18 @@ class SalesFixture extends Fixture
      */
     public $modelClass = Sale::class;
 
+    /**
+     * @var string[]
+     */
     public $depends = [ProductFixture::class];
+
+    /**
+     * @inheritDoc
+     */
+    public function afterLoad()
+    {
+        parent::afterLoad();
+
+        Plugin::getInstance()->getSales()->clearCaches();
+    }
 }
