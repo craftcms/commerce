@@ -137,4 +137,27 @@ class CartTest extends Unit
         $lineItem = $cart->getLineItems()[0];
         $this->assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
     }
+
+    public function testAddMultiplePurchasables()
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+        $this->request->headers->set('X-Http-Method-Override', 'POST');
+
+        $variants = Variant::find()->sku(['rad-hood', 'hct-white'])->all();
+        $purchasables = [];
+        foreach ($variants as $key => $variant) {
+            $purchasables[] = [
+                'id' => $variant->id,
+                'qty' => $key + 1,
+            ];
+        }
+        $this->request->setBodyParams([
+            'purchasables' => $purchasables
+        ]);
+
+        $this->cartController->runAction('update-cart');
+        $cart = Plugin::getInstance()->getCarts()->getCart();
+
+        $this->assertCount(2, $cart->getLineItems(), 'Has all items in the car');
+    }
 }
