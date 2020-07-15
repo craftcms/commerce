@@ -605,7 +605,7 @@ class Sales extends Component
 
             $transaction->commit();
 
-            $this->_clearCaches();
+            $this->clearCaches();
 
             // Fire an 'beforeSaveSection' event
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
@@ -636,7 +636,7 @@ class Sales extends Component
                 ->execute();
         }
 
-        $this->_clearCaches();
+        $this->clearCaches();
 
         return true;
     }
@@ -660,7 +660,7 @@ class Sales extends Component
 
         $sale = $this->getSaleById($saleRecord->id);
 
-        $this->_clearCaches();
+        $this->clearCaches();
         $result = (bool)$saleRecord->delete();
 
         //Raise the afterDeleteSale event
@@ -703,7 +703,7 @@ class Sales extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    public function clearCaches()
     {
         $this->_allActiveSales = null;
         $this->_allSales = null;
