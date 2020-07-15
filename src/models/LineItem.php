@@ -445,7 +445,7 @@ class LineItem extends Model
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
                 foreach ($purchasableRules as $rule) {
-                    $rules[] = $this->_normalizePurchasableRule($rule);
+                    $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
                 }
             }
         }
@@ -457,12 +457,14 @@ class LineItem extends Model
      * Normalizes a purchasable’s validation rule.
      *
      * @param mixed $rule
+     * @param PurchasableInterface $purchasable
      * @return mixed
      */
-    private function _normalizePurchasableRule($rule)
+    private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
     {
         if (isset($rule[1]) && $rule[1] instanceof \Closure) {
             $method = $rule[1];
+            $method->bindTo($purchasable);
             $rule[1] = function($attribute, $params, $validator, $current) use($method) {
                 $method($attribute, $params, $validator, $current);
             };
