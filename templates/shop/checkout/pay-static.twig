@@ -8,7 +8,7 @@
 {% set url = 'shop/checkout/pay-static' %}
 
 {% block main %}
-
+<!-- Template: {{ _self }}.twig -->
 {% set cart = null %}
 {% if number and email %}
     {% set cart = craft.orders.number(number).email(email).one() ?? null %}

@@ -6,6 +6,7 @@
 
 
 {% block main %}
+<!-- Template: {{ _self }}.twig -->
     {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
     {% if paymentSources|length %}
         <h1>Manage Cards</h1>

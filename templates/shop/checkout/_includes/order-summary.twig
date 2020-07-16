@@ -1,3 +1,4 @@
+<!-- Template: {{ _self }}.twig -->
 {# Allow passing of cart into partial #}
 {% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
 
@@ -134,4 +135,4 @@
     </div>
   {% endif %}
 </div>
-<div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</div>
+<div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig.twig</div>

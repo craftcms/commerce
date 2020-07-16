@@ -1,3 +1,4 @@
+<!-- Template: {{ _self }}.twig -->
 {% if not cart.getShippingAddress() %}
   <div class="{{ classes.box.base }} max-w-sm">
     <h5 class="mt-0 font-bold">{{ 'Shipping Estimate' }}</h5>
@@ -81,7 +82,7 @@
       {% endif %}
     </div>
   </div>
-  <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
+  <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig.twig</span>
   {% js %}
     var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   {% endjs %}

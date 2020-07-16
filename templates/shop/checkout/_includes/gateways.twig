@@ -1,8 +1,8 @@
+<!-- Template: {{ _self }}.twig -->
 {% set paymentSources = paymentSources is not defined ? [] : paymentSources %}
 {% set availableGateways = availableGateways is not defined ? [] : availableGateways %}
 
 <label class="font-semibold">Choose a payment gateway or payment source:</label>
-<div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</div>
 {% if paymentSources|length %}
   {% for source in paymentSources %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">

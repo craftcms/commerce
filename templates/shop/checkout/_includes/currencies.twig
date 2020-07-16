@@ -1,9 +1,9 @@
+<!-- Template: {{ _self }}.twig -->
 {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
 {% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
 
 {% if currencies|length > 1 %}
   <label class="block font-semibold mt-6">Choose payment currency:</label>
-  <div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</div>
   {% for currency in currencies %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
       <div class="flex justify-start items-center">

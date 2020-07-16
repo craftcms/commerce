@@ -1,6 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
+<!-- Template: {{ _self }}.twig -->
     {% set customer = craft.commerce.customers.customer %}
     {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
     {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}

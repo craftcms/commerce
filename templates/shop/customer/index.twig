@@ -6,6 +6,7 @@
 {% endset %}
 
 {% block main %}
+<!-- Template: {{ _self }}.twig -->
     {% if currentUser %}
         {% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
 

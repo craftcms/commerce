@@ -1,6 +1,7 @@
+<!-- Template: {{ _self }}.twig -->
 <div class="my-6">
     <h1 class="text-xl block sm:inline">Simple list of products</h1>
-    <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</span>
+    <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig.twig</span>
 
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 -mx-2">
         {% for product in products %}
@@ -11,7 +12,9 @@
                 <input type="hidden" name="purchasableId" value="{{ product.defaultVariant.id }}">
                 {{ csrfInput() }}
                 <div class="p-2 relative">
-                    <a class="underline text-blue-500" href="{{ product.defaultVariant.url }}">{{ product.defaultVariant.title }}</a> <span class="italic">{{ product.defaultVariant.price|currency(cart.currency) }}</span>
+                    <a class="underline text-blue-500"
+                       href="{{ product.defaultVariant.url }}">{{ product.defaultVariant.title }}</a> <span
+                            class="italic">{{ product.defaultVariant.price|currency(cart.currency) }}</span>
                     <button type="submit"
                             class="float-right px-2 py-1 md:block md:float-none bg-blue-500 hover:bg-blue-600 rounded text-sm text-white">
                         Add to cart

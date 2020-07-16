@@ -5,8 +5,8 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
+    <!-- Template: {{ _self }}.twig -->
     <h1 class="text-xl font-bold">Let’s grab your email to get started</h1>
-    <div class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}.twig</div>
 
     <div class="flex -mx-8 mt-6">
         <div class="w-full max-w-xl px-8">
@@ -17,7 +17,8 @@
 
                 <div class="field">
                     <label for="email">Email</label>
-                    <input id="email" class="w-full {{ classes.input }}" type="text" value="{{ cart.email }}" name="email"
+                    <input id="email" class="w-full {{ classes.input }}" type="text" value="{{ cart.email }}"
+                           name="email"
                            placeholder="email@site.com"/>
                 </div>
 

@@ -1,8 +1,8 @@
 {% extends "shop/_layouts/main" %}
 
 {% block main %}
+<!-- Template: {{ _self }}.twig -->
   <h1 class="text-3xl block sm:inline">Cart</h1>
-  <span class="text-xs block sm:inline text-gray-300 tracking-widest font-mono">templates/{{ _self }}/index.twig</span>
 
     {% if cart.lineItems|length %}
         <table class="w-full mt-4">

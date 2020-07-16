@@ -1,6 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
+  <!-- Template: {{ _self }}.twig -->
   <form method="post" action="" class="">
     <input type="hidden" name="action" value="commerce/cart/load-cart"/>
     {{ redirectInput('/shop/cart') }}
