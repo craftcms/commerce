@@ -1,8 +1,18 @@
 <?php
 
+use craft\commerce\elements\Variant;
+use craft\elements\Category;
+
+$hctWhite = Variant::find()->sku('hct-white')->one();
+$allPurchasables = $hctWhite ? [$hctWhite->id] : [];
+
+$radHood = Variant::find()->sku('rad-hood')->one();
+$percentagePurchasables = $radHood ? [$radHood->id] : [];
+
+$categoryIds = Category::find()->title(['Commerce Category','Commerce Category #2'])->ids();
+
 return [
-    [
-        'id' => '1000',
+    'percentageSale' => [
         'name' => 'My Percentage Sale',
         'description' => 'My test percentage sale.',
         'enabled' => 1,
@@ -17,9 +27,9 @@ return [
         'ignorePrevious' => null,
         'stopProcessing' => null,
         'categoryRelationshipType' => 'sourceElement',
+        '_purchasableIds' => $percentagePurchasables
     ],
-    [
-        'id' => '1001',
+    'allRelationships' => [
         'name' => 'All Relationships',
         'description' => 'All the relationships.',
         'enabled' => 1,
@@ -34,5 +44,8 @@ return [
         'ignorePrevious' => null,
         'stopProcessing' => null,
         'categoryRelationshipType' => 'element',
+        '_purchasableIds' => $allPurchasables,
+        '_categoryIds' => $categoryIds,
+        '_userGroupIds' => ['1002']
     ]
 ];
