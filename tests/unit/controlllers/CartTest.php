@@ -13,11 +13,7 @@ use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
 use craft\web\Request;
-use craftcommercetests\fixtures\CategoriesFixture;
-use craftcommercetests\fixtures\SaleCategoriesFixture;
-use craftcommercetests\fixtures\SalePurchasablesFixture;
 use craftcommercetests\fixtures\SalesFixture;
-use craftcommercetests\fixtures\SaleUserGroupsFixture;
 use UnitTester;
 use yii\web\Response;
 
@@ -53,18 +49,6 @@ class CartTest extends Unit
             'sales' => [
                 'class' => SalesFixture::class,
             ],
-            'categories' => [
-                'class' => CategoriesFixture::class,
-            ],
-            'sale-purchasables' => [
-                'class' => SalePurchasablesFixture::class,
-            ],
-            'sale-categories' => [
-                'class' => SaleCategoriesFixture::class,
-            ],
-            'sale-usergroups' => [
-                'class' => SaleUserGroupsFixture::class,
-            ]
         ];
     }
 

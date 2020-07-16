@@ -14,7 +14,6 @@ use craft\commerce\models\LineItem;
 use craft\commerce\test\mockclasses\Purchasable;
 use craft\helpers\Json;
 use craftcommercetests\fixtures\ProductFixture;
-use craftcommercetests\fixtures\SalePurchasablesFixture;
 use craftcommercetests\fixtures\SalesFixture;
 
 /**
@@ -37,9 +36,6 @@ class LineItemTest extends Unit
             'sales' => [
                 'class' => SalesFixture::class,
             ],
-            'salePurchasables' => [
-                'class' => SalePurchasablesFixture::class,
-            ]
         ];
     }
 
