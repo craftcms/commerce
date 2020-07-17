@@ -563,19 +563,35 @@ class VariantQuery extends ElementQuery
         }
 
         if ($this->width !== false) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.width', $this->width));
+            if ($this->width === null) {
+                $this->subQuery->andWhere(['commerce_variants.width' => $this->width]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.width', $this->width));
+            }
         }
 
         if ($this->height !== false) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.height', $this->height));
+            if ($this->height === null) {
+                $this->subQuery->andWhere(['commerce_variants.height' => $this->height]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.height', $this->height));
+            }
         }
 
         if ($this->length !== false) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.length', $this->length));
+            if ($this->length === null) {
+                $this->subQuery->andWhere(['commerce_variants.length' => $this->length]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.length', $this->length));
+            }
         }
 
         if ($this->weight !== false) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.weight', $this->weight));
+            if ($this->weight === null) {
+                $this->subQuery->andWhere(['commerce_variants.weight' => $this->weight]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.weight', $this->weight));
+            }
         }
 
         // If width, height or length is specified in the query we should only be looking for products that
