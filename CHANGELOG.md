@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
+
+### Fixed
+- Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
+
 ## 3.1.12 - 2020-07-14
 
 ### Changed
