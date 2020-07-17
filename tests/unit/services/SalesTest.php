@@ -116,7 +116,7 @@ class SalesTest extends Unit
     public function testGetSalesRelatedToPurchasable()
     {
         $variant  = Variant::find()->sku('hct-white')->one();
-        $sale = $this->sales->getSaleById($this->salesData['allRelationsiphs']['id']);
+        $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
 
         $this->assertSame([$sale], $this->sales->getSalesRelatedToPurchasable($variant));
     }
@@ -145,7 +145,7 @@ class SalesTest extends Unit
 
     public function testSaveSale()
     {
-        $sale = $this->sales->getSaleById($this->salesData['allRelationsiphs']['id']);
+        $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
         $originalDateUpdated = (new Query)
             ->select('dateUpdated')
