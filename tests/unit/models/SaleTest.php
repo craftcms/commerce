@@ -46,6 +46,8 @@ class SaleTest extends Unit
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
 
+       $this->assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
+
        $sale->setCategoryIds($ids);
        $this->assertSame([1, 2, 3, 4], $sale->getCategoryIds());
     }
@@ -55,6 +57,8 @@ class SaleTest extends Unit
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
 
+       $this->assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
+
        $sale->setPurchasableIds($ids);
        $this->assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
     }
@@ -63,6 +67,8 @@ class SaleTest extends Unit
     {
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
+
+       $this->assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
 
        $sale->setUserGroupIds($ids);
        $this->assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
