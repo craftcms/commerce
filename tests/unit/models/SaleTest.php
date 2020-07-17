@@ -20,6 +20,9 @@ use craft\commerce\services\Sales;
  */
 class SaleTest extends Unit
 {
+    /**
+     * @todo Remove when populateSaleRelations is removed
+     */
     public function testLoadRelationsCalledOnce()
     {
         $populateSaleRelationsRunCount = 0;
@@ -36,9 +39,9 @@ class SaleTest extends Unit
 
         Plugin::getInstance()->set('sales', $mockSalesService);
         $sale->getPurchasableIds();
-        $this->assertSame(1, $populateSaleRelationsRunCount);
+        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
         $sale->getCategoryIds();
-        $this->assertSame(1, $populateSaleRelationsRunCount);
+        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
     }
 
     public function testSetCategoryIds()
