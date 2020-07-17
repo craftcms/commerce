@@ -9,8 +9,10 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
+use craft\db\Query;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -209,7 +211,19 @@ class Sale extends Model
     public function getCategoryIds(): array
     {
         if (null === $this->_categoryIds) {
-            $this->_loadRelations();
+            $categoryIds = [];
+            if ($this->id) {
+                $categoryIds = (new Query())->select(
+                    'spt.categoryId')
+                    ->from(Table::SALES . ' sales')
+                    ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
+                    ->where(['sales.id' => $this->id])
+                    ->column();
+
+                $categoryIds = array_filter($categoryIds);
+            }
+
+            $this->_categoryIds = $categoryIds;
         }
 
         return $this->_categoryIds;
@@ -221,7 +235,19 @@ class Sale extends Model
     public function getPurchasableIds(): array
     {
         if (null === $this->_purchasableIds) {
-            $this->_loadRelations();
+            $purchasableIds = [];
+            if ($this->id) {
+                $purchasableIds = (new Query())->select(
+                    'sp.purchasableId')
+                    ->from(Table::SALES . ' sales')
+                    ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
+                    ->where(['sales.id' => $this->id])
+                    ->column();
+
+                $purchasableIds = array_filter($purchasableIds);
+            }
+
+            $this->_purchasableIds = $purchasableIds;
         }
 
         return $this->_purchasableIds;
@@ -233,7 +259,18 @@ class Sale extends Model
     public function getUserGroupIds(): array
     {
         if (null === $this->_userGroupIds) {
-            $this->_loadRelations();
+            $userGroupIds = [];
+            if ($this->id) {
+                $userGroupIds = (new Query())->select(
+                    'sug.userGroupId')
+                    ->from(Table::SALES . ' sales')
+                    ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
+                    ->where(['sales.id' => $this->id])
+                    ->column();
+                $userGroupIds = array_filter($userGroupIds);
+            }
+
+            $this->_userGroupIds = $userGroupIds;
         }
 
         return $this->_userGroupIds;
@@ -267,14 +304,5 @@ class Sale extends Model
     public function setUserGroupIds(array $userGroupIds)
     {
         $this->_userGroupIds = array_unique($userGroupIds);
-    }
-
-
-    /**
-     * Loads the sale relations
-     */
-    private function _loadRelations()
-    {
-        Plugin::getInstance()->getSales()->populateSaleRelations($this);
     }
 }

@@ -75,7 +75,27 @@ class Variant extends ElementArguments
                 'name' => 'typeId',
                 'type' => Type::listOf(QueryArgument::getType()),
                 'description' => 'Narrows the query results based on the variant’s product’s type ID.',
-            ]
+            ],
+            'width' => [
+                'name' => 'width',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the variant’s width dimension.',
+            ],
+            'height' => [
+                'name' => 'height',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the variant’s height dimension.',
+            ],
+            'length' => [
+                'name' => 'length',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the variant’s length dimension.',
+            ],
+            'weight' => [
+                'name' => 'weight',
+                'type' => Type::listOf(QueryArgument::getType()),
+                'description' => 'Narrows the query results based on the variant’s weight dimension.',
+            ],
         ]);
     }
 
