@@ -34,7 +34,7 @@ class SalesFixture extends Fixture
     /**
      * @var string[]
      */
-    public $depends = [ProductFixture::class, CategoriesFixture::class];
+    public $depends = [ProductFixture::class, CategoriesFixture::class, UserGroupsFixture::class];
 
     /**
      * @inheritDoc
@@ -90,7 +90,7 @@ class SalesFixture extends Fixture
      */
     public function unload()
     {
-        foreach ($this->getData() as $key => $data) {
+        foreach ($this->data as $key => $data) {
             if (isset($data['id'])) {
                 Plugin::getInstance()->getSales()->deleteSaleById($data['id']);
             }
