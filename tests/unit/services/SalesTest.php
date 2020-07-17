@@ -92,7 +92,7 @@ class SalesTest extends Unit
     public function testPopulateSaleRelations()
     {
         $sale = new Sale();
-        $sale->id = $this->salesData['percentageSale']['id'];
+        $sale->id = $this->salesData['allRelationships']['id'];
 
         $this->sales->populateSaleRelations($sale);
 
