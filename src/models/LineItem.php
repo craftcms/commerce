@@ -160,6 +160,12 @@ class LineItem extends Model
     public $dateCreated;
 
     /**
+     * @var DateTime|null
+     * @since 3.x
+     */
+    public $dateUpdated;
+
+    /**
      * @var PurchasableInterface Purchasable
      */
     private $_purchasable;

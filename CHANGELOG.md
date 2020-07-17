@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
+
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 

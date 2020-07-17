@@ -221,7 +221,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t( 'No line item exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -412,6 +412,7 @@ class LineItems extends Component
                 'shippingCategoryId',
                 'lineItemStatusId',
                 'dateCreated',
+                'dateUpdated'
             ])
             ->from([Table::LINEITEMS . ' lineItems']);
     }
