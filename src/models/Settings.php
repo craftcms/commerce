@@ -102,11 +102,6 @@ class Settings extends Model
     public $freeOrderPaymentStrategy = 'complete';
 
     /**
-     * @var bool
-     */
-    public $mergeLastCartOnLogin = true;
-
-    /**
      * @var array
      */
     public $paymentCurrency;
