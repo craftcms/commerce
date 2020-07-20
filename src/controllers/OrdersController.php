@@ -462,7 +462,7 @@ class OrdersController extends Controller
         if ($query) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', $query],
+                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
                 [$likeOperator, 'sku', $query]
             ]);
         }
@@ -506,7 +506,7 @@ class OrdersController extends Controller
         if ($search) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', $search],
+                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
                 [$likeOperator, 'sku', $search]
             ]);
         }
