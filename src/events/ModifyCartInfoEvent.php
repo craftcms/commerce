@@ -7,6 +7,7 @@
 
 namespace craft\commerce\events;
 
+use craft\commerce\elements\Order;
 use yii\base\Event;
 
 /**
@@ -18,7 +19,17 @@ use yii\base\Event;
 class ModifyCartInfoEvent extends Event
 {
     /**
-     * @var array The cart as an array
+     * @var array The cart info that is allowed to be modified
      */
     public $cartInfo = [];
+
+
+    /**
+     * The cart object that can be used to modify the cart info.
+     * Do not mutate this object.
+     *
+     * @var Order|null
+     * @since 3.1.11
+     */
+    public $cart;
 }

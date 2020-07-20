@@ -9,6 +9,7 @@ namespace craftcommercetests\unit;
 
 use Codeception\Stub;
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
@@ -19,10 +20,9 @@ use craft\commerce\test\mockclasses\Purchasable;
 use craft\db\Query;
 use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\DiscountsFixture;
-use UnitTester;
-use DateTime;
 use DateInterval;
-use Craft;
+use DateTime;
+use UnitTester;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 

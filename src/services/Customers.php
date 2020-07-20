@@ -23,7 +23,6 @@ use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use craft\events\ModelEvent;
-use craft\events\UserEvent as CraftUserEvent;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -47,7 +46,6 @@ use yii\web\UserEvent;
 class Customers extends Component
 {
     const SESSION_CUSTOMER = 'commerce_customer';
-
 
     /**
      * @var Customer
@@ -90,49 +88,51 @@ class Customers extends Component
     }
 
     /**
-     * Get the current customer.
+     * Get the current customer by the current customer in session, or creates one if none exists.
      *
      * @return Customer
      */
     public function getCustomer(): Customer
     {
         $session = Craft::$app->getSession();
+        $isNew = false;
 
         if ($this->_customer === null) {
+
             $user = Craft::$app->getUser()->getIdentity();
 
-            $customer = null;
-
-            // Find user's customer or the current customer in the session.
+            // Can we get the current customer from the current user?
             if ($user) {
-                $customer = $this->getCustomerByUserId($user->id);
+                $this->_customer = $this->getCustomerByUserId($user->id);
 
-                if ($customer) {
-                    $session->set(self::SESSION_CUSTOMER, $customer->id);
-                }
-            } else if ($session->getHasSessionId() || $session->getIsActive()) {
-                $id = $session->get(self::SESSION_CUSTOMER);
-
-                if ($id) {
-                    $customer = $this->getCustomerById($id);
-
-                    // If there is a customer record but it is associated with a real user, don't use it when guest.
-                    if ($customer && $customer->userId) {
-                        $customer = null;
-                    }
+                if (!$this->_customer) {
+                    $this->_customer = new Customer();
+                    $this->_customer->userId = $user->id;
+                    $isNew = true;
                 }
             }
 
-            if ($customer === null) {
-                $customer = new Customer();
-
-                if ($user) {
-                    $customer->userId = $user->id;
+            // If we have no current user, can we get the current customer from the session (with no user logged in)
+            if (!$user && ($session->getHasSessionId() || $session->getIsActive())) {
+                if ($customerId = Craft::$app->getSession()->get(self::SESSION_CUSTOMER)) {
+                    $this->_customer = $this->getCustomerById($customerId);
                 }
             }
 
-            $this->_customer = $customer;
+            // If we have no customer by now, just create one.
+            if ($this->_customer === null) {
+                $this->_customer = new Customer();
+                $isNew = true;
+            }
         }
+
+        // Did we create a new customer? If so let's save it, so it has an ID.
+        if ($isNew) {
+            $this->saveCustomer($this->_customer);
+        }
+
+        // Store the customer in the session.
+        Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $this->_customer->id);
 
         return $this->_customer;
     }
@@ -150,7 +150,7 @@ class Customers extends Component
     {
         // default to customer in session.
         if (null === $customer) {
-            $customer = $this->_getSavedCustomer();
+            $customer = $this->getCustomer();
         }
 
         if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
@@ -210,6 +210,11 @@ class Customers extends Component
 
         $customerRecord->save(false);
         $customer->id = $customerRecord->id;
+
+        // Update the current customer if it was the one saved
+        if ($this->_customer && $this->_customer->id == $customer->id) {
+            $this->_customer = $customer;
+        }
 
         return true;
     }
@@ -346,7 +351,7 @@ class Customers extends Component
                 // Only consolidate completed orders, not carts and orders that don't belong to another user.
 
                 if ($order->isCompleted && !$belongsToAnotherUser) {
-                    $order->customerId = $toCustomer->id;
+                    $order->setCustomer($toCustomer);
 
                     // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
                     $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
@@ -440,10 +445,13 @@ class Customers extends Component
      *
      * @return int
      * @throws Exception
+     * @deprecated 3.x
      */
     public function getCustomerId(): int
     {
-        return $this->_getSavedCustomer()->id;
+        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', 'Customers::getCustomerId() has been deprecated. Use Customers::getCustomer()->id, since it is guaranteed to have a ID.');
+
+        return $this->getCustomer()->id;
     }
 
     /**
@@ -451,24 +459,14 @@ class Customers extends Component
      *
      * @param Event $event
      * @throws Exception
+     * @deprecated 3.x
      */
     public function saveUserHandler(Event $event)
     {
-        $user = $event->sender;
-        $customer = $this->getCustomerByUserId($user->id);
-        $email = $user->email;
+        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', 'Customers::saveUserHandler() has been deprecated. Use Customers::afterSaveUserHandler() instead.');
 
-        // Update the email address on orders for this customer.
-        if ($customer) {
-            $orders = (new Query())
-                ->select(['orders.id'])
-                ->from([Table::ORDERS . ' orders'])
-                ->where(['orders.customerId' => $customer->id])
-                ->column();
-
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::ORDERS, ['email' => $email], ['id' => $orders])
-                ->execute();
+        if ($customer = $this->getCustomerByUserId($event->sender->id)) {
+            $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
         }
     }
 
@@ -498,7 +496,7 @@ class Customers extends Component
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders' , '[[orders.customerId]] = [[customers.id]]')
+            ->innerJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -516,16 +514,27 @@ class Customers extends Component
             ])
 
             // Exclude customer records without a user or where there isn't any data
-            ->where(['or',
+            ->where([
+                'or',
                 ['not', ['userId' => null]],
-                ['and',
+                [
+                    'and',
                     ['userId' => null],
-                    ['or',
+                    [
+                        'or',
                         ['not', ['primaryBillingAddressId' => null]],
                         ['not', ['primaryShippingAddressId' => null]],
                     ]
                 ]
-            ])->andWhere(['[[orders.isCompleted]]' => 1]);
+            ])->andWhere([
+                'or',
+                ['orders.isCompleted' => true],
+                [
+                    'and',
+                    ['orders.isCompleted' => false],
+                    ['not', ['customers.userId' => null]],
+                ]
+            ]);
 
         if ($search) {
             $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
@@ -591,7 +600,11 @@ class Customers extends Component
             if (!$userId) {
                 // Dont use element save, just update DB directly
                 if ($order && $order instanceof Order) {
-                    $order->customerId = $customerId;
+                    $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+                    if (!$customer) {
+                        throw new Exception('Can’t find customer to assign order to');
+                    }
+                    $order->setCustomer($customer);
                 }
 
                 Craft::$app->getDb()->createCommand()
@@ -603,28 +616,6 @@ class Customers extends Component
                     ->execute();
             }
         }
-    }
-
-    /**
-     * Get the current customer.
-     *
-     * @return Customer
-     * @throws Exception if failed to save customer.
-     */
-    private function _getSavedCustomer(): Customer
-    {
-        $customer = $this->getCustomer();
-
-        if (!$customer->id) {
-            if ($this->saveCustomer($customer)) {
-                Craft::$app->getSession()->set(self::SESSION_CUSTOMER, $customer->id);
-            } else {
-                $errors = implode(', ', $customer->errors);
-                throw new Exception('Error saving customer: ' . $errors);
-            }
-        }
-
-        return $customer;
     }
 
     /**
@@ -807,11 +798,11 @@ class Customers extends Component
             // We dont want to have two customers with the same related user ID
             if ($autoGeneratedCustomer && $customer->id != $autoGeneratedCustomer->id) {
                 $autoGeneratedCustomer->userId = null;
-                Plugin::getInstance()->getCustomers()->saveCustomer($autoGeneratedCustomer, false);
+                $this->saveCustomer($autoGeneratedCustomer, false);
             }
 
             $customer->userId = $user->id;
-            Plugin::getInstance()->getCustomers()->saveCustomer($customer, false);
+            $this->saveCustomer($customer, false);
         } else {
             $errors = $user->getErrors();
             Craft::warning('Could not create user on order completion.', __METHOD__);
@@ -869,27 +860,57 @@ class Customers extends Component
      */
     public function afterSaveUserHandler(ModelEvent $event)
     {
-        // Check to see if there is a customer record for the user
-        $customer = $this->getCustomerByUserId($event->sender->id);
+        $user = $event->sender;
+        $customer = $this->getCustomerByUserId($user->id);
+        $email = $user->email;
 
         // Create a new customer for a user that does not have a customer
-        if (!$customer && $event->sender->email) {
+        if (!$customer && $user->email) {
             $existingCustomerIdByEmail = (new Query())
                 ->select('orders.customerId')
                 ->from(Table::ORDERS . ' orders')
                 ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
-                ->where(['orders.email' => $event->sender->email])
+                ->where(['orders.email' => $user->email])
                 ->andWhere(['orders.isCompleted' => true])
                 ->orderBy('[[orders.dateOrdered]] ASC')
                 ->scalar(); // get the first customerId in the result
 
             if ($customer = $this->getCustomerById($existingCustomerIdByEmail)) {
-                $customer->userId = $event->sender->id;
+                $customer->userId = $user->id;
             } else {
-                $customer = new Customer(['userId' => $event->sender->id]);
+                $customer = new Customer(['userId' => $user->id]);
             }
 
             $this->saveCustomer($customer);
         }
+
+        // Update the email address in the DB for this customer
+        if ($email) {
+            $this->_updatePreviousOrderEmails($customer->id, $email);
+        }
+
+        $this->consolidateGuestOrdersByEmail($email);
     }
+
+    /**
+     * @param $customerId
+     * @param $email
+     * @throws \yii\db\Exception
+     */
+    private function _updatePreviousOrderEmails(int $customerId, string $email)
+    {
+        $orderIds = (new Query())
+            ->select(['orders.id'])
+            ->from([Table::ORDERS . ' orders'])
+            ->where(['orders.customerId' => $customerId])
+            ->andWhere(['not', ['orders.email' => $email]])
+            ->column();
+
+        if (!empty($orderIds)) {
+            Craft::$app->getDb()->createCommand()
+                ->update(Table::ORDERS, ['email' => $email], ['id' => $orderIds])
+                ->execute();
+        }
+    }
+
 }

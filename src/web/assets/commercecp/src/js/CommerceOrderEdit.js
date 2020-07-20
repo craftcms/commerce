@@ -30,8 +30,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             if (!this.paymentModal) {
                 this.paymentModal = new Craft.Commerce.PaymentModal({
                     orderId: this.orderId,
-                    paymentForm: this.paymentForm
-                })
+                    paymentForm: this.paymentForm,
+                });
+
             } else {
                 this.paymentModal.show();
             }

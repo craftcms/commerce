@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\Discount;
-use \craft\test\Fixture;
+use craft\test\Fixture;
 
 /**
  * Class DiscountsFixture.

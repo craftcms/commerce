@@ -7,9 +7,9 @@
 
 namespace craft\commerce\test\fixtures\elements;
 
+use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\test\fixtures\elements\ElementFixture;
-use craft\commerce\elements\Product;
 use yii\base\InvalidArgumentException;
 
 /**

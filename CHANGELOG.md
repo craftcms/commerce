@@ -3,16 +3,74 @@
 ## Unreleased
 
 ### Added
+- Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
+- Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
+- It is now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
+- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
+- Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
+- It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
+
+### Deprecated
+- Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
+
+### Fixed
+- Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
+
+## 3.1.12 - 2020-07-14
+
+### Changed
+- Improved the wording of the “Categories Relationship Type” setting’s instructions and option labels on Edit Sale and Edit Discount pages. ([#1565](https://github.com/craftcms/commerce/pull/1565))
+
+### Fixed
+- Fixed a bug where existing sales and discounts would get the wrong “Categories Relationship Type” seletion when upgrading to Commerce 3. ([#1565](https://github.com/craftcms/commerce/pull/1565))
+- Fixed a bug where the wrong shipping method could be selected for completed orders on the Edit Order page. ([#1557](https://github.com/craftcms/commerce/issues/1557))
+- Fixed a bug where it wasn’t possible to update a customer’s primary billing or shipping address from the front end. ([#1562](https://github.com/craftcms/commerce/issues/1562))
+- Fixed a bug where customers’ states weren’t always shown in the control panel. ([#1556](https://github.com/craftcms/commerce/issues/1556))
+- Fixed a bug where programmatically removing an unsaved line item could remove the wrong line item. ([#1555](https://github.com/craftcms/commerce/issues/1555))
+- Fixed a PHP error that could occur when using the `currency` Twig filter. ([#1554](https://github.com/craftcms/commerce/issues/1554))
+- Fixed a PHP error that could occur on the order completion template when outputting dates. ([#1030](https://github.com/craftcms/commerce/issues/1030)) 
+- Fixed a bug that could occur if a gateway had truncated its “Gateway Message”.
+
+## 3.1.11 - 2020-07-06
+
+### Added
+- Added new `*AsCurrency` attributes to all currency attributes on orders, line items, products, variants, adjustments and transactions.
+- Added the `hasVariant` argument to GraphQL product queries. ([#1544](https://github.com/craftcms/commerce/issues/1544))
+- Added `craft\commerce\events\ModifyCartInfoEvent::$cart`. ([#1536](https://github.com/craftcms/commerce/issues/1536))
+- Added `craft\commerce\behaviors\CurrencyAttributeBehavior`.
+- Added `craft\commerce\gql\types\input\Variant`.
+
+### Fixed
+- Improved performance when adding items to the cart. ([#1543](https://github.com/craftcms/commerce/pull/1543), [#1520](https://github.com/craftcms/commerce/issues/1520))
+- Fixed a bug where products that didn’t have current sales could be returned when the `hasSales` query parameter was enabled.
+- Fixed a bug where the “Message” field wasn’t getting cleared after updating the order status on the Order edit page. ([#1366](https://github.com/craftcms/commerce/issues/1366))
+- Fixed a bug where it wasn’t possible to update the conversion rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
+- Fixed a bug where it wasn’t possible to delete all line item statuses.
+- Fixed a bug where zero currency values weren’t getting formatted correctly in `commerce/cart/*` actions’ JSON responses. ([#1539](https://github.com/craftcms/commerce/issues/1539))
+- Fixed a bug where the wrong line item could be added to the cart when using the Lite edition. ([#1552](https://github.com/craftcms/commerce/issues/1552))
+- Fixed a bug where a validation error was being shown incorrectly on the Edit Discount page. ([#1549](https://github.com/craftcms/commerce/issues/1549))
+
+### Deprecated
+- The `|json_encode_filtered` twig filter has now been deprecated.
+
+## 3.1.10 - 2020-06-23
+
+### Added
 - Added the `salePrice` and `sales` fields to GraphQL variant queries. ([#1525](https://github.com/craftcms/commerce/issues/1525))
+- Added support for non-parameterized gateway webhook URLs. ([#1530](https://github.com/craftcms/commerce/issues/1530))
 - Added `craft\commerce\gql\types\SaleType`.
 
 ### Changed
-- Selected shipping method now shows both name and handle for completed orders on the Order Edit page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
+- The selected shipping method now shows both name and handle for completed orders on the Edit Order page. ([#1472](https://github.com/craftcms/commerce/issues/1472))
 
 ### Fixed
-- Fixed a bug where the current user’s email was being used when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
-- Fixed a bug where a validation error would show when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
+- Fixed a bug where the current user’s email was unintentionally being used as a fallback when creating a customer with an invalid email address on the Edit Order page. ([#1523](https://github.com/craftcms/commerce/issues/1523))
+- Fixed a bug where an incorrect validation error would be shown when using custom address validation on the Edit Order page. ([#1519](https://github.com/craftcms/commerce/issues/1519))
+- Fixed a bug where `defaultVariantId` wasn’t being set when saving a Product. ([#1529](https://github.com/craftcms/commerce/issues/1529))
+- Fixed a bug where custom shipping methods would show a zero price. ([#1532](https://github.com/craftcms/commerce/issues/1532))
+- Fixed a bug where the payment form modal wasn’t getting sized correctly on the Edit Order page. ([#1441](https://github.com/craftcms/commerce/issues/1441))
 - Fixed the link to Commerce documentation from the control panel. ([#1517](https://github.com/craftcms/commerce/issues/1517))
+- Fixed a deprecation warning for `Order::getAvailableShippingMethods()` on the Edit Order page. ([#1518](https://github.com/craftcms/commerce/issues/1518))
 
 ## 3.1.9 - 2020-06-17
 
@@ -1113,7 +1171,7 @@
 - Fixed a SQL error that occurred when saving a tax rate without a tax zone selected. ([#667](https://github.com/craftcms/commerce/issues/667))
 - Fixed an error that occurred when refunding a transaction with a localized currency format. ([#659](https://github.com/craftcms/commerce/issues/659))
 - Fixed a SQL error that could occur when saving an invalid discount. ([#673](https://github.com/craftcms/commerce/issues/673))
-- Fixed a bug where it wans’t posible to add non-numeric characters to expiry input in the default credit card form. ([#636](https://github.com/craftcms/commerce/issues/636))
+- Fixed a bug where it wans’t possible to add non-numeric characters to expiry input in the default credit card form. ([#636](https://github.com/craftcms/commerce/issues/636))
 
 ## 2.0.2 - 2019-01-23
 

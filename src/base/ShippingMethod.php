@@ -7,8 +7,7 @@
 
 namespace craft\commerce\base;
 
-use Craft;
-use craft\base\Model;
+use craft\commerce\base\Model as BaseModel;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 
@@ -18,7 +17,7 @@ use craft\commerce\errors\NotImplementedException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-abstract class ShippingMethod extends Model implements ShippingMethodInterface
+abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
 {
     /**
      * @var int ID
@@ -149,15 +148,13 @@ abstract class ShippingMethod extends Model implements ShippingMethodInterface
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if($purchasable && !$purchasable->getIsShippable())
-            {
+            if ($purchasable && !$purchasable->getIsShippable()) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
 
         // Are all line items non shippable items? No shipping cost.
-        if(count($lineItems) == count($nonShippableItems))
-        {
+        if (count($lineItems) == count($nonShippableItems)) {
             return 0;
         }
 

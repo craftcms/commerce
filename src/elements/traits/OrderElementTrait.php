@@ -12,7 +12,6 @@ use craft\commerce\elements\actions\DeleteOrder;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
-use craft\db\Query;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
@@ -104,45 +103,45 @@ trait OrderElementTrait
             }
             case 'totalPaid':
             {
-                return $this->_asCurrency($this->storedTotalPaid);
+                return $this->storedTotalPaidAsCurrency;
             }
             case 'itemTotal':
             {
-                return $this->_asCurrency($this->storedItemTotal);
+                return $this->storedItemTotalAsCurrency;
             }
             case 'total':
             {
-                return $this->_asCurrency($this->getTotal());
+                return $this->totalAsCurrency;
             }
             case 'totalPrice':
             {
-                return $this->_asCurrency($this->storedTotalPrice);
+                return $this->storedTotalPriceAsCurrency;
             }
             case 'totalShippingCost':
             {
-                return $this->_asCurrency($this->storedTotalShippingCost);
+                return $this->storedTotalShippingCostAsCurrency;
             }
             case 'totalDiscount':
             {
-                return $this->_asCurrency($this->storedTotalDiscount * -1);
+                return $this->storedTotalDiscountAsCurrency;
             }
             case 'totalTax':
             {
-                return $this->_asCurrency($this->storedTotalTax);
+                return $this->storedTotalTaxAsCurrency;
             }
             case 'totalIncludedTax':
             {
-                return $this->_asCurrency($this->storedTotalTaxIncluded);
+                return $this->storedTotalTaxIncludedAsCurrency;
             }
             case 'totals':
             {
                 $values = [
-                    [Plugin::t('Items'), $this->getItemSubtotal()],
-                    [Plugin::t('Discounts'), $this->storedTotalDiscount],
-                    [Plugin::t('Shipping'), $this->storedTotalShippingCost],
-                    [Plugin::t('Tax (inc)'), $this->storedTotalTaxIncluded],
-                    [Plugin::t('Tax'), $this->storedTotalTax],
-                    [Plugin::t('Price'), $this->storedTotalPrice],
+                    [Plugin::t('Items'), $this->itemSubtotalAsCurrency],
+                    [Plugin::t('Discounts'), $this->storedTotalDiscountAsCurrency],
+                    [Plugin::t('Shipping'), $this->storedTotalShippingCostAsCurrency],
+                    [Plugin::t('Tax (inc)'), $this->storedTotalTaxIncludedAsCurrency],
+                    [Plugin::t('Tax'), $this->storedTotalTaxAsCurrency],
+                    [Plugin::t('Price'), $this->storedTotalPriceAsCurrency],
                 ];
                 return $this->_miniTable($values);
             }
@@ -478,7 +477,7 @@ trait OrderElementTrait
                     if ($count == 1) {
                         $output .= '<td style="text-align: left; padding: 0px">' . $cell . '</td>';
                     } else {
-                        $output .= '<td style="text-align: right; padding: 0px">' . $this->_asCurrency($cell) . '</td>';
+                        $output .= '<td style="text-align: right; padding: 0px">' . $cell . '</td>';
                     }
                     $count++;
                 }

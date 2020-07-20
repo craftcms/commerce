@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
-use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
@@ -29,7 +28,6 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
@@ -113,7 +111,7 @@ class OrdersController extends Controller
             Plugin::getInstance()->getCustomers()->saveCustomer($customer);
         }
 
-        $order->customerId = $customer->id;
+        $order->setCustomer($customer);
         $order->origin = Order::ORIGIN_CP;
 
         if (!Craft::$app->getElements()->saveElement($order)) {
@@ -354,7 +352,7 @@ class OrdersController extends Controller
                 'title' => $order->reference,
                 'url' => $order->getCpEditUrl(),
                 'date' => $order->dateOrdered->format('D jS M Y'),
-                'total' => Craft::$app->getFormatter()->asCurrency($order->getTotalPaid(), $order->currency, [], [], false),
+                'total' => $order->totalAsCurrency,
                 'orderStatus' => $order->getOrderStatusHtml(),
             ];
         }
@@ -405,7 +403,7 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethods', 'billingAddress', 'shippingAddress'];
+        $extraFields = ['lineItems.snapshot', 'availableShippingMethodOptions', 'billingAddress', 'shippingAddress'];
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
@@ -464,7 +462,7 @@ class OrdersController extends Controller
         if ($query) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', $query],
+                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
                 [$likeOperator, 'sku', $query]
             ]);
         }
@@ -508,7 +506,7 @@ class OrdersController extends Controller
         if ($search) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', $search],
+                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
                 [$likeOperator, 'sku', $search]
             ]);
         }
@@ -519,22 +517,11 @@ class OrdersController extends Controller
         $sqlQuery->offset($offset);
         $result = $sqlQuery->all();
 
-        $rows = [];
-
-        // Add the currency formatted price
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        foreach ($result as $row) {
-            /** @var PurchasableInterface $purchasable */
-            if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
-                $row['isAvailable'] = $purchasable->getIsAvailable();
-                $rows[] = $row;
-            }
-        }
+        $purchasables = $this->_addLivePurchasableInfo($result);
 
         return $this->asJson([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
-            'data' => $rows,
+            'data' => $purchasables,
         ]);
     }
 
@@ -1063,7 +1050,12 @@ class OrdersController extends Controller
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
-        $order->customerId = $orderRequestData['order']['customerId'] ?? null;
+        $customerId = $orderRequestData['order']['customerId'] ?? null;
+        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+            $order->setCustomer($customer);
+        } else {
+            $order->setCustomer(null);
+        }
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
@@ -1090,7 +1082,7 @@ class OrdersController extends Controller
         }
 
         // Only email set on the order
-        if ($order->customerId == null && $order->email) {
+        if ($order->getCustomer() == null && $order->email) {
             // See if there is a user with that email
             $user = User::find()->email($order->email)->one();
             $customer = null;
@@ -1103,7 +1095,7 @@ class OrdersController extends Controller
                 Plugin::getInstance()->getCustomers()->saveCustomer($customer);
             }
 
-            $order->customerId = $customer->id;
+            $order->setCustomer($customer);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
@@ -1325,6 +1317,9 @@ class OrdersController extends Controller
                     $transactionResponse = Json::htmlEncode($transactionResponse);
                 }
 
+                $transactionMessage = Json::decodeIfJson($transaction->message);
+                $transactionMessage = Json::htmlEncode($transactionMessage);
+
                 $return[] = [
                     'id' => $transaction->id,
                     'level' => $level,
@@ -1336,15 +1331,15 @@ class OrdersController extends Controller
                         'key' => $transaction->status,
                         'label' => Html::encode(Plugin::t(StringHelper::toTitleCase($transaction->status)))
                     ],
-                    'paymentAmount' => Craft::$app->getFormatter()->asCurrency($transaction->paymentAmount, $transaction->paymentCurrency),
-                    'amount' => Craft::$app->getFormatter()->asCurrency($transaction->amount, $transaction->currency),
+                    'paymentAmount' => $transaction->paymentAmountAsCurrency,
+                    'amount' => $transaction->amountAsCurrency,
                     'gateway' => Html::encode($transaction->gateway->name ?? Plugin::t('Missing Gateway')),
                     'date' => $transaction->dateUpdated ? $transaction->dateUpdated->format('H:i:s (jS M Y)') : '',
                     'info' => [
                         ['label' => Html::encode(Plugin::t('Transaction ID')), 'type' => 'code', 'value' => $transaction->id],
                         ['label' => Html::encode(Plugin::t('Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Plugin::t('Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
-                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transaction->message],
+                        ['label' => Html::encode(Plugin::t('Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
                         ['label' => Html::encode(Plugin::t('Note')), 'type' => 'text', 'value' => $transaction->note ?? ''],
                         ['label' => Html::encode(Plugin::t('Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
@@ -1380,7 +1375,7 @@ class OrdersController extends Controller
         foreach ($results as $row) {
             /** @var PurchasableInterface $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
                 $row['isAvailable'] = $purchasable->getIsAvailable();
                 $purchasables[] = $row;
             }

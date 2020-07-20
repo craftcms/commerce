@@ -45,9 +45,9 @@
                                 {{ purchasable.description }}
 
                                 {% if purchasable.onSale %}
-                                    <span class="line-through">{{ purchasable.price|commerceCurrency(cart.currency) }}</span>
+                                    <span class="line-through">{{ purchasable.priceAsCurrency }}</span>
                                 {% endif %}
-                                <strong>{{ purchasable.salePrice|commerceCurrency(cart.currency) }}</strong>
+                                <strong>{{ purchasable.salePriceAsCurrency }}</strong>
 
                                 <button {{ purchasable.isAvailable ? '' : 'disabled' }} class="js-purchasableId float-right" type="submit" name="purchasableId" value="{{ purchasable.id }}">{{ purchasable.isAvailable ? 'Add to cart' : 'Unavailable' }}</button>
 

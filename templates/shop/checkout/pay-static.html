@@ -175,7 +175,7 @@
                                     </div>
                                     <div class="w-1/2 text-right">
                                         {% if canPay %}
-                                            <button class="button button-primary" type="submit">Pay {{ cart.getOutstandingBalance()|commerceCurrency(paymentCurrency,convert=true) }}</button>
+                                            <button class="button button-primary" type="submit">Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency,convert=true) }}</button>
                                         {% endif %}
                                     </div>
                                 </div>

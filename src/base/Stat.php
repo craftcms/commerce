@@ -10,8 +10,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\errors\AssetDisallowedExtensionException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;

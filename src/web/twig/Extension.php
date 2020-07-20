@@ -7,11 +7,7 @@
 
 namespace craft\commerce\web\twig;
 
-use Craft;
-use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Currency;
-use craft\commerce\Plugin;
-use Twig\Error\Error;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
@@ -38,55 +34,20 @@ class Extension extends AbstractExtension
     {
         return [
             new TwigFilter('json_encode_filtered', [$this, 'jsonEncodeFiltered']),
-            new TwigFilter('commerceCurrency', [$this, 'commerceCurrency']),
-
+            new TwigFilter('commerceCurrency', [Currency::class, 'formatAsCurrency']),
         ];
-    }
-
-    /**
-     * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
-     *
-     * @param      $amount
-     * @param      $currency
-     * @param bool $convert
-     * @param bool $format
-     * @param bool $stripZeros
-     * @return string
-     */
-    public function commerceCurrency($amount, $currency, $convert = false, $format = true, $stripZeros = false): string
-    {
-        // return input if no currency passed, and both convert and format are false.
-        if (!$convert && !$format) {
-            return $amount;
-        }
-
-        if ($convert) {
-            $this->_validatePaymentCurrency($currency); // must be a payment currency to convert
-        }
-
-        if ($convert) {
-            $amount = Plugin::getInstance()->getPaymentCurrencies()->convert($amount, $currency);
-        }
-
-        if ($format) {
-
-            // Round it before formatting
-            if ($currencyData = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($currency)) {
-                $amount = Currency::round($amount, $currencyData); // Will round to the right minorUnits
-            }
-
-            $amount = Craft::$app->getFormatter()->asCurrency($amount, $currency, [], [], $stripZeros);
-        }
-
-        return $amount;
     }
 
     /**
      * @param $input
      * @return string
+     * @throws \craft\errors\DeprecationException
+     * @deprecated 3.x
      */
     public function jsonEncodeFiltered($input): string
     {
+        \Craft::$app->getDeprecator()->log('|json_encode_filtered', 'The json_encode_filtered twig filter has been deprecated. Use standard js encoding.');
+
         $array = $this->_recursiveSanitizeArray($input);
 
         return json_encode($array);
@@ -113,19 +74,6 @@ class Extension extends AbstractExtension
         }
 
         return $sanitized;
-    }
-
-
-    /**
-     * @param $currency
-     */
-    private function _validatePaymentCurrency($currency)
-    {
-        try {
-            $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($currency);
-        } catch (CurrencyException $exception) {
-            throw new Error($exception->getMessage());
-        }
     }
 
     /**

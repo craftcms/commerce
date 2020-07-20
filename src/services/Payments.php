@@ -25,6 +25,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\models\Settings;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;
 use yii\base\Component;
@@ -223,7 +224,6 @@ class Payments extends Component
      * ```
      */
     const EVENT_AFTER_PROCESS_PAYMENT = 'afterProcessPaymentEvent';
-
 
     /**
      * Process a payment.
@@ -457,19 +457,13 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
+     * @deprecated 3.x Use
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        $paid = (float)(new Query())
-            ->from([Table::TRANSACTIONS])
-            ->where([
-                'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'type' => [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
-            ])
-            ->sum('amount');
+        Craft::$app->getDeprecator()->log('Payments::getTotalPaidForOrder()', 'Payments::getTotalPaidForOrder() has been deprecated. Use Order::getTotalPaid() instead.');
 
-        return $paid - $this->getTotalRefundedForOrder($order);
+        return $order->getTotalPaid();
     }
 
     /**
@@ -477,17 +471,18 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
+     * @deprecated 3.x
      */
     public function getTotalRefundedForOrder(Order $order): float
     {
-        return (float)(new Query())
-            ->from([Table::TRANSACTIONS])
-            ->where([
-                'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'type' => [TransactionRecord::TYPE_REFUND]
-            ])
-            ->sum('amount');
+        Craft::$app->getDeprecator()->log('Payments::getTotalRefundedForOrder()', 'Payments::getTotalRefundedForOrder() has been deprecated.');
+
+        // Since this method was only used by getTotalPaidForOrder, we don't need to move this to the order model since the logic is inside Order::getTotalPaid()
+        $transactions = ArrayHelper::where($order->getTransactions(), static function(Transaction $transaction) {
+            return ($transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND);
+        });
+
+        return array_sum(ArrayHelper::getColumn($transactions, 'amount', false));
     }
 
     /**
@@ -495,44 +490,26 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
+     * @deprecated 3.x
      */
     public function getTotalAuthorizedOnlyForOrder(Order $order): float
     {
-        $authorized = 0;
-        $captured = 0;
-        if ($order->id) {
-            $transactions = Plugin::getInstance()->getTransactions()->getAllTransactionsByOrderId($order->id);
-            foreach ($transactions as $transaction) {
-                $isSuccess = ($transaction->status == TransactionRecord::STATUS_SUCCESS);
-                $isAuth = ($transaction->type == TransactionRecord::TYPE_AUTHORIZE);
-                $isCapture = ($transaction->type == TransactionRecord::TYPE_CAPTURE);
+        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedOnlyForOrder()', 'Payments::getTotalAuthorizedOnlyForOrder() has been deprecated. Use Order::getTotalAuthorized()');
 
-                if (!$isSuccess) {
-                    continue;
-                }
-
-                if ($isAuth) {
-                    $authorized += $transaction->amount;
-                    continue;
-                }
-
-                if ($isCapture) {
-                    $captured += $transaction->amount;
-                }
-            }
-        }
-
-        return $authorized - $captured;
+        return $order->getTotalAuthorized();
     }
 
     /**
-     * Gets the total transactions amount with authorized.
      *
      * @param Order $order
      * @return float
+     * @deprecated 3.x
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
+        // At time of deprecation this method has no internal uses.
+        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedForOrder()', 'Payments::getTotalAuthorizedForOrder() has been deprecated. It is not an accurate result since it does not take the amount paid from the authorized. Use Order::getTotalAuthorized()');
+
         return (float)(new Query())
             ->from([Table::TRANSACTIONS])
             ->where([

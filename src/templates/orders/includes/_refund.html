@@ -15,11 +15,11 @@
       value: transaction.note,
       placeholder: 'Refund Note'
     }) }}
+    <input type="hidden" name="id" value="{{ transaction.id }}"/>
     <a class="small btn submit formsubmit"
        data-action="commerce/orders/transaction-refund"
        data-confirm="{{ 'Are you sure you want to refund this transaction?'|t('commerce') }}"
        data-redirect="{{ transaction.order.cpEditUrl|hash }}"
-       data-param="id"
-       data-value="{{ transaction.id }}">{{ 'Refund'|t('commerce') }}</a>
+    >{{ 'Refund'|t('commerce') }}</a>
   </form>
 {% endif %}
