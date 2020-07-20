@@ -14,8 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 use craft\web\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * Product helper
@@ -76,7 +75,7 @@ class Product
      *
      * @param Request|null $request
      * @return ProductModel
-     * @throws HttpException
+     * @throws NotFoundHttpException
      * @since 3.1.3
      */
     public static function productFromPost(Request $request = null): ProductModel
@@ -109,7 +108,7 @@ class Product
      * @param ProductModel|null $product
      * @param Request|null $request
      * @return ProductModel
-     * @throws HttpException
+     * @throws NotFoundHttpException
      */
     public static function populateProductFromPost(ProductModel $product = null, Request $request = null): ProductModel
     {
