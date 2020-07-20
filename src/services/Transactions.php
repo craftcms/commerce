@@ -18,6 +18,7 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\helpers\DateTimeHelper;
 use yii\base\Component;
 use DateTime;
 use DateInterval;
@@ -137,23 +138,56 @@ class Transactions extends Component
             return false;
         }
 
+        $voidedAlready = $this->_createTransactionQuery()
+            ->where([
+                'type' => TransactionRecord::TYPE_VOID,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'parentId' => $transaction->id
+            ])
+            ->exists();
+
+        if ($voidedAlready) {
+            return false;
+        }
+
+        // If authorized, then check it has not been captured already. The capture will have a refund or void itself
         if ($transaction->type === TransactionRecord::TYPE_AUTHORIZE) {
-            // And only if we don't have a successful capture or void transaction for this transaction already
-            return !$this->_createTransactionQuery()
+
+            $alreadyCaptured = $this->_createTransactionQuery()
                 ->where([
-                    'type' => [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_VOID],
+                    'type' => TransactionRecord::TYPE_CAPTURE,
                     'status' => TransactionRecord::STATUS_SUCCESS,
-                    'orderId' => $transaction->orderId,
                     'parentId' => $transaction->id
                 ])
                 ->exists();
-        } else {
-            // Only if current time is within gateway void window
-            $now = new DateTime();
-            $interval = new DateInterval("PT{$gateway->voidWindow}S");
-            $edge = $transaction->dateCreated->add($interval);
-            return ($now < $edge);
+
+            if ($alreadyCaptured) {
+                return false;
+            }
         }
+
+        // If authorized, then check it has not been captured already. The capture will have a refund or void itself
+        if (in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])) {
+
+            $alreadyRefundedOrVoided = $this->_createTransactionQuery()
+                ->where([
+                    'type' => [TransactionRecord::TYPE_REFUND, TransactionRecord::TYPE_VOID],
+                    'status' => TransactionRecord::STATUS_SUCCESS,
+                    'parentId' => $transaction->id
+                ])
+                ->exists();
+
+            if ($alreadyRefundedOrVoided) {
+                return false;
+            }
+        }
+
+        // Only if current time is within gateway void window
+        $now = new DateTime();
+        $interval = DateTimeHelper::secondsToInterval('86400');
+        $edge = $transaction->dateCreated->add($interval);
+
+        return ($now < $edge);
     }
 
     /**
@@ -184,9 +218,23 @@ class Transactions extends Component
         }
 
         if ($gateway->supportsVoid()) {
+
+            // And only if we don't have a successful refund
+            $alreadyVoided = $this->_createTransactionQuery()
+                ->where([
+                    'type' => TransactionRecord::TYPE_VOID,
+                    'status' => TransactionRecord::STATUS_SUCCESS,
+                    'parentId' => $transaction->id
+                ])
+                ->exists();
+
+            if ($alreadyVoided) {
+                return false;
+            }
+
             // Only if current time is outside gateway void window
             $now = new DateTime();
-            $interval = new DateInterval("PT{$gateway->voidWindow}S");
+            $interval = DateTimeHelper::secondsToInterval('86400');
             $edge = $transaction->dateCreated->add($interval);
             if ($now >= $edge) {
                 return false;

@@ -102,6 +102,14 @@ interface GatewayInterface extends SavableComponentInterface
     public function refund(Transaction $transaction): RequestResponseInterface;
 
     /**
+     * Makes an void request.
+     *
+     * @param Transaction $transaction The voidable transaction
+     * @return RequestResponseInterface
+     */
+    public function void(Transaction $transaction): RequestResponseInterface;
+
+    /**
      * Processes a webhook and return a response
      *
      * @return WebResponse
@@ -164,6 +172,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function supportsPartialRefund(): bool;
+
+    /**
+     * Returns true if gateway supports void requests.
+     *
+     * @return bool
+     */
+    public function supportsVoid(): bool;
 
     /**
      * Returns true if gateway supports webhooks.

@@ -10,10 +10,15 @@ namespace craft\commerce\base;
 use Craft;
 use craft\base\SavableComponent;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\NotImplementedException;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\PaymentSource;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use craft\web\Response as WebResponse;
+use Throwable;
 
 /**
  * Class Gateway
@@ -100,6 +105,14 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * returns the void window in seconds
+     */
+    public function getVoidWindow()
+    {
+
+    }
+
+    /**
      * Returns the html to use when paying with a stored payment source.
      *
      * @param array $params
@@ -119,18 +132,183 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
-     * Returns payment Form HTML
-     *
-     * @param array $params
-     * @return string|null
+     * @inheritDoc
      */
-    abstract public function getPaymentFormHtml(array $params);
+    public function getPaymentFormHtml(array $params)
+    {
+        return '';
+    }
 
     /**
-     * Returns the transaction hash based on a webhook request
-     *
-     * @return string|null
-     * @since 3.1.9
+     * @inheritDoc
+     */
+    public function authorize(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function completeAuthorize(Transaction $transaction): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function completePurchase(Transaction $transaction): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function createPaymentSource(BasePaymentForm $sourceData, int $userId): PaymentSource
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deletePaymentSource($token): bool
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPaymentFormModel(): BasePaymentForm
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function purchase(Transaction $transaction, BasePaymentForm $form): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function refund(Transaction $transaction): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function void(Transaction $transaction): RequestResponseInterface
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function processWebHook(): WebResponse
+    {
+        throw new NotImplementedException('Not implemented by the payment gateway');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsAuthorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsCapture(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsCompleteAuthorize(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsCompletePurchase(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsPaymentSources(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsPurchase(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsRefund(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsPartialRefund(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsVoid(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function supportsWebhooks(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function getTransactionHashFromWebhook()
     {

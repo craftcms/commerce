@@ -89,7 +89,7 @@ class Dummy extends SubscriptionGateway
      */
     public function capture(Transaction $transaction, string $reference): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        return new DummyRequestResponse(null, true);
     }
 
     /**
@@ -167,9 +167,25 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function supportsCapture(): bool
+    public function supportsVoid(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function void(Transaction $transaction): RequestResponseInterface
     {
         return new DummyRequestResponse(null, true);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function supportsCapture(): bool
+    {
+        return true;
     }
 
     /**
