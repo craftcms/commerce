@@ -7,52 +7,54 @@
 
 namespace craft\commerce\models;
 
-use Craft;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
-use yii\base\InvalidCallException;
+use craft\commerce\Plugin;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Shipping method option model.
  *
- * @property Order $order the order the shipping method options was create for.
- * @property-read float $price the price of the shipping method option for the order.
+ * @property float $price the price of the shipping method option for the order.
+ * @property Order $order
+ * @property string $currency
+ * @property-read string $priceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1
  */
 class ShippingMethodOption extends ShippingMethod
 {
-    private $_price;
-
+    /**
+     * @var Order
+     */
     private $_order;
 
     /**
-     * @inheritDoc
+     * @var float Price of the shipping method option
      */
-    public function attributes()
-    {
-        $attributes = parent::attributes();
-        $attributes[] = 'price';
-
-        return $attributes;
-    }
+    public $price;
 
     /**
      * @return array
      */
-    public function fields(): array
+    public function behaviors(): array
     {
-        $fields = parent::fields();
+        $behaviors = parent::behaviors();
 
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                // Substr because attribute is returned with 'AsCurrency' appended
-                $attribute = substr($attribute, 0, -10);
-                $amount = $model->$attribute ?? 0;
-                return Craft::$app->getFormatter()->asCurrency($amount, $this->_order->currency, [], [], true);
-            };
-        }
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER
+            ]
+        ];
 
-        return $fields;
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
     }
 
     /**
@@ -64,16 +66,15 @@ class ShippingMethodOption extends ShippingMethod
     {
         $attributes = [];
         $attributes[] = 'price';
-
         return $attributes;
     }
 
     /**
-     * @param Order $order
+     * @return string
      */
-    public function setOrder(Order $order)
+    protected function getCurrency(): string
     {
-        $this->_order = $order;
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**
@@ -81,12 +82,15 @@ class ShippingMethodOption extends ShippingMethod
      */
     public function getPrice()
     {
-        if (!$this->_order) {
-            throw new InvalidCallException('Can not call getPrice() before setting the order.');
-        }
+        return $this->price;
+    }
 
-        $this->_price = $this->getPriceForOrder($this->_order);
-
-        return $this->_price;
+    /**
+     * @param $order
+     * @since 3.1.10
+     */
+    public function setOrder($order)
+    {
+        $this->_order = $order;
     }
 }

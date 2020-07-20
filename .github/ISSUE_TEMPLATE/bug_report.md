@@ -20,9 +20,10 @@ What did you expect to happen?
 
 **Additional info**
 - Craft version:
+- Commerce version:
 - PHP version:
 - Database driver & version:
-- Plugins & versions:
+- Other Plugins & versions:
 
 **Additional context**
 Add any other context about the problem here.

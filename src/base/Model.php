@@ -17,4 +17,18 @@ use craft\base\Model as BaseModel;
  */
 class Model extends BaseModel
 {
+    /**
+     * @inheritDoc
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour supports define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 }

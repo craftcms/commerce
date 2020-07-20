@@ -18,7 +18,6 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\helpers\ArrayHelper;
-use DateTime;
 
 /**
  * Discount Adjuster
@@ -54,7 +53,7 @@ class Discount extends Component implements AdjusterInterface
      *         $discount = $event->discount;
      *         // @var OrderAdjustment[] $adjustments
      *         $adjustments = $event->adjustments;
-     * 
+     *
      *         // Use a third party to check order data and modify the adjustments
      *         // ...
      *     }
@@ -113,6 +112,15 @@ class Discount extends Component implements AdjusterInterface
             }
         }
 
+        foreach ($this->_order->getLineItems() as $lineItem) {
+            $lineItemHashId = spl_object_hash($lineItem);
+            $lineItemDiscountAmount = $lineItem->getDiscount();
+            if ($lineItemDiscountAmount) {
+                $discountedUnitPrice = $lineItem->salePrice + Currency::round($lineItemDiscountAmount / $lineItem->qty);
+                $this->_discountUnitPricesByLineItem[$lineItemHashId] = $discountedUnitPrice;
+            }
+        }
+
         foreach ($availableDiscounts as $discount) {
             $newAdjustments = $this->_getAdjustments($discount);
             if ($newAdjustments) {
@@ -129,11 +137,24 @@ class Discount extends Component implements AdjusterInterface
             $priceByLineItem = [];
             foreach ($this->_order->getLineItems() as $lineItem) {
                 $lineItemHashId = spl_object_hash($lineItem);
-                $priceByLineItem[$lineItemHashId] = $lineItem->getSubtotal();
+                $priceByLineItem[$lineItemHashId] = $lineItem->getSubtotal() + $lineItem->getDiscount();
             }
 
             $orderLevelAdjustments = [];
 
+            // Remove other plugins previous order level discount adjustments
+            $allAdjustments = $this->_order->getAdjustments();
+            foreach ($allAdjustments as $key => $previousAdjustment) {
+                if ($previousAdjustment->type == self::ADJUSTMENT_TYPE && !$previousAdjustment->getLineItem()) {
+                    $orderLevelAdjustments[] = $previousAdjustment;
+                    unset($allAdjustments[$key]);
+                }
+
+            }
+            $this->_order->setAdjustments($allAdjustments);
+
+
+            // Our adjustments
             foreach ($adjustments as $key => $adjustment) {
                 if ($adjustment->getLineItem()) {
                     $lineItemHashId = spl_object_hash($adjustment->getLineItem());
@@ -173,7 +194,7 @@ class Discount extends Component implements AdjusterInterface
                         $amount = 0;
 
                         // Is the amount of discount greater than the price of the item
-                        if ($currentDiscountAmountRemaining  >= $priceByLineItem[$lineItemHashId]) {
+                        if ($currentDiscountAmountRemaining >= $priceByLineItem[$lineItemHashId]) {
                             $amount = $priceByLineItem[$lineItemHashId] * -1; // Take the full price of the item off
                             $priceByLineItem[$lineItemHashId] = 0; // Price is now free
                             $currentDiscountAmountRemaining += $amount; // Reduce the price of the discount remaining so it can still be used

@@ -8,7 +8,6 @@
 namespace craftcommercetests\unit;
 
 use Codeception\Test\Unit;
-use craft\commerce\models\Sale;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;

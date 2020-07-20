@@ -52,7 +52,7 @@ class ProductType implements GeneratorInterface
 
             $productTypeFields = TypeManager::prepareFieldDefinitions(array_merge(ProductInterface::getFieldDefinitions(), $contentFieldGqlTypes), $typeName);
 
-            // Generate a type for each entry type
+            // Generate a type for each product type
             $gqlTypes[$typeName] = GqlEntityRegistry::getEntity($typeName) ?: GqlEntityRegistry::createEntity($typeName, new ProductTypeElement([
                 'name' => $typeName,
                 'fields' => function() use ($productTypeFields) {

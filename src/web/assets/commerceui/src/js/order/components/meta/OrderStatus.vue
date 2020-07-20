@@ -55,9 +55,6 @@
             originalOrderStatusId: {
                 type: Number,
             },
-            originalMessage: {
-                type: [String, null],
-            },
         },
 
         data() {
@@ -65,6 +62,7 @@
                 isRecalculating: false,
                 textareaHasFocus: false,
                 orderMessage: '',
+                originalMessage: null,
             }
         },
 
@@ -93,6 +91,10 @@
                 },
 
                 set(value) {
+                    if (value == this.originalOrderStatusId) {
+                        this.message = this.originalMessage;
+                    }
+
                     const order = JSON.parse(JSON.stringify(this.order))
                     order.orderStatusId = value
                     this.$emit('updateOrder', order)
@@ -116,12 +118,14 @@
                 if (status.dataset.id === 0) {
                     this.orderStatusId = null
                 } else {
+                    this.message = null;
                     this.orderStatusId = parseInt(status.dataset.id)
                 }
             },
         },
 
         mounted() {
+            this.originalMessage = this.order.message;
             new Garnish.MenuBtn(this.$refs.orderStatus, {
                 onOptionSelect: this.onSelectStatus
             })

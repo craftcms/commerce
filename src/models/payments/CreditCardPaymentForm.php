@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models\payments;
 
-use Craft;
 use craft\commerce\Plugin;
 
 /**

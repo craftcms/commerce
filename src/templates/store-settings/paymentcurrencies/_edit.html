@@ -37,7 +37,7 @@
         }),
         id: 'rate',
         name: 'rate',
-        disabled: currency.primary,
+        disabled: currency.primary ? true : false,
         value: currency.rate ? currency.rate + 0 : 1,
         errors: currency.getErrors('rate')
     }) }}

@@ -45,9 +45,7 @@
                                        {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
                                 <strong>{{ method.name }}</strong>
 
-                                <span class="price">
-                        {{ method.getPrice()|commerceCurrency(cart.currency) }}
-                    </span>
+                                <span class="price">{{ method.priceAsCurrency }}</span>
                             </label>
                         </div>
                     {% endfor %}

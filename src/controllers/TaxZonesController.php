@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
-use craft\helpers\ArrayHelper;
 use yii\web\HttpException;
 use yii\web\Response;
 

@@ -8,7 +8,6 @@
 namespace craft\commerce\stats;
 
 use craft\commerce\base\Stat;
-use craft\helpers\ArrayHelper;
 use yii\db\Expression;
 
 /**
@@ -35,7 +34,7 @@ class RepeatCustomers extends Stat
             ->count();
 
         $repeatRows = $this->_createStatQuery()
-            ->select([new Expression('COUNT([[id]])')])
+            ->select([new Expression('COUNT([[orders.id]])')])
             ->groupBy('customerId')
             ->column();
 

@@ -69,9 +69,9 @@
             <td class="text-right">
               {% if not lineItemHasErrors %}
                 {% if item.onSale %}
-                  <span title="{{ item.price}}"><s>Price: {{ item.price|commerceCurrency(cart.currency) }}</s></span>
+                  <span title="{{ item.price}}"><s>Price: {{ item.priceAsCurrency }}</s></span>
                   <br>
-                  <span title="{{ item.saleAmount}}">Sale Off: {{ item.saleAmount|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ item.saleAmount}}">Sale Off: {{ item.saleAmountAsCurrency }}</span>
                   <br>
                   {% set itemSales = item.snapshot.sales ?? [] %}
                   {% for sale in itemSales %}
@@ -80,14 +80,14 @@
                     {% endif %}
                     {{ sale.name }}<br>
                   {% endfor %}
-                  <span title="{{ item.salePrice}}">Sale Price {{ item.salePrice|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ item.salePrice}}">Sale Price {{ item.salePriceAsCurrency }}</span>
                   <br>
-                  <span title="{{ item.subtotal}}">Sale Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ item.subtotal}}">Sale Price Subtotal: {{ item.subtotalAsCurrency }}</span>
                   <br>
                 {% else %}
-                  <span title="{{ item.price}}">Price: {{ item.price|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ item.price}}">Price: {{ item.priceAsCurrency }}</span>
                   <br>
-                  <span title="{{ item.subtotal}}">Price Subtotal: {{ item.subtotal|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ item.subtotal}}">Price Subtotal: {{ item.subtotalAsCurrency }}</span>
                   <br>
                 {% endif %}
               {% endif %}
@@ -103,7 +103,7 @@
                   {{ adjustment.description }}
                 </td>
                 <td class="text-right">
-                  <span title="{{ adjustment.amount }}">{{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                  <span title="{{ adjustment.amount }}">{{ adjustment.amountAsCurrency }}</span>
                 </td>
               </tr>
             {% endfor %}
@@ -118,7 +118,7 @@
                 <strong>{{ adjustment.name }}</strong>{% if adjustment.isEstimated %}<br><i class="text-sm text-grey-dark">{{ 'Estimated'|t('commerce') }}</i>{% endif %}<br>({{ adjustment.description }}
                 )
               </td>
-              <td class="text-right"><span title="{{ adjustment.amount }}">{{ adjustment.amount|commerceCurrency(cart.currency) }}</span></td>
+              <td class="text-right"><span title="{{ adjustment.amount }}">{{ adjustment.amountAsCurrency }}</span></td>
             </tr>
           {% endfor %}
         {% endif %}
@@ -191,12 +191,12 @@
                 <div class="js-estimate-shipping-methods text-sm">
                   {% if cart.availableShippingMethods|length and cart.estimatedShippingAddressId %}
                     <div class="mt-3">
-                      {% for handle, method in cart.availableShippingMethods %}
+                      {% for handle, method in cart.availableShippingMethodOptions %}
                         <div class="js-shipping-select">
                           <label>
                             <input type="radio" name="shippingMethodHandle" value="{{ handle }}" {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
                             <strong>{{ method.name }}</strong>
-                            <span class="price"><span title="{{ method.priceForOrder(cart) }}"></span> {{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
+                            <span class="price"><span title="{{ method.priceAsCurrency }}"></span> {{ method.priceAsCurrency }}</span>
                           </label>
                         </div>
                       {% endfor %}
@@ -211,22 +211,22 @@
           </td>
           <td class="text-right align-text-top">
             {% if not lineItemHasErrors %}
-              Item Sub Total: <span title="{{ cart.itemSubTotal }}">{{ cart.itemSubTotal|commerceCurrency(cart.currency) }}</span>
+              Item Sub Total: <span title="{{ cart.itemSubTotal }}">{{ cart.itemSubtotalAsCurrency }}</span>
               <br>
 
               <br>
               <strong>Adjustment Totals</strong>
               <br>
-              <span title="{{cart.getTotalDiscount()}}"> Total Discount: {{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}</span>
+              <span title="{{cart.getTotalDiscount()}}"> Total Discount: {{ cart.totalAsCurrency }}</span>
               <br>
-              <span title="{{cart.getTotalShippingCost()}}"> Total Shipping: {{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}</span>
+              <span title="{{cart.getTotalShippingCost()}}"> Total Shipping: {{ cart.totalShippingCostAsCurrency }}</span>
               <br>
-              <span title="{{cart.getTotalTax()}}"> Total Tax: {{ cart.getTotalTax()|commerceCurrency(cart.currency) }}</span>
+              <span title="{{cart.getTotalTax()}}"> Total Tax: {{ cart.totalTaxAsCurrency }}</span>
               <br>
-              <span title="{{cart.getTotalTaxIncluded()}}"> Total Tax (inc): {{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}</span>
+              <span title="{{cart.getTotalTaxIncluded()}}"> Total Tax (inc): {{ cart.totalTaxIncludedAsCurrency }}</span>
               <br>
 
-              <h4 title="{{ cart.totalPrice }}">Total Price: {{ cart.totalPrice|commerceCurrency(cart.currency) }}</h4>
+              <h4 title="{{ cart.totalPrice }}">Total Price: {{ cart.totalPriceAsCurrency }}</h4>
             {% endif %}
           </td>
         </tr>

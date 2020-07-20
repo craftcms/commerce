@@ -9,11 +9,9 @@ namespace craft\commerce\queue\jobs;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\queue\BaseJob;
-use craft\queue\QueueInterface;
 
 /**
  * ConsolidateGuestOrders job
@@ -93,7 +91,11 @@ class ConsolidateGuestOrders extends BaseJob
             if (!$userId) {
                 // Dont use element save, just update DB directly
                 Craft::$app->getDb()->createCommand()
-                    ->update('{{%commerce_orders}} orders', ['[[orders.customerId]]' => $customerId], ['[[orders.id]]' => $orderId])
+                    ->update(Table::ORDERS, [
+                        'customerId' => $customerId,
+                    ], [
+                        'id' => $orderId,
+                    ])
                     ->execute();
             }
         }

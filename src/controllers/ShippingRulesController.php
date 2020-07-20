@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use yii\web\HttpException;

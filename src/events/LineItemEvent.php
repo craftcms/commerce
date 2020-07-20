@@ -8,7 +8,7 @@
 namespace craft\commerce\events;
 
 use craft\commerce\models\LineItem;
-use craft\events\CancelableEvent;
+use yii\base\Event;
 
 /**
  * Class LineItemEvent
@@ -16,7 +16,7 @@ use craft\events\CancelableEvent;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class LineItemEvent extends CancelableEvent
+class LineItemEvent extends Event
 {
     /**
      * @var LineItem The line item model.
@@ -27,4 +27,10 @@ class LineItemEvent extends CancelableEvent
      * @var bool If this is a new line item.
      */
     public $isNew = false;
+
+    /**
+     * @deprecated This event is not cancellable. This prop is here for backwards compatibility.
+     * @todo remove in 4.0
+     */
+    public $isValid = true;
 }

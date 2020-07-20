@@ -57,6 +57,7 @@ class SettingsController extends BaseAdminController
         $settings->weightUnits = $data['weightUnits'] ?? key($settings->getWeightUnitsOptions());
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
         $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
+        $settings->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'] ?? Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE;
         $settings->orderPdfPath = $data['orderPdfPath'] ?? $settings->orderPdfPath;
         $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;

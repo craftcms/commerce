@@ -111,6 +111,30 @@ class VariantQuery extends ElementQuery
     public $maxQty;
 
     /**
+     * @var
+     * @since 3.x
+     */
+    public $width = false;
+
+    /**
+     * @var
+     * @since 3.x
+     */
+    public $height = false;
+
+    /**
+     * @var
+     * @since 3.x
+     */
+    public $length = false;
+
+    /**
+     * @var
+     * @since 3.x
+     */
+    public $weight = false;
+
+    /**
      * @inheritdoc
      */
     public function __construct($elementType, array $config = [])
@@ -392,6 +416,86 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Narrows the query results based on the variants’ width dimension.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a width of 100.
+     * | `'>= 100'` | with a width of at least 100.
+     * | `'< 100'` | with a width of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function width($value)
+    {
+        $this->width = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ height dimension.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a height of 100.
+     * | `'>= 100'` | with a height of at least 100.
+     * | `'< 100'` | with a height of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function height($value)
+    {
+        $this->height = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ length dimension.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a length of 100.
+     * | `'>= 100'` | with a length of at least 100.
+     * | `'< 100'` | with a length of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function length($value)
+    {
+        $this->length = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the variants’ weight dimension.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `100` | with a weight of 100.
+     * | `'>= 100'` | with a weight of at least 100.
+     * | `'< 100'` | with a weight of less than 100.
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function weight($value)
+    {
+        $this->weight = $value;
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -416,6 +520,7 @@ class VariantQuery extends ElementQuery
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
+        $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
 
         if ($this->typeId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
@@ -455,6 +560,44 @@ class VariantQuery extends ElementQuery
 
         if ($this->stock) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
+        }
+
+        if ($this->width !== false) {
+            if ($this->width === null) {
+                $this->subQuery->andWhere(['commerce_variants.width' => $this->width]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.width', $this->width));
+            }
+        }
+
+        if ($this->height !== false) {
+            if ($this->height === null) {
+                $this->subQuery->andWhere(['commerce_variants.height' => $this->height]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.height', $this->height));
+            }
+        }
+
+        if ($this->length !== false) {
+            if ($this->length === null) {
+                $this->subQuery->andWhere(['commerce_variants.length' => $this->length]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.length', $this->length));
+            }
+        }
+
+        if ($this->weight !== false) {
+            if ($this->weight === null) {
+                $this->subQuery->andWhere(['commerce_variants.weight' => $this->weight]);
+            } else {
+                $this->subQuery->andWhere(Db::parseParam('commerce_variants.weight', $this->weight));
+            }
+        }
+
+        // If width, height or length is specified in the query we should only be looking for products that
+        // have a type which supports dimensions
+        if ($this->width !== false || $this->height !== false || $this->length !== false || $this->weight !== false) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
         }
 
         if ($this->hasStock !== null) {
@@ -504,24 +647,37 @@ class VariantQuery extends ElementQuery
                 'sales.categoryRelationshipType',
             ])
                 ->from(Table::SALES . ' sales')
-                ->where(['enabled' => true])
-                ->andWhere([
+                ->where([
                     'or',
+                    // Only a from date
                     [
-                        'or',
-                        ['not', ['dateTo' => null]],
-                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
-                    ],
-                    [
-                        'or',
+                        'and',
+                        ['dateTo' => null],
                         ['not', ['dateFrom' => null]],
                         ['<=', 'dateFrom', Db::prepareDateForDb($now)],
                     ],
+                    // Only a to date
+                    [
+                        'and',
+                        ['dateFrom' => null],
+                        ['not', ['dateTo' => null]],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ],
+                    // no dates
                     [
                         'dateFrom' => null,
                         'dateTo' => null,
                     ],
+                    // to and from dates
+                    [
+                        'and',
+                        ['not', ['dateFrom' => null]],
+                        ['not', ['dateTo' => null]],
+                        ['<=', 'dateFrom', Db::prepareDateForDb($now)],
+                        ['>=', 'dateTo', Db::prepareDateForDb($now)],
+                    ]
                 ])
+                ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
                 ->all();
 
