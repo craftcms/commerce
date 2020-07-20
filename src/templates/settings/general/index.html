@@ -74,6 +74,17 @@
             warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
         }) }}
 
+        {{ forms.selectField({
+            label: "Free Order Payment Strategy"|t('commerce'),
+            instructions: "Strategy to apply when an order is free or has a zero balance."|t('commerce'),
+            name: 'settings[freeOrderPaymentStrategy]',
+            value: settings.freeOrderPaymentStrategy,
+            options: settings.getFreeOrderPaymentStrategyOptions(),
+            errors: settings.getErrors('freeOrderPaymentStrategy'),
+            required: true,
+            warning: configWarning('freeOrderPaymentStrategy', 'commerce'),
+        }) }}
+
         <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
         {{ forms.textField({
             label: "Order PDF Template"|t('commerce'),
