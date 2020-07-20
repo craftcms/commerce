@@ -23,8 +23,13 @@ class m170830_130000_order_refactor extends Migration
     public function safeUp(): bool
     {
         // Add an reference to the the thing being adjusted.
-        $this->addColumn('{{%commerce_orderadjustments}}', 'lineItemId', $this->integer());
-        $this->renameColumn('{{%commerce_orderadjustments}}', 'optionsJson', 'sourceSnapshot');
+        if (!$this->db->columnExists('{{%commerce_orderadjustments}}', 'lineItemId')) {
+            $this->addColumn('{{%commerce_orderadjustments}}', 'lineItemId', $this->integer());
+        }
+
+        if (!$this->db->columnExists('{{%commerce_orderadjustments}}', 'lineItemId')) {
+            $this->renameColumn('{{%commerce_orderadjustments}}', 'optionsJson', 'sourceSnapshot');
+        }
 
         // Grab all orders.
         $allOrders = (new Query())
