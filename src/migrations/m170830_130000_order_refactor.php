@@ -27,7 +27,7 @@ class m170830_130000_order_refactor extends Migration
             $this->addColumn('{{%commerce_orderadjustments}}', 'lineItemId', $this->integer());
         }
 
-        if (!$this->db->columnExists('{{%commerce_orderadjustments}}', 'lineItemId')) {
+        if ($this->db->columnExists('{{%commerce_orderadjustments}}', 'optionsJson')) {
             $this->renameColumn('{{%commerce_orderadjustments}}', 'optionsJson', 'sourceSnapshot');
         }
 
