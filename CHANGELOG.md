@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - It is now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
