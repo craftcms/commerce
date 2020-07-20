@@ -153,7 +153,7 @@ class Dummy extends SubscriptionGateway
      */
     public function refund(Transaction $transaction): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        return new DummyRequestResponse(null, true);
     }
 
     /**
@@ -169,7 +169,7 @@ class Dummy extends SubscriptionGateway
      */
     public function supportsCapture(): bool
     {
-        return true;
+        return new DummyRequestResponse(null, true);
     }
 
     /**
