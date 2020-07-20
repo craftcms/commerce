@@ -20,6 +20,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
+use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
@@ -230,6 +231,30 @@ class Order extends Element
      *
      * Event::on(
      *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_ADD_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
      *     Order::EVENT_AFTER_ADD_LINE_ITEM,
      *     function(LineItemEvent $event) {
      *         // @var LineItem $lineItem
@@ -267,6 +292,30 @@ class Order extends Element
      * ```
      */
     const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before an order is completed.
@@ -1531,7 +1580,6 @@ class Order extends Element
             }
         }
 
-        // Raising the 'afterRemoveLineItemToOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
@@ -1547,10 +1595,10 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = !$lineItem->id;
+        $isNew = ($lineItem->id === null);
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
+            $lineItemEvent = new AddLineItemEvent(compact('lineItem', 'isNew'));
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {
@@ -2949,16 +2997,38 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
+
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
+
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem
+                    ]));
+                }
             }
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-            $lineItem->setOrder($this);
+
+            $originalId = $lineItem->id;
+            $lineItem->setOrder($this); // just in case.
+
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+
+            // Is this a new line item?
+            if ($originalId === null) {
+                // Raising the 'afterAddLineItemToOrder' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem,
+                        'isNew' => true
+                    ]));
+                }
+            }
 
             // Update any adjustments to this line item with the new line item ID.
             foreach ($this->getAdjustments() as $adjustment) {
