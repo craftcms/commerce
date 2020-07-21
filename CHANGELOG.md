@@ -2,6 +2,9 @@
 
 ## Unreleased (3.2.0)
 
+### Changed
+- Commerce now requires Craft 3.5.0 or later.
+
 ### Fixed
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 
