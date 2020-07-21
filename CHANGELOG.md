@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## Unreleased (3.2.0)
+
+### Fixed
+- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
+
+## Unreleased (3.1.x)
 
 ### Added
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
