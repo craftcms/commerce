@@ -2,11 +2,11 @@
   "private": true,
   "main": "gulpfile.js",
   "devDependencies": {
-    "craftcms-sass": "^3.4.0-alpha.2",
+    "craftcms-sass": "^3.4.0",
     "gulp": "^4.0.2",
-    "gulp-sass": "^4.0.2",
+    "gulp-sass": "^4.1.0",
     "markdown-it-deflist": "^2.0.3",
-    "node-sass": "^4.13.0"
+    "node-sass": "^4.14.1"
   },
   "scripts": {
     "build": "./node_modules/.bin/gulp",
@@ -14,12 +14,12 @@
   },
   "dependencies": {
     "chart.js": "^2.9.3",
-    "chartjs-adapter-moment": "^0.1.1",
+    "chartjs-adapter-moment": "^0.1.2",
     "deepmerge": "^4.2.2",
     "event-stream": "^4.0.1",
     "gulp-concat": "^2.6.1",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
-    "moment": "^2.24.0"
+    "moment": "^2.27.0"
   }
 }
