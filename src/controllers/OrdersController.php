@@ -145,7 +145,6 @@ class OrdersController extends Controller
 
         $variables['order'] = $order;
         $variables['orderId'] = $order->id;
-        $variables['fieldLayout'] = Craft::$app->getFields()->getLayoutByType(Order::class);
 
         $transactions = $order->getTransactions();
 
@@ -864,6 +863,17 @@ class OrdersController extends Controller
             $variables['title'] = Plugin::t('Cart') . ' ' . $order->getShortNumber();
         }
 
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
+        $staticForm = $fieldLayout->createForm($order, true, [
+            'tabIdPrefix' => 'static-fields',
+        ]);
+        $dynamicForm = $fieldLayout->createForm($order, false, [
+            'tabIdPrefix' => 'fields',
+        ]);
+
+        $variables['staticFieldsHtml'] = $staticForm->render(false);
+        $variables['dynamicFieldsHtml'] = $dynamicForm->render(false);
+
         $variables['tabs'] = [];
 
         $variables['tabs'][] = [
@@ -872,40 +882,14 @@ class OrdersController extends Controller
             'class' => null
         ];
 
-        /** @var FieldLayout $fieldLayout */
-        $fieldLayout = $variables['fieldLayout'];
-        foreach ($fieldLayout->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
+        foreach ($staticForm->getTabMenu() as $tabId => $tab) {
+            $tab['class'] .= ' custom-tab static';
+            $variables['tabs'][$tabId] = $tab;
+        }
 
-            if ($order->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($order->getErrors($field->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $classes = ['custom-tab'];
-
-            if ($hasErrors) {
-                $classes[] = 'errors';
-            }
-
-            $variables['tabs'][] = [
-                'label' => Plugin::t($tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => implode(' ', $classes)
-            ];
-
-            // Add the static version of the custom fields.
-            $classes[] = 'static';
-            $variables['tabs'][] = [
-                'label' => Plugin::t($tab->name),
-                'url' => '#tab' . ($index + 1) . 'Static',
-                'class' => implode(' ', $classes)
-            ];
+        foreach ($dynamicForm->getTabMenu() as $tabId => $tab) {
+            $tab['class'] .= ' custom-tab';
+            $variables['tabs'][$tabId] = $tab;
         }
 
         $variables['tabs'][] = [

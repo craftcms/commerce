@@ -178,7 +178,11 @@
         {% hook "cp.commerce.order.edit.main-pane" %}
     </div>
 
-    {% include 'commerce/orders/_customFields' %}
+    <div id="fields">
+        {{ staticFieldsHtml|raw }}
+        {{ dynamicFieldsHtml|raw }}
+    </div>
+
     {% include 'commerce/orders/_transactions' %}
     {% include 'commerce/orders/_history' %}
 
