@@ -242,7 +242,6 @@ export default new Vuex.Store({
                 const staticLink = $selectedLink.getAttribute('href')
                 let prefixLength = '#static-'.length;
                 const dynamicLink = '#' + staticLink.substr(prefixLength, staticLink.length - prefixLength)
-                console.log(staticLink, dynamicLink);
 
                 $tabLinks.forEach(function($tabLink) {
                     if ($tabLink.classList.contains('custom-tab') && $tabLink.getAttribute('href') === dynamicLink) {
