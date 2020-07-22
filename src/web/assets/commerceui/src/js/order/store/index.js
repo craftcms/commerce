@@ -240,7 +240,9 @@ export default new Vuex.Store({
             // Retrieve dynamic link corresponding to selected static one and click it
             if ($selectedLink && $selectedLink.classList.contains('static')) {
                 const staticLink = $selectedLink.getAttribute('href')
-                const dynamicLink = staticLink.substr(0, staticLink.length - 'Static'.length)
+                let prefixLength = '#static-'.length;
+                const dynamicLink = '#' + staticLink.substr(prefixLength, staticLink.length - prefixLength)
+                console.log(staticLink, dynamicLink);
 
                 $tabLinks.forEach(function($tabLink) {
                     if ($tabLink.classList.contains('custom-tab') && $tabLink.getAttribute('href') === dynamicLink) {
