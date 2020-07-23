@@ -28,7 +28,10 @@
                 <li><strong>{{ "Amount Paid"|t }}:</strong> {{ order.totalPaidAsCurrency }}<br></li>
                 <li><strong>{{ "Date"|t }}:</strong> {{ order.dateOrdered|date('D jS M Y') }}<br></li>
                 {% if order.pdfUrl %}
-                    <li><strong>Receipt:</strong> <a href="{{ order.getPdfUrl('receipt') }}">Download</a></li>
+                    <li><strong>{{ "Receipt"|t }}:</strong> <a href="{{ order.getPdfUrl('receipt') }}">Download</a></li>
+                {% endif %}
+                {% if order.shippingMethodName %}
+                    <li><strong>{{ "Shipping Method"|t }}:</strong> {{ order.shippingMethodName }}</li>
                 {% endif %}
             </ul>
         </div>
