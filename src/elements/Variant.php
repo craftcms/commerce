@@ -473,6 +473,7 @@ class Variant extends Purchasable
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
+     * @see \craft\elements\Entry::updateTitle
      */
     public function updateTitle(Product $product)
     {

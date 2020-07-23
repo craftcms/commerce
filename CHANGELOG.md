@@ -2,6 +2,9 @@
 
 ## Unreleased (3.2.0)
 
+### Added
+- Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
+
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
 

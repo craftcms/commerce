@@ -127,6 +127,7 @@ class Product
         if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
+
         $product->promotable = (bool)$request->getBodyParam('promotable');
         $product->availableForPurchase = (bool)$request->getBodyParam('availableForPurchase');
         $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
@@ -138,6 +139,8 @@ class Product
         $product->title = $request->getBodyParam('title', $product->title);
 
         $product->setFieldValuesFromRequest('fields');
+        $product->updateTitle();
+
         if ($variants = $request->getBodyParam('variants')) {
             $product->setVariants($variants);
         } else {

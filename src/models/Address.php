@@ -219,6 +219,7 @@ class Address extends Model
         $names[] = 'stateText';
         $names[] = 'stateValue';
         $names[] = 'abbreviationText';
+        $names[] = 'abbreviationText';
         return $names;
     }
 
