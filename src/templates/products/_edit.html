@@ -118,7 +118,9 @@
     {{ csrfInput() }}
 
     <div id="fields">
+        {% if productType.hasProductTitleField %}
         {{ productFields.titleField(product) }}
+        {% endif %}
 
         <div>
             {% set tabs = productType.getProductFieldLayout().getTabs() %}

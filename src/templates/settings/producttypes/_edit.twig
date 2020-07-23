@@ -21,67 +21,6 @@
     {% endif %}
 
     <div id="product-type-settings">
-        {{ forms.textField({
-            first: true,
-            label: "Name"|t('commerce'),
-            instructions: "What this product type will be called in the control panel."|t('commerce'),
-            id: 'name',
-            name: 'name',
-            value: productType.name,
-            errors: productType.getErrors('name'),
-            autofocus: true,
-            required: true
-        }) }}
-
-        {{ forms.textField({
-            label: "Handle"|t('commerce'),
-            instructions: "How you’ll refer to this product type in the templates."|t('commerce'),
-            id: 'handle',
-            class: 'code',
-            name: 'handle',
-            value: productType.handle,
-            errors: productType.getErrors('handle'),
-            required: true
-        }) }}
-
-        {{ forms.textField({
-            label: "Title Field Label"|t('app'),
-            instructions: "What do you want the Title field to be called?"|t('app'),
-            id: 'titleLabel',
-            name: 'titleLabel',
-            value: productType.titleLabel,
-            errors: productType.getErrors('titleLabel'),
-            required: true
-        }) }}
-
-        {{ forms.textField({
-            label: "Automatic SKU Format"|t('commerce'),
-            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
-            id: 'skuFormat',
-            class: 'code ltr',
-            name: 'skuFormat',
-            value: productType.skuFormat,
-            errors: productType.getErrors('skuFormat')
-        }) }}
-
-
-        {{ forms.textField({
-            label: "Order Description Format"|t('commerce'),
-            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
-            id: 'descriptionFormat',
-            class: 'code ltr',
-            name: 'descriptionFormat',
-            value: productType.descriptionFormat,
-            errors: productType.getErrors('descriptionFormat')
-        }) }}
-
-        {{ forms.checkboxField({
-            label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
-            id: 'hasDimensions',
-            name: 'hasDimensions',
-            checked: productType.hasDimensions,
-        }) }}
-
         {% macro hasVariantsField(productType) %}
             {% from "_includes/forms" import checkboxField %}
 
@@ -116,6 +55,42 @@
                 value: productType.template,
                 errors: productType.getErrors('template')
             }) }}
+        {% endmacro %}
+
+        {% macro productTitleFormatField(productType) %}
+            {% from "_includes/forms" import textField, checkboxField %}
+
+                {{ checkboxField({
+                    label: "Show the Title field for products"|t('commerce'),
+                    name: 'hasProductTitleField',
+                    reverseToggle: 'productTitleFormat-container',
+                    toggle: 'productTitleLabel-container',
+                    checked: productType.hasProductTitleField
+                }) }}
+
+                <div id="productTitleLabel-container" {% if not productType.hasProductTitleField %}class="hidden"{% endif %}>
+                    {{ forms.textField({
+                        label: "Product Title Field Label"|t('app'),
+                        instructions: "What do you want the Product Title field to be called?"|t('app'),
+                        id: 'titleLabel',
+                        name: 'titleLabel',
+                        value: productType.titleLabel,
+                        errors: productType.getErrors('titleLabel'),
+                        required: true
+                    }) }}
+                </div>
+
+                <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
+                    {{ textField({
+                        label: "Product Title Format"|t('commerce'),
+                        instructions: "What the auto-generated product titles should look like. You can include tags that output product properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myProductsCustomField}</code>' }),
+                        id: 'productTitleFormat',
+                        class: 'code ltr',
+                        name: 'productTitleFormat',
+                        value: productType.productTitleFormat,
+                        errors: productType.getErrors('productTitleFormat')
+                    }) }}
+                </div>
         {% endmacro %}
 
         {% macro titleFormatField(productType) %}
@@ -158,8 +133,61 @@
             </div>
         {% endmacro %}
 
+        {% from _self import hasVariantsField, titleFormatField, productTitleFormatField, uriFormatText %}
 
-        {% from _self import hasVariantsField, titleFormatField, uriFormatText %}
+
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            instructions: "What this product type will be called in the control panel."|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: productType.name,
+            errors: productType.getErrors('name'),
+            autofocus: true,
+            required: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Handle"|t('commerce'),
+            instructions: "How you’ll refer to this product type in the templates."|t('commerce'),
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: productType.handle,
+            errors: productType.getErrors('handle'),
+            required: true
+        }) }}
+
+        {{ productTitleFormatField(productType) }}
+
+        {{ forms.textField({
+            label: "Automatic SKU Format"|t('commerce'),
+            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'skuFormat',
+            class: 'code ltr',
+            name: 'skuFormat',
+            value: productType.skuFormat,
+            errors: productType.getErrors('skuFormat')
+        }) }}
+
+        {{ forms.textField({
+            label: "Order Description Format"|t('commerce'),
+            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'descriptionFormat',
+            class: 'code ltr',
+            name: 'descriptionFormat',
+            value: productType.descriptionFormat,
+            errors: productType.getErrors('descriptionFormat')
+        }) }}
+
+
+        {{ forms.checkboxField({
+            label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
+            id: 'hasDimensions',
+            name: 'hasDimensions',
+            checked: productType.hasDimensions,
+        }) }}
 
         <hr>
         {{ hasVariantsField(productType) }}
@@ -191,7 +219,6 @@
                 }
             }) %}
         {% endfor %}
-
 
         {{ forms.editableTableField({
             label: "Site Settings"|t('app'),
@@ -228,31 +255,33 @@
 
     <div id="tax-and-shipping" class="hidden">
         <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
-            {% for cat in productType.getShippingCategories() %}
-                {% if loop.first %}<ul class="bullets">{% endif %}
-                    {% if currentUser.can('commerce-manageShipping') %}
-                        <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
-                    {% else %}
-                        <li>{{ cat.name }}</li>
-                    {% endif %}
-                {% if loop.last %}</ul>{% endif %}
-            {% endfor %}
-            <br>
-            {% if currentUser.can('commerce-manageShipping') %}<a href="{{ url('commerce/shipping/shippingcategories')}}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
+        {% for cat in productType.getShippingCategories() %}
+            {% if loop.first %}<ul class="bullets">{% endif %}
+            {% if currentUser.can('commerce-manageShipping') %}
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+            {% else %}
+                <li>{{ cat.name }}</li>
+            {% endif %}
+            {% if loop.last %}</ul>{% endif %}
+        {% endfor %}
+        <br>
+        {% if currentUser.can('commerce-manageShipping') %}<a
+            href="{{ url('commerce/shipping/shippingcategories') }}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
         <hr>
 
         <h3>{{ 'Available Tax Categories'|t('commerce') }} </h3>
-            {% for cat in productType.getTaxCategories() %}
-                {% if loop.first %}<ul class="bullets">{% endif %}
-                    {% if currentUser.can('commerce-manageTax') %}
-                        <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
-                    {% else %}
-                        <li>{{ cat.name }}</li>
-                    {% endif %}
-                {% if loop.last %}</ul>{% endif %}
-            {% endfor %}
-            <br>
-            {% if currentUser.can('commerce-manageTax') %}<a href="{{ url('commerce/tax/taxcategories')}}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
+        {% for cat in productType.getTaxCategories() %}
+            {% if loop.first %}<ul class="bullets">{% endif %}
+            {% if currentUser.can('commerce-manageTax') %}
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+            {% else %}
+                <li>{{ cat.name }}</li>
+            {% endif %}
+            {% if loop.last %}</ul>{% endif %}
+        {% endfor %}
+        <br>
+        {% if currentUser.can('commerce-manageTax') %}<a
+            href="{{ url('commerce/tax/taxcategories') }}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
     </div>
     <div id="product-fields" class="hidden">
 
@@ -265,10 +294,10 @@
     <div id="variant-fields" class="hidden">
 
         {% namespace "variant-layout" %}
-        {% include "_includes/fieldlayoutdesigner" with {
-            fieldLayout: productType.getVariantFieldLayout(),
-            customizableTabs: false
-        } only %}
+            {% include "_includes/fieldlayoutdesigner" with {
+                fieldLayout: productType.getVariantFieldLayout(),
+                customizableTabs: false
+            } only %}
         {% endnamespace %}
 
     </div>
