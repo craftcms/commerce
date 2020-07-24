@@ -4,6 +4,9 @@
 
 ### Added
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
+- It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
+- Added `craft\commerce\events\DefineAddressLinesEvent`.
+- Added `craft\commerce\models\Address::getAddressLines()`.
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.

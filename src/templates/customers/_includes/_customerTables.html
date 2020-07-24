@@ -23,28 +23,7 @@
 {% set addresses = customer.getAddresses() ?? null %}
 {% set tableData = [] %}
 {% for address in addresses %}
-  {% set addressLines = [
-    address.attention,
-    address.title,
-    address.firstName ~ ' ' ~ address.lastName|trim,
-    address.fullName,
-    address.address1,
-    address.address2,
-    address.address3,
-    address.city,
-    address.zipCode,
-    address.phone,
-    address.alternativePhone,
-    address.label,
-    address.notes,
-    address.businessName,
-    address.stateText,
-    address.custom1,
-    address.custom2,
-    address.custom3,
-    address.custom4,
-  ]|filter(v => v) %}
-
+  <pre>{{ dump(address.getAddressLines()) }}</pre>
   {% set tableData = tableData|merge([{
     id: address.id,
     title: address.address1 != '' ? address.address1|e : 'View address'|t('commerce'),
@@ -52,7 +31,7 @@
     zipCode: address.zipCode|e,
     billing: (customer.primaryBillingAddressId == address.id),
     shipping: (customer.primaryShippingAddressId == address.id),
-    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: addressLines|e|join('<br>') }
+    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines()|join('<br>') }
   }]) %}
 {% endfor %}
 
