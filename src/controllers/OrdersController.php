@@ -148,7 +148,7 @@ class OrdersController extends Controller
 
         $transactions = $order->getTransactions();
 
-        $variables['orderTransactions'] = $this->_getTransactionsWIthLevelsTableArray($transactions);
+        $variables['orderTransactions'] = $this->_getTransactionsWithLevelsTableArray($transactions);
 
         $this->_updateTemplateVariables($variables);
         $this->_registerJavascript($variables);
@@ -1271,7 +1271,7 @@ class OrdersController extends Controller
      * @throws CurrencyException
      * @since 3.0
      */
-    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0): array
+    private function _getTransactionsWithLevelsTableArray($transactions, $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -1333,7 +1333,7 @@ class OrdersController extends Controller
                 ];
 
                 if (!empty($transaction->childTransactions)) {
-                    $childTransactions = $this->_getTransactionsWIthLevelsTableArray($transaction->childTransactions, $level + 1);
+                    $childTransactions = $this->_getTransactionsWithLevelsTableArray($transaction->childTransactions, $level + 1);
 
                     foreach ($childTransactions as $childTransaction) {
                         $return[] = $childTransaction;

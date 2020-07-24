@@ -1719,7 +1719,8 @@ class Install extends Migration
             ['title' => 'Parka with Stripes on Back', 'sku' => 'PSB-001'],
             ['title' => 'Romper for a Red Eye', 'sku' => 'RRE-001'],
             ['title' => 'The Fleece Awakens', 'sku' => 'TFA-001'],
-            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001']
+            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001'],
+            ['title' => 'Full-size Dry Boxer', 'sku' => 'FDB-001'],
         ];
 
         $count = 1;
