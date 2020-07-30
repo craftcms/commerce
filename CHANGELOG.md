@@ -4,6 +4,7 @@
 
 ### Added
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
+- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
@@ -30,7 +31,6 @@
 
 ### Fixed
 - Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
-- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 
 ## 3.1.12 - 2020-07-14
 
