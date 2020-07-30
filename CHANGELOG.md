@@ -5,6 +5,7 @@
 ### Added
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
+- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added `craft\commerce\events\DefineAddressLinesEvent`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
 
@@ -13,6 +14,7 @@
 
 ### Fixed
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
+- Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
 
 ## Unreleased (3.1.x)
 
@@ -25,12 +27,14 @@
 - Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 
+### Changed
+- Countries are now initially sorted by name, rather than country code.
+
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 
 ### Fixed
 - Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
-- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 
 ## 3.1.12 - 2020-07-14
 
