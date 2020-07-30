@@ -11,6 +11,9 @@
 - Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 
+### Changed
+- Improved customer search and creation when editing an order. ([#1594](https://github.com/craftcms/commerce/issues/1594))
+
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 
