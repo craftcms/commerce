@@ -9,78 +9,120 @@
         {% redirect 'shop/plans' %}
     {% endif %}
 
-    <h1 class="text-xl font-semibold">Manage subscription</h1>
-
-    <div><strong>Subscribed to {{ subscription.plan.name }}</strong></div>
+    <h1 class="text-3xl block sm:inline">Manage "{{ subscription.plan.name }}"</h1>
 
     {% set information = subscription.plan.getInformation() ?? null %}
-    {% if information %}
-        <div>
-            <h4 class="font-semibold">{{ 'Plan Information Entry' }}</h4>
-            <ul>
-                <li>{{ 'ID' }}: {{ information.id }}</li>
-                <li>{{ 'Title' }}: {{ information.title }}</li>
-            </ul>
-            <br>
-        </div>
-    {% endif %}
-
-    {% if subscription.isExpired %}
-        <div>Your subscription expired on {{ subscription.dateExpired|date('Y-m-d') }}</div>
-    {% else %}
+    <dl class="flex flex-wrap max-w-md mt-3">
+      <dt class="w-1/2 pr-2"><strong>Subscription Information</strong></dt>
+      <dd class="w-1/2">&nbsp;</dd>
+      {% if information %}
+        <dt class="w-1/2 pr-2">Plan Information Entry</dt>
+        <dd class="w-1/2">
+          <ul class="list-disc list-inside">
+            <li>{{ 'ID' }}: {{ information.id }}</li>
+            <li>{{ 'Title' }}: {{ information.title }}</li>
+          </ul>
+        </dd>
+      {% endif %}
+      {% if subscription.isExpired %}
+        <dt class="w-1/2 pr-2">Expired on</dt>
+        <dd class="w-1/2">{{ subscription.dateExpired|date('Y-m-d') }}</dd>
+      {% else %}
         {% if subscription.isCanceled %}
-            <div>Your subscription was canceled on {{ subscription.dateCanceled|date('Y-m-d') }} and will expire
-                on {{ subscription.nextPaymentDate|date('Y-m-d') }}.
-            </div>
-
-            {% if subscription.canReactivate() %}
-                <form method="post" action="">
-                    <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                    {{ redirectInput('shop/plans') }}
-                    {{ csrfInput() }}
-
-                    <button type="submit" class="button link">{{ "Reactivate" }}</button>
-                </form>
-            {% endif %}
-
-        {% else %}
-            <p>Your next payment of {{ subscription.getNextPaymentAmount() }} is due
-                on {{ subscription.nextPaymentDate|date('Y-m-d') }}</p>
-
-            {% for plan in subscription.alternativePlans %}
-                <div><strong>Switch to {{ plan.name }}</strong></div>
-                <form method="post" action="">
-                    <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                    <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
-                    <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
-                    {{ redirectInput('shop/plans') }}
-                    {{ csrfInput() }}
-
-                    {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
-                    <button type="submit" class="button link">{{ "Switch" }}</button>
-                </form>
-                <hr/>
-            {% endfor %}
-
-            <form method="post" action="">
-                <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}"/>
+          <dt class="w-1/2 pr-2">Cancelled on</dt>
+          <dd class="w-1/2">{{ subscription.dateCanceled|date('Y-m-d') }}</dd>
+          <dt class="w-1/2 pr-2">Expires on</dt>
+          <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
+          {% if subscription.canReactivate() %}
+            <dt class="w-1/2 pr-2"></dt>
+            <dd class="w-1/2">
+              <form method="post" action="">
+                <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
+                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
                 {{ redirectInput('shop/plans') }}
                 {{ csrfInput() }}
 
-                {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
+                <button type="submit" class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}">{{ "Reactivate" }}</button>
+              </form>
+            </dd>
+          {% endif %}
+        {% else %}
+          <dt class="w-1/2 pr-2">Payment Amount</dt>
+          <dd class="w-1/2">{{ subscription.getNextPaymentAmount() }}</dd>
+          <dt class="w-1/2 pr-2">Next Payment</dt>
+          <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
+          <dt class="w-1/2 pr-2">&nbsp;</dt>
+          <dd class="pt-2">
+            <form method="post" action="">
+              <input type="hidden" name="action" value="commerce/subscriptions/cancel">
+              <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}"/>
+              {{ redirectInput('shop/plans') }}
+              {{ csrfInput() }}
 
-                <button type="submit">{{ "Unsubscribe" }}</button>
+              {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
+
+              <button class="{{ classes.btn.base ~ ' ' ~ classes.btn.grey }}" type="submit">{{ "Unsubscribe" }}</button>
             </form>
+          </dd>
         {% endif %}
-    {% endif %}
+      {% endif %}
+    </dl>
 
-    <h2 class="text-lg font-semibold">Payment history</h2>
-    {% set payments = subscription.getAllPayments() %}
+  {% if not subscription.isCanceled and not subscription.isExpired %}
+    <h2 class="mt-3 text-lg font-semibold">Alternative Plans</h2>
+      <table>
+        <thead>
+          <tr class="bg-gray-300 text-left">
+            <th class="p-2">Plan</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plan in subscription.alternativePlans %}
+            <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+              <td class="p-2">{{ plan.name }}</td>
+              <td class="p-2">
+                <form method="post" action="">
+                  <input type="hidden" name="action" value="commerce/subscriptions/switch">
+                  <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                  <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
+                  {{ redirectInput('shop/plans') }}
+                  {{ csrfInput() }}
 
-    {% for payment in payments %}
-        <div>{{ payment.paymentDate|date("Y-m-d H:i") }}
-            - {{ payment.paymentCurrency }} {{ payment.paymentAmount }}</div>
-    {% endfor %}
+                  {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
+                  <button type="submit" class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}">{{ "Switch" }}</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+  {% endif %}
+
+
+  {% set payments = subscription.getAllPayments() %}
+  {% if payments|length  %}
+    <h2 class="text-lg font-semibold mt-3">Payment history</h2>
+
+    <table>
+      <thead>
+        <tr class="bg-gray-300 text-left">
+          <th class="p-2">Date</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+    </table>
+    <tbody>
+      {% for payment in payments %}
+        <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+          <td class="p-2">
+            {{ payment.paymentDate|date("Y-m-d H:i") }}
+          </td>
+          <td class="p-2">
+            {{ payment.paymentCurrency }} {{ payment.paymentAmount }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  {% endif %}
 {% endblock %}
