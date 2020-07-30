@@ -32,7 +32,7 @@
     {% set width = 0 %}
 {% endif %}
 
-{% if 'checkout' in craft.app.request.pathInfo %}
+{% if 'checkout' in craft.app.request.pathInfo and 'pay-static' not in craft.app.request.pathInfo %}
 <div class="container mx-auto justify-between items-center p-6 text-center text-xs">
     <nav class="flex">
         {% for step in checkoutSteps %}
