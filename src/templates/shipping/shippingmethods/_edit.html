@@ -82,12 +82,30 @@
 
 {% set tableData = [] %}
 {% for shippingRule in shippingRules %}
+  {% set details %}
+    <h4>Conditions</h4>
+    <strong>{{ "Shipping Zone"|t('commerce') }}</strong> {{ shippingRule.shippingZone.name ?? 'Anywhere' }}<span><br>
+    {% if shippingRule.minQty > 0 %}<strong>{{ "Minimum Order Quantity"|t('commerce') }}</strong> {{shippingRule.minQty}}<br>{% endif %}
+    {% if shippingRule.maxQty > 0 %}<strong>{{ "Maximum Order Quantity"|t('commerce') }}</strong> {{shippingRule.maxQty}}<br>{% endif %}
+    {% if shippingRule.minTotal > 0 %}<strong>{{ "Minimum Order Total Value"|t('commerce') }}</strong> {{shippingRule.minTotal}}<br>{% endif %}
+    {% if shippingRule.maxTotal > 0 %}<strong>{{ "Maximum Order Total Value"|t('commerce') }}</strong> {{shippingRule.maxTotal}}<br>{% endif %}
+    {% if shippingRule.minWeight > 0 %}<strong>{{ "Minimum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.minWeight}}<br>{% endif %}
+    {% if shippingRule.maxWeight > 0 %}<strong>{{ "Maximum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.maxWeight}}<br>{% endif %}
+    <h4>Costs</h4>
+    {% if shippingRule.baseRate > 0 %}<strong>{{ "Base Rate"|t('commerce') }}</strong> {{shippingRule.baseRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.minRate > 0 %}<strong>{{ "Minimum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.minRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.maxRate > 0 %}<strong>{{ "Maximum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.maxRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.perItemRate > 0 %}<strong>{{ "Default Per Item Rate"|t('commerce') }}</strong> {{shippingRule.perItemRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.weightRate > 0 %}<strong>{{ "Default Weight Rate"|t('commerce') }}</strong> {{shippingRule.weightRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}</strong> {{shippingRule.percentageRate|commerceCurrency}}<br>{% endif %}
+  {% endset %}
 	{% set tableData = tableData|merge([{
         id: shippingRule.id,
         title: shippingRule.name|t('site')|e,
         url: url('commerce/shipping/shippingmethods/'~shippingRule.methodId~'/shippingrules/'~shippingRule.id),
         status: shippingRule.enabled ? true : false,
         description: shippingRule.description|t('site')|e,
+        detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show rule details'|t('commerce')|e }) , content: details }
     }]) %}
 {% endfor %}
 
@@ -97,6 +115,7 @@
     var columns = [
         { name: '__slot:title', title: Craft.t('app', 'Name') },
         { name: 'description', title: Craft.t('app', 'Description') },
+        { name: '__slot:detail', title: '', titleClass: 'thin' },
     ];
 
     new Craft.VueAdminTable({
