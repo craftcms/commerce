@@ -166,6 +166,8 @@
 
 {% block details %}
     <div id="order-meta-app"></div>
+    {# Give plugins a chance to add other things here #}
+    {% hook "cp.commerce.order.edit.details" %}
 {% endblock %}
 
 {% block content %}
