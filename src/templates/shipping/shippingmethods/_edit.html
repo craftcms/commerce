@@ -58,7 +58,6 @@
             required: true,
         }) }}
 
-
         {{ forms.lightSwitchField({
             label: "Enable this shipping method on the front end"|t('commerce'),
             id: 'enabled',
@@ -82,6 +81,7 @@
 
 {% set tableData = [] %}
 {% for shippingRule in shippingRules %}
+
   {% set details %}
     <h4>Conditions</h4>
     <strong>{{ "Shipping Zone"|t('commerce') }}</strong> {{ shippingRule.shippingZone.name ?? 'Anywhere' }}<span><br>
@@ -99,6 +99,7 @@
     {% if shippingRule.weightRate > 0 %}<strong>{{ "Default Weight Rate"|t('commerce') }}</strong> {{shippingRule.weightRate|commerceCurrency}}<br>{% endif %}
     {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}</strong> {{shippingRule.percentageRate|commerceCurrency}}<br>{% endif %}
   {% endset %}
+
 	{% set tableData = tableData|merge([{
         id: shippingRule.id,
         title: shippingRule.name|t('site')|e,
@@ -123,6 +124,9 @@
         container: '#rules-vue-admin-table',
         deleteAction: 'commerce/shipping-rules/delete',
         emptyMessage: Craft.t('commerce', 'No shipping rules exist yet.'),
-        tableData: {{ tableData|json_encode|raw }}
+        tableData: {{ tableData|json_encode|raw }},
+        reorderAction: 'commerce/shipping-rules/reorder',
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder rules.'),
+        reorderSuccessMessage: Craft.t('commerce', 'Rules reordered.'),
     });
 {% endjs %}
