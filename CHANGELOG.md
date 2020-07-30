@@ -12,6 +12,7 @@
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 
 ### Changed
+- Countries are now initially sorted by name, rather than country code.
 - Improved customer search and creation when editing an order. ([#1594](https://github.com/craftcms/commerce/issues/1594))
 
 ### Deprecated
