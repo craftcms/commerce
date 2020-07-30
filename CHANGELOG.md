@@ -4,6 +4,7 @@
 
 ### Added
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
+- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
