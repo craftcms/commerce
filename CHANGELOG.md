@@ -6,6 +6,7 @@
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
 - Added `craft\commerce\events\DefineAddressLinesEvent`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
 
