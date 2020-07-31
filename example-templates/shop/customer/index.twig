@@ -72,5 +72,11 @@
                 <p>You don’t have any orders yet. <br /><a href="{{ url('shop/products') }}">Continue shopping</a></p>
             </div>
         {% endif %}
+
+      <hr class="my-3">
+
+      <div>
+        <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" href="{{ url('shop/customer/cards') }}">Manage Stored Cards</a>
+      </div>
     {% endif %}
 {% endblock %}

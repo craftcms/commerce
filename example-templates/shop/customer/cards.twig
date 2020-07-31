@@ -7,34 +7,43 @@
 
 {% block main %}
 <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-3xl block sm:inline">Manage Stored Cards</h1>
     {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
     {% if paymentSources|length %}
-        <h1>Manage Cards</h1>
-        {% for paymentSource in paymentSources %}
-            <div class="card flex justify-between">
-                <div>
-                    <strong>{{ paymentSource.description }}</strong>
-                    <div class="text-grey-dark">{{ paymentSource.gateway.name }}</div>
-                </div>
+        <h2 class="text-lg font-semibold block mt-3">Current Cards</h2>
 
-                <div>
-                    <form method="post" action="">
-                        {{ csrfInput() }}
-                        {{ redirectInput('/shop/customer/cards') }}
-                        <input type="hidden" name="action" value="commerce/payment-sources/delete">
-                        <input type="hidden" name="id" value="{{ paymentSource.id }}"/>
-                        <input type="submit" value="Delete"/>
-                    </form>
+        <div class="mt-3 flex flex-wrap -mx-2">
+          {% for paymentSource in paymentSources %}
+              <div class="w-full mt-3 md:w-1/2 lg:w-1/3 px-2">
+                <div class="card flex justify-between {{ classes.box.base }}">
+                    <div>
+                        <strong>{{ paymentSource.description }}</strong>
+                        <div class="text-grey-dark">{{ paymentSource.gateway.name }}</div>
+                    </div>
+
+                    <div>
+                        <form method="post" action="">
+                            {{ csrfInput() }}
+                            {{ redirectInput('/shop/customer/cards') }}
+                            <input type="hidden" name="action" value="commerce/payment-sources/delete">
+                            <input type="hidden" name="id" value="{{ paymentSource.id }}"/>
+                            <input class="{{ classes.btn.base ~ ' ' ~ classes.btn.grey }} text-sm" type="submit" value="Delete"/>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+              </div>
+          {% endfor %}
+        </div>
     {% endif %}
 
-    <h1>Add Card</h1>
-    <div class="card column">
-        <div class="one-half column">
+    <hr class="my-3">
+
+    <h2 class="text-lg font-semibold block mt-3">Add a Card</h2>
+    <div class="{{ classes.box.base }} max-w-md">
+        <div>
             <div class="field">
-                <select id="gatewayId">
+                <label for="gatewayId" class="block">Payment Gateway</label>
+                <select id="gatewayId" class="mt-1 {{ classes.input }}">
                     <option value="">---</option>
 
                     {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
@@ -48,51 +57,46 @@
                 </select>
             </div>
         </div>
-        <div class="one-half column">
-            {% for gateway in gateways %}
-                {% if gateway.supportsPaymentSources() %}
-                    <div id="fields-{{ gateway.id }}" class="js-gateway-fields hidden">
-                        <form method="post" action="" class="form-horizontal js-paymentSource-form max-w-md" id="gateway-{{ gateway.id }}">
-                            <input type="hidden" name="action" value="commerce/payment-sources/add"/>
-                            <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
-                            <input type="hidden" name="cancelUrl" value="{{ '/shop/customer/cards'|hash }}"/>
-                            {{ redirectInput('/shop/customer/cards') }}
-                            {{ csrfInput() }}
+        <div class="mt-3">
+            {% for gateway in gateways if gateway.supportsPaymentSources() %}
+                  <div id="fields-{{ gateway.id }}" class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed">
+                      <form method="post" action="" class="form-horizontal max-w-md" id="gateway-{{ gateway.id }}">
+                          <input type="hidden" name="action" value="commerce/payment-sources/add"/>
+                          <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
+                          <input type="hidden" name="cancelUrl" value="{{ '/shop/customer/cards'|hash }}"/>
+                          {{ redirectInput('/shop/customer/cards') }}
+                          {{ csrfInput() }}
 
-                            {{ gateway.getPaymentFormHtml({})|raw }}
+                          {{ gateway.getPaymentFormHtml({})|raw }}
 
-                            <div class="field" data-colspan="1">
-                                <input class="text description w-full" type="text" name="description" value="" maxlength="70" autocomplete="off" placeholder="Card description">
-                            </div>
+                          <div class="mt-2" data-colspan="1">
+                              <input class="{{ classes.input}} w-full" type="text" name="description" value="" maxlength="70" autocomplete="off" placeholder="Card description">
+                          </div>
 
-                            <div class="buttons">
-                                <button class="button button-primary" type="submit">Add card</button>
-                            </div>
-                        </form>
-                    </div>
-                {% endif %}
+                          <div class="mt-2 text-right">
+                              <button class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" type="submit">Add card</button>
+                          </div>
+                      </form>
+                  </div>
             {% endfor %}
         </div>
     </div>
 
     {% js %}
-        $('#gatewayId').change(function(ev){
-            $('.js-gateway-fields').addClass('hidden');
-            $('#fields-'+ev.currentTarget.value).removeClass('hidden');
-        });
-    {% endjs %}
+        var gatewaySelect = document.querySelector('#gatewayId');
+        var gatewayFields = document.querySelectorAll('.js-gateway-fields');
 
-    {% js %}
-        $('.js-paymentSource-form').on('submit', function (ev) {
-            $form = $(this);
+        if (gatewaySelect && gatewayFields.length) {
+            gatewaySelect.addEventListener('change', function(ev) {
+                gatewayFields.forEach(function(el) {
+                    el.classList.add('hidden');
+                });
 
-            if ($form.data('processing')) {
-                ev.preventDefault();
-
-                return false;
-            }
-
-            $form.data('processing', true);
-        });
+                var selected = document.querySelector('#fields-' + ev.currentTarget.value);
+                if (selected) {
+                    selected.classList.remove('hidden');
+                }
+            });
+        }
     {% endjs %}
 {% endblock %}
