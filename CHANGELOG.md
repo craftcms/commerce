@@ -3,9 +3,10 @@
 ## Unreleased (3.2.0)
 
 ### Added
+- Order field layouts now support the new field layout features added in Craft 3.5.
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
-- Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.

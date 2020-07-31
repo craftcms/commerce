@@ -62,7 +62,7 @@ class ProductTypes extends Component
      *     function(ProductTypeEvent $event) {
      *         // @var ProductType|null $productType
      *         $productType = $event->productType;
-     *         
+     *
      *         // Create an audit trail of this action
      *         // ...
      *     }
