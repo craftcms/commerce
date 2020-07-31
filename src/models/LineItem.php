@@ -58,6 +58,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
+ * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

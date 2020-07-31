@@ -13,6 +13,11 @@
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
+- Added the ability to eager load line items, transactions and adjustments with the `withLineItems`, `withTransactions`, `withAdjustments` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603)) 
+- Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
+- Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
+- Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
+
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.

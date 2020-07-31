@@ -12,11 +12,13 @@ use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\db\Query;
 use craft\events\RegisterComponentTypesEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
@@ -235,6 +237,33 @@ class OrderAdjustments extends Component
         return $orderAdjustment->delete();
     }
 
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.x
+     */
+    public function eagerLoadOrderAdjustmentsForOrders(array $orders): array
+    {
+        $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $orderAdjustmentResults = $this->_createOrderAdjustmentQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $orderAdjustments = [];
+
+        foreach ($orderAdjustmentResults as $result) {
+            $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
+            $adjustment = new OrderAdjustment($result);
+            $adjustment->typecastAttributes();
+            $orderAdjustments[$adjustment->orderId] = $orderAdjustments[$adjustment->orderId] ?? [];
+            $orderAdjustments[$adjustment->orderId][] = $adjustment;
+        }
+
+        foreach ($orders as $key => $order) {
+            $order->setAdjustments($orderAdjustments[$order->id]);
+            $orders[$key] = $order;
+        }
+
+        return $orders;
+    }
 
     /**
      * Returns a Query object prepped for retrieving Order Adjustment.

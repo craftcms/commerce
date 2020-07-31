@@ -132,6 +132,21 @@ class OrderQuery extends ElementQuery
     public $hasLineItems;
 
     /**
+     * @var bool Eager load the adjustments on to the order.
+     */
+    public $withAdjustments;
+
+    /**
+     * @var bool Eager load the line items on to the order.
+     */
+    public $withLineItems;
+
+    /**
+     * @var bool Eager load the transactions on to the order.
+     */
+    public $withTransactions;
+
+    /**
      * @inheritdoc
      */
     protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
@@ -904,6 +919,94 @@ class OrderQuery extends ElementQuery
         $this->hasPurchasables = $value;
 
         return $this;
+    }
+
+    /**
+     * Eager loads the adjustments on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAdjustments()
+     */
+    public function withAdjustments($value = true)
+    {
+        $this->withAdjustments = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the line items on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches line items…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withLineItems()
+     */
+    public function withLineItems($value = true)
+    {
+        $this->withLineItems = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the transactions on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches transactions…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withTransactions()
+     */
+    public function withTransactions($value = true)
+    {
+        $this->withTransactions = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populate($rows)
+    {
+        $orders = parent::populate($rows);
+
+        // Eager-load line items?
+        if (!empty($orders) && $this->withLineItems === true) {
+            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && $this->withTransactions === true) {
+            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && $this->withAdjustments === true) {
+            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+        }
+
+        return $orders;
     }
 
     /**
