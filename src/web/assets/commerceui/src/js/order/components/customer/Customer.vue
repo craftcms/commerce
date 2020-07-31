@@ -125,6 +125,11 @@
       background-color: $lightGrey;
       color: $grey;
     }
+
+    &--email {
+        background-color: #fff;
+        color: $mediumTextColor;
+    }
   }
 
   .customer-photo-wrapper {

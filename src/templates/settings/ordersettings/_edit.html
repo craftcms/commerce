@@ -13,9 +13,9 @@
 
         {{ csrfInput() }}
 
-        {% include "_includes/fieldlayoutdesigner" with {
+        {{ forms.fieldLayoutDesignerField({
             fieldLayout: fieldLayout,
-        } only %}
+        }) }}
 
         <div class="buttons">
             <input type="submit" class="btn submit"

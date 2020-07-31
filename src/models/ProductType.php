@@ -64,24 +64,36 @@ class ProductType extends Model
     public $hasVariants;
 
     /**
-     * @var string Title label
-     */
-    public $variantTitleLabel = 'Title';
-
-    /**
      * @var bool Has variant title field
      */
     public $hasVariantTitleField = true;
 
     /**
-     * @var string Title format
+     * @var string Title label
+     */
+    public $variantTitleLabel = 'Title';
+
+    /**
+     * @var string Variant title format
+     * TODO: Rename to variantTitleFormat in 4.0
      */
     public $titleFormat = '{product.title}';
 
     /**
-     * @var string Title label
+     * @var bool Has product title field?
+     */
+    public $hasProductTitleField = true;
+
+    /**
+     * @var string Product title label
+     * TODO: Rename to productTitleLabel in 4.0
      */
     public $titleLabel = 'Title';
+
+    /**
+     * @var string Product title format
+     */
+    public $productTitleFormat = '';
 
     /**
      * @var string SKU format

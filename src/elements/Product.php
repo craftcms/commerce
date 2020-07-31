@@ -794,6 +794,30 @@ class Product extends Element
     }
 
     /**
+     * Updates the entry's title, if its entry type has a dynamic title format.
+     *
+     * @since 3.0.3
+     * @see \craft\elements\Entry::updateTitle
+     */
+    public function updateTitle()
+    {
+        $productType = $this->getType();
+
+        if (!$productType->hasProductTitleField) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+            // Set Craft to the entry's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            if ($title !== '') {
+                $this->title = $title;
+            }
+            Craft::$app->language = $language;
+        }
+    }
+
+    /**
      * @inheritdoc
      */
     public function beforeValidate()
@@ -959,6 +983,8 @@ class Product extends Element
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }
+
+        $this->updateTitle();
 
         return parent::beforeSave($isNew);
     }

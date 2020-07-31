@@ -2897,6 +2897,15 @@ class Order extends Element
     }
 
     /**
+     * @param array|Transaction[] $transactions
+     * @since 3.x
+     */
+    public function setTransactions(array $transactions)
+    {
+        $this->_transactions = $transactions;
+    }
+
+    /**
      * @return Transaction[]
      */
     public function getTransactions(): array
