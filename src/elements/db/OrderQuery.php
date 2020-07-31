@@ -1085,8 +1085,7 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
-        // TODO change the version number
-        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
             $this->query->addSelect([
                 'commerce_orders.shippingMethodName',
             ]);
