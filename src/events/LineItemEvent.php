@@ -30,7 +30,7 @@ class LineItemEvent extends Event
 
     /**
      * @deprecated This event is not cancellable. This prop is here for backwards compatibility.
-     * @todo remove in 4.0
+     * TODO remove in 4.0
      */
     public $isValid = true;
 }
