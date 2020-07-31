@@ -22,8 +22,19 @@ class Dummy implements RequestResponseInterface
     private $_success = true;
 
 
-    public function __construct(CreditCardPaymentForm $form = null)
+    /**
+     * Dummy constructor.
+     *
+     * @param CreditCardPaymentForm|null $form
+     * @param bool|null $successOverride
+     */
+    public function __construct(CreditCardPaymentForm $form = null, $successOverride = null)
     {
+        if ($successOverride !== null) {
+            $this->_success = $successOverride;
+            return;
+        }
+
         if ($form === null) {
             $this->_success = false;
             return;
@@ -39,6 +50,10 @@ class Dummy implements RequestResponseInterface
 
         if (!$isValid) {
             $this->_success = false;
+        }
+
+        if ($successOverride !== null) {
+            $this->_success = $successOverride;
         }
     }
 

@@ -121,7 +121,7 @@ class Plugin extends BasePlugin
      * @inheritDoc
      */
 
-    public $schemaVersion = '3.1.13';
+    public $schemaVersion = '3.1.22';
 
     /**
      * @inheritdoc
@@ -361,6 +361,9 @@ class Plugin extends BasePlugin
                         ],
                         'commerce-capturePayment' => [
                             'label' => self::t('Capture payment')
+                        ],
+                        'commerce-voidPayment' => [
+                            'label' => self::t('Void payment')
                         ],
                         'commerce-refundPayment' => [
                             'label' => self::t('Refund payment')

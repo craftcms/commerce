@@ -18,7 +18,10 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\helpers\DateTimeHelper;
 use yii\base\Component;
+use DateTime;
+use DateInterval;
 
 /**
  * Transaction service.
@@ -43,7 +46,7 @@ class Transactions extends Component
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     *         
+     *
      *         // Run custom logic for failed transactions
      *         // ...
      *     }
@@ -60,14 +63,14 @@ class Transactions extends Component
      * use craft\commerce\services\Transactions;
      * use craft\commerce\models\Transaction;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Transactions::class,
      *     Transactions::EVENT_AFTER_CREATE_TRANSACTION,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     * 
+     *
      *         // Run custom logic depending on the transaction type
      *         // ...
      *     }
@@ -78,7 +81,7 @@ class Transactions extends Component
 
 
     /**
-     * Returns true if a specific transaction can be refunded.
+     * Returns true if a specific transaction can be captured.
      *
      * @param Transaction $transaction the transaction
      * @return bool
@@ -100,15 +103,91 @@ class Transactions extends Component
             return false;
         }
 
-        // And only if we don't have a successful refund transaction for this order already
+        // And only if we don't have a successful capture or void transaction for this transaction already
         return !$this->_createTransactionQuery()
             ->where([
-                'type' => TransactionRecord::TYPE_CAPTURE,
+                'type' => [TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_VOID],
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'orderId' => $transaction->orderId,
                 'parentId' => $transaction->id
             ])
             ->exists();
+    }
+
+    /**
+     * Returns true if a specific transaction can be voided.
+     *
+     * @param Transaction $transaction the transaction
+     * @return bool
+     */
+    public function canVoidTransaction(Transaction $transaction): bool
+    {
+        // Can only void successful authorize, capture, or purchase transactions
+        $types = [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_CAPTURE, TransactionRecord::TYPE_PURCHASE];
+        if (!in_array($transaction->type, $types) || $transaction->status !== TransactionRecord::STATUS_SUCCESS) {
+            return false;
+        }
+
+        $gateway = $transaction->getGateway();
+
+        if (!$gateway) {
+            return false;
+        }
+
+        if (!$gateway->supportsVoid()) {
+            return false;
+        }
+
+        $voidedAlready = $this->_createTransactionQuery()
+            ->where([
+                'type' => TransactionRecord::TYPE_VOID,
+                'status' => TransactionRecord::STATUS_SUCCESS,
+                'parentId' => $transaction->id
+            ])
+            ->exists();
+
+        if ($voidedAlready) {
+            return false;
+        }
+
+        // If authorized, then check it has not been captured already. The capture will have a refund or void itself
+        if ($transaction->type === TransactionRecord::TYPE_AUTHORIZE) {
+
+            $alreadyCaptured = $this->_createTransactionQuery()
+                ->where([
+                    'type' => TransactionRecord::TYPE_CAPTURE,
+                    'status' => TransactionRecord::STATUS_SUCCESS,
+                    'parentId' => $transaction->id
+                ])
+                ->exists();
+
+            if ($alreadyCaptured) {
+                return false;
+            }
+        }
+
+        // If authorized, then check it has not been captured already. The capture will have a refund or void itself
+        if (in_array($transaction->type, [TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE])) {
+
+            $alreadyRefundedOrVoided = $this->_createTransactionQuery()
+                ->where([
+                    'type' => [TransactionRecord::TYPE_REFUND, TransactionRecord::TYPE_VOID],
+                    'status' => TransactionRecord::STATUS_SUCCESS,
+                    'parentId' => $transaction->id
+                ])
+                ->exists();
+
+            if ($alreadyRefundedOrVoided) {
+                return false;
+            }
+        }
+
+        // Only if current time is within gateway void window
+        $now = new DateTime();
+        $interval = DateTimeHelper::secondsToInterval('86400');
+        $edge = $transaction->dateCreated->add($interval);
+
+        return ($now < $edge);
     }
 
     /**
@@ -136,6 +215,30 @@ class Transactions extends Component
 
         if (!$gateway->supportsRefund()) {
             return false;
+        }
+
+        if ($gateway->supportsVoid()) {
+
+            // And only if we don't have a successful refund
+            $alreadyVoided = $this->_createTransactionQuery()
+                ->where([
+                    'type' => TransactionRecord::TYPE_VOID,
+                    'status' => TransactionRecord::STATUS_SUCCESS,
+                    'parentId' => $transaction->id
+                ])
+                ->exists();
+
+            if ($alreadyVoided) {
+                return false;
+            }
+
+            // Only if current time is outside gateway void window
+            $now = new DateTime();
+            $interval = DateTimeHelper::secondsToInterval('86400');
+            $edge = $transaction->dateCreated->add($interval);
+            if ($now >= $edge) {
+                return false;
+            }
         }
 
         return ($this->refundableAmountForTransaction($transaction) > 0);

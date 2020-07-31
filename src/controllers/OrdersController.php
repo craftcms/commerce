@@ -774,6 +774,44 @@ class OrdersController extends Controller
     }
 
     /**
+     * Voids Transaction
+     *
+     * @return Response
+     * @throws TransactionException
+     * @throws MissingComponentException
+     * @throws BadRequestHttpException
+     */
+    public function actionTransactionVoid(): Response
+    {
+        $this->requirePermission('commerce-VoidPayment');
+        $this->requirePostRequest();
+        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $transaction = Plugin::getInstance()->getTransactions()->getTransactionById($id);
+
+        if ($transaction->canVoid()) {
+            // void transaction and display result
+            $child = Plugin::getInstance()->getPayments()->voidTransaction($transaction);
+
+            $message = $child->message ? ' (' . $child->message . ')' : '';
+
+            if ($child->status == TransactionRecord::STATUS_SUCCESS) {
+                $child->order->updateOrderPaidInformation();
+                Craft::$app->getSession()->setNotice(Plugin::t('Transaction voided successfully: {message}', [
+                    'message' => $message
+                ]));
+            } else {
+                Craft::$app->getSession()->setError(Plugin::t('Couldn’t void transaction: {message}', [
+                    'message' => $message
+                ]));
+            }
+        } else {
+            Craft::$app->getSession()->setError(Plugin::t('Couldn’t void transaction.', ['id' => $id]));
+        }
+
+        return $this->redirectToPostedUrl();
+    }
+
+    /**
      * Refunds transaction.
      *
      * @return Response
@@ -1293,19 +1331,26 @@ class OrdersController extends Controller
         $user = Craft::$app->getUser()->getIdentity();
         foreach ($transactions as $transaction) {
             if (!ArrayHelper::firstWhere($return, 'id', $transaction->id)) {
-                $refundCapture = '';
-                if ($user->can('commerce-capturePayment') && $transaction->canCapture()) {
-                    $refundCapture = Craft::$app->getView()->renderTemplate(
-                        'commerce/orders/includes/_capture',
+                $refundCaptureVoid = '';
+                $actions = [];
+
+                if ($user->can('commerce-capturePayment') && $canCapture = $transaction->canCapture()) {
+                    $actions[] = 'capture';
+                }
+
+                if ($user->can('commerce-voidPayment') && $canVoid = $transaction->canVoid()) {
+                    $actions[] = 'void';
+                }
+
+                if (!$canCapture && !$canVoid && $user->can('commerce-refundPayment') && $transaction->canRefund()) {
+                    $actions[] = 'refund';
+                }
+
+                if (!empty($actions)) {
+                    $refundCaptureVoid = Craft::$app->getView()->renderTemplate(
+                        'commerce/orders/includes/_refundCaptureVoid',
                         [
-                            'currentUser' => $user,
-                            'transaction' => $transaction,
-                        ]
-                    );
-                } else if ($user->can('commerce-refundPayment') && $transaction->canRefund()) {
-                    $refundCapture = Craft::$app->getView()->renderTemplate(
-                        'commerce/orders/includes/_refund',
-                        [
+                            'actions' => $actions,
                             'currentUser' => $user,
                             'transaction' => $transaction,
                         ]
@@ -1345,7 +1390,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Plugin::t('Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Plugin::t('Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
                     ],
-                    'actions' => $refundCapture,
+                    'actions' => $refundCaptureVoid,
                 ];
 
                 if (!empty($transaction->childTransactions)) {

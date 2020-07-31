@@ -2244,10 +2244,15 @@ class Order extends Element
             return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND;
         });
 
+        $voidedTransactions = ArrayHelper::where($this->_transactions, static function(Transaction $transaction) {
+            return $transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_VOID;
+        });
+
         $paid = array_sum(ArrayHelper::getColumn($paidTransactions, 'amount', false));
         $refunded = array_sum(ArrayHelper::getColumn($refundedTransactions, 'amount', false));
+        $voided = array_sum(ArrayHelper::getColumn($voidedTransactions, 'amount', false));
 
-        return $paid - $refunded;
+        return $paid - ($refunded + $voided);
     }
 
     /**

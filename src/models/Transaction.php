@@ -231,6 +231,14 @@ class Transaction extends Model
     /**
      * @return bool
      */
+    public function canVoid(): bool
+    {
+        return Plugin::getInstance()->getTransactions()->canVoidTransaction($this);
+    }
+
+    /**
+     * @return bool
+     */
     public function canRefund(): bool
     {
         return Plugin::getInstance()->getTransactions()->canRefundTransaction($this);
