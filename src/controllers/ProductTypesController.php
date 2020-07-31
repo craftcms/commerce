@@ -117,10 +117,12 @@ class ProductTypesController extends BaseAdminController
         $productType->name = Craft::$app->getRequest()->getBodyParam('name');
         $productType->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $productType->hasDimensions = (bool)Craft::$app->getRequest()->getBodyParam('hasDimensions');
-        $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
-        $productType->hasVariantTitleField = (bool)$productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
-        $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
+        $productType->hasProductTitleField = (bool)Craft::$app->getRequest()->getBodyParam('hasProductTitleField');
         $productType->titleLabel = Craft::$app->getRequest()->getBodyParam('titleLabel', $productType->titleLabel);
+        $productType->productTitleFormat = Craft::$app->getRequest()->getBodyParam('productTitleFormat');
+        $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
+        $productType->hasVariantTitleField = $productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
+        $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
         $productType->variantTitleLabel = Craft::$app->getRequest()->getBodyParam('variantTitleLabel', $productType->variantTitleLabel);
         $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');

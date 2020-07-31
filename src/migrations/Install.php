@@ -493,10 +493,17 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'hasDimensions' => $this->boolean(),
             'hasVariants' => $this->boolean(),
+
+            // Variant title stuff
             'hasVariantTitleField' => $this->boolean(),
-            'titleFormat' => $this->string()->notNull(),
-            'titleLabel' => $this->string()->defaultValue('Title'),
+            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0
             'variantTitleLabel' => $this->string()->defaultValue('Title'),
+
+            // Product title stuff
+            'hasProductTitleField' => $this->boolean(),
+            'titleLabel' => $this->string()->defaultValue('Title'), // TODO: rename to productTitleLabel in 4.0
+            'productTitleFormat' => $this->string()->notNull(),
+
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -1428,8 +1435,7 @@ class Install extends Migration
         ];
 
         $orderNumber = 1;
-        foreach ($countries as $key => $country)
-        {
+        foreach ($countries as $key => $country) {
             $country[] = $orderNumber;
             $countries[$key] = $country;
             $orderNumber++;
@@ -1650,8 +1656,7 @@ class Install extends Migration
             'handle' => 'clothing',
             'hasDimensions' => true,
             'hasVariants' => false,
-            'hasVariantTitleField' => false,
-            'titleFormat' => '{product.title}',
+            'hasVariantTitleField' => true,
             'fieldLayoutId' => $this->_productFieldLayoutId,
             'skuFormat' => '',
             'descriptionFormat' => '',
@@ -1714,7 +1719,8 @@ class Install extends Migration
             ['title' => 'Parka with Stripes on Back', 'sku' => 'PSB-001'],
             ['title' => 'Romper for a Red Eye', 'sku' => 'RRE-001'],
             ['title' => 'The Fleece Awakens', 'sku' => 'TFA-001'],
-            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001']
+            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001'],
+            ['title' => 'Full-size Dry Boxer', 'sku' => 'FDB-001'],
         ];
 
         $count = 1;

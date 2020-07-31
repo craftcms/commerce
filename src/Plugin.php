@@ -53,6 +53,7 @@ use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\elements\User as UserElement;
 use craft\events\DefineConsoleActionsEvent;
+use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
@@ -64,6 +65,7 @@ use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\redactor\events\RegisterLinkOptionsEvent;
 use craft\redactor\Field as RedactorField;
 use craft\services\Dashboard;
@@ -120,8 +122,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-
-    public $schemaVersion = '3.1.13';
+    public $schemaVersion = '3.2.0';
 
     /**
      * @inheritdoc
@@ -149,15 +150,11 @@ class Plugin extends BasePlugin
     {
         parent::init();
         $this->_setPluginComponents();
-        $this->_registerCpRoutes();
-        $this->_registerSiteRoutes();
         $this->_addTwigExtensions();
         $this->_registerFieldTypes();
-        $this->_registerRedactorLinkOptions();
         $this->_registerPermissions();
         $this->_registerCraftEventListeners();
         $this->_registerProjectConfigEventListeners();
-        $this->_registerWidgets();
         $this->_registerVariables();
         $this->_registerForeignKeysRestore();
         $this->_registerPoweredByHeader();
@@ -166,10 +163,21 @@ class Plugin extends BasePlugin
         $this->_registerGqlQueries();
         $this->_registerGqlPermissions();
         $this->_registerCacheTypes();
-        $this->_registerTemplateHooks();
         $this->_registerGarbageCollection();
-        $this->_registerElementExports();
-        $this->_defineResaveCommand();
+
+        $request = Craft::$app->getRequest();
+
+        if ($request->getIsConsoleRequest()) {
+            $this->_defineResaveCommand();
+        } else if ($request->getIsCpRequest()) {
+            $this->_registerCpRoutes();
+            $this->_registerWidgets();
+            $this->_registerElementExports();
+            $this->_registerTemplateHooks();
+            $this->_registerRedactorLinkOptions();
+        } else {
+            $this->_registerSiteRoutes();
+        }
 
         Craft::setAlias('@commerceLib', Craft::getAlias('@craft/commerce/../lib'));
     }
@@ -646,7 +654,7 @@ class Plugin extends BasePlugin
      *
      * @since 2.2
      */
-    public function _registerElementExports()
+    private function _registerElementExports()
     {
         Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
