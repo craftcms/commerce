@@ -132,9 +132,19 @@ class OrderQuery extends ElementQuery
     public $hasLineItems;
 
     /**
+     * @var bool Eager load the addresses on to the order.
+     */
+    public $withAddresses;
+
+    /**
      * @var bool Eager load the adjustments on to the order.
      */
     public $withAdjustments;
+
+    /**
+     * @var bool Eager load the customer on to the order.
+     */
+    public $withCustomer;
 
     /**
      * @var bool Eager load the line items on to the order.
@@ -943,6 +953,27 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Eager loads the customer on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withCustomer()
+     */
+    public function withCustomer($value = true)
+    {
+        $this->withCustomer = $value;
+
+        return $this;
+    }
+
+    /**
      * Eager loads the line items on the resulting orders.
      *
      * Possible values include:
@@ -1004,6 +1035,16 @@ class OrderQuery extends ElementQuery
         // Eager-load transactions?
         if (!empty($orders) && $this->withAdjustments === true) {
             $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && $this->withCustomer === true) {
+            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && $this->withAddresses === true) {
+            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
         }
 
         return $orders;
