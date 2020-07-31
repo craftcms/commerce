@@ -8,6 +8,7 @@
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - It is now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
+- It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
 - Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
 - Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
@@ -20,7 +21,8 @@
 - Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
 - Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
 - Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
-
+- Added `craft\commerce\events\DefineAddressLinesEvent`.
+- Added `craft\commerce\models\Address::getAddressLines()`.
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
