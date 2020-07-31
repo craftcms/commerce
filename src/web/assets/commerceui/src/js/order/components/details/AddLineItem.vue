@@ -31,6 +31,7 @@
                         :allow-multiple-selections="true"
                         table-data-endpoint="commerce/orders/purchasables-table"
                         :checkboxes="true"
+                        :checkbox-status="isCheckboxEnabled"
                         :columns="purchasableTableColumns"
                         :padded="true"
                         per-page="10"
@@ -155,6 +156,10 @@
 
                 this.selectedPurchasables = [];
                 this.showForm = false;
+            },
+
+            isCheckboxEnabled(row) {
+                return row.isAvailable;
             },
 
             handleCheckboxSelect(ids) {
