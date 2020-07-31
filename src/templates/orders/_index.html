@@ -15,6 +15,17 @@
     "Apply"
 ]) %}
 
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#page-container'), {
+        elementTypeName: '{{ elementInstance.displayName()|e("js") }}',
+        elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
+        context: '{{ context }}',
+        storageKey: 'elementindex.{{ elementType|e("js") }}',
+        criteria: {'withTransactions': true, 'withAdjustments': true, 'withLineItems': true, 'withCustomer': true, 'withAddresses': true},
+        toolbarSelector: '#toolbar'
+    });
+{% endblock %}
+
 {% if orderStatusHandle is defined and orderStatusHandle %}
     {% js %}
         window.defaultStatusHandle = '{{ orderStatusHandle }}';

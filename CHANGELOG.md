@@ -3,6 +3,7 @@
 ## Unreleased (3.2.0)
 
 ### Added
+- Improved the performance of the order index page significantly.
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
@@ -14,10 +15,12 @@
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
-- Added the ability to eager load line items, transactions and adjustments with the `withLineItems`, `withTransactions`, `withAdjustments` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603)) 
+- Added the ability to eager load order relationship models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603)) 
 - Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
 - Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
+- Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
 - Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
+- Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
 - Added `craft\commerce\events\DefineAddressLinesEvent`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
 
