@@ -34,27 +34,27 @@
         {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
         {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
 
-        <hr />
+        <hr class="my-3" />
 
-        <p>
-            <label for="makePrimaryShippingAddress"><input id="makePrimaryShippingAddress" name="makePrimaryShippingAddress" type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span class="label-body">Make this the primary shipping address</span></label>
-        </p>
+        <div>
+            <label for="makePrimaryShippingAddress" class="flex items-center"><input id="makePrimaryShippingAddress" class="mr-2" name="makePrimaryShippingAddress" type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span class="label-body">Make this the primary shipping address</span></label>
+        </div>
 
-        <p>
-            <label for="makePrimaryBillingAddress"><input id="makePrimaryBillingAddress" name="makePrimaryBillingAddress" type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span class="label-body">Make this the primary billing address</span></label>
-        </p>
+        <div>
+            <label for="makePrimaryBillingAddress" class="flex items-center"><input id="makePrimaryBillingAddress" class="mr-2" name="makePrimaryBillingAddress" type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span class="label-body">Make this the primary billing address</span></label>
+        </div>
 
-        <div class="mt-6">
-            <input type="submit" value="Save Address">
+        <div class="mt-6 flex justify-between">
+          <div>
+            {% if redirect %}
+              <a href="/{{ redirect }}">Cancel</a>
+            {% else %}
+              <a href="{{ url('shop/customer/addresses') }}">Cancel</a>
+            {% endif %}
+          </div>
+          <div>
+            <input class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" type="submit" value="Save Address">
+          </div>
         </div>
     </form>
-
-    <div class="mt-6">
-        {% if redirect %}
-            <a href="/{{ redirect }}">Cancel</a>
-        {% else %}
-            <a href="{{ url('shop/customer/addresses') }}">Cancel</a>
-        {% endif %}
-    </div>
-
 {% endblock %}

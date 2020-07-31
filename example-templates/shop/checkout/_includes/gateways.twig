@@ -11,7 +11,7 @@
           <input type="radio" name="paymentSourceId" value="{{ source.id }}" {% if source.id == cart.paymentSourceId %}checked{% endif %} />
         </div>
         <div>
-          <strong>{{ storedCard.description }}</strong>
+          <strong>{{ source.description }}</strong>
           <br><span class="text-gray-600">Stored source</span>
         </div>
       </div>
@@ -28,6 +28,7 @@
         </div>
         <div>
           <strong>{{ name }}</strong>
+          <br><span class="text-gray-600">Payment gateway</span>
         </div>
       </div>
     </label>
