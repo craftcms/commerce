@@ -41,7 +41,12 @@
             <div class="text-sm text-gray-600 pr-2">Date:</div>
             <div class="font-bold">{{ order.dateOrdered|date('D jS M Y') }}</div>
           </div>
-
+          {% if order.shippingMethodName %}
+            <div class="flex items-center w-full">
+              <div class="text-sm text-gray-600 pr-2">Shipping Method:</div>
+              <div class="font-bold">{{ order.shippingMethodName }}</div>
+            </div>
+          {% endif %}
           {% if order.pdfUrl %}
             <div class="flex items-center w-full">
               <div class="text-sm text-gray-600 pr-2">PDF:</div>

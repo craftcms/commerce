@@ -3,23 +3,6 @@
 ## Unreleased (3.2.0)
 
 ### Added
-- Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
-- It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
-- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
-- Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
-- Added `craft\commerce\events\DefineAddressLinesEvent`.
-- Added `craft\commerce\models\Address::getAddressLines()`.
-
-### Changed
-- Commerce now requires Craft 3.5.0 or later.
-
-### Fixed
-- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
-- Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
-
-## Unreleased (3.1.x)
-
-### Added
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
@@ -27,14 +10,27 @@
 - Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
 - Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
+- Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
+- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
+- Added the ability to eager load line items, transactions and adjustments with the `withLineItems`, `withTransactions`, `withAdjustments` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603)) 
+- Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
+- Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
+- Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
+
 
 ### Changed
+- Commerce now requires Craft 3.5.0 or later.
 - Countries are now initially sorted by name, rather than country code.
+- Improved customer search and creation when editing an order. ([#1594](https://github.com/craftcms/commerce/issues/1594))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 
 ### Fixed
+- Fixed a bug where purchasables that weren’t available for purchase were selectable on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
+- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
+- Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
 - Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
 
 ## 3.1.12 - 2020-07-14

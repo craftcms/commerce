@@ -22,6 +22,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
  * @property-read string $amountAsCurrency
+ * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

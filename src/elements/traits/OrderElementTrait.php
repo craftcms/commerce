@@ -91,7 +91,7 @@ trait OrderElementTrait
             }
             case 'shippingMethodName':
             {
-                return $this->getShippingMethod()->name ?? '';
+                return $this->shippingMethodName ?? '';
             }
             case 'gatewayName':
             {

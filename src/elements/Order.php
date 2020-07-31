@@ -748,6 +748,12 @@ class Order extends Element
     public $shippingMethodHandle;
 
     /**
+     * @var string Shipping Method Name
+     * @since 3.x
+     */
+    public $shippingMethodName;
+
+    /**
      * @var int Customer ID
      */
     public $customerId;
@@ -1741,6 +1747,20 @@ class Order extends Element
         return $options;
     }
 
+    public function beforeSave(bool $isNew): bool
+    {
+
+        if (null === $this->shippingMethodHandle) {
+            // Reset shipping method name if there is no handle
+            $this->shippingMethodName = null;
+        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            // Update shipping method name if there is a handle and we can retrieve the method
+            $this->shippingMethodName = $shippingMethod->name;
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
     /**
      * @inheritdoc
      */
@@ -1788,6 +1808,7 @@ class Order extends Element
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->shippingMethodName = $this->shippingMethodName;
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
@@ -2745,11 +2766,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        if ($this->isCompleted) {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        } else {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        }
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         // Do we have a shipping method available based on the current selection?
         if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
@@ -2877,6 +2894,15 @@ class Order extends Element
     public function getHistories(): array
     {
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+    }
+
+    /**
+     * @param array|Transaction[] $transactions
+     * @since 3.x
+     */
+    public function setTransactions(array $transactions)
+    {
+        $this->_transactions = $transactions;
     }
 
     /**

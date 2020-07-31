@@ -10,12 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use LitEmoji\LitEmoji;
@@ -382,6 +384,34 @@ class LineItems extends Component
         return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.x
+     */
+    public function eagerLoadLineItemsForOrders(array $orders): array
+    {
+        $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $lineItemsResults = $this->_createLineItemQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $lineItems = [];
+
+        foreach ($lineItemsResults as $result) {
+
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
+            $lineItems[$lineItem->orderId][] = $lineItem;
+        }
+
+        foreach ($orders as $key => $order) {
+            $order->setLineItems($lineItems[$order->id]);
+            $orders[$key] = $order;
+        }
+
+        return $orders;
+    }
 
     /**
      * Returns a Query object prepped for retrieving line items.

@@ -45,7 +45,6 @@
             {% endif %}
         </td>
     </tr>
-
 </table>
 
 <table width="100%">
@@ -64,6 +63,11 @@
     {% if order.couponCode %}
     <tr>
         <td><strong>Coupon Code: </strong>{{ order.couponCode }}</td>
+    </tr>
+    {% endif %}
+    {% if order.shippingMethodName %}
+    <tr>
+        <td><strong>Shipping Method: </strong>{{ order.shippingMethodName }}</td>
     </tr>
     {% endif %}
 </table>
