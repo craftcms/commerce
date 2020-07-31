@@ -894,7 +894,7 @@ class Customers extends Component
             $customer = new Customer($result);
 
             // also eager load the user on the customer if possible
-            if ($user = ArrayHelper::firstWhere($users, 'id', $customer->userId)) {
+            if ($customer->userId && $user = ArrayHelper::firstWhere($users, 'id', $customer->userId)) {
                 $customer->setUser($user);
             }
 
@@ -902,7 +902,7 @@ class Customers extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if ($customers[$order->customerId]) {
+            if(isset($customers[$order->customerId])) {
                 $order->setCustomer($customers[$order->customerId]);
                 $orders[$key] = $order;
             }

@@ -450,7 +450,7 @@ class Transactions extends Component
      */
     public function eagerLoadTransactionsForOrders(array $orders): array
     {
-        $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $orderIds = array_filter(ArrayHelper::getColumn($orders, 'id'));
         $transactionResults = $this->_createTransactionQuery()->andWhere(['orderId' => $orderIds])->all();
 
         $transactions = [];
@@ -462,8 +462,10 @@ class Transactions extends Component
         }
 
         foreach ($orders as $key => $order) {
-            $order->setTransactions($transactions[$order->id]);
-            $orders[$key] = $order;
+            if(isset($transactions[$order->id])) {
+                $order->setTransactions($transactions[$order->id]);
+                $orders[$key] = $order;
+            }
         }
 
         return $orders;

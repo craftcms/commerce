@@ -463,11 +463,11 @@ class Addresses extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if ($shippingAddresses[$order->shippingAddressId]) {
+            if(isset($shippingAddresses[$order->shippingAddressId])) {
                 $order->setShippingAddress($shippingAddresses[$order->shippingAddressId]);
             }
 
-            if ($billingAddresses[$order->billingAddressId]) {
+            if(isset($billingAddresses[$order->billingAddressId])) {
                 $order->setBillingAddress($billingAddresses[$order->billingAddressId]);
             }
 
