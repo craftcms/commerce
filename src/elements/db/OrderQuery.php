@@ -1085,6 +1085,12 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
+            $this->query->addSelect([
+                'commerce_orders.shippingMethodName',
+            ]);
+        }
+
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {
