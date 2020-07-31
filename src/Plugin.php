@@ -647,7 +647,7 @@ class Plugin extends BasePlugin
      *
      * @since 2.2
      */
-    public function _registerElementExports()
+    private function _registerElementExports()
     {
         Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
