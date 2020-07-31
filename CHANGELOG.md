@@ -14,6 +14,7 @@
 - Fixed a bug where purchasables that weren’t available for purchase were selectable on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 - Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
+- Fixed a bug where interactive custom fields weren’t working within new newly created product variants, from product editor HUDs. 
 
 ## Unreleased (3.1.x)
 
