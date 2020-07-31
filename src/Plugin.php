@@ -16,6 +16,9 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\exports\LineItemExport;
 use craft\commerce\exports\OrderExport;
+use craft\commerce\fieldlayoutelements\ProductTitleField;
+use craft\commerce\fieldlayoutelements\VariantsField;
+use craft\commerce\fieldlayoutelements\VariantTitleField;
 use craft\commerce\fields\Products;
 use craft\commerce\fields\Variants;
 use craft\commerce\gql\interfaces\elements\Product as GqlProductInterface;
@@ -122,7 +125,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.2.0';
+    public $schemaVersion = '3.2.1';
 
     /**
      * @inheritdoc
@@ -173,6 +176,7 @@ class Plugin extends BasePlugin
             $this->_registerCpRoutes();
             $this->_registerWidgets();
             $this->_registerElementExports();
+            $this->_defineFieldLayoutElements();
             $this->_registerTemplateHooks();
             $this->_registerRedactorLinkOptions();
         } else {
@@ -659,6 +663,28 @@ class Plugin extends BasePlugin
         Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
             $e->exporters[] = LineItemExport::class;
+        });
+    }
+
+    /**
+     * Registers additional standard fields for the product and variant field layout designers.
+     *
+     * @since 3.2.0
+     */
+    private function _defineFieldLayoutElements()
+    {
+        Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
+            /** @var FieldLayout $fieldLayout */
+            $fieldLayout = $e->sender;
+
+            switch ($fieldLayout->type) {
+                case Product::class:
+                    $e->fields[] = ProductTitleField::class;
+                    $e->fields[] = VariantsField::class;
+                    break;
+                case Variant::class:
+                    $e->fields[] = VariantTitleField::class;
+            }
         });
     }
 

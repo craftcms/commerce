@@ -3,13 +3,24 @@
 ## Unreleased (3.2.0)
 
 ### Added
-- Order field layouts now support the new field layout features added in Craft 3.5.
+- Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
+- It’s now possible to set Title fields’ positions within product and variant field layouts.
+- It’s now possible to set the Variants field’s position within product field layouts.
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
+- Added `craft\commerce\fieldlayoutelements\ProductTitleField`.
+- Added `craft\commerce\fieldlayoutelements\VariantsField`.
+- Added `craft\commerce\fieldlayoutelements\VariantTitleField`.
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
+
+### Removed
+- Removed `craft\commerce\models\ProductType::$titleLabel`.
+- Removed `craft\commerce\models\ProductType::$variantTitleLabel`.
+- Removed `craft\commerce\records\ProductType::$titleLabel`.
+- Removed `craft\commerce\records\ProductType::$variantTitleLabel`.
 
 ### Fixed
 - Fixed a bug where purchasables that weren’t available for purchase were selectable on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
