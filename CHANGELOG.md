@@ -3,7 +3,14 @@
 ## Unreleased (3.2.0)
 
 ### Added
+- Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
 - Improved the performance of the order index page significantly.
+- It’s now possible to set Title fields’ positions within product and variant field layouts.
+- It’s now possible to set the Variants field’s position within product field layouts.
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
+- Added `craft\commerce\fieldlayoutelements\ProductTitleField`.
+- Added `craft\commerce\fieldlayoutelements\VariantsField`.
+- Added `craft\commerce\fieldlayoutelements\VariantTitleField`.
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
@@ -14,8 +21,7 @@
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
-- Added the `cp.commerce.order.edit.details` template hook. ([#1597]()https://github.com/craftcms/commerce/issues/1597)
-- Added the ability to eager load order relationship models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603)) 
+- Added the ability to eager load order relationship models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603))
 - Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
 - Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
 - Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
@@ -32,7 +38,14 @@
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 
+### Removed
+- Removed `craft\commerce\models\ProductType::$titleLabel`.
+- Removed `craft\commerce\models\ProductType::$variantTitleLabel`.
+- Removed `craft\commerce\records\ProductType::$titleLabel`.
+- Removed `craft\commerce\records\ProductType::$variantTitleLabel`.
+
 ### Fixed
+- Fixed a bug where interactive custom fields weren’t working within new newly created product variants, from product editor HUDs.
 - Fixed a bug where purchasables that weren’t available for purchase were selectable on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 - Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.

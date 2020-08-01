@@ -38,7 +38,8 @@
                 id: 'hasVariants',
                 name: 'hasVariants',
                 checked: productType.hasVariants,
-                toggle: '#variant-settings'
+                toggle: '#variant-settings',
+                reverseToggle: '.fld-variants-field-icon',
             }) }}
         {% endmacro %}
 
@@ -63,22 +64,9 @@
                 {{ checkboxField({
                     label: "Show the Title field for products"|t('commerce'),
                     name: 'hasProductTitleField',
-                    reverseToggle: 'productTitleFormat-container',
-                    toggle: 'productTitleLabel-container',
+                    reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
                     checked: productType.hasProductTitleField
                 }) }}
-
-                <div id="productTitleLabel-container" {% if not productType.hasProductTitleField %}class="hidden"{% endif %}>
-                    {{ forms.textField({
-                        label: "Product Title Field Label"|t('app'),
-                        instructions: "What do you want the Product Title field to be called?"|t('app'),
-                        id: 'titleLabel',
-                        name: 'titleLabel',
-                        value: productType.titleLabel,
-                        errors: productType.getErrors('titleLabel'),
-                        required: true
-                    }) }}
-                </div>
 
                 <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
                     {{ textField({
@@ -101,22 +89,9 @@
                 {{ checkboxField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
-                    reverseToggle: 'titleFormat-container',
-                    toggle: 'variantTitleLabel-container',
+                    reverseToggle: '#titleFormat-container, .fld-variant-title-field-icon',
                     checked: productType.hasVariantTitleField
                 }) }}
-
-                <div id="variantTitleLabel-container" {% if not productType.hasVariantTitleField %}class="hidden"{% endif %}>
-                    {{ forms.textField({
-                        label: "Variant Title Field Label"|t('app'),
-                        instructions: "What do you want the Variant Title field to be called?"|t('app'),
-                        id: 'variantTitleLabel',
-                        name: 'variantTitleLabel',
-                        value: productType.variantTitleLabel,
-                        errors: productType.getErrors('variantTitleLabel'),
-                        required: true
-                    }) }}
-                </div>
 
                 <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ textField({
@@ -285,19 +260,19 @@
     </div>
     <div id="product-fields" class="hidden">
 
-        {% include "_includes/fieldlayoutdesigner" with {
+        {{ forms.fieldLayoutDesignerField({
             fieldLayout: productType.getProductFieldLayout(),
-        } only %}
+        }) }}
 
     </div>
 
     <div id="variant-fields" class="hidden">
 
         {% namespace "variant-layout" %}
-            {% include "_includes/fieldlayoutdesigner" with {
+            {{ forms.fieldLayoutDesignerField({
                 fieldLayout: productType.getVariantFieldLayout(),
                 customizableTabs: false
-            } only %}
+            }) }}
         {% endnamespace %}
 
     </div>

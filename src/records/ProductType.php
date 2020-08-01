@@ -30,9 +30,7 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $taxCategories
  * @property bool $hasVariantTitleField
  * @property string $titleFormat
- * @property string $variantTitleLabel
  * @property bool $hasProductTitleField
- * @property string $titleLabel
  * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int $variantFieldLayoutId
