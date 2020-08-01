@@ -132,27 +132,27 @@ class OrderQuery extends ElementQuery
     public $hasLineItems;
 
     /**
-     * @var bool Eager load the addresses on to the order.
+     * @var bool Eager loads the the shipping and billing addressees on the resulting orders.
      */
     public $withAddresses;
 
     /**
-     * @var bool Eager load the adjustments on to the order.
+     * @var bool Eager loads the order adjustments on the resulting orders.
      */
     public $withAdjustments;
 
     /**
-     * @var bool Eager load the customer on to the order.
+     * @var bool Eager load the customer (and related user) on to the order.
      */
     public $withCustomer;
 
     /**
-     * @var bool Eager load the line items on to the order.
+     * @var bool Eager loads the line items on the resulting orders.
      */
     public $withLineItems;
 
     /**
-     * @var bool Eager load the transactions on to the order.
+     * @var bool Eager loads the transactions on the resulting orders.
      */
     public $withTransactions;
 
@@ -932,7 +932,28 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads the adjustments on the resulting orders.
+     * Eager loads the the shipping and billing addressees on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAddresses()
+     */
+    public function withAddresses($value = true)
+    {
+        $this->withAddresses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the order adjustments on the resulting orders.
      *
      * Possible values include:
      *
@@ -953,7 +974,7 @@ class OrderQuery extends ElementQuery
     }
 
     /**
-     * Eager loads the customer on the resulting orders.
+     * Eager loads the customer (and related user) on the resulting orders.
      *
      * Possible values include:
      *
