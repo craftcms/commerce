@@ -323,6 +323,7 @@ class OrdersController extends Controller
 
         $orderQuery = Order::find()
             ->customer($customer)
+            ->withAll() // eager-load all related data
             ->isCompleted();
 
         if ($search) {

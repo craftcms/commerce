@@ -21,7 +21,7 @@
         elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
         context: '{{ context }}',
         storageKey: 'elementindex.{{ elementType|e("js") }}',
-        criteria: {'withTransactions': true, 'withAdjustments': true, 'withLineItems': true, 'withCustomer': true, 'withAddresses': true},
+        criteria: {'withAll': true},
         toolbarSelector: '#toolbar'
     });
 {% endblock %}
