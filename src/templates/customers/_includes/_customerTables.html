@@ -23,7 +23,6 @@
 {% set addresses = customer.getAddresses() ?? null %}
 {% set tableData = [] %}
 {% for address in addresses %}
-  <pre>{{ dump(address.getAddressLines()) }}</pre>
   {% set tableData = tableData|merge([{
     id: address.id,
     title: address.address1 != '' ? address.address1|e : 'View address'|t('commerce'),
