@@ -422,7 +422,6 @@ class OrdersController extends Controller
      */
     public function actionPurchasableSearch($query = null)
     {
-
         if ($query === null) {
             $results = (new Query())
                 ->select(['id', 'price', 'description', 'sku'])
