@@ -471,7 +471,7 @@ class LineItem extends Model
         if (isset($rule[1]) && $rule[1] instanceof \Closure) {
             $method = $rule[1];
             $method->bindTo($purchasable);
-            $rule[1] = function($attribute, $params, $validator, $current) use($method) {
+            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
                 $method($attribute, $params, $validator, $current);
             };
         }

@@ -48,7 +48,7 @@ class Orders extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Recent Orders');
+        return Plugin::t('Recent Orders');
     }
 
     /**
@@ -68,7 +68,7 @@ class Orders extends Widget
             $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($orderStatusId);
 
             if ($orderStatus) {
-                return Plugin::t( 'Recent Orders') . ' – ' . Plugin::t( $orderStatus->name);
+                return Plugin::t('Recent Orders') . ' – ' . Plugin::t($orderStatus->name);
             }
         }
 

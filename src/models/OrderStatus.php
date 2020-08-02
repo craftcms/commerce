@@ -116,8 +116,7 @@ class OrderStatus extends Model
      */
     public function getDisplayName(): string
     {
-        if ($this->dateDeleted !== null)
-        {
+        if ($this->dateDeleted !== null) {
             return $this->name . Plugin::t(' (Trashed)');
         }
 

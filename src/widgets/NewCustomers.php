@@ -75,7 +75,7 @@ class NewCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'New Customers');
+        return Plugin::t('New Customers');
     }
 
     /**

@@ -231,7 +231,7 @@ class Gateways extends Component
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', Plugin::t( 'That handle is already in use.'));
+            $gateway->addError('handle', Plugin::t('That handle is already in use.'));
             return false;
         }
 

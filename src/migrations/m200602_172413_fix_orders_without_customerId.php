@@ -44,7 +44,7 @@ class m200602_172413_fix_orders_without_customerId extends Migration
                 }
 
                 if (!$fixed) {
-                    $this->insert('{{%commerce_customers}}',[]);
+                    $this->insert('{{%commerce_customers}}', []);
                     $customerId = $this->db->getLastInsertID();
                     $data = ['customerId' => $customerId];
                     $this->update('{{%commerce_orders}}', $data, ['id' => $order['id']]);

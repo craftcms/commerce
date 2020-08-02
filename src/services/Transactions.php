@@ -43,7 +43,7 @@ class Transactions extends Component
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     *         
+     *
      *         // Run custom logic for failed transactions
      *         // ...
      *     }
@@ -60,14 +60,14 @@ class Transactions extends Component
      * use craft\commerce\services\Transactions;
      * use craft\commerce\models\Transaction;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Transactions::class,
      *     Transactions::EVENT_AFTER_CREATE_TRANSACTION,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     * 
+     *
      *         // Run custom logic depending on the transaction type
      *         // ...
      *     }

@@ -39,7 +39,6 @@ use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
 use Throwable;
@@ -461,7 +460,7 @@ class OrdersController extends Controller
         if ($query) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
+                [$likeOperator, 'description', '%' . str_replace(' ', '%', $search) . '%', false],
                 [$likeOperator, 'sku', $query]
             ]);
         }
@@ -505,7 +504,7 @@ class OrdersController extends Controller
         if ($search) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
+                [$likeOperator, 'description', '%' . str_replace(' ', '%', $search) . '%', false],
                 [$likeOperator, 'sku', $search]
             ]);
         }

@@ -83,7 +83,7 @@ abstract class CommerceUiAsset extends AssetBundle
                 try {
                     $contents = file_get_contents($vueCliLoopbackServer);
                 } catch (\Exception $exception) {
-                   $devServer = '';
+                    $devServer = '';
                 }
             }
         }

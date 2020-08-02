@@ -355,7 +355,7 @@ class Addresses extends Component
             if (Craft::$app->cache->exists($cacheKey)) {
                 $result = Craft::$app->cache->get($cacheKey);
             } else {
-                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode'=>$zipCode], 'Zip Code condition formula matching address');
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode' => $zipCode], 'Zip Code condition formula matching address');
                 Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
             }
 
@@ -385,14 +385,16 @@ class Addresses extends Component
             ->leftJoin(Table::ORDERS . ' so', '[[addresses.id]] = [[so.shippingAddressId]]')
             ->leftJoin(Table::ORDERS . ' seo', '[[addresses.id]] = [[seo.estimatedShippingAddressId]]')
             ->leftJoin(Table::CUSTOMERS_ADDRESSES . ' c', '[[addresses.id]] = [[c.addressId]]')
-            ->where(['and', [
-                '[[so.shippingAddressId]]' => null,
-                '[[seo.estimatedShippingAddressId]]' => null,
-                '[[c.addressId]]' => null,
-                '[[bo.billingAddressId]]' => null,
-                '[[beo.estimatedBillingAddressId]]' => null,
-                '[[addresses.isStoreLocation]]' => 0,
-            ]]);
+            ->where([
+                'and', [
+                    '[[so.shippingAddressId]]' => null,
+                    '[[seo.estimatedShippingAddressId]]' => null,
+                    '[[c.addressId]]' => null,
+                    '[[bo.billingAddressId]]' => null,
+                    '[[beo.estimatedBillingAddressId]]' => null,
+                    '[[addresses.isStoreLocation]]' => 0,
+                ]
+            ]);
 
         foreach ($addresses->batch(500) as $address) {
             $ids = ArrayHelper::getColumn($address, 'id', false);

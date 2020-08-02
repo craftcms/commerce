@@ -61,7 +61,7 @@ class State extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
-        
+
         return $rules;
     }
 
