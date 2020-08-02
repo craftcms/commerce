@@ -510,7 +510,7 @@ return [
     'Can be used as an internal reference.' => 'Can be used as an internal reference.',
     'Create your first line item' => 'Create your first line item',
     'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?' => 'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
-    'Hax Zip Condition?' => 'Hax Zip Condition?',
+    'Has Zip Condition?' => 'Has Zip Condition?',
     'Default status?' => 'Default status?',
     'Tax & Shipping (Lite)' => 'Tax & Shipping (Lite)',
     'Recalculate order' => 'Recalculate order',
