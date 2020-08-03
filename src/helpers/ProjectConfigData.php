@@ -110,6 +110,8 @@ class ProjectConfigData
                 'hasVariants',
                 'hasVariantTitleField',
                 'titleFormat',
+                'hasProductTitleField',
+                'productTitleFormat',
                 'skuFormat',
                 'descriptionFormat',
                 'uid'
@@ -142,6 +144,7 @@ class ProjectConfigData
             $productTypeRow['hasDimensions'] = (bool)$productTypeRow['hasDimensions'];
             $productTypeRow['hasVariants'] = (bool)$productTypeRow['hasVariants'];
             $productTypeRow['hasVariantTitleField'] = (bool)$productTypeRow['hasVariantTitleField'];
+            $productTypeRow['hasProductTitleField'] = (bool)$productTypeRow['hasProductTitleField'];
 
             $productTypeRow['siteSettings'] = [];
             $typeData[$rowUid] = $productTypeRow;

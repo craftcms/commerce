@@ -34,7 +34,7 @@ class VariantMatrix
     {
         /** @var View $viewService */
         $viewService = Craft::$app->getView();
-        $id = $viewService->formatInputId($name);
+        $id = Html::id($name);
 
         $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,

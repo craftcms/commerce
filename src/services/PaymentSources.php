@@ -210,7 +210,7 @@ class PaymentSources extends Component
         }
 
         if (!$this->savePaymentSource($source)) {
-            throw new PaymentSourceException(Plugin::t( 'Could not create the payment source.'));
+            throw new PaymentSourceException(Plugin::t('Could not create the payment source.'));
         }
 
         return $source;
@@ -230,7 +230,7 @@ class PaymentSources extends Component
             $record = PaymentSourceRecord::findOne($paymentSource->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Plugin::t( 'No payment source exists with the ID “{id}”',
+                throw new InvalidConfigException(Plugin::t('No payment source exists with the ID “{id}”',
                     ['id' => $paymentSource->id]));
             }
         } else {

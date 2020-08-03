@@ -32,9 +32,8 @@ class DummyPaymentForm extends CreditCardPaymentForm
     {
         $rules = parent::defineRules();
 
-        if($this->token)
-        {
-             return []; //No validation of form if using a token
+        if ($this->token) {
+            return []; //No validation of form if using a token
         }
 
         return $rules;

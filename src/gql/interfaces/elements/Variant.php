@@ -144,6 +144,11 @@ class Variant extends Element
                 'type' => Type::int(),
                 'description' => 'The ID of the variant’s parent product.',
             ],
+            'product' => [
+                'name' => 'product',
+                'type' => Product::getType(),
+                'description' => 'The variant’s parent product.'
+            ],
             'productTitle' => [
                 'name' => 'productTitle',
                 'type' => Type::string(),

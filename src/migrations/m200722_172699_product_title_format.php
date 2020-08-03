@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m200722_172699_product_title_format migration.

@@ -1756,7 +1756,7 @@ class Install extends Migration
                 $productI18nData = [
                     'elementId' => $productId,
                     'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($product['sku']),
+                    'slug' => ElementHelper::normalizeSlug($product['sku']),
                     'uri' => null,
                     'enabled' => true
                 ];
@@ -1773,7 +1773,7 @@ class Install extends Migration
                 $variantI18nData = [
                     'elementId' => $variantId,
                     'siteId' => $siteId,
-                    'slug' => ElementHelper::createSlug($product['sku']),
+                    'slug' => ElementHelper::normalizeSlug($product['sku']),
                     'uri' => null,
                     'enabled' => true
                 ];

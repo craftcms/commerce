@@ -339,7 +339,7 @@ class CartController extends BaseFrontEndController
         $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
 
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
-        
+
         if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Plugin::t('Unable to update cart.');
 

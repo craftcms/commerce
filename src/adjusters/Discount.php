@@ -149,7 +149,6 @@ class Discount extends Component implements AdjusterInterface
                     $orderLevelAdjustments[] = $previousAdjustment;
                     unset($allAdjustments[$key]);
                 }
-
             }
             $this->_order->setAdjustments($allAdjustments);
 
