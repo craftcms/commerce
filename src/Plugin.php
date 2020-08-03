@@ -61,11 +61,13 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterElementExportersEvent;
+use craft\events\RegisterGqlEagerLoadableFields;
 use craft\events\RegisterGqlQueriesEvent;
 use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
+use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -165,6 +167,7 @@ class Plugin extends BasePlugin
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
         $this->_registerGqlComponents();
+        $this->_registerGqlEagerLoadableFields();
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
 
@@ -599,6 +602,14 @@ class Plugin extends BasePlugin
             }
 
             $event->queries = array_merge($event->queries, $queryComponents);
+        });
+    }
+
+    private function _registerGqlEagerLoadableFields()
+    {
+        Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
+            $event->fieldList['variants'] = [Products::class];
+            $event->fieldList['product'] = [Variants::class];
         });
     }
 
