@@ -42,8 +42,8 @@ class SalesController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-managePromotions');
         parent::init();
+        $this->requirePermission('commerce-managePromotions');
     }
 
     /**

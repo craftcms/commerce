@@ -66,9 +66,9 @@ class OrdersController extends Controller
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageOrders');
-
         parent::init();
+
+        $this->requirePermission('commerce-manageOrders');
     }
 
     /**

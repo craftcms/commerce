@@ -20,9 +20,9 @@ class BaseTaxSettingsController extends BaseCpController
      */
     public function init()
     {
+        parent::init();
+
         // All system setting actions require access to commerce
         $this->requirePermission('commerce-manageTaxes');
-
-        parent::init();
     }
 }
