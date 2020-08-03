@@ -34,7 +34,6 @@ class DownloadsController extends BaseFrontEndController
     public function actionPdf(): Response
     {
         $number = Craft::$app->getRequest()->getQueryParam('number');
-        $pdfHandle = Craft::$app->getRequest()->getQueryParam('pdfHandle');
         $option = Craft::$app->getRequest()->getQueryParam('option', '');
 
         if (!$number) {
@@ -47,9 +46,7 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException('404', 'Order not found');
         }
 
-        $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
-
-        $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
+        $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);
         $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
         $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
@@ -58,7 +55,7 @@ class DownloadsController extends BaseFrontEndController
             $fileName = 'Order-' . $order->number;
         }
 
-        return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
+        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf'
         ]);
     }

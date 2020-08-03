@@ -101,15 +101,14 @@
         errors: email.getErrors('cc'),
     }) }}
 
-    {{ forms.autoSuggestField({
+    {{ forms.textField({
         label: 'HTML Email Template Path'|t('commerce'),
-        instructions: 'The template to be used for HTML emails.'|t('commerce'),
+        instructions: 'The template to be used for HTML emails. Twig code can be used here.'|t('commerce'),
         id: 'templatePath',
         name: 'templatePath',
         value: email.templatePath,
         errors: email.getErrors('templatePath'),
         required: true,
-        suggestions: craft.cp.getTemplateSuggestions()
     }) }}
 
     {{ forms.textField({
@@ -132,7 +131,7 @@
     }) }}
 
     <div id="pdf-template-path-container"{% if not email.attachPdf %} class="hidden"{% endif %}>
-    {{ forms.autoSuggestField({
+    {{ forms.textField({
         label: 'PDF Template Path'|t('commerce'),
         instructions: "By default the PDF template path is the 'Order PDF Template' in the general commerce config, but can choose a different template for this email's PDF."|t('commerce'),
         placeholder: craft.commerce.settings.orderPdfPath,
@@ -141,7 +140,6 @@
         value: email.pdfTemplatePath,
         errors: email.getErrors('pdfTemplatePath'),
         required: true,
-        suggestions: craft.cp.getTemplateSuggestions()
     }) }}
     </div>
 

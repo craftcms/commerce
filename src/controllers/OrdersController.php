@@ -997,15 +997,13 @@ class OrdersController extends Controller
         $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
         Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        $pdfUrls = [];
-        foreach ($pdfs as $pdf){
-            $pdfUrls[] = [
-                'name' => $pdf->name,
-                'url' => $variables['order']->getPdfUrl(null, $pdf->handle)
-            ];
-        }
-
+        // TODO when we support multiple PDF templates, retrieve them all from a service
+        $pdfUrls = [
+            [
+                'name' => 'Download PDF',
+                'url' => $variables['order']->getPdfUrl()
+            ]
+        ];
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();

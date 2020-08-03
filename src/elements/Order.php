@@ -1974,18 +1974,24 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
-     * @param string|null $pdfId The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      * @throws Exception
      */
-    public function getPdfUrl($option = null, $pdfHandle = null)
+    public function getPdfUrl($option = null)
     {
-        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+        $url = null;
+        $view = Craft::$app->getView();
+        $oldTemplateMode = $view->getTemplateMode();
+        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
+        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
 
-        if ($pdfHandle !== null) {
-            $path .= '&pdfHandle=' . $pdfHandle;
+        if (!$file || !$view->doesTemplateExist($file)) {
+            $view->setTemplateMode($oldTemplateMode);
+            return null;
         }
+        $view->setTemplateMode($oldTemplateMode);
 
+        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
         $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;

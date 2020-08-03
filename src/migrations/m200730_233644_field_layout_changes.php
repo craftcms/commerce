@@ -23,8 +23,8 @@ class m200730_233644_field_layout_changes extends Migration
      */
     public function safeUp()
     {
-        $this->dropColumn('{{%commerce_producttypes}}', 'titleLabel');
-        $this->dropColumn('{{%commerce_producttypes}}', 'variantTitleLabel');
+        $this->dropColumn(Table::PRODUCTTYPES, 'titleLabel');
+        $this->dropColumn(Table::PRODUCTTYPES, 'variantTitleLabel');
 
         // Don't make the same config changes twice
         $projectConfig = Craft::$app->getProjectConfig();

@@ -25,7 +25,7 @@ use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
 use craft\commerce\services\Payments;
 use craft\commerce\services\PaymentSources;
-use craft\commerce\services\Pdfs;
+use craft\commerce\services\Pdf;
 use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
@@ -66,7 +66,7 @@ use craft\commerce\services\Webhooks;
  * @property PaymentCurrencies $paymentCurrencies the paymentCurrencies service
  * @property Payments $payments the payments service
  * @property PaymentSources $paymentSources the payment sources service
- * @property Pdfs $pdf the pdf service
+ * @property Pdf $pdf the pdf service
  * @property Plans $plans the plans service
  * @property Products $products the products service
  * @property ProductTypes $productTypes the productTypes service
@@ -271,23 +271,13 @@ trait Services
     }
 
     /**
-     * Returns the PDFs service
+     * Returns the PDF service
      *
-     * @return Pdfs The PDFs service
+     * @return Pdf The PDF service
      */
-    public function getPdfs(): Pdfs
+    public function getPdf(): Pdf
     {
-        return $this->get('pdfs');
-    }
-
-    /**
-     * @deprecated
-     */
-    public function getPdf(): Pdfs
-    {
-        \Craft::$app->getDeprecator()->log('Plugin::getInstance()->getPdf()', 'Plugin::getInstance()->getPdf() has been deprecated. Use Plugin::getInstance()->getPdfs() instead.');
-
-        return $this->get('pdfs');
+        return $this->get('pdf');
     }
 
     /**
@@ -545,8 +535,8 @@ trait Services
             'paymentSources' => [
                 'class' => PaymentSources::class,
             ],
-            'pdfs' => [
-                'class' => Pdfs::class,
+            'pdf' => [
+                'class' => Pdf::class,
             ],
             'plans' => [
                 'class' => Plans::class,
