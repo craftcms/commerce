@@ -32,7 +32,7 @@ class Purchasables extends Component
      * use craft\events\RegisterComponentTypesEvent;
      * use craft\commerce\services\Purchasables;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Purchasables::class,
      *     Purchasables::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES,

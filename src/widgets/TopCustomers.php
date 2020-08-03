@@ -114,7 +114,7 @@ class TopCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Customers');
+        return Plugin::t('Top Customers');
     }
 
     /**

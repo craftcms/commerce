@@ -34,7 +34,6 @@ class SendEmail extends BaseJob
     public $orderHistoryId;
 
 
-
     public function execute($queue)
     {
         $this->setProgress($queue, 0.2);

@@ -114,7 +114,7 @@ class TopProductTypes extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Product Types');
+        return Plugin::t('Top Product Types');
     }
 
     /**

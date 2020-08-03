@@ -964,7 +964,7 @@ class Variant extends Purchasable
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
-            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getElements()->invalidateCachesForElement($this);
         }
     }
 

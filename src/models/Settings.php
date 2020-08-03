@@ -212,13 +212,13 @@ class Settings extends Model
      * @var bool
      * @since 3.0.12
      */
-     public $validateCartCustomFieldsOnSubmission = false;
+    public $validateCartCustomFieldsOnSubmission = false;
 
     /**
      * @var string|null the uri to redirect to after using the load cart url
      * @since 3.1
      */
-     public $loadCartRedirectUrl = null;
+    public $loadCartRedirectUrl = null;
 
     /**
      * @var bool Should the search index for a cart be updated when saving the cart on the front-end.

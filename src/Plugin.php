@@ -62,11 +62,13 @@ use craft\events\RebuildConfigEvent;
 use craft\events\RegisterCacheOptionsEvent;
 use craft\events\RegisterComponentTypesEvent;
 use craft\events\RegisterElementExportersEvent;
-use craft\events\RegisterGqlPermissionsEvent;
+use craft\events\RegisterGqlEagerLoadableFields;
 use craft\events\RegisterGqlQueriesEvent;
+use craft\events\RegisterGqlSchemaComponentsEvent;
 use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
+use craft\gql\ElementQueryConditionBuilder;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -165,7 +167,8 @@ class Plugin extends BasePlugin
         $this->_registerElementTypes();
         $this->_registerGqlInterfaces();
         $this->_registerGqlQueries();
-        $this->_registerGqlPermissions();
+        $this->_registerGqlComponents();
+        $this->_registerGqlEagerLoadableFields();
         $this->_registerCacheTypes();
         $this->_registerGarbageCollection();
 
@@ -585,10 +588,10 @@ class Plugin extends BasePlugin
     /**
      * Register the Gql permissions
      */
-    private function _registerGqlPermissions()
+    private function _registerGqlComponents()
     {
-        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_PERMISSIONS, function(RegisterGqlPermissionsEvent $event) {
-            $permissions = [];
+        Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
+            $queryComponents = [];
 
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
@@ -601,10 +604,18 @@ class Plugin extends BasePlugin
                     $productPermissions[$suffix . ':read'] = ['label' => self::t('View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
                 }
 
-                $permissions[$label] = $productPermissions;
+                $queryComponents[$label] = $productPermissions;
             }
 
-            $event->permissions = array_merge($event->permissions, $permissions);
+            $event->queries = array_merge($event->queries, $queryComponents);
+        });
+    }
+
+    private function _registerGqlEagerLoadableFields()
+    {
+        Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
+            $event->fieldList['variants'] = [Products::class];
+            $event->fieldList['product'] = [Variants::class];
         });
     }
 

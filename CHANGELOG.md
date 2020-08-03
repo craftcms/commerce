@@ -7,6 +7,8 @@
 - Improved the performance of the order index page significantly.
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
+- Added the `product` field to Variants when using the GraphQL API.
+- Added eager-loading support for products and variants when using the GraphQL API.
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
 - Added `craft\commerce\fieldlayoutelements\ProductTitleField`.
 - Added `craft\commerce\fieldlayoutelements\VariantsField`.

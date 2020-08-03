@@ -82,7 +82,7 @@ class TotalRevenue extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Revenue');
+        return Plugin::t('Total Revenue');
     }
 
     public function getTitle(): string
@@ -136,7 +136,7 @@ class TotalRevenue extends Widget
         if ($this->_stat->getDateRangeInterval() == 'month') {
             $labels = array_map(static function($label) {
                 list($year, $month) = explode('-', $label);
-                $month = $month < 10 ? '0'.$month : $month;
+                $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);
         } else if ($this->_stat->getDateRangeInterval() == 'week') {

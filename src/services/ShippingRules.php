@@ -131,7 +131,7 @@ class ShippingRules extends Component
             $record = ShippingRuleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No shipping rule exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No shipping rule exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

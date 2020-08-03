@@ -195,7 +195,7 @@ class PaymentCurrencies extends Component
         if ($record->primary) {
             // The store wll not usually change primary currency in production, this fix is mainly for developers
             // who had a cart created before they started setting up their currencies.
-            if ($originalIso != $record->iso){
+            if ($originalIso != $record->iso) {
                 Order::updateAll(['currency' => $record->iso, 'paymentCurrency' => $record->iso], ['isCompleted' => false]);
             }
 
