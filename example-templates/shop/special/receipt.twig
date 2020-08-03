@@ -55,10 +55,10 @@
         <td><strong>Date Ordered: </strong>{{ order.dateOrdered|date }}</td>
     </tr>
     <tr>
-        <td><strong>Order Status: </strong>{{ order.orderStatusitle }}</td>
+        <td><strong>Order Status: </strong>{{ order.orderStatus|title }}</td>
     </tr>
     <tr>
-        <td><strong>Paid Status: </strong>{{ order.paidStatusitle }}</td>
+        <td><strong>Paid Status: </strong>{{ order.paidStatus|title }}</td>
     </tr>
     {% if order.couponCode %}
     <tr>
@@ -96,7 +96,7 @@
         {% for lineItemAdjustment in lineItem.adjustments %}
         <tr>
             <th scope="row"></th>
-            <td><strong>{{ lineItemAdjustment.typeitle }}</strong> {{ lineItemAdjustment.name }} - {{ lineItemAdjustment.description }}</td>
+            <td><strong>{{ lineItemAdjustment.type|title }}</strong> {{ lineItemAdjustment.name }} - {{ lineItemAdjustment.description }}</td>
             <td></td>
             <td></td>
             <td align="right">{{ lineItemAdjustment.amountAsCurrency }} {{ lineItemAdjustment.included ? '(included)' }} {{ lineItemAdjustment.isEstimated ? '(estimated)' }}</td>
@@ -118,7 +118,7 @@
     {% for orderAdjustment in order.orderAdjustments %}
     <tr>
         <th scope="row"></th>
-        <td><strong>{{ orderAdjustment.typeitle }}</strong> {{ orderAdjustment.name }} - {{ orderAdjustment.description }}</td>
+        <td><strong>{{ orderAdjustment.type|title }}</strong> {{ orderAdjustment.name }} - {{ orderAdjustment.description }}</td>
         <td></td>
         <td></td>
         <td></td>
