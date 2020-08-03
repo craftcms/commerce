@@ -47,6 +47,7 @@
 - Commerce now requires Craft 3.5.0 or later.
 - Countries are now initially sorted by name, rather than country code.
 - Improved customer search and creation when editing an order. ([#1594](https://github.com/craftcms/commerce/issues/1594))
+- New products, countries, states, and emails are now enabled by default.
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
