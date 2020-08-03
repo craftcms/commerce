@@ -4,7 +4,7 @@
 
 ### Added
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
-- You can now configure multiple PDFs with their own templates paths and file names.
+- You can now configure multiple PDFs with their own templates path and file name.
 - Improved the performance of the order index page significantly.
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
