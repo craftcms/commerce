@@ -42,7 +42,6 @@ class DownloadOrderPdf extends ElementAction
      */
     public function performAction(ElementQueryInterface $query): bool
     {
-
         return true;
     }
 

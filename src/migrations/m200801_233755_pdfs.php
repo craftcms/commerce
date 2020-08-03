@@ -4,6 +4,7 @@ namespace craft\commerce\migrations;
 
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
+use craft\commerce\services\Emails;
 use craft\commerce\services\Pdfs;
 use craft\db\Migration;
 use craft\db\Query;
@@ -91,7 +92,7 @@ class m200801_233755_pdfs extends Migration
 
         // set the default pdf from setting in project config
         $configPath = Pdfs::CONFIG_PDFS_KEY . '.' . $defaultUid;
-        $projectConfig->set($configPath, $data);
+        $projectConfig->set($configPath, $defaultPdf);
 
         // Create the PDF in project config for each email that has a PDF template
         foreach ($emailPdfTemplates as $key => $email) {
@@ -102,11 +103,11 @@ class m200801_233755_pdfs extends Migration
                 $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
             }
             $configData = [
-                'name' => $email['name'] . 'PDF',
+                'name' => $email['name'] . ' PDF',
                 'handle' => StringHelper::toCamelCase($email['name']),
                 'description' => $email['name'],
                 'templatePath' => $templatePath,
-                'fileNameFormat' => $email['fileNameFormat'],
+                'fileNameFormat' => Plugin::getInstance()->getSettings()->orderPdfFilenameFormat,
                 'enabled' => true,
                 'sortOrder' => $sortOrder++,
                 'isDefault' => false,
@@ -114,7 +115,7 @@ class m200801_233755_pdfs extends Migration
             ];
 
             $configPath = Pdfs::CONFIG_PDFS_KEY . '.' . $configData['uid'];
-            $projectConfig->set($configPath, $data);
+            $projectConfig->set($configPath, $configData);
         }
 
         // Update all emails that had a pdf template with the related uid
@@ -134,7 +135,7 @@ class m200801_233755_pdfs extends Migration
                 'uid' => $email['uid']
             ];
 
-            $configPath = Pdfs::CONFIG_PDFS_KEY . '.' . $email['uid'];
+            $configPath = Emails::CONFIG_EMAILS_KEY . '.' . $email['uid'];
             $projectConfig->set($configPath, $data);
         }
     }
