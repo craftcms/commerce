@@ -6,6 +6,7 @@
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
+- Added the `product` field to Variants when using the GraphQL API.
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
