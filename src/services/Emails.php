@@ -345,12 +345,7 @@ class Emails extends Component
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-
-            if ($pdfUid) {
-                $emailRecord->pdfId = Db::idByUid(Table::PDFS, $pdfUid);
-            } else {
-                $emailRecord->pdfId = null;
-            }
+            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
 
             $emailRecord->save(false);
 
