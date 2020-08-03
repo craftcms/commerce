@@ -75,7 +75,7 @@ class Email extends Model
     public $plainTextTemplatePath;
 
     /**
-     * @var ID The PDF UID.
+     * @var int The PDF UID.
      */
     public $pdfId;
 
@@ -109,6 +109,9 @@ class Email extends Model
      */
     public function getPdf()
     {
+        if (!$this->pdfId) {
+            return null;
+        }
         return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
     }
 
