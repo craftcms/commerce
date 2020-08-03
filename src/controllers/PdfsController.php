@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -73,10 +74,19 @@ class PdfsController extends BaseAdminController
     {
         $this->requirePostRequest();
 
-        $pdf = new Pdf();
+        $pdfsService = Plugin::getInstance()->getPdfs();
+        $pdfId = $this->request->getBodyParam('id');
+
+        if ($pdfId) {
+            $pdf = $pdfsService->getPdfById($pdfId);
+            if (!$pdf) {
+                throw new BadRequestHttpException("Invalid PDF ID: $pdfId");
+            }
+        } else {
+            $pdf = new Pdf();
+        }
 
         // Shared attributes
-        $pdf->id = Craft::$app->getRequest()->getBodyParam('id');
         $pdf->name = Craft::$app->getRequest()->getBodyParam('name');
         $pdf->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $pdf->description = Craft::$app->getRequest()->getBodyParam('description');
@@ -86,7 +96,7 @@ class PdfsController extends BaseAdminController
         $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
 
         // Save it
-        if (Plugin::getInstance()->getPdfs()->savePdf($pdf)) {
+        if ($pdfsService->savePdf($pdf)) {
             Craft::$app->getSession()->setNotice(Plugin::t('PDF saved.'));
             return $this->redirectToPostedUrl($pdf);
         } else {

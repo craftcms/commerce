@@ -238,28 +238,15 @@ class Pdfs extends Component
         }
 
         if ($isNewPdf) {
-            $pdfUid = StringHelper::UUID();
-        } else {
-            $pdfUid = Db::uidById(Table::PDFS, $pdf->id);
+            $pdf->uid = StringHelper::UUID();
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-        $configData = [
-            'name' => $pdf->name,
-            'handle' => $pdf->handle,
-            'description' => $pdf->description,
-            'templatePath' => $pdf->templatePath,
-            'fileNameFormat' => $pdf->fileNameFormat,
-            'enabled' => (bool)$pdf->enabled,
-            'sortOrder' => $pdf->sortOrder ?? 9999,
-            'isDefault' => (bool)$pdf->isDefault
-        ];
-
-        $configPath = self::CONFIG_PDFS_KEY . '.' . $pdfUid;
-        $projectConfig->set($configPath, $configData);
+        $configPath = self::CONFIG_PDFS_KEY . '.' . $pdf->uid;
+        $configData = $pdf->getConfig();
+        Craft::$app->getProjectConfig()->set($configPath, $configData);
 
         if ($isNewPdf) {
-            $pdf->id = Db::idByUid(Table::PDFS, $pdfUid);
+            $pdf->id = Db::idByUid(Table::PDFS, $pdf->uid);
         }
 
         return true;

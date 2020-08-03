@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -69,16 +70,25 @@ class EmailsController extends BaseAdminController
 
     /**
      * @return null|Response
-     * @throws HttpException
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
         $this->requirePostRequest();
 
-        $email = new Email();
+        $emailsService = Plugin::getInstance()->getEmails();
+        $emailId = $this->request->getBodyParam('emailId');
+
+        if ($emailId) {
+            $email = $emailsService->getEmailById($emailId);
+            if (!$email) {
+                throw new BadRequestHttpException("Invalid email ID: $emailId");
+            }
+        } else {
+            $email = new Email();
+        }
 
         // Shared attributes
-        $email->id = Craft::$app->getRequest()->getBodyParam('emailId');
         $email->name = Craft::$app->getRequest()->getBodyParam('name');
         $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
         $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
@@ -92,7 +102,7 @@ class EmailsController extends BaseAdminController
         $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
 
         // Save it
-        if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
+        if ($emailsService->saveEmail($email)) {
             Craft::$app->getSession()->setNotice(Plugin::t('Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {

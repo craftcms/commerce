@@ -78,4 +78,24 @@ class Pdf extends Model
         $rules[] = [['templatePath'], 'required'];
         return $rules;
     }
+
+    /**
+     * Returns the field layout config for this email.
+     *
+     * @return array
+     * @since 3.2.0
+     */
+    public function getConfig(): array
+    {
+        return [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'description' => $this->description,
+            'templatePath' => $this->templatePath,
+            'fileNameFormat' => $this->fileNameFormat,
+            'enabled' => (bool)$this->enabled,
+            'sortOrder' => (int)$this->sortOrder ?: 9999,
+            'isDefault' => (bool)$this->isDefault,
+        ];
+    }
 }

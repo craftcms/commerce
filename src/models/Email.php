@@ -126,4 +126,32 @@ class Email extends Model
 
         return "";
     }
+
+    /**
+     * Returns the field layout config for this email.
+     *
+     * @return array
+     * @since 3.2.0
+     */
+    public function getConfig(): array
+    {
+        $config = [
+            'name' => $this->name,
+            'subject' => $this->subject,
+            'recipientType' => $this->recipientType,
+            'to' => $this->to ?: null,
+            'bcc' => $this->bcc ?: null,
+            'cc' => $this->cc ?: null,
+            'replyTo' => $this->replyTo ?: null,
+            'enabled' => (bool)$this->enabled,
+            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
+            'templatePath' => $this->templatePath ?: null,
+        ];
+
+        if ($pdf = $this->getPdf()) {
+            $config['pdf'] = $pdf->uid;
+        }
+
+        return $config;
+    }
 }

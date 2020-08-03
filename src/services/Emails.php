@@ -281,31 +281,15 @@ class Emails extends Component
         }
 
         if ($isNewEmail) {
-            $emailUid = StringHelper::UUID();
-        } else {
-            $emailUid = Db::uidById(Table::EMAILS, $email->id);
+            $email->uid = StringHelper::UUID();
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-        $configData = [
-            'name' => $email->name,
-            'subject' => $email->subject,
-            'recipientType' => $email->recipientType,
-            'to' => $email->to,
-            'bcc' => $email->bcc,
-            'cc' => $email->cc,
-            'replyTo' => $email->replyTo,
-            'enabled' => (bool)$email->enabled,
-            'pdf' => Db::uidById(Table::PDFS, (int)$email->pdfId),
-            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
-            'templatePath' => $email->templatePath
-        ];
-
-        $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
-        $projectConfig->set($configPath, $configData);
+        $configPath = self::CONFIG_EMAILS_KEY . '.' . $email->uid;
+        $configData = $email->getConfig();
+        Craft::$app->getProjectConfig()->set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = Db::idByUid(Table::EMAILS, $emailUid);
+            $email->id = Db::idByUid(Table::EMAILS, $email->uid);
         }
 
         return true;

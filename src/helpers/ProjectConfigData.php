@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order as OrderElement;
 use craft\commerce\elements\Subscription;
+use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\Json;
 
@@ -188,32 +189,11 @@ class ProjectConfigData
      */
     private static function _getEmailData(): array
     {
-        $emailRows = (new Query())
-            ->select([
-                'emails.uid',
-                'emails.name',
-                'emails.subject',
-                'emails.recipientType',
-                'emails.to',
-                'emails.bcc',
-                'emails.enabled',
-                'emails.templatePath',
-                'emails.attachPdf',
-                'emails.pdfTemplatePath'
-            ])
-            ->orderBy('name')
-            ->from([Table::EMAILS . ' emails'])
-            ->indexBy('uid')
-            ->all();
-
-        foreach ($emailRows as &$row) {
-            unset($row['uid']);
-
-            $row['enabled'] = (bool)$row['enabled'];
-            $row['attachPdf'] = (bool)$row['attachPdf'];
+        $data = [];
+        foreach (Plugin::getInstance()->getEmails()->getAllEmails() as $email) {
+            $data[$email->uid] = $email->getConfig();
         }
-
-        return $emailRows;
+        return $data;
     }
 
     /**
@@ -223,26 +203,11 @@ class ProjectConfigData
      */
     private static function _getPdfData(): array
     {
-        $pdfRows = (new Query())
-            ->select([
-                'pdfs.uid',
-                'pdfs.name',
-                'pdfs.description',
-                'pdfs.templatePath',
-                'pdfs.sortOrder',
-                'pdfs.enabled'
-            ])
-            ->orderBy('name')
-            ->from([Table::PDFS . ' pdfs'])
-            ->indexBy('uid')
-            ->all();
-
-        foreach ($pdfRows as &$row) {
-            unset($row['uid']);
-            $row['enabled'] = (bool)$row['enabled'];
+        $data = [];
+        foreach (Plugin::getInstance()->getPdfs()->getAllPdfs() as $pdf) {
+            $data[$pdf->uid] = $pdf->getConfig();
         }
-
-        return $pdfRows;
+        return $data;
     }
 
     /**
