@@ -13,32 +13,24 @@ use craft\db\ActiveRecord;
 /**
  * Email record.
  *
- * @property string $bcc
- * @property string $cc
- * @property string $replyTo
- * @property bool $enabled
  * @property int $id
  * @property string $name
- * @property string $recipientType
- * @property string $subject
+ * @property string $handle
+ * @property string $description
  * @property string $templatePath
- * @property string $plainTextTemplatePath
- * @property bool $attachPdf
- * @property string $pdfTemplatePath
- * @property string $to
+ * @property string $sortOrder
+ * @property bool $enabled
+ * @property bool $isDefault
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 3.2
  */
-class Email extends ActiveRecord
+class Pdf extends ActiveRecord
 {
-    const TYPE_CUSTOMER = 'customer';
-    const TYPE_CUSTOM = 'custom';
-
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::EMAILS;
+        return Table::PDFS;
     }
 }

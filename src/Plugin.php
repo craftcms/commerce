@@ -36,6 +36,7 @@ use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\Orders as OrdersService;
 use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\Pdfs;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Subscriptions;
 use craft\commerce\web\twig\CraftVariableBehavior;
@@ -125,7 +126,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.2.1';
+    public $schemaVersion = '3.2.2';
 
     /**
      * @inheritdoc
@@ -435,6 +436,11 @@ class Plugin extends BasePlugin
         $projectConfigService->onAdd(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onUpdate(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleChangedEmail'])
             ->onRemove(Emails::CONFIG_EMAILS_KEY . '.{uid}', [$emailService, 'handleDeletedEmail']);
+
+        $pdfService = $this->getPdfs();
+        $projectConfigService->onAdd(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
+            ->onUpdate(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleChangedPdf'])
+            ->onRemove(Pdfs::CONFIG_PDFS_KEY . '.{uid}', [$pdfService, 'handleDeletedPdf']);
 
         Event::on(ProjectConfig::class, ProjectConfig::EVENT_REBUILD, function(RebuildConfigEvent $event) {
             $event->config['commerce'] = ProjectConfigData::rebuildProjectConfig();

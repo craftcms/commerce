@@ -1,0 +1,98 @@
+{% extends "commerce/_layouts/cp" %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "PDFs"|t('commerce'), url: url('commerce/settings/pdfs') },
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action" value="commerce/pdfs/save">
+    {{ redirectInput('commerce/settings/pdfs') }}
+    {% if pdf.id %}<input type="hidden" name="id" value="{{ pdf.id }}">{% endif %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "What this PDF will be called in the control panel."|t('commerce'),
+        id: 'name',
+        name: 'name',
+        value: pdf.name,
+        errors: pdf.getErrors('name'),
+        autofocus: true,
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Handle"|t('commerce'),
+        instructions: "How you’ll refer to this PDF in the templates."|t('commerce'),
+        id: 'handle',
+        class: 'code',
+        name: 'handle',
+        value: pdf.handle,
+        errors: pdf.getErrors('handle'),
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        first: true,
+        label: "Description"|t('commerce'),
+        instructions: "Explain what this PDF is used for."|t('commerce'),
+        id: 'description',
+        name: 'description',
+        value: pdf.description,
+        errors: pdf.getErrors('description')
+    }) }}
+
+    {{ forms.autoSuggestField({
+        label: 'PDF Template Path'|t('commerce'),
+        instructions: 'The template to be used for HTML PDFs.'|t('commerce'),
+        id: 'templatePath',
+        name: 'templatePath',
+        value: pdf.templatePath,
+        errors: pdf.getErrors('templatePath'),
+        required: true,
+        suggestions: craft.cp.getTemplateSuggestions()
+    }) }}
+
+    {{ forms.lightswitchField({
+        label: "Enabled?"|t('commerce'),
+        instructions: 'If disabled, this PDF will not be available or sent with emails.'|t('commerce'),
+        id: 'enabled',
+        name: 'enabled',
+        value: 1,
+        on: pdf.enabled,
+        errors: pdf.getErrors('enabled')
+    }) }}
+
+    {% set pdfs = craft.commerce.pdfs.getAllPdfs() %}
+
+    {% if pdfs|length == 0 %}
+    {% set isDefault = true %}
+    {% else %}
+    {% set isDefault = pdf.isDefault %}
+    {% endif %}
+
+    {% if pdf.isDefault %}
+        <input type="hidden" name="isDefault" value="1">
+    {% else %}
+    {{ forms.checkboxField({
+        label: "Default Order PDF"|t('commerce'),
+        instructions: "This is the default PDF that will be rendered when requesting the order PDF."|t('commerce'),
+        name: 'isDefault',
+        value: 1,
+        checked: isDefault,
+        errors: pdf.getErrors('isDefault')
+    }) }}
+    {% endif %}
+
+{% js %}
+    {% if not pdf.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+{% endjs %}
+
+{% endblock %}
