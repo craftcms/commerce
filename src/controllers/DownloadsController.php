@@ -51,10 +51,9 @@ class DownloadsController extends BaseFrontEndController
 
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
 
-        $fileName = $this->getView()->renderObjectTemplate($pdf->filenameFormat, $order);
-
+        $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
-            $fileName = 'Order-' . $order->number;
+            $fileName = $pdf->handle.'-' . $order->number;
         }
 
         return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [

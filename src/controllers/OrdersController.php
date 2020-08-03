@@ -1124,6 +1124,7 @@ class OrdersController extends Controller
         if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
             $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
             $billingAddress['isEstimated'] = false;
+            unset($billingAddress['addressLines']);
             $billingAddress = new Address($billingAddress);
 
             $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
@@ -1136,6 +1137,7 @@ class OrdersController extends Controller
         if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
+            unset($shippingAddress['addressLines']);
             $shippingAddress = new Address($shippingAddress);
 
             $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;

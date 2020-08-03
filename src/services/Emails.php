@@ -296,8 +296,9 @@ class Emails extends Component
             'cc' => $email->cc,
             'replyTo' => $email->replyTo,
             'enabled' => (bool)$email->enabled,
-            'pdfUid' => Db::uidById(Table::PDFS, $email->pdfId),
-            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null
+            'pdfUid' => Db::uidById(Table::PDFS, (int)$email->pdfId),
+            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
+            'templatePath' => $email->templatePath
         ];
 
         $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
@@ -341,7 +342,7 @@ class Emails extends Component
             $emailRecord->uid = $emailUid;
 
             if ($data['pdfUid']) {
-                $emailRecord->pdfId = Db::idByUid($data['pdfUid']);
+                $emailRecord->pdfId = Db::idByUid(Table::PDFS, $data['pdfUid']);
             } else {
                 $emailRecord->pdfId = null;
             }
@@ -694,15 +695,15 @@ class Emails extends Component
             }
 
             try {
-                $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', $path, [], $pdf);
+                $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', null, [], $pdf);
 
                 $tempPath = Assets::tempFilePath('pdf');
 
                 file_put_contents($tempPath, $renderedPdf);
 
-                $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
+                $fileName = $view->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
                 if (!$fileName) {
-                    $fileName = 'Order-' . $order->number;
+                    $fileName = $pdf->handle . '-' . $order->number;
                 }
 
                 // Attachment information

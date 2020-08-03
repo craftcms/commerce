@@ -60,6 +60,19 @@
         suggestions: craft.cp.getTemplateSuggestions()
     }) }}
 
+        {{ forms.textField({
+            label: "Order PDF Filename Format"|t('commerce'),
+            instructions: "What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t('commerce', {
+                ex1: '<code>{number}</code>',
+                ex2: '<code>{myOrderCustomField}</code>'
+            }),
+            id: 'fileNameFormat',
+            name: 'fileNameFormat',
+            value: pdf.fileNameFormat,
+            class: 'code ltr',
+            errors: pdf.getErrors('fileNameFormat')
+        }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this PDF will not be available or sent with emails.'|t('commerce'),

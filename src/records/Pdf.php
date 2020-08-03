@@ -18,6 +18,7 @@ use craft\db\ActiveRecord;
  * @property string $handle
  * @property string $description
  * @property string $templatePath
+ * @property string $fileNameFormat
  * @property string $sortOrder
  * @property bool $enabled
  * @property bool $isDefault

@@ -81,6 +81,7 @@ class PdfsController extends BaseAdminController
         $pdf->handle = Craft::$app->getRequest()->getBodyParam('handle');
         $pdf->description = Craft::$app->getRequest()->getBodyParam('description');
         $pdf->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
+        $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
         $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
         $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
 

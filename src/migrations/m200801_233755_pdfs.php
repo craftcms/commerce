@@ -78,9 +78,9 @@ class m200801_233755_pdfs extends Migration
         // Migrate the settings for default PDF setting to a real PDF record
         $defaultUid = StringHelper::UUID();
         $defaultPdf = [
-            'name' => 'Default PDF',
-            'handle' => 'default',
-            'description' => 'Default PDF',
+            'name' => 'Default',
+            'handle' => 'order',
+            'description' => 'Default Order PDF',
             'templatePath' => Plugin::getInstance()->getSettings()->orderPdfPath,
             'fileNameFormat' => Plugin::getInstance()->getSettings()->orderPdfFilenameFormat,
             'isDefault' => true,
@@ -100,6 +100,7 @@ class m200801_233755_pdfs extends Migration
                 'handle' => StringHelper::toCamelCase($email['name']),
                 'description' => $email['name'],
                 'templatePath' => $email['pdfTemplatePath'],
+                'fileNameFormat' => $email['fileNameFormat'],
                 'enabled' => true,
                 'sortOrder' => $sortOrder++,
                 'isDefault' => false,

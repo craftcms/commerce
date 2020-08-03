@@ -127,22 +127,8 @@
         id: 'pdfId',
         name: 'pdfId',
         value: email.pdfId,
-        options: pdfAttachmentOptions
+        options: pdfList
     }) }}
-
-    <div id="pdf-template-path-container"{% if not email.attachPdf %} class="hidden"{% endif %}>
-    {{ forms.autoSuggestField({
-        label: 'PDF Template Path'|t('commerce'),
-        instructions: "By default the PDF template path is the 'Order PDF Template' in the general commerce config, but can choose a different template for this email's PDF."|t('commerce'),
-        placeholder: craft.commerce.settings.orderPdfPath,
-        id: 'pdf-template-path',
-        name: 'pdfTemplatePath',
-        value: email.pdfTemplatePath,
-        errors: email.getErrors('pdfTemplatePath'),
-        required: true,
-        suggestions: craft.cp.getTemplateSuggestions()
-    }) }}
-    </div>
 
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),

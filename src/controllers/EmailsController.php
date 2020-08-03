@@ -60,7 +60,9 @@ class EmailsController extends BaseAdminController
         }
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
-        $variables['pdfList'] = ArrayHelper::map($pdfs, 'id', 'name');
+        $pdfList = [null => Plugin::t('Do not attach a PDF to this email')];
+        $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
+        $variables['pdfList'] = $pdfList;
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
@@ -87,9 +89,7 @@ class EmailsController extends BaseAdminController
         $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $email->attachPdf = Craft::$app->getRequest()->getBodyParam('attachPdf');
-        // Only set pdfTemplatePath if attachments are turned on
-        $email->pdfTemplatePath = $email->attachPdf ? Craft::$app->getRequest()->getBodyParam('pdfTemplatePath') : '';
+        $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
 
         // Save it
         if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
