@@ -99,7 +99,7 @@ class m200801_233755_pdfs extends Migration
             $templatePath = $email['pdfTemplatePath'];
 
             // If the email had attachPdf set to true, but had no pdf template path, then we need to use the default one from settings.
-            if(empty($templatePath) || !$templatePath){
+            if (empty($templatePath) || !$templatePath) {
                 $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
             }
             $configData = [
