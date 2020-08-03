@@ -261,6 +261,7 @@ class ProjectConfigData
                 'name',
                 'handle',
                 'color',
+                'description',
                 'sortOrder',
                 'default',
             ])
