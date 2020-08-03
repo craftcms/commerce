@@ -57,7 +57,6 @@ class Install extends Migration
     private $_variantFieldLayoutId;
     private $_productFieldLayoutId;
 
-
     /**
      * @inheritdoc
      */
@@ -263,6 +262,20 @@ class Install extends Migration
             'templatePath' => $this->string()->notNull(),
             'plainTextTemplatePath' => $this->string(),
             'pdfTemplatePath' => $this->string()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable('{{%commerce_pdfs}}', [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'description' => $this->string(),
+            'templatePath' => $this->string()->notNull(),
+            'enabled' => $this->boolean(),
+            'isDefault' => $this->boolean(),
+            'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -839,6 +852,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::DISCOUNTS);
         $this->dropTableIfExists(Table::DONATIONS);
         $this->dropTableIfExists(Table::EMAILS);
+        $this->dropTableIfExists(Table::PDFS);
         $this->dropTableIfExists(Table::GATEWAYS);
         $this->dropTableIfExists(Table::LINEITEMS);
         $this->dropTableIfExists(Table::LINEITEMSTATUSES);
@@ -936,6 +950,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
+        $this->createIndex(null, Table::PDFS, 'handle', false);
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
         $this->createIndex(null, Table::PLANS, 'handle', true);
         $this->createIndex(null, Table::PLANS, 'reference', false);

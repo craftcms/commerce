@@ -32,6 +32,7 @@ class ProjectConfigData
         $output = [];
 
         $output['emails'] = self::_getEmailData();
+        $output['pdfs'] = self::_getPdfData();
         $output['gateways'] = self::_rebuildGatewayProjectConfig();
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
@@ -206,6 +207,35 @@ class ProjectConfigData
         }
 
         return $emailRows;
+    }
+
+    /**
+     * Return PDF data config array.
+     *
+     * @return array
+     */
+    private static function _getPdfData(): array
+    {
+        $pdfRows = (new Query())
+            ->select([
+                'pdfs.uid',
+                'pdfs.name',
+                'pdfs.description',
+                'pdfs.templatePath',
+                'pdfs.sortOrder',
+                'pdfs.enabled'
+            ])
+            ->orderBy('name')
+            ->from([Table::PDFS . ' pdfs'])
+            ->indexBy('uid')
+            ->all();
+
+        foreach ($pdfRows as &$row) {
+            unset($row['uid']);
+            $row['enabled'] = (bool)$row['enabled'];
+        }
+
+        return $pdfRows;
     }
 
     /**

@@ -319,7 +319,7 @@ class Emails extends Component
 
 
     /**
-     * Handle gateway status change.
+     * Handle email status change.
      *
      * @param ConfigEvent $event
      * @return void
@@ -696,7 +696,7 @@ class Emails extends Component
             }
 
             try {
-                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, 'email', $path);
+                $pdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', $path);
 
                 $tempPath = Assets::tempFilePath('pdf');
 
