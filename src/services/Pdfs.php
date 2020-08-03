@@ -377,13 +377,13 @@ class Pdfs extends Component
     /**
      * Returns a rendered PDF object for the order.
      *
-     * @param Order $order
-     * @param string $option
-     * @param string $templatePath
+     * @param Order $order The you want passed into the PDFs `order` variable.
+     * @param string $option A string you want passed into the PDFs `option` variable.
+     * @param string $templatePath The path to the template file in the site templates folder.
      * @param array $variables Variables available to the pdf html template. Available to template by the array keys.
      * @param Pdf|null $pdf The PDF you want to render. This will override the templatePath argument.
-     * @return string
-     * @throws Exception if no template or order found.
+     * @return string The PDF data.
+     * @throws Exception
      */
     public function renderPdfForOrder(Order $order, $option = '', $templatePath = null, $variables = [], $pdf = null): string
     {
