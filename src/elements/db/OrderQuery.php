@@ -32,6 +32,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path dev/element-queries/order-queries.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
