@@ -40,7 +40,7 @@ class Pdf extends Model
     /**
      * @var bool Is Enabled
      */
-    public $enabled;
+    public $enabled = true;
 
     /**
      * @var bool Is default PDF for order
