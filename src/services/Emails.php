@@ -42,166 +42,57 @@ use yii\web\ServerErrorHttpException;
 class Emails extends Component
 {
     /**
-     * @event MailEvent The event that is triggered before an email is sent out.
+     * @event MailEvent The event that is raised before an email is sent.
+     * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
      *
-     * You may set the `isValid` property to `false` on the event to prevent the email from being sent.
+     * Plugins can get notified before an email is being sent out.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
-     * use craft\commerce\elements\Order;
-     * use craft\commerce\models\Email;
-     * use craft\commerce\models\OrderHistory;
-     * use craft\mail\Message;
      * use yii\base\Event;
      *
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_BEFORE_SEND_MAIL,
-     *     function(MailEvent $event) {
-     *         // @var Message $message
-     *         $message = $event->craftEmail;
-     *         // @var Email $email
-     *         $email = $event->commerceEmail;
-     *         // @var Order $order
-     *         $order = $event->order;
-     *         // @var OrderHistory $history
-     *         $history = $event->orderHistory;
-     * 
-     *         // Use `$event->isValid = false` to prevent sending
-     *         // based on some business rules or client preferences
-     *         // ...
-     *     }
-     * );
+     * Event::on(Emails::class, Emails::EVENT_BEFORE_SEND_MAIL, function(MailEvent $e) {
+     *      // Maybe prevent the email based on some business rules or client preferences.
+     * });
      * ```
      */
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
     /**
-     * @event MailEvent The event that is triggered after an email has been sent out.
+     * @event MailEvent The event that is raised after an email is sent
+     *
+     * Plugins can get notified after an email has been sent out.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
-     * use craft\commerce\elements\Order;
-     * use craft\commerce\models\Email;
-     * use craft\commerce\models\OrderHistory;
-     * use craft\mail\Message;
      * use yii\base\Event;
-     * 
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_AFTER_SEND_MAIL,
-     *     function(MailEvent $event) {
-     *         // @var Message $message
-     *         $message = $event->craftEmail;
-     *         // @var Email $email
-     *         $email = $event->commerceEmail;
-     *         // @var Order $order
-     *         $order = $event->order;
-     *         // @var OrderHistory $history
-     *         $history = $event->orderHistory;
-     * 
-     *         // Add the email address to an external CRM
-     *         // ...
-     *     }
-     * );
+     *
+     * Event::on(Emails::class, Emails::EVENT_AFTER_SEND_MAIL, function(MailEvent $e) {
+     *      // Perhaps add the email to a CRM system
+     * });
      * ```
      */
     const EVENT_AFTER_SEND_MAIL = 'afterSendEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is saved.
-     *
-     * ```php
-     * use craft\commerce\events\EmailEvent;
-     * use craft\commerce\services\Emails;
-     * use craft\commerce\models\Email;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_BEFORE_SAVE_EMAIL,
-     *     function(EmailEvent $event) {
-     *         // @var Email $email
-     *         $email = $event->email;
-     *         // @var bool $isNew
-     *         $isNew = $event->isNew;
-     * 
-     *         // ...
-     *     }
-     * );
-     * ```
      */
     const EVENT_BEFORE_SAVE_EMAIL = 'beforeSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is saved.
-     *
-     * ```php
-     * use craft\commerce\events\EmailEvent;
-     * use craft\commerce\services\Emails;
-     * use craft\commerce\models\Email;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_AFTER_SAVE_EMAIL,
-     *     function(EmailEvent $event) {
-     *         // @var Email $email
-     *         $email = $event->email;
-     *         // @var bool $isNew
-     *         $isNew = $event->isNew;
-     * 
-     *         // ...
-     *     }
-     * );
-     * ```
      */
     const EVENT_AFTER_SAVE_EMAIL = 'afterSaveEmail';
 
     /**
      * @event EmailEvent The event that is triggered before an email is deleted.
-     * 
-     * ```php
-     * use craft\commerce\events\EmailEvent;
-     * use craft\commerce\services\Emails;
-     * use craft\commerce\models\Email;
-     * use yii\base\Event;
-     * 
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_BEFORE_DELETE_EMAIL,
-     *     function(EmailEvent $event) {
-     *         // @var Email $email
-     *         $email = $event->email;
-     * 
-     *         // ...
-     *     }
-     * );
-     * ```
      */
     const EVENT_BEFORE_DELETE_EMAIL = 'beforeDeleteEmail';
 
     /**
      * @event EmailEvent The event that is triggered after an email is deleted.
-     * ```php
-     * use craft\commerce\events\EmailEvent;
-     * use craft\commerce\services\Emails;
-     * use craft\commerce\models\Email;
-     * use yii\base\Event;
-     * 
-     * Event::on(
-     *     Emails::class,
-     *     Emails::EVENT_AFTER_DELETE_EMAIL,
-     *     function(EmailEvent $event) {
-     *         // @var Email $email
-     *         $email = $event->email;
-     * 
-     *         // ...
-     *     }
-     * );
-     * ```
      */
     const EVENT_AFTER_DELETE_EMAIL = 'afterDeleteEmail';
 
@@ -301,10 +192,8 @@ class Emails extends Component
             'cc' => $email->cc,
             'replyTo' => $email->replyTo,
             'enabled' => (bool)$email->enabled,
-            'templatePath' => $email->templatePath,
-            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
-            'attachPdf' => (bool)$email->attachPdf,
-            'pdfTemplatePath' => $email->pdfTemplatePath,
+            'pdfUid' => Db::uidById(Table::PDFS, $email->pdfId),
+            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null
         ];
 
         $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
@@ -345,11 +234,16 @@ class Emails extends Component
             $emailRecord->enabled = $data['enabled'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
-            $emailRecord->attachPdf = $data['attachPdf'];
-            $emailRecord->pdfTemplatePath = $data['pdfTemplatePath'];
             $emailRecord->uid = $emailUid;
 
+            if ($data['pdfUid']) {
+                $emailRecord->pdfId = Db::idByUid($data['pdfUid']);
+            } else {
+                $emailRecord->pdfId = null;
+            }
+
             $emailRecord->save(false);
+
             $transaction->commit();
         } catch (Throwable $e) {
             $transaction->rollBack();
@@ -679,11 +573,11 @@ class Emails extends Component
             return false;
         }
 
-        if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
+        if ($pdf = $email->getPdf()) {
             // Email Body
-            if (!$view->doesTemplateExist($path)) {
+            if (!$view->doesTemplateExist($pdf->templatePath)) {
                 $error = Plugin::t('Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
-                    'templatePath' => $path,
+                    'templatePath' => $pdf->templatePath,
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
@@ -696,15 +590,13 @@ class Emails extends Component
             }
 
             try {
-                $pdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', $path);
+                $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', $path, [], $pdf);
 
                 $tempPath = Assets::tempFilePath('pdf');
 
-                file_put_contents($tempPath, $pdf);
+                file_put_contents($tempPath, $renderedPdf);
 
-                // Get a file name
-                $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
-                $fileName = $view->renderObjectTemplate($filenameFormat, $order);
+                $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
                 if (!$fileName) {
                     $fileName = 'Order-' . $order->number;
                 }
@@ -892,8 +784,7 @@ class Emails extends Component
                 'emails.enabled',
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
-                'emails.attachPdf',
-                'emails.pdfTemplatePath',
+                'emails.pdfId',
                 'emails.uid',
             ])
             ->orderBy('name')

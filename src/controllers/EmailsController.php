@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -57,6 +58,9 @@ class EmailsController extends BaseAdminController
         } else {
             $variables['title'] = Plugin::t('Create a new email');
         }
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
+        $variables['pdfList'] = ArrayHelper::map($pdfs, 'id', 'name');
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }

@@ -9,6 +9,7 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\actions\DeleteOrder;
+use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
@@ -305,6 +306,19 @@ trait OrderElementTrait
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
+
+            $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+
+            foreach ($pdfs as $pdf){
+                $deleteAction = $elementService->createAction(
+                    [
+                        'type' => DownloadOrderPdf::class,
+                        'pdfHandle' => $pdf->handle
+                    ]
+                );
+                $actions[] = $deleteAction;
+            }
+
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
                 $deleteAction = $elementService->createAction(
                     [

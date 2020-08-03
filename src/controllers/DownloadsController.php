@@ -50,9 +50,8 @@ class DownloadsController extends BaseFrontEndController
         $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
 
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
-        $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
 
-        $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
+        $fileName = $this->getView()->renderObjectTemplate($pdf->filenameFormat, $order);
 
         if (!$fileName) {
             $fileName = 'Order-' . $order->number;

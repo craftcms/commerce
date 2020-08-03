@@ -121,14 +121,13 @@
         errors: email.getErrors('plainTextTemplatePath'),
     }) }}
 
-    {{ forms.lightswitchField({
-        label: "Attach PDF"|t('commerce'),
-        instructions: 'This email should render the order PDF template and include it as an attachment.'|t('commerce'),
-        id: 'attach-pdf',
-        name: 'attachPdf',
-        value: 1,
-        on: email.attachPdf,
-        toggle: '#pdf-template-path-container'
+    {{ forms.selectField({
+        label: 'PDF Attachment'|t('commerce'),
+        instructions: 'The PDF to attach to this email.'|t('commerce'),
+        id: 'pdfId',
+        name: 'pdfId',
+        value: email.pdfId,
+        options: pdfAttachmentOptions
     }) }}
 
     <div id="pdf-template-path-container"{% if not email.attachPdf %} class="hidden"{% endif %}>

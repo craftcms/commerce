@@ -191,7 +191,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfByHandle(string $handle)
+    public function getPdfByHandle($handle)
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
     }
@@ -205,11 +205,7 @@ class Pdfs extends Component
      */
     public function getPdfById($id)
     {
-        $result = $this->_createPdfsQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        return $result ? new Pdf($result) : null;
+        return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
     }
 
     /**
@@ -253,6 +249,7 @@ class Pdfs extends Component
             'handle' => $pdf->handle,
             'description' => $pdf->description,
             'templatePath' => $pdf->templatePath,
+            'fileNameFormat' => $pdf->fileNameFormat,
             'enabled' => (bool)$pdf->enabled,
             'sortOrder' => $pdf->sortOrder ?? 9999,
             'isDefault' => (bool)$pdf->isDefault

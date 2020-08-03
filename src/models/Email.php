@@ -8,6 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 
 /**
@@ -74,14 +75,9 @@ class Email extends Model
     public $plainTextTemplatePath;
 
     /**
-     * @var bool Whether the email should attach a pdf template
+     * @var ID The PDF UID.
      */
-    public $attachPdf;
-
-    /**
-     * @var string Template path to the pdf.
-     */
-    public $pdfTemplatePath;
+    public $pdfId;
 
     /**
      * @var string UID
@@ -106,5 +102,25 @@ class Email extends Model
         ];
         $rules[] = [['templatePath'], 'required'];
         return $rules;
+    }
+
+    /**
+     * @return Pdf|null
+     */
+    public function getPdf()
+    {
+        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
+    }
+
+    /**
+     * @deprecated in 3.2.0 Use $email->getPdf()->templatePath instead
+     */
+    public function getPdfTemplatePath()
+    {
+        if ($pdf = $this->getPdf()) {
+            return $pdf->templatePath;
+        }
+
+        return "";
     }
 }

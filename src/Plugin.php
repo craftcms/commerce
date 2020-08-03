@@ -121,12 +121,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-<<<<<<< HEAD
-
-    public $schemaVersion = '3.1.13';
-=======
     public $schemaVersion = '3.2.2';
->>>>>>> 43dd397e3... Multi-pdf support
 
     /**
      * @inheritdoc

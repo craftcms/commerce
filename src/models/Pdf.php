@@ -53,6 +53,11 @@ class Pdf extends Model
     public $templatePath;
 
     /**
+     * @var string Filename format
+     */
+    public $fileNameFormat;
+
+    /**
      * @var int Sort order
      */
     public $sortOrder;

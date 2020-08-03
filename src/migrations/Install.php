@@ -258,21 +258,21 @@ class Install extends Migration
             'cc' => $this->string(),
             'replyTo' => $this->string(),
             'enabled' => $this->boolean(),
-            'attachPdf' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),
             'plainTextTemplatePath' => $this->string(),
-            'pdfTemplatePath' => $this->string()->notNull(),
+            'pdfId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable('{{%commerce_pdfs}}', [
+        $this->createTable(Table::PDFS, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
             'templatePath' => $this->string()->notNull(),
+            'fileNameFormat' => $this->string(),
             'enabled' => $this->boolean(),
             'isDefault' => $this->boolean(),
             'sortOrder' => $this->integer(),
@@ -1039,6 +1039,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
@@ -1124,6 +1125,7 @@ class Install extends Migration
             Table::DISCOUNT_CATEGORIES,
             Table::DISCOUNT_USERGROUPS,
             Table::DONATIONS,
+            Table::EMAILS,
             Table::LINEITEMS,
             Table::ORDERADJUSTMENTS,
             Table::ORDERHISTORIES,
