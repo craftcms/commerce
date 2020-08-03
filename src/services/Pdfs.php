@@ -168,6 +168,16 @@ class Pdfs extends Component
     }
 
     /**
+     * @return bool
+     * @since 3.2
+     */
+    public function getHasEnabledPdf(): bool
+    {
+        $pdfs = $this->getAllPdfs();
+        return ArrayHelper::contains($pdfs, 'enabled', true);
+    }
+
+    /**
      * @return Pdf[]
      * @since 3.2
      */

@@ -307,16 +307,8 @@ trait OrderElementTrait
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
 
-            $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-
-            foreach ($pdfs as $pdf){
-                $deleteAction = $elementService->createAction(
-                    [
-                        'type' => DownloadOrderPdf::class,
-                        'pdfHandle' => $pdf->handle
-                    ]
-                );
-                $actions[] = $deleteAction;
+            if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
+                $actions[] = DownloadOrderPdf::class;
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
