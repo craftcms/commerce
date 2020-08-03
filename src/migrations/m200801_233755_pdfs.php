@@ -131,7 +131,7 @@ class m200801_233755_pdfs extends Migration
                 'enabled' => $email['enabled'],
                 'templatePath' => $email['templatePath'],
                 'plainTextTemplatePath' => $email['plainTextTemplatePath'],
-                'pdfUid' => $emailPdfUids[$key], // uid generated from this migration
+                'pdf' => $emailPdfUids[$key], // uid generated from this migration
                 'uid' => $email['uid']
             ];
 

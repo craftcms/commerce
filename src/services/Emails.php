@@ -296,7 +296,7 @@ class Emails extends Component
             'cc' => $email->cc,
             'replyTo' => $email->replyTo,
             'enabled' => (bool)$email->enabled,
-            'pdfUid' => Db::uidById(Table::PDFS, (int)$email->pdfId),
+            'pdf' => Db::uidById(Table::PDFS, (int)$email->pdfId),
             'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
             'templatePath' => $email->templatePath
         ];
@@ -324,7 +324,7 @@ class Emails extends Component
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
-        $pdfUid = $data['pdfUid'];
+        $pdfUid = $data['pdf'] ?? null;
         if ($pdfUid) {
             Craft::$app->getProjectConfig()->processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
         }
