@@ -101,7 +101,7 @@ class m200801_233755_pdfs extends Migration
                 $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
             }
             $configData = [
-                'name' => $email['name'],
+                'name' => $email['name'] . 'PDF',
                 'handle' => StringHelper::toCamelCase($email['name']),
                 'description' => $email['name'],
                 'templatePath' => $templatePath,
