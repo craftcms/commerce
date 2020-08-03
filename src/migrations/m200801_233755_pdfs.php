@@ -23,8 +23,7 @@ class m200801_233755_pdfs extends Migration
         $emailPdfTemplates = (new Query())
             ->select(['*'])
             ->from(['{{%commerce_emails}}'])
-            ->where(['not', ['pdfTemplatePath' => null]])
-            ->andWhere(['not', ['pdfTemplatePath' => '']])
+            ->where(['attachPdf' => true])
             ->all();
 
         $schema = $this->db->getSchema();
@@ -95,11 +94,17 @@ class m200801_233755_pdfs extends Migration
 
         // Create the PDF in project config for each email that has a PDF template
         foreach ($emailPdfTemplates as $key => $email) {
+            $templatePath = $email['pdfTemplatePath'];
+
+            // If the email had attachPdf set to true, but had no pdf template path, then we need to use the default one from settings.
+            if(empty($templatePath) || !$templatePath){
+                $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
+            }
             $configData = [
                 'name' => $email['name'],
                 'handle' => StringHelper::toCamelCase($email['name']),
                 'description' => $email['name'],
-                'templatePath' => $email['pdfTemplatePath'],
+                'templatePath' => $templatePath,
                 'fileNameFormat' => $email['fileNameFormat'],
                 'enabled' => true,
                 'sortOrder' => $sortOrder++,
