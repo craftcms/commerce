@@ -59,6 +59,7 @@
 - Removed `craft\commerce\records\ProductType::$titleLabel`.
 - Removed `craft\commerce\records\ProductType::$variantTitleLabel`.
 - Removed `craft\commerce\models\Email::$pdfTemplatePath`.
+- Removed `craft\commerce\records\Email::$pdfTemplatePath`.
 
 ### Fixed
 - Fixed a bug where interactive custom fields weren’t working within new newly created product variants, from product editor HUDs.
