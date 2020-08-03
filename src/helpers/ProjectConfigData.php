@@ -37,10 +37,10 @@ class ProjectConfigData
 
         $orderFieldLayout = Craft::$app->getFields()->getLayoutByType(OrderElement::class);
 
-        if ($orderFieldLayout->uid) {
+        if ($orderFieldLayoutConfig = $orderFieldLayout->getConfig()) {
             $output['orders'] = [
                 'fieldLayouts' => [
-                    $orderFieldLayout->uid => $orderFieldLayout->getConfig()
+                    $orderFieldLayout->uid => $orderFieldLayout,
                 ]
             ];
         }
@@ -50,10 +50,10 @@ class ProjectConfigData
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
-        if ($subscriptionFieldLayout->uid) {
+        if ($subscriptionFieldLayoutConfig = $subscriptionFieldLayout->getConfig()) {
             $output['subscriptions'] = [
                 'fieldLayouts' => [
-                    $subscriptionFieldLayout->uid => $subscriptionFieldLayout->getConfig()
+                    $subscriptionFieldLayout->uid => $subscriptionFieldLayoutConfig,
                 ]
             ];
         }
@@ -128,16 +128,20 @@ class ProjectConfigData
             if (!empty($productTypeRow['fieldLayoutId'])) {
                 $layout = Craft::$app->getFields()->getLayoutById($productTypeRow['fieldLayoutId']);
 
-                if ($layout) {
-                    $productTypeRow['productFieldLayouts'] = [$layout->uid => $layout->getConfig()];
+                if ($layout && ($layoutConfig = $layout->getConfig())) {
+                    $productTypeRow['productFieldLayouts'] = [
+                        $layout->uid => $layoutConfig,
+                    ];
                 }
             }
 
             if (!empty($productTypeRow['variantFieldLayoutId'])) {
                 $layout = Craft::$app->getFields()->getLayoutById($productTypeRow['variantFieldLayoutId']);
 
-                if ($layout) {
-                    $productTypeRow['variantFieldLayouts'] = [$layout->uid => $layout->getConfig()];
+                if ($layout && ($layoutConfig = $layout->getConfig())) {
+                    $productTypeRow['variantFieldLayouts'] = [
+                        $layout->uid => $layoutConfig,
+                    ];
                 }
             }
 
