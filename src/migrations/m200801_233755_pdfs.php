@@ -39,6 +39,7 @@ class m200801_233755_pdfs extends Migration
                 'handle' => $this->string()->notNull(),
                 'description' => $this->string(),
                 'templatePath' => $this->string()->notNull(),
+                'fileNameFormat' => $this->string(),
                 'enabled' => $this->boolean(),
                 'isDefault' => $this->boolean(),
                 'sortOrder' => $this->integer(),
@@ -68,7 +69,7 @@ class m200801_233755_pdfs extends Migration
         // Don't make the same config changes twice...
         $projectConfig = \Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '3.2.1', '>=')) {
+        if (version_compare($schemaVersion, '3.2.2', '>=')) {
             return;
         }
 
