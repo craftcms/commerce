@@ -324,6 +324,11 @@ class Emails extends Component
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
 
+        $pdfUid = $data['pdfUid'];
+        if ($pdfUid) {
+            Craft::$app->getProjectConfig()->processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
+        }
+
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
             $emailRecord = $this->_getEmailRecord($emailUid);
@@ -341,8 +346,8 @@ class Emails extends Component
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
 
-            if ($data['pdfUid']) {
-                $emailRecord->pdfId = Db::idByUid(Table::PDFS, $data['pdfUid']);
+            if ($pdfUid) {
+                $emailRecord->pdfId = Db::idByUid(Table::PDFS, $pdfUid);
             } else {
                 $emailRecord->pdfId = null;
             }
