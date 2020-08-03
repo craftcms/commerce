@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\web\View;
 
@@ -33,7 +34,7 @@ class VariantMatrix
     {
         /** @var View $viewService */
         $viewService = Craft::$app->getView();
-        $id = $viewService->formatInputId($name);
+        $id = Html::id($name);
 
         $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,
@@ -46,6 +47,9 @@ class VariantMatrix
         $namespacedName = $viewService->namespaceInputName($name);
         $namespacedId = $viewService->namespaceInputId($id);
 
+        $namespace = $viewService->getNamespace();
+        $viewService->setNamespace(null);
+
         // Get the field HTML
         list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
 
@@ -57,6 +61,8 @@ class VariantMatrix
             '"' . $namespacedName . '"' .
             ');');
 
+        $viewService->setNamespace($namespace);
+
         return $html;
     }
 
@@ -65,10 +71,10 @@ class VariantMatrix
      * Returns info about each variant field type for a variant matrix.
      *
      * @param ProductElement $product The product model
-     * @param string $name The input name (sans namespace)
+     * @param string $namespace The input namespace
      * @return array
      */
-    private static function _getVariantFieldHtml($product, $name): array
+    private static function _getVariantFieldHtml(ProductElement $product, string $namespace): array
     {
         $variant = new Variant();
         $variant->setProduct($product);
@@ -83,7 +89,7 @@ class VariantMatrix
         $templatesService->startJsBuffer();
 
         $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
-            'namespace' => $name . '[__VARIANT__]',
+            'namespace' => Html::namespaceInputName('__VARIANT__', $namespace),
             'variant' => $variant,
             'product' => $product
         ]);

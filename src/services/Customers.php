@@ -23,6 +23,7 @@ use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use craft\events\ModelEvent;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -619,23 +620,6 @@ class Customers extends Component
     }
 
     /**
-     * Returns a Query object prepped for retrieving Order Adjustment.
-     *
-     * @return Query The query object.
-     */
-    private function _createCustomerQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'id',
-                'userId',
-                'primaryBillingAddressId',
-                'primaryShippingAddressId'
-            ])
-            ->from([Table::CUSTOMERS]);
-    }
-
-    /**
      * @param Order $order
      * @return bool
      * @throws \yii\db\Exception
@@ -893,6 +877,41 @@ class Customers extends Component
     }
 
     /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.x
+     */
+    public function eagerLoadCustomerForOrders(array $orders): array
+    {
+        $customerIds = ArrayHelper::getColumn($orders, 'customerId');
+        $customersResults = $this->_createCustomerQuery()->andWhere(['id' => $customerIds])->all();
+
+        $customers = [];
+        $userIds = array_filter(ArrayHelper::getColumn($customersResults, 'userId'));
+        $users = User::find()->id($userIds)->limit(null)->all();
+
+        foreach ($customersResults as $result) {
+            $customer = new Customer($result);
+
+            // also eager load the user on the customer if possible
+            if ($customer->userId && $user = ArrayHelper::firstWhere($users, 'id', $customer->userId)) {
+                $customer->setUser($user);
+            }
+
+            $customers[$customer->id] = $customers[$customer->id] ?? $customer;
+        }
+
+        foreach ($orders as $key => $order) {
+            if(isset($customers[$order->customerId])) {
+                $order->setCustomer($customers[$order->customerId]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
      * @param $customerId
      * @param $email
      * @throws \yii\db\Exception
@@ -913,4 +932,20 @@ class Customers extends Component
         }
     }
 
+    /**
+     * Returns a Query object prepped for retrieving Order Adjustment.
+     *
+     * @return Query The query object.
+     */
+    private function _createCustomerQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'userId',
+                'primaryBillingAddressId',
+                'primaryShippingAddressId'
+            ])
+            ->from([Table::CUSTOMERS]);
+    }
 }

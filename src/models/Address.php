@@ -9,8 +9,10 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\events\DefineAddressLinesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
 use DvK\Vat\Validator;
@@ -35,6 +37,13 @@ use LitEmoji\LitEmoji;
  */
 class Address extends Model
 {
+    /**
+     * @event DefineAddressLinesEvent The event that is triggered when defining the arrayable fields
+     * @see getAddressLines()
+     * @since 3.x
+     */
+    const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines' ;
+
     /**
      * @var int Address ID
      */
@@ -219,6 +228,8 @@ class Address extends Model
         $names[] = 'stateText';
         $names[] = 'stateValue';
         $names[] = 'abbreviationText';
+        $names[] = 'abbreviationText';
+        $names[] = 'addressLines';
         return $names;
     }
 
@@ -465,6 +476,50 @@ class Address extends Model
             $this->stateName = null;
             $this->_stateValue = null;
         }
+    }
+
+    /**
+     * Return a keyed array of address lines. Useful for outputting an address in a consistent format
+     *
+     * @since 3.x
+     */
+    public function getAddressLines(): array
+    {
+        $addressLines = [
+            'attention' => $this->attention,
+            'name' => trim($this->title . ' ' . $this->firstName . ' ' . $this->lastName),
+            'fullName' => $this->fullName,
+            'address1' => $this->address1,
+            'address2' => $this->address2,
+            'address3' => $this->address3,
+            'city' => $this->city,
+            'zipCode' => $this->zipCode,
+            'phone' => $this->phone,
+            'alternativePhone' => $this->alternativePhone,
+            'label' => $this->label,
+            'notes' => $this->notes,
+            'businessName' => $this->businessName,
+            'stateText' => $this->stateText,
+            'custom1' => $this->custom1,
+            'custom2' => $this->custom2,
+            'custom3' => $this->custom3,
+            'custom4' => $this->custom4,
+        ];
+
+        // Remove blank lines
+        $addressLines = array_filter($addressLines);
+
+        // Give plugins a chance to modify them
+        $event = new DefineAddressLinesEvent([
+            'addressLines' => $addressLines,
+        ]);
+        $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
+
+        array_walk($event->addressLines, function(&$value, &$key) {
+            $value = Craft::$app->getFormatter()->asText($value);
+        });
+
+        return $event->addressLines;
     }
 
     /**

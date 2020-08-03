@@ -58,6 +58,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
+ * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -450,11 +451,33 @@ class LineItem extends Model
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                array_push($rules, ...$purchasableRules);
+                foreach ($purchasableRules as $rule) {
+                    $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
+                }
             }
         }
 
         return $rules;
+    }
+
+    /**
+     * Normalizes a purchasable’s validation rule.
+     *
+     * @param mixed $rule
+     * @param PurchasableInterface $purchasable
+     * @return mixed
+     */
+    private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
+    {
+        if (isset($rule[1]) && $rule[1] instanceof \Closure) {
+            $method = $rule[1];
+            $method->bindTo($purchasable);
+            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
+                $method($attribute, $params, $validator, $current);
+            };
+        }
+
+        return $rule;
     }
 
     /**

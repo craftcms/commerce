@@ -77,7 +77,7 @@ class TotalOrders extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Orders');
+        return Plugin::t('Total Orders');
     }
 
     /**
@@ -98,7 +98,7 @@ class TotalOrders extends Widget
         }
 
         $stats = $this->_stat->get();
-        $total =  $stats['total'] ?? 0;
+        $total = $stats['total'] ?? 0;
         $total = Craft::$app->getFormatter()->asInteger($total);
 
         return Plugin::t('{total} orders', ['total' => $total]);

@@ -132,6 +132,36 @@ class OrderQuery extends ElementQuery
     public $hasLineItems;
 
     /**
+     * @var bool Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     */
+    public $withAll;
+
+    /**
+     * @var bool Eager loads the the shipping and billing addressees on the resulting orders.
+     */
+    public $withAddresses;
+
+    /**
+     * @var bool Eager loads the order adjustments on the resulting orders.
+     */
+    public $withAdjustments;
+
+    /**
+     * @var bool Eager load the customer (and related user) on to the order.
+     */
+    public $withCustomer;
+
+    /**
+     * @var bool Eager loads the line items on the resulting orders.
+     */
+    public $withLineItems;
+
+    /**
+     * @var bool Eager loads the transactions on the resulting orders.
+     */
+    public $withTransactions;
+
+    /**
      * @inheritdoc
      */
     protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
@@ -907,6 +937,167 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAll()
+     */
+    public function withAll($value = true)
+    {
+        $this->withAll = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the the shipping and billing addressees on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAddresses()
+     */
+    public function withAddresses($value = true)
+    {
+        $this->withAddresses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the order adjustments on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAdjustments()
+     */
+    public function withAdjustments($value = true)
+    {
+        $this->withAdjustments = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the customer (and related user) on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withCustomer()
+     */
+    public function withCustomer($value = true)
+    {
+        $this->withCustomer = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the line items on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches line items…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withLineItems()
+     */
+    public function withLineItems($value = true)
+    {
+        $this->withLineItems = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the transactions on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches transactions…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withTransactions()
+     */
+    public function withTransactions($value = true)
+    {
+        $this->withTransactions = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populate($rows)
+    {
+        $orders = parent::populate($rows);
+
+        // Eager-load line items?
+        if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && ($this->withTransactions === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+        }
+
+        return $orders;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -979,6 +1170,12 @@ class OrderQuery extends ElementQuery
                 'storedTotalShippingCost' => 'commerce_orders.totalShippingCost',
                 'storedTotalTax' => 'commerce_orders.totalTax',
                 'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
+            ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
+            $this->query->addSelect([
+                'commerce_orders.shippingMethodName',
             ]);
         }
 

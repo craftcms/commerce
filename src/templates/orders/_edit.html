@@ -5,7 +5,7 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
 
 {% set crumbs = [
-    {    label: "Orders"|t('commerce'), url: url('commerce/orders') }
+    { label: "Orders"|t('commerce'), url: url('commerce/orders') }
 ] %}
 
 
@@ -168,6 +168,8 @@
 
 {% block details %}
     <div id="order-meta-app"></div>
+    {# Give plugins a chance to add other things here #}
+    {% hook "cp.commerce.order.edit.details" %}
 {% endblock %}
 
 {% block content %}
@@ -180,7 +182,11 @@
         {% hook "cp.commerce.order.edit.main-pane" %}
     </div>
 
-    {% include 'commerce/orders/_customFields' %}
+    <div id="fields">
+        {{ staticFieldsHtml|raw }}
+        {{ dynamicFieldsHtml|raw }}
+    </div>
+
     {% include 'commerce/orders/_transactions' %}
     {% include 'commerce/orders/_history' %}
 

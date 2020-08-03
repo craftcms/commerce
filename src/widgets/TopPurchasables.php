@@ -131,7 +131,7 @@ class TopPurchasables extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Purchasables');
+        return Plugin::t('Top Purchasables');
     }
 
     /**

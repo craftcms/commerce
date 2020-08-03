@@ -75,7 +75,7 @@ class AverageOrderTotal extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Average Order Total');
+        return Plugin::t('Average Order Total');
     }
 
     /**

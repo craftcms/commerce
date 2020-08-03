@@ -4,6 +4,7 @@
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
+
 namespace craft\commerce\base;
 
 use Craft;
@@ -228,6 +229,7 @@ abstract class Stat implements StatInterface
             $this->setEndDate($this->_getEndDate($this->dateRange));
         }
     }
+
     /**
      * Based on the date range return the start date.
      *
@@ -273,7 +275,7 @@ abstract class Stat implements StatInterface
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P'.$number.'D');
+                $interval = new \DateInterval('P' . $number . 'D');
                 $date->sub($interval);
                 break;
             }
@@ -284,7 +286,6 @@ abstract class Stat implements StatInterface
                 $date->sub($interval);
                 $date->add(new \DateInterval('P1M'));
                 break;
-
             }
         }
 
@@ -480,7 +481,8 @@ abstract class Stat implements StatInterface
      * @param int $days
      * @return mixed
      */
-    private function _getCustomDateChartQueryOptions(int $days) {
+    private function _getCustomDateChartQueryOptions(int $days)
+    {
         if ($days > 90) {
             return $this->getChartQueryOptionsByInterval('month');
         }

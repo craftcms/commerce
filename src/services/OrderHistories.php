@@ -46,7 +46,7 @@ class OrderHistories extends Component
      *         $orderHistory = $event->orderHistory;
      *         // @var Order $order
      *         $order = $event->order;
-     *         
+     *
      *         // Let the delivery department know the order’s ready to be delivered
      *         // ...
      *     }
@@ -140,7 +140,7 @@ class OrderHistories extends Component
             $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No order history exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No order history exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

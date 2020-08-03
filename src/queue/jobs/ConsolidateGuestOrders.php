@@ -47,7 +47,7 @@ class ConsolidateGuestOrders extends BaseJob
             try {
                 Plugin::getInstance()->getCustomers()->consolidateGuestOrdersByEmail($email);
             } catch (\Throwable $e) {
-                Craft::warning('Could not consolidate orders for guest email'.$email, 'commerce');
+                Craft::warning('Could not consolidate orders for guest email' . $email, 'commerce');
             }
 
             $step++;

@@ -49,6 +49,10 @@ class Gateways extends Component
      */
     private $_overrides;
 
+    /**
+     * @var array|null All gateways
+     */
+    private $_allGateways;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.
@@ -101,22 +105,8 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): array
     {
-        $rows = $this->_createGatewayQuery()
-            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->andWhere(['isFrontendEnabled' => true])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->all();
-
-        $gateways = [];
-
-        foreach ($rows as $row) {
-            $gateways[$row['id']] = $this->createGateway($row);
-        }
-
         // Filter gateways to respect custom config files settings `isFrontendEnabled` to `false`
-        $gateways = ArrayHelper::where($gateways, 'isFrontendEnabled', true);
-
-        return $gateways;
+        return ArrayHelper::where($this->getAllGateways(), 'isFrontendEnabled', true);
     }
 
     /**
@@ -145,18 +135,21 @@ class Gateways extends Component
      */
     public function getAllGateways(): array
     {
-        $rows = $this->_createGatewayQuery()
-            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->all();
+        if ($this->_allGateways === null) {
 
-        $gateways = [];
+            $rows = $this->_createGatewayQuery()
+                ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
+                ->orderBy(['sortOrder' => SORT_ASC])
+                ->all();
 
-        foreach ($rows as $row) {
-            $gateways[$row['id']] = $this->createGateway($row);
+            $this->_allGateways = [];
+
+            foreach ($rows as $row) {
+                $this->_allGateways[$row['id']] = $this->createGateway($row);
+            }
         }
 
-        return $gateways;
+        return $this->_allGateways;
     }
 
     /**
@@ -182,11 +175,7 @@ class Gateways extends Component
      */
     public function getGatewayById(int $id)
     {
-        $result = $this->_createGatewayQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        return $result ? $this->createGateway($result) : null;
+        return ArrayHelper::firstWhere($this->getAllGateways(), 'id', $id);
     }
 
     /**
@@ -197,12 +186,7 @@ class Gateways extends Component
      */
     public function getGatewayByHandle(string $handle)
     {
-        $result = $this->_createGatewayQuery()
-            ->where(['handle' => $handle])
-            ->andWhere(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->one();
-
-        return $result ? $this->createGateway($result) : null;
+        return ArrayHelper::firstWhere($this->getAllGateways(), 'handle', $handle);
     }
 
     /**
@@ -231,7 +215,7 @@ class Gateways extends Component
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', Plugin::t( 'That handle is already in use.'));
+            $gateway->addError('handle', Plugin::t('That handle is already in use.'));
             return false;
         }
 
@@ -257,6 +241,8 @@ class Gateways extends Component
         if ($isNewGateway) {
             $gateway->id = Db::idByUid(Table::GATEWAYS, $gatewayUid);
         }
+
+        $this->_allGateways = null; // reset cache
 
         return true;
     }
@@ -344,6 +330,8 @@ class Gateways extends Component
                 $projectConfig->set(self::CONFIG_GATEWAY_KEY . '.' . $gatewayUid . '.sortOrder', $gatewayOrder + 1);
             }
         }
+
+        $this->_allGateways = null; // reset cache
 
         return true;
     }
