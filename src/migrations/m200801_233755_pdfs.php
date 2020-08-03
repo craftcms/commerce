@@ -57,7 +57,7 @@ class m200801_233755_pdfs extends Migration
         }
 
         if (!$this->db->columnExists('{{%commerce_emails}}', 'pdfId')) {
-            $this->addColumn('{{%commerce_emails}}', 'pdfId', );
+            $this->addColumn('{{%commerce_emails}}', 'pdfId', $this->integer());
         }
 
         $emailPdfUids = [];
