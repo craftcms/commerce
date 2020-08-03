@@ -97,11 +97,6 @@ class Product extends Element
     public $freeShipping;
 
     /**
-     * @inheritdoc
-     */
-    public $enabled;
-
-    /**
      * @var bool Is this product available to be purchased
      */
     public $availableForPurchase = true;

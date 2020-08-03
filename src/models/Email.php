@@ -61,7 +61,7 @@ class Email extends Model
     /**
      * @var bool Is Enabled
      */
-    public $enabled;
+    public $enabled = true;
 
     /**
      * @var string Template path
