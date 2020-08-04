@@ -19,7 +19,7 @@ class m200722_172699_product_title_format extends Migration
         }
 
         if (!$this->db->columnExists('{{%commerce_producttypes}}', 'productTitleFormat')) {
-            $this->addColumn('{{%commerce_producttypes}}', 'productTitleFormat', $this->string()->notNull());
+            $this->addColumn('{{%commerce_producttypes}}', 'productTitleFormat', $this->string());
         }
 
         // Don't make the same config changes twice
