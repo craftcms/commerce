@@ -18,6 +18,7 @@
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 - Products can now have auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Added the ability to eager load order related models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603))
+- Added `apply`, `applyAmount`, `applyAmountAsPercent`, `applyAmountAsFlat`, `dateFrom` and `dateTo` to Sale type in GraphQL variant queries. ([#1607](https://github.com/craftcms/commerce/issues/1607))
 - Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
 - Added `craft\commerce\controllers\Pdf`.
