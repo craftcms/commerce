@@ -6,6 +6,7 @@
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
 - You can now configure multiple PDFs with their own templates path and file name.
 - Improved the performance of the order index page significantly.
+- Added the ability to preview HTML emails from the Emails index page. ([#1387](https://github.com/craftcms/commerce/issues/1387))
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
 - Added the `product` field to Variants when using the GraphQL API.
