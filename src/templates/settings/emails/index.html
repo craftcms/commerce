@@ -6,6 +6,7 @@
     'Subject',
     'Template Path',
     'To',
+    'Preview',
 ]) %}
 
 {% block actionButton %}
@@ -25,7 +26,8 @@
         url: url('commerce/settings/emails/'~email.id),
         subject: email.subject|t('site')|e,
         to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
-        bcc: email.bcc|e
+        bcc: email.bcc|e,
+        preview: email.id
     }]) %}
 {% endfor %}
 
@@ -34,7 +36,25 @@
         { name: '__slot:title', title: Craft.t('app', 'Name') },
         { name: 'subject', title: Craft.t('commerce', 'Subject') },
         { name: 'to', title: Craft.t('commerce', 'To') },
-        { name: 'bcc', title: Craft.t('commerce', 'Bcc') }
+        { name: 'bcc', title: Craft.t('commerce', 'Bcc') },
+        { name: 'template', title: Craft.t('commerce', 'Template Path'),
+            callback: function(value) {
+                if (value) {
+                    return '<span class="code">'+value+'</span>';
+                }
+
+                return '';
+                }
+            },
+        { name: 'preview', title: Craft.t('commerce', 'Preview'),
+                    callback: function(value) {
+                        if (value) {
+                            return '<a class="btn small" target="_blank" href="'+Craft.getActionUrl('commerce/emails/preview-email',{ emailId: value })+'">Preview</a>';
+                        }
+
+                        return '';
+                    }
+                },
     ];
 
     new Craft.VueAdminTable({

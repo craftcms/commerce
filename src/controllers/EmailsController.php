@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
+use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -30,6 +32,45 @@ class EmailsController extends BaseAdminController
     {
         $emails = Plugin::getInstance()->getEmails()->getAllEmails();
         return $this->renderTemplate('commerce/settings/emails/index', compact('emails'));
+    }
+
+    /**
+     * @return Response
+     */
+    public function actionPreviewEmail(): Response
+    {
+        $emailId = Craft::$app->getRequest()->getParam('emailId');
+        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
+        $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
+
+        if ($orderNumber) {
+            $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
+        } else {
+            $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
+        }
+
+        if ($email && $order && $template = $email->templatePath) {
+            if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
+                // use the order's language for template rendering the email.
+                $orderLanguage = $order->orderLanguage ?: Craft::$app->language;
+                Craft::$app->language = $orderLanguage;
+            }
+
+            $view = Craft::$app->getView();
+            $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
+            return $this->renderTemplate($template, compact('order'));
+        }
+
+        $errors = [];
+        if (!$email) {
+            $errors[] = Plugin::t('Could not find the email or template.');
+        }
+
+        if (!$order) {
+            $errors[] = Plugin::t('Could not find the order.');
+        }
+
+        return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
     }
 
     /**
