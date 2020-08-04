@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a SQL error that could occur when updating to Commerce 3.2.
+
 ## 3.2.0 - 2020-08-04
 
 ### Added

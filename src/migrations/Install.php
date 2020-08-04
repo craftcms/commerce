@@ -514,7 +514,7 @@ class Install extends Migration
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean(),
-            'productTitleFormat' => $this->string()->notNull(),
+            'productTitleFormat' => $this->string(),
 
             'skuFormat' => $this->string(),
             'descriptionFormat' => $this->string(),
