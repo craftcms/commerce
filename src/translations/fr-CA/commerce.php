@@ -623,7 +623,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'La valeur du pourcentage de rabais qui doit être appliqué à chaque article, par exemple « 4 % » pour une remise de 4 %. Les pourcentages sont arrondis à 2 décimales.',
     'Edit options' => 'Modifier les options',
     'What this tax category will be called in the control panel.' => 'Nom de cette catégorie de taxe dans le panneau de configuration.',
-    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).',
+    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'La relation entre les biens à acheter et les catégories, qui détermine les articles correspondants. Voir [Terminologie des relations]({link}).',
     'What this product type will be called in the control panel.' => 'Nom de ce type de produit dans le panneau de configuration.',
     'Matching Items' => 'Articles correspondants',
     'Save and return to all orders' => 'Enregistrer et revenir à l\'ensemble des commandes',
