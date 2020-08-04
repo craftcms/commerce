@@ -4,23 +4,19 @@
 
 ### Added
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
-- You can now download PDFs for multiple orders are the same time from the Order index page. ([#1598](https://github.com/craftcms/commerce/issues/1598))
-- You can now configure multiple PDFs with their own templates path and file name. ([#208](https://github.com/craftcms/commerce/issues/208))
-- Improved the performance of the order index page significantly.
-- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
-- Added the ability to preview HTML emails from the Emails index page. ([#1387](https://github.com/craftcms/commerce/issues/1387))
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
-- Added the `product` field to Variants when using the GraphQL API.
-- Added eager-loading support for products and variants when using the GraphQL API.
-- It is now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
-- It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
-- It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
+- Added support for managing multiple PDF templates. Each email can choose which PDF should be attached. ([#208](https://github.com/craftcms/commerce/issues/208))
+- Added a “Download PDF” action to the Orders index page, which supports downloading multiple orders’ PDFs at once. ([#1598](https://github.com/craftcms/commerce/issues/1598))
+- Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
+- Added the ability to preview HTML emails from the Emails index page. ([#1387](https://github.com/craftcms/commerce/issues/1387))
+- Variants now have a `product` field when queried via the GraphQL API.
+- It’s now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - Products can now have auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
-- Added the ability to eager load order related models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603))
-- Added `apply`, `applyAmount`, `applyAmountAsPercent`, `applyAmountAsFlat`, `dateFrom` and `dateTo` to Sale type in GraphQL variant queries. ([#1607](https://github.com/craftcms/commerce/issues/1607))
-- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
+- Added the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params, for eager-loading related models. ([#1603](https://github.com/craftcms/commerce/issues/1603))
+- Added `apply`, `applyAmount`, `applyAmountAsPercent`, `applyAmountAsFlat`, `dateFrom` and `dateTo` fields to sales when queried via the GraphQL API. ([#1607](https://github.com/craftcms/commerce/issues/1607))
 - Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
 - Added `craft\commerce\controllers\Pdf`.
 - Added `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - Added `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
@@ -30,14 +26,17 @@
 - Added `craft\commerce\fieldlayoutelements\VariantTitleField`.
 - Added `craft\commerce\fieldlayoutelements\VariantsField`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
+- Added `craft\commerce\models\EVENT_DEFINE_ADDRESS_LINES`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
 - Added `craft\commerce\models\Email::$pdfId`.
-- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
+- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132))
 - Added `craft\commerce\models\Pdf`.
 - Added `craft\commerce\records\Pdf`.
 - Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
 - Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
 - Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
 - Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
+- Added `craft\commerce\services\Pdfs::EVENT_AFTER_SAVE_PDF`.
+- Added `craft\commerce\services\Pdfs::EVENT_BEFORE_SAVE_PDF`.
 - Added `craft\commerce\services\Pdfs::getAllEnabledPdfs()`.
 - Added `craft\commerce\services\Pdfs::getAllPdfs()`.
 - Added `craft\commerce\services\Pdfs::getDefaultPdf()`.
@@ -48,12 +47,15 @@
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
+- Improved the performance of order indexes.
+- Improved the performance of querying for products and orders via the GraphQL API.
 - Countries are now initially sorted by name, rather than country code.
 - Improved customer search and creation when editing an order. ([#1594](https://github.com/craftcms/commerce/issues/1594))
+- It’s now possible to use multiple keywords when searching for variants from the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 - New products, countries, states, and emails are now enabled by default.
 
 ### Deprecated
-- Deprecated `craft\commerce\controllers\Orders::actionPurchasableSearch()`. Use `craft\commerce\controllers\Orders::actionPurchasablesTable()` instead.
+- Deprecated `craft\commerce\controllers\Orders::actionPurchasableSearch()`. Use `actionPurchasablesTable()` instead.
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 - Deprecated the `orderPdfPath` config setting.
 - Deprecated the `orderPdfFilenameFormat` config setting.
@@ -67,11 +69,11 @@
 - Removed `craft\commerce\records\Email::$pdfTemplatePath`.
 
 ### Fixed
-- Fixed a bug where interactive custom fields weren’t working within new newly created product variants, from product editor HUDs.
-- Fixed a bug where purchasables that weren’t available for purchase were selectable on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
+- Fixed a bug where interactive custom fields weren’t working within newly created product variants, from product editor HUDs.
+- Fixed a bug where it was possible to select purchasables that weren’t available for purchase on the Edit Order page. ([#1505](https://github.com/craftcms/commerce/issues/1505))
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
-- Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
-- Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
+- Fixed a bug that prevented shipping rules for being sorted correctly on the Edit Shipping Method page.
+- Fixed a bug where programmatically-set related IDs could be ignored when saving a sale.
 - Fixed a bug where order status descriptions were getting dropped when rebuilding the project config.
 
 ## 3.1.12 - 2020-07-14
@@ -362,7 +364,7 @@
 
 ### Added
 - Added the `validateCartCustomFieldsOnSubmission` config setting. ([#1292](https://github.com/craftcms/commerce/issues/1292))
-- It is now possible to search orders by the SKUs being purchased. ([#1328](https://github.com/craftcms/commerce/issues/1328))
+- It’s now possible to search orders by the SKUs being purchased. ([#1328](https://github.com/craftcms/commerce/issues/1328))
 - Added `craft\commerce\services\Carts::restorePreviousCartForCurrentUser()`.
 
 ### Changed
@@ -1795,7 +1797,7 @@
 ## 1.2.1323 - 2016-10-11
 
 ### Added
-- It is now possible to accept payments in multiple currencies.
+- It’s now possible to accept payments in multiple currencies.
 - Added Shipping Categories.
 - Discounts can now be user-sorted, which defines the order that they will be applied to carts.
 - Discounts now have the option to prevent subsequent discounts from being applied.
@@ -1954,7 +1956,7 @@
 ## 1.1.1206 - 2016-05-11
 
 ### Changed
-- It is now possible to show customers’ and companies’ names on the Orders index page.
+- It’s now possible to show customers’ and companies’ names on the Orders index page.
 - Craft Commerce now sends customers’ full names to the payment gateways, pulled from the billing address.
 - Craft Commerce now ensures that orders’ prices don’t change in the middle of payment requests, and declines any payments where the price does change.
 - The onBeforeSaveProduct event is now triggered earlier to allow more modification of the product model before saving.
@@ -1974,7 +1976,7 @@
 ### Changed
 - The View Order page now shows whether a coupon code was used on the order.
 - All payment gateways support payments on the View Order page now.
-- It is now possible to delete countries that are in use by tax/shipping zones and customer addresses.
+- It’s now possible to delete countries that are in use by tax/shipping zones and customer addresses.
 - State-based tax/shipping zones now can match on the state abbreviation, in addition to the state name/ID.
 - Craft Commerce now sends descriptions of the line items to gateways along with other cart info, when the `sendCartInfoToGateways` config setting is enabled.
 
@@ -2052,14 +2054,14 @@
 - Added a “Recent Orders” Dashboard widget that shows a table of recently-placed orders.
 - Added a “Revenue” Dashboard widget that shows a chart of recent revenue history.
 - The Orders index page now shows a big, beautiful revenue chart above the order listing.
-- It is now possible to edit Billing and Shipping addresses on the View Order page.
-- It is now possible to manually mark orders as complete on the View Order page.
-- It is now possible to submit new order payments from the View Order page.
+- It’s now possible to edit Billing and Shipping addresses on the View Order page.
+- It’s now possible to manually mark orders as complete on the View Order page.
+- It’s now possible to submit new order payments from the View Order page.
 - Edit Product pages now have a “Save as a new product” option in the Save button menu.
 - Edit Product pages now list any sales that are associated with the product.
-- It is now possible to sort custom order statuses.
-- It is now possible to sort custom payment methods.
-- It is now possible to soft-delete payment methods.
+- It’s now possible to sort custom order statuses.
+- It’s now possible to sort custom payment methods.
+- It’s now possible to soft-delete payment methods.
 - Added a “Link to a product” option to Rich Text fields’ Link menus, making it easy to create links to products.
 - Added support for Omnipay “item bags”, giving gateways some information about the cart contents.
 - Added the “gatewayPostRedirectTemplate” config setting, which can be used to specify the template that should be used to render the POST redirection page for gateways that require it.
@@ -2230,7 +2232,7 @@
 ### Changed
 - All number fields now display values in the current locale’s number format.
 - Variant descriptions now include the product’s title for products that have variants.
-- It is now more obvious in the UI that you are unable to delete an order status while orders exist with that status.
+- It’s now more obvious in the UI that you are unable to delete an order status while orders exist with that status.
 - The `commerce_orders.beforeSaveOrder` event now respects event’s `$peformAction` value.
 - The `commerce_orders.beforeSaveOrder` and `saveOrder` events trigger for carts, in addition to completed orders.
 - `Commerce_PaymentsService::processPayment()` no longer redirects the browser if the `$redirect` argument passed to it is `null`.
@@ -2257,7 +2259,7 @@
 - Added a new “Manage orders” user permission, which determines whether the current user is allowed to manage orders.
 - Added a new “Manage promotions” user permission, which determines whether the current user is allowed to manage promotions.
 - Added new “Manage _[type]_ products” user permissions for each product type, which determines whether the current user is allowed to manage products of that type.
-- It is now possible to set payment method settings from craft/config/commerce.php. To do so, have the file return an array with a `'paymentMethodSettings'` key, set to a sub-array that is indexed by payment method IDs, whose sub-values are set to the payment method’s settings (e.g. `return ['paymentMethodSettings' => ['1' => ['apiKey' => getenv('STRIPE_API_KEY')]]];`).
+- It’s now possible to set payment method settings from craft/config/commerce.php. To do so, have the file return an array with a `'paymentMethodSettings'` key, set to a sub-array that is indexed by payment method IDs, whose sub-values are set to the payment method’s settings (e.g. `return ['paymentMethodSettings' => ['1' => ['apiKey' => getenv('STRIPE_API_KEY')]]];`).
 - Added an `isGuest()` method to order models, which returns whether the order is being made by a guest account.
 - The `cartPayment/pay` controller action now checks for a `paymentMethodId` param, making it possible to select a payment gateway at the exact time of payment.
 - Added `Commerce_TaxCategoriesService::getTaxCategoryByHandle()`.
@@ -2299,7 +2301,7 @@
 ### Added
 - Craft Commerce is now translated into German, Dutch, French (FR and CA), and Norwegian.
 - Added the “Automatic SKU Format” Product Type setting, which defines what products’/variants’ SKUs should look like when they’re submitted without a value.
-- It is now possible to save arbitrary “options” to line items. When the same purchasable is added to the cart twice, but with different options, it will result in two separate line items rather than one line item with a quantity of 2.
+- It’s now possible to save arbitrary “options” to line items. When the same purchasable is added to the cart twice, but with different options, it will result in two separate line items rather than one line item with a quantity of 2.
 - Order models now have a `totalDiscount` property, which returns the total of all discounts applied to its line items, in addition to the base discount.
 
 ### Changed
@@ -2341,7 +2343,7 @@
 - Added a “Business Tax ID” field to customer addresses (accessible via a `businessTaxId` attribute), which can be used to store customers’ businesses’ tax IDs (e.g. VAT) when purchasing on behalf of their company.
 - Added a `getCountriesByTaxZoneId()` method to the Tax Zones service.
 - Added a `getStatesByTaxZoneId()` method to the Tax Zones service.
-- It is now possible to create new Tax Zones and Tax Categories directly from the Edit Tax Rate page.
+- It’s now possible to create new Tax Zones and Tax Categories directly from the Edit Tax Rate page.
 
 ### Changed
 - The ShippingMethod interface has three new methods: `getType()`, `getId()`, and `getCpEditUrl()`. (`getId()` should always return `null` for third party shipping methods.)
@@ -2401,8 +2403,8 @@
 - The View Order page now shows adjustments made on the order.
 - Renamed the `craft.market` variable to `craft.commerce`.
 - Added a new `commerce/cart/updateCart` controller action that can handle customer address/email changes, coupon application, line item additions, and shipping/payment method selections, replacing most of the old Cart actions. (The only other `commerce/cart/*` actions that remain are `updateLineItem`, `removeLineItem`, and `removeAllLineItems`.)
-- It is now possible to use token billing with some gateways, like Stripe, by passing a `token` POST param to the `cartPay/pay` controller action, so your customers’ credit card info never touches your server.
-- It is now possible to access through all custom Order Statuses `craft.commerce.orderStatuses`.
+- It’s now possible to use token billing with some gateways, like Stripe, by passing a `token` POST param to the `cartPay/pay` controller action, so your customers’ credit card info never touches your server.
+- It’s now possible to access through all custom Order Statuses `craft.commerce.orderStatuses`.
 - Added the `itemSubtotalWithSale` attribute to order models, to get the subtotal of all order items before any adjustments have been applied.
 - Renamed all class namespaces and prefixes for the Craft Commerce rename.
 - Renamed nearly all service method names to be more explicit and follow Craft CMS naming conventions (i.e. `getById()` is now `getOrderById()`).
