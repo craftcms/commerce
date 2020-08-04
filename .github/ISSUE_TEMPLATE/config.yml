@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Craft Commerce Documentation
-    url: https://docs.craftcms.com/commerce/v3/
+    url: https://craftcms.com/docs/commerce/3.x/
     about: Read the official documentation.
   - name: Craft CMS Stack Exchange
     url: http://craftcms.stackexchange.com/
