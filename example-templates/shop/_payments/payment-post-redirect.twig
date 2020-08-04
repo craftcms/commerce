@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Redirecting...</title>
+</head>
+{#
+This is an example of a gateway POST redirect template.
+Most gateways that redirect you offsite use a GET redirect, but others require a POST.
+After submitting to the standard `commerce/payments/pay` controller action, Commerce prepares all parameters to be submitted by this POST
+form into the `inputs` variable you must output as `raw` html below.
+Some sites might want to customize the styling of this page.
+To use this template point the `gatewayPostRedirectTemplate` config setting to this template.
+If your gateway uses a GET redirect or is not an offsite gateway, you can delete this template.
+This form should submit itself to the `actionUrl` and output all hidden inputs with `inputs`
+If you use and modify this page we suggest inlining all css and keeping the page size to a minimum
+#}
+<body onload="document.forms[0].submit();">
+<form action="{{ actionUrl|raw }}" method="post">
+    <p style="color:green">Redirecting to payment page...</p>
+    <p>
+        {{ inputs|raw }}
+        <input type="submit" value="Continue" />
+    </p>
+</form>
+</body>
+</html>

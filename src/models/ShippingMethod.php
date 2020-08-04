@@ -31,7 +31,7 @@ class ShippingMethod extends BaseShippingMethod
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,

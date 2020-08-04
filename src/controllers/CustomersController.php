@@ -35,8 +35,8 @@ class CustomersController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageCustomers');
         parent::init();
+        $this->requirePermission('commerce-manageCustomers');
     }
 
     /**
@@ -127,7 +127,7 @@ class CustomersController extends BaseCpController
         if ($sort) {
             list($sortField, $sortDir) = explode('|', $sort);
             if ($sortField && $sortDir) {
-                $customersQuery->orderBy('[['.$sortField.']] '.$sortDir);
+                $customersQuery->orderBy('[[' . $sortField . ']] ' . $sortDir);
             }
         }
 

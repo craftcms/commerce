@@ -120,7 +120,7 @@ class TotalOrdersByCountry extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Orders by Country');
+        return Plugin::t('Total Orders by Country');
     }
 
     /**

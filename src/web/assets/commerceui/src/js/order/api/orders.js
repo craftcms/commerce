@@ -22,22 +22,6 @@ export default {
         })
     },
 
-    purchasableSearch(orderId, query) {
-        const data = {
-            orderId
-        }
-
-        if (typeof query !== 'undefined') {
-            data.query = query
-        }
-
-        return axios.get(Craft.getActionUrl('commerce/orders/purchasable-search', data), {
-            headers: {
-                'X-CSRF-Token':  Craft.csrfTokenValue,
-            }
-        })
-    },
-
     customerSearch(query) {
         const data = {}
 

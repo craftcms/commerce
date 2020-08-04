@@ -42,9 +42,8 @@ class CartController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**
@@ -339,7 +338,7 @@ class CartController extends BaseFrontEndController
         $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
 
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
-        
+
         if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Plugin::t('Unable to update cart.');
 
@@ -348,6 +347,7 @@ class CartController extends BaseFrontEndController
                     'error' => $error,
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
+                    'message' => $error,
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
             }
@@ -362,9 +362,17 @@ class CartController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
+
+            if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+                $message = Html::encode($cartUpdatedNotice);
+            } else {
+                $message = Plugin::t('Cart updated.');
+            }
+
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
-                $this->_cartVariable => $this->cartArray($this->_cart)
+                $this->_cartVariable => $this->cartArray($this->_cart),
+                'message' => $message,
             ]);
         }
 

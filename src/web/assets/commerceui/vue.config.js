@@ -1,5 +1,6 @@
 let devServerPort = (process.env.DEV_SERVER_PORT ? process.env.DEV_SERVER_PORT : '8080')
 let publicPath = null
+let craftAssetsPath = (process.env.CRAFT_ASSETS_PATH ? process.env.CRAFT_ASSETS_PATH : './../../../../../cms/src/web/assets/')
 
 if (process.env.NODE_ENV === 'development') {
     publicPath = (process.env.DEV_SERVER_PUBLIC_PATH ? process.env.DEV_SERVER_PUBLIC_PATH : 'http://localhost:' + devServerPort + '/')
@@ -20,7 +21,7 @@ module.exports = {
         },
         resolve: {
             alias: {
-                Craft: path.resolve(__dirname, './../../../../../cms/src/web/assets/')
+                Craft: path.resolve(__dirname, craftAssetsPath)
             }
         }
     },

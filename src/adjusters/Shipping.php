@@ -173,10 +173,9 @@ class Shipping extends Component implements AdjusterInterface
             }
         }
 
-        if($this->_consolidateShippingToSingleAdjustment)
-        {
+        if ($this->_consolidateShippingToSingleAdjustment) {
             $amount = 0;
-            foreach ($adjustments as $adjustment){
+            foreach ($adjustments as $adjustment) {
                 $amount += $adjustment->amount;
             }
 

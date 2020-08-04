@@ -54,7 +54,7 @@ class TotalOrdersByCountry extends Stat
         $query->select([
             new Expression('COUNT([[orders.id]]) as total'),
             ($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') . ' as id',
-            ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]' ) . ' as name',
+            ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]') . ' as name',
         ]);
         $query->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
         $query->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');

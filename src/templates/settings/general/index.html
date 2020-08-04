@@ -39,7 +39,7 @@
             suggestEnvVars: true,
             autofocus: true,
         }) }}
-
+        <hr>
         <h3>{{ 'Units'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Weight Unit"|t('commerce'),
@@ -63,6 +63,8 @@
             warning: configWarning('dimensionUnits', 'commerce'),
         }) }}
 
+        <hr>
+        <h3>{{ 'Order Settings'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Minimum Total Price Strategy"|t('commerce'),
             instructions: "Strategy to apply when calculating the minimum order price."|t('commerce'),
@@ -74,31 +76,15 @@
             warning: configWarning('minimumTotalPriceStrategy', 'commerce'),
         }) }}
 
-        <h3>{{ 'PDF Settings'|t('commerce') }}</h3>
-        {{ forms.textField({
-            label: "Order PDF Template"|t('commerce'),
-            instructions: "The path to the template used for generating order PDFs."|t('commerce'),
-            id: 'orderPdfPath',
-            name: 'settings[orderPdfPath]',
-            value: settings.orderPdfPath,
-            errors: settings.getErrors('orderPdfPath'),
+        {{ forms.selectField({
+            label: "Free Order Payment Strategy"|t('commerce'),
+            instructions: "Strategy to apply when an order is free or has a zero balance."|t('commerce'),
+            name: 'settings[freeOrderPaymentStrategy]',
+            value: settings.freeOrderPaymentStrategy,
+            options: settings.getFreeOrderPaymentStrategyOptions(),
+            errors: settings.getErrors('freeOrderPaymentStrategy'),
             required: true,
-            warning: configWarning('orderPdfPath', 'commerce'),
-        }) }}
-
-        {{ forms.textField({
-            label: "Order PDF Filename Format"|t('commerce'),
-            instructions: "What the order PDF filenames should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}."|t('commerce', {
-                ex1: '<code>{number}</code>',
-                ex2: '<code>{myOrderCustomField}</code>'
-            }),
-            id: 'orderPdfFilenameFormat',
-            name: 'settings[orderPdfFilenameFormat]',
-            value: settings.orderPdfFilenameFormat,
-            class: 'code ltr',
-            errors: settings.getErrors('orderPdfFilenameFormat'),
-            required: true,
-            warning: configWarning('orderPdfFilenameFormat', 'commerce'),
+            warning: configWarning('freeOrderPaymentStrategy', 'commerce'),
         }) }}
 
         {{ forms.textField({
@@ -116,7 +102,7 @@
             warning: configWarning('orderReferenceFormat', 'commerce'),
         }) }}
 
-
+        <hr>
         <h3>{{ 'Subscription Settings'|t('commerce') }}</h3>
         {{ forms.autosuggestField({
             label: "Billing detail update URL"|t('commerce'),
@@ -132,6 +118,7 @@
             warning: configWarning('updateBillingDetailsUrl', 'commerce'),
         }) }}
 
+        <hr>
         <h3>{{ 'Control Panel Settings'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Default View"|t('commerce'),

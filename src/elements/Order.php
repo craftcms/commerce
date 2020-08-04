@@ -20,6 +20,7 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
+use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
@@ -230,6 +231,30 @@ class Order extends Element
      *
      * Event::on(
      *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_ADD_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
      *     Order::EVENT_AFTER_ADD_LINE_ITEM,
      *     function(LineItemEvent $event) {
      *         // @var LineItem $lineItem
@@ -245,7 +270,7 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`)
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -267,6 +292,30 @@ class Order extends Element
      * ```
      */
     const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before an order is completed.
@@ -697,6 +746,12 @@ class Order extends Element
      * @var string Shipping Method Handle
      */
     public $shippingMethodHandle;
+
+    /**
+     * @var string Shipping Method Name
+     * @since 3.x
+     */
+    public $shippingMethodName;
 
     /**
      * @var int Customer ID
@@ -1531,7 +1586,6 @@ class Order extends Element
             }
         }
 
-        // Raising the 'afterRemoveLineItemToOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
@@ -1547,10 +1601,10 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = !$lineItem->id;
+        $isNew = ($lineItem->id === null);
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
+            $lineItemEvent = new AddLineItemEvent(compact('lineItem', 'isNew'));
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {
@@ -1693,6 +1747,20 @@ class Order extends Element
         return $options;
     }
 
+    public function beforeSave(bool $isNew): bool
+    {
+
+        if (null === $this->shippingMethodHandle) {
+            // Reset shipping method name if there is no handle
+            $this->shippingMethodName = null;
+        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            // Update shipping method name if there is a handle and we can retrieve the method
+            $this->shippingMethodName = $shippingMethod->name;
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
     /**
      * @inheritdoc
      */
@@ -1740,6 +1808,7 @@ class Order extends Element
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->shippingMethodName = $this->shippingMethodName;
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
@@ -1905,24 +1974,18 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $pdfId The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      * @throws Exception
      */
-    public function getPdfUrl($option = null)
+    public function getPdfUrl($option = null, $pdfHandle = null)
     {
-        $url = null;
-        $view = Craft::$app->getView();
-        $oldTemplateMode = $view->getTemplateMode();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
-
-        if (!$file || !$view->doesTemplateExist($file)) {
-            $view->setTemplateMode($oldTemplateMode);
-            return null;
-        }
-        $view->setTemplateMode($oldTemplateMode);
-
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+
+        if ($pdfHandle !== null) {
+            $path .= '&pdfHandle=' . $pdfHandle;
+        }
+
         $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;
@@ -2697,11 +2760,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        if ($this->isCompleted) {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        } else {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        }
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         // Do we have a shipping method available based on the current selection?
         if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
@@ -2832,6 +2891,15 @@ class Order extends Element
     }
 
     /**
+     * @param array|Transaction[] $transactions
+     * @since 3.x
+     */
+    public function setTransactions(array $transactions)
+    {
+        $this->_transactions = $transactions;
+    }
+
+    /**
      * @return Transaction[]
      */
     public function getTransactions(): array
@@ -2949,16 +3017,38 @@ class Order extends Element
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
+
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
+
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem
+                    ]));
+                }
             }
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-            $lineItem->setOrder($this);
+
+            $originalId = $lineItem->id;
+            $lineItem->setOrder($this); // just in case.
+
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+
+            // Is this a new line item?
+            if ($originalId === null) {
+                // Raising the 'afterAddLineItemToOrder' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem,
+                        'isNew' => true
+                    ]));
+                }
+            }
 
             // Update any adjustments to this line item with the new line item ID.
             foreach ($this->getAdjustments() as $adjustment) {

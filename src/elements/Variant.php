@@ -473,6 +473,7 @@ class Variant extends Purchasable
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
+     * @see \craft\elements\Entry::updateTitle
      */
     public function updateTitle(Product $product)
     {
@@ -963,7 +964,7 @@ class Variant extends Purchasable
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
-            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getElements()->invalidateCachesForElement($this);
         }
     }
 

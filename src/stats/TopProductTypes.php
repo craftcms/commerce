@@ -47,6 +47,7 @@ class TopProductTypes extends Stat
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
+
     /**
      * @inheritDoc
      */

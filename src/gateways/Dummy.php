@@ -28,6 +28,7 @@ use craft\elements\User;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
+use yii\base\NotSupportedException;
 
 /**
  * Dummy represents a dummy gateway.
@@ -44,8 +45,7 @@ class Dummy extends SubscriptionGateway
     {
         $paymentFormModel = $this->getPaymentFormModel();
 
-        if(Craft::$app->getConfig()->general->devMode)
-        {
+        if (Craft::$app->getConfig()->general->devMode) {
             $paymentFormModel->firstName = 'Jenny';
             $paymentFormModel->lastName = 'Andrews';
             $paymentFormModel->number = '4242424242424242';
@@ -145,7 +145,7 @@ class Dummy extends SubscriptionGateway
      */
     public function processWebHook(): WebResponse
     {
-        return null;
+        throw new NotSupportedException(__CLASS__ . ' does not support processWebhook()');
     }
 
     /**

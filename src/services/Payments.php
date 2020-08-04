@@ -20,6 +20,7 @@ use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -249,7 +250,8 @@ class Payments extends Component
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        if (!$order->hasOutstandingBalance() && !$order->datePaid) {
+        $paymentStrategy = Plugin::getInstance()->getSettings()->freeOrderPaymentStrategy;
+        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
             $order->updateOrderPaidInformation();
 
             if ($order->isCompleted) {

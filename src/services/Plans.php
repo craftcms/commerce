@@ -219,7 +219,7 @@ class Plans extends Component
             $record = PlanRecord::findOne($plan->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Plugin::t( 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
+                throw new InvalidConfigException(Plugin::t('No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
             }
         } else {
             $record = new PlanRecord();
@@ -309,7 +309,6 @@ class Plans extends Component
 
         return true;
     }
-
 
 
     /**

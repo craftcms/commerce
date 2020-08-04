@@ -28,7 +28,7 @@ class Product extends ElementArguments
      */
     public static function getArguments(): array
     {
-        return array_merge(parent::getArguments(),  self::getContentArguments(), [
+        return array_merge(parent::getArguments(), self::getContentArguments(), [
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),

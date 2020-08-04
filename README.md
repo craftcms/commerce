@@ -4,11 +4,11 @@
 
 Craft Commerce is an amazingly powerful and flexible ecommerce platform for [Craft CMS](https://craftcms.com).
 
-You can learn all about it at [craftcms.com/commerce](https://craftcms.com/commerce), and documentation is available at [docs.craftcms.com](https://docs.craftcms.com/commerce/v3/).
+You can learn all about it at [craftcms.com/commerce](https://craftcms.com/commerce), and documentation is available at [craftcms.com](https://craftcms.com/docs/commerce/3.x/).
 
 ## Requirements
 
-This plugin requires Craft CMS 3.4.0 or later.
+This plugin requires Craft CMS 3.5.0 or later.
 
 ## Installation
 
@@ -37,9 +37,9 @@ composer require craftcms/commerce
 
 We highly recommend you check out these resources as you’re getting started with Craft Commerce:
 
+- **[Craft Commerce Docs](https://craftcms.com/docs/commerce/3.x/)** – the official documentation.
 - **[Craft Discord](https://craftcms.com/discord)** – one of the most friendly and helpful Discords on the planet.
-- **[Craft Commerce Documentation](https://docs.craftcms.com/commerce/v3/)** – the official documentation.
-- **[Craft CMS Stack Exchange](http://craftcms.stackexchange.com/)** – community-run Q&A for Craft developers.
+- **[Craft Stack Exchange](http://craftcms.stackexchange.com/)** – community-run Q&A for Craft developers.
 
 ---
 

@@ -232,7 +232,7 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     public function defineRules(): array
     {
         $rules = parent::defineRules();
-        
+
         $rules[] = [['name'], 'required'];
         $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']];
         $rules[] = [
