@@ -5,22 +5,26 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craft\commerce\controllers;
+namespace craft\commerce\events;
+
+use craft\commerce\models\Pdf;
+use yii\base\Event;
 
 /**
- * Class Base Admin Controller
+ * Class PdfSaveEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class BaseAdminController extends BaseCpController
+class PdfSaveEvent extends Event
 {
     /**
-     * @inheritdoc
+     * @var Pdf
      */
-    public function init()
-    {
-        parent::init();
-        $this->requireAdmin();
-    }
+    public $pdf;
+
+    /**
+     * @var bool Is the PDF new
+     */
+    public $isNew;
 }

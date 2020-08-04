@@ -4,6 +4,7 @@
 
 ### Added
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
+- You can now configure multiple PDFs with their own templates path and file name.
 - Improved the performance of the order index page significantly.
 - It’s now possible to set Title fields’ positions within product and variant field layouts.
 - It’s now possible to set the Variants field’s position within product field layouts.
@@ -31,6 +32,16 @@
 - Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
 - Added `craft\commerce\events\DefineAddressLinesEvent`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
+- Added `craft\commerce\models\Email::$pdfId`.
+- Added `craft\commerce\models\Pdf`.
+- Added `craft\commerce\records\Pdf`.
+- Added `craft\commerce\controllers\Pdf`.
+- Added `craft\commerce\services\Pdfs::getAllPdfs()`.
+- Added `craft\commerce\services\Pdfs::getAllEnabledPdfs()`.
+- Added `craft\commerce\services\Pdfs::getDefaultPdf()`.
+- Added `craft\commerce\services\Pdfs::getPdfByHandle()`.
+- Added `craft\commerce\services\Pdfs::getPdfById()`.
+- Added `craft\commerce\services\Pdfs::savePdf()`.
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
@@ -41,12 +52,16 @@
 ### Deprecated
 - Deprecated `craft\commerce\controllers\Orders::actionPurchasableSearch()`. Use `craft\commerce\controllers\Orders::actionPurchasablesTable()` instead.
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
+- Deprecated the `orderPdfPath` config setting.
+- Deprecated the `orderPdfFilenameFormat` config setting.
 
 ### Removed
 - Removed `craft\commerce\models\ProductType::$titleLabel`.
 - Removed `craft\commerce\models\ProductType::$variantTitleLabel`.
 - Removed `craft\commerce\records\ProductType::$titleLabel`.
 - Removed `craft\commerce\records\ProductType::$variantTitleLabel`.
+- Removed `craft\commerce\models\Email::$pdfTemplatePath`.
+- Removed `craft\commerce\records\Email::$pdfTemplatePath`.
 
 ### Fixed
 - Fixed a bug where interactive custom fields weren’t working within new newly created product variants, from product editor HUDs.
@@ -54,6 +69,7 @@
 - Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
 - Fixed a bug that prevented shipping rules for being sorted on the Edit Shipping Method page.
 - Fixed a bug that could occur when programmatically set relationship IDs then saving a Sale model.
+- Fixed a bug where order status descriptions were getting dropped when rebuilding the project config.
 
 ## 3.1.12 - 2020-07-14
 

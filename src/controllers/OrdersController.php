@@ -66,9 +66,9 @@ class OrdersController extends Controller
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageOrders');
-
         parent::init();
+
+        $this->requirePermission('commerce-manageOrders');
     }
 
     /**
@@ -998,13 +998,15 @@ class OrdersController extends Controller
         $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
         Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
-        // TODO when we support multiple PDF templates, retrieve them all from a service
-        $pdfUrls = [
-            [
-                'name' => 'Download PDF',
-                'url' => $variables['order']->getPdfUrl()
-            ]
-        ];
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        $pdfUrls = [];
+        foreach ($pdfs as $pdf){
+            $pdfUrls[] = [
+                'name' => $pdf->name,
+                'url' => $variables['order']->getPdfUrl(null, $pdf->handle)
+            ];
+        }
+
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
@@ -1125,6 +1127,7 @@ class OrdersController extends Controller
         if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
             $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
             $billingAddress['isEstimated'] = false;
+            unset($billingAddress['addressLines']);
             $billingAddress = new Address($billingAddress);
 
             $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
@@ -1137,6 +1140,7 @@ class OrdersController extends Controller
         if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
+            unset($shippingAddress['addressLines']);
             $shippingAddress = new Address($shippingAddress);
 
             $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;

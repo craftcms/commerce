@@ -62,8 +62,9 @@ class Settings extends Model
 
     /**
      * @var string Order PDF Path
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
-    public $orderPdfPath = 'shop/receipt';
+    public $orderPdfPath = 'shop/special/receipt';
 
     /**
      * @var string Order PDF Size
@@ -77,6 +78,7 @@ class Settings extends Model
 
     /**
      * @var string Order PDF file name format
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
     public $orderPdfFilenameFormat = 'Order-{number}';
 

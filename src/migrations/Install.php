@@ -57,7 +57,6 @@ class Install extends Migration
     private $_variantFieldLayoutId;
     private $_productFieldLayoutId;
 
-
     /**
      * @inheritdoc
      */
@@ -259,10 +258,24 @@ class Install extends Migration
             'cc' => $this->string(),
             'replyTo' => $this->string(),
             'enabled' => $this->boolean(),
-            'attachPdf' => $this->boolean(),
             'templatePath' => $this->string()->notNull(),
             'plainTextTemplatePath' => $this->string(),
-            'pdfTemplatePath' => $this->string()->notNull(),
+            'pdfId' => $this->integer(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
+        $this->createTable(Table::PDFS, [
+            'id' => $this->primaryKey(),
+            'name' => $this->string()->notNull(),
+            'handle' => $this->string()->notNull(),
+            'description' => $this->string(),
+            'templatePath' => $this->string()->notNull(),
+            'fileNameFormat' => $this->string(),
+            'enabled' => $this->boolean(),
+            'isDefault' => $this->boolean(),
+            'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -845,6 +858,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::DISCOUNTS);
         $this->dropTableIfExists(Table::DONATIONS);
         $this->dropTableIfExists(Table::EMAILS);
+        $this->dropTableIfExists(Table::PDFS);
         $this->dropTableIfExists(Table::GATEWAYS);
         $this->dropTableIfExists(Table::LINEITEMS);
         $this->dropTableIfExists(Table::LINEITEMSTATUSES);
@@ -942,6 +956,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'orderStatusId', false);
         $this->createIndex(null, Table::ORDERSTATUS_EMAILS, 'emailId', false);
         $this->createIndex(null, Table::PAYMENTCURRENCIES, 'iso', true);
+        $this->createIndex(null, Table::PDFS, 'handle', false);
         $this->createIndex(null, Table::PLANS, 'gatewayId', false);
         $this->createIndex(null, Table::PLANS, 'handle', true);
         $this->createIndex(null, Table::PLANS, 'reference', false);
@@ -1030,6 +1045,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_USERGROUPS, ['userGroupId'], '{{%usergroups}}', ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DONATIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::EMAILS, ['pdfId'], Table::PDFS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::LINEITEMS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['purchasableId'], '{{%elements}}', ['id'], 'SET NULL', 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
@@ -1115,6 +1131,7 @@ class Install extends Migration
             Table::DISCOUNT_CATEGORIES,
             Table::DISCOUNT_USERGROUPS,
             Table::DONATIONS,
+            Table::EMAILS,
             Table::LINEITEMS,
             Table::ORDERADJUSTMENTS,
             Table::ORDERHISTORIES,

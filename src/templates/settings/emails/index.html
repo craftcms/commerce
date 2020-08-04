@@ -25,8 +25,7 @@
         url: url('commerce/settings/emails/'~email.id),
         subject: email.subject|t('site')|e,
         to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
-        bcc: email.bcc|e,
-        template: email.templatePath|e,
+        bcc: email.bcc|e
     }]) %}
 {% endfor %}
 
@@ -35,8 +34,7 @@
         { name: '__slot:title', title: Craft.t('app', 'Name') },
         { name: 'subject', title: Craft.t('commerce', 'Subject') },
         { name: 'to', title: Craft.t('commerce', 'To') },
-        { name: 'bcc', title: Craft.t('commerce', 'Bcc') },
-        { name: 'template', title: Craft.t('commerce', 'Template Path') },
+        { name: 'bcc', title: Craft.t('commerce', 'Bcc') }
     ];
 
     new Craft.VueAdminTable({

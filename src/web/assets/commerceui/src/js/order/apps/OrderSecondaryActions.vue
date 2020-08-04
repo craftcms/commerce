@@ -4,14 +4,16 @@
             <div id="order-save" class="btngroup">
                 <a class="btn" :href="defaultPdfUrl.url" target="_blank">{{"Download PDF"|t('commerce')}}</a>
 
-                <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
-                <div class="menu">
-                    <ul>
-                        <li v-for="(pdfUrl, key) in pdfUrls" :key="'pdfUrl' + key">
-                            <a :href="pdfUrl.url" target="_blank">{{pdfUrl.name}}</a>
-                        </li>
-                    </ul>
-                </div>
+                <template v-if="pdfUrls.length > 1">
+                    <div class="btn menubtn" ref="downloadPdfMenuBtn"></div>
+                    <div class="menu">
+                        <ul>
+                            <li v-for="(pdfUrl, key) in pdfUrls" :key="'pdfUrl' + key">
+                                <a :href="pdfUrl.url" target="_blank">{{pdfUrl.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </template>
             </div>
         </div>
 
