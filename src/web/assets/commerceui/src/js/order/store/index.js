@@ -16,7 +16,6 @@ export default new Vuex.Store({
         editing: false,
         draft: null,
         originalDraft: null,
-        purchasables: [],
         customers: [],
         orderData: null,
         lastPurchasableIds: [],
@@ -295,15 +294,6 @@ export default new Vuex.Store({
                 })
         },
 
-        getPurchasables({commit, getters}) {
-            const orderId = getters.orderId
-
-            return ordersApi.purchasableSearch(orderId)
-                .then((response) => {
-                    commit('updatePurchasables', response.data)
-                })
-        },
-
         customerSearch({commit}, query) {
             return ordersApi.customerSearch(query)
                 .then((response) => {
@@ -403,10 +393,6 @@ export default new Vuex.Store({
 
         updateOriginalDraft(state, originalDraft) {
             state.originalDraft = originalDraft
-        },
-
-        updatePurchasables(state, purchasables) {
-            state.purchasables = purchasables
         },
 
         updateCustomers(state, customers) {

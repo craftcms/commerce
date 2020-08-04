@@ -50,6 +50,7 @@
 - New products, countries, states, and emails are now enabled by default.
 
 ### Deprecated
+- Deprecated `craft\commerce\controllers\Orders::actionPurchasableSearch()`. Use `craft\commerce\controllers\Orders::actionPurchasablesTable()` instead.
 - Deprecated `craft\commerce\services\Sales::populateSaleRelations()`.
 - Deprecated the `orderPdfPath` config setting.
 - Deprecated the `orderPdfFilenameFormat` config setting.
