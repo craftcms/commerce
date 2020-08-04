@@ -623,7 +623,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'De percentielwaarde van de korting voor elk item. Bijv. “4%” voor 4% korting. Percentages worden afgerond tot op 2 decimalen.',
     'Edit options' => 'Opties bewerken',
     'What this tax category will be called in the control panel.' => 'De naam van deze belastingcategorie in het configuratiescherm.',
-    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).',
+    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'De wijze waarop de aankopen en categorieën met elkaar gerelateerd zijn. Dit bepaalt de overeenstemmende items. Zie [Relatieterminologie]({link}).',
     'What this product type will be called in the control panel.' => 'Naam van dit producttype in het configuratiescherm.',
     'Matching Items' => 'Overeenstemmende items',
     'Save and return to all orders' => 'Opslaan en terugkeren naar alle bestellingen',
