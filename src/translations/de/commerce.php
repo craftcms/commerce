@@ -624,7 +624,7 @@ return [
 Prozentwerte sind auf zwei Dezimalstellen gerundet.',
     'Edit options' => 'Optionen bearbeiten',
     'What this tax category will be called in the control panel.' => 'Wie diese Steuerklasse im Control Panel genannt wird.',
-    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology).' => 'Wie kaufbare Optionen und Kategorien zusammenhängen und was die übereinstimmenden Artikel bestimmt. Siehe [Beziehungsterminologie](https://docs.craftcms.com/v3/relations.html#terminology).',
+    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'Wie kaufbare Optionen und Kategorien zusammenhängen und was die übereinstimmenden Artikel bestimmt. Siehe [Beziehungsterminologie]({link}).',
     'What this product type will be called in the control panel.' => 'Wie dieser Produkttyp im Control Panel genannt wird.',
     'Matching Items' => 'Übereinstimmende Artikel',
     'Save and return to all orders' => 'Speichern und alle Bestellungen wiedergeben',

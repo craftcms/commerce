@@ -623,7 +623,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'The percentage value by which each item should be discounted, e.g. “4%” for 4% off. Percentages are rounded to 2 decimal places.',
     'Edit options' => 'Edit options',
     'What this tax category will be called in the control panel.' => 'What this tax category will be called in the control panel.',
-    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology).' => 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology).',
+    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).',
     'What this product type will be called in the control panel.' => 'What this product type will be called in the control panel.',
     'Matching Items' => 'Matching Items',
     'Save and return to all orders' => 'Save and return to all orders',

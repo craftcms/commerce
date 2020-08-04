@@ -623,7 +623,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'O valor percentual que deve descontar em cada item, ou seja, "4%" para 4% de desconto. As percentagens são arredondadas para duas casas decimais.',
     'Edit options' => 'Editar opções',
     'What this tax category will be called in the control panel.' => 'Qual o nome desta categoria de taxa no painel de controlo.',
-    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology).' => 'Como as Compras e Categorias estão relacionadas, o que determina os itens correspondentes. Consulte [Terminologia de relações](https://docs.craftcms.com/v3/relations.html#terminology).',
+    'How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link}).' => 'Como as Compras e Categorias estão relacionadas, o que determina os itens correspondentes. Consulte [Terminologia de relações]({link}).',
     'What this product type will be called in the control panel.' => 'Como este tipo de produto será chamado no Painel de Controlo.',
     'Matching Items' => 'Itens correspondentes',
     'Save and return to all orders' => 'Guardar e devolver a todos os pedidos',
