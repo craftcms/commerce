@@ -40,14 +40,13 @@ class DiscountsController extends BaseCpController
     const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
     const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
 
-
     /**
      * @inheritdoc
      */
     public function init()
     {
-        $this->requirePermission('commerce-managePromotions');
         parent::init();
+        $this->requirePermission('commerce-managePromotions');
     }
 
     /**
@@ -308,13 +307,19 @@ class DiscountsController extends BaseCpController
         }
 
         $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         foreach ($localizedNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
                 continue;
             }
 
             if ($variables['discount']->{$attr} != 0) {
-                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal((float)$variables['discount']->{$attr} * -1);
+                $number = (float)$variables['discount']->{$attr};
+                if (in_array($attr, $flipNegativeNumberAttributes)) {
+                    $number *= -1;
+                }
+
+                $variables['discount']->{$attr} = Craft::$app->formatter->asDecimal($number);
             } else {
                 $variables['discount']->{$attr} = 0;
             }
@@ -372,10 +377,10 @@ class DiscountsController extends BaseCpController
 
         $variables['categories'] = $categories;
 
-        $variables['categoryRelationshipType'] = [
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target'),
-            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Both'),
+        $variables['categoryRelationshipTypeOptions'] = [
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source - The category relationship field is on the purchasable'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target - The purchasable relationship field is on the category'),
+            DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Either (Default) - The relationship field is on the purchasable or the category'),
         ];
 
         $variables['appliedTo'] = [

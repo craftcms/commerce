@@ -193,7 +193,7 @@ class Orders extends Component
         $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
-        $data['shippingMethodId'] = $cart->getShippingMethodId();
+        $data['shippingMethodId'] = $cart->getShippingMethodId(); // TODO: Remove in Commerce 4
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['gatewayId'] = $cart->gatewayId;
         $data['paymentSourceId'] = $cart->paymentSourceId;
@@ -209,12 +209,7 @@ class Orders extends Component
         $data['totalPrice'] = $cart->getTotalPrice();
         $data['recalculationMode'] = $cart->getRecalculationMode();
 
-        $availableShippingMethods = $cart->getAvailableShippingMethods();
-        $data['availableShippingMethods'] = [];
-        foreach ($availableShippingMethods as $shippingMethod) {
-            $data['availableShippingMethods'][$shippingMethod->getHandle()] = $shippingMethod->toArray();
-            $data['availableShippingMethods'][$shippingMethod->getHandle()]['price'] = $shippingMethod->getPriceForOrder($cart);
-        }
+        $data['availableShippingMethods'] = $cart->getAvailableShippingMethodOptions();
 
         $data['shippingAddressId'] = $cart->shippingAddressId;
         if ($cart->getShippingAddress()) {
@@ -346,7 +341,7 @@ class Orders extends Component
         foreach ($remove as $r) {
             unset($data[$r]);
         }
-
+        ksort($data);
         return $data;
     }
 }

@@ -18,6 +18,11 @@
     {% set discountClasses = "error" %}
 {% endif %}
 
+{% set matchingItemsClasses = "" %}
+{% if false %}
+    {% set matchingItemsClasses = "error" %}
+{% endif %}
+
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
     {% set conditionsClasses = "error" %}
@@ -25,14 +30,15 @@
 
 {% set couponClasses = "" %}
 {% if(discount.getErrors('code')) %}
-    {% set conditionsClasses = "error" %}
+    {% set couponClasses = "error" %}
 {% endif %}
 
 {% set tabs = {
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
     1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
-    2: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    3: {'label':'Actions'|t('commerce'),'url':'#actions'}
+    2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
+    3: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
 
@@ -79,17 +85,59 @@
         {% hook "cp.commerce.discount.edit" %}
     </div>
 
-    <div id="coupon" class="hidden">
+    <div id="matching-items" class="hidden">
 
-        {{ forms.textField({
-            label: "Coupon Code"|t('commerce'),
-            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
-            id: 'code',
-            name: 'code',
-            value: discount.code,
-            errors: discount.getErrors('code'),
+        {% for purchasableType in purchasableTypes %}
+            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
+            {{ forms.elementSelectField({
+                id: 'purchasables-'~purchasableType.elementType|id,
+                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                name: 'purchasables['~purchasableType.elementType~']',
+                elements: purchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+            }) }}
+        {% endfor %}
+
+
+        {{ forms.elementSelectField({
+            id: 'categories',
+            label: 'Categories'|t('commerce'),
+            name: 'categories',
+            elements: categories ? categories : null,
+            elementType: categoryElementType,
+            limit: null,
+            instructions: "Categories that the matching purchasables must be related to. Leave blank to ignore category matching."|t('commerce'),
+            errors: discount.getErrors('categories'),
         }) }}
 
+        <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}" data-target="categoryRelationshipType-advanced">Advanced</a>
+
+        <div id="categoryRelationshipType-advanced" class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
+            {{ forms.selectField({
+                id: 'categoryRelationshipType',
+                name: 'categoryRelationshipType',
+                label: 'Categories Relationship Type'|t('commerce'),
+                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
+                options: categoryRelationshipTypeOptions,
+                value: discount.categoryRelationshipType,
+                errors: discount.getErrors('categoryRelationshipType')
+            }) }}
+        </div>
+
+    </div>
+
+    <div id="coupon" class="hidden">
+        {{ forms.textField({
+        label: "Coupon Code"|t('commerce'),
+        instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
+        id: 'code',
+        name: 'code',
+        value: discount.code,
+        errors: discount.getErrors('code'),
+        }) }}
     </div>
 
     <div id="conditions" class="hidden">
@@ -148,41 +196,6 @@
                 class: 'selectize fullwidth',
             }) }}
         {% endif %}
-
-        {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
-            {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|id,
-                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
-                name: 'purchasables['~purchasableType.elementType~']',
-                elements: purchasables[purchasableType.elementType] ?? null,
-                elementType: purchasableType.elementType,
-                limit: null,
-                instructions: purchasableType.name~" "~instruction,
-                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
-            }) }}
-        {% endfor %}
-
-        {{ forms.elementSelectField({
-            id: 'categories',
-            label: 'Categories'|t('commerce'),
-            name: 'categories',
-            elements: categories ? categories : null,
-            elementType: categoryElementType,
-            limit: null,
-            instructions: "Categories that the matching purchasables must be related to. Leave blank for all categories."|t('commerce'),
-            errors: discount.getErrors('categories'),
-        }) }}
-
-        {{ forms.selectField({
-            id: 'categoryRelationshipType',
-            name: 'categoryRelationshipType',
-            label: 'Categories Relationship Type'|t('commerce'),
-            instructions: "This determines how the Products and Categories are related to match the discount. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
-            options: categoryRelationshipType,
-            value: discount.categoryRelationshipType,
-            errors: discount.getErrors('categoryRelationshipType')
-        }) }}
 
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
@@ -308,6 +321,7 @@
 
 
     </div>
+
     <div id="actions" class="hidden">
 
         <h3>Per Item Discount</h3>
@@ -318,7 +332,7 @@
             name: 'appliedTo',
             options: appliedTo,
             value: discount.appliedTo,
-            'tip': 'Matching items are those items that are used to match this discount’s conditions, like “Product Variant” or “Category” conditions.'|t('commerce')
+            'tip': "Matching items are those items that are used to match this discount’s conditions. Those on the 'Matching Items' tab."|t('commerce')
         }) }}
 
         {{ commerceForms.numberField({
@@ -430,7 +444,7 @@
         }) }}
 
         {{ forms.checkboxField({
-            label: "Remove shipping costs for matching products only"|t('commerce'),
+            label: "Remove shipping costs for matching items only"|t('commerce'),
             id: 'hasFreeShippingForMatchingItems',
             name: 'hasFreeShippingForMatchingItems',
             value: 1,

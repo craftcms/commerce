@@ -7,7 +7,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -23,7 +22,16 @@ class m191008_155732_add_relationship_type_to_sales extends Migration
         $columnName = 'categoryRelationshipType';
         $values = ['element', 'sourceElement', 'targetElement'];
 
-        $this->addColumn('{{%commerce_sales}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
+        if (!$this->db->columnExists('{{%commerce_sales}}', $columnName)) {
+            $this->addColumn('{{%commerce_sales}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
+        }
+
+        // Set all sales to source for backward compat
+        $data = [
+            'categoryRelationshipType' => 'sourceElement',
+        ];
+
+        $this->update('{{%commerce_sales}}', $data);
     }
 
     /**

@@ -9,7 +9,6 @@ namespace craft\commerce\stats;
 
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
-use craft\commerce\Plugin;
 use yii\db\Expression;
 
 /**
@@ -46,6 +45,7 @@ class TopPurchasables extends Stat
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
+
     /**
      * @inheritDoc
      */

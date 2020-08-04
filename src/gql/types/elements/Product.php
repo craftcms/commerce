@@ -9,7 +9,6 @@ namespace craft\commerce\gql\types\elements;
 
 use craft\commerce\elements\Product as ProductElement;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
-use craft\gql\interfaces\Element as ElementInterface;
 use craft\gql\types\elements\Element as ElementType;
 use GraphQL\Type\Definition\ResolveInfo;
 

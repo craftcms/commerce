@@ -39,7 +39,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $addressId = Craft::$app->getRequest()->getBodyParam('address.id');
 
         $customerService = Plugin::getInstance()->getCustomers();
-        $customerId = $customerService->getCustomerId();
+        $customerId = $customerService->getCustomer()->id;
         $addressIds = $customerService->getAddressIds($customerId);
         $customer = $customerService->getCustomerById($customerId);
 
@@ -121,7 +121,12 @@ class CustomerAddressesController extends BaseFrontEndController
             $cart = Plugin::getInstance()->getCarts()->getCart(true);
             if ($cart->shippingAddressId == $address->id) {
                 $cart->setFieldValuesFromRequest('fields');
-                Craft::$app->getElements()->saveElement($cart);
+
+                // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
+                $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+                $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
+
+                Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
             }
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -165,7 +170,7 @@ class CustomerAddressesController extends BaseFrontEndController
     {
         $this->requirePostRequest();
 
-        $customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+        $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
         $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
         $cart = Plugin::getInstance()->getCarts()->getCart(true);
 
@@ -193,7 +198,11 @@ class CustomerAddressesController extends BaseFrontEndController
                 $cart->removeEstimatedBillingAddress();
             }
 
-            Craft::$app->getElements()->saveElement($cart);
+            // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
+            $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+            $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
+
+            Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['success' => true]);

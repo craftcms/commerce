@@ -7,7 +7,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**
@@ -23,7 +22,16 @@ class m191008_153947_add_relationship_type_to_discounts extends Migration
         $columnName = 'categoryRelationshipType';
         $values = ['element', 'sourceElement', 'targetElement'];
 
-        $this->addColumn('{{%commerce_discounts}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
+        if (!$this->db->columnExists('{{%commerce_discounts}}', $columnName)) {
+            $this->addColumn('{{%commerce_discounts}}', $columnName, $this->enum($columnName, $values)->notNull()->defaultValue('element'));
+        }
+
+        // Set all discounts to source for backward compat
+        $data = [
+            'categoryRelationshipType' => 'sourceElement',
+        ];
+
+        $this->update('{{%commerce_discounts}}', $data);
     }
 
     /**

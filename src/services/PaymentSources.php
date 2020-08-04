@@ -44,7 +44,7 @@ class PaymentSources extends Component
      *     function(PaymentSourceEvent $event) {
      *         // @var PaymentSource $source
      *         $source = $event->paymentSource;
-     *         
+     *
      *         // Warn a user they don’t have any valid payment sources saved
      *         // ...
      *     }
@@ -91,7 +91,7 @@ class PaymentSources extends Component
      *     function(PaymentSourceEvent $event) {
      *         // @var PaymentSource $source
      *         $source = $event->paymentSource;
-     * 
+     *
      *         // Settle any outstanding balance
      *         // ...
      *     }
@@ -197,7 +197,12 @@ class PaymentSources extends Component
      */
     public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
     {
-        $source = $gateway->createPaymentSource($paymentForm, $userId);
+        try {
+            $source = $gateway->createPaymentSource($paymentForm, $userId);
+        } catch (\Throwable $exception) {
+            throw new PaymentSourceException($exception->getMessage());
+        }
+
         $source->userId = $userId;
 
         if (!empty($sourceDescription)) {
@@ -205,7 +210,7 @@ class PaymentSources extends Component
         }
 
         if (!$this->savePaymentSource($source)) {
-            throw new PaymentSourceException(Plugin::t( 'Could not create the payment source.'));
+            throw new PaymentSourceException(Plugin::t('Could not create the payment source.'));
         }
 
         return $source;
@@ -225,7 +230,7 @@ class PaymentSources extends Component
             $record = PaymentSourceRecord::findOne($paymentSource->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Plugin::t( 'No payment source exists with the ID “{id}”',
+                throw new InvalidConfigException(Plugin::t('No payment source exists with the ID “{id}”',
                     ['id' => $paymentSource->id]));
             }
         } else {

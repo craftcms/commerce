@@ -9,6 +9,7 @@ namespace craft\commerce\gql\interfaces\elements;
 
 use craft\commerce\elements\Variant as VariantElement;
 use craft\commerce\gql\types\generators\VariantType;
+use craft\commerce\gql\types\SaleType;
 use craft\gql\GqlEntityRegistry;
 use craft\gql\interfaces\Element;
 use craft\gql\TypeManager;
@@ -73,10 +74,25 @@ class Variant extends Element
                 'type' => Type::boolean(),
                 'description' => 'If the variant is the default for the product.',
             ],
+            'isAvailable' => [
+                'name' => 'isAvailable',
+                'type' => Type::boolean(),
+                'description' => 'If the variant is available to be purchased.',
+            ],
             'price' => [
                 'name' => 'price',
                 'type' => Type::float(),
                 'description' => 'The price of the variant.',
+            ],
+            'salePrice' => [
+                'name' => 'salePrice',
+                'type' => Type::float(),
+                'description' => 'The sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
+            ],
+            'sales' => [
+                'name' => 'sales',
+                'type' => Type::listOf(SaleType::getType()),
+                'description' => 'The sales that apply to the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
             ],
             'sortOrder' => [
                 'name' => 'sortOrder',
@@ -127,6 +143,11 @@ class Variant extends Element
                 'name' => 'productId',
                 'type' => Type::int(),
                 'description' => 'The ID of the variant’s parent product.',
+            ],
+            'product' => [
+                'name' => 'product',
+                'type' => Product::getType(),
+                'description' => 'The variant’s parent product.'
             ],
             'productTitle' => [
                 'name' => 'productTitle',

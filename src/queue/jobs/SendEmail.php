@@ -7,8 +7,8 @@
 
 namespace craft\commerce\queue\jobs;
 
-use craft\commerce\Plugin;
 use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 
 class SendEmail extends BaseJob
@@ -32,7 +32,6 @@ class SendEmail extends BaseJob
      * @var int the order history ID
      */
     public $orderHistoryId;
-
 
 
     public function execute($queue)

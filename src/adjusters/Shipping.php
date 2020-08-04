@@ -15,6 +15,7 @@ use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 
 /**
  * Tax Adjustments
@@ -77,6 +78,10 @@ class Shipping extends Component implements AdjusterInterface
 
         $discounts = Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($order);
 
+        // Check to see if we have shipping related discounts
+        $hasOrderLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForOrder', true, false);
+        $hasLineItemLevelShippingRelatedDiscounts = (bool)ArrayHelper::firstWhere($discounts, 'hasFreeShippingForMatchingItems', true, false);
+
         /** @var ShippingRule $rule */
         $rule = $shippingMethod->getMatchingShippingRule($this->_order);
         if ($rule) {
@@ -84,9 +89,18 @@ class Shipping extends Component implements AdjusterInterface
 
             // Check for order level discounts for shipping
             $hasDiscountRemoveShippingCosts = false;
-            foreach ($discounts as $discount) {
-                if ($discount->hasFreeShippingForOrder && Plugin::getInstance()->getDiscounts()->matchOrder($this->_order, $discount)) {
-                    $hasDiscountRemoveShippingCosts = true;
+            if ($hasOrderLevelShippingRelatedDiscounts) {
+                foreach ($discounts as $discount) {
+                    $matchedOrder = Plugin::getInstance()->getDiscounts()->matchOrder($this->_order, $discount);
+
+                    if ($discount->hasFreeShippingForOrder && $matchedOrder) {
+                        $hasDiscountRemoveShippingCosts = true;
+                        break;
+                    }
+
+                    if ($matchedOrder && $discount->stopProcessing) {
+                        break;
+                    }
                 }
             }
 
@@ -95,9 +109,18 @@ class Shipping extends Component implements AdjusterInterface
                 foreach ($order->getLineItems() as $item) {
                     // Lets match the discount now for free shipped items and not even make a shipping cost for the line item.
                     $hasFreeShippingFromDiscount = false;
-                    foreach ($discounts as $discount) {
-                        if ($discount->hasFreeShippingForMatchingItems && Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, true)) {
-                            $hasFreeShippingFromDiscount = true;
+                    if ($hasLineItemLevelShippingRelatedDiscounts) {
+                        foreach ($discounts as $discount) {
+                            $matchedLineItem = Plugin::getInstance()->getDiscounts()->matchLineItem($item, $discount, true);
+
+                            if ($discount->hasFreeShippingForMatchingItems && $matchedLineItem) {
+                                $hasFreeShippingFromDiscount = true;
+                                break;
+                            }
+
+                            if ($matchedLineItem && $discount->stopProcessing) {
+                                break;
+                            }
                         }
                     }
 
@@ -150,10 +173,9 @@ class Shipping extends Component implements AdjusterInterface
             }
         }
 
-        if($this->_consolidateShippingToSingleAdjustment)
-        {
+        if ($this->_consolidateShippingToSingleAdjustment) {
             $amount = 0;
-            foreach ($adjustments as $adjustment){
+            foreach ($adjustments as $adjustment) {
                 $amount += $adjustment->amount;
             }
 

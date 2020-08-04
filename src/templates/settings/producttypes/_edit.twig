@@ -1,0 +1,296 @@
+{% extends "commerce/_layouts/cp" %}
+{% set title = productType.id ? productType.name : 'Create a new product type'|t('commerce') %}
+
+{% set crumbs = [
+    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
+    { label: "Product Types"|t('commerce'), url: url('commerce/settings/producttypes') },
+] %}
+
+{% set selectedSubnavItem = 'settings' %}
+
+{% set fullPageForm = true %}
+
+{% import "_includes/forms" as forms %}
+
+{% block content %}
+    <input type="hidden" name="action"
+           value="commerce/product-types/save-product-type">
+    {{ redirectInput('commerce/settings/producttypes') }}
+    {% if productType.id %}
+        <input type="hidden" name="productTypeId" value="{{ productType.id }}">
+    {% endif %}
+
+    <div id="product-type-settings">
+        {% macro hasVariantsField(productType) %}
+            {% from "_includes/forms" import checkboxField %}
+
+            {% set hasVariantsInstructions %}
+                {%- spaceless %}
+                    {% if productType.id and productType.hasVariants %}
+                        <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
+                    {% endif %}
+                {% endspaceless -%}
+            {% endset %}
+
+            {{ checkboxField({
+                label: "Products of this type have multiple variants"|t('commerce'),
+                instructions: hasVariantsInstructions,
+                id: 'hasVariants',
+                name: 'hasVariants',
+                checked: productType.hasVariants,
+                toggle: '#variant-settings',
+                reverseToggle: '.fld-variants-field-icon',
+            }) }}
+        {% endmacro %}
+
+
+        {% macro templateField(productType) %}
+            {% from "_includes/forms" import textField %}
+
+            {{ textField({
+                label: "Product Template"|t('commerce'),
+                instructions: "The template to use when a product’s URL is requested."|t('commerce'),
+                id: 'template',
+                class: 'ltr',
+                name: 'template',
+                value: productType.template,
+                errors: productType.getErrors('template')
+            }) }}
+        {% endmacro %}
+
+        {% macro productTitleFormatField(productType) %}
+            {% from "_includes/forms" import textField, checkboxField %}
+
+                {{ checkboxField({
+                    label: "Show the Title field for products"|t('commerce'),
+                    name: 'hasProductTitleField',
+                    reverseToggle: '#productTitleFormat-container, .fld-product-title-field-icon',
+                    checked: productType.hasProductTitleField
+                }) }}
+
+                <div id="productTitleFormat-container"{% if productType.hasProductTitleField %} class="hidden"{% endif %}>
+                    {{ textField({
+                        label: "Product Title Format"|t('commerce'),
+                        instructions: "What the auto-generated product titles should look like. You can include tags that output product properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myProductsCustomField}</code>' }),
+                        id: 'productTitleFormat',
+                        class: 'code ltr',
+                        name: 'productTitleFormat',
+                        value: productType.productTitleFormat,
+                        errors: productType.getErrors('productTitleFormat')
+                    }) }}
+                </div>
+        {% endmacro %}
+
+        {% macro titleFormatField(productType) %}
+            {% from "_includes/forms" import textField, checkboxField %}
+
+            <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>
+
+                {{ checkboxField({
+                    label: "Show the Title field for variants"|t('commerce'),
+                    name: 'hasVariantTitleField',
+                    reverseToggle: '#titleFormat-container, .fld-variant-title-field-icon',
+                    checked: productType.hasVariantTitleField
+                }) }}
+
+                <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
+                    {{ textField({
+                        label: "Variant Title Format"|t('commerce'),
+                        instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
+                        id: 'titleFormat',
+                        class: 'code ltr',
+                        name: 'titleFormat',
+                        value: productType.titleFormat,
+                        errors: productType.getErrors('titleFormat')
+                    }) }}
+                </div>
+
+            </div>
+        {% endmacro %}
+
+        {% from _self import hasVariantsField, titleFormatField, productTitleFormatField, uriFormatText %}
+
+
+        {{ forms.textField({
+            first: true,
+            label: "Name"|t('commerce'),
+            instructions: "What this product type will be called in the control panel."|t('commerce'),
+            id: 'name',
+            name: 'name',
+            value: productType.name,
+            errors: productType.getErrors('name'),
+            autofocus: true,
+            required: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Handle"|t('commerce'),
+            instructions: "How you’ll refer to this product type in the templates."|t('commerce'),
+            id: 'handle',
+            class: 'code',
+            name: 'handle',
+            value: productType.handle,
+            errors: productType.getErrors('handle'),
+            required: true
+        }) }}
+
+        {{ productTitleFormatField(productType) }}
+
+        {{ forms.textField({
+            label: "Automatic SKU Format"|t('commerce'),
+            instructions: "What the unique auto-generated SKUs should look like, when a SKU field is submitted without a value. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.slug}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'skuFormat',
+            class: 'code ltr',
+            name: 'skuFormat',
+            value: productType.skuFormat,
+            errors: productType.getErrors('skuFormat')
+        }) }}
+
+        {{ forms.textField({
+            label: "Order Description Format"|t('commerce'),
+            instructions: "How this product will be described on a line item in an order. You can include tags that output properties, such as {ex1} or {ex2}"|t('commerce', { ex1: '<code>{product.title}</code>', ex2: '<code>{myVariantCustomField}</code>' }),
+            id: 'descriptionFormat',
+            class: 'code ltr',
+            name: 'descriptionFormat',
+            value: productType.descriptionFormat,
+            errors: productType.getErrors('descriptionFormat')
+        }) }}
+
+
+        {{ forms.checkboxField({
+            label: "Show the Dimensions and Weight fields for products of this type"|t('commerce'),
+            id: 'hasDimensions',
+            name: 'hasDimensions',
+            checked: productType.hasDimensions,
+        }) }}
+
+        <hr>
+        {{ hasVariantsField(productType) }}
+
+        {{ titleFormatField(productType) }}
+        <hr>
+
+        {% set siteRows = [] %}
+        {% set siteErrors = productType.getErrors('siteSettings') %}
+
+        {% for site in craft.app.sites.getAllSites() %}
+            {% set siteSettings = productType.siteSettings[site.id] ?? null %}
+            {% if siteSettings %}
+                {% for attribute, errors in siteSettings.getErrors() %}
+                    {% set siteErrors = siteErrors|merge(errors) %}
+                {% endfor %}
+            {% endif %}
+            {% set siteRows = siteRows|merge({
+                (site.handle): {
+                    heading: site.name|t('site'),
+                    uriFormat: {
+                        value: siteSettings.uriFormat ?? null,
+                        hasErrors: siteSettings.hasErrors('uriFormat') ?? false
+                    },
+                    template: {
+                        value: siteSettings.template ?? null,
+                        hasErrors: siteSettings.hasErrors('template') ?? false,
+                    }
+                }
+            }) %}
+        {% endfor %}
+
+        {{ forms.editableTableField({
+            label: "Site Settings"|t('app'),
+            instructions: "Configure the product types’s site-specific settings."|t('app'),
+            id: 'sites',
+            name: 'sites',
+            cols: {
+                heading: {
+                    type: 'heading',
+                    heading: "Site"|t('app'),
+                    class: 'thin'
+                },
+                uriFormat: {
+                    type: 'singleline',
+                    heading: "Product URI Format"|t('app'),
+                    info: "What product URIs should look like for the site."|t('app'),
+                    placeholder: "Leave blank if products don’t have URLs"|t('app'),
+                    code: true
+                },
+                template: {
+                    type: 'singleline',
+                    heading: "Template"|t('app'),
+                    info: "Which template should be loaded when an entry’s URL is requested."|t('app'),
+                    code: true
+                },
+            },
+            rows: siteRows,
+            staticRows: true,
+            errors: siteErrors|unique
+        }) }}
+
+
+    </div>
+
+    <div id="tax-and-shipping" class="hidden">
+        <h3>{{ 'Available Shipping Categories'|t('commerce') }} </h3>
+        {% for cat in productType.getShippingCategories() %}
+            {% if loop.first %}<ul class="bullets">{% endif %}
+            {% if currentUser.can('commerce-manageShipping') %}
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+            {% else %}
+                <li>{{ cat.name }}</li>
+            {% endif %}
+            {% if loop.last %}</ul>{% endif %}
+        {% endfor %}
+        <br>
+        {% if currentUser.can('commerce-manageShipping') %}<a
+            href="{{ url('commerce/shipping/shippingcategories') }}">{{ 'Manage All Shipping Categories'|t('commerce') }}</a>{% endif %}
+        <hr>
+
+        <h3>{{ 'Available Tax Categories'|t('commerce') }} </h3>
+        {% for cat in productType.getTaxCategories() %}
+            {% if loop.first %}<ul class="bullets">{% endif %}
+            {% if currentUser.can('commerce-manageTax') %}
+                <li><a href="{{ cat.getCpEditUrl() }}">{{ cat.name }}</a></li>
+            {% else %}
+                <li>{{ cat.name }}</li>
+            {% endif %}
+            {% if loop.last %}</ul>{% endif %}
+        {% endfor %}
+        <br>
+        {% if currentUser.can('commerce-manageTax') %}<a
+            href="{{ url('commerce/tax/taxcategories') }}">{{ 'Manage All Tax Categories'|t('commerce') }}</a>{% endif %}
+    </div>
+    <div id="product-fields" class="hidden">
+
+        {{ forms.fieldLayoutDesignerField({
+            fieldLayout: productType.getProductFieldLayout(),
+        }) }}
+
+    </div>
+
+    <div id="variant-fields" class="hidden">
+
+        {% namespace "variant-layout" %}
+            {{ forms.fieldLayoutDesignerField({
+                fieldLayout: productType.getVariantFieldLayout(),
+                customizableTabs: false
+            }) }}
+        {% endnamespace %}
+
+    </div>
+{% endblock %}
+
+{% if brandNewProductType %}
+    {% js %}
+        new Craft.HandleGenerator('#name', '#handle');
+
+        {% for site in craft.app.sites.getAllSites() %}
+            new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[uriFormat]"]', { suffix: '/{slug}' });
+            new Craft.UriFormatGenerator('#name', '#sites tr[data-id="{{ site.handle }}"] textarea[name$="[template]"]', { suffix: '/_product' });
+        {% endfor %}
+    {% endjs %}
+{% endif %}
+
+{% js %}
+    $('#hasVariants').on('change', function() {
+        Craft.cp.$tabs.filter($("[data-id='variantFields'")).find("#tab-variantFields").toggleClass('hidden');
+    });
+{% endjs %}

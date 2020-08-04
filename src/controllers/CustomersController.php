@@ -12,8 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
-use craft\db\Query;
-use craft\db\Table as CraftTable;
 use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\Html;
@@ -37,8 +35,8 @@ class CustomersController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageCustomers');
         parent::init();
+        $this->requirePermission('commerce-manageCustomers');
     }
 
     /**
@@ -129,7 +127,7 @@ class CustomersController extends BaseCpController
         if ($sort) {
             list($sortField, $sortDir) = explode('|', $sort);
             if ($sortField && $sortDir) {
-                $customersQuery->orderBy('[['.$sortField.']] '.$sortDir);
+                $customersQuery->orderBy('[[' . $sortField . ']] ' . $sortDir);
             }
         }
 

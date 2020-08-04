@@ -71,10 +71,20 @@ abstract class CommerceUiAsset extends AssetBundle
 
         if (!isset($devServer)) {
             $vueCliServer = getenv('COMMERCE_VUE_CLI_SERVER');
-            if ($vueCliServer && Craft::$app->config->general->devMode) {
-                $devServer = rtrim($vueCliServer, '/') . '/';
-            } else {
+            if (!Craft::$app->config->general->devMode || !$vueCliServer) {
                 $devServer = '';
+                return $devServer;
+            }
+
+            $devServer = rtrim($vueCliServer, '/') . '/';
+
+            $vueCliLoopbackServer = getenv('COMMERCE_VUE_CLI_LOOPBACK_SERVER');
+            if ($vueCliLoopbackServer) {
+                try {
+                    $contents = file_get_contents($vueCliLoopbackServer);
+                } catch (\Exception $exception) {
+                    $devServer = '';
+                }
             }
         }
         return $devServer;

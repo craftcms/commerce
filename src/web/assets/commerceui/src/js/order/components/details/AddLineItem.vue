@@ -31,6 +31,7 @@
                         :allow-multiple-selections="true"
                         table-data-endpoint="commerce/orders/purchasables-table"
                         :checkboxes="true"
+                        :checkbox-status="isCheckboxEnabled"
                         :columns="purchasableTableColumns"
                         :padded="true"
                         per-page="10"
@@ -56,9 +57,7 @@
 
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
-    import debounce from 'lodash.debounce'
     import _find from 'lodash.find'
-    import ordersApi from '../../api/orders'
     import AdminTable from 'Craft/admintable/src/App'
 
     export default {
@@ -157,6 +156,10 @@
                 this.showForm = false;
             },
 
+            isCheckboxEnabled(row) {
+                return row.isAvailable;
+            },
+
             handleCheckboxSelect(ids) {
                 if (ids && ids.length) {
                     let $this = this;
@@ -171,19 +174,6 @@
             handleTableData(data) {
                 this.currentTableData = data;
             },
-
-            onSearch({searchText, loading}) {
-                loading(true);
-                this.search(loading, searchText, this);
-            },
-
-            search: debounce((loading, searchText, vm) => {
-                ordersApi.purchasableSearch(vm.orderId, escape(searchText))
-                        .then((response) => {
-                            vm.$store.commit('updatePurchasables', response.data)
-                            loading(false)
-                        })
-            }, 350)
         },
     }
 </script>

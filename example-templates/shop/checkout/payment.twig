@@ -1,0 +1,105 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+<!-- Template: {{ _self }}.twig -->
+    <div class="flex -mx-8">
+        <div class="w-2/3 px-8">
+            <h1 class="font-bold text-xl">Payment</h1>
+{#
+          ╔══════════════════════════════════════════════════╗
+          ║  ┌───────────────────────────────────────────┐   ║
+          ║  │   This makes payment using the            │   ║
+          ║  │   payment form.                           │   ║
+          ║  └───────────────────────────────────────────┘   ║
+          ╚══════════════════════════════════════════════════╝
+#}
+
+            {% if cart.gatewayId or cart.paymentSourceId %}
+                {% if paymentForm is defined %}
+                  {% for key, errors in paymentForm.getErrors() %}
+                    {% for error in errors %}
+                      {% if loop.first %}<ul>{% endif %}
+                        <li class="text-red-600"><strong>{{ key }}</strong> {{ error }}</li>
+                      {% if loop.last %}</ul>{% endif %}
+                    {% endfor %}
+                  {% endfor %}
+                {% endif %}
+
+                <div class="mt-3 max-w-md {{ classes.box.base }}">
+
+                  <form method="post" action="" class="js-paymentSource-form" id="paymentForm">
+                      <input type="hidden" name="action" value="commerce/payments/pay"/>
+                      {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
+                      <input type="hidden" name="cancelUrl" value="{{ '/shop/checkout/payment'|hash }}"/>
+                      <input type="hidden" name="orderEmail" value="{{ cart.email }}"/>
+
+                      {{ csrfInput() }}
+                      {% if cart.gatewayId %}
+
+                          <input type="hidden" name="gatewayId" value="{{ cart.gatewayId }}"/>
+
+                          {% set params = {} %}
+
+                          {# Set gateway specific parameters #}
+                          {% if className(cart.gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
+                              {% set params = { currency: cart.paymentCurrency } %}
+                          {% endif %}
+
+                          {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+
+                          {% if cart.gateway.supportsPaymentSources() and currentUser %}
+                              <div class="checkbox">
+                                  <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases" }}</label>
+                              </div><br />
+                          {% endif %}
+
+                      {% else %}
+                          {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
+                      {% endif %}
+
+                      {% set user = craft.users.email(cart.email).one() %}
+                      {% if not user %}
+                        <div class="mt-3">
+                          <label for="registerUserOnOrderComplete">
+                              <input type="hidden" name="registerUserOnOrderComplete" value="false"/>
+                              <input type="checkbox" id="registerUserOnOrderComplete" name="registerUserOnOrderComplete" value="1" /> {{ "Register me for a user account" }}
+                          </label>
+                        </div>
+                      {% endif %}
+
+                      {#
+                        Only show the payment button for gateways that don't provide their own
+                      #}
+                      {% if className(cart.gateway) not in [
+                        'craft\\commerce\\paypalcheckout\\gateways\\Gateway',
+                      ] %}
+                        <div class="mt-3 text-right">
+                          <button class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" type="submit">Pay {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}</button>
+                        </div>
+                      {% endif %}
+                  </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="w-1/3 px-8 border-l border-grey-lighter">
+            {% include "shop/checkout/_includes/order-summary" with { showShippingAddress: true, showShippingMethod: true } %}
+        </div>
+    </div>
+
+
+
+    {% js %}
+        $('#paymentForm').on('submit', function (ev) {
+            $form = $(this);
+
+            if ($form.data('processing')) {
+                ev.preventDefault();
+
+                return false;
+            }
+
+            $form.data('processing', true);
+        });
+    {% endjs %}
+{% endblock %}

@@ -3,29 +3,38 @@
         <template v-if="editing && recalculationMode === 'none'">
             <div class="fields order-flex">
                 <field :label="showLabels ? $options.filters.t('Type', 'commerce') : ''" :required="true" v-slot:default="slotProps">
-                    <div class="select">
+                    <div class="select" v-if="isAllowedAdjustmentType">
                         <select :id="slotProps.id" v-model="type">
                             <option v-for="(adjustmentOption, key) in adjustmentOptions" :value="adjustmentOption.value" :key="key">
                                 {{adjustmentOption.label}}
                             </option>
                         </select>
                     </div>
+                    <div v-else>
+                        <input :id="slotProps.id" type="text" class="text readonly" v-model="type" readonly />
+                    </div>
                 </field>
 
                 <field :label="showLabels ? $options.filters.t('Name', 'commerce') : ''" v-slot:default="slotProps">
-                    <input :id="slotProps.id" type="text" class="text" v-model="name" />
+                    <input :id="slotProps.id" type="text" class="text" :class="{readonly: !isAllowedAdjustmentType}" v-model="name" :readonly="!isAllowedAdjustmentType" />
                 </field>
 
                 <field :label="showLabels ? $options.filters.t('Description', 'commerce') : ''" v-slot:default="slotProps">
-                    <input :id="slotProps.id" type="text" class="text" v-model="description" />
+                    <input :id="slotProps.id" type="text" class="text" :class="{readonly: !isAllowedAdjustmentType}" v-model="description" :readonly="!isAllowedAdjustmentType" />
                 </field>
 
                 <field :label="showLabels ? $options.filters.t('Included', 'commerce') : ''"  v-slot:default="slotProps" :class="{'included-labels': showLabels, 'included': !showLabels, 'order-flex': true, 'align-center': true }">
-                    <input :id="slotProps.id" type="checkbox" class="checkbox" v-model="included"><label :for="slotProps.id">&nbsp;</label>
+                    <div v-if="isAllowedAdjustmentType">
+                        <input :id="slotProps.id" type="checkbox" class="checkbox" v-model="included"><label :for="slotProps.id">&nbsp;</label>
+                    </div>
+                    <div v-else>
+                        <input :id="slotProps.id" type="hidden" class="" :value="included ? '1' : '0'"><label :for="slotProps.id">&nbsp;</label>
+                        <input :id="slotProps.id" type="checkbox" class="checkbox readonly" v-model="included" :disabled="true"><label :for="slotProps.id">&nbsp;</label>
+                    </div>
                 </field>
 
                 <field :label="showLabels ? $options.filters.t('Amount', 'commerce') : ''" :required="true" :errors="[...getErrors(errorPrefix+adjustmentKey+'.amount'), ...getErrors(errorPrefix+adjustmentKey+'.included')]" v-slot:default="slotProps">
-                    <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length}" />
+                    <input :id="slotProps.id" type="text" class="text" v-model="amount" :class="{error: getErrors(errorPrefix+adjustmentKey+'.amount').length, readonly: !isAllowedAdjustmentType}" :readonly="!isAllowedAdjustmentType" />
                 </field>
                 <div class="order-flex justify-center flex-grow" :class="{'pt': showLabels }">
                     <btn-link button-class="btn-link btn-link--danger icon delete" @click="$emit('remove')"></btn-link>
@@ -89,18 +98,19 @@
             return {
                 adjustmentOptions: [
                     {
-                        label: 'Tax',
+                        label: this.$options.filters.t('Tax', 'commerce'),
                         value: 'tax',
                     },
                     {
-                        label: 'Discount',
+                        label: this.$options.filters.t('Discount', 'commerce'),
                         value: 'discount',
                     },
                     {
-                        label: 'Shipping',
+                        label: this.$options.filters.t('Shipping', 'commerce'),
                         value: 'shipping',
                     },
                 ],
+                allowedAdjustmentTypes: ['tax', 'discount', 'shipping'],
             }
         },
 
@@ -172,6 +182,10 @@
                     this.$emit('update', adjustment)
                 }
             },
+
+            isAllowedAdjustmentType() {
+                return this.allowedAdjustmentTypes.indexOf(this.type) >= 0;
+            }
         },
     }
 </script>
@@ -242,6 +256,11 @@
 
                     input[type="text"] {
                         width: 100%;
+                    }
+
+                    .readonly {
+                        background-color: $light;
+                        color: $mediumTextColor;
                     }
                 }
             }

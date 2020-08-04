@@ -10,6 +10,7 @@ namespace craft\commerce\elements;
 use Craft;
 use craft\base\Element;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\db\VariantQuery;
 use craft\commerce\events\CustomizeProductSnapshotDataEvent;
@@ -19,18 +20,16 @@ use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
-use craft\commerce\models\ShippingCategory;
-use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Db;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\Expression;
 use yii\validators\Validator;
 
@@ -41,6 +40,8 @@ use yii\validators\Validator;
  * @property bool $onSale
  * @property Product $product the product associated with this variant
  * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property string $priceAsCurrency
+ * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -220,7 +221,7 @@ class Variant extends Purchasable
     public $stock;
 
     /**
-     * @var int $hasUnlimitedStock
+     * @var bool $hasUnlimitedStock
      */
     public $hasUnlimitedStock;
 
@@ -247,6 +248,55 @@ class Variant extends Purchasable
      */
     private $_product;
 
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'price',
+            'salePrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -311,20 +361,18 @@ class Variant extends Purchasable
         $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'string', 'max' => 255];
-        $rules[] = [['sku', 'price'], 'required'];
+        $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
         $rules[] = [['price'], 'number'];
         $rules[] = [
-            ['stock'], 'required', 'when' => static function($model) {
+            ['stock'],
+            'required',
+            'when' => static function($model) {
                 /** @var Variant $model */
                 return !$model->hasUnlimitedStock;
-            }
+            },
+            'on' => self::SCENARIO_LIVE,
         ];
-        $rules[] = [
-            ['stock'], 'number', 'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->hasUnlimitedStock;
-            }
-        ];
+        $rules[] = [['stock'], 'number'];
 
         return $rules;
     }
@@ -425,6 +473,7 @@ class Variant extends Purchasable
      * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable
+     * @see \craft\elements\Entry::updateTitle
      */
     public function updateTitle(Product $product)
     {
@@ -477,6 +526,7 @@ class Variant extends Purchasable
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function getIsEditable(): bool
     {
@@ -850,43 +900,45 @@ class Variant extends Purchasable
      */
     public function afterSave(bool $isNew)
     {
-        if (!$isNew) {
-            $record = VariantRecord::findOne($this->id);
+        if (!$this->propagating) {
+            if (!$isNew) {
+                $record = VariantRecord::findOne($this->id);
 
-            if (!$record) {
-                throw new Exception('Invalid variant ID: ' . $this->id);
+                if (!$record) {
+                    throw new Exception('Invalid variant ID: ' . $this->id);
+                }
+            } else {
+                $record = new VariantRecord();
+                $record->id = $this->id;
             }
-        } else {
-            $record = new VariantRecord();
-            $record->id = $this->id;
+
+            $record->productId = $this->productId;
+            $record->sku = $this->sku;
+            $record->price = $this->price;
+            $record->width = $this->width;
+            $record->height = $this->height;
+            $record->length = $this->length;
+            $record->weight = $this->weight;
+            $record->minQty = $this->minQty;
+            $record->maxQty = $this->maxQty;
+            $record->stock = $this->stock;
+            $record->isDefault = (bool)$this->isDefault;
+            $record->sortOrder = $this->sortOrder;
+            $record->hasUnlimitedStock = $this->hasUnlimitedStock;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            if (!$this->getProduct()->getType()->hasDimensions) {
+                $record->width = $this->width = 0;
+                $record->height = $this->height = 0;
+                $record->length = $this->length = 0;
+                $record->weight = $this->weight = 0;
+            }
+
+            $record->save(false);
         }
-
-        $record->productId = $this->productId;
-        $record->sku = $this->sku;
-        $record->price = $this->price;
-        $record->width = $this->width;
-        $record->height = $this->height;
-        $record->length = $this->length;
-        $record->weight = $this->weight;
-        $record->minQty = $this->minQty;
-        $record->maxQty = $this->maxQty;
-        $record->stock = $this->stock;
-        $record->isDefault = (bool)$this->isDefault;
-        $record->sortOrder = $this->sortOrder;
-        $record->hasUnlimitedStock = $this->hasUnlimitedStock;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
-
-        if (!$this->getProduct()->getType()->hasDimensions) {
-            $record->width = $this->width = 0;
-            $record->height = $this->height = 0;
-            $record->length = $this->length = 0;
-            $record->weight = $this->weight = 0;
-        }
-
-        $record->save(false);
 
         return parent::afterSave($isNew);
     }
@@ -912,7 +964,7 @@ class Variant extends Purchasable
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
 
-            Craft::$app->getTemplateCaches()->deleteCachesByElementId($this->id);
+            Craft::$app->getElements()->invalidateCachesForElement($this);
         }
     }
 
@@ -1196,13 +1248,11 @@ class Variant extends Purchasable
             }
             case 'product':
             {
-                return $this->product->title;
+                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
             }
             case 'price':
             {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return $this->priceAsCurrency;
             }
             case 'weight':
             {

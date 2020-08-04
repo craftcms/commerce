@@ -27,7 +27,6 @@
         subject: email.subject|t('site')|e,
         to: email.recipientType == 'custom' ? email.to|e : 'Customer'|t('commmerce')|e,
         bcc: email.bcc|e,
-        template: email.templatePath|e,
         preview: email.id
     }]) %}
 {% endfor %}

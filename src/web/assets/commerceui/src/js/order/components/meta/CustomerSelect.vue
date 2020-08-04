@@ -9,28 +9,30 @@
             :clearable="false"
             :pre-filtered="true"
             :create-option="createOption"
-            :placeholder="$options.filters.t('Search…', 'commerce')"
+            :placeholder="$options.filters.t('Search or enter customer email…', 'commerce')"
             :clear-search-on-blur="false"
             taggable
             @input="onChange"
             @search="onSearch">
         <template v-slot:option="slotProps">
-            <div class="customer-select-option">
+            <div class="customer-select-option" :class="{ 'hidden': !slotProps.option.id && customers.length}">
                 <template v-if="!slotProps.option.id">
-                    <div class="order-flex align-center">
-
+                    <div class="order-flex justify-center" v-if="$v.newCustomerEmail.$invalid">
+                        <div>{{$options.filters.t('A valid email is required to create a customer.', 'commerce')}}</div>
+                    </div>
+                    <div class="order-flex align-center" v-else>
                         <div class="customer-photo-wrapper">
-                            <div class="customer-photo order-flex customer-photo--initial justify-center align-center">
-                                <img class="w-full" :src="userPhotoFallback()" :alt="$options.filters.t('New Customer', 'commerce')">
+                            <div class="customer-photo order-flex customer-photo--initial customer-photo--email justify-center align-center">
+                                <span class="icon" data-icon="email"></span>
                             </div>
                         </div>
                         <div class="ml-1">
-                            {{"Create “{email}”"|t('commerce', {email: slotProps.option.email})}}
+                            {{"Create customer: “{email}”"|t('commerce', {email: slotProps.option.email})}}
                         </div>
                     </div>
                 </template>
-                <template v-else>
-                    <div class="customer-select-option">
+                <template v-else-if="slotProps.option.id">
+                    <div>
                         <customer
                             :customer="{
                                 photo: slotProps.option.photo,
@@ -128,7 +130,9 @@
             }, 350),
 
             onChange() {
-                this.$emit('update', this.selectedCustomer);
+                if (this.selectedCustomer && this.selectedCustomer.email) {
+                    this.$emit('update', this.selectedCustomer);
+                }
             }
         },
 
@@ -145,10 +149,14 @@
 <style lang="scss">
     @import '../../../../sass/order/app';
 
+    .customer-select-option {
+        border-top: 1px solid $lightGrey;
+        padding: 6px 14px;
+    }
+
     .customer-select {
         .vs__dropdown-option {
-            border-top: 1px solid $lightGrey;
-            padding: 6px 14px;
+            padding: 0;
         }
 
         .vs__dropdown-menu {

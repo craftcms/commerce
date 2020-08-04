@@ -42,9 +42,8 @@ class CartController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**
@@ -73,6 +72,7 @@ class CartController extends BaseFrontEndController
         $plugin = Plugin::getInstance();
 
         // Get the cart from the request or from the session.
+        // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
         // Services we will be using.
@@ -84,7 +84,7 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $request->getParam('purchasableId')) {
             $note = $request->getParam('note', '');
-            $options = $request->getParam('options') ?: [];
+            $options = $request->getParam('options', []);
             $qty = (int)$request->getParam('qty', 1);
 
             if ($qty > 0) {
@@ -110,7 +110,7 @@ class CartController extends BaseFrontEndController
             foreach ($purchasables as $key => $purchasable) {
                 $purchasableId = $request->getParam("purchasables.{$key}.id");
                 $note = $request->getParam("purchasables.{$key}.note", '');
-                $options = $request->getParam("purchasables.{$key}.options") ?: [];
+                $options = $request->getParam("purchasables.{$key}.options", []);
                 $qty = (int)$request->getParam("purchasables.{$key}.qty", 1);
 
                 $purchasable = [];
@@ -337,7 +337,9 @@ class CartController extends BaseFrontEndController
 
         $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
 
-        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false)) {
+        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+
+        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Plugin::t('Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
@@ -345,6 +347,7 @@ class CartController extends BaseFrontEndController
                     'error' => $error,
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
+                    'message' => $error,
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
             }
@@ -359,9 +362,17 @@ class CartController extends BaseFrontEndController
         }
 
         if ($request->getAcceptsJson()) {
+
+            if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+                $message = Html::encode($cartUpdatedNotice);
+            } else {
+                $message = Plugin::t('Cart updated.');
+            }
+
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
-                $this->_cartVariable => $this->cartArray($this->_cart)
+                $this->_cartVariable => $this->cartArray($this->_cart),
+                'message' => $message,
             ]);
         }
 

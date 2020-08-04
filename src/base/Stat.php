@@ -4,14 +4,13 @@
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
+
 namespace craft\commerce\base;
 
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
-use craft\errors\AssetDisallowedExtensionException;
-use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
@@ -230,6 +229,7 @@ abstract class Stat implements StatInterface
             $this->setEndDate($this->_getEndDate($this->dateRange));
         }
     }
+
     /**
      * Based on the date range return the start date.
      *
@@ -275,7 +275,7 @@ abstract class Stat implements StatInterface
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P'.$number.'D');
+                $interval = new \DateInterval('P' . $number . 'D');
                 $date->sub($interval);
                 break;
             }
@@ -286,7 +286,6 @@ abstract class Stat implements StatInterface
                 $date->sub($interval);
                 $date->add(new \DateInterval('P1M'));
                 break;
-
             }
         }
 
@@ -423,9 +422,11 @@ abstract class Stat implements StatInterface
     {
         return (new Query)
             ->from(Table::ORDERS . ' orders')
+            ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
             ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
-            ->andWhere(['isCompleted' => 1]);
+            ->andWhere(['isCompleted' => 1])
+            ->andWhere(['elements.dateDeleted' => null]);
     }
 
     /**
@@ -480,7 +481,8 @@ abstract class Stat implements StatInterface
      * @param int $days
      * @return mixed
      */
-    private function _getCustomDateChartQueryOptions(int $days) {
+    private function _getCustomDateChartQueryOptions(int $days)
+    {
         if ($days > 90) {
             return $this->getChartQueryOptionsByInterval('month');
         }

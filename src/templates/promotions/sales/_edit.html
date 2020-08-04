@@ -18,6 +18,11 @@
     {% set actionClasses = "error" %}
 {% endif %}
 
+{% set matchingItemsClasses = "" %}
+{% if false %}
+    {% set matchingItemsClasses = "error" %}
+{% endif %}
+
 {% set saleClasses = "" %}
 {% if(sale.getErrors('name')) %}
     {% set saleClasses = "error" %}
@@ -25,8 +30,9 @@
 
 {% set tabs = {
     0: {'label':'Sale'|t('commerce'),'url':'#sale','class': saleClasses},
-    1: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
-    2: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
+    1: {'label':'Matching Items'|t('commerce'),'url':'#matching-items'},
+    2: {'label':'Conditions'|t('commerce'),'url':'#conditions'},
+    3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
 
@@ -73,6 +79,48 @@
 
     </div>
 
+    <div id="matching-items" class="hidden">
+
+        {% for purchasableType in purchasableTypes %}
+            {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
+            {{ forms.elementSelectField({
+                id: 'purchasables-'~purchasableType.elementType|id,
+                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                name: 'purchasables['~purchasableType.elementType~']',
+                elements: purchasables[purchasableType.elementType] ?? null,
+                elementType: purchasableType.elementType,
+                limit: null,
+                instructions: purchasableType.name~" "~instruction,
+                errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
+            }) }}
+        {% endfor %}
+
+        {{ forms.elementSelectField({
+            id: 'categories',
+            label: 'Categories'|t('commerce'),
+            name: 'categories',
+            elements: categories ? categories : null,
+            elementType: categoryElementType,
+            limit: null,
+            instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
+            errors: sale.getErrors('categories'),
+        }) }}
+
+      <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}" data-target="categoryRelationshipType-advanced">Advanced</a>
+
+      <div id="categoryRelationshipType-advanced" class="{% if (sale.categoryRelationshipType == 'element') %}hidden{% endif %}">
+        {{ forms.selectField({
+            id: 'categoryRelationshipType',
+            name: 'categoryRelationshipType',
+            label: 'Categories Relationship Type'|t('commerce'),
+            instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
+            options: categoryRelationshipType,
+            value: sale.categoryRelationshipType,
+            errors: sale.getErrors('categoryRelationshipType')
+        }) }}
+      </div>
+    </div>
+
     <div id="conditions" class="hidden">
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),
@@ -104,41 +152,6 @@
                     class: 'selectize fullwidth',
                 }) }}
             {% endif %}
-
-            {% for purchasableType in purchasableTypes %}
-                {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
-                {{ forms.elementSelectField({
-                    id: 'purchasables-'~purchasableType.elementType|id,
-                    label: purchasableType.name,
-                    name: 'purchasables['~purchasableType.elementType~']',
-                    elements: purchasables[purchasableType.elementType] ?? null,
-                    elementType: purchasableType.elementType,
-                    limit: null,
-                    instructions: purchasableType.name~" "~instruction,
-                    errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
-                }) }}
-            {% endfor %}
-
-            {{ forms.elementSelectField({
-                id: 'categories',
-                label: 'Categories'|t('commerce'),
-                name: 'categories',
-                elements: categories ? categories : null,
-                elementType: categoryElementType,
-                limit: null,
-                instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
-                errors: sale.getErrors('categories'),
-            }) }}
-
-            {{ forms.selectField({
-                id: 'categoryRelationshipType',
-                name: 'categoryRelationshipType',
-                label: 'Categories Relationship Type'|t('commerce'),
-                instructions: "This determines how the Products and Categories are related to match the sale. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
-                options: categoryRelationshipType,
-                value: sale.categoryRelationshipType,
-                errors: sale.getErrors('categoryRelationshipType')
-            }) }}
         </div>
 
     </div>
@@ -160,7 +173,7 @@
             required: true,
         }) }}
 
-        {% set applyAmounyVzlue %}{% spaceless %}
+        {% set applyAmountValue %}{% spaceless %}
             {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
                 {{ sale.applyAmountAsPercent }}
             {% else %}
@@ -173,8 +186,8 @@
             id: 'applyAmount',
             name: 'applyAmount',
             required: true,
-            value: applyAmounyVzlue,
-            errors: sale.getErrors('aplyAmount'),
+            value: applyAmountValue,
+            errors: sale.getErrors('applyAmount'),
         }) }}
 
         {% set ignoresPrevious = ['toFlat','toPercent'] %}

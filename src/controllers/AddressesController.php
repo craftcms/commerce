@@ -31,9 +31,8 @@ class AddressesController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageOrders');
-
         parent::init();
+        $this->requirePermission('commerce-manageOrders');
     }
 
     /**

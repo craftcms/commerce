@@ -7,12 +7,7 @@
 
 namespace craft\commerce\helpers;
 
-use Craft;
 use craft\helpers\Gql as GqlHelper;
-use craft\errors\GqlException;
-use craft\gql\GqlEntityRegistry;
-use craft\models\GqlSchema;
-use GraphQL\Type\Definition\UnionType;
 
 /**
  * Class Commerce Gql

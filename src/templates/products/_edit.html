@@ -118,41 +118,8 @@
     {{ csrfInput() }}
 
     <div id="fields">
-        {{ productFields.titleField(product) }}
-
-        <div>
-            {% set tabs = productType.getProductFieldLayout().getTabs() %}
-            {% for tab in tabs %}
-                <div id="tab{{ loop.index }}" {% if not loop.first %} class="hidden" {% endif %}>
-                    {% include "_includes/fields" with {
-                        fields: tab.getFields(),
-                        element: product,
-                        registerDeltas: true,
-                    } only %}
-                </div>
-            {% endfor %}
-        </div>
+        {{ fieldsHtml|raw }}
     </div>
-
-    {% if productType.hasVariants %}
-        <div id="variants-container" {% if productType.getProductFieldLayout().getTabs()|length >= 1 %}class="hidden"{% endif %}>
-            <div class="field">
-                <div class="heading">
-                    <label>{{ 'Variants'|t('commerce') }}</label>
-                </div>
-                <div class="input">
-
-                    {% if product.hasErrors('variants') %}
-                    {% for error in product.getErrors('variants') %}
-                        <div class="error">{{ error }}</div>
-                    {% endfor %}
-                    {% endif %}
-
-                    {{ variantMatrixHtml|raw }}
-                </div>
-            </div>
-        </div>
-    {% endif %}
 
     {% hook "cp.commerce.product.edit.content" %}
 {% endblock %}
@@ -185,6 +152,9 @@
 
 {% if not productType.hasVariants %}
     {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
+        <input class="default-input" type="hidden"
+             name="isDefault"
+             value="1">
         <div class="meta">
             {{ productFields.generalVariantFields(product.defaultVariant, product) }}
         </div>

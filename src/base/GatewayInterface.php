@@ -22,6 +22,7 @@ use Throwable;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @mixin GatewayTrait
  */
 interface GatewayInterface extends SavableComponentInterface
 {
@@ -202,4 +203,13 @@ interface GatewayInterface extends SavableComponentInterface
      * @return bool
      */
     public function availableForUseWithOrder(Order $order): bool;
+
+    /**
+     * Retrieves the transaction hash from the webhook data. This could be a query string
+     * param or part of the response data.
+     *
+     * @return mixed
+     * @since 3.1.9
+     */
+    public function getTransactionHashFromWebhook();
 }

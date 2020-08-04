@@ -9,13 +9,13 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
+use craft\commerce\helpers\Currency;
 use craft\commerce\Plugin;
 use craft\commerce\stats\TotalRevenue as TotalRevenueStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
-use craft\web\assets\d3\D3Asset;
 
 /**
  * Total Revenue widget
@@ -82,7 +82,7 @@ class TotalRevenue extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Revenue');
+        return Plugin::t('Total Revenue');
     }
 
     public function getTitle(): string
@@ -91,7 +91,7 @@ class TotalRevenue extends Widget
         $revenue = ArrayHelper::getColumn($stats, 'revenue', false);
         $total = round(array_sum($revenue), 0, PHP_ROUND_HALF_DOWN);
 
-        $formattedTotal = Craft::$app->getFormatter()->asCurrency($total, Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(), [], [], true);
+        $formattedTotal = Currency::formatAsCurrency($total, null, false, true, true);
 
         return Plugin::t('{total} in total revenue', ['total' => $formattedTotal]);
     }
@@ -136,7 +136,7 @@ class TotalRevenue extends Widget
         if ($this->_stat->getDateRangeInterval() == 'month') {
             $labels = array_map(static function($label) {
                 list($year, $month) = explode('-', $label);
-                $month = $month < 10 ? '0'.$month : $month;
+                $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);
         } else if ($this->_stat->getDateRangeInterval() == 'week') {

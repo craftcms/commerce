@@ -13,12 +13,12 @@ use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
-use function is_array;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use function is_array;
 
 /**
  * Class Plans Controller

@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
@@ -28,6 +27,9 @@ class Settings extends Model
     const MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT = 'default';
     const MINIMUM_TOTAL_PRICE_STRATEGY_ZERO = 'zero';
     const MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING = 'shipping';
+
+    const FREE_ORDER_PAYMENT_STRATEGY_COMPLETE = 'complete';
+    const FREE_ORDER_PAYMENT_STRATEGY_PROCESS = 'process';
 
     const VIEW_URI_ORDERS = 'commerce/orders';
     const VIEW_URI_PRODUCTS = 'commerce/products';
@@ -60,8 +62,9 @@ class Settings extends Model
 
     /**
      * @var string Order PDF Path
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
-    public $orderPdfPath = 'shop/receipt';
+    public $orderPdfPath = 'shop/special/receipt';
 
     /**
      * @var string Order PDF Size
@@ -75,6 +78,7 @@ class Settings extends Model
 
     /**
      * @var string Order PDF file name format
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
     public $orderPdfFilenameFormat = 'Order-{number}';
 
@@ -92,6 +96,11 @@ class Settings extends Model
      * @var string
      */
     public $minimumTotalPriceStrategy = 'default';
+
+    /**
+     * @var string
+     */
+    public $freeOrderPaymentStrategy = 'complete';
 
     /**
      * @var array
@@ -205,13 +214,19 @@ class Settings extends Model
      * @var bool
      * @since 3.0.12
      */
-     public $validateCartCustomFieldsOnSubmission = false;
+    public $validateCartCustomFieldsOnSubmission = false;
 
     /**
      * @var string|null the uri to redirect to after using the load cart url
      * @since 3.1
      */
-     public $loadCartRedirectUrl = null;
+    public $loadCartRedirectUrl = null;
+
+    /**
+     * @var bool Should the search index for a cart be updated when saving the cart on the front-end.
+     * @since 3.1.5
+     */
+    public $updateCartSearchIndexes = true;
 
     /**
      * @return array
@@ -248,6 +263,17 @@ class Settings extends Model
             self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getFreeOrderPaymentStrategyOptions(): array
+    {
+        return [
+            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Plugin::t('Free orders complete immediately'),
+            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Plugin::t('Free orders are processed by the payment gateway'),
         ];
     }
 

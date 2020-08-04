@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\base\Gateway;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
@@ -34,9 +33,8 @@ class PaymentsController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**
@@ -89,8 +87,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
         } else {
-            /** @var Order $order */
-            $order = $plugin->getCarts()->getCart(true);
+            $order = $plugin->getCarts()->getCart();
         }
 
         /**
@@ -253,7 +250,26 @@ class PaymentsController extends BaseFrontEndController
 
             // Does the user want to save this card as a payment source?
             if ($currentUser && $request->getBodyParam('savePaymentSource') && $gateway->supportsPaymentSources()) {
-                $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+
+                try {
+                    $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
+                } catch (PaymentSourceException $exception) {
+                    Craft::$app->getErrorHandler()->logException($exception);
+                    $error = $exception->getMessage();
+
+                    if ($request->getAcceptsJson()) {
+                        return $this->asJson([
+                            'error' => $error,
+                            'paymentFormErrors' => $paymentForm->getErrors(),
+                        ]);
+                    }
+
+                    $session->setError($error);
+                    Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+                    return null;
+                }
+
                 $order->setPaymentSource($paymentSource);
                 $paymentForm->populateFromPaymentSource($paymentSource);
             }
@@ -311,7 +327,10 @@ class PaymentsController extends BaseFrontEndController
         $totalQtyChanged = $originalTotalQty != $order->getTotalQty();
         $totalAdjustmentsChanged = $originalTotalAdjustments != count($order->getAdjustments());
 
-        if (Craft::$app->getElements()->saveElement($order)) {
+        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateSearchIndex = ($order->isCompleted || $updateCartSearchIndexes);
+
+        if (Craft::$app->getElements()->saveElement($order, true, false, $updateSearchIndex)) {
             // Has the order changed in a significant way?
             if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
                 if ($totalPriceChanged) {

@@ -9,14 +9,13 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
-use craft\base\Model;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
-use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
@@ -31,13 +30,12 @@ use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\Db;
 use craft\helpers\UrlHelper;
-use craft\models\CategoryGroup;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Product model.
@@ -52,6 +50,7 @@ use yii\base\InvalidConfigException;
  * @property Variant $cheapestVariant
  * @property ProductType $type
  * @property Variant[]|array $variants an array of the product's variants
+ * @property-read string $defaultPriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -96,11 +95,6 @@ class Product extends Element
      * @var bool Whether the product has free shipping
      */
     public $freeShipping;
-
-    /**
-     * @inheritdoc
-     */
-    public $enabled;
 
     /**
      * @var bool Is this product available to be purchased
@@ -162,6 +156,53 @@ class Product extends Element
      */
     private $_cheapestVariant;
 
+    /**
+     * @return array
+     */
+    public function behaviors(): array
+    {
+        $behaviors = parent::behaviors();
+
+        $behaviors['typecast'] = [
+            'class' => AttributeTypecastBehavior::class,
+            'attributeTypes' => [
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER
+            ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
+        return $behaviors;
+    }
+
+    /**
+     * @return array|string[]
+     */
+    public function currencyAttributes(): array
+    {
+        return [
+            'defaultPrice'
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        if ($this->getBehavior('currencyAttributes')) {
+            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
+
+        return $fields;
+    }
 
     /**
      * @inheritdoc
@@ -568,7 +609,7 @@ class Product extends Element
             $map = (new Query())
                 ->select('productId as source, id as target')
                 ->from([Table::VARIANTS])
-                ->where(['in', 'productId', $sourceElementIds])
+                ->where(['productId' => $sourceElementIds])
                 ->orderBy('sortOrder asc')
                 ->all();
 
@@ -615,20 +656,12 @@ class Product extends Element
     public function getEditorHtml(): string
     {
         $viewService = Craft::$app->getView();
-        $html = $viewService->renderTemplateMacro('commerce/products/_fields', 'titleField', [$this]);
+        $html = parent::getEditorHtml();
         $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
-        $html .= parent::getEditorHtml();
 
         $productType = $this->getType();
 
-        if ($productType->hasVariants) {
-            $html .= $viewService->renderTemplateMacro('_includes/forms', 'field', [
-                [
-                    'label' => Plugin::t('Variants'),
-                ],
-                VariantMatrix::getVariantMatrixHtml($this)
-            ]);
-        } else {
+        if (!$productType->hasVariants) {
             /** @var Variant $variant */
             $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
@@ -664,43 +697,43 @@ class Product extends Element
      */
     public function afterSave(bool $isNew)
     {
-        if (!$isNew) {
-            $record = ProductRecord::findOne($this->id);
-
-            if (!$record) {
-                throw new Exception('Invalid product ID: ' . $this->id);
-            }
-        } else {
-            $record = new ProductRecord();
-            $record->id = $this->id;
-        }
-
-        $record->postDate = $this->postDate;
-        $record->expiryDate = $this->expiryDate;
-        $record->typeId = $this->typeId;
-        $record->promotable = (bool)$this->promotable;
-        $record->availableForPurchase = (bool)$this->availableForPurchase;
-        $record->freeShipping = (bool)$this->freeShipping;
-        $record->taxCategoryId = $this->taxCategoryId;
-        $record->shippingCategoryId = $this->shippingCategoryId;
-
-        $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
-        $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
-        $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
-        $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
-        $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
-        $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
-
-        // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
-        $record->dateUpdated = $this->dateUpdated;
-        $record->dateCreated = $this->dateCreated;
-
-        $record->save(false);
-
-        $this->id = $record->id;
-
-        // Only save variants once (since they will propagate themselves the first time.
         if (!$this->propagating) {
+            if (!$isNew) {
+                $record = ProductRecord::findOne($this->id);
+
+                if (!$record) {
+                    throw new Exception('Invalid product ID: ' . $this->id);
+                }
+            } else {
+                $record = new ProductRecord();
+                $record->id = $this->id;
+            }
+
+            $record->postDate = $this->postDate;
+            $record->expiryDate = $this->expiryDate;
+            $record->typeId = $this->typeId;
+            $record->promotable = (bool)$this->promotable;
+            $record->availableForPurchase = (bool)$this->availableForPurchase;
+            $record->freeShipping = (bool)$this->freeShipping;
+            $record->taxCategoryId = $this->taxCategoryId;
+            $record->shippingCategoryId = $this->shippingCategoryId;
+
+            $record->defaultVariantId = $this->getDefaultVariant()->id ?? null;
+            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+            $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
+            $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
+            $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
+            $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
+            $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
+
+            // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
+            $record->dateUpdated = $this->dateUpdated;
+            $record->dateCreated = $this->dateCreated;
+
+            $record->save(false);
+
+            $this->id = $record->id;
+
             $keepVariantIds = [];
             $oldVariantIds = (new Query())
                 ->select('id')
@@ -744,6 +777,30 @@ class Product extends Element
         $this->setVariants($variants);
 
         return parent::beforeRestore();
+    }
+
+    /**
+     * Updates the entry's title, if its entry type has a dynamic title format.
+     *
+     * @since 3.0.3
+     * @see \craft\elements\Entry::updateTitle
+     */
+    public function updateTitle()
+    {
+        $productType = $this->getType();
+
+        if (!$productType->hasProductTitleField) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+            // Set Craft to the entry's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            if ($title !== '') {
+                $this->title = $title;
+            }
+            Craft::$app->language = $language;
+        }
     }
 
     /**
@@ -827,40 +884,46 @@ class Product extends Element
         $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
 
         $rules[] = [
-            ['variants'], function($model) {
-                /** @var Product $model */
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    $skus[] = $variant->sku;
-                }
-
-                if (count(array_unique($skus)) < count($skus)) {
-                    $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
-                }
-
+            ['variants'],
+            function() {
                 if (empty($this->getVariants())) {
                     $this->addError('variants', Plugin::t('Must have at least one variant.'));
                 }
             },
             'skipOnEmpty' => false,
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->duplicateOf;
-            }
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                $skus = [];
+                foreach ($this->getVariants() as $variant) {
+                    if (isset($skus[$variant->sku])) {
+                        $this->addError('variants', Plugin::t('Not all SKUs are unique.'));
+                        break;
+                    }
+                    $skus[$variant->sku] = true;
+                }
+            },
+            'on' => self::SCENARIO_LIVE,
+        ];
+
+        $rules[] = [
+            ['variants'],
+            function() {
+                foreach ($this->getVariants() as $i => $variant) {
+                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                        $variant->setScenario(self::SCENARIO_LIVE);
+                    }
+                    if (!$variant->validate()) {
+                        $this->addModelErrors($variant, "variants[$i]");
+                    }
+                }
+            },
         ];
 
         return $rules;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function afterValidate()
-    {
-        if (!Model::validateMultiple($this->getVariants())) {
-            $this->addError('variants', Plugin::t('Error saving variants'));
-        }
-        parent::afterValidate();
     }
 
     /**
@@ -906,6 +969,8 @@ class Product extends Element
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }
+
+        $this->updateTitle();
 
         return parent::beforeSave($isNew);
     }
@@ -1179,9 +1244,7 @@ class Product extends Element
             }
             case 'defaultPrice':
             {
-                $code = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-
-                return Craft::$app->getLocale()->getFormatter()->asCurrency($this->$attribute, strtoupper($code));
+                return $this->defaultPriceAsCurrency;
             }
             case 'stock':
             {

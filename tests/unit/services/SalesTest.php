@@ -13,18 +13,12 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Sales;
 use craft\db\Query;
 use craft\elements\Category;
-use Craft;
 use craft\helpers\ArrayHelper;
-use craftcommercetests\fixtures\CategoriesFixture;
-use craftcommercetests\fixtures\SaleCategoriesFixture;
-use craftcommercetests\fixtures\SalePurchasablesFixture;
 use craftcommercetests\fixtures\SalesFixture;
-use craftcommercetests\fixtures\SaleUserGroupsFixture;
 use UnitTester;
 
 /**
@@ -45,6 +39,10 @@ class SalesTest extends Unit
      */
     protected $sales;
 
+    /**
+     * @var SalesFixture
+     */
+    protected $salesData;
 
     /**
      * @return array
@@ -55,18 +53,6 @@ class SalesTest extends Unit
             'sales' => [
                 'class' => SalesFixture::class,
             ],
-            'categories' => [
-                'class' => CategoriesFixture::class,
-            ],
-            'sale-purchasables' => [
-                'class' => SalePurchasablesFixture::class,
-            ],
-            'sale-categories' => [
-                'class' => SaleCategoriesFixture::class,
-            ],
-            'sale-usergroups' => [
-                'class' => SaleUserGroupsFixture::class,
-            ]
         ];
     }
 
@@ -75,6 +61,7 @@ class SalesTest extends Unit
         parent::_before();
 
         $this->sales = Plugin::getInstance()->getSales();
+        $this->salesData = $this->tester->grabFixture('sales');
     }
 
     public function testGetAllSales()
@@ -83,9 +70,10 @@ class SalesTest extends Unit
         $this->assertCount(2, $sales);
 
         /** @var Sale $firstSale */
-        $firstSale = $sales['1000'] ?? null;
+        $firstSale = $sales[$this->salesData['percentageSale']['id']] ?? null;
         $this->assertNotNull($firstSale);
-        $this->assertSame('My Percentage Sale', $firstSale->name);
+        $this->assertSame($this->salesData['percentageSale']['name'], $firstSale->name);
+
         $variant = Variant::find()->sku('rad-hood')->one();
         $this->assertSame([$variant->id], $firstSale->getPurchasableIds());
         $this->assertSame([], $firstSale->getUserGroupIds());
@@ -94,8 +82,8 @@ class SalesTest extends Unit
 
     public function testGetSaleById()
     {
-        $sale = $this->sales->getSaleById(1000);
-        $this->assertSame('My Percentage Sale', $sale->name);
+        $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
+        $this->assertSame($this->salesData['percentageSale']['name'], $sale->name);
 
         $noSale = $this->sales->getSaleById(999);
         $this->assertNull($noSale);
@@ -104,7 +92,7 @@ class SalesTest extends Unit
     public function testPopulateSaleRelations()
     {
         $sale = new Sale();
-        $sale->id = '1001';
+        $sale->id = $this->salesData['allRelationships']['id'];
 
         $this->sales->populateSaleRelations($sale);
 
@@ -112,15 +100,15 @@ class SalesTest extends Unit
         $purchasableIds = Variant::find()->sku('hct-white')->ids();
         $userGroupsIds = ['1002'];
 
-        $this->assertSame($categoryIds, $sale->getCategoryIds());
-        $this->assertSame($purchasableIds, $sale->getPurchasableIds());
-        $this->assertSame($userGroupsIds, $sale->getUserGroupIds());
+        $this->assertEquals($categoryIds, $sale->getCategoryIds());
+        $this->assertEquals($purchasableIds, $sale->getPurchasableIds());
+        $this->assertEquals($userGroupsIds, $sale->getUserGroupIds());
     }
 
     public function testGetSalesForPurchasable()
     {
         $variant  = Variant::find()->sku('rad-hood')->one();
-        $sale = $this->sales->getSaleById(1000);
+        $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
 
         $this->assertSame([$sale], $this->sales->getSalesForPurchasable($variant));
     }
@@ -128,7 +116,7 @@ class SalesTest extends Unit
     public function testGetSalesRelatedToPurchasable()
     {
         $variant  = Variant::find()->sku('hct-white')->one();
-        $sale = $this->sales->getSaleById(1001);
+        $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
 
         $this->assertSame([$sale], $this->sales->getSalesRelatedToPurchasable($variant));
     }
@@ -157,7 +145,7 @@ class SalesTest extends Unit
 
     public function testSaveSale()
     {
-        $sale = $this->sales->getSaleById(1001);
+        $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
         $originalDateUpdated = (new Query)
             ->select('dateUpdated')
@@ -186,7 +174,7 @@ class SalesTest extends Unit
     {
         $sales = $this->sales->getAllSales();
         $originalOrder = ArrayHelper::getColumn($sales, 'id', false);
-        $newOrder = ['1001', '1000'];
+        $newOrder = array_reverse($originalOrder);
 
         $reorderResult = $this->sales->reorderSales($newOrder);
 
@@ -198,20 +186,20 @@ class SalesTest extends Unit
             ->orderBy('sortOrder asc')
             ->all();
         $dbOrder = ArrayHelper::getColumn($dbOrder, 'id', false);
-        $this->assertNotSame($originalOrder, $dbOrder);
-        $this->assertSame($newOrder, $dbOrder);
+        $this->assertNotEquals($originalOrder, $dbOrder);
+        $this->assertEquals($newOrder, $dbOrder);
 
         // Make sure the order has updated if we retrieve the sales again in the same request
         $sales = $this->sales->getAllSales();
         $newOrderFromGetSales = ArrayHelper::getColumn($sales, 'id', false);
-        $this->assertSame($newOrderFromGetSales, $dbOrder);
+        $this->assertEquals($newOrderFromGetSales, $dbOrder);
     }
 
     public function testDeleteSaleById()
     {
         // Pre-get sales to test the memoization
         $originalSales = $this->sales->getAllSales();
-        $id = 1000;
+        $id = $this->salesData['percentageSale']['id'];
         $deleteResult = $this->sales->deleteSaleById($id);
 
         $this->assertTrue($deleteResult);

@@ -11,9 +11,10 @@ use Craft;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory;
-use craft\helpers\ArrayHelper;
+use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -115,9 +116,20 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
+     * Duplicates a shipping rule.
+     *
+     * @return Response|null
+     * @since 3.2
+     */
+    public function actionDuplicate()
+    {
+        return $this->runAction('save', ['duplicate' => true]);
+    }
+
+    /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave($duplicate = false)
     {
         $this->requirePostRequest();
 
@@ -125,7 +137,10 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $shippingRule = new ShippingRule();
 
-        $shippingRule->id = $request->getBodyParam('id');
+        if (!$duplicate) {
+            $shippingRule->id = $request->getBodyParam('id');
+        }
+
         $shippingRule->name = $request->getBodyParam('name');
         $shippingRule->description = $request->getBodyParam('description');
         $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
@@ -141,7 +156,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->perItemRate = Localization::normalizeNumber($request->getBodyParam('perItemRate'));
         $shippingRule->weightRate = Localization::normalizeNumber($request->getBodyParam('weightRate'));
         $shippingRule->percentageRate = Localization::normalizeNumber($request->getBodyParam('percentageRate'));
-        $shippingRule->minRate = Localization::normalizeNumber( $request->getBodyParam('minRate'));
+        $shippingRule->minRate = Localization::normalizeNumber($request->getBodyParam('minRate'));
         $shippingRule->maxRate = Localization::normalizeNumber($request->getBodyParam('maxRate'));
 
         $ruleCategories = [];
@@ -186,14 +201,29 @@ class ShippingRulesController extends BaseShippingSettingsController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
-
-        if (Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
-            return $this->asJson(['success' => true]);
+        if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
+            throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
-        return $this->asErrorJson(Plugin::t('Could not delete shipping rule'));
+
+        if (!$shippingRule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
+            throw new ProductTypeNotFoundException('Can not find product type to delete');
+        }
+
+        $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
+
+        if ($request->getAcceptsJson()) {
+            if ($deleted) {
+                return $this->asJson(['success' => true]);
+            } else {
+                return $this->asErrorJson(Plugin::t('Could not delete shipping rule'));
+            }
+        }
+
+        if ($deleted) {
+            return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
+        }
     }
 }

@@ -7,8 +7,8 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
@@ -21,6 +21,8 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Order|null $order
  * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
+ * @property-read string $amountAsCurrency
+ * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -93,7 +95,7 @@ class OrderAdjustment extends Model
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
@@ -107,9 +109,14 @@ class OrderAdjustment extends Model
             ]
         ];
 
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
+        ];
+
         return $behaviors;
     }
-
 
     /**
      * @inheritdoc
@@ -157,24 +164,11 @@ class OrderAdjustment extends Model
     }
 
     /**
-     * @return array
+     * @return string
      */
-    public function fields(): array
+    protected function getCurrency(): string
     {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-                if (!empty($model->$attribute)) {
-                    return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
-                }
-
-                return $model->$attribute;
-            };
-        }
-
-        return $fields;
+        return $this->_order->currency ?? parent::getCurrency();
     }
 
     /**

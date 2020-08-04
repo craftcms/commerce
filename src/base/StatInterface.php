@@ -4,6 +4,7 @@
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
+
 namespace craft\commerce\base;
 
 /**
@@ -11,6 +12,7 @@ namespace craft\commerce\base;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
+ * @mixin StatTrait
  */
 interface StatInterface
 {

@@ -20,14 +20,14 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
 use Exception;
-use function explode;
-use function get_class;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use function explode;
+use function get_class;
 
 /**
  * Class Sales Controller
@@ -42,8 +42,8 @@ class SalesController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-managePromotions');
         parent::init();
+        $this->requirePermission('commerce-managePromotions');
     }
 
     /**
@@ -414,9 +414,9 @@ class SalesController extends BaseCpController
         $variables['categories'] = $categories;
 
         $variables['categoryRelationshipType'] = [
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target'),
-            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Both'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE => Plugin::t('Source - The category relationship field is on the purchasable'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET => Plugin::t('Target - The purchasable relationship field is on the category'),
+            SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH => Plugin::t('Either (Default) - The relationship field is on the purchasable or the category'),
         ];
 
         $variables['purchasables'] = null;

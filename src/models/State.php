@@ -45,7 +45,7 @@ class State extends Model
     /**
      * @var bool Is Enabled
      */
-    public $enabled;
+    public $enabled = true;
 
     /**
      * @var int Ordering
@@ -61,7 +61,7 @@ class State extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
-        
+
         return $rules;
     }
 

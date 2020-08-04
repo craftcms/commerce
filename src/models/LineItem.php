@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
+use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
@@ -22,7 +23,6 @@ use craft\commerce\services\Orders;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use craft\validators\StringValidator;
 use DateTime;
 use LitEmoji\LitEmoji;
 use yii\base\InvalidConfigException;
@@ -46,8 +46,19 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $optionsSignature the unique hash of the options
  * @property-read float $subtotal the Purchasable’s sale price multiplied by the quantity of the line item
  * @property-read float $saleAmount
- * @property float salePrice
- * @property float price
+ * @property float $salePrice
+ * @property float $price
+ * @property-read string $priceAsCurrency
+ * @property-read string $saleAmountAsCurrency
+ * @property-read string $salePriceAsCurrency
+ * @property-read string $subtotalAsCurrency
+ * @property-read string $totalAsCurrency
+ * @property-read string $discountAsCurrency
+ * @property-read string $shippingCostAsCurrency
+ * @property-read string $taxAsCurrency
+ * @property-read string $taxIncludedAsCurrency
+ * @property-read string $adjustmentsTotalAsCurrency
+ * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -150,6 +161,12 @@ class LineItem extends Model
     public $dateCreated;
 
     /**
+     * @var DateTime|null
+     * @since 3.x
+     */
+    public $dateUpdated;
+
+    /**
      * @var PurchasableInterface Purchasable
      */
     private $_purchasable;
@@ -205,6 +222,12 @@ class LineItem extends Model
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
             ]
+        ];
+
+        $behaviors['currencyAttributes'] = [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes()
         ];
 
         return $behaviors;
@@ -284,6 +307,7 @@ class LineItem extends Model
             return $options;
         };
 
+        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change.
         if (Craft::$app->getDb()->getSupportsMb4()) {
             $this->_options = $options;
         } else {
@@ -427,11 +451,33 @@ class LineItem extends Model
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                array_push($rules, ...$purchasableRules);
+                foreach ($purchasableRules as $rule) {
+                    $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
+                }
             }
         }
 
         return $rules;
+    }
+
+    /**
+     * Normalizes a purchasable’s validation rule.
+     *
+     * @param mixed $rule
+     * @param PurchasableInterface $purchasable
+     * @return mixed
+     */
+    private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
+    {
+        if (isset($rule[1]) && $rule[1] instanceof \Closure) {
+            $method = $rule[1];
+            $method->bindTo($purchasable);
+            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
+                $method($attribute, $params, $validator, $current);
+            };
+        }
+
+        return $rule;
     }
 
     /**
@@ -461,22 +507,12 @@ class LineItem extends Model
      */
     public function fields(): array
     {
-        $fields = parent::fields();
-
-        foreach ($this->currencyAttributes() as $attribute) {
-            $fields[$attribute . 'AsCurrency'] = function($model, $attribute) {
-                $attribute = substr($attribute, 0, -10);
-                if (!empty($model->$attribute)) {
-                    if (is_numeric($model->$attribute)) {
-                        return Craft::$app->getFormatter()->asCurrency($model->$attribute, $this->getOrder()->currency, [], [], true);
-                    }
-                }
-
-                return $model->$attribute;
-            };
-        }
-
+        $fields = parent::fields(); // get the currency and date fields formatted
         $fields['subtotal'] = 'subtotal';
+
+        if ($this->getBehavior('currencyAttributes')) {
+            array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
+        }
 
         return $fields;
     }
@@ -487,11 +523,12 @@ class LineItem extends Model
     public function extraFields(): array
     {
         return [
-            'order',
-            'shippingCategory',
-            'taxCategory',
             'lineItemStatus',
-            'snapshot'
+            'order',
+            'purchasable',
+            'shippingCategory',
+            'snapshot',
+            'taxCategory',
         ];
     }
 
@@ -508,6 +545,11 @@ class LineItem extends Model
         $attributes[] = 'salePrice';
         $attributes[] = 'subtotal';
         $attributes[] = 'total';
+        $attributes[] = 'discount';
+        $attributes[] = 'shippingCost';
+        $attributes[] = 'tax';
+        $attributes[] = 'taxIncluded';
+        $attributes[] = 'adjustmentsTotal';
 
         return $attributes;
     }

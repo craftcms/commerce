@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -15,9 +14,9 @@ use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
-use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 use craft\validators\UniqueValidator;
+use yii\behaviors\AttributeTypecastBehavior;
+
 /**
  * Order status model.
  *
@@ -34,7 +33,6 @@ class OrderStatus extends Model
     use SoftDeleteTrait {
         behaviors as softDeleteBehaviors;
     }
-
 
     /**
      * @var int ID
@@ -81,8 +79,6 @@ class OrderStatus extends Model
      */
     public $uid;
 
-
-
     /**
      * @return array
      */
@@ -91,7 +87,7 @@ class OrderStatus extends Model
         $behaviors = $this->softDeleteBehaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
@@ -120,8 +116,7 @@ class OrderStatus extends Model
      */
     public function getDisplayName(): string
     {
-        if ($this->dateDeleted !== null)
-        {
+        if ($this->dateDeleted !== null) {
             return $this->name . Plugin::t(' (Trashed)');
         }
 

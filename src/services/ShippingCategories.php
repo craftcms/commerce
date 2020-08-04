@@ -179,7 +179,7 @@ class ShippingCategories extends Component
             $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No shipping category exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No shipping category exists with the ID “{id}”',
                     ['id' => $shippingCategory->id]));
             }
 
