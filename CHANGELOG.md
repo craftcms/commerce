@@ -11,38 +11,38 @@
 - It’s now possible to set the Variants field’s position within product field layouts.
 - Added the `product` field to Variants when using the GraphQL API.
 - Added eager-loading support for products and variants when using the GraphQL API.
-- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
-- Added `craft\commerce\fieldlayoutelements\ProductTitleField`.
-- Added `craft\commerce\fieldlayoutelements\VariantsField`.
-- Added `craft\commerce\fieldlayoutelements\VariantTitleField`.
-- Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
-- Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
-- Added the  `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
 - It is now possible to query for variants by their dimensions. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to define an address format using the `craft\commerce\models\Address::getAddressLines()` and `DefineAddressLinesEvent`. ([#1305](https://github.com/craftcms/commerce/issues/1305))
-- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
-- Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - It is now possible to use multiple keywords when searching for variants to add to an order on the Edit Order page. ([#1546](https://github.com/craftcms/commerce/pull/1546))
 - Products can now auto-generated titles with the “Title Format” product type setting. ([#148](https://github.com/craftcms/commerce/issues/148))
 - Shipping rules can now be duplicated from the Edit Shipping Rule page. ([#153](https://github.com/craftcms/commerce/issues/153))
 - Added the ability to eager load order relationship models the `withLineItems`, `withTransactions`, `withAdjustments`, `withCustomer` and `withAddresses` order query params. ([#1603](https://github.com/craftcms/commerce/issues/1603))
-- Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
-- Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
-- Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
-- Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
-- Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
+- Added the `cp.commerce.order.edit.details` template hook. ([#1597](https://github.com/craftcms/commerce/issues/1597))
+- Added the `freeOrderPaymentStrategy` config setting. ([#1526](https://github.com/craftcms/commerce/pull/1526))
+- Added `craft\commerce\controllers\Pdf`.
+- Added `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_ADD_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
+- Added `craft\commerce\elements\Orders::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM`. ([#1516](https://github.com/craftcms/commerce/pull/1516))
+- Added `craft\commerce\elements\db\VariantQuery::width()`, `height()`, `length()` and `weight()`. ([#1570](https://github.com/craftcms/commerce/issues/1570))
 - Added `craft\commerce\events\DefineAddressLinesEvent`.
+- Added `craft\commerce\fieldlayoutelements\ProductTitleField`.
+- Added `craft\commerce\fieldlayoutelements\VariantTitleField`.
+- Added `craft\commerce\fieldlayoutelements\VariantsField`.
 - Added `craft\commerce\models\Address::getAddressLines()`.
 - Added `craft\commerce\models\Email::$pdfId`.
+- Added `craft\commerce\models\LineItem::dateUpdated`. ([#1132](https://github.com/craftcms/commerce/issues/1132)).
 - Added `craft\commerce\models\Pdf`.
 - Added `craft\commerce\records\Pdf`.
-- Added `craft\commerce\controllers\Pdf`.
-- Added `craft\commerce\services\Pdfs::getAllPdfs()`.
+- Added `craft\commerce\services\Addresses::eagerLoadAddressesForOrders()`.
+- Added `craft\commerce\services\Customers::eagerLoadCustomerForOrders()`.
+- Added `craft\commerce\services\LineItems::eagerLoadLineItemsForOrders()`.
+- Added `craft\commerce\services\OrderAdjustments::eagerLoadOrderAdjustmentsForOrders()`.
 - Added `craft\commerce\services\Pdfs::getAllEnabledPdfs()`.
+- Added `craft\commerce\services\Pdfs::getAllPdfs()`.
 - Added `craft\commerce\services\Pdfs::getDefaultPdf()`.
 - Added `craft\commerce\services\Pdfs::getPdfByHandle()`.
 - Added `craft\commerce\services\Pdfs::getPdfById()`.
 - Added `craft\commerce\services\Pdfs::savePdf()`.
+- Added `craft\commerce\services\Transactions::eagerLoadTransactionsForOrders()`.
 
 ### Changed
 - Commerce now requires Craft 3.5.0 or later.
