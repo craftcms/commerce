@@ -374,9 +374,9 @@ class Pdfs extends Component
     /**
      * Returns a rendered PDF object for the order.
      *
-     * @param Order $order The you want passed into the PDFs `order` variable.
+     * @param Order $order The order you want passed into the PDFs `order` variable.
      * @param string $option A string you want passed into the PDFs `option` variable.
-     * @param string $templatePath The path to the template file in the site templates folder.
+     * @param string $templatePath The path to the template file in the site templates folder that DOMPDF will use to render the PDF.
      * @param array $variables Variables available to the pdf html template. Available to template by the array keys.
      * @param Pdf|null $pdf The PDF you want to render. This will override the templatePath argument.
      * @return string The PDF data.
