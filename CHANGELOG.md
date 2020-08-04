@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased (3.2.0)
+## 3.2.0 - 2020-08-04
 
 ### Added
 - Order, product, and variant field layouts now support the new field layout features added in Craft 3.5.
