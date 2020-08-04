@@ -1,3 +1,4 @@
+{{ csrfInput() }}
 {% if pdfs|length == 1 %}
   <div class="btn formsubmit" data-param="pdfId" data-value="{{ pdfs|first.id }}">{{ 'Download PDF'|t('commerce') }}</div>
 {% else %}
