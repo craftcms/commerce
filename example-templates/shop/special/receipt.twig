@@ -25,16 +25,7 @@
 </head>
 <body>
 
-{% if not order is defined %}
-    {% if craft.app.config.general.devMode %} {# we do not want to load an example order when not in devmode #}
-        {% set order = craft.orders.isCompleted(true).id(random(craft.orders.isCompleted(true).ids())).one() %}
-    {% else %}
-        {% set order = null %}
-    {% endif %}
-{% endif %}
-
 {% if order %}
-
 <table width="100%">
     <tr>
         <td valign="top"><img src="" alt="Logo" width="150" /></td>
@@ -50,6 +41,9 @@
 <table width="100%">
     <tr>
         <td><strong>Order Reference: </strong>{{ order.reference }}</td>
+    </tr>
+    <tr>
+        <td><strong>Order Number: </strong>{{ order.number }}</td>
     </tr>
     <tr>
         <td><strong>Date Ordered: </strong>{{ order.dateOrdered|date }}</td>
