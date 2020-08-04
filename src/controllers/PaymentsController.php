@@ -33,9 +33,8 @@ class PaymentsController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**

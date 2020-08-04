@@ -11,10 +11,11 @@ use craft\commerce\elements\Order;
 use yii\base\Event;
 
 /**
- * Class AddressEvent
+ * Class PdfEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4
  */
 class PdfEvent extends Event
 {

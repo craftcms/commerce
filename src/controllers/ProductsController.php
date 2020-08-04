@@ -47,8 +47,8 @@ class ProductsController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageProducts');
         parent::init();
+        $this->requirePermission('commerce-manageProducts');
     }
 
     /**

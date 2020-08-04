@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -58,21 +60,35 @@ class EmailsController extends BaseAdminController
             $variables['title'] = Plugin::t('Create a new email');
         }
 
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
+        $pdfList = [null => Plugin::t('Do not attach a PDF to this email')];
+        $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
+        $variables['pdfList'] = $pdfList;
+
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
 
     /**
      * @return null|Response
-     * @throws HttpException
+     * @throws BadRequestHttpException
      */
     public function actionSave()
     {
         $this->requirePostRequest();
 
-        $email = new Email();
+        $emailsService = Plugin::getInstance()->getEmails();
+        $emailId = $this->request->getBodyParam('emailId');
+
+        if ($emailId) {
+            $email = $emailsService->getEmailById($emailId);
+            if (!$email) {
+                throw new BadRequestHttpException("Invalid email ID: $emailId");
+            }
+        } else {
+            $email = new Email();
+        }
 
         // Shared attributes
-        $email->id = Craft::$app->getRequest()->getBodyParam('emailId');
         $email->name = Craft::$app->getRequest()->getBodyParam('name');
         $email->subject = Craft::$app->getRequest()->getBodyParam('subject');
         $email->recipientType = Craft::$app->getRequest()->getBodyParam('recipientType');
@@ -83,12 +99,10 @@ class EmailsController extends BaseAdminController
         $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $email->attachPdf = Craft::$app->getRequest()->getBodyParam('attachPdf');
-        // Only set pdfTemplatePath if attachments are turned on
-        $email->pdfTemplatePath = $email->attachPdf ? Craft::$app->getRequest()->getBodyParam('pdfTemplatePath') : '';
+        $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
 
         // Save it
-        if (Plugin::getInstance()->getEmails()->saveEmail($email)) {
+        if ($emailsService->saveEmail($email)) {
             Craft::$app->getSession()->setNotice(Plugin::t('Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {

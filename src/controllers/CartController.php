@@ -42,9 +42,8 @@ class CartController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**

@@ -426,6 +426,7 @@ class Addresses extends Component
             'countryText',
             'stateText',
             'abbreviationText',
+            'addressLines',
         ];
         foreach ($readOnly as $item) {
             if (array_key_exists($item, $address)) {
