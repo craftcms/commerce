@@ -49,10 +49,7 @@ class EmailsController extends BaseAdminController
             $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
         }
 
-        if ($email && $order) {
-
-            $template = $email->templatePath;
-
+        if ($email && $order && $template = $email->templatePath) {
             if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
                 // use the order's language for template rendering the email.
                 $orderLanguage = $order->orderLanguage ?: Craft::$app->language;
@@ -64,7 +61,16 @@ class EmailsController extends BaseAdminController
             return $this->renderTemplate($template, compact('order'));
         }
 
-        return $this->renderTemplate('commerce/settings/emails/_previewError');
+        $errors = [];
+        if (!$email) {
+            $errors[] = Plugin::t('Could not find the email or template.');
+        }
+
+        if (!$order) {
+            $errors[] = Plugin::t('Could not find the order.');
+        }
+
+        return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
     }
 
     /**
