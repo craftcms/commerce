@@ -57,9 +57,7 @@
 
 <script>
     import {mapActions, mapGetters, mapState} from 'vuex'
-    import debounce from 'lodash.debounce'
     import _find from 'lodash.find'
-    import ordersApi from '../../api/orders'
     import AdminTable from 'Craft/admintable/src/App'
 
     export default {
@@ -176,19 +174,6 @@
             handleTableData(data) {
                 this.currentTableData = data;
             },
-
-            onSearch({searchText, loading}) {
-                loading(true);
-                this.search(loading, searchText, this);
-            },
-
-            search: debounce((loading, searchText, vm) => {
-                ordersApi.purchasableSearch(vm.orderId, escape(searchText))
-                        .then((response) => {
-                            vm.$store.commit('updatePurchasables', response.data)
-                            loading(false)
-                        })
-            }, 350)
         },
     }
 </script>

@@ -71,7 +71,6 @@ window.OrderDetailsApp = new Vue({
 
     mounted() {
         this.$store.dispatch('getOrder')
-        this.$store.dispatch('getPurchasables')
     }
 }).$mount('#order-details-app')
 

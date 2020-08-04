@@ -420,9 +420,12 @@ class OrdersController extends Controller
      * @param null $query
      * @return Response
      * @throws InvalidConfigException
+     * @deprecated in 3.5.0. Use [[actionPurchasablesTable()]] instead.
      */
     public function actionPurchasableSearch($query = null)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'The orders/purchasable-search action is deprecated. Use orders/purchasables-table instead.');
+
         if ($query === null) {
             $results = (new Query())
                 ->select(['id', 'price', 'description', 'sku'])
@@ -460,7 +463,7 @@ class OrdersController extends Controller
         if ($query) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', '%' . str_replace(' ', '%', $search) . '%', false],
+                [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
                 [$likeOperator, 'sku', $query]
             ]);
         }
