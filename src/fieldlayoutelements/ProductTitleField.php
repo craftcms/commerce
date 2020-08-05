@@ -42,7 +42,7 @@ class ProductTitleField extends TitleField
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');
         }
 
-        if (!$element->getType()->hasVariantTitleField && !$element->hasErrors('title')) {
+        if (!$element->getType()->hasProductTitleField && !$element->hasErrors('title')) {
             return null;
         }
 
