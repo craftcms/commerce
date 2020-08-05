@@ -582,7 +582,7 @@ return [
     'This is being overridden by the {setting} config setting in `config/{file}.php`.' => 'Dette bli overstyrt av konfigurasjonsinnstillingen {setting} i «config/{file}.php».',
     'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.' => 'Du vil ikke kunne oppdatere adresser, fraktsoner eller avgiftssoner knyttet til staten hvis det er deaktivert.',
     'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?' => 'Er du sikker på at du vil slette «{name}»? Alle linjevarene med denne statusen vil få ingen status.',
-    'Sale Amount Off' => 'Sale Amount Off',
+    'Sale Amount Off' => 'Salgsrabatt',
     'No description' => 'Ingen beskrivelse',
     'Add Discount' => 'Legg til rabatt',
     'Mark as completed' => 'Merk som ferdig',
@@ -628,7 +628,7 @@ return [
     'Matching Items' => 'Samsvarende varer',
     'Save and return to all orders' => 'Lagre og gå tilbake til alle ordre',
     'No billing address' => 'Ingen faktureringsadresse',
-    'Which data to display in the name column in the results table.' => 'Which data to display in the name column in the results table.',
+    'Which data to display in the name column in the results table.' => 'Hvilken data som skal vises i kolonnen med navn i resultattabellen.',
     'Copy to {location}' => 'Kopier til {location}',
     'Revenue' => 'Inntekt',
     'Close' => 'Lukk',
@@ -682,7 +682,7 @@ return [
     'No address' => 'Ingen adresse',
     'repeat customers' => 'tilbakevendende kunder',
     'Choose whether the all line items or just matching line items get the \'Per Item\' amounts off.' => 'Velg om «Rabatt per enhet» skal gjelde for alle linjevarer eller bare samsvarende linjevarer.',
-    'None' => 'None',
-    'What this shipping category will be called in the control panel.' => 'What this shipping category will be called in the control panel.',
-    'Couldn’t reorder states.' => 'Couldn’t reorder states.'
+    'None' => 'Ingen',
+    'What this shipping category will be called in the control panel.' => 'Hva denne fraktkategorien skal hete i kontrollpanelet.',
+    'Couldn’t reorder states.' => 'Kunne ikke endre rekkefølgen på stater.'
 ];
