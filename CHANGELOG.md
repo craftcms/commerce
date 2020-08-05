@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.2.0.2 - 2020-08-04
+
+### Fixed
+- Fixed a bug that caused the product Title field to be hidden on Edit Product pages. ([#1614](https://github.com/craftcms/commerce/pull/1614))
+
 ## 3.2.0.1 - 2020-08-04
 
 ### Fixed
@@ -820,7 +825,7 @@
 ### Added
 - Added the ability to produce estimated shipping and tax costs based on incomplete shipping and billing addresses. ([#514](https://github.com/craftcms/commerce/issues/514))
 - Edit User pages now have a “Customer Info” tab.
-- It’s now possible to view and create discounts directly from from the Edit Product page.
+- It’s now possible to view and create discounts directly from the Edit Product page.
 - It’s now possible to delete customer addresses directly from the Edit User page. ([#171](https://github.com/craftcms/commerce/issues/171))
 - Addresses can now have “Address 3”, “Full Name”, “Label”, “Notes”, and four custom fields.
 - Email settings can now specify CC and Reply To email addresses.
