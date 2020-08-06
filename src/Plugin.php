@@ -596,7 +596,7 @@ class Plugin extends BasePlugin
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             if (!empty($productTypes)) {
-                $label = Craft::t('commerce', 'Products');
+                $label = Plugin::t('Products');
                 $productPermissions = [];
 
                 foreach ($productTypes as $productType) {

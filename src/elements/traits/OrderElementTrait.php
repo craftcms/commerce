@@ -385,8 +385,8 @@ trait OrderElementTrait
             'billingBusinessName' => ['label' => Plugin::t('Billing Business Name')],
             'shippingMethodName' => ['label' => Plugin::t('Shipping Method')],
             'gatewayName' => ['label' => Plugin::t('Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
-            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
+            'paidStatus' => ['label' => Plugin::t('Paid Status')],
+            'couponCode' => ['label' => Plugin::t('Coupon Code')],
         ];
     }
 
@@ -461,8 +461,8 @@ trait OrderElementTrait
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
-            'datePaid' => Craft::t('commerce', 'Date Paid'),
-            'couponCode' => Craft::t('commerce', 'Coupon Code'),
+            'datePaid' => Plugin::t('Date Paid'),
+            'couponCode' => Plugin::t('Coupon Code'),
             [
                 'label' => Craft::t('app', 'ID'),
                 'orderBy' => 'elements.id',
