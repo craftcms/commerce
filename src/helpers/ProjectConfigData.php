@@ -41,7 +41,7 @@ class ProjectConfigData
         if ($orderFieldLayoutConfig = $orderFieldLayout->getConfig()) {
             $output['orders'] = [
                 'fieldLayouts' => [
-                    $orderFieldLayout->uid => $orderFieldLayout,
+                    $orderFieldLayout->uid => $orderFieldLayoutConfig,
                 ]
             ];
         }
@@ -58,7 +58,6 @@ class ProjectConfigData
                 ]
             ];
         }
-
 
         return $output;
     }

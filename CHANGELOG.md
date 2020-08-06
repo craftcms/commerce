@@ -6,6 +6,7 @@
 - Added `craft\commerce\models\Address::sameAs()`. ([#1616](https://github.com/craftcms/commerce/issues/1616))
 
 ### Fixed
+- Fixed an error when rebuilding project config. ([#1618](https://github.com/craftcms/commerce/issues/1618))
 - Fixed a PHP 7.0 compatibility error by rolling the `dompdf/dompfg` package back to `^0.8.3`. 
 - Fixed an error that could occur on the order index page when viewing order with deleted gateways. ([#1617](https://github.com/craftcms/commerce/issues/1617))
 - Fixed a Twig error when viewing the “Buy” example templates. ([#1621](https://github.com/craftcms/commerce/issues/1621))
