@@ -59,6 +59,11 @@
             <h3 class="font-semibold">Shipping Address</h3>
             {% if order.shippingAddress %}
               {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+              {%  if order.shippingAddress.sameAs(order.billingAddress) %}
+                  <p>Addresses are the same</p>
+              {% endif %}
+            {% else %}
+                <p>Not submitted.</p>
             {% endif %}
           </div>
         </div>
@@ -67,6 +72,11 @@
             <h3 class="font-semibold">Billing Address</h3>
             {% if order.billingAddress %}
               {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                {%  if order.billingAddress.sameAs(order.shippingAddress) %}
+                    <p>Addresses are the same</p>
+                {% endif %}
+            {% else %}
+                <p>Not submitted</p>
             {% endif %}
           </div>
         </div>

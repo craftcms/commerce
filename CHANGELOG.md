@@ -2,6 +2,9 @@
 
 ## 3.2.0.3 - Unreleased
 
+### Added
+- Added `craft\commerce\models\Address::sameAs()`. ([#1616](https://github.com/craftcms/commerce/issues/1616))
+
 ### Fixed
 - Fixed an error that could occur on the order index page when viewing order with deleted gateways. ([#1617](https://github.com/craftcms/commerce/issues/1617))
 - Fixed a Twig error when viewing the “Buy” example templates. ([#1621](https://github.com/craftcms/commerce/issues/1621))

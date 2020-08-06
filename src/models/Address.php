@@ -25,7 +25,6 @@ use LitEmoji\LitEmoji;
  * @property Country $country
  * @property string $countryText
  * @property string $cpEditUrl
- * @property string $fullName
  * @property State $state
  * @property string $stateText
  * @property string $abbreviationText
@@ -42,7 +41,7 @@ class Address extends Model
      * @see getAddressLines()
      * @since 3.x
      */
-    const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines' ;
+    const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines';
 
     /**
      * @var int Address ID
@@ -520,6 +519,41 @@ class Address extends Model
         });
 
         return $event->addressLines;
+    }
+
+    /**
+     * @param Address|null $otherAddress
+     */
+    public function sameAs($otherAddress): bool
+    {
+        if (!$otherAddress || !$otherAddress instanceof self) {
+            return false;
+        }
+
+        if (
+            $this->attention == $otherAddress->attention &&
+            $this->title == $otherAddress->title &&
+            (($this->firstName == $otherAddress->firstName && $this->lastName == $otherAddress->lastName) || $this->fullName == $otherAddress->fullName) &&
+            $this->address1 == $otherAddress->address1 &&
+            $this->address2 == $otherAddress->address2 &&
+            $this->address3 == $otherAddress->address3 &&
+            $this->city == $otherAddress->city &&
+            $this->zipCode == $otherAddress->zipCode &&
+            $this->phone == $otherAddress->phone &&
+            $this->alternativePhone == $otherAddress->alternativePhone &&
+            $this->label == $otherAddress->label &&
+            $this->notes == $otherAddress->notes &&
+            $this->businessName == $otherAddress->businessName &&
+            ($this->getStateText() == $otherAddress->getStateText() || $this->stateValue == $otherAddress->stateValue) &&
+            $this->custom1 == $otherAddress->custom1 &&
+            $this->custom2 == $otherAddress->custom2 &&
+            $this->custom3 == $otherAddress->custom3 &&
+            $this->custom4 == $otherAddress->custom4
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
