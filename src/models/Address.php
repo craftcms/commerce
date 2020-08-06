@@ -217,19 +217,30 @@ class Address extends Model
 
     /**
      * @inheritdoc
+     *
      */
     public function attributes(): array
     {
         $names = parent::attributes();
-        $names[] = 'fullName';
-        $names[] = 'countryText';
-        $names[] = 'countryIso';
-        $names[] = 'stateText';
         $names[] = 'stateValue';
-        $names[] = 'abbreviationText';
-        $names[] = 'abbreviationText';
-        $names[] = 'addressLines';
+
         return $names;
+    }
+
+    /**
+     * @inheritDoc
+     * @since 3.x
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['countryIso'] = 'countryIso';
+        $fields['countryText'] = 'countryText';
+        $fields['stateText'] = 'stateText';
+        $fields['abbreviationText'] = 'abbreviationText';
+        $fields['addressLines'] = 'addressLines';
+
+        return $fields;
     }
 
     /**
