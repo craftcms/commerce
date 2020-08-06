@@ -749,7 +749,7 @@ class Order extends Element
 
     /**
      * @var string Shipping Method Name
-     * @since 3.x
+     * @since 3.2.0
      */
     public $shippingMethodName;
 
@@ -2908,7 +2908,7 @@ class Order extends Element
 
     /**
      * @param array|Transaction[] $transactions
-     * @since 3.x
+     * @since 3.2.0
      */
     public function setTransactions(array $transactions)
     {

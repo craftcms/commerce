@@ -13,7 +13,7 @@ use yii\base\Event;
  * Class DefineAddressLinesEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.0
  */
 class DefineAddressLinesEvent extends Event
 {

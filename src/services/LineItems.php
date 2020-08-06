@@ -387,7 +387,7 @@ class LineItems extends Component
     /**
      * @param array|Order[] $orders
      * @return Order[]
-     * @since 3.x
+     * @since 3.2.0
      */
     public function eagerLoadLineItemsForOrders(array $orders): array
     {
