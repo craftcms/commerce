@@ -407,7 +407,7 @@ return [
     'No Address' => '住所がありません',
     'Status change message' => 'ステータス更新メッセージ',
     'Address Line 1' => '住所欄1',
-    'New {productType} product' => 'New {productType} product',
+    'New {productType} product' => '新規「{productType}」商品',
     'Address Line 2' => '住所欄2',
     'By default the PDF template path is the \'Order PDF Template\' in the general commerce config, but can choose a different template for this email\'s PDF.' => 'By default the PDF template path is the \'Order PDF Template\' in the general commerce config, but can choose a different template for this email\'s PDF.',
     'This email should render the order PDF template and include it as an attachment.' => 'This email should render the order PDF template and include it as an attachment.',
