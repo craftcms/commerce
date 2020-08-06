@@ -54,6 +54,8 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
             onHide: $.proxy(this, 'populateSalesList')
         };
 
+        console.log(this.settings.purchasables);
+
         if (id === 'all') {
             data['purchasables'] = this.settings.purchasables;
         } else {

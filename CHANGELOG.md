@@ -10,7 +10,8 @@
 - Fixed a PHP 7.0 compatibility error by rolling the `dompdf/dompfg` package back to `^0.8.3`. 
 - Fixed an error that could occur on the order index page when viewing order with deleted gateways. ([#1617](https://github.com/craftcms/commerce/issues/1617))
 - Fixed a Twig error when viewing the “Buy” example templates. ([#1621](https://github.com/craftcms/commerce/issues/1621))
-- Fixed a deprecation warning for `Order::getAvailableShippingMethods()` when interacting with the cart controller via Ajax. ([#1548](https://github.com/craftcms/commerce/issues/1548)) 
+- Fixed a deprecation warning for `Order::getAvailableShippingMethods()` when interacting with the cart controller via Ajax. ([#1548](https://github.com/craftcms/commerce/issues/1548))
+- Fixed a bug where purchasables weren’t pre-populating when clicking “Add all to Sale” on the Edit Product page. ([#1595](https://github.com/craftcms/commerce/issues/1595))
 
 ## 3.2.0.2 - 2020-08-04
 
