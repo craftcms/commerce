@@ -42,7 +42,7 @@ class Extension extends AbstractExtension
      * @param $input
      * @return string
      * @throws \craft\errors\DeprecationException
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function jsonEncodeFiltered($input): string
     {

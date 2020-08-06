@@ -113,25 +113,25 @@ class VariantQuery extends ElementQuery
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $width = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $height = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $length = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $weight = false;
 

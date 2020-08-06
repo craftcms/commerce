@@ -457,7 +457,7 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x Use
+     * @deprecated 3.1.11. Use getTotalPaid() instead.
      */
     public function getTotalPaidForOrder(Order $order): float
     {
@@ -471,7 +471,7 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalRefundedForOrder(Order $order): float
     {
@@ -490,7 +490,7 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalAuthorizedOnlyForOrder(Order $order): float
     {
@@ -503,7 +503,7 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
