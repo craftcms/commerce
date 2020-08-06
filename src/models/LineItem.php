@@ -162,7 +162,7 @@ class LineItem extends Model
 
     /**
      * @var DateTime|null
-     * @since 3.x
+     * @since 3.2.0
      */
     public $dateUpdated;
 

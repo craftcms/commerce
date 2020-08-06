@@ -39,7 +39,7 @@ class Address extends Model
     /**
      * @event DefineAddressLinesEvent The event that is triggered when defining the arrayable fields
      * @see getAddressLines()
-     * @since 3.x
+     * @since 3.2.0
      */
     const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines';
 
@@ -480,7 +480,7 @@ class Address extends Model
     /**
      * Return a keyed array of address lines. Useful for outputting an address in a consistent format
      *
-     * @since 3.x
+     * @since 3.2.0
      */
     public function getAddressLines(): array
     {
