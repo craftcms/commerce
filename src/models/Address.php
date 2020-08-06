@@ -533,7 +533,9 @@ class Address extends Model
         if (
             $this->attention == $otherAddress->attention &&
             $this->title == $otherAddress->title &&
-            (($this->firstName == $otherAddress->firstName && $this->lastName == $otherAddress->lastName) || $this->fullName == $otherAddress->fullName) &&
+            $this->firstName == $otherAddress->firstName &&
+            $this->lastName == $otherAddress->lastName &&
+            $this->fullName == $otherAddress->fullName &&
             $this->address1 == $otherAddress->address1 &&
             $this->address2 == $otherAddress->address2 &&
             $this->address3 == $otherAddress->address3 &&
@@ -544,7 +546,14 @@ class Address extends Model
             $this->label == $otherAddress->label &&
             $this->notes == $otherAddress->notes &&
             $this->businessName == $otherAddress->businessName &&
-            ($this->getStateText() == $otherAddress->getStateText() || $this->stateValue == $otherAddress->stateValue) &&
+            (
+                (!empty($this->getStateText()) && $this->getStateText() == $otherAddress->getStateText()) ||
+                $this->stateValue == $otherAddress->stateValue
+            ) &&
+            (
+                (!empty($this->getCountryText()) && $this->getCountryText() == $otherAddress->getCountryText()) ||
+                $this->getCountryIso() == $otherAddress->getCountryIso()
+            ) &&
             $this->custom1 == $otherAddress->custom1 &&
             $this->custom2 == $otherAddress->custom2 &&
             $this->custom3 == $otherAddress->custom3 &&
