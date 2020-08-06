@@ -240,7 +240,7 @@ class OrderAdjustments extends Component
     /**
      * @param array|Order[] $orders
      * @return Order[]
-     * @since 3.x
+     * @since 3.2.0
      */
     public function eagerLoadOrderAdjustmentsForOrders(array $orders): array
     {

@@ -229,7 +229,7 @@ class Address extends Model
 
     /**
      * @inheritDoc
-     * @since 3.x
+     * @since 3.2.1
      */
     public function fields()
     {

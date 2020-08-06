@@ -446,7 +446,7 @@ class Customers extends Component
      *
      * @return int
      * @throws Exception
-     * @deprecated 3.x
+     * @deprecated in 3.1.11. Use `Customers::getCustomer()->id` instead.
      */
     public function getCustomerId(): int
     {
@@ -460,7 +460,7 @@ class Customers extends Component
      *
      * @param Event $event
      * @throws Exception
-     * @deprecated 3.x
+     * @deprecated in 3.1.11. Use afterSaveUserHandler() instead.
      */
     public function saveUserHandler(Event $event)
     {
@@ -879,7 +879,7 @@ class Customers extends Component
     /**
      * @param array|Order[] $orders
      * @return Order[]
-     * @since 3.x
+     * @since 3.2.0
      */
     public function eagerLoadCustomerForOrders(array $orders): array
     {

@@ -440,7 +440,7 @@ class Addresses extends Component
     /**
      * @param array|Order[] $orders
      * @return Order[]
-     * @since 3.x
+     * @since 3.2.0
      */
     public function eagerLoadAddressesForOrders(array $orders): array
     {
