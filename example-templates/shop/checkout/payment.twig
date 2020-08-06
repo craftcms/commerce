@@ -1,7 +1,11 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-<!-- Template: {{ _self }}.twig -->
+
+    {% if not cart.gateway %}
+        {%  redirect 'shop/checkout/payment-method' %}
+    {% endif %}
+
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
             <h1 class="font-bold text-xl">Payment</h1>

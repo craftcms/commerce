@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.2.0.3 - Unreleased
+
+### Fixed
+- Fixed an error that could occur on the order index page when viewing order with deleted gateways. ([#1617](https://github.com/craftcms/commerce/issues/1617))
+
 ## 3.2.0.2 - 2020-08-04
 
 ### Fixed

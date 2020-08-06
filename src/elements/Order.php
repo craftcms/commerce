@@ -1177,9 +1177,9 @@ class Order extends Element
             }
         }
 
-        // Get the customer ID from the session
-        if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->setCustomer(Plugin::getInstance()->getCustomers()->getCustomer());
+        // If the gateway ID doesn't exist, just drop it.
+        if($this->gatewayId && !$this->getGateway()){
+            $this->gatewayId = null;
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
@@ -2803,10 +2803,6 @@ class Order extends Element
             }
         } else {
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
-        }
-
-        if (null === $gateway) {
-            throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
         return $gateway;
