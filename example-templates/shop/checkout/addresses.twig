@@ -77,23 +77,37 @@
 
       if ($fieldsets && $fieldsets.length) {
         $fieldsets.forEach(function (el) {
-            var $addressFieldset = el;
-            $addressFieldset.querySelectorAll('.js-address-select');
+            var $addressSelects = el.querySelectorAll('.js-address-select');
 
-            if ($addressFieldset && $addressFieldset.length) {
-                $addressFieldset.forEach(function(el) {
+            if ($addressSelects && $addressSelects.length) {
+                $addressSelects.forEach(function(el) {
                     var $radio = el.querySelector('.js-radio input');
                     var $body = el.querySelector('.js-body');
 
-                    if ($radio && $body) {
-                        $radio.addEventListener('change', function(ev) {
-                            var $fieldsetBody = $addressFieldset.querySelector('.js-body');
-                            $fieldsetBody.classList.addClass('hidden');
-                            $body.classList.removeClass('hidden');
-                        });
+                    if ($radio) {
+                        if ($body) {
+                            // Creating new address
+                            $radio.addEventListener('change', function(ev) {
+                                if (ev.target.checked) {
+                                  $body.classList.remove('hidden');
+                                } else {
+                                  $body.classList.add('hidden');
+                                }
+                            });
 
-                        if ($radio.checked) {
-                            $body.classList.remove('hidden');
+                            if ($radio.checked) {
+                                $body.classList.remove('hidden');
+                            }
+                        } else {
+                            // Selecting existing address
+                            $radio.addEventListener('change', function(ev) {
+                                if (ev.target.checked) {
+                                    var $newBox = document.querySelector('.js-address-select[data-model-name="' + ev.target.dataset.modelName + '"]');
+                                    if ($newBox) {
+                                        $newBox.querySelector('.js-body').classList.add('hidden');
+                                    }
+                                }
+                            });
                         }
                     }
                 });
