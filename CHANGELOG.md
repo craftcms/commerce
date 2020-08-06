@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 3.2.0.3 - Unreleased
+## 3.2.1 - 2020-08-06
 
 ### Added
 - Added `craft\commerce\models\Address::sameAs()`. ([#1616](https://github.com/craftcms/commerce/issues/1616))
