@@ -1178,7 +1178,7 @@ class Order extends Element
         }
 
         // If the gateway ID doesn't exist, just drop it.
-        if($this->gatewayId && !$this->getGateway()){
+        if ($this->gatewayId && !$this->getGateway()) {
             $this->gatewayId = null;
         }
 
@@ -2605,18 +2605,28 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array|null $address
+     * @param Address|array $address
      */
     public function setShippingAddress($address)
     {
         if ($address === null) {
             $this->shippingAddressId = null;
             $this->_shippingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->shippingAddressId = $address->id;
-            $this->_shippingAddress = $address;
+            return;
         }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->shippingAddressId = $address->id;
+        $this->_shippingAddress = $address;
     }
 
     /**
@@ -2682,18 +2692,28 @@ class Order extends Element
     /**
      * Set the billing address on the order.
      *
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setBillingAddress($address)
     {
         if ($address === null) {
             $this->billingAddressId = null;
             $this->_billingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->billingAddressId = $address->id;
-            $this->_billingAddress = $address;
+            return;
         }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->billingAddressId = $address->id;
+        $this->_billingAddress = $address;
     }
 
     /**
