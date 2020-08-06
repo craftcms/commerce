@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed an error that could occur on the order index page when viewing order with deleted gateways. ([#1617](https://github.com/craftcms/commerce/issues/1617))
+- Fixed a Twig error when viewing the “Buy” example templates. ([#1621](https://github.com/craftcms/commerce/issues/1621))
 
 ## 3.2.0.2 - 2020-08-04
 
