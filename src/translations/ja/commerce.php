@@ -301,7 +301,7 @@ return [
     'Yes' => 'はい',
     'YYYY' => 'YYYY',
     'Zip Code' => '郵便番号',
-    '{name} (Primary)' => '{name} (Primary)',
+    '{name} (Primary)' => '{name} (プライマリ)',
     '{number} more…' => '{number} more…',
     'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.' => 'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.',
     'Cancellation date' => 'キャンセルした日付',
