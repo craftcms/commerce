@@ -688,7 +688,7 @@ return [
     'The template that the PDF should be generated from.' => 'The template that the PDF should be generated from.',
     'Create customer: “{email}”' => 'Create customer: “{email}”',
     'Explain what this PDF is used for.' => 'Explain what this PDF is used for.',
-    'The template to be used for HTML emails.' => 'The template to be used for HTML emails.',
+    'The template to be used for HTML emails.' => 'De template die gebruikt moet worden voor HTML e-mail.',
     'Default Per Item Rate' => 'Default Per Item Rate',
     'Can’t preview email.' => 'Can’t preview email.',
     'The name of shipping method as it will be displayed to the customer and in the control panel.' => 'The name of shipping method as it will be displayed to the customer and in the control panel.',
@@ -700,7 +700,7 @@ return [
     'Default Weight Rate' => 'Default Weight Rate',
     'Are you sure you want to save this as a new shipping rule?' => 'Are you sure you want to save this as a new shipping rule?',
     'Save as a new rule' => 'Save as a new rule',
-    'Order Settings' => 'Order Settings',
+    'Order Settings' => 'Bestellingsinstellingen',
     'The template to be used for HTML PDFs.' => 'The template to be used for HTML PDFs.',
     'Can not preview email.' => 'Can not preview email.',
     'No pdfs exist yet.' => 'No pdfs exist yet.'
