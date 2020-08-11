@@ -8,10 +8,12 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidCallException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
@@ -47,13 +49,27 @@ class DownloadsController extends BaseFrontEndController
             throw new HttpException('404', 'Order not found');
         }
 
-        $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
+        $pdf = null;
+
+        if ($pdfHandle) {
+            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
+
+            if (!$pdf) {
+                throw new InvalidCallException("Can not find the PDF to render based on the handle supplied.");
+            }
+        } else {
+            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf();
+        }
+
+        if (!$pdf) {
+            throw new InvalidCallException("Can not find a PDF to render.");
+        }
 
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
-            $fileName = $pdf->handle.'-' . $order->number;
+            $fileName = $pdf->handle . '-' . $order->number;
         }
 
         return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
