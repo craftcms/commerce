@@ -188,29 +188,30 @@ class Sales extends Component
     public function getAllSales(): array
     {
         if (null === $this->_allSales) {
-            $sales = (new Query())->select(
-                'sales.id,
-                sales.name,
-                sales.description,
-                sales.dateFrom,
-                sales.dateTo,
-                sales.apply,
-                sales.applyAmount,
-                sales.stopProcessing,
-                sales.ignorePrevious,
-                sales.allGroups,
-                sales.allPurchasables,
-                sales.allCategories,
-                sales.categoryRelationshipType,
-                sales.enabled,
-                sp.purchasableId,
-                spt.categoryId,
-                sug.userGroupId')
+            $sales = (new Query())->select([
+                'sales.id',
+                'sales.name',
+                'sales.description',
+                'sales.dateFrom',
+                'sales.dateTo',
+                'sales.apply',
+                'sales.applyAmount',
+                'sales.stopProcessing',
+                'sales.ignorePrevious',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+                'sales.sortOrder',
+                'sales.categoryRelationshipType',
+                'sales.enabled',
+                'sp.purchasableId',
+                'spt.categoryId',
+                'sug.userGroupId'])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]] = [[sales.id]]')
-                ->orderBy('sortOrder asc')
+                ->orderBy(['sales.sortOrder' => 'ASC'])
                 ->all();
 
             $allSalesById = [];

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an issue where sales did not have their `sortOrder` property populated on retreival from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
+
 ## 3.2.1 - 2020-08-06
 
 ### Added
