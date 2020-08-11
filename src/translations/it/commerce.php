@@ -678,14 +678,14 @@ return [
     'What the order PDF filename should look like (sans extension). You can include tags that output order properties, such as {ex1} or {ex2}.' => 'Come dovrebbe apparire il nome del file PDF dell\'ordine (senza estensione). È possibile includere tag che producono le proprietà dell\'ordine, come {ex1} o {ex2}.',
     'This is the default PDF that will be rendered when requesting the order PDF.' => 'Questo è il PDF predefinito che verrà visualizzato quando si richiede il PDF dell\'ordine.',
     'Show rule details' => 'Mostra dettagli della regola',
-    'How you’ll refer to this PDF in the templates.' => 'Come farai riferimento a questo PDF nei modelli.',
+    'How you’ll refer to this PDF in the templates.' => 'Come farai riferimento a questo PDF nei template.',
     'A valid email is required to create a customer.' => 'Per creare un cliente è necessario fornire un\'e-mail valida.',
     'Default Percentage Rate' => 'Tariffa in base a percentuale predefinita',
     'What this PDF will be called in the control panel.' => 'Nome di questo PDF nel pannello di controllo.',
     'If disabled, this PDF will not be available or sent with emails.' => 'Se disattivato, questo PDF non sarà disponibile o inviato con le e-mail.',
     'No PDFs exist yet.' => 'Non esiste ancora nessun PDF.',
     'PDF Attachment' => 'Allegato PDF',
-    'The template that the PDF should be generated from.' => 'Il modello da cui deve essere generato il PDF.',
+    'The template that the PDF should be generated from.' => 'Il template da cui deve essere generato il PDF.',
     'Create customer: “{email}”' => 'Crea cliente: “{email}”',
     'Explain what this PDF is used for.' => 'Spiega per cosa viene utilizzato questo PDF.',
     'The template to be used for HTML emails.' => 'Template da usare per le email HTML.',
@@ -701,7 +701,7 @@ return [
     'Are you sure you want to save this as a new shipping rule?' => 'Sei sicuro di voler salvare questa immissione come nuova regola di spedizione?',
     'Save as a new rule' => 'Salva come nuova regola',
     'Order Settings' => 'Impostazioni ordine',
-    'The template to be used for HTML PDFs.' => 'The template to be used for HTML PDFs.',
-    'Can not preview email.' => 'Can not preview email.',
-    'No pdfs exist yet.' => 'No pdfs exist yet.'
+    'The template to be used for HTML PDFs.' => 'Il template da usare per i PDF HTML.',
+    'Can not preview email.' => 'Impossibile visualizzare l\'anteprima dell\'e-mail.',
+    'No pdfs exist yet.' => 'Non esiste ancora nessun pdf.'
 ];
