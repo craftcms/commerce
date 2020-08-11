@@ -703,5 +703,5 @@ return [
     'Order Settings' => 'Configurações de Pedido',
     'The template to be used for HTML PDFs.' => 'O modelo a ser usado para PDFs HTML.',
     'Can not preview email.' => 'Não é possível pré-visualizar o email.',
-    'No pdfs exist yet.' => 'No pdfs exist yet.'
+    'No pdfs exist yet.' => 'Não existem Pdfs ainda.'
 ];
