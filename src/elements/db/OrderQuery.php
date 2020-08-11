@@ -1280,7 +1280,8 @@ class OrderQuery extends ElementQuery
         }
 
         // Use DISTINCT to group the orders preventing multiple rows returning
-         $this->subQuery->addSelect(new Expression('DISTINCT([[commerce_orders.id]])'));
+        // TODO evaluate this when orders become localised/live in multiple sites
+        $this->query->distinct = true;
 
         return parent::beforePrepare();
     }
