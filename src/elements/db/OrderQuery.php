@@ -1279,6 +1279,10 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(['not', ['lineItems.id' => null]]);
         }
 
+        // Use DISTINCT to group the orders preventing multiple rows returning
+        // TODO evaluate this when orders become localised/live in multiple sites
+        $this->query->distinct = true;
+
         return parent::beforePrepare();
     }
 }
