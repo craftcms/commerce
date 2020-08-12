@@ -125,4 +125,21 @@ class LineItemStatus extends Model
     {
         return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->name);
     }
+
+    /**
+     * Returns the config for this status.
+     *
+     * @return array
+     * @since 3.2.2
+     */
+    public function getConfig(): array
+    {
+        return [
+            'name' => $this->name,
+            'handle' => $this->handle,
+            'color' => $this->color,
+            'sortOrder' => (int)$this->sortOrder ?: 9999,
+            'default' => (bool)$this->default,
+        ];
+    }
 }

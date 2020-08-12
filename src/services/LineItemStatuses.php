@@ -199,13 +199,7 @@ class LineItemStatuses extends Component
         if ($lineItemStatus->isArchived) {
             $configData = null;
         } else {
-            $configData = [
-                'name' => $lineItemStatus->name,
-                'handle' => $lineItemStatus->handle,
-                'color' => $lineItemStatus->color,
-                'sortOrder' => (int)($lineItemStatus->sortOrder ?? 99),
-                'default' => (bool)$lineItemStatus->default
-            ];
+            $configData = $lineItemStatus->getConfig();
         }
 
         $configPath = self::CONFIG_STATUSES_KEY . '.' . $statusUid;
