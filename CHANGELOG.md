@@ -4,9 +4,11 @@
 
 ### Added
 - Added `craft\commerce\models\LineItem::setLineItemStatus()`. ([#1638](https://github.com/craftcms/commerce/issues/1638))
+- Added `craft\commerce\services\LineItems::orderCompleteHandler()`.
 
 ### Fixed
-- Fixed an issue where sales did not have their `sortOrder` property populated on retreival from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
+- Fixed a bug where the default line item status was not be applied to line items when completing an order. ([#1643](https://github.com/craftcms/commerce/issues/1643))
+- Fixed an issue where sales did not have their `sortOrder` property populated on retrieval from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
 - Fixed a PHP error when downloading a PDF. ([#1626](https://github.com/craftcms/commerce/issues/1626))
 - Fixed a bug where duplicate orders were returned when querying using `hasPurchasables` or `hasTransactions`. ([#1637](https://github.com/craftcms/commerce/issues/1637))
 
