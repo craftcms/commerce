@@ -1560,9 +1560,7 @@ class Order extends Element
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
-            if ($lineItem->getPurchasable()) {
-                $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
-            }
+            Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
         }
 
         // Raising the 'afterCompleteOrder' event
