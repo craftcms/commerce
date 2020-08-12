@@ -398,6 +398,8 @@ class Addresses extends Component
                 ]
             ]);
 
+        //TODO: allow modification of orphaned addresses query in an event https://github.com/craftcms/commerce/issues/1627
+
         foreach ($addresses->batch(500) as $address) {
             $ids = ArrayHelper::getColumn($address, 'id', false);
 
