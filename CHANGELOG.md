@@ -11,6 +11,7 @@
 - Fixed an issue where sales did not have their `sortOrder` property populated on retrieval from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
 - Fixed a PHP error when downloading a PDF. ([#1626](https://github.com/craftcms/commerce/issues/1626))
 - Fixed a bug where duplicate orders were returned when querying using `hasPurchasables` or `hasTransactions`. ([#1637](https://github.com/craftcms/commerce/issues/1637))
+- Fixed a bug where stats were incorrectly counting on a multi-site Craft install. ([#1644](https://github.com/craftcms/commerce/issues/1644))
 
 ## 3.2.1 - 2020-08-06
 
