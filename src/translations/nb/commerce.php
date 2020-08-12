@@ -703,5 +703,5 @@ return [
     'Order Settings' => 'Ordreinnstillinger',
     'The template to be used for HTML PDFs.' => 'Malen som skal brukes for HTML-PDF-er.',
     'Can not preview email.' => 'Kan ikke forhåndsvise e-post.',
-    'No pdfs exist yet.' => 'No pdfs exist yet.'
+    'No pdfs exist yet.' => 'Ingen PDF-er eksisterer ennå.'
 ];
