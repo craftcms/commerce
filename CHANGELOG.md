@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.2 - 2020-08-13
 
 ### Added
 - Added `craft\commerce\models\LineItem::setLineItemStatus()`. ([#1638](https://github.com/craftcms/commerce/issues/1638))
