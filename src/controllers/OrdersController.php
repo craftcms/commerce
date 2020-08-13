@@ -867,6 +867,7 @@ class OrdersController extends Controller
 
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
         $staticForm = $fieldLayout->createForm($order, true, [
+            'namespace' => 'static_fields',
             'tabIdPrefix' => 'static-fields',
         ]);
         $dynamicForm = $fieldLayout->createForm($order, false, [

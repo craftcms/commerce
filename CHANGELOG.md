@@ -6,6 +6,9 @@
 - Added `craft\commerce\models\LineItem::setLineItemStatus()`. ([#1638](https://github.com/craftcms/commerce/issues/1638))
 - Added `craft\commerce\services\LineItems::orderCompleteHandler()`.
 
+### Changed
+- Commerce now requires Craft 3.5.4 or later.
+
 ### Fixed
 - Fixed a bug where the default line item status was not be applied to line items when completing an order. ([#1643](https://github.com/craftcms/commerce/issues/1643))
 - Fixed an issue where sales did not have their `sortOrder` property populated on retrieval from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
@@ -14,6 +17,7 @@
 - Fixed a bug where duplicate orders were returned when querying using `hasPurchasables` or `hasTransactions`. ([#1637](https://github.com/craftcms/commerce/issues/1637))
 - Fixed a bug where stats were incorrectly counting on a multi-site Craft install. ([#1644](https://github.com/craftcms/commerce/issues/1644))
 - Fixed a bug where custom fields tab was selected incorrectly when updating an order on the Edit Order page. ([#1647](https://github.com/craftcms/commerce/issues/1647))
+- Fixed a bug where custom field JavaScript wasn’t getting initialized properly on the Edit Order page in some cases. ([#1647](https://github.com/craftcms/commerce/issues/1647))
 
 ## 3.2.1 - 2020-08-06
 
