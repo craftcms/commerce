@@ -541,7 +541,7 @@ return [
     'Used by Tax Rates' => 'Používané daňovými sadzbami',
     'Copy' => 'Kopírovať',
     'Customers' => 'Zákazníci',
-    'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.' => 'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.',
+    'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.' => 'E-mailová adresa pre odpoveď. Ak chcete použiť normálnu adresu pre odpoveď, ponechajte toto pole prázdne. Môže byť použitý Twig kód.',
     'Search orders' => 'Vyhľadávanie objednávok',
     'Couldn’t reorder countries.' => 'Poradie krajín sa nedá zmeniť.',
     'Copied!' => 'Skopírované!',
