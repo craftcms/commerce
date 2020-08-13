@@ -416,6 +416,32 @@ class LineItems extends Component
     }
 
     /**
+     *
+     * @param LineItem $lineItem
+     * @param Order $order
+     * @throws Throwable
+     * @since 3.x
+     */
+    public function orderCompleteHandler(LineItem $lineItem, Order $order)
+    {
+        // Called the after order complete method for the purchasable if there is one
+        if ($lineItem->getPurchasable()) {
+            $lineItem->getPurchasable()->afterOrderComplete($order, $lineItem);
+        }
+
+        // Retrieve the default status for the current line item. This is a chance for
+        // developers to hook into an event for finer control
+        $defaultStatus = Plugin::getInstance()->getLineItemStatuses()->getDefaultLineItemStatusForLineItem($lineItem);
+        if (!$defaultStatus) {
+            return;
+        }
+
+        // Set the status ID and save the line item
+        $lineItem->setLineItemStatus($defaultStatus);
+        $this->saveLineItem($lineItem, false);
+    }
+
+    /**
      * Returns a Query object prepped for retrieving line items.
      *
      * @return Query The query object.

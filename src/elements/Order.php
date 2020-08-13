@@ -1560,9 +1560,7 @@ class Order extends Element
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
-            if ($lineItem->getPurchasable()) {
-                $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
-            }
+            Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
         }
 
         // Raising the 'afterCompleteOrder' event
@@ -1974,7 +1972,7 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
-     * @param string|null $pdfId The handle of the PDF to use. If none is passed the default PDF is used.
+     * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      * @throws Exception
      */
@@ -3026,7 +3024,7 @@ class Order extends Element
 
         // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // If the ID is null that's ok, it's a new line item and will be saves anyway
+            // If the ID is null that's ok, it's a new line item and will be saved anyway
             $currentLineItemIds[] = $lineItem->id;
         }
 
@@ -3036,7 +3034,7 @@ class Order extends Element
 
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
-
+                
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
                         'lineItem' => $lineItem

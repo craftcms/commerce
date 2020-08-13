@@ -42,7 +42,6 @@
     {{ forms.textField({
         first: true,
         label: "Description"|t('commerce'),
-        instructions: "Explain what this PDF is used for."|t('commerce'),
         id: 'description',
         name: 'description',
         value: pdf.description,
@@ -51,7 +50,7 @@
 
     {{ forms.autoSuggestField({
         label: 'PDF Template Path'|t('commerce'),
-        instructions: 'The template to be used for HTML PDFs.'|t('commerce'),
+        instructions: 'The template that the PDF should be generated from.'|t('commerce'),
         id: 'templatePath',
         class: 'code',
         name: 'templatePath',

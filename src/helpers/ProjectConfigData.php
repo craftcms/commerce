@@ -47,6 +47,7 @@ class ProjectConfigData
         }
 
         $output['orderStatuses'] = self::_getStatusData();
+        $output['lineItemStatuses'] = self::_getLineItemStatusData();
         $output['productTypes'] = self::_getProductTypeData();
 
         $subscriptionFieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
@@ -205,6 +206,20 @@ class ProjectConfigData
         $data = [];
         foreach (Plugin::getInstance()->getPdfs()->getAllPdfs() as $pdf) {
             $data[$pdf->uid] = $pdf->getConfig();
+        }
+        return $data;
+    }
+
+    /**
+     * Return line item status data config array.
+     *
+     * @return array
+     */
+    private static function _getLineItemStatusData(): array
+    {
+        $data = [];
+        foreach (Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses() as $status) {
+            $data[$status->uid] = $status->getConfig();
         }
         return $data;
     }

@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "keywords": [
     "cms",
     "craftcms",
@@ -20,7 +20,7 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.5.0",
+    "craftcms/cms": "^3.5.4",
     "dompdf/dompdf": "~0.8.3",
     "moneyphp/money": "^3.2.1",
     "ibericode/vat": "^1.1.2"

@@ -361,26 +361,20 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
+        $cartUpdatedMessage = Plugin::t('Cart updated.');
+        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+            $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
+        }
+
         if ($request->getAcceptsJson()) {
-
-            if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
-                $message = Html::encode($cartUpdatedNotice);
-            } else {
-                $message = Plugin::t('Cart updated.');
-            }
-
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
                 $this->_cartVariable => $this->cartArray($this->_cart),
-                'message' => $message,
+                'message' => $cartUpdatedMessage,
             ]);
         }
 
-        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
-            Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
-        } else {
-            Craft::$app->getSession()->setNotice(Plugin::t('Cart updated.'));
-        }
+        Craft::$app->getSession()->setNotice($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart

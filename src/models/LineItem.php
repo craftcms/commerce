@@ -271,6 +271,21 @@ class LineItem extends Model
     }
 
     /**
+     * @param LineItemStatus|null $status
+     * @since 3.2.2
+     */
+    public function setLineItemStatus(LineItemStatus $status = null)
+    {
+        if ($status !== null) {
+            $this->_lineItemStatus = $status;
+            $this->lineItemStatusId = (int)$status->id;
+        } else {
+            $this->lineItemStatusId = null;
+            $this->_lineItemStatus = null;
+        }
+    }
+
+    /**
      * Returns the options for the line item.
      *
      * @return array
