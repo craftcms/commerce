@@ -1365,7 +1365,11 @@ class OrdersController extends Controller
         foreach ($results as $row) {
             /** @var PurchasableInterface $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
+                if ($purchasable->getBehavior('currencyAttributes')) {
+                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
+                } else {
+                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                }
                 $row['isAvailable'] = $purchasable->getIsAvailable();
                 $purchasables[] = $row;
             }

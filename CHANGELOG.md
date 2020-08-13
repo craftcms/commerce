@@ -10,6 +10,7 @@
 - Fixed a bug where the default line item status was not be applied to line items when completing an order. ([#1643](https://github.com/craftcms/commerce/issues/1643))
 - Fixed an issue where sales did not have their `sortOrder` property populated on retrieval from the database. ([#1633](https://github.com/craftcms/commerce/issues/1633))
 - Fixed a PHP error when downloading a PDF. ([#1626](https://github.com/craftcms/commerce/issues/1626))
+- Fixed a PHP error when adding a custom purchasable line item on the Edit Order page. ([#1646](https://github.com/craftcms/commerce/issues/1646))
 - Fixed a bug where duplicate orders were returned when querying using `hasPurchasables` or `hasTransactions`. ([#1637](https://github.com/craftcms/commerce/issues/1637))
 - Fixed a bug where stats were incorrectly counting on a multi-site Craft install. ([#1644](https://github.com/craftcms/commerce/issues/1644))
 
