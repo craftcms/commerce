@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 3.2.2.1 - 2020-08-14
+
+### Fixed
+- Fixed a bug where `craft\commerce\services\LineItemStatuses::getLineItemStatusByHandle()`, `getDefaultLineItemStatus()`, `getDefaultLineItemStatusForLineItem()` and `getLineItemStatusById()` were returning archived statuses. ([#1643](https://github.com/craftcms/commerce/issues/1643))
+- Fixed a bug where line item status caches weren’t getting invalidated.
+
 ## 3.2.2 - 2020-08-13
 
 ### Added

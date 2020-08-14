@@ -57,7 +57,6 @@ class LineItemStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.lineItemStatuses';
 
-
     /**
      * @var bool
      */
@@ -78,7 +77,6 @@ class LineItemStatuses extends Component
      */
     private $_defaultLineItemStatus;
 
-
     /**
      * Get line item status by its handle.
      *
@@ -96,7 +94,7 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['handle' => $handle])
+            ->andWhere(['handle' => $handle])
             ->one();
 
         if (!$result) {
@@ -136,10 +134,14 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['default' => 1])
+            ->andWhere(['default' => 1])
             ->one();
 
-        return new LineItemStatus($result);
+        if ($result) {
+            $this->_defaultLineItemStatus = new LineItemStatus($result);
+        }
+
+        return $this->_defaultLineItemStatus;
     }
 
     /**
@@ -208,6 +210,8 @@ class LineItemStatuses extends Component
         if ($isNewStatus) {
             $lineItemStatus->id = Db::idByUid(Table::LINEITEMSTATUSES, $statusUid);
         }
+
+        $this->_clearCaches();
 
         return true;
     }
@@ -289,6 +293,8 @@ class LineItemStatuses extends Component
             $lineItemStatusRecord->save(false);
 
             $transaction->commit();
+
+            $this->_clearCaches();
         } catch (Throwable $e) {
             $transaction->rollBack();
             throw $e;
@@ -334,7 +340,7 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->where(['id' => $id])
+            ->andWhere(['id' => $id])
             ->one();
 
         if (!$result) {
@@ -368,6 +374,8 @@ class LineItemStatuses extends Component
                 $projectConfig->set(self::CONFIG_STATUSES_KEY . '.' . $statusUid . '.sortOrder', $lineItemStatus + 1);
             }
         }
+
+        $this->_clearCaches();
 
         return true;
     }
@@ -419,5 +427,18 @@ class LineItemStatuses extends Component
         }
 
         return new LineItemStatusRecord();
+    }
+
+    /**
+     * Clear all memoization
+     *
+     * @since 3.x
+     */
+    public function _clearCaches()
+    {
+        $this->_defaultLineItemStatus = null;
+        $this->_fetchedAllStatuses = false;
+        $this->_lineItemStatusesById = [];
+        $this->_lineItemStatusesByHandle = [];
     }
 }
