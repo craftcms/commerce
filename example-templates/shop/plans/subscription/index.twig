@@ -68,8 +68,9 @@
       {% endif %}
     </dl>
 
-  {% if not subscription.isCanceled and not subscription.isExpired %}
-    <h2 class="mt-3 text-lg font-semibold">Alternative Plans</h2>
+  {% if not subscription.isCanceled and not subscription.isExpired and subscription.alternativePlans|length %}
+    <div class="border-t border-gray-300 mt-3 pt-3">
+      <h2 class="text-lg font-semibold">Alternative Plans</h2>
       <table>
         <thead>
           <tr class="bg-gray-300 text-left">
@@ -97,6 +98,7 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
   {% endif %}
 
 
