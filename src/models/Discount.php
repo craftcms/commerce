@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
-use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
