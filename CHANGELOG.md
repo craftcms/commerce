@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where discounts with purchasable conditions were not being applied to an order. ([#1641](https://github.com/craftcms/commerce/issues/1641))
+
 ## 3.2.2.1 - 2020-08-14
 
 ### Fixed

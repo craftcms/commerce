@@ -326,15 +326,15 @@ class Discounts extends Component
 
         foreach ($rows as $row) {
             if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
+                $purchasableIds[] = (int)$row['purchasableId'];
             }
 
             if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
+                $categoryIds[] = (int)$row['categoryId'];
             }
 
             if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
+                $userGroupIds[] = (int)$row['userGroupId'];
             }
         }
 
@@ -433,7 +433,7 @@ class Discounts extends Component
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -467,7 +467,7 @@ class Discounts extends Component
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
-            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
+            if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
                 return false;
             }
         }
