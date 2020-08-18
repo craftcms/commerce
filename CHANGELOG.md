@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixed
+- Fixed a SQL error that occurred when searching for orders on the Order index page. ([#1652](https://github.com/craftcms/commerce/issues/1652))
 - Fixed a bug where discounts with purchasable conditions were not being applied correctly to the cart. ([#1641](https://github.com/craftcms/commerce/issues/1641))
 - Fixed a migration error that could occur when updating. ([#1655](https://github.com/craftcms/commerce/issues/1655))
 - Fixed a PHP error when viewing the dashboard with the “Top Product Type” widget enabled.
@@ -26,7 +27,7 @@
 - Fixed a bug where the default line item status was not getting applied on order completion. ([#1643](https://github.com/craftcms/commerce/issues/1643))
 - Fixed a bug where sales weren’t getting initialized with their `sortOrder` value. ([#1633](https://github.com/craftcms/commerce/issues/1633))
 - Fixed a PHP error that could occur when downloading a PDF. ([#1626](https://github.com/craftcms/commerce/issues/1626))
-- Fixed a PHP error tat could occur when adding a custom purchasable to an order from the Edit Order page. ([#1646](https://github.com/craftcms/commerce/issues/1646))
+- Fixed a PHP error that could occur when adding a custom purchasable to an order from the Edit Order page. ([#1646](https://github.com/craftcms/commerce/issues/1646))
 - Fixed a bug where duplicate orders could be returned by an order query when using the `hasPurchasables` or `hasTransactions` params. ([#1637](https://github.com/craftcms/commerce/issues/1637))
 - Fixed a bug where the Top Products and Top Product Types lists weren’t counting correctly on multi-site installs. ([#1644](https://github.com/craftcms/commerce/issues/1644))
 - Fixed a bug where the Edit Order page wasn’t swapping the selected tab correctly when saving changes, if a custom tab was selected. ([#1647](https://github.com/craftcms/commerce/issues/1647))
