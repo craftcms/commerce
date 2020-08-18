@@ -691,7 +691,7 @@ return [
     'The template to be used for HTML emails.' => 'The template to be used for HTML emails.',
     'Default Per Item Rate' => 'Default Per Item Rate',
     'Can’t preview email.' => 'Can’t preview email.',
-    'The name of shipping method as it will be displayed to the customer and in the control panel.' => 'The name of shipping method as it will be displayed to the customer and in the control panel.',
+    'The name of shipping method as it will be displayed to the customer and in the control panel.' => 'The name of the shipping method as it will be displayed to the customer and in the control panel.',
     'Default Order PDF' => 'Default Order PDF',
     'Search or enter customer email…' => 'Search or enter customer email…',
     'Preview' => 'Preview',
@@ -702,6 +702,6 @@ return [
     'Save as a new rule' => 'Save as a new rule',
     'Order Settings' => 'Order Settings',
     'The template to be used for HTML PDFs.' => 'The template to be used for HTML PDFs.',
-    'Can not preview email.' => 'Can not preview email.',
+    'Can not preview email.' => 'Cannot preview email.',
     'No pdfs exist yet.' => 'No pdfs exist yet.'
 ];
