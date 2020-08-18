@@ -3,7 +3,7 @@
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
     {% set subscriptionId = craft.app.request.param('subscription') %}
-    {% set subscription = craft.subscriptions.id(subscriptionId).first() %}
+    {% set subscription = craft.subscriptions.id(subscriptionId).one() %}
 
     {% if not subscription or currentUser is null or subscription.userId != currentUser.id %}
         {% redirect 'shop/plans' %}
