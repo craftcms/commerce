@@ -361,7 +361,7 @@ return [
     'Status History' => 'Status History',
     'Default to this tax zone when no billing address is set' => 'Default to this tax zone when no billing address is set',
     'Don’t apply this tax when the address has a valid VAT ID' => 'Don’t apply this tax when the address has a valid VAT ID',
-    'Available for purchase' => 'Commerce order exports',
+    'Available for purchase' => 'Available for purchase',
     'Company' => 'Company',
     'If disabled, this email will not send.' => 'If disabled, this email will not send.',
     'Paid Status' => 'Paid Status',
