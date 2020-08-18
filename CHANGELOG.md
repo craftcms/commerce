@@ -7,6 +7,7 @@
 - Fixed a bug where discounts with purchasable conditions were not being applied correctly to the cart. ([#1641](https://github.com/craftcms/commerce/issues/1641))
 - Fixed a migration error that could occur when updating. ([#1655](https://github.com/craftcms/commerce/issues/1655))
 - Fixed a PHP error when viewing the dashboard with the “Top Product Type” widget enabled.
+- Fixed a deprecation warning that occurred when view order indexes. ([#1656](https://github.com/craftcms/commerce/issues/1656))
 
 ## 3.2.2.1 - 2020-08-14
 
