@@ -1,13 +1,13 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.3 - 2020-08-19
 
 ### Fixed
-- Fixed a SQL error that occurred when searching for orders on the Order index page. ([#1652](https://github.com/craftcms/commerce/issues/1652))
+- Fixed a SQL error that occurred when searching for orders from the Orders index page. ([#1652](https://github.com/craftcms/commerce/issues/1652))
 - Fixed a bug where discounts with purchasable conditions were not being applied correctly to the cart. ([#1641](https://github.com/craftcms/commerce/issues/1641))
-- Fixed a migration error that could occur when updating. ([#1655](https://github.com/craftcms/commerce/issues/1655))
-- Fixed a PHP error when viewing the dashboard with the “Top Product Type” widget enabled.
-- Fixed a deprecation warning that occurred when view order indexes. ([#1656](https://github.com/craftcms/commerce/issues/1656))
+- Fixed a migration error that could occur when updating to Commerce 3.2. ([#1655](https://github.com/craftcms/commerce/issues/1655))
+- Fixed a PHP error that occurred when displaying the “Top Product Types” Dashboard widget.
+- Fixed a deprecation warning that occurred on the Orders index page. ([#1656](https://github.com/craftcms/commerce/issues/1656))
 - Fixed a bug where Live Preview wasn’t showing custom fields for products. ([#1651](https://github.com/craftcms/commerce/issues/1651))
 
 ## 3.2.2.1 - 2020-08-14
