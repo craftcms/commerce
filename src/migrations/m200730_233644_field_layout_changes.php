@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
