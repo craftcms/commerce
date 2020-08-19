@@ -8,6 +8,7 @@
 - Fixed a migration error that could occur when updating. ([#1655](https://github.com/craftcms/commerce/issues/1655))
 - Fixed a PHP error when viewing the dashboard with the “Top Product Type” widget enabled.
 - Fixed a deprecation warning that occurred when view order indexes. ([#1656](https://github.com/craftcms/commerce/issues/1656))
+- Fixed a bug where Live Preview wasn’t showing custom fields for products. ([#1651](https://github.com/craftcms/commerce/issues/1651))
 
 ## 3.2.2.1 - 2020-08-14
 
