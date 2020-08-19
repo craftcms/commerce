@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.3 - 2020-08-19
 
 ### Fixed
 - Fixed a SQL error that occurred when searching for orders from the Orders index page. ([#1652](https://github.com/craftcms/commerce/issues/1652))
