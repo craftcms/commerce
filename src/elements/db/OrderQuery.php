@@ -1244,8 +1244,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('[[commerce_orders.totalPaid]] < [[commerce_orders.totalPrice]]'));
         }
 
-        // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
+        // Allow integer/PurchasableInterface object or array of integers/PurchasableInterface objects
+        if ($this->hasPurchasables !== null) {
             $purchasableIds = [];
 
             if (!is_array($this->hasPurchasables)) {
@@ -1263,25 +1263,34 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['lineitems.purchasableId' => $purchasableIds]);
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->andWhere(['lineitems.purchasableId' => $purchasableIds])
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasTransactions !== null) && $this->hasTransactions) {
-            $this->subQuery->leftJoin(Table::TRANSACTIONS . ' transactions', '[[transactions.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['transactions.id' => null]]);
+        if ($this->hasTransactions !== null) {
+            $this->subQuery->andWhere([
+                $this->hasTransactions ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['transactions' => Table::TRANSACTIONS])
+                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]'))
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasLineItems !== null) && $this->hasLineItems) {
-            $this->subQuery->leftJoin(Table::LINEITEMS . ' lineItems', '[[lineItems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['lineItems.id' => null]]);
+        if ($this->hasLineItems !== null) {
+            $this->subQuery->andWhere([
+                $this->hasLineItems ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+            ]);
         }
-
-        // Use DISTINCT to group the orders preventing multiple rows returning
-        // TODO evaluate this when orders become localised/live in multiple sites
-        $this->query->distinct = true;
 
         return parent::beforePrepare();
     }

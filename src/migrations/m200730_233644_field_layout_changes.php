@@ -3,7 +3,6 @@
 namespace craft\commerce\migrations;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
@@ -36,6 +35,14 @@ class m200730_233644_field_layout_changes extends Migration
         foreach ($projectConfig->get('commerce.productTypes') ?? [] as $typeUid => $typeConfig) {
             if (!empty($typeConfig['productFieldLayouts'])) {
                 foreach ($typeConfig['productFieldLayouts'] as $fieldLayoutUid => &$fieldLayoutConfig) {
+
+                    // Field layout could be null if they had no product field layout for products previously and
+                    // Craft 3.5 regenerated the project config into folders, creating a null field layout.
+                    // So just go ahead and make it an array as it expects, and let the _updateFieldLayoutConfig fix it up.
+                    if (!$fieldLayoutConfig) {
+                        $fieldLayoutConfig = [];
+                    }
+
                     $this->_updateFieldLayoutConfig($fieldLayoutConfig);
 
                     // Add the Title field to the first tab
@@ -71,6 +78,14 @@ class m200730_233644_field_layout_changes extends Migration
 
             if (!empty($typeConfig['variantFieldLayouts'])) {
                 foreach ($typeConfig['variantFieldLayouts'] as $fieldLayoutUid => &$fieldLayoutConfig) {
+
+                    // Field layout could be null if they had no variant field layout for variants previously and
+                    // Craft 3.5 regenerated the project config into folders, creating a null field layout.
+                    // So just go ahead and make it an array as it expects, and let the _updateFieldLayoutConfig fix it up.
+                    if (!$fieldLayoutConfig) {
+                        $fieldLayoutConfig = [];
+                    }
+
                     $this->_updateFieldLayoutConfig($fieldLayoutConfig);
 
                     // Add the Title field to the first tab
@@ -98,10 +113,10 @@ class m200730_233644_field_layout_changes extends Migration
     {
         // Make sure there's at least one tab
         if (empty($fieldLayoutConfig['tabs'])) {
-            $fieldLayoutConfig['tabs'] = [
+            $fieldLayoutConfig['tabs'] = [[
                 'name' => 'Content',
                 'sortOrder' => 1,
-            ];
+            ]];
         }
 
         // Update the tab configs to the new format

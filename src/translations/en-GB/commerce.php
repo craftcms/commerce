@@ -361,7 +361,7 @@ return [
     'Status History' => 'Status History',
     'Default to this tax zone when no billing address is set' => 'Default to this tax zone when no billing address is set',
     'Don’t apply this tax when the address has a valid VAT ID' => 'Don’t apply this tax when the address has a valid VAT ID',
-    'Available for purchase' => 'Commerce order exports',
+    'Available for purchase' => 'Available for purchase',
     'Company' => 'Company',
     'If disabled, this email will not send.' => 'If disabled, this email will not send.',
     'Paid Status' => 'Paid Status',
@@ -691,7 +691,7 @@ return [
     'The template to be used for HTML emails.' => 'The template to be used for HTML emails.',
     'Default Per Item Rate' => 'Default Per Item Rate',
     'Can’t preview email.' => 'Can’t preview email.',
-    'The name of shipping method as it will be displayed to the customer and in the control panel.' => 'The name of shipping method as it will be displayed to the customer and in the control panel.',
+    'The name of shipping method as it will be displayed to the customer and in the control panel.' => 'The name of the shipping method as it will be displayed to the customer and in the control panel.',
     'Default Order PDF' => 'Default Order PDF',
     'Search or enter customer email…' => 'Search or enter customer email…',
     'Preview' => 'Preview',
@@ -702,6 +702,6 @@ return [
     'Save as a new rule' => 'Save as a new rule',
     'Order Settings' => 'Order Settings',
     'The template to be used for HTML PDFs.' => 'The template to be used for HTML PDFs.',
-    'Can not preview email.' => 'Can not preview email.',
+    'Can not preview email.' => 'Cannot preview email.',
     'No pdfs exist yet.' => 'No pdfs exist yet.'
 ];

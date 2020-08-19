@@ -55,7 +55,7 @@ class DownloadOrderPdf extends ElementAction
      */
     public function getTriggerHtml()
     {
-        $pdfs = Plugin::getInstance()->getPdf()->getAllEnabledPdfs();
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         return Craft::$app->getView()->renderTemplate('commerce/_components/elementactions/DownloadOrderPdf/trigger', [
             'pdfs' => $pdfs,
         ]);
