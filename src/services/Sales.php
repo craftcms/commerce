@@ -433,7 +433,8 @@ class Sales extends Component
             $this->_purchasableSaleMatch[$purchasableId][$saleId] = null;
         }
 
-        if ($this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+        // Only use memoized data if we are matching outside of the context of an order
+        if (!$order && $this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
             return $this->_purchasableSaleMatch[$purchasableId][$saleId];
         }
 
@@ -507,6 +508,12 @@ class Sales extends Component
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
+        }
+
+        // If an order has been supplied we do not want to memoize the match
+        if ($order) {
+            unset($this->_purchasableSaleMatch[$purchasableId][$saleId]);
+            return $saleMatchEvent->isValid;
         }
 
         $this->_purchasableSaleMatch[$purchasableId][$saleId] = $saleMatchEvent->isValid;
