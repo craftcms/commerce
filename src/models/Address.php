@@ -532,7 +532,11 @@ class Address extends Model
     }
 
     /**
+     * This method can be used to determine if the other addresses supplied has the same address contents (minus the address ID).
+     *
      * @param Address|null $otherAddress
+     * @return bool
+     * @since 3.2.1
      */
     public function sameAs($otherAddress): bool
     {
