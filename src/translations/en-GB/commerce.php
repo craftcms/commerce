@@ -384,7 +384,7 @@ return [
     'Is subscription active?' => 'Is subscription active?',
     'Send to custom recipient' => 'Send to custom recipient',
     'Select a gateway' => 'Select a gateway',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.',
     'Subscription Fields' => 'Subscription Fields',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.',
     'Cancel subscription' => 'Cancel subscription',
