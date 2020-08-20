@@ -27,6 +27,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
@@ -306,9 +307,13 @@ class Discounts extends Component
      * Populates a discount's relations.
      *
      * @param Discount $discount
+     * @throws DeprecationException
+     * @deprecated in 3.x
      */
     public function populateDiscountRelations(Discount $discount)
     {
+        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
+
         $rows = (new Query())->select(
             'dp.purchasableId,
             dpt.categoryId,
