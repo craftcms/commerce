@@ -1179,7 +1179,7 @@ class OrdersController extends Controller
 
             if (!$lineItem) {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
