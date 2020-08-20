@@ -12,7 +12,6 @@ use craft\commerce\base\Model;
 use craft\commerce\events\DefineAddressLinesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
 use DvK\Vat\Validator;
