@@ -126,7 +126,7 @@ class Discount extends Model
     public $percentageOffSubject;
 
     /**
-     * @var bool Exclude on sale purchasables
+     * @var bool Exclude the “On Sale” Purchasables
      */
     public $excludeOnSale;
 

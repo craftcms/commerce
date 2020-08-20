@@ -42,7 +42,6 @@ class Currency extends Model
      */
     public $numericCode;
 
-
     /**
      * @return string
      */
