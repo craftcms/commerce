@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
+
 ## 3.2.3 - 2020-08-19
 
 ### Fixed
