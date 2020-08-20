@@ -30,13 +30,14 @@ use LitEmoji\LitEmoji;
  * @property int|string $stateValue
  * @property string $countryIso
  * @property Validator $vatValidator
+ * @property-read array $addressLines
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Address extends Model
 {
     /**
-     * @event DefineAddressLinesEvent The event that is triggered when defining the arrayable fields
+     * @event DefineAddressLinesEvent The event that is triggered when determining the lines of the address to display.
      * @see getAddressLines()
      * @since 3.2.0
      */
@@ -48,7 +49,7 @@ class Address extends Model
     public $id;
 
     /**
-     * @var bool True, if this address is the stock location.
+     * @var bool Is this the store location.
      */
     public $isStoreLocation = false;
 
@@ -151,7 +152,7 @@ class Address extends Model
     public $stateId;
 
     /**
-     * @var string Notes
+     * @var string Notes, only field that can contain Emoji
      * @since 2.2
      */
     public $notes;
@@ -216,7 +217,6 @@ class Address extends Model
 
     /**
      * @inheritdoc
-     *
      */
     public function attributes(): array
     {
@@ -294,39 +294,43 @@ class Address extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
+        $rules[] = [
+            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')
+        ];
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
                 return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
             }
         ];
-        $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
-        $textAttributes =
-            [
-                'firstName',
-                'lastName',
-                'fullName',
-                'attention',
-                'title',
-                'address1',
-                'address2',
-                'address3',
-                'city',
-                'zipCode',
-                'phone',
-                'alternativePhone',
-                'businessName',
-                'stateName',
-                'stateValue',
-                'custom1',
-                'custom2',
-                'custom3',
-                'custom4',
-                'notes',
-                'label'
-            ];
+        $rules[] = [
+            ['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true
+        ];
+
+        $textAttributes = [
+            'firstName',
+            'lastName',
+            'fullName',
+            'attention',
+            'title',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'stateName',
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'notes',
+            'label'
+        ];
 
         // Trim all text attributes
         $rules[] = [$textAttributes, 'trim'];
@@ -465,9 +469,9 @@ class Address extends Model
     }
 
     /**
-     * Sets the stateId or stateName based on the stateValue set.
+     * Sets the stateId or stateName based on the value parameter.
      *
-     * @param string|int $value A state ID or a state name.
+     * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      */
     public function setStateValue($value)
     {
@@ -488,7 +492,7 @@ class Address extends Model
     }
 
     /**
-     * Return a keyed array of address lines. Useful for outputting an address in a consistent format
+     * Return a keyed array of address lines. Useful for outputting an address in a consistent format.
      *
      * @since 3.2.0
      */
