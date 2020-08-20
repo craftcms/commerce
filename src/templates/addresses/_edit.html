@@ -95,6 +95,16 @@
     errors: address.getErrors('zipCode'),
   }) }}
 
+  {{ forms.selectField({
+    label: 'Country'|t('commerce'),
+    id: 'country',
+    name: 'countryId',
+    options: craft.commerce.countries.allEnabledCountriesAsList,
+    value: address.countryId,
+    errors: address.getErrors('countryId'),
+    class: 'selectize fullwidth',
+  }) }}
+
   {{ forms.textField({
     label: 'State'|t('commerce'),
     name: 'stateName',
@@ -110,16 +120,6 @@
     options: craft.commerce.states.allEnabledStatesAsList,
     value: address.stateId,
     errors: address.getErrors('stateValue'),
-  }) }}
-
-  {{ forms.selectField({
-    label: 'Country'|t('commerce'),
-    id: 'country',
-    name: 'countryId',
-    options: craft.commerce.countries.allEnabledCountriesAsList,
-    value: address.countryId,
-    errors: address.getErrors('countryId'),
-    class: 'selectize fullwidth',
   }) }}
 
   {{ forms.textField({

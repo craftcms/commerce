@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Address forms now show country before state to avoid confusion when editing an address.
+
 ### Fixed
 - Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where the `*AsCurrency` order attributes were showing the base currency, and not the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
