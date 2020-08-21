@@ -384,7 +384,7 @@ return [
     'Is subscription active?' => 'A subscrição está ativa?',
     'Send to custom recipient' => 'Enviar para um recipiente personalizado',
     'Select a gateway' => 'Selecionar um gateway',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Um número de referência amigável será gerado com base neste formato quando o carrinho for convertido numa encomenda. Por exemplo {ex1}, ou<br/> {ex2}. O resultado deste formato deve ser único.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Um número de referência amigável será gerado com base neste formato quando o carrinho for convertido numa encomenda. Por exemplo {ex1}, ou<br> {ex2}. O resultado deste formato deve ser único.',
     'Subscription Fields' => 'Campos de subscrição',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Tem a certeza de que pretende arquivar o plano de subscrição “{name}”? NÃO IRÁ cancelar as subscrições existentes.',
     'Cancel subscription' => 'Cancelar subscrição',

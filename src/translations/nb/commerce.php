@@ -384,7 +384,7 @@ return [
     'Is subscription active?' => 'Er abonnementet aktivt?',
     'Send to custom recipient' => 'Send til tilpasset mottaker',
     'Select a gateway' => 'Velg en ny portal',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Et vennlig referansenummer blir generert basert på dette formatet når en handlekurv er fullført og blir til en bestilling. F.eks. {ex1}, eller<br/> {ex2}. Resultatet av dette formatet må være unikt.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Et vennlig referansenummer blir generert basert på dette formatet når en handlekurv er fullført og blir til en bestilling. F.eks. {ex1}, eller<br> {ex2}. Resultatet av dette formatet må være unikt.',
     'Subscription Fields' => 'Abonnementsfelt',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Er du sikker på at du vil arkivere “{name}” abonnementsplan? Den kansellerer IKKE eksisterende abonnementer.',
     'Cancel subscription' => 'Kansellere abonnement',
