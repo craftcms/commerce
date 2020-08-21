@@ -315,7 +315,7 @@ class DiscountsController extends BaseCpController
 
             if ($variables['discount']->{$attr} != 0) {
                 $number = (float)$variables['discount']->{$attr};
-                if (in_array($attr, $flipNegativeNumberAttributes)) {
+                if (in_array($attr, $flipNegativeNumberAttributes, false)) {
                     $number *= -1;
                 }
 

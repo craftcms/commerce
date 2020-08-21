@@ -724,7 +724,7 @@ class VariantQuery extends ElementQuery
                             ->column();
 
                         foreach ($activeSales as $activeSale) {
-                            if ($activeSale['allGroups'] == 0 && !in_array($activeSale['id'], $userGroupSalesIds)) {
+                            if ($activeSale['allGroups'] == 0 && !in_array($activeSale['id'], $userGroupSalesIds, false)) {
                                 ArrayHelper::removeValue($activeSaleIds, $activeSale['id']);
                             }
                         }

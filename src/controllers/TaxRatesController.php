@@ -101,7 +101,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
 
         $variables['hideTaxCategory'] = false;
-        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'])) {
+        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'], false)) {
             $variables['hideTaxCategory'] = true;
         }
 
