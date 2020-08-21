@@ -1080,17 +1080,17 @@ class OrderQuery extends ElementQuery
             $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load adjustments?
         if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load customers?
         if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load addresses?
         if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
         }
