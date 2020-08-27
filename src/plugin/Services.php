@@ -285,7 +285,7 @@ trait Services
      */
     public function getPdf(): Pdfs
     {
-        \Craft::$app->getDeprecator()->log('Plugin::getInstance()->getPdf()', 'Plugin::getInstance()->getPdf() has been deprecated. Use Plugin::getInstance()->getPdfs() instead.');
+        \Craft::$app->getDeprecator()->log('Plugin::getInstance()->getPdf()', '`Plugin::getInstance()->getPdf()` has been deprecated. Use `Plugin::getInstance()->getPdfs()` instead.');
 
         return $this->get('pdfs');
     }

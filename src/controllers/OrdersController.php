@@ -424,7 +424,7 @@ class OrdersController extends Controller
      */
     public function actionPurchasableSearch($query = null)
     {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'The orders/purchasable-search action is deprecated. Use orders/purchasables-table instead.');
+        Craft::$app->getDeprecator()->log(__METHOD__, 'The `orders/purchasable-search` action is deprecated. Use `orders/purchasables-table` instead.');
 
         if ($query === null) {
             $results = (new Query())
