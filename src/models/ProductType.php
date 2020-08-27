@@ -154,7 +154,15 @@ class ProductType extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle', 'titleFormat'], 'required'];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['titleFormat'], 'required', 'when' => static function($model) {
+            /** @var static $model */
+            return !$model->hasVariantTitleField && $model->hasVariants;
+        }];
+        $rules[] = [['productTitleFormat'], 'required', 'when' => static function($model) {
+            /** @var static $model */
+            return !$model->hasProductTitleField;
+        }];
         $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
         $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
