@@ -355,7 +355,7 @@ return [
     'Updated By' => '更新者',
     'Create a new subscription plan' => '新しい定期支払いプランを作成する',
     'Card' => 'カード',
-    'Reduce the price by a flat amount' => 'Reduce the price by a flat amount',
+    'Reduce the price by a flat amount' => '定額で価格を値引く',
     'Switch' => '切り替える',
     'Pick a plan' => 'Pick a plan',
     'Status History' => 'ステータス履歴',
