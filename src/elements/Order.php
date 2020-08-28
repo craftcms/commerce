@@ -2625,6 +2625,11 @@ class Order extends Element
 
         $this->shippingAddressId = $address->id;
         $this->_shippingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+            $this->_billingAddress = $this->_shippingAddress;
+        }
     }
 
     /**
@@ -2712,6 +2717,11 @@ class Order extends Element
 
         $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+            $this->_shippingAddress = $this->_billingAddress;
+        }
     }
 
     /**
