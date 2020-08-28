@@ -30,7 +30,7 @@
     zipCode: address.zipCode|e,
     billing: (customer.primaryBillingAddressId == address.id),
     shipping: (customer.primaryShippingAddressId == address.id),
-    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines()|join('<br>') }
+    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines(true)|join('<br>') }
   }]) %}
 {% endfor %}
 

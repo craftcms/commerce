@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
+
 ### Changed
 - Address forms now show country before state to avoid confusion when editing an address.
 
@@ -10,6 +13,7 @@
 - Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where the `*AsCurrency` order attributes were showing the base currency, and not the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
+- Fixed a bug where address lines were being HTML encoded twice. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.

@@ -497,9 +497,11 @@ class Address extends Model
     /**
      * Return a keyed array of address lines. Useful for outputting an address in a consistent format.
      *
+     * @param bool $sanitize
+     * @return array
      * @since 3.2.0
      */
-    public function getAddressLines(): array
+    public function getAddressLines($sanitize = false): array
     {
         $addressLines = [
             'attention' => $this->attention,
@@ -531,9 +533,11 @@ class Address extends Model
         ]);
         $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
 
-        array_walk($event->addressLines, function(&$value, &$key) {
-            $value = Craft::$app->getFormatter()->asText($value);
-        });
+        if ($sanitize) {
+            array_walk($event->addressLines, function(&$value, &$key) {
+                $value = Craft::$app->getFormatter()->asText($value);
+            });
+        }
 
         return $event->addressLines;
     }
