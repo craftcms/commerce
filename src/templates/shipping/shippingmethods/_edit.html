@@ -12,21 +12,12 @@
 
 {% import "_includes/forms" as forms %}
 
-    {% set tabs = {
-        0: {'label':'Shipping Method'|t('commerce'),'url':'#shipping-method-tab'}
-    } %}
-    {% if shippingMethod.id %}
-        {% set tabs = tabs|merge({1: {'label':'Rules'|t('commerce'),'url':'#rules'}}) %}
-    {% endif %}
-
-
 {% block saveButton %}
     <input type="submit" class="btn submit"
            value="{{ shippingMethod.id ? 'Save and set rules'|t('commerce') :'Save'|t('commerce') }}">
 {% endblock %}
 
 {% block content %}
-    <div id="shipping-method-tab">
         <input type="hidden" name="action" value="commerce/shipping-methods/save">
         {{ redirectInput('commerce/shipping/shippingmethods/{id}#rules') }}
 
@@ -65,17 +56,17 @@
             errors: shippingMethod.getErrors('enabled')
         }) }}
 
-    </div>
+{% if shippingMethod.id %}
+<div class="vue-admin-table vue-admin-table-padded">
 
-    <div id="rules" class="hidden">
-        <div id="rules-vue-admin-table"></div>
+<div id="rules-vue-admin-table"></div>
 
-        <div class="buttons">
-            <a href="{{ url('commerce/shipping/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}"
-               class="btn submit add icon">{{ 'New shipping rule'|t('commerce') }}</a>
-        </div>
-
-    </div>
+  <div class="buttons">
+    <a href="{{ url('commerce/shipping/shippingmethods/'~shippingMethod.id~'/shippingrules/new') }}"
+       class="btn submit add icon">{{ 'New shipping rule'|t('commerce') }}</a>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% set tableData = [] %}
@@ -113,7 +104,7 @@
     {% if not shippingMethod.id %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
 
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Shipping Rule') },
         { name: 'description', title: Craft.t('app', 'Description') },
         { name: '__slot:detail', title: '', titleClass: 'thin' },
     ];
