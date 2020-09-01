@@ -950,7 +950,7 @@ class Order extends Element
      * ```twig
      * {% for lineItem in order.lineItems %}
      * {{ lineItem.description }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_lineItems;
@@ -968,7 +968,7 @@ class Order extends Element
      * ```twig
      * {% for adjustment in order.adjustments %}
      * {{ adjustment.amount }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_orderAdjustments;
