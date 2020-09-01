@@ -304,7 +304,7 @@ class Install extends Migration
             'purchasableId' => $this->integer(),
             'taxCategoryId' => $this->integer()->notNull(),
             'shippingCategoryId' => $this->integer()->notNull(),
-            'description' => $this->string(),
+            'description' => $this->text(),
             'options' => $this->text(),
             'optionsSignature' => $this->string()->notNull(),
             'price' => $this->decimal(14, 4)->notNull()->unsigned(),

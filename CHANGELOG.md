@@ -15,6 +15,7 @@
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
 - Fixed a bug where address lines were being HTML encoded twice. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 - Fixed a bug where shipping method caches weren’t getting invalidated. ([#1674](https://github.com/craftcms/commerce/issues/1674))
+- Fixed a bug where purchasable descriptions were able to be longer than line item descriptions.
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.
