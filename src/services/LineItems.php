@@ -279,7 +279,9 @@ class LineItems extends Component
 
                 if ($success) {
                     $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
+                    $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;
+                    $lineItem->dateUpdated = $dateUpdated;
 
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
