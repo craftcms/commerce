@@ -25,7 +25,7 @@ class m200902_071515_add_itemSubtotal_order_column extends Migration
         $lineItemSubtotals = (new CraftQuery())
             ->from('{{%commerce_lineitems}}')
             ->select([
-                new Expression('SUM([[subtotal]]) as subtotalSum'),
+                new Expression('SUM([[subtotal]]) as subsum'),
                 'orderId',
             ])
             ->groupBy('orderId')
@@ -36,7 +36,7 @@ class m200902_071515_add_itemSubtotal_order_column extends Migration
             $cases = '';
             foreach ($batch as $row) {
                 $cases .= '
-                WHEN [[id]] = ' . $row['orderId'] . ' THEN ' . $row['subtotalSum'];
+                WHEN [[id]] = ' . $row['orderId'] . ' THEN ' . $row['subsum'];
             }
             $cases .= '
             ';
