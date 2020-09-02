@@ -1180,6 +1180,12 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
+        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+            $this->query->addSelect([
+                'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            ]);
+        }
+
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {

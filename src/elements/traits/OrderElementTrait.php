@@ -110,6 +110,10 @@ trait OrderElementTrait
             {
                 return $this->storedItemTotalAsCurrency;
             }
+            case 'itemSubtotal':
+            {
+                return $this->storedItemSubtotalAsCurrency;
+            }
             case 'total':
             {
                 return $this->totalAsCurrency;
@@ -387,6 +391,8 @@ trait OrderElementTrait
             'gatewayName' => ['label' => Plugin::t('Gateway')],
             'paidStatus' => ['label' => Plugin::t('Paid Status')],
             'couponCode' => ['label' => Plugin::t('Coupon Code')],
+            'itemTotal' => ['label' => Plugin::t('Item Total')],
+            'itemSubtotal' => ['label' => Plugin::t('Item Subtotal')],
         ];
     }
 

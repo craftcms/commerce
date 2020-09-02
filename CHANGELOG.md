@@ -3,7 +3,9 @@
 ## Unreleased
 
 ### Added
+- Added “Item Total” and “Item Subtotal” table attribute options to the Orders index page. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 - Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
+- Added `craft\commerce\elements\Order::$storedItemSubtotal` and `$storedItemSubtotalAsCurrency`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 
 ### Changed
 - Address forms now show country before state to avoid confusion when editing an address.

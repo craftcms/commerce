@@ -123,6 +123,7 @@ use yii\log\Logger;
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedItemSubtotalAsCurrency
  * @property-read string $storedTotalShippingCostAsCurrency
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
@@ -827,6 +828,19 @@ class Order extends Element
     public $storedItemTotal;
 
     /**
+     * @var float The item subtotal as stored in the database from last retrieval
+     * @since 3.x.
+     * ---
+     * ```php
+     * echo $order->storedItemSubtotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemSubtotal }}
+     * ```
+     */
+    public $storedItemSubtotal;
+
+    /**
      * @var float The total shipping cost adjustments as stored in the database from last retrieval
      * ---
      * ```php
@@ -1107,6 +1121,7 @@ class Order extends Element
                 'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemSubtotal' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
@@ -1264,6 +1279,7 @@ class Order extends Element
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedItemSubtotal';
         $attributes[] = 'storedTotalShippingCost';
         $attributes[] = 'storedTotalDiscount';
         $attributes[] = 'storedTotalTax';
