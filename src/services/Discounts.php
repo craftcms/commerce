@@ -462,7 +462,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->onSale && $discount->excludeOnSale) {
+        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
             return false;
         }
 
