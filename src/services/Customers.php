@@ -32,6 +32,7 @@ use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 use yii\web\UserEvent;
 
 /**
@@ -484,7 +485,7 @@ class Customers extends Component
             ->select([
                 'customers.id as id',
                 'userId',
-                'orders.email as email',
+                new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END as email'),
                 'primaryBillingAddressId',
                 'billing.firstName as billingFirstName',
                 'billing.lastName as billingLastName',
@@ -497,7 +498,7 @@ class Customers extends Component
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
+            ->leftJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -512,6 +513,7 @@ class Customers extends Component
                 'shipping.lastName',
                 'shipping.fullName',
                 'shipping.address1',
+                'users.email',
             ])
 
             // Exclude customer records without a user or where there isn't any data
@@ -530,11 +532,7 @@ class Customers extends Component
             ])->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                [
-                    'and',
-                    ['orders.isCompleted' => false],
-                    ['not', ['customers.userId' => null]],
-                ]
+                ['not', ['customers.userId' => null]]
             ]);
 
         if ($search) {
@@ -553,6 +551,9 @@ class Customers extends Component
                 [$likeOperator, '[[shipping.fullName]]', $search],
                 [$likeOperator, '[[shipping.lastName]]', $search],
                 [$likeOperator, '[[users.username]]', $search],
+                [$likeOperator, '[[users.firstName]]', $search],
+                [$likeOperator, '[[users.lastName]]', $search],
+                [$likeOperator, '[[users.email]]', $search],
             ]);
         }
 

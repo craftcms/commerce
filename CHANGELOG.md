@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the `hasProduct` argument to GraphQL variant queries. ([#1697](https://github.com/craftcms/commerce/issues/1697))
 - Added “Item Total” and “Item Subtotal” table attribute options to the Orders index page. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 - Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 - Added `craft\commerce\elements\Order::$storedItemSubtotal` and `$storedItemSubtotalAsCurrency`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
@@ -13,6 +14,7 @@
 ### Fixed
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
 - Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
+- Fixed a bug where users without orders weren’t available for selection in the customers list or when creating an order.
 - Fixed a bug where the `*AsCurrency` order attributes were showing the base currency, and not the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
 - Fixed a bug where address lines were being HTML encoded twice. ([#1671](https://github.com/craftcms/commerce/issues/1671))
