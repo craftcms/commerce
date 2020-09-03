@@ -21,6 +21,7 @@
 - Fixed a bug where shipping method caches weren’t getting invalidated. ([#1674](https://github.com/craftcms/commerce/issues/1674))
 - Fixed a bug where `dateUpdated` wasn’t being populated when saving a line item. ([#1691](https://github.com/craftcms/commerce/issues/1691))
 - Fixed a bug where purchasable descriptions were able to be longer than line item descriptions.
+- Fixed a bug that would prevent the "Exclude this discount for products that are already on sale" discount condition from working. ([#1700](https://github.com/craftcms/commerce/issues/1700))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.

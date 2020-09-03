@@ -666,7 +666,7 @@ class LineItem extends Model
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
         $this->price = $purchasable->getPrice();
-        $this->salePrice = $this->price;
+        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
         $this->sku = $purchasable->getSku();
@@ -677,15 +677,15 @@ class LineItem extends Model
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
-                if ($discount->ignoreSales) {
-                    $ignoreSales = $discount->ignoreSales;
+                if ($ignoreSales) {
                     break;
                 }
             }
         }
 
-        if (!$ignoreSales) {
-            $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+        // One of the matching discounts has ignored sales, so we don't want the salePrice to be the original price.
+        if ($ignoreSales) {
+            $this->salePrice = $this->price;
         }
 
         $snapshot = [
