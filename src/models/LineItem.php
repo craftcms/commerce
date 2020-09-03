@@ -386,7 +386,7 @@ class LineItem extends Model
      */
     public function getPrice()
     {
-        return CurrencyHelper::round($this->_price);
+        return $this->_price;
     }
 
     /**
@@ -403,7 +403,7 @@ class LineItem extends Model
      */
     public function getSalePrice()
     {
-        return CurrencyHelper::round($this->_salePrice);
+        return $this->_salePrice;
     }
 
     /**
