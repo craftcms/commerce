@@ -365,6 +365,11 @@ class Discounts extends Component
             return false;
         }
 
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            $explanation = Plugin::t('Discount is not allowed for the order');
+            return false;
+        }
+
         if (!$this->_isDiscountDateValid($order, $discount)) {
             $explanation = Plugin::t('Discount is out of date.');
             return false;
@@ -969,6 +974,24 @@ class Discounts extends Component
         $to = $discount->dateTo;
 
         return !(($from && $from > $now) || ($to && $to < $now));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
+    {
+        if ($discount->orderConditionFormula) {
+            $orderDiscountConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+        }
+
+        return true;
     }
 
     /**
