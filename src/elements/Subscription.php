@@ -745,7 +745,7 @@ class Subscription extends Element
             [
                 'label' => Plugin::t('Subscription date'),
                 'orderBy' => 'commerce_subscriptions.dateCreated',
-                'attribute' => 'dateCreated'
+                'attribute' => 'dateCreated',
             ],
             [
                 'label' => Craft::t('app', 'ID'),

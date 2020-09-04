@@ -465,7 +465,7 @@ trait OrderElementTrait
             [
                 'label' => Plugin::t('Date Updated'),
                 'orderBy' => 'commerce_orders.dateUpdated',
-                'attribute' => 'dateUpdated'
+                'attribute' => 'dateUpdated',
             ],
             'datePaid' => Plugin::t('Date Paid'),
             'couponCode' => Plugin::t('Coupon Code'),
