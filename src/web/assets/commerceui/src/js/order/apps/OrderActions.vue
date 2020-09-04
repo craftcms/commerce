@@ -77,8 +77,8 @@
             if ($selectedTabLink) {
                 const $selectedTabLinkHash = $selectedTabLink.getAttribute('href')
 
-                if (!$selectedTabLinkHash.includes('Static')) {
-                    const $newSelectedTabHash = $selectedTabLinkHash + 'Static'
+                if (!$selectedTabLinkHash.includes('static')) {
+                    const $newSelectedTabHash = '#static-' + $selectedTabLinkHash.substring(1)
 
                     $tabLinks.forEach(function($tabLink) {
                         if ($tabLink.getAttribute('href') === $newSelectedTabHash) {

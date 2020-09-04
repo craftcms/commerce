@@ -22,40 +22,50 @@ class m190528_161915_description_on_purchasable extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_purchasables}}', 'description', $this->text());
+        if (!$this->db->columnExists('{{%commerce_lineitems}}', 'description')) {
+            $this->addColumn('{{%commerce_lineitems}}', 'description', $this->text());
+        }
 
         $variantIds = (new Query())
             ->select(['id'])
             ->from(['{{%commerce_variants}}'])
             ->column();
 
-        foreach ($variantIds as $variantId) {
-            $variant = Variant::find()->id($variantId)->one();
+        $productTypes = (new Query())
+            ->select([
+                'id',
+                'descriptionFormat',
+            ])
+            ->from(['{{%commerce_producttypes}} producttypes'])
+            ->indexBy('id')
+            ->all();
 
-            if ($variant) {
-                $productTypeId = (new Query())
-                    ->select(['[[products.typeId]]'])
-                    ->from(['{{%commerce_products}} products'])
-                    ->leftJoin('{{%commerce_variants}} variants', '[[variants.productId]] = [[products.id]]')
-                    ->where('[[variants.id]] = 12')
-                    ->scalar();
+        if (!empty($productTypes)) {
+            foreach ($variantIds as $variantId) {
+                $variant = Variant::find()->id($variantId)->one();
 
-                if ($productTypeId) {
-                    $productTypeDescriptionFormat = (new Query())
-                        ->select(['[[producttypes.descriptionFormat]]'])
-                        ->from(['{{%commerce_producttypes}} producttypes'])
-                        ->where('[[producttypes.id]] = ' . $productTypeId)
+                if ($variant) {
+                    $productTypeId = (new Query())
+                        ->select(['[[products.typeId]]'])
+                        ->from(['{{%commerce_products}} products'])
+                        ->leftJoin('{{%commerce_variants}} variants', '[[variants.productId]] = [[products.id]]')
+                        ->where('[[variants.id]] = ' . $variantId)
                         ->scalar();
 
-                    try {
-                        $description = Craft::$app->getView()->renderObjectTemplate($productTypeDescriptionFormat, $variant);
-                        $this->update('{{%commerce_purchasables}}', ['description' => $description], ['id' => $variantId]);
-                    } catch (\Exception $e) {
-                        // A Re-save or variants will update the purchasable descriptions - so don't worry about it.
+                    if (array_key_exists($productTypeId, $productTypes)) {
+                        $productTypeDescriptionFormat = $productTypes[$productTypeId]['descriptionFormat'];
+                        try {
+                            $description = Craft::$app->getView()->renderObjectTemplate($productTypeDescriptionFormat, $variant);
+
+                            $this->update('{{%commerce_purchasables}}', ['description' => $description], ['id' => $variantId]);
+                        } catch (\Exception $e) {
+                            // A Re-save or variants will update the purchasable descriptions - so don't worry about it.
+                        }
                     }
                 }
             }
         }
+
     }
 
     /**

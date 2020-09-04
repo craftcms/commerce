@@ -62,7 +62,7 @@ class ProductTypes extends Component
      *     function(ProductTypeEvent $event) {
      *         // @var ProductType|null $productType
      *         $productType = $event->productType;
-     *         
+     *
      *         // Create an audit trail of this action
      *         // ...
      *     }
@@ -329,10 +329,15 @@ class ProductTypes extends Component
             'handle' => $productType->handle,
             'hasDimensions' => $productType->hasDimensions,
             'hasVariants' => $productType->hasVariants,
+
+            // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
             'titleFormat' => $productType->titleFormat,
-            'titleLabel' => $productType->titleLabel,
-            'variantTitleLabel' => $productType->variantTitleLabel,
+
+            // Prouduct title field
+            'hasProductTitleField' => $productType->hasProductTitleField,
+            'productTitleFormat' => $productType->productTitleFormat,
+
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
             'siteSettings' => []
@@ -423,22 +428,23 @@ class ProductTypes extends Component
             $productTypeRecord->name = $data['name'];
             $productTypeRecord->handle = $data['handle'];
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
+
+            // Variant title fields
             $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
-            $productTypeRecord->titleLabel = $data['titleLabel'] ?? 'Title';
-            $productTypeRecord->variantTitleLabel = $data['variantTitleLabel'] ?? 'Title';
-
-            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
-                $shouldResaveProducts = true;
-            }
-            $productTypeRecord->hasVariants = $data['hasVariants'];
-
-
             $titleFormat = $data['titleFormat'] ?? '{product.title}';
             if ($productTypeRecord->titleFormat != $titleFormat) {
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->titleFormat = $titleFormat;
 
+            // Product title fields
+            $productTypeRecord->hasProductTitleField = $data['hasProductTitleField'];
+            $productTypeRecord->productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+
+            if ($productTypeRecord->hasVariants != $data['hasVariants']) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->hasVariants = $data['hasVariants'];
 
             $skuFormat = $data['skuFormat'] ?? '';
             if ($productTypeRecord->skuFormat != $skuFormat) {
@@ -928,10 +934,15 @@ class ProductTypes extends Component
                 'productTypes.handle',
                 'productTypes.hasDimensions',
                 'productTypes.hasVariants',
+
+                // Variant title fields
                 'productTypes.hasVariantTitleField',
-                'productTypes.variantTitleLabel',
                 'productTypes.titleFormat',
-                'productTypes.titleLabel',
+
+                // Product title fields
+                'productTypes.hasProductTitleField',
+                'productTypes.productTitleFormat',
+
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
                 'productTypes.uid'

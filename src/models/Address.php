@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\events\DefineAddressLinesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
@@ -23,25 +24,32 @@ use LitEmoji\LitEmoji;
  * @property Country $country
  * @property string $countryText
  * @property string $cpEditUrl
- * @property string $fullName
  * @property State $state
  * @property string $stateText
  * @property string $abbreviationText
  * @property int|string $stateValue
  * @property string $countryIso
  * @property Validator $vatValidator
+ * @property-read array $addressLines
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Address extends Model
 {
     /**
+     * @event DefineAddressLinesEvent The event that is triggered when determining the lines of the address to display.
+     * @see getAddressLines()
+     * @since 3.2.0
+     */
+    const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines';
+
+    /**
      * @var int Address ID
      */
     public $id;
 
     /**
-     * @var bool True, if this address is the stock location.
+     * @var bool Is this the store location.
      */
     public $isStoreLocation = false;
 
@@ -144,7 +152,7 @@ class Address extends Model
     public $stateId;
 
     /**
-     * @var string Notes
+     * @var string Notes, only field that can contain Emoji
      * @since 2.2
      */
     public $notes;
@@ -213,13 +221,25 @@ class Address extends Model
     public function attributes(): array
     {
         $names = parent::attributes();
-        $names[] = 'fullName';
-        $names[] = 'countryText';
-        $names[] = 'countryIso';
-        $names[] = 'stateText';
         $names[] = 'stateValue';
-        $names[] = 'abbreviationText';
+
         return $names;
+    }
+
+    /**
+     * @inheritDoc
+     * @since 3.2.1
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        $fields['countryIso'] = 'countryIso';
+        $fields['countryText'] = 'countryText';
+        $fields['stateText'] = 'stateText';
+        $fields['abbreviationText'] = 'abbreviationText';
+        $fields['addressLines'] = 'addressLines';
+
+        return $fields;
     }
 
     /**
@@ -274,39 +294,43 @@ class Address extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
+        $rules[] = [
+            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')
+        ];
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
                 return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
             }
         ];
-        $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
-        $textAttributes =
-            [
-                'firstName',
-                'lastName',
-                'fullName',
-                'attention',
-                'title',
-                'address1',
-                'address2',
-                'address3',
-                'city',
-                'zipCode',
-                'phone',
-                'alternativePhone',
-                'businessName',
-                'stateName',
-                'stateValue',
-                'custom1',
-                'custom2',
-                'custom3',
-                'custom4',
-                'notes',
-                'label'
-            ];
+        $rules[] = [
+            ['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true
+        ];
+
+        $textAttributes = [
+            'firstName',
+            'lastName',
+            'fullName',
+            'attention',
+            'title',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'stateName',
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'notes',
+            'label'
+        ];
 
         // Trim all text attributes
         $rules[] = [$textAttributes, 'trim'];
@@ -318,6 +342,9 @@ class Address extends Model
 
         // Don't allow Mb4 for any strings
         $rules[] = [$textAttributesMinusMb4Allowed, StringValidator::class, 'disallowMb4' => true];
+
+        // Set safe attributes to allow assignment via set attributes
+        $rules[] = [['id'], 'safe'];
 
         return $rules;
     }
@@ -445,9 +472,9 @@ class Address extends Model
     }
 
     /**
-     * Sets the stateId or stateName based on the stateValue set.
+     * Sets the stateId or stateName based on the value parameter.
      *
-     * @param string|int $value A state ID or a state name.
+     * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      */
     public function setStateValue($value)
     {
@@ -465,6 +492,102 @@ class Address extends Model
             $this->stateName = null;
             $this->_stateValue = null;
         }
+    }
+
+    /**
+     * Return a keyed array of address lines. Useful for outputting an address in a consistent format.
+     *
+     * @param bool $sanitize
+     * @return array
+     * @since 3.2.0
+     */
+    public function getAddressLines($sanitize = false): array
+    {
+        $addressLines = [
+            'attention' => $this->attention,
+            'name' => trim($this->title . ' ' . $this->firstName . ' ' . $this->lastName),
+            'fullName' => $this->fullName,
+            'address1' => $this->address1,
+            'address2' => $this->address2,
+            'address3' => $this->address3,
+            'city' => $this->city,
+            'zipCode' => $this->zipCode,
+            'phone' => $this->phone,
+            'alternativePhone' => $this->alternativePhone,
+            'label' => $this->label,
+            'notes' => $this->notes,
+            'businessName' => $this->businessName,
+            'stateText' => $this->stateText,
+            'custom1' => $this->custom1,
+            'custom2' => $this->custom2,
+            'custom3' => $this->custom3,
+            'custom4' => $this->custom4,
+        ];
+
+        // Remove blank lines
+        $addressLines = array_filter($addressLines);
+
+        // Give plugins a chance to modify them
+        $event = new DefineAddressLinesEvent([
+            'addressLines' => $addressLines,
+        ]);
+        $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
+
+        if ($sanitize) {
+            array_walk($event->addressLines, function(&$value, &$key) {
+                $value = Craft::$app->getFormatter()->asText($value);
+            });
+        }
+
+        return $event->addressLines;
+    }
+
+    /**
+     * This method can be used to determine if the other addresses supplied has the same address contents (minus the address ID).
+     *
+     * @param Address|null $otherAddress
+     * @return bool
+     * @since 3.2.1
+     */
+    public function sameAs($otherAddress): bool
+    {
+        if (!$otherAddress || !$otherAddress instanceof self) {
+            return false;
+        }
+
+        if (
+            $this->attention == $otherAddress->attention &&
+            $this->title == $otherAddress->title &&
+            $this->firstName == $otherAddress->firstName &&
+            $this->lastName == $otherAddress->lastName &&
+            $this->fullName == $otherAddress->fullName &&
+            $this->address1 == $otherAddress->address1 &&
+            $this->address2 == $otherAddress->address2 &&
+            $this->address3 == $otherAddress->address3 &&
+            $this->city == $otherAddress->city &&
+            $this->zipCode == $otherAddress->zipCode &&
+            $this->phone == $otherAddress->phone &&
+            $this->alternativePhone == $otherAddress->alternativePhone &&
+            $this->label == $otherAddress->label &&
+            $this->notes == $otherAddress->notes &&
+            $this->businessName == $otherAddress->businessName &&
+            (
+                (!empty($this->getStateText()) && $this->getStateText() == $otherAddress->getStateText()) ||
+                $this->stateValue == $otherAddress->stateValue
+            ) &&
+            (
+                (!empty($this->getCountryText()) && $this->getCountryText() == $otherAddress->getCountryText()) ||
+                $this->getCountryIso() == $otherAddress->getCountryIso()
+            ) &&
+            $this->custom1 == $otherAddress->custom1 &&
+            $this->custom2 == $otherAddress->custom2 &&
+            $this->custom3 == $otherAddress->custom3 &&
+            $this->custom4 == $otherAddress->custom4
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

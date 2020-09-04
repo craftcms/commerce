@@ -188,29 +188,30 @@ class Sales extends Component
     public function getAllSales(): array
     {
         if (null === $this->_allSales) {
-            $sales = (new Query())->select(
-                'sales.id,
-                sales.name,
-                sales.description,
-                sales.dateFrom,
-                sales.dateTo,
-                sales.apply,
-                sales.applyAmount,
-                sales.stopProcessing,
-                sales.ignorePrevious,
-                sales.allGroups,
-                sales.allPurchasables,
-                sales.allCategories,
-                sales.categoryRelationshipType,
-                sales.enabled,
-                sp.purchasableId,
-                spt.categoryId,
-                sug.userGroupId')
+            $sales = (new Query())->select([
+                'sales.id',
+                'sales.name',
+                'sales.description',
+                'sales.dateFrom',
+                'sales.dateTo',
+                'sales.apply',
+                'sales.applyAmount',
+                'sales.stopProcessing',
+                'sales.ignorePrevious',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+                'sales.sortOrder',
+                'sales.categoryRelationshipType',
+                'sales.enabled',
+                'sp.purchasableId',
+                'spt.categoryId',
+                'sug.userGroupId'])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]] = [[sales.id]]')
-                ->orderBy('sortOrder asc')
+                ->orderBy(['sales.sortOrder' => 'ASC'])
                 ->all();
 
             $allSalesById = [];
@@ -432,7 +433,8 @@ class Sales extends Component
             $this->_purchasableSaleMatch[$purchasableId][$saleId] = null;
         }
 
-        if ($this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+        // Only use memoized data if we are matching outside of the context of an order
+        if (!$order && $this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
             return $this->_purchasableSaleMatch[$purchasableId][$saleId];
         }
 
@@ -506,6 +508,12 @@ class Sales extends Component
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
+        }
+
+        // If an order has been supplied we do not want to memoize the match
+        if ($order) {
+            unset($this->_purchasableSaleMatch[$purchasableId][$saleId]);
+            return $saleMatchEvent->isValid;
         }
 
         $this->_purchasableSaleMatch[$purchasableId][$saleId] = $saleMatchEvent->isValid;

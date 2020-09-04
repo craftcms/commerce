@@ -32,6 +32,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path dev/element-queries/order-queries.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -130,6 +131,36 @@ class OrderQuery extends ElementQuery
      * @var bool Whether the order has any line items.
      */
     public $hasLineItems;
+
+    /**
+     * @var bool Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     */
+    public $withAll;
+
+    /**
+     * @var bool Eager loads the the shipping and billing addressees on the resulting orders.
+     */
+    public $withAddresses;
+
+    /**
+     * @var bool Eager loads the order adjustments on the resulting orders.
+     */
+    public $withAdjustments;
+
+    /**
+     * @var bool Eager load the customer (and related user) on to the order.
+     */
+    public $withCustomer;
+
+    /**
+     * @var bool Eager loads the line items on the resulting orders.
+     */
+    public $withLineItems;
+
+    /**
+     * @var bool Eager loads the transactions on the resulting orders.
+     */
+    public $withTransactions;
 
     /**
      * @inheritdoc
@@ -907,6 +938,167 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAll()
+     */
+    public function withAll($value = true)
+    {
+        $this->withAll = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the the shipping and billing addressees on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAddresses()
+     */
+    public function withAddresses($value = true)
+    {
+        $this->withAddresses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the order adjustments on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAdjustments()
+     */
+    public function withAdjustments($value = true)
+    {
+        $this->withAdjustments = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the customer (and related user) on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withCustomer()
+     */
+    public function withCustomer($value = true)
+    {
+        $this->withCustomer = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the line items on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches line items…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withLineItems()
+     */
+    public function withLineItems($value = true)
+    {
+        $this->withLineItems = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the transactions on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches transactions…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withTransactions()
+     */
+    public function withTransactions($value = true)
+    {
+        $this->withTransactions = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populate($rows)
+    {
+        $orders = parent::populate($rows);
+
+        // Eager-load line items?
+        if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+        }
+
+        // Eager-load transactions?
+        if (!empty($orders) && ($this->withTransactions === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+        }
+
+        // Eager-load adjustments?
+        if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+        }
+
+        // Eager-load customers?
+        if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+        }
+
+        // Eager-load addresses?
+        if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
+            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+        }
+
+        return $orders;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -982,6 +1174,18 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
+            $this->query->addSelect([
+                'commerce_orders.shippingMethodName',
+            ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+            $this->query->addSelect([
+                'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            ]);
+        }
+
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {
@@ -1046,8 +1250,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('[[commerce_orders.totalPaid]] < [[commerce_orders.totalPrice]]'));
         }
 
-        // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
+        // Allow integer/PurchasableInterface object or array of integers/PurchasableInterface objects
+        if ($this->hasPurchasables !== null) {
             $purchasableIds = [];
 
             if (!is_array($this->hasPurchasables)) {
@@ -1065,20 +1269,33 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['lineitems.purchasableId' => $purchasableIds]);
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->andWhere(['lineitems.purchasableId' => $purchasableIds])
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasTransactions !== null) && $this->hasTransactions) {
-            $this->subQuery->leftJoin(Table::TRANSACTIONS . ' transactions', '[[transactions.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['transactions.id' => null]]);
+        if ($this->hasTransactions !== null) {
+            $this->subQuery->andWhere([
+                $this->hasTransactions ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['transactions' => Table::TRANSACTIONS])
+                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]'))
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasLineItems !== null) && $this->hasLineItems) {
-            $this->subQuery->leftJoin(Table::LINEITEMS . ' lineItems', '[[lineItems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['lineItems.id' => null]]);
+        if ($this->hasLineItems !== null) {
+            $this->subQuery->andWhere([
+                $this->hasLineItems ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+            ]);
         }
 
         return parent::beforePrepare();

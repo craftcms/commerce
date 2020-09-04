@@ -9,11 +9,9 @@
     {% endnamespace %}
 </div>
 <div class="custom-fields">
-    {% include "_includes/fields" with {
-        namespace: namespace~'[fields]',
-        element: variant,
-        fields: variant.getFieldLayout().getFields()
-    } %}
+    {% namespace namespace %}
+        {{ variant.getFieldLayout().createForm(variant).render()|raw }}
+    {% endnamespace %}
 
     {# TODO allow viewing of sales when a view promotions permission is introduced #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}

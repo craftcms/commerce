@@ -120,7 +120,9 @@
                 id: 'categoryRelationshipType',
                 name: 'categoryRelationshipType',
                 label: 'Categories Relationship Type'|t('commerce'),
-                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology](https://docs.craftcms.com/v3/relations.html#terminology)."|t('commerce'),
+                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
+                    link: 'https://craftcms.com/docs/3.x/relations.html#terminology',
+                }),
                 options: categoryRelationshipTypeOptions,
                 value: discount.categoryRelationshipType,
                 errors: discount.getErrors('categoryRelationshipType')

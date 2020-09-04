@@ -20,8 +20,7 @@ class BaseAdminController extends BaseCpController
      */
     public function init()
     {
-        $this->requireAdmin();
-
         parent::init();
+        $this->requireAdmin();
     }
 }

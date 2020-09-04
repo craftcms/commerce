@@ -58,6 +58,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
+ * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -161,7 +162,7 @@ class LineItem extends Model
 
     /**
      * @var DateTime|null
-     * @since 3.x
+     * @since 3.2.0
      */
     public $dateUpdated;
 
@@ -267,6 +268,21 @@ class LineItem extends Model
         }
 
         return $this->_lineItemStatus;
+    }
+
+    /**
+     * @param LineItemStatus|null $status
+     * @since 3.2.2
+     */
+    public function setLineItemStatus(LineItemStatus $status = null)
+    {
+        if ($status !== null) {
+            $this->_lineItemStatus = $status;
+            $this->lineItemStatusId = (int)$status->id;
+        } else {
+            $this->lineItemStatusId = null;
+            $this->_lineItemStatus = null;
+        }
     }
 
     /**
@@ -407,7 +423,7 @@ class LineItem extends Model
      */
     public function setSaleAmount($saleAmount)
     {
-        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of “saleAmount” has been deprecated. “saleAmount” is automatically calculated.');
+        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of `saleAmount` has been deprecated. `saleAmount` is automatically calculated.');
     }
 
     /**
@@ -450,11 +466,33 @@ class LineItem extends Model
             /** @var PurchasableInterface $purchasable */
             $purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
             if ($purchasable && !empty($purchasableRules = $purchasable->getLineItemRules($this))) {
-                array_push($rules, ...$purchasableRules);
+                foreach ($purchasableRules as $rule) {
+                    $rules[] = $this->_normalizePurchasableRule($rule, $purchasable);
+                }
             }
         }
 
         return $rules;
+    }
+
+    /**
+     * Normalizes a purchasable’s validation rule.
+     *
+     * @param mixed $rule
+     * @param PurchasableInterface $purchasable
+     * @return mixed
+     */
+    private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
+    {
+        if (isset($rule[1]) && $rule[1] instanceof \Closure) {
+            $method = $rule[1];
+            $method->bindTo($purchasable);
+            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
+                $method($attribute, $params, $validator, $current);
+            };
+        }
+
+        return $rule;
     }
 
     /**
@@ -628,7 +666,7 @@ class LineItem extends Model
     public function populateFromPurchasable(PurchasableInterface $purchasable)
     {
         $this->price = $purchasable->getPrice();
-        $this->salePrice = $this->price;
+        $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
         $this->sku = $purchasable->getSku();
@@ -639,15 +677,15 @@ class LineItem extends Model
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
             if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
-                if ($discount->ignoreSales) {
-                    $ignoreSales = $discount->ignoreSales;
+                if ($ignoreSales) {
                     break;
                 }
             }
         }
 
-        if (!$ignoreSales) {
-            $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
+        // One of the matching discounts has ignored sales, so we don't want the salePrice to be the original price.
+        if ($ignoreSales) {
+            $this->salePrice = $this->price;
         }
 
         $snapshot = [
@@ -756,7 +794,7 @@ class LineItem extends Model
      */
     public function getAdjustmentsTotalByType($type, $included = false)
     {
-        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', 'LineItem::getAdjustmentsTotalByType() has been deprecated. Use LineItem::getTax(), LineItem::getDiscount(), LineItem::getShippingCost() instead.');
+        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', '`LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.');
 
         return $this->_getAdjustmentsTotalByType($type, $included);
     }

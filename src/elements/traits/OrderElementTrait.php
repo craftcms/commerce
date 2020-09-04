@@ -9,6 +9,7 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\actions\DeleteOrder;
+use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
@@ -91,7 +92,7 @@ trait OrderElementTrait
             }
             case 'shippingMethodName':
             {
-                return $this->getShippingMethod()->name ?? '';
+                return $this->shippingMethodName ?? '';
             }
             case 'gatewayName':
             {
@@ -108,6 +109,10 @@ trait OrderElementTrait
             case 'itemTotal':
             {
                 return $this->storedItemTotalAsCurrency;
+            }
+            case 'itemSubtotal':
+            {
+                return $this->storedItemSubtotalAsCurrency;
             }
             case 'total':
             {
@@ -305,6 +310,11 @@ trait OrderElementTrait
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $elementService = Craft::$app->getElements();
+
+            if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
+                $actions[] = DownloadOrderPdf::class;
+            }
+
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
                 $deleteAction = $elementService->createAction(
                     [
@@ -379,8 +389,10 @@ trait OrderElementTrait
             'billingBusinessName' => ['label' => Plugin::t('Billing Business Name')],
             'shippingMethodName' => ['label' => Plugin::t('Shipping Method')],
             'gatewayName' => ['label' => Plugin::t('Gateway')],
-            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
-            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
+            'paidStatus' => ['label' => Plugin::t('Paid Status')],
+            'couponCode' => ['label' => Plugin::t('Coupon Code')],
+            'itemTotal' => ['label' => Plugin::t('Item Total')],
+            'itemSubtotal' => ['label' => Plugin::t('Item Subtotal')],
         ];
     }
 
@@ -455,8 +467,8 @@ trait OrderElementTrait
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated'
             ],
-            'datePaid' => Craft::t('commerce', 'Date Paid'),
-            'couponCode' => Craft::t('commerce', 'Coupon Code'),
+            'datePaid' => Plugin::t('Date Paid'),
+            'couponCode' => Plugin::t('Coupon Code'),
             [
                 'label' => Craft::t('app', 'ID'),
                 'orderBy' => 'elements.id',

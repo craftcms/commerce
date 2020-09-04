@@ -62,8 +62,9 @@ class Settings extends Model
 
     /**
      * @var string Order PDF Path
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
-    public $orderPdfPath = 'shop/receipt';
+    public $orderPdfPath = 'shop/special/receipt';
 
     /**
      * @var string Order PDF Size
@@ -77,6 +78,7 @@ class Settings extends Model
 
     /**
      * @var string Order PDF file name format
+     * @deprecated in 3.2.0. Use Default PDF instead.
      */
     public $orderPdfFilenameFormat = 'Order-{number}';
 
@@ -212,13 +214,13 @@ class Settings extends Model
      * @var bool
      * @since 3.0.12
      */
-     public $validateCartCustomFieldsOnSubmission = false;
+    public $validateCartCustomFieldsOnSubmission = false;
 
     /**
      * @var string|null the uri to redirect to after using the load cart url
      * @since 3.1
      */
-     public $loadCartRedirectUrl = null;
+    public $loadCartRedirectUrl = null;
 
     /**
      * @var bool Should the search index for a cart be updated when saving the cart on the front-end.

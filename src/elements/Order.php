@@ -123,6 +123,7 @@ use yii\log\Logger;
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedItemSubtotalAsCurrency
  * @property-read string $storedTotalShippingCostAsCurrency
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
@@ -270,7 +271,7 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`)
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -748,6 +749,12 @@ class Order extends Element
     public $shippingMethodHandle;
 
     /**
+     * @var string Shipping Method Name
+     * @since 3.2.0
+     */
+    public $shippingMethodName;
+
+    /**
      * @var int Customer ID
      */
     public $customerId;
@@ -819,6 +826,19 @@ class Order extends Element
      * ```
      */
     public $storedItemTotal;
+
+    /**
+     * @var float The item subtotal as stored in the database from last retrieval
+     * @since 3.x.
+     * ---
+     * ```php
+     * echo $order->storedItemSubtotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemSubtotal }}
+     * ```
+     */
+    public $storedItemSubtotal;
 
     /**
      * @var float The total shipping cost adjustments as stored in the database from last retrieval
@@ -944,7 +964,7 @@ class Order extends Element
      * ```twig
      * {% for lineItem in order.lineItems %}
      * {{ lineItem.description }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_lineItems;
@@ -962,7 +982,7 @@ class Order extends Element
      * ```twig
      * {% for adjustment in order.adjustments %}
      * {{ adjustment.amount }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_orderAdjustments;
@@ -1101,6 +1121,7 @@ class Order extends Element
                 'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemSubtotal' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
@@ -1110,7 +1131,7 @@ class Order extends Element
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => []
         ];
@@ -1171,9 +1192,9 @@ class Order extends Element
             }
         }
 
-        // Get the customer ID from the session
-        if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->setCustomer(Plugin::getInstance()->getCustomers()->getCustomer());
+        // If the gateway ID doesn't exist, just drop it.
+        if ($this->gatewayId && !$this->getGateway()) {
+            $this->gatewayId = null;
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
@@ -1258,6 +1279,7 @@ class Order extends Element
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedItemSubtotal';
         $attributes[] = 'storedTotalShippingCost';
         $attributes[] = 'storedTotalDiscount';
         $attributes[] = 'storedTotalTax';
@@ -1554,9 +1576,7 @@ class Order extends Element
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
-            if ($lineItem->getPurchasable()) {
-                $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
-            }
+            Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
         }
 
         // Raising the 'afterCompleteOrder' event
@@ -1741,6 +1761,20 @@ class Order extends Element
         return $options;
     }
 
+    public function beforeSave(bool $isNew): bool
+    {
+
+        if (null === $this->shippingMethodHandle) {
+            // Reset shipping method name if there is no handle
+            $this->shippingMethodName = null;
+        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            // Update shipping method name if there is a handle and we can retrieve the method
+            $this->shippingMethodName = $shippingMethod->name;
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
     /**
      * @inheritdoc
      */
@@ -1788,6 +1822,7 @@ class Order extends Element
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->shippingMethodName = $this->shippingMethodName;
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
@@ -1953,24 +1988,18 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      * @throws Exception
      */
-    public function getPdfUrl($option = null)
+    public function getPdfUrl($option = null, $pdfHandle = null)
     {
-        $url = null;
-        $view = Craft::$app->getView();
-        $oldTemplateMode = $view->getTemplateMode();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
-
-        if (!$file || !$view->doesTemplateExist($file)) {
-            $view->setTemplateMode($oldTemplateMode);
-            return null;
-        }
-        $view->setTemplateMode($oldTemplateMode);
-
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+
+        if ($pdfHandle !== null) {
+            $path .= '&pdfHandle=' . $pdfHandle;
+        }
+
         $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;
@@ -2383,7 +2412,7 @@ class Order extends Element
      */
     public function getAdjustmentsTotalByType($types, $included = false)
     {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShippingCost() instead.');
+        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
 
         return $this->_getAdjustmentsTotalByType($types, $included);
     }
@@ -2590,17 +2619,32 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array|null $address
+     * @param Address|array $address
      */
     public function setShippingAddress($address)
     {
         if ($address === null) {
             $this->shippingAddressId = null;
             $this->_shippingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->shippingAddressId = $address->id;
-            $this->_shippingAddress = $address;
+            return;
+        }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->shippingAddressId = $address->id;
+        $this->_shippingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+            $this->_billingAddress = $this->_shippingAddress;
         }
     }
 
@@ -2667,17 +2711,32 @@ class Order extends Element
     /**
      * Set the billing address on the order.
      *
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setBillingAddress($address)
     {
         if ($address === null) {
             $this->billingAddressId = null;
             $this->_billingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->billingAddressId = $address->id;
-            $this->_billingAddress = $address;
+            return;
+        }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->billingAddressId = $address->id;
+        $this->_billingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+            $this->_shippingAddress = $this->_billingAddress;
         }
     }
 
@@ -2745,11 +2804,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        if ($this->isCompleted) {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        } else {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        }
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         // Do we have a shipping method available based on the current selection?
         if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
@@ -2792,10 +2847,6 @@ class Order extends Element
             }
         } else {
             $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
-        }
-
-        if (null === $gateway) {
-            throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
         }
 
         return $gateway;
@@ -2877,6 +2928,15 @@ class Order extends Element
     public function getHistories(): array
     {
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+    }
+
+    /**
+     * @param array|Transaction[] $transactions
+     * @since 3.2.0
+     */
+    public function setTransactions(array $transactions)
+    {
+        $this->_transactions = $transactions;
     }
 
     /**
@@ -2990,7 +3050,7 @@ class Order extends Element
 
         // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // If the ID is null that's ok, it's a new line item and will be saves anyway
+            // If the ID is null that's ok, it's a new line item and will be saved anyway
             $currentLineItemIds[] = $lineItem->id;
         }
 

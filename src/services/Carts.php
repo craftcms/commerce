@@ -309,8 +309,8 @@ class Carts extends Component
             // Is the payment currency locked to the constant
             if (defined('COMMERCE_PAYMENT_CURRENCY')) {
                 $currency = StringHelper::toUpperCase(COMMERCE_PAYMENT_CURRENCY);
-                if (in_array($currency, Plugin::getInstance()->getCurrencies()->getAllCurrencies(), false)) {
-
+                $allCurrencies = Plugin::getInstance()->getCurrencies()->getAllCurrencies();
+                if (in_array($currency, $allCurrencies, false)) {
                     return COMMERCE_PAYMENT_CURRENCY;
                 }
             }

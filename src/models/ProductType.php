@@ -11,11 +11,14 @@ use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\Plugin;
 use craft\commerce\records\ProductType as ProductTypeRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
+use craft\models\FieldLayoutTab;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 
@@ -64,24 +67,25 @@ class ProductType extends Model
     public $hasVariants;
 
     /**
-     * @var string Title label
-     */
-    public $variantTitleLabel = 'Title';
-
-    /**
      * @var bool Has variant title field
      */
     public $hasVariantTitleField = true;
 
     /**
-     * @var string Title format
+     * @var string Variant title format
+     * TODO: Rename to variantTitleFormat in 4.0
      */
     public $titleFormat = '{product.title}';
 
     /**
-     * @var string Title label
+     * @var bool Has product title field?
      */
-    public $titleLabel = 'Title';
+    public $hasProductTitleField = true;
+
+    /**
+     * @var string Product title format
+     */
+    public $productTitleFormat = '';
 
     /**
      * @var string SKU format
@@ -150,7 +154,15 @@ class ProductType extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle', 'titleFormat'], 'required'];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [['titleFormat'], 'required', 'when' => static function($model) {
+            /** @var static $model */
+            return !$model->hasVariantTitleField && $model->hasVariants;
+        }];
+        $rules[] = [['productTitleFormat'], 'required', 'when' => static function($model) {
+            /** @var static $model */
+            return !$model->hasProductTitleField;
+        }];
         $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
         $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
@@ -285,7 +297,27 @@ class ProductType extends Model
     {
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('productFieldLayout');
-        return $behavior->getFieldLayout();
+        $fieldLayout = $behavior->getFieldLayout();
+
+        // If this product type has variants, make sure the Variants field is in the layout somewhere
+        if ($this->hasVariants && !$fieldLayout->isFieldIncluded('variants')) {
+            $layoutTabs = $fieldLayout->getTabs();
+            $variantTabName = Plugin::t('Variants');
+            if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
+                $variantTabName .= ' ' . StringHelper::randomString(10);
+            }
+            $layoutTabs[] = new FieldLayoutTab([
+                'name' => $variantTabName,
+                'elements' => [
+                    [
+                        'type' => VariantsField::class,
+                    ],
+                ],
+            ]);
+            $fieldLayout->setTabs($layoutTabs);
+        }
+
+        return $fieldLayout;
     }
 
     /**

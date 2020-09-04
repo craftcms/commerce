@@ -42,9 +42,8 @@ class CartController extends BaseFrontEndController
 
     public function init()
     {
-        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
-
         parent::init();
+        $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
     }
 
     /**
@@ -339,7 +338,7 @@ class CartController extends BaseFrontEndController
         $attributes = array_merge($this->_cart->activeAttributes(), $customFieldAttributes);
 
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
-        
+
         if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Plugin::t('Unable to update cart.');
 
@@ -348,6 +347,7 @@ class CartController extends BaseFrontEndController
                     'error' => $error,
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
+                    'message' => $error,
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
             }
@@ -361,18 +361,20 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
+        $cartUpdatedMessage = Plugin::t('Cart updated.');
+        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+            $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
+        }
+
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
-                $this->_cartVariable => $this->cartArray($this->_cart)
+                $this->_cartVariable => $this->cartArray($this->_cart),
+                'message' => $cartUpdatedMessage,
             ]);
         }
 
-        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
-            Craft::$app->getSession()->setNotice(Html::encode($cartUpdatedNotice));
-        } else {
-            Craft::$app->getSession()->setNotice(Plugin::t('Cart updated.'));
-        }
+        Craft::$app->getSession()->setNotice($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart

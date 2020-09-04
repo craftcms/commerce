@@ -7,6 +7,7 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
@@ -52,6 +53,7 @@ class TopProductTypes extends Stat
      */
     public function getData()
     {
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
@@ -69,7 +71,11 @@ class TopProductTypes extends Stat
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
             ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
             ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', '[[content.elementId]] = [[v.productId]]')
+            ->leftJoin(CraftTable::CONTENT . ' content', [
+                'and',
+                '[[content.elementId]] = [[v.productId]]',
+                ['content.siteId' => $primarySite->id],
+            ])
             ->groupBy('[[pt.id]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);

@@ -85,7 +85,7 @@
 
     {{ forms.textField({
         label: 'BCC’d Recipient'|t('commerce'),
-        instructions: 'Addition recipients that should recieve this email. Twig code can be used here.'|t('commerce'),
+        instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
         id: 'bcc',
         name: 'bcc',
         value: email.bcc,
@@ -94,21 +94,22 @@
 
     {{ forms.textField({
         label: 'CC’d Recipient'|t('commerce'),
-        instructions: 'Addition recipients that should recieve this email. Twig code can be used here.'|t('commerce'),
+        instructions: 'Additional recipients that should receive this email. Twig code can be used here.'|t('commerce'),
         id: 'cc',
         name: 'cc',
         value: email.cc,
         errors: email.getErrors('cc'),
     }) }}
 
-    {{ forms.textField({
+    {{ forms.autoSuggestField({
         label: 'HTML Email Template Path'|t('commerce'),
-        instructions: 'The template to be used for HTML emails. Twig code can be used here.'|t('commerce'),
+        instructions: 'The template to be used for HTML emails.'|t('commerce'),
         id: 'templatePath',
         name: 'templatePath',
         value: email.templatePath,
         errors: email.getErrors('templatePath'),
         required: true,
+        suggestions: craft.cp.getTemplateSuggestions()
     }) }}
 
     {{ forms.textField({
@@ -120,28 +121,14 @@
         errors: email.getErrors('plainTextTemplatePath'),
     }) }}
 
-    {{ forms.lightswitchField({
-        label: "Attach PDF"|t('commerce'),
-        instructions: 'This email should render the order PDF template and include it as an attachment.'|t('commerce'),
-        id: 'attach-pdf',
-        name: 'attachPdf',
-        value: 1,
-        on: email.attachPdf,
-        toggle: '#pdf-template-path-container'
+    {{ forms.selectField({
+        label: 'PDF Attachment'|t('commerce'),
+        instructions: 'The PDF to attach to this email.'|t('commerce'),
+        id: 'pdfId',
+        name: 'pdfId',
+        value: email.pdfId,
+        options: pdfList
     }) }}
-
-    <div id="pdf-template-path-container"{% if not email.attachPdf %} class="hidden"{% endif %}>
-    {{ forms.textField({
-        label: 'PDF Template Path'|t('commerce'),
-        instructions: "By default the PDF template path is the 'Order PDF Template' in the general commerce config, but can choose a different template for this email's PDF."|t('commerce'),
-        placeholder: craft.commerce.settings.orderPdfPath,
-        id: 'pdf-template-path',
-        name: 'pdfTemplatePath',
-        value: email.pdfTemplatePath,
-        errors: email.getErrors('pdfTemplatePath'),
-        required: true,
-    }) }}
-    </div>
 
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),

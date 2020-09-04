@@ -27,11 +27,11 @@ class LiteShippingController extends BaseStoreSettingsController
      */
     public function init()
     {
+        parent::init();
+
         if (!Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             throw new WrongEditionException('Lite settings editable when using the lite edition only');
         }
-
-        parent::init();
     }
 
     /**

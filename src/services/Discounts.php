@@ -27,6 +27,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
@@ -147,6 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
+     * @deprecated in 3.x. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -306,9 +308,13 @@ class Discounts extends Component
      * Populates a discount's relations.
      *
      * @param Discount $discount
+     * @throws DeprecationException
+     * @deprecated in 3.x
      */
     public function populateDiscountRelations(Discount $discount)
     {
+        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
+
         $rows = (new Query())->select(
             'dp.purchasableId,
             dpt.categoryId,
@@ -326,15 +332,15 @@ class Discounts extends Component
 
         foreach ($rows as $row) {
             if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
+                $purchasableIds[] = (int)$row['purchasableId'];
             }
 
             if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
+                $categoryIds[] = (int)$row['categoryId'];
             }
 
             if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
+                $userGroupIds[] = (int)$row['userGroupId'];
             }
         }
 
@@ -356,6 +362,11 @@ class Discounts extends Component
 
         if (!$discount) {
             $explanation = Plugin::t('Coupon not valid.');
+            return false;
+        }
+
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            $explanation = Plugin::t('Discount is not allowed for the order');
             return false;
         }
 
@@ -433,7 +444,7 @@ class Discounts extends Component
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -456,7 +467,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->onSale && $discount->excludeOnSale) {
+        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
             return false;
         }
 
@@ -467,7 +478,7 @@ class Discounts extends Component
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
-            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
+            if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
                 return false;
             }
         }
@@ -494,7 +505,6 @@ class Discounts extends Component
         }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
             $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 
@@ -964,6 +974,24 @@ class Discounts extends Component
         $to = $discount->dateTo;
 
         return !(($from && $from > $now) || ($to && $to < $now));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
+    {
+        if ($discount->orderConditionFormula) {
+            $orderDiscountConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+        }
+
+        return true;
     }
 
     /**

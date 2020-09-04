@@ -23,6 +23,7 @@ use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
 use craft\events\ModelEvent;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -31,6 +32,7 @@ use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 use yii\web\UserEvent;
 
 /**
@@ -445,11 +447,11 @@ class Customers extends Component
      *
      * @return int
      * @throws Exception
-     * @deprecated 3.x
+     * @deprecated in 3.1.11. Use `Customers::getCustomer()->id` instead.
      */
     public function getCustomerId(): int
     {
-        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', 'Customers::getCustomerId() has been deprecated. Use Customers::getCustomer()->id, since it is guaranteed to have a ID.');
+        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', '`Customers::getCustomerId()` has been deprecated. Use `Customers::getCustomer()->id`, since it is guaranteed to have a ID.');
 
         return $this->getCustomer()->id;
     }
@@ -459,11 +461,11 @@ class Customers extends Component
      *
      * @param Event $event
      * @throws Exception
-     * @deprecated 3.x
+     * @deprecated in 3.1.11. Use afterSaveUserHandler() instead.
      */
     public function saveUserHandler(Event $event)
     {
-        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', 'Customers::saveUserHandler() has been deprecated. Use Customers::afterSaveUserHandler() instead.');
+        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', '`Customers::saveUserHandler()` has been deprecated. Use `Customers::afterSaveUserHandler()` instead.');
 
         if ($customer = $this->getCustomerByUserId($event->sender->id)) {
             $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
@@ -483,7 +485,7 @@ class Customers extends Component
             ->select([
                 'customers.id as id',
                 'userId',
-                'orders.email as email',
+                new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END as email'),
                 'primaryBillingAddressId',
                 'billing.firstName as billingFirstName',
                 'billing.lastName as billingLastName',
@@ -496,7 +498,7 @@ class Customers extends Component
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
+            ->leftJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -511,6 +513,7 @@ class Customers extends Component
                 'shipping.lastName',
                 'shipping.fullName',
                 'shipping.address1',
+                'users.email',
             ])
 
             // Exclude customer records without a user or where there isn't any data
@@ -529,11 +532,7 @@ class Customers extends Component
             ])->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                [
-                    'and',
-                    ['orders.isCompleted' => false],
-                    ['not', ['customers.userId' => null]],
-                ]
+                ['not', ['customers.userId' => null]]
             ]);
 
         if ($search) {
@@ -552,6 +551,9 @@ class Customers extends Component
                 [$likeOperator, '[[shipping.fullName]]', $search],
                 [$likeOperator, '[[shipping.lastName]]', $search],
                 [$likeOperator, '[[users.username]]', $search],
+                [$likeOperator, '[[users.firstName]]', $search],
+                [$likeOperator, '[[users.lastName]]', $search],
+                [$likeOperator, '[[users.email]]', $search],
             ]);
         }
 
@@ -616,23 +618,6 @@ class Customers extends Component
                     ->execute();
             }
         }
-    }
-
-    /**
-     * Returns a Query object prepped for retrieving Order Adjustment.
-     *
-     * @return Query The query object.
-     */
-    private function _createCustomerQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'id',
-                'userId',
-                'primaryBillingAddressId',
-                'primaryShippingAddressId'
-            ])
-            ->from([Table::CUSTOMERS]);
     }
 
     /**
@@ -893,6 +878,41 @@ class Customers extends Component
     }
 
     /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadCustomerForOrders(array $orders): array
+    {
+        $customerIds = ArrayHelper::getColumn($orders, 'customerId');
+        $customersResults = $this->_createCustomerQuery()->andWhere(['id' => $customerIds])->all();
+
+        $customers = [];
+        $userIds = array_filter(ArrayHelper::getColumn($customersResults, 'userId'));
+        $users = User::find()->id($userIds)->limit(null)->all();
+
+        foreach ($customersResults as $result) {
+            $customer = new Customer($result);
+
+            // also eager load the user on the customer if possible
+            if ($customer->userId && $user = ArrayHelper::firstWhere($users, 'id', $customer->userId)) {
+                $customer->setUser($user);
+            }
+
+            $customers[$customer->id] = $customers[$customer->id] ?? $customer;
+        }
+
+        foreach ($orders as $key => $order) {
+            if(isset($customers[$order->customerId])) {
+                $order->setCustomer($customers[$order->customerId]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
      * @param $customerId
      * @param $email
      * @throws \yii\db\Exception
@@ -913,4 +933,20 @@ class Customers extends Component
         }
     }
 
+    /**
+     * Returns a Query object prepped for retrieving Order Adjustment.
+     *
+     * @return Query The query object.
+     */
+    private function _createCustomerQuery(): Query
+    {
+        return (new Query())
+            ->select([
+                'id',
+                'userId',
+                'primaryBillingAddressId',
+                'primaryShippingAddressId'
+            ])
+            ->from([Table::CUSTOMERS]);
+    }
 }

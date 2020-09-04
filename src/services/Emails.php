@@ -42,17 +42,14 @@ use yii\web\ServerErrorHttpException;
 class Emails extends Component
 {
     /**
-     * @event MailEvent The event that is triggered before an email is sent out.
+     * @event MailEvent The event that is raised before an email is sent.
+     * You may set [[MailEvent::isValid]] to `false` to prevent the email from being sent.
      *
-     * You may set the `isValid` property to `false` on the event to prevent the email from being sent.
+     * Plugins can get notified before an email is being sent out.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
-     * use craft\commerce\elements\Order;
-     * use craft\commerce\models\Email;
-     * use craft\commerce\models\OrderHistory;
-     * use craft\mail\Message;
      * use yii\base\Event;
      *
      * Event::on(
@@ -67,7 +64,7 @@ class Emails extends Component
      *         $order = $event->order;
      *         // @var OrderHistory $history
      *         $history = $event->orderHistory;
-     * 
+     *
      *         // Use `$event->isValid = false` to prevent sending
      *         // based on some business rules or client preferences
      *         // ...
@@ -78,17 +75,15 @@ class Emails extends Component
     const EVENT_BEFORE_SEND_MAIL = 'beforeSendEmail';
 
     /**
-     * @event MailEvent The event that is triggered after an email has been sent out.
+     * @event MailEvent The event that is raised after an email is sent
+     *
+     * Plugins can get notified after an email has been sent out.
      *
      * ```php
      * use craft\commerce\events\MailEvent;
      * use craft\commerce\services\Emails;
-     * use craft\commerce\elements\Order;
-     * use craft\commerce\models\Email;
-     * use craft\commerce\models\OrderHistory;
-     * use craft\mail\Message;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Emails::class,
      *     Emails::EVENT_AFTER_SEND_MAIL,
@@ -101,7 +96,7 @@ class Emails extends Component
      *         $order = $event->order;
      *         // @var OrderHistory $history
      *         $history = $event->orderHistory;
-     * 
+     *
      *         // Add the email address to an external CRM
      *         // ...
      *     }
@@ -127,7 +122,7 @@ class Emails extends Component
      *         $email = $event->email;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     * 
+     *
      *         // ...
      *     }
      * );
@@ -152,7 +147,7 @@ class Emails extends Component
      *         $email = $event->email;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     * 
+     *
      *         // ...
      *     }
      * );
@@ -162,20 +157,20 @@ class Emails extends Component
 
     /**
      * @event EmailEvent The event that is triggered before an email is deleted.
-     * 
+     *
      * ```php
      * use craft\commerce\events\EmailEvent;
      * use craft\commerce\services\Emails;
      * use craft\commerce\models\Email;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Emails::class,
      *     Emails::EVENT_BEFORE_DELETE_EMAIL,
      *     function(EmailEvent $event) {
      *         // @var Email $email
      *         $email = $event->email;
-     * 
+     *
      *         // ...
      *     }
      * );
@@ -190,14 +185,14 @@ class Emails extends Component
      * use craft\commerce\services\Emails;
      * use craft\commerce\models\Email;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Emails::class,
      *     Emails::EVENT_AFTER_DELETE_EMAIL,
      *     function(EmailEvent $event) {
      *         // @var Email $email
      *         $email = $event->email;
-     * 
+     *
      *         // ...
      *     }
      * );
@@ -286,32 +281,15 @@ class Emails extends Component
         }
 
         if ($isNewEmail) {
-            $emailUid = StringHelper::UUID();
-        } else {
-            $emailUid = Db::uidById(Table::EMAILS, $email->id);
+            $email->uid = StringHelper::UUID();
         }
 
-        $projectConfig = Craft::$app->getProjectConfig();
-        $configData = [
-            'name' => $email->name,
-            'subject' => $email->subject,
-            'recipientType' => $email->recipientType,
-            'to' => $email->to,
-            'bcc' => $email->bcc,
-            'cc' => $email->cc,
-            'replyTo' => $email->replyTo,
-            'enabled' => (bool)$email->enabled,
-            'templatePath' => $email->templatePath,
-            'plainTextTemplatePath' => $email->plainTextTemplatePath ?? null,
-            'attachPdf' => (bool)$email->attachPdf,
-            'pdfTemplatePath' => $email->pdfTemplatePath,
-        ];
-
-        $configPath = self::CONFIG_EMAILS_KEY . '.' . $emailUid;
-        $projectConfig->set($configPath, $configData);
+        $configPath = self::CONFIG_EMAILS_KEY . '.' . $email->uid;
+        $configData = $email->getConfig();
+        Craft::$app->getProjectConfig()->set($configPath, $configData);
 
         if ($isNewEmail) {
-            $email->id = Db::idByUid(Table::EMAILS, $emailUid);
+            $email->id = Db::idByUid(Table::EMAILS, $email->uid);
         }
 
         return true;
@@ -319,7 +297,7 @@ class Emails extends Component
 
 
     /**
-     * Handle gateway status change.
+     * Handle email status change.
      *
      * @param ConfigEvent $event
      * @return void
@@ -329,6 +307,11 @@ class Emails extends Component
     {
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
+
+        $pdfUid = $data['pdf'] ?? null;
+        if ($pdfUid) {
+            Craft::$app->getProjectConfig()->processConfigChanges(Pdfs::CONFIG_PDFS_KEY . '.' . $pdfUid);
+        }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
         try {
@@ -345,11 +328,11 @@ class Emails extends Component
             $emailRecord->enabled = $data['enabled'];
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
-            $emailRecord->attachPdf = $data['attachPdf'];
-            $emailRecord->pdfTemplatePath = $data['pdfTemplatePath'];
             $emailRecord->uid = $emailUid;
+            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
 
             $emailRecord->save(false);
+
             $transaction->commit();
         } catch (Throwable $e) {
             $transaction->rollBack();
@@ -679,11 +662,11 @@ class Emails extends Component
             return false;
         }
 
-        if ($email->attachPdf && $path = $email->pdfTemplatePath ?: Plugin::getInstance()->getSettings()->orderPdfPath) {
+        if ($pdf = $email->getPdf()) {
             // Email Body
-            if (!$view->doesTemplateExist($path)) {
+            if (!$view->doesTemplateExist($pdf->templatePath)) {
                 $error = Plugin::t('Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
-                    'templatePath' => $path,
+                    'templatePath' => $pdf->templatePath,
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
@@ -696,17 +679,15 @@ class Emails extends Component
             }
 
             try {
-                $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, 'email', $path);
+                $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, 'email', null, [], $pdf);
 
                 $tempPath = Assets::tempFilePath('pdf');
 
-                file_put_contents($tempPath, $pdf);
+                file_put_contents($tempPath, $renderedPdf);
 
-                // Get a file name
-                $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
-                $fileName = $view->renderObjectTemplate($filenameFormat, $order);
+                $fileName = $view->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
                 if (!$fileName) {
-                    $fileName = 'Order-' . $order->number;
+                    $fileName = $pdf->handle . '-' . $order->number;
                 }
 
                 // Attachment information
@@ -892,8 +873,7 @@ class Emails extends Component
                 'emails.enabled',
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
-                'emails.attachPdf',
-                'emails.pdfTemplatePath',
+                'emails.pdfId',
                 'emails.uid',
             ])
             ->orderBy('name')

@@ -5,10 +5,12 @@ if (typeof Craft.Commerce === typeof undefined) {
 Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
     {
         id: null,
+        $newSale: null,
         $cancelBtn: null,
         $select: null,
         $saveBtn: null,
         $spinner: null,
+        $purchasableCheckboxes: [],
 
         init: function(sales, settings) {
             this.id = Math.floor(Math.random() * 1000000000);
@@ -25,14 +27,20 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                 var $checkboxField = $('<div class="field" />');
                 $('<div class="heading"><label>'+Craft.t('commerce', 'Select Variants')+'</label></div>').appendTo($checkboxField);
                 var $inputContainer = $('<div class="input ltr" />');
-                $.each(this.settings.purchasables, function(key, purchasable) {
-                    $('<div>' +
-                    '<input class="checkbox" type="checkbox" name="ids[]" id="add-to-sale-purchasable-'+purchasable.id+'" value="'+purchasable.id+'" checked /> ' +
-                    '<label for="add-to-sale-purchasable-'+purchasable.id+'">' + purchasable.title +
-                    ' <span class="extralight">'+purchasable.sku+'</span>' +
-                    '</label>' +
-                    '</div>').appendTo($inputContainer);
-                });
+                $.each(this.settings.purchasables, $.proxy(function(key, purchasable) {
+                    var $pCheck = $('<input class="checkbox" type="checkbox" name="ids[]" id="add-to-sale-purchasable-'+purchasable.id+'" value="'+purchasable.id+'" checked /> ');
+                    var $checkboxContainer = $('<div>' +
+                        '<label for="add-to-sale-purchasable-'+purchasable.id+'">' + purchasable.title +
+                        ' <span class="extralight">'+purchasable.sku+'</span>' +
+                        '</label>' +
+                        '</div>');
+                    $pCheck.on('change', $.proxy(function() {
+                        this.updateNewSaleUrl();
+                    }, this));
+                    this.$purchasableCheckboxes.push($pCheck);
+                    $pCheck.prependTo($checkboxContainer);
+                    $checkboxContainer.appendTo($inputContainer);
+                }, this));
 
                 $inputContainer.appendTo($checkboxField);
                 $checkboxField.appendTo($inputs);
@@ -74,7 +82,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
             // Footer and buttons
             var $footer = $('<div class="footer"/>').appendTo(this.$form);
             var $newSaleBtnGroup = $('<div class="btngroup left"/>').appendTo($footer);
-            var $newSale = $('<a class="btn icon add" target="_blank" href="'+Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + this.settings.id)+'">'+Craft.t('commerce', 'Create Sale')+'</a>').appendTo($newSaleBtnGroup);
+            this.$newSale = $('<a class="btn icon add" target="_blank" href="">'+Craft.t('commerce', 'Create Sale')+'</a>').appendTo($newSaleBtnGroup);
 
             var $rightWrapper = $('<div class="right"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup"/>').appendTo($rightWrapper);
@@ -93,7 +101,31 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                 }
             }, this));
 
+            this.updateNewSaleUrl();
+
             this.base(this.$form, this.settings);
+        },
+
+        updateNewSaleUrl: function() {
+            var href = Craft.getUrl('commerce/promotions/sales/new');
+            if (this.settings.id) {
+                href = Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + this.settings.id);
+            }
+
+            if (this.$purchasableCheckboxes.length) {
+                var purchasableIds = [];
+                this.$purchasableCheckboxes.forEach(function(el) {
+                    if ($(el).prop('checked')) {
+                        purchasableIds.push($(el).val());
+                    }
+                });
+
+                if (purchasableIds.length) {
+                    href = Craft.getUrl('commerce/promotions/sales/new?purchasableIds=' + purchasableIds.join('|'));
+                }
+            }
+
+            this.$newSale.attr('href', href);
         },
 
         saveSale: function() {

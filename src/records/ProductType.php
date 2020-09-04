@@ -21,7 +21,6 @@ use yii\db\ActiveQueryInterface;
  * @property string $handle
  * @property bool $hasDimensions
  * @property bool $hasVariants
- * @property bool $hasVariantTitleField
  * @property int $id
  * @property string $name
  * @property ActiveQueryInterface $productTypesShippingCategories
@@ -29,9 +28,10 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $shippingCategories
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
+ * @property bool $hasVariantTitleField
  * @property string $titleFormat
- * @property string $titleLabel
- * @property string $variantTitleLabel
+ * @property bool $hasProductTitleField
+ * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
  * @property int $variantFieldLayoutId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>

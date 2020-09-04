@@ -30,10 +30,8 @@ trait OrderValidatorsTrait
      */
     public function validateGatewayId($attribute, $params, Validator $validator)
     {
-        try {
-            /** @var GatewayInterface $gateway */
-            $this->getGateway();
-        } catch (InvalidConfigException $e) {
+        /** @var GatewayInterface $gateway */
+        if ($this->gatewayId && !$this->getGateway()) {
             $validator->addError($this, $attribute, Plugin::t('Invalid gateway: {value}'));
         }
     }

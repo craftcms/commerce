@@ -36,7 +36,7 @@ class m200127_235254_replace_old_revenue_widget extends Migration
             $oldSettings = Json::decode($oldRevenueWidget['settings']);
             $dateRange = 'past7Days';
 
-            if (isset($oldSettings['dateRange']) && in_array($oldSettings['dateRange'], ['lastmonth', 'd30'])) {
+            if (isset($oldSettings['dateRange']) && in_array($oldSettings['dateRange'], ['lastmonth', 'd30'], false)) {
                 $dateRange = 'past30Days';
             }
 

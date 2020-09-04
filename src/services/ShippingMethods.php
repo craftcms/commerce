@@ -18,6 +18,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -54,19 +55,9 @@ class ShippingMethods extends Component
 
 
     /**
-     * @var bool
+     * @var null|ShippingMethod[]
      */
-    private $_fetchedAllShippingMethods = false;
-
-    /**
-     * @var ShippingMethod[]
-     */
-    private $_shippingMethodsById = [];
-
-    /**
-     * @var ShippingMethod[]
-     */
-    private $_shippingMethodsByHandle = [];
+    private $_allShippingMethods;
 
 
     /**
@@ -76,19 +67,20 @@ class ShippingMethods extends Component
      */
     public function getAllShippingMethods(): array
     {
-        if (!$this->_fetchedAllShippingMethods) {
-            $results = $this->_createShippingMethodQuery()->all();
-
-            foreach ($results as $result) {
-                $shippingMethod = new ShippingMethod($result);
-                $shippingMethod->typecastAttributes();
-                $this->_memoizeShippingMethod($shippingMethod);
-            }
-
-            $this->_fetchedAllShippingMethods = true;
+        if ($this->_allShippingMethods !== null) {
+            return $this->_allShippingMethods;
         }
 
-        return $this->_shippingMethodsById;
+        $results = $this->_createShippingMethodQuery()->all();
+        $this->_allShippingMethods = [];
+
+        foreach ($results as $result) {
+            $shippingMethod = new ShippingMethod($result);
+            $shippingMethod->typecastAttributes();
+            $this->_allShippingMethods[] = $shippingMethod;
+        }
+
+        return $this->_allShippingMethods;
     }
 
     /**
@@ -99,25 +91,7 @@ class ShippingMethods extends Component
      */
     public function getShippingMethodByHandle(string $shippingMethodHandle)
     {
-        if (isset($this->_shippingMethodsByHandle[$shippingMethodHandle])) {
-            return $this->_shippingMethodsByHandle[$shippingMethodHandle];
-        }
-
-        if ($this->_fetchedAllShippingMethods) {
-            return null;
-        }
-
-        $result = $this->_createShippingMethodQuery()
-            ->andWhere(['handle' => $shippingMethodHandle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingMethod(new ShippingMethod($result));
-
-        return $this->_shippingMethodsByHandle[$shippingMethodHandle];
+        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'handle', $shippingMethodHandle);
     }
 
     /**
@@ -128,25 +102,7 @@ class ShippingMethods extends Component
      */
     public function getShippingMethodById(int $shippingMethodId)
     {
-        if (isset($this->_shippingMethodsById[$shippingMethodId])) {
-            return $this->_shippingMethodsById[$shippingMethodId];
-        }
-
-        if ($this->_fetchedAllShippingMethods) {
-            return null;
-        }
-
-        $result = $this->_createShippingMethodQuery()
-            ->andWhere(['id' => $shippingMethodId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingMethod(new ShippingMethod($result));
-
-        return $this->_shippingMethodsById[$shippingMethodId];
+        return ArrayHelper::firstWhere($this->getAllShippingMethods(), 'id', $shippingMethodId);
     }
 
     /**
@@ -222,7 +178,7 @@ class ShippingMethods extends Component
             $record = ShippingMethodRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No shipping method exists with the ID “{id}”',
+                throw new Exception(Plugin::t('No shipping method exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -248,6 +204,8 @@ class ShippingMethods extends Component
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
+
+        $this->_allShippingMethods = null; //clear the cache
 
         return true;
     }
@@ -275,6 +233,7 @@ class ShippingMethods extends Component
             ->delete(ShippingMethodRecord::tableName(), ['isLite' => true])
             ->execute();
 
+        $this->_allShippingMethods = null; //clear the cache
         return $this->saveShippingMethod($model, $runValidation);
     }
 
@@ -323,25 +282,13 @@ class ShippingMethods extends Component
             $record->delete();
 
             $transaction->commit();
-
+            $this->_allShippingMethods = null; //clear the cache
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
 
             return false;
         }
-    }
-
-
-    /**
-     * Memoize a shipping method model by its ID and handle.
-     *
-     * @param ShippingMethod $shippingMethod
-     */
-    private function _memoizeShippingMethod(ShippingMethod $shippingMethod)
-    {
-        $this->_shippingMethodsById[$shippingMethod->id] = $shippingMethod;
-        $this->_shippingMethodsByHandle[$shippingMethod->handle] = $shippingMethod;
     }
 
     /**

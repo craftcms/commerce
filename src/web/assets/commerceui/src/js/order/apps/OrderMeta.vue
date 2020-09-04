@@ -102,11 +102,9 @@
 
             <div class="data">
                 <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
-                <div class="value" v-if="shippingMethod">
-                    <span v-if="typeof shippingMethod == 'object'">{{shippingMethod.name}}</span>
-                    <span v-if="typeof shippingMethod == 'object'" class="small code shipping-method-handle"><br>{{shippingMethod.handle}}</span>
-
-                    <span class="code" v-if="typeof shippingMethod == 'string'">{{shippingMethod}}</span>
+                <div class="value" v-if="draft.order.shippingMethodHandle">
+                    <span v-if="draft.order.shippingMethodName">{{draft.order.shippingMethodName}}</span>
+                    <span class="small code shipping-method-handle"><br>{{draft.order.shippingMethodHandle}}</span>
                 </div>
             </div>
         </div>

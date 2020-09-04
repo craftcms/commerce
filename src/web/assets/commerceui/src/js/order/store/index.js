@@ -16,7 +16,6 @@ export default new Vuex.Store({
         editing: false,
         draft: null,
         originalDraft: null,
-        purchasables: [],
         customers: [],
         orderData: null,
         lastPurchasableIds: [],
@@ -240,7 +239,8 @@ export default new Vuex.Store({
             // Retrieve dynamic link corresponding to selected static one and click it
             if ($selectedLink && $selectedLink.classList.contains('static')) {
                 const staticLink = $selectedLink.getAttribute('href')
-                const dynamicLink = staticLink.substr(0, staticLink.length - 'Static'.length)
+                let prefixLength = '#static-'.length;
+                const dynamicLink = '#' + staticLink.substr(prefixLength, staticLink.length - prefixLength)
 
                 $tabLinks.forEach(function($tabLink) {
                     if ($tabLink.classList.contains('custom-tab') && $tabLink.getAttribute('href') === dynamicLink) {
@@ -291,15 +291,6 @@ export default new Vuex.Store({
             return ordersApi.deleteOrder(orderId)
                 .then(() => {
                     commit('updateRecalculateLoading', false)
-                })
-        },
-
-        getPurchasables({commit, getters}) {
-            const orderId = getters.orderId
-
-            return ordersApi.purchasableSearch(orderId)
-                .then((response) => {
-                    commit('updatePurchasables', response.data)
                 })
         },
 
@@ -402,10 +393,6 @@ export default new Vuex.Store({
 
         updateOriginalDraft(state, originalDraft) {
             state.originalDraft = originalDraft
-        },
-
-        updatePurchasables(state, purchasables) {
-            state.purchasables = purchasables
         },
 
         updateCustomers(state, customers) {

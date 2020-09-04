@@ -16,7 +16,6 @@ use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
-use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
@@ -96,11 +95,6 @@ class Product extends Element
      * @var bool Whether the product has free shipping
      */
     public $freeShipping;
-
-    /**
-     * @inheritdoc
-     */
-    public $enabled;
 
     /**
      * @var bool Is this product available to be purchased
@@ -350,7 +344,7 @@ class Product extends Element
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
         if (!isset($productTypeSiteSettings[$this->siteId])) {
-            throw new InvalidConfigException('The “' . $this->getType()->name . '” product type is not enabled for the „' . $this->getSite()->name . '” site.');
+            throw new InvalidConfigException('The "' . $this->getType()->name . '" product type is not enabled for the "' . $this->getSite()->name . '" site.');
         }
 
         return $productTypeSiteSettings[$this->siteId]->uriFormat;
@@ -662,20 +656,12 @@ class Product extends Element
     public function getEditorHtml(): string
     {
         $viewService = Craft::$app->getView();
-        $html = $viewService->renderTemplateMacro('commerce/products/_fields', 'titleField', [$this]);
+        $html = parent::getEditorHtml();
         $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
-        $html .= parent::getEditorHtml();
 
         $productType = $this->getType();
 
-        if ($productType->hasVariants) {
-            $html .= $viewService->renderTemplateMacro('_includes/forms', 'field', [
-                [
-                    'label' => Plugin::t('Variants'),
-                ],
-                VariantMatrix::getVariantMatrixHtml($this)
-            ]);
-        } else {
+        if (!$productType->hasVariants) {
             /** @var Variant $variant */
             $variant = ArrayHelper::firstValue($this->getVariants());
             $namespace = $viewService->getNamespace();
@@ -791,6 +777,30 @@ class Product extends Element
         $this->setVariants($variants);
 
         return parent::beforeRestore();
+    }
+
+    /**
+     * Updates the entry's title, if its entry type has a dynamic title format.
+     *
+     * @since 3.0.3
+     * @see \craft\elements\Entry::updateTitle
+     */
+    public function updateTitle()
+    {
+        $productType = $this->getType();
+
+        if (!$productType->hasProductTitleField) {
+            // Make sure that the locale has been loaded in case the title format has any Date/Time fields
+            Craft::$app->getLocale();
+            // Set Craft to the entry's site's language, in case the title format has any static translations
+            $language = Craft::$app->language;
+            Craft::$app->language = $this->getSite()->language;
+            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            if ($title !== '') {
+                $this->title = $title;
+            }
+            Craft::$app->language = $language;
+        }
     }
 
     /**
@@ -959,6 +969,8 @@ class Product extends Element
             // ...without the seconds
             $this->postDate->setTimestamp($this->postDate->getTimestamp() - ($this->postDate->getTimestamp() % 60));
         }
+
+        $this->updateTitle();
 
         return parent::beforeSave($isNew);
     }

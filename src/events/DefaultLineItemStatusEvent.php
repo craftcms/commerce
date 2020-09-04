@@ -20,7 +20,7 @@ use yii\base\Event;
 class DefaultLineItemStatusEvent extends Event
 {
     /**
-     * @var LineItemStatus The default line item status based on the line item
+     * @var LineItemStatus|null The default line item status based on the line item
      */
     public $lineItemStatus;
 

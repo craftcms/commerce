@@ -39,7 +39,6 @@ use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\web\Controller;
 use craft\web\View;
 use Throwable;
@@ -67,9 +66,9 @@ class OrdersController extends Controller
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageOrders');
-
         parent::init();
+
+        $this->requirePermission('commerce-manageOrders');
     }
 
     /**
@@ -145,11 +144,10 @@ class OrdersController extends Controller
 
         $variables['order'] = $order;
         $variables['orderId'] = $order->id;
-        $variables['fieldLayout'] = Craft::$app->getFields()->getLayoutByType(Order::class);
 
         $transactions = $order->getTransactions();
 
-        $variables['orderTransactions'] = $this->_getTransactionsWIthLevelsTableArray($transactions);
+        $variables['orderTransactions'] = $this->_getTransactionsWithLevelsTableArray($transactions);
 
         $this->_updateTemplateVariables($variables);
         $this->_registerJavascript($variables);
@@ -324,6 +322,7 @@ class OrdersController extends Controller
 
         $orderQuery = Order::find()
             ->customer($customer)
+            ->withAll() // eager-load all related data
             ->isCompleted();
 
         if ($search) {
@@ -421,9 +420,11 @@ class OrdersController extends Controller
      * @param null $query
      * @return Response
      * @throws InvalidConfigException
+     * @deprecated in 3.5.0. Use [[actionPurchasablesTable()]] instead.
      */
     public function actionPurchasableSearch($query = null)
     {
+        Craft::$app->getDeprecator()->log(__METHOD__, 'The `orders/purchasable-search` action is deprecated. Use `orders/purchasables-table` instead.');
 
         if ($query === null) {
             $results = (new Query())
@@ -462,7 +463,7 @@ class OrdersController extends Controller
         if ($query) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
+                [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
                 [$likeOperator, 'sku', $query]
             ]);
         }
@@ -506,7 +507,7 @@ class OrdersController extends Controller
         if ($search) {
             $sqlQuery->where([
                 'or',
-                [$likeOperator, 'description', '%'.str_replace(' ','%',$search).'%', false],
+                [$likeOperator, 'description', '%' . str_replace(' ', '%', $search) . '%', false],
                 [$likeOperator, 'sku', $search]
             ]);
         }
@@ -864,6 +865,18 @@ class OrdersController extends Controller
             $variables['title'] = Plugin::t('Cart') . ' ' . $order->getShortNumber();
         }
 
+        $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
+        $staticForm = $fieldLayout->createForm($order, true, [
+            'namespace' => 'static_fields',
+            'tabIdPrefix' => 'static-fields',
+        ]);
+        $dynamicForm = $fieldLayout->createForm($order, false, [
+            'tabIdPrefix' => 'fields',
+        ]);
+
+        $variables['staticFieldsHtml'] = $staticForm->render(false);
+        $variables['dynamicFieldsHtml'] = $dynamicForm->render(false);
+
         $variables['tabs'] = [];
 
         $variables['tabs'][] = [
@@ -872,40 +885,14 @@ class OrdersController extends Controller
             'class' => null
         ];
 
-        /** @var FieldLayout $fieldLayout */
-        $fieldLayout = $variables['fieldLayout'];
-        foreach ($fieldLayout->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
+        foreach ($staticForm->getTabMenu() as $tabId => $tab) {
+            $tab['class'] .= ' custom-tab static';
+            $variables['tabs'][$tabId] = $tab;
+        }
 
-            if ($order->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    if ($order->getErrors($field->handle)) {
-                        $hasErrors = true;
-                        break;
-                    }
-                }
-            }
-
-            $classes = ['custom-tab'];
-
-            if ($hasErrors) {
-                $classes[] = 'errors';
-            }
-
-            $variables['tabs'][] = [
-                'label' => Plugin::t($tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => implode(' ', $classes)
-            ];
-
-            // Add the static version of the custom fields.
-            $classes[] = 'static';
-            $variables['tabs'][] = [
-                'label' => Plugin::t($tab->name),
-                'url' => '#tab' . ($index + 1) . 'Static',
-                'class' => implode(' ', $classes)
-            ];
+        foreach ($dynamicForm->getTabMenu() as $tabId => $tab) {
+            $tab['class'] .= ' custom-tab';
+            $variables['tabs'][$tabId] = $tab;
         }
 
         $variables['tabs'][] = [
@@ -1012,13 +999,15 @@ class OrdersController extends Controller
         $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
         Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
 
-        // TODO when we support multiple PDF templates, retrieve them all from a service
-        $pdfUrls = [
-            [
-                'name' => 'Download PDF',
-                'url' => $variables['order']->getPdfUrl()
-            ]
-        ];
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        $pdfUrls = [];
+        foreach ($pdfs as $pdf){
+            $pdfUrls[] = [
+                'name' => $pdf->name,
+                'url' => $variables['order']->getPdfUrl(null, $pdf->handle)
+            ];
+        }
+
         Craft::$app->getView()->registerJs('window.orderEdit.pdfUrls = ' . Json::encode(ArrayHelper::toArray($pdfUrls)) . ';', View::POS_BEGIN);
 
         $emails = Plugin::getInstance()->getEmails()->getAllEnabledEmails();
@@ -1139,6 +1128,7 @@ class OrdersController extends Controller
         if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
             $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
             $billingAddress['isEstimated'] = false;
+
             $billingAddress = new Address($billingAddress);
 
             $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
@@ -1151,6 +1141,7 @@ class OrdersController extends Controller
         if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
+
             $shippingAddress = new Address($shippingAddress);
 
             $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
@@ -1188,7 +1179,7 @@ class OrdersController extends Controller
 
             if (!$lineItem) {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
@@ -1287,7 +1278,7 @@ class OrdersController extends Controller
      * @throws CurrencyException
      * @since 3.0
      */
-    private function _getTransactionsWIthLevelsTableArray($transactions, $level = 0): array
+    private function _getTransactionsWithLevelsTableArray($transactions, $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -1349,7 +1340,7 @@ class OrdersController extends Controller
                 ];
 
                 if (!empty($transaction->childTransactions)) {
-                    $childTransactions = $this->_getTransactionsWIthLevelsTableArray($transaction->childTransactions, $level + 1);
+                    $childTransactions = $this->_getTransactionsWithLevelsTableArray($transaction->childTransactions, $level + 1);
 
                     foreach ($childTransactions as $childTransaction) {
                         $return[] = $childTransaction;
@@ -1375,7 +1366,11 @@ class OrdersController extends Controller
         foreach ($results as $row) {
             /** @var PurchasableInterface $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
-                $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
+                if ($purchasable->getBehavior('currencyAttributes')) {
+                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
+                } else {
+                    $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
+                }
                 $row['isAvailable'] = $purchasable->getIsAvailable();
                 $purchasables[] = $row;
             }

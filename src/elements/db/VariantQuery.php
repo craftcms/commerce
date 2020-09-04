@@ -29,6 +29,7 @@ use yii\db\Schema;
  * @method Variant|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path dev/element-queries/variant-queries.md
  * @replace {element} variant
  * @replace {elements} variants
  * @replace {twig-method} craft.variants()
@@ -112,25 +113,25 @@ class VariantQuery extends ElementQuery
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $width = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $height = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $length = false;
 
     /**
      * @var
-     * @since 3.x
+     * @since 3.2.0
      */
     public $weight = false;
 
@@ -723,7 +724,7 @@ class VariantQuery extends ElementQuery
                             ->column();
 
                         foreach ($activeSales as $activeSale) {
-                            if ($activeSale['allGroups'] == 0 && !in_array($activeSale['id'], $userGroupSalesIds)) {
+                            if ($activeSale['allGroups'] == 0 && !in_array($activeSale['id'], $userGroupSalesIds, false)) {
                                 ArrayHelper::removeValue($activeSaleIds, $activeSale['id']);
                             }
                         }

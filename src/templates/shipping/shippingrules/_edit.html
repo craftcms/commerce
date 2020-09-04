@@ -123,13 +123,46 @@
         2: {'label':'Costs'|t('commerce'),'url':'#costs-tab'}
     } %}
 
+{% block actionButton %}
+<div class="btngroup">
+    <input type="submit" class="btn submit"
+           value="{{ 'Save'|t('commerce') }}">
+    {% if shippingRule.id %}
+    <div class="btn submit menubtn"></div>
+    <div class="menu">
+        <ul>
+            <li>
+                <a class="formsubmit"
+                   data-action="commerce/shipping-rules/duplicate"
+                   data-confirm="{{ 'Are you sure you want to save this as a new shipping rule?'|t('commerce') }}"
+                   data-redirect="{{ 'commerce/shipping/shippingmethods/{methodId}#rules'|hash }}">
+                    {{ "Save as a new rule"|t('commerce') }}
+                </a>
+            </li>
+
+        </ul>
+        <hr>
+        <ul>
+            <li>
+                <a class="formsubmit error"
+                   data-action="commerce/shipping-rules/delete"
+                   data-confirm="{{ 'Are you sure you want to delete this shipping rule?'|t('commerce') }}"
+                   data-redirect="{{ 'commerce/shipping/shippingmethods/{methodId}#rules'|hash }}">
+                    {{ 'Delete'|t('commerce') }}
+                </a>
+            </li>
+        </ul>
+    </div>
+        {% endif %}
+</div>
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/shipping-rules/save">
-    {{ redirectInput('commerce/shipping/shippingmethods/{methodId}#rules') }}
     <input type="hidden" name="methodId" value="{{ methodId }}">
+    {{ redirectInput('commerce/shipping/shippingmethods/'~methodId~'#rules') }}
 
-    {% if shippingRule.id %}<input type="hidden" name="id"
-                                   value="{{ shippingRule.id }}">{% endif %}
+    {% if shippingRule.id %}<input type="hidden" name="id" value="{{ shippingRule.id }}">{% endif %}
 
     <div id="rule-tab">
         {{ forms.textField({

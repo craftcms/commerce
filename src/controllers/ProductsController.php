@@ -9,10 +9,8 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\base\Element;
-use craft\base\Field;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\Product as ProductHelper;
-use craft\commerce\helpers\VariantMatrix;
 use craft\commerce\models\ProductType;
 use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
@@ -49,8 +47,8 @@ class ProductsController extends BaseCpController
      */
     public function init()
     {
-        $this->requirePermission('commerce-manageProducts');
         parent::init();
+        $this->requirePermission('commerce-manageProducts');
     }
 
     /**
@@ -116,16 +114,14 @@ class ProductsController extends BaseCpController
 
         $this->_prepVariables($variables);
 
-        if ($product->getType()->hasVariants) {
-            $variables['variantMatrixHtml'] = VariantMatrix::getVariantMatrixHtml($product);
-        } else {
+        if (!$product->getType()->hasVariants) {
             $this->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($("#details"));');
         }
 
         // Enable Live Preview?
         if (!Craft::$app->getRequest()->isMobileBrowser(true) && Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($variables['productType'], $variables['site']->id)) {
             $this->getView()->registerJs('Craft.LivePreview.init(' . Json::encode([
-                    'fields' => '#title-field, #fields > div > div > .field',
+                    'fields' => '#fields > .flex-fields > .field',
                     'extraFields' => '#details',
                     'previewUrl' => $product->getUrl(),
                     'previewAction' => Craft::$app->getSecurity()->hashData('commerce/products-preview/preview-product'),
@@ -368,43 +364,9 @@ class ProductsController extends BaseCpController
         /** @var Product $product */
         $product = $variables['product'];
 
-        foreach ($productType->getProductFieldLayout()->getTabs() as $index => $tab) {
-            // Do any of the fields on this tab have errors?
-            $hasErrors = false;
-            if ($product->hasErrors()) {
-                foreach ($tab->getFields() as $field) {
-                    /** @var Field $field */
-                    if ($hasErrors = $product->hasErrors($field->handle . '.*')) {
-                        break;
-                    }
-                }
-            }
-
-            $variables['tabs'][] = [
-                'label' => Plugin::t($tab->name),
-                'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
-
-        if ($productType->hasVariants) {
-            $hasErrors = false;
-            foreach ($product->getVariants() as $variant) {
-                if ($hasErrors = $variant->hasErrors()) {
-                    break;
-                }
-            }
-
-            if ($product->getErrors('variants')) {
-                $hasErrors = true;
-            }
-
-            $variables['tabs'][] = [
-                'label' => Plugin::t('Variants'),
-                'url' => '#variants-container',
-                'class' => $hasErrors ? 'error' : null
-            ];
-        }
+        $form = $productType->getProductFieldLayout()->createForm($product);
+        $variables['tabs'] = $form->getTabMenu();
+        $variables['fieldsHtml'] = $form->render();
 
         $sales = [];
         $discounts = [];
