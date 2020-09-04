@@ -384,8 +384,7 @@ return [
     'Is subscription active?' => 'Is subscription active?',
     'Send to custom recipient' => '任意の宛先に送信する',
     'Select a gateway' => 'ゲートウェイを選択してください',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => '
-カートが注文に変わると、このフォーマットに基づいて管理しやすい参照番号が生成されます。たとえば、{ex1}、または {ex2}。このフォーマットの結果は一意でなければなりません。',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
     'Subscription Fields' => '定期支払いフィールド',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => '定期支払いプラン「{name}」をアーカイブしてもよろしいですか？既存の定期支払いはキャンセルされません。',
     'Cancel subscription' => '定期支払いをキャンセルする',
