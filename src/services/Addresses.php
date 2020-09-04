@@ -316,7 +316,7 @@ class Addresses extends Component
 
         // Get the Address model before deletion to pass to the Event.
         $address = $this->getAddressById($id);
-//
+
         //Raise the beforeDeleteAddress event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
