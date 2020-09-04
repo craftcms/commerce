@@ -11,6 +11,7 @@
 
 ### Changed
 - Address forms now show country before state to avoid confusion when editing an address.
+- Products, suscriptions, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
 
 ### Fixed
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))

@@ -461,13 +461,22 @@ trait OrderElementTrait
                 'orderBy' => 'billing_address.fullName',
                 'attribute' => 'billingFullName',
             ],
-            'dateOrdered' => Plugin::t('Date Ordered'),
+            [
+                'label' => Plugin::t('Date Ordered'),
+                'orderBy' => 'dateOrdered',
+                'defaultDir' => 'desc',
+            ],
             [
                 'label' => Plugin::t('Date Updated'),
                 'orderBy' => 'commerce_orders.dateUpdated',
                 'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
             ],
-            'datePaid' => Plugin::t('Date Paid'),
+            [
+                'label' => Plugin::t('Date Paid'),
+                'orderBy' => 'datePaid',
+                'defaultDir' => 'desc',
+            ],
             'couponCode' => Plugin::t('Coupon Code'),
             [
                 'label' => Craft::t('app', 'ID'),
