@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the `craft\commerce\services\Addresses::EVENT_BEFORE_DELETE_ADDRESS` event. ([#1590](https://github.com/craftcms/commerce/pull/1590))
 - Added the `hasProduct` argument to GraphQL variant queries. ([#1697](https://github.com/craftcms/commerce/issues/1697))
 - Added “Item Total” and “Item Subtotal” table attribute options to the Orders index page. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 - Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
@@ -22,6 +23,7 @@
 - Fixed a bug where `dateUpdated` wasn’t being populated when saving a line item. ([#1691](https://github.com/craftcms/commerce/issues/1691))
 - Fixed a bug where purchasable descriptions were able to be longer than line item descriptions.
 - Fixed a bug that would prevent the "Exclude this discount for products that are already on sale" discount condition from working. ([#1700](https://github.com/craftcms/commerce/issues/1700))
+- Fixed a bug where the order’s coupon code availablility wasn’t validated with the discount condition formula. ([#1705](https://github.com/craftcms/commerce/pull/1705))
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.

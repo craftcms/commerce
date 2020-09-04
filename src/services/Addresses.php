@@ -88,6 +88,29 @@ class Addresses extends Component
     const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
 
     /**
+     * @event AddressEvent The event that is triggered before an address is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\AddressEvent;
+     * use craft\commerce\services\Addresses;
+     * use craft\commerce\models\Address;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Addresses::class,
+     *     Addresses::EVENT_BEFORE_DELETE_ADDRESS,
+     *     function(AddressEvent $event) {
+     *         // @var Address $address
+     *         $address = $event->address;
+     *
+     *         // Invalidate customer address cache
+     *         // ...
+     *     }
+     * );
+     */
+    const EVENT_BEFORE_DELETE_ADDRESS = 'beforeDeleteAddress';
+
+    /**
      * @event AddressEvent The event that is triggered after an address is deleted.
      *
      * ```php
@@ -295,6 +318,14 @@ class Addresses extends Component
 
         // Get the Address model before deletion to pass to the Event.
         $address = $this->getAddressById($id);
+
+        //Raise the beforeDeleteAddress event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
+            $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
+                'address' => $address,
+                'isNew' => false
+            ]));
+        }
 
         $result = (bool)$addressRecord->delete();
 
