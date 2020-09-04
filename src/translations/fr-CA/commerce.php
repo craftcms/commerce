@@ -384,7 +384,7 @@ return [
     'Is subscription active?' => 'L’abonnement est-il actif?',
     'Send to custom recipient' => 'Envoyer au destinataire personnalisé',
     'Select a gateway' => 'Sélectionner une passerelle',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Un numéro de référence simplifié sera généré selon ce format lorsqu’un panier est validé et converti en commande. Par exemple, {ex1} ou<br> {ex2}. Le résultat de ce format doit être unique.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
     'Subscription Fields' => 'Champs d’abonnement',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Voulez-vous vraiment archiver le plan d’abonnement « {name} »? Cela N’ANNULERA PAS les abonnements existants.',
     'Cancel subscription' => 'Annuler l’abonnement',
