@@ -1229,7 +1229,7 @@ class Variant extends Purchasable
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Plugin::t('Title')
+            'title' => Plugin::t('Title'),
         ];
     }
 

@@ -1171,19 +1171,29 @@ class Product extends Element
     {
         return [
             'title' => Plugin::t('Title'),
-            'postDate' => Plugin::t('Post Date'),
-            'expiryDate' => Plugin::t('Expiry Date'),
+            [
+                'label' => Plugin::t('Post Date'),
+                'orderBy' => 'postDate',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Plugin::t('Expiry Date'),
+                'orderBy' => 'expiryDate',
+                'defaultDir' => 'desc',
+            ],
             'promotable' => Plugin::t('Promotable?'),
             'defaultPrice' => Plugin::t('Price'),
             [
                 'label' => Craft::t('app', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',
-                'attribute' => 'dateCreated'
+                'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
             ],
             [
                 'label' => Craft::t('app', 'Date Updated'),
                 'orderBy' => 'elements.dateUpdated',
-                'attribute' => 'dateUpdated'
+                'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
             ],
             [
                 'label' => Craft::t('app', 'ID'),
