@@ -433,6 +433,8 @@ class Transactions extends Component
             $model->order->markAsComplete();
         }
 
+        $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
+
         // Raise 'afterSaveTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([

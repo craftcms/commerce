@@ -2931,10 +2931,12 @@ class Order extends Element
     }
 
     /**
-     * @param array|Transaction[] $transactions
+     * Set transactions on the order. Set to null to clear cache and force next getTransactions() call to get the latest transactions.
+     *
+     * @param Transaction[]|null $transactions
      * @since 3.2.0
      */
-    public function setTransactions(array $transactions)
+    public function setTransactions($transactions)
     {
         $this->_transactions = $transactions;
     }
