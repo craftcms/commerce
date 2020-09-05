@@ -13,7 +13,6 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
-use craft\commerce\elements\actions\DeleteProduct;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
 use craft\commerce\models\ProductType;
@@ -23,6 +22,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Product as ProductRecord;
 use craft\db\Query;
 use craft\elements\actions\CopyReferenceTag;
+use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
@@ -1086,7 +1086,7 @@ class Product extends Element
 
                 // Allow deletion
                 $deleteAction = Craft::$app->getElements()->createAction([
-                    'type' => DeleteProduct::class,
+                    'type' => Delete::class,
                     'confirmationMessage' => Plugin::t('Are you sure you want to delete the selected product and its variants?'),
                     'successMessage' => Plugin::t('Products and Variants deleted.'),
                 ]);

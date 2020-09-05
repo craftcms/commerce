@@ -17,6 +17,8 @@
 - Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where users without orders weren’t available for selection in the customers list or when creating an order.
 - Fixed a bug where the `*AsCurrency` order attributes were showing the base currency, and not the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
+- Fixed a bug where it was not possible to permanently delete orders from the order index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
+- Fixed a bug where it was not possible to permanently delete products from the product index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
 - Fixed a bug where address lines were being HTML encoded twice. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 - Fixed a bug where shipping method caches weren’t getting invalidated. ([#1674](https://github.com/craftcms/commerce/issues/1674))

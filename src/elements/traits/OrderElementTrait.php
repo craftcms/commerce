@@ -8,11 +8,11 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
-use craft\commerce\elements\actions\DeleteOrder;
 use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\Plugin;
+use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
@@ -318,7 +318,7 @@ trait OrderElementTrait
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
                 $deleteAction = $elementService->createAction(
                     [
-                        'type' => DeleteOrder::class,
+                        'type' => Delete::class,
                         'confirmationMessage' => Plugin::t('Are you sure you want to delete the selected orders?'),
                         'successMessage' => Plugin::t('Orders deleted.'),
                     ]
