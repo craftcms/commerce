@@ -384,7 +384,7 @@ return [
     'Is subscription active?' => 'Ist das Abonnement aktiv?',
     'Send to custom recipient' => 'An benutzerdefinierten Empfänger senden',
     'Select a gateway' => 'Einen Gateway auswählen',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Eine benutzerfreundliche Referenznummer auf Grundlage dieses Formats wird erstellt, sobald der Warenkorb abgeschlossen und die Artikel darin bestellt wurden. Beispielsweise {ex1} oder<br/> {ex2}. Das Ergebnis dieses Formats muss einmalig sein.',
     'Subscription Fields' => 'Abonnementfelder',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Sind Sie sicher, dass Sie den Abonnementplan „{name}“ wirklich archivieren möchten? Dadurch werden die bestehenden Abonnements NICHT gekündigt.',
     'Cancel subscription' => 'Abonnement stornieren',
