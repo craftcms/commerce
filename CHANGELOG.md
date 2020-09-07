@@ -19,6 +19,7 @@
 - Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.
 
 ### Fixed
+- Fixed a bug where the donation’s `sitedId` wasn’t being updated when changing the primary site.
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
 - Fixed a bug where sales weren’t being applied to orders on the Edit Order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where users without orders weren’t available for selection in customer lists.
