@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.4 - 2020-09-07
 
 ### Added
 - Added the “Item Total” and “Item Subtotal” Orders index page columns. ([#1695](https://github.com/craftcms/commerce/issues/1695))
