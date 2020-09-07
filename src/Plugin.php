@@ -119,6 +119,7 @@ class Plugin extends BasePlugin
      * @see Craft::t()
      *
      * @since 2.2.0
+     * @deprecated in 3.2.4
      */
     public static function t($message, $params = [], $language = null)
     {
