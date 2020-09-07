@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\Plugin;
@@ -234,9 +235,9 @@ class Settings extends Model
     public function getWeightUnitsOptions(): array
     {
         return [
-            'g' => Plugin::t('Grams (g)'),
-            'kg' => Plugin::t('Kilograms (kg)'),
-            'lb' => Plugin::t('Pounds (lb)')
+            'g' => Craft::t('commerce', 'Grams (g)'),
+            'kg' => Craft::t('commerce', 'Kilograms (kg)'),
+            'lb' => Craft::t('commerce', 'Pounds (lb)')
         ];
     }
 
@@ -246,11 +247,11 @@ class Settings extends Model
     public function getDimensionUnits(): array
     {
         return [
-            'mm' => Plugin::t('Millimeters (mm)'),
-            'cm' => Plugin::t('Centimeters (cm)'),
-            'm' => Plugin::t('Meters (m)'),
-            'ft' => Plugin::t('Feet (ft)'),
-            'in' => Plugin::t('Inches (in)'),
+            'mm' => Craft::t('commerce', 'Millimeters (mm)'),
+            'cm' => Craft::t('commerce', 'Centimeters (cm)'),
+            'm' => Craft::t('commerce', 'Meters (m)'),
+            'ft' => Craft::t('commerce', 'Feet (ft)'),
+            'in' => Craft::t('commerce', 'Inches (in)'),
         ];
     }
 
@@ -260,9 +261,9 @@ class Settings extends Model
     public function getMinimumTotalPriceStrategyOptions(): array
     {
         return [
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Plugin::t('Default - Allow the price to be negative if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Plugin::t('Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Plugin::t('Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
         ];
     }
 
@@ -272,8 +273,8 @@ class Settings extends Model
     public function getFreeOrderPaymentStrategyOptions(): array
     {
         return [
-            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Plugin::t('Free orders complete immediately'),
-            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Plugin::t('Free orders are processed by the payment gateway'),
+            self::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE => Craft::t('commerce', 'Free orders complete immediately'),
+            self::FREE_ORDER_PAYMENT_STRATEGY_PROCESS => Craft::t('commerce', 'Free orders are processed by the payment gateway'),
         ];
     }
 
@@ -303,13 +304,13 @@ class Settings extends Model
     public function getDefaultViewOptions(): array
     {
         return [
-            self::VIEW_URI_ORDERS => Plugin::t('Orders'),
-            self::VIEW_URI_PRODUCTS => Plugin::t('Products'),
-            self::VIEW_URI_CUSTOMERS => Plugin::t('Customers'),
-            self::VIEW_URI_PROMOTIONS => Plugin::t('Promotions'),
-            self::VIEW_URI_SHIPPING => Plugin::t('Shipping'),
-            self::VIEW_URI_TAX => Plugin::t('Tax'),
-            self::VIEW_URI_SUBSCRIPTIONS => Plugin::t('Subscriptions'),
+            self::VIEW_URI_ORDERS => Craft::t('commerce', 'Orders'),
+            self::VIEW_URI_PRODUCTS => Craft::t('commerce', 'Products'),
+            self::VIEW_URI_CUSTOMERS => Craft::t('commerce', 'Customers'),
+            self::VIEW_URI_PROMOTIONS => Craft::t('commerce', 'Promotions'),
+            self::VIEW_URI_SHIPPING => Craft::t('commerce', 'Shipping'),
+            self::VIEW_URI_TAX => Craft::t('commerce', 'Tax'),
+            self::VIEW_URI_SUBSCRIPTIONS => Craft::t('commerce', 'Subscriptions'),
         ];
     }
 

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
@@ -306,7 +307,7 @@ class ProductType extends Model
         // If this product type has variants, make sure the Variants field is in the layout somewhere
         if ($this->hasVariants && !$fieldLayout->isFieldIncluded('variants')) {
             $layoutTabs = $fieldLayout->getTabs();
-            $variantTabName = Plugin::t('Variants');
+            $variantTabName = Craft::t('commerce', 'Variants');
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }

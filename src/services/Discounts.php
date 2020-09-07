@@ -361,22 +361,22 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid.');
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
             return false;
         }
 
         if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is not allowed for the order');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is out of date.');
+            $explanation = Craft::t('commerce', 'Discount is out of date.');
             return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            $explanation = Plugin::t('Discount use has reached its limit.');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
 
@@ -384,19 +384,19 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Plugin::t('Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
             return false;
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
             return false;
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -630,7 +630,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();

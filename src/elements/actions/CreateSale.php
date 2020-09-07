@@ -9,7 +9,6 @@ namespace craft\commerce\elements\actions;
 
 use Craft;
 use craft\base\ElementAction;
-use craft\commerce\Plugin;
 use craft\helpers\Json;
 
 /**
@@ -27,7 +26,7 @@ class CreateSale extends ElementAction
      */
     public function getTriggerLabel(): string
     {
-        return Plugin::t('Create sale…');
+        return Craft::t('commerce', 'Create sale…');
     }
 
     /**

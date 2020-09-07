@@ -7,6 +7,7 @@
 
 namespace craft\commerce\fieldlayoutelements;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
@@ -43,7 +44,7 @@ class VariantsField extends BaseField
      */
     protected function defaultLabel(ElementInterface $element = null, bool $static = false)
     {
-        return Plugin::t('Variants');
+        return Craft::t('commerce', 'Variants');
     }
 
     /**

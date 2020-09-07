@@ -7,11 +7,11 @@
 
 namespace craft\commerce\fields;
 
+use Craft;
 use craft\commerce\elements\Variant;
 use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
 use craft\commerce\gql\resolvers\elements\Variant as VariantResolver;
-use craft\commerce\Plugin;
 use craft\fields\BaseRelationField;
 use GraphQL\Type\Definition\Type;
 
@@ -28,7 +28,7 @@ class Variants extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return Plugin::t('Commerce Variants');
+        return Craft::t('commerce', 'Commerce Variants');
     }
 
     /**
@@ -36,7 +36,7 @@ class Variants extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Plugin::t('Add a variant');
+        return Craft::t('commerce', 'Add a variant');
     }
 
     /**

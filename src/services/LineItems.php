@@ -223,7 +223,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }

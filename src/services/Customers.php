@@ -192,7 +192,7 @@ class Customers extends Component
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Plugin::t('No customer exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No customer exists with the ID “{id}”',
                     ['id' => $customer->id]));
             }
         }
@@ -665,7 +665,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setBillingAddress($snapshotBillingAddress);
             } else {
-                Craft::error(Plugin::t('Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -705,7 +705,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setShippingAddress($snapshotShippingAddress);
             } else {
-                Craft::error(Plugin::t('Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -804,7 +804,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Plugin::t('Customer Info'),
+                'label' => Craft::t('commerce', 'Customer Info'),
                 'url' => '#customerInfo'
             ];
         }

@@ -1143,7 +1143,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return Plugin::t('Order');
+        return Craft::t('commerce', 'Order');
     }
 
     /**
@@ -1151,7 +1151,7 @@ class Order extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('order');
+        return Craft::t('commerce', 'order');
     }
 
     /**
@@ -1159,7 +1159,7 @@ class Order extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Orders');
+        return Craft::t('commerce', 'Orders');
     }
 
     /**
@@ -1167,7 +1167,7 @@ class Order extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('orders');
+        return Craft::t('commerce', 'orders');
     }
 
     /**
@@ -1551,7 +1551,7 @@ class Order extends Element
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
-            Craft::error(Plugin::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
                 ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
             $mutex->release($lockName);
@@ -1680,7 +1680,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Plugin::t('Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -2162,19 +2162,19 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_OVERPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Plugin::t('Overpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
             }
             case self::PAID_STATUS_PAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Plugin::t('Paid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
             }
             case self::PAID_STATUS_PARTIAL:
             {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Plugin::t('Partial') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
             }
             case self::PAID_STATUS_UNPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Plugin::t('Unpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
             }
         }
 

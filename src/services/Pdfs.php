@@ -426,7 +426,7 @@ class Pdfs extends Component
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
-            $html = Plugin::t('An error occurred while generating this PDF.');
+            $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
         // Restore the original template mode

@@ -6,7 +6,6 @@ use Craft;
 use craft\commerce\fieldlayoutelements\ProductTitleField;
 use craft\commerce\fieldlayoutelements\VariantsField;
 use craft\commerce\fieldlayoutelements\VariantTitleField;
-use craft\commerce\Plugin;
 use craft\db\Migration;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
@@ -53,7 +52,7 @@ class m200730_233644_field_layout_changes extends Migration
 
                     if ($typeConfig['hasVariants'] ?? false) {
                         // Add the Variants tab + field
-                        $variantTabName = Plugin::t('Variants');
+                        $variantTabName = Craft::t('commerce', 'Variants');
                         if (ArrayHelper::contains($fieldLayoutConfig['tabs'], 'name', $variantTabName)) {
                             $variantTabName .= ' ' . StringHelper::randomString(10);
                         }

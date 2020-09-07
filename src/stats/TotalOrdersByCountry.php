@@ -7,6 +7,7 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
@@ -95,7 +96,7 @@ class TotalOrdersByCountry extends Stat
             return $rows;
         }
 
-        $otherCountries['name'] = Plugin::t('Other countries');
+        $otherCountries['name'] = Craft::t('commerce', 'Other countries');
         $rows[] = $otherCountries;
 
         return $rows;

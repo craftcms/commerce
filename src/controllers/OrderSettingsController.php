@@ -30,7 +30,7 @@ class OrderSettingsController extends BaseAdminController
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
 
         $variables['fieldLayout'] = $fieldLayout;
-        $variables['title'] = Plugin::t('Order Settings');
+        $variables['title'] = Craft::t('commerce', 'Order Settings');
 
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
@@ -44,7 +44,7 @@ class OrderSettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Order fields saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

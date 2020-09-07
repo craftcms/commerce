@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
-use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\commerce\records\TaxZone;
@@ -105,7 +104,7 @@ class TaxZones extends Component
             $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No tax zone exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -139,13 +138,13 @@ class TaxZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', Plugin::t('At least one country must be selected.'));
+                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', Plugin::t('At least one state must be selected.'));
+                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
             }
         }
 

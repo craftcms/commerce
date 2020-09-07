@@ -32,7 +32,7 @@ trait OrderValidatorsTrait
     {
         /** @var GatewayInterface $gateway */
         if ($this->gatewayId && !$this->getGateway()) {
-            $validator->addError($this, $attribute, Plugin::t('Invalid gateway: {value}'));
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid gateway: {value}'));
         }
     }
 
@@ -48,7 +48,7 @@ trait OrderValidatorsTrait
             $this->getPaymentSource();
         } catch (InvalidConfigException $e) {
             Craft::error($e->getMessage());
-            $validator->addError($this, $attribute, Plugin::t('Invalid payment source ID: {value}'));
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
         }
     }
 
@@ -63,7 +63,7 @@ trait OrderValidatorsTrait
             // this will confirm the payment source is valid and belongs to the orders customer
             $this->getPaymentCurrency();
         } catch (InvalidConfigException $e) {
-            $validator->addError($this, $attribute, Plugin::t('Invalid payment source ID: {value}'));
+            $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid payment source ID: {value}'));
         }
     }
 
@@ -119,7 +119,7 @@ trait OrderValidatorsTrait
             }
 
             if ($anotherCustomerAddress || $anotherOrdersAddress) {
-                $address->addError($attribute, Plugin::t('Address does not belong to customer.'));
+                $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
                 $this->addModelErrors($address, $attribute);
             }
         }
@@ -133,7 +133,7 @@ trait OrderValidatorsTrait
     public function validateAddressReuse($attribute)
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
-            $this->addError($attribute, Plugin::t('shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
+            $this->addError($attribute, Craft::t('commerce', 'shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
         }
     }
 

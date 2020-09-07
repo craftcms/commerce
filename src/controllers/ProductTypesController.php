@@ -65,24 +65,24 @@ class ProductTypesController extends BaseAdminController
         if (!empty($variables['productTypeId'])) {
             $variables['title'] = $variables['productType']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a Product Type');
+            $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
 
         $tabs = [
             'productTypeSettings' => [
-                'label' => Plugin::t('Settings'),
+                'label' => Craft::t('commerce', 'Settings'),
                 'url' => '#product-type-settings',
             ],
             'taxAndShipping' => [
-                'label' => Plugin::t('Tax & Shipping'),
+                'label' => Craft::t('commerce', 'Tax & Shipping'),
                 'url' => '#tax-and-shipping',
             ],
             'productFields' => [
-                'label' => Plugin::t('Product Fields'),
+                'label' => Craft::t('commerce', 'Product Fields'),
                 'url' => '#product-fields',
             ],
             'variantFields' => [
-                'label' => Plugin::t('Variant Fields'),
+                'label' => Craft::t('commerce', 'Variant Fields'),
                 'url' => '#variant-fields',
                 'class' => ($variables['productType']->hasVariants ? '' : 'hidden')
             ]
@@ -104,7 +104,7 @@ class ProductTypesController extends BaseAdminController
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         if (!$currentUser->can('manageCommerce')) {
-            throw new HttpException(403, Plugin::t('This action is not allowed for the current user.'));
+            throw new HttpException(403, Craft::t('commerce', 'This action is not allowed for the current user.'));
         }
 
         $request = Craft::$app->getRequest();
@@ -163,10 +163,10 @@ class ProductTypesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Product type saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product type saved.'));
             $this->redirectToPostedUrl($productType);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product type.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product type.'));
         }
 
         // Send the productType back to the template

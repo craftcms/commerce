@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -117,7 +118,7 @@ class OrderStatus extends Model
     public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null) {
-            return $this->name . Plugin::t(' (Trashed)');
+            return $this->name . Craft::t('commerce', ' (Trashed)');
         }
 
         return $this->name;

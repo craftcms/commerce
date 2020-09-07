@@ -540,7 +540,7 @@ class Sales extends Component
             $record = SaleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No sale exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No sale exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         }
