@@ -14,6 +14,7 @@
 - Products, suscriptions, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
 
 ### Fixed
+- Fixed a bug where the donation’s `sitedId` wasn’t being updated when changing the primary site.
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
 - Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where users without orders weren’t available for selection in the customers list or when creating an order.

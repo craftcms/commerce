@@ -13,6 +13,7 @@ use craft\commerce\services\Countries;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Discounts;
+use craft\commerce\services\Donations;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
@@ -147,6 +148,17 @@ trait Services
     public function getDiscounts(): Discounts
     {
         return $this->get('discounts');
+    }
+
+    /**
+     * Returns the donations service
+     *
+     * @return Donations The donations service
+     * @since 3.x
+     */
+    public function getDonations(): Donations
+    {
+        return $this->get('donations');
     }
 
     /**
@@ -505,6 +517,9 @@ trait Services
             ],
             'discounts' => [
                 'class' => Discounts::class,
+            ],
+            'donations' => [
+                'class' => Donations::class,
             ],
             'emails' => [
                 'class' => Emails::class,
