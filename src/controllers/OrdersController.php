@@ -1001,7 +1001,7 @@ class OrdersController extends Controller
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         $pdfUrls = [];
-        foreach ($pdfs as $pdf){
+        foreach ($pdfs as $pdf) {
             $pdfUrls[] = [
                 'name' => $pdf->name,
                 'url' => $variables['order']->getPdfUrl(null, $pdf->handle)

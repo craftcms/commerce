@@ -903,7 +903,7 @@ class Customers extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if(isset($customers[$order->customerId])) {
+            if (isset($customers[$order->customerId])) {
                 $order->setCustomer($customers[$order->customerId]);
                 $orders[$key] = $order;
             }

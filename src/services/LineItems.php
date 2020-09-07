@@ -25,7 +25,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidCallException;
 
 /**
  * Line item service.

@@ -113,10 +113,12 @@ class m200730_233644_field_layout_changes extends Migration
     {
         // Make sure there's at least one tab
         if (empty($fieldLayoutConfig['tabs'])) {
-            $fieldLayoutConfig['tabs'] = [[
-                'name' => 'Content',
-                'sortOrder' => 1,
-            ]];
+            $fieldLayoutConfig['tabs'] = [
+                [
+                    'name' => 'Content',
+                    'sortOrder' => 1,
+                ]
+            ];
         }
 
         // Update the tab configs to the new format

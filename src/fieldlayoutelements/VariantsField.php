@@ -10,7 +10,6 @@ namespace craft\commerce\fieldlayoutelements;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
-use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseField;
 use craft\helpers\Html;
 use yii\base\InvalidArgumentException;

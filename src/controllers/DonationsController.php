@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Donation;
-use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use Throwable;

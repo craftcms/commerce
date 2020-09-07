@@ -49,7 +49,6 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
-use craft\web\View;
 use DateTime;
 use Throwable;
 use yii\base\Exception;

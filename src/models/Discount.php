@@ -10,7 +10,6 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
-use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;

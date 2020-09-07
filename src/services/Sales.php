@@ -206,7 +206,8 @@ class Sales extends Component
                 'sales.enabled',
                 'sp.purchasableId',
                 'spt.categoryId',
-                'sug.userGroupId'])
+                'sug.userGroupId'
+            ])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')

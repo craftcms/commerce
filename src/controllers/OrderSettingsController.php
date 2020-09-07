@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\Plugin;
 use craft\commerce\services\Orders;
 use craft\helpers\StringHelper;
 use yii\web\Response;
