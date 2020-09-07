@@ -14,7 +14,7 @@ use craft\elements\actions\Delete;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @deprecated since 3.x Not needed, since we can just use the Delete action and pass in our confirmation/success strings
+ * @deprecated since 3.2.4 Not needed, since we can just use the Delete action and pass in our confirmation/success strings
  */
 class DeleteProduct extends Delete
 {

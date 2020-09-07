@@ -828,7 +828,7 @@ class Order extends Element
 
     /**
      * @var float The item subtotal as stored in the database from last retrieval
-     * @since 3.x.
+     * @since 3.2.4
      * ---
      * ```php
      * echo $order->storedItemSubtotal;

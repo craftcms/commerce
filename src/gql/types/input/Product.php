@@ -15,7 +15,7 @@ use GraphQL\Type\Definition\InputObjectType;
  * Class Product
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.4
  */
 class Product extends InputObjectType
 {
