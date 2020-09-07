@@ -15,7 +15,6 @@ use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
-use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
@@ -215,7 +214,7 @@ class Gateways extends Component
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', Plugin::t('That handle is already in use.'));
+            $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
             return false;
         }
 

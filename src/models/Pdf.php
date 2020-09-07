@@ -74,7 +74,7 @@ class Pdf extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['name','handle'], 'required'];
+        $rules[] = [['name', 'handle'], 'required'];
         $rules[] = [['templatePath'], 'required'];
         return $rules;
     }

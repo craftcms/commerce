@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
@@ -70,14 +69,14 @@ class TotalOrdersByCountry extends Widget
         parent::init();
 
         $this->_typeOptions = [
-            'billing' => Plugin::t('Billing'),
-            'shipping' => Plugin::t('Shipping'),
+            'billing' => Craft::t('commerce', 'Billing'),
+            'shipping' => Craft::t('commerce', 'Shipping'),
         ];
 
         if ($this->type == 'billing') {
-            $this->_title = Plugin::t('Total Orders by Billing Country');
+            $this->_title = Craft::t('commerce', 'Total Orders by Billing Country');
         } else {
-            $this->_title = Plugin::t('Total Orders by Shipping Country');
+            $this->_title = Craft::t('commerce', 'Total Orders by Shipping Country');
             $this->type = 'shipping';
         }
 
@@ -120,7 +119,7 @@ class TotalOrdersByCountry extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t('Total Orders by Country');
+        return Craft::t('commerce', 'Total Orders by Country');
     }
 
     /**

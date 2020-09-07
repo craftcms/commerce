@@ -140,7 +140,7 @@ class OrderHistories extends Component
             $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No order history exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No order history exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

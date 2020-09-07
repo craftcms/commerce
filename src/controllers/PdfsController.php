@@ -59,7 +59,7 @@ class PdfsController extends BaseAdminController
         if ($variables['pdf']->id) {
             $variables['title'] = $variables['pdf']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new PDF');
+            $variables['title'] = Craft::t('commerce', 'Create a new PDF');
         }
 
         return $this->renderTemplate('commerce/settings/pdfs/_edit', $variables);
@@ -97,10 +97,10 @@ class PdfsController extends BaseAdminController
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('PDF saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'PDF saved.'));
             return $this->redirectToPostedUrl($pdf);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save PDF.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save PDF.'));
         }
 
         // Send the model back to the template
@@ -140,6 +140,6 @@ class PdfsController extends BaseAdminController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder PDFs.')]);
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder PDFs.')]);
     }
 }

@@ -2,14 +2,12 @@
 
 namespace craft\commerce\migrations;
 
-use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Pdfs;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\helpers\StringHelper;
-use yii\db\Expression;
 
 /**
  * m200801_233755_pdfs migration.

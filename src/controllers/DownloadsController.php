@@ -8,7 +8,6 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use HttpInvalidParamException;
 use Throwable;

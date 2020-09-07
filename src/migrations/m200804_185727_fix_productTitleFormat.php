@@ -2,9 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Table;
 
 /**
  * m200804_185727_fix_productTitleFormat migration.

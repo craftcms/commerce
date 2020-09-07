@@ -464,7 +464,7 @@ class Transactions extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if(isset($transactions[$order->id])) {
+            if (isset($transactions[$order->id])) {
                 $order->setTransactions($transactions[$order->id]);
                 $orders[$key] = $order;
             }

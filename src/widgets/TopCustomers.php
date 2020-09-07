@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TopCustomers as TopCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -68,24 +67,24 @@ class TopCustomers extends Widget
     public function init()
     {
         $this->_typeOptions = [
-            'total' => Plugin::t('Total'),
-            'average' => Plugin::t('Average'),
+            'total' => Craft::t('commerce', 'Total'),
+            'average' => Craft::t('commerce', 'Average'),
         ];
 
         switch ($this->type) {
             case 'average':
             {
-                $this->_title = Plugin::t('Top Customers by Average Order');
+                $this->_title = Craft::t('commerce', 'Top Customers by Average Order');
                 break;
             }
             case 'total':
             {
-                $this->_title = Plugin::t('Top Customers by Total Revenue');
+                $this->_title = Craft::t('commerce', 'Top Customers by Total Revenue');
                 break;
             }
             default:
             {
-                $this->_title = Plugin::t('Top Customers');
+                $this->_title = Craft::t('commerce', 'Top Customers');
                 break;
             }
         }
@@ -114,7 +113,7 @@ class TopCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t('Top Customers');
+        return Craft::t('commerce', 'Top Customers');
     }
 
     /**

@@ -65,7 +65,6 @@ class m190528_161915_description_on_purchasable extends Migration
                 }
             }
         }
-
     }
 
     /**

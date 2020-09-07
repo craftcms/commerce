@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\ShippingCategory;
-use craft\commerce\Plugin;
 use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -179,7 +178,7 @@ class ShippingCategories extends Component
             $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No shipping category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping category exists with the ID “{id}”',
                     ['id' => $shippingCategory->id]));
             }
 

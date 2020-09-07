@@ -254,7 +254,7 @@ class OrderStatuses extends Component
         $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
 
         if ($existingStatus && (!$orderStatus->id || $orderStatus->id != $existingStatus->id)) {
-            $orderStatus->addError('handle', Plugin::t('That handle is already in use'));
+            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
             return false;
         }
 

@@ -13,7 +13,6 @@ use craft\commerce\elements\Product;
 use craft\commerce\gql\arguments\elements\Product as ProductArguments;
 use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
-use craft\commerce\Plugin;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\fields\BaseRelationField;
 use GraphQL\Type\Definition\Type;
@@ -38,7 +37,7 @@ class Products extends BaseRelationField
      */
     public static function displayName(): string
     {
-        return Plugin::t('Commerce Products');
+        return Craft::t('commerce', 'Commerce Products');
     }
 
     /**
@@ -46,7 +45,7 @@ class Products extends BaseRelationField
      */
     public static function defaultSelectionLabel(): string
     {
-        return Plugin::t('Add a product');
+        return Craft::t('commerce', 'Add a product');
     }
 
     public function getInputHtml($value, ElementInterface $element = null): string
