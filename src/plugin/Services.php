@@ -154,7 +154,7 @@ trait Services
      * Returns the donations service
      *
      * @return Donations The donations service
-     * @since 3.x
+     * @since 3.2.4
      */
     public function getDonations(): Donations
     {
