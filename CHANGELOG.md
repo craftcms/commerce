@@ -5,13 +5,13 @@
 ### Added
 - Added the `craft\commerce\services\Addresses::EVENT_BEFORE_DELETE_ADDRESS` event. ([#1590](https://github.com/craftcms/commerce/pull/1590))
 - Added the `hasProduct` argument to GraphQL variant queries. ([#1697](https://github.com/craftcms/commerce/issues/1697))
-- Added “Item Total” and “Item Subtotal” table attribute options to the Orders index page. ([#1695](https://github.com/craftcms/commerce/issues/1695))
+- Added “Item Total” and “Item Subtotal” orders index page columns. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 - Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 - Added `craft\commerce\elements\Order::$storedItemSubtotal` and `$storedItemSubtotalAsCurrency`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 
 ### Changed
 - Address forms now show country before state to avoid confusion when editing an address.
-- Products, suscriptions, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
+- Products, subscriptions, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
 
 ### Fixed
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
