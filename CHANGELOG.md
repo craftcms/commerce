@@ -3,34 +3,36 @@
 ## Unreleased
 
 ### Added
-- Added the `craft\commerce\services\Addresses::EVENT_BEFORE_DELETE_ADDRESS` event. ([#1590](https://github.com/craftcms/commerce/pull/1590))
+- Added the “Item Total” and “Item Subtotal” Orders index page columns. ([#1695](https://github.com/craftcms/commerce/issues/1695))
 - Added the `hasProduct` argument to GraphQL variant queries. ([#1697](https://github.com/craftcms/commerce/issues/1697))
-- Added “Item Total” and “Item Subtotal” orders index page columns. ([#1695](https://github.com/craftcms/commerce/issues/1695))
-- Added the `sanitize` param to the `craft\commerce\models\Address::getAddressLines()` method. ([#1671](https://github.com/craftcms/commerce/issues/1671))
-- Added `craft\commerce\elements\Order::$storedItemSubtotal` and `$storedItemSubtotalAsCurrency`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
+- Added `craft\commerce\elements\Order::$storedItemSubtotalAsCurrency`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
+- Added `craft\commerce\elements\Order::$storedItemSubtotal`. ([#1695](https://github.com/craftcms/commerce/issues/1695))
+- Added `craft\commerce\services\Addresses::EVENT_BEFORE_DELETE_ADDRESS`. ([#1590](https://github.com/craftcms/commerce/pull/1590))
 
 ### Changed
-- Address forms now show country before state to avoid confusion when editing an address.
-- Products, subscriptions, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
+- Address forms now show the Country field before State to avoid confusion when editing an address.
+- Products’, subscriptions’, and orders’ date sort options are now sorted in descending order by default when selected (requires Craft 3.5.9 or later).
+- `craft\commerce\models\Address::getAddressLines()` now has a `$sanitize` argument. ([#1671](https://github.com/craftcms/commerce/issues/1671))
+
+### Deprecated
+- Deprecated `craft\commerce\Plugin::t()`.
+- Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.
 
 ### Fixed
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
-- Fixed a bug where sales weren’t being applied to an order on the Edit order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
-- Fixed a bug where users without orders weren’t available for selection in the customers list or when creating an order.
-- Fixed a bug where the `*AsCurrency` order attributes were showing the base currency, and not the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
-- Fixed a bug where it was not possible to permanently delete orders from the order index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
-- Fixed a bug where it was not possible to permanently delete products from the product index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
+- Fixed a bug where sales weren’t being applied to orders on the Edit Order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
+- Fixed a bug where users without orders weren’t available for selection in customer lists.
+- Fixed a bug where the `*AsCurrency` order attributes were showing the base currency rather than the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
+- Fixed a bug where it wasn’t possible to permanently delete orders from the Orders index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
+- Fixed a bug where it wasn’t possible to permanently delete products from the Product index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
-- Fixed a bug where address lines were being HTML encoded twice. ([#1671](https://github.com/craftcms/commerce/issues/1671))
+- Fixed a bug where address lines were getting double-encoded. ([#1671](https://github.com/craftcms/commerce/issues/1671))
 - Fixed a bug where shipping method caches weren’t getting invalidated. ([#1674](https://github.com/craftcms/commerce/issues/1674))
-- Fixed a bug where `dateUpdated` wasn’t being populated when saving a line item. ([#1691](https://github.com/craftcms/commerce/issues/1691))
+- Fixed a bug where `dateUpdated` wasn’t getting populated when saving a line item. ([#1691](https://github.com/craftcms/commerce/issues/1691))
 - Fixed a bug where purchasable descriptions were able to be longer than line item descriptions.
-- Fixed a bug that would prevent the "Exclude this discount for products that are already on sale" discount condition from working. ([#1700](https://github.com/craftcms/commerce/issues/1700))
-- Fixed a bug where the order’s coupon code availability wasn’t validated with the discount condition formula. ([#1705](https://github.com/craftcms/commerce/pull/1705))
-- Fixed a bug where the order’s cached transactions were not updated when a payment transaction was saved. ([#1703](https://github.com/craftcms/commerce/pull/1703))
-
-### Deprecated
-- Deprecated `craft\commerce\services\Discounts::populateDiscountRelations()`.
+- Fixed a bug where discounts could be applied to products that were already on sale, even if their “Exclude this discount for products that are already on sale” condition was enabled. ([#1700](https://github.com/craftcms/commerce/issues/1700))
+- Fixed a bug where discount condition formulas weren’t preventing discount codes from applying to a cart. ([#1705](https://github.com/craftcms/commerce/pull/1705))
+- Fixed a bug where orders’ cached transactions were not getting updated when a transaction was saved. ([#1703](https://github.com/craftcms/commerce/pull/1703))
 
 ## 3.2.3 - 2020-08-19
 
