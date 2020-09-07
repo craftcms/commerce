@@ -433,6 +433,8 @@ class Transactions extends Component
             $model->order->markAsComplete();
         }
 
+        $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
+
         // Raise 'afterSaveTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
@@ -462,7 +464,7 @@ class Transactions extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if(isset($transactions[$order->id])) {
+            if (isset($transactions[$order->id])) {
                 $order->setTransactions($transactions[$order->id]);
                 $orders[$key] = $order;
             }

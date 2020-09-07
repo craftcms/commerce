@@ -27,6 +27,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
@@ -147,6 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
+     * @deprecated in 3.x. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -306,9 +308,13 @@ class Discounts extends Component
      * Populates a discount's relations.
      *
      * @param Discount $discount
+     * @throws DeprecationException
+     * @deprecated in 3.x
      */
     public function populateDiscountRelations(Discount $discount)
     {
+        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
+
         $rows = (new Query())->select(
             'dp.purchasableId,
             dpt.categoryId,
@@ -355,17 +361,22 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid.');
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
+            return false;
+        }
+
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is out of date.');
+            $explanation = Craft::t('commerce', 'Discount is out of date.');
             return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            $explanation = Plugin::t('Discount use has reached its limit.');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
 
@@ -373,19 +384,19 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Plugin::t('Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
             return false;
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
             return false;
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -456,7 +467,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->onSale && $discount->excludeOnSale) {
+        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
             return false;
         }
 
@@ -494,7 +505,6 @@ class Discounts extends Component
         }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
             $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 
@@ -620,7 +630,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();
@@ -964,6 +974,24 @@ class Discounts extends Component
         $to = $discount->dateTo;
 
         return !(($from && $from > $now) || ($to && $to < $now));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
+    {
+        if ($discount->orderConditionFormula) {
+            $orderDiscountConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+        }
+
+        return true;
     }
 
     /**

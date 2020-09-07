@@ -49,7 +49,6 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
-use craft\web\View;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -123,6 +122,7 @@ use yii\log\Logger;
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedItemSubtotalAsCurrency
  * @property-read string $storedTotalShippingCostAsCurrency
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
@@ -827,6 +827,19 @@ class Order extends Element
     public $storedItemTotal;
 
     /**
+     * @var float The item subtotal as stored in the database from last retrieval
+     * @since 3.2.4
+     * ---
+     * ```php
+     * echo $order->storedItemSubtotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemSubtotal }}
+     * ```
+     */
+    public $storedItemSubtotal;
+
+    /**
      * @var float The total shipping cost adjustments as stored in the database from last retrieval
      * ---
      * ```php
@@ -950,7 +963,7 @@ class Order extends Element
      * ```twig
      * {% for lineItem in order.lineItems %}
      * {{ lineItem.description }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_lineItems;
@@ -968,7 +981,7 @@ class Order extends Element
      * ```twig
      * {% for adjustment in order.adjustments %}
      * {{ adjustment.amount }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_orderAdjustments;
@@ -1107,6 +1120,7 @@ class Order extends Element
                 'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemSubtotal' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
@@ -1116,7 +1130,7 @@ class Order extends Element
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => []
         ];
@@ -1129,7 +1143,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return Plugin::t('Order');
+        return Craft::t('commerce', 'Order');
     }
 
     /**
@@ -1137,7 +1151,7 @@ class Order extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('order');
+        return Craft::t('commerce', 'order');
     }
 
     /**
@@ -1145,7 +1159,7 @@ class Order extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Orders');
+        return Craft::t('commerce', 'Orders');
     }
 
     /**
@@ -1153,7 +1167,7 @@ class Order extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('orders');
+        return Craft::t('commerce', 'orders');
     }
 
     /**
@@ -1264,6 +1278,7 @@ class Order extends Element
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedItemSubtotal';
         $attributes[] = 'storedTotalShippingCost';
         $attributes[] = 'storedTotalDiscount';
         $attributes[] = 'storedTotalTax';
@@ -1536,7 +1551,7 @@ class Order extends Element
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
-            Craft::error(Plugin::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
                 ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
             $mutex->release($lockName);
@@ -1665,7 +1680,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Plugin::t('Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -2147,19 +2162,19 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_OVERPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Plugin::t('Overpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
             }
             case self::PAID_STATUS_PAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Plugin::t('Paid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
             }
             case self::PAID_STATUS_PARTIAL:
             {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Plugin::t('Partial') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
             }
             case self::PAID_STATUS_UNPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Plugin::t('Unpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
             }
         }
 
@@ -2396,7 +2411,7 @@ class Order extends Element
      */
     public function getAdjustmentsTotalByType($types, $included = false)
     {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShippingCost() instead.');
+        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
 
         return $this->_getAdjustmentsTotalByType($types, $included);
     }
@@ -2625,6 +2640,11 @@ class Order extends Element
 
         $this->shippingAddressId = $address->id;
         $this->_shippingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+            $this->_billingAddress = $this->_shippingAddress;
+        }
     }
 
     /**
@@ -2712,6 +2732,11 @@ class Order extends Element
 
         $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+            $this->_shippingAddress = $this->_billingAddress;
+        }
     }
 
     /**
@@ -2905,10 +2930,12 @@ class Order extends Element
     }
 
     /**
-     * @param array|Transaction[] $transactions
+     * Set transactions on the order. Set to null to clear cache and force next getTransactions() call to get the latest transactions.
+     *
+     * @param Transaction[]|null $transactions
      * @since 3.2.0
      */
-    public function setTransactions(array $transactions)
+    public function setTransactions($transactions)
     {
         $this->_transactions = $transactions;
     }
@@ -3034,7 +3061,7 @@ class Order extends Element
 
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
-                
+
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
                         'lineItem' => $lineItem

@@ -7,8 +7,8 @@
 
 namespace craft\commerce\services;
 
+use Craft;
 use craft\base\Component;
-use craft\commerce\Plugin;
 use craft\web\twig\Environment;
 use Twig\Error\SyntaxError;
 
@@ -52,7 +52,7 @@ class Formulas extends Component
     public function validateConditionSyntax($condition, $params): bool
     {
         try {
-            $this->evaluateCondition($condition, $params, Plugin::t('Validating condition syntax'));
+            $this->evaluateCondition($condition, $params, Craft::t('commerce', 'Validating condition syntax'));
         } catch (\Exception $exception) {
             return false;
         }
@@ -68,7 +68,7 @@ class Formulas extends Component
     public function validateFormulaSyntax($formula, $params): bool
     {
         try {
-            $this->evaluateFomula($formula, $params, Plugin::t('Validating formula syntax'));
+            $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
         } catch (\Exception $exception) {
             return false;
         }

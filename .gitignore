@@ -8,3 +8,4 @@
 *aspnet_client/*
 node_modules/
 /vendor
+/tests/_craft/config/project

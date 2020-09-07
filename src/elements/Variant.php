@@ -318,7 +318,7 @@ class Variant extends Purchasable
      */
     public static function displayName(): string
     {
-        return Plugin::t('Product Variant');
+        return Craft::t('commerce', 'Product Variant');
     }
 
     /**
@@ -326,7 +326,7 @@ class Variant extends Purchasable
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('product variant');
+        return Craft::t('commerce', 'product variant');
     }
 
     /**
@@ -334,7 +334,7 @@ class Variant extends Purchasable
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Product Variants');
+        return Craft::t('commerce', 'Product Variants');
     }
 
     /**
@@ -342,7 +342,7 @@ class Variant extends Purchasable
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('product variants');
+        return Craft::t('commerce', 'product variants');
     }
 
     /**
@@ -740,7 +740,7 @@ class Variant extends Purchasable
                     /** @var Purchasable $purchasable */
                     $purchasable = $lineItem->getPurchasable();
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('The item is not enabled for sale.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 }
             ],
@@ -748,22 +748,22 @@ class Variant extends Purchasable
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
                     if (!$this->hasStock()) {
-                        $error = Plugin::t('"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', '"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Plugin::t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Plugin::t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
                 },
@@ -1175,16 +1175,16 @@ class Variant extends Purchasable
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => Plugin::t('Title'),
-            'product' => Plugin::t('Product'),
-            'sku' => Plugin::t('SKU'),
-            'price' => Plugin::t('Price'),
-            'width' => Plugin::t('Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Plugin::t('Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Plugin::t('Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Plugin::t('Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Plugin::t('Stock'),
-            'minQty' => Plugin::t('Quantities')
+            'title' => Craft::t('commerce', 'Title'),
+            'product' => Craft::t('commerce', 'Product'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities')
         ];
     }
 
@@ -1229,7 +1229,7 @@ class Variant extends Purchasable
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Plugin::t('Title')
+            'title' => Craft::t('commerce', 'Title'),
         ];
     }
 

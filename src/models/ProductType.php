@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Product;
@@ -154,7 +155,19 @@ class ProductType extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle', 'titleFormat'], 'required'];
+        $rules[] = [['name', 'handle'], 'required'];
+        $rules[] = [
+            ['titleFormat'], 'required', 'when' => static function($model) {
+                /** @var static $model */
+                return !$model->hasVariantTitleField && $model->hasVariants;
+            }
+        ];
+        $rules[] = [
+            ['productTitleFormat'], 'required', 'when' => static function($model) {
+                /** @var static $model */
+                return !$model->hasProductTitleField;
+            }
+        ];
         $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
         $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
@@ -294,7 +307,7 @@ class ProductType extends Model
         // If this product type has variants, make sure the Variants field is in the layout somewhere
         if ($this->hasVariants && !$fieldLayout->isFieldIncluded('variants')) {
             $layoutTabs = $fieldLayout->getTabs();
-            $variantTabName = Plugin::t('Variants');
+            $variantTabName = Craft::t('commerce', 'Variants');
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }

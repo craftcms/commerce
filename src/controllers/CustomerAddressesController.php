@@ -45,7 +45,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
-            $error = Plugin::t('Not allowed to edit that address.');
+            $error = Craft::t('commerce', 'Not allowed to edit that address.');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['error' => $error]);
             }
@@ -108,7 +108,7 @@ class CustomerAddressesController extends BaseFrontEndController
             }
 
             if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
-                $error = Plugin::t('Unable to update primary address.');
+                $error = Craft::t('commerce', 'Unable to update primary address.');
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     return $this->asJson(['error' => $error]);
                 }
@@ -133,11 +133,11 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
 
             $this->redirectToPostedUrl();
         } else {
-            $errorMsg = Plugin::t('Could not save address.');
+            $errorMsg = Craft::t('commerce', 'Could not save address.');
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
@@ -208,10 +208,10 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Plugin::t('Address removed.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
             return $this->redirectToPostedUrl();
         } else {
-            $error = Plugin::t('Could not delete address.');
+            $error = Craft::t('commerce', 'Could not delete address.');
         }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {

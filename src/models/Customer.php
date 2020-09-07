@@ -13,7 +13,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use Exception;
 
 /**
  * Customer model
@@ -23,7 +25,11 @@ use craft\helpers\UrlHelper;
  * @property null|Address $primaryBillingAddress the primary Billing Address used by the customer if it exists
  * @property null|Address $primaryShippingAddress the primary Shipping Address used by the customer if it exists
  * @property Order[] $orders the order elements associated with this customer
+ * @property-read \craft\commerce\elements\Subscription[] $subscriptions
  * @property User $user the user element associated with this customer
+ * @property-read array $activeCarts The active carts this customer has
+ * @property-read array $inactiveCarts The Inactive carts this customer has
+ * @property-read string $cpEditUrl Link URL to this customer in the CP
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -150,14 +156,7 @@ class Customer extends Model
      */
     public function getAddressById(int $id = null)
     {
-        $addresses = $this->getAddresses();
-        foreach ($addresses as $address) {
-            if ($id == $address->id) {
-                return $address;
-            }
-        }
-
-        return null;
+        return ArrayHelper::firstWhere($this->getAddresses(), 'id', $id);
     }
 
     /**
@@ -166,8 +165,7 @@ class Customer extends Model
      */
     public function getCpEditUrl(): string
     {
-        $id = $this->id ?? '';
-        return UrlHelper::cpUrl('commerce/customers/' . $id);
+        return UrlHelper::cpUrl('commerce/customers/' . $this->id);
     }
 
     /**
@@ -177,12 +175,12 @@ class Customer extends Model
      */
     public function getOrders(): array
     {
-        return Order::find()->customer($this)->isCompleted()->all();
+        return Order::find()->customer($this)->isCompleted()->withAll()->all();
     }
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @since 2.2
      */
     public function getActiveCarts(): array
@@ -193,7 +191,7 @@ class Customer extends Model
 
     /**
      * @return array
-     * @throws \Exception
+     * @throws Exception
      * @since 2.2
      */
     public function getInactiveCarts(): array

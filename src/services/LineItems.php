@@ -223,7 +223,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -278,7 +278,9 @@ class LineItems extends Component
 
                 if ($success) {
                     $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
+                    $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;
+                    $lineItem->dateUpdated = $dateUpdated;
 
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
@@ -333,22 +335,27 @@ class LineItems extends Component
     /**
      * Create a line item.
      *
-     * @param int $purchasableId The ID of the purchasable the line item represents
      * @param int $orderId The order ID the line item is associated with
+     * @param int $purchasableId The ID of the purchasable the line item represents
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
+     * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
+     * TODO: Refactor method signature so that the 2 order assignment methods are no needed.
      * @return LineItem
      *
-     * @throws InvalidArgumentException if the purchasable ID is not valid
      */
-    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
+    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = '', Order $order = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
-        $lineItem->orderId = $orderId;
         $lineItem->note = $note;
+
+        if ($order == null) {
+            $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        }
+        $lineItem->setOrder($order);
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);

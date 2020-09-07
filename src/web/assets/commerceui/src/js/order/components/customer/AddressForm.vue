@@ -68,58 +68,58 @@
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
-      <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
-          <select-input
-                  ref="vSelect"
-                  label="name"
-                  :value="state"
-                  :options="statesList"
-                  :filterable="true"
-                  :clearable="false"
-                  :reduce="name => name.id"
-                  :placeholder="$options.filters.t('Search…', 'commerce')"
-                  :taggable="false"
-                  @input="handleStateChange"
-                  @search="onSearch"
-                  v-if="hasStates">
-            <template v-slot:option="slotProps">
-              <div>{{slotProps.option.name}}</div>
-            </template>
-            <template v-slot:selected-option="slotProps">
-              <div v-if="slotProps.option" @click="onOptionClick">
-                {{slotProps.option.name}}
-              </div>
-            </template>
-          </select-input>
-        </field>
-      </div>
-      <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Country', 'commerce')" :errors="getErrors('countryId')" v-slot:default="slotProps">
-          <select-input
-                  ref="vSelect"
-                  label="name"
-                  :value="country"
-                  :options="countries"
-                  :filterable="true"
-                  :clearable="false"
-                  :reduce="name => name.id"
-                  :placeholder="$options.filters.t('Search…', 'commerce')"
-                  :taggable="false"
-                  @input="handleCountryChange"
-                  @search="onSearch">
-            <template v-slot:option="slotProps">
-              <div>{{slotProps.option.name}}</div>
-            </template>
-            <template v-slot:selected-option="slotProps">
-                <div v-if="slotProps.option" @click="onOptionClick">
-                  {{slotProps.option.name}}
-                </div>
-            </template>
-          </select-input>
-        </field>
-      </div>
+        <div class="w-1/2 px-1">
+            <field :label="$options.filters.t('Country', 'commerce')" :errors="getErrors('countryId')" v-slot:default="slotProps">
+                <select-input
+                    ref="vSelect"
+                    label="name"
+                    :value="country"
+                    :options="countries"
+                    :filterable="true"
+                    :clearable="false"
+                    :reduce="name => name.id"
+                    :placeholder="$options.filters.t('Search…', 'commerce')"
+                    :taggable="false"
+                    @input="handleCountryChange"
+                    @search="onSearch">
+                    <template v-slot:option="slotProps">
+                        <div>{{slotProps.option.name}}</div>
+                    </template>
+                    <template v-slot:selected-option="slotProps">
+                        <div v-if="slotProps.option" @click="onOptionClick">
+                            {{slotProps.option.name}}
+                        </div>
+                    </template>
+                </select-input>
+            </field>
+        </div>
+        <div class="w-1/2 px-1">
+            <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
+                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
+                <select-input
+                    ref="vSelect"
+                    label="name"
+                    :value="state"
+                    :options="statesList"
+                    :filterable="true"
+                    :clearable="false"
+                    :reduce="name => name.id"
+                    :placeholder="$options.filters.t('Search…', 'commerce')"
+                    :taggable="false"
+                    @input="handleStateChange"
+                    @search="onSearch"
+                    v-if="hasStates">
+                    <template v-slot:option="slotProps">
+                        <div>{{slotProps.option.name}}</div>
+                    </template>
+                    <template v-slot:selected-option="slotProps">
+                        <div v-if="slotProps.option" @click="onOptionClick">
+                            {{slotProps.option.name}}
+                        </div>
+                    </template>
+                </select-input>
+            </field>
+        </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">

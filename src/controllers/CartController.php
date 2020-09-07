@@ -255,7 +255,7 @@ class CartController extends BaseFrontEndController
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
 
         if (!$number) {
-            $error = Plugin::t('A cart number must be specified.');
+            $error = Craft::t('commerce', 'A cart number must be specified.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -268,7 +268,7 @@ class CartController extends BaseFrontEndController
         $cart = Order::find()->number($number)->isCompleted(false)->one();
 
         if (!$cart) {
-            $error = Plugin::t('Unable to retrieve cart.');
+            $error = Craft::t('commerce', 'Unable to retrieve cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -282,7 +282,7 @@ class CartController extends BaseFrontEndController
         $currentUser = Craft::$app->getUser()->getIdentity();
 
         if ($cartCustomer && $cartCustomer->userId && (!$currentUser || $currentUser->id != $cartCustomer->userId)) {
-            $error = Plugin::t('You must be logged in to load this cart.');
+            $error = Craft::t('commerce', 'You must be logged in to load this cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -340,7 +340,7 @@ class CartController extends BaseFrontEndController
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
 
         if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
-            $error = Plugin::t('Unable to update cart.');
+            $error = Craft::t('commerce', 'Unable to update cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
@@ -361,7 +361,7 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
-        $cartUpdatedMessage = Plugin::t('Cart updated.');
+        $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
         if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
             $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
         }

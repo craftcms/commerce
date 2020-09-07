@@ -76,7 +76,7 @@ class PaymentsController extends BaseFrontEndController
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
             if (!$order) {
-                $error = Plugin::t('Can not find an order to pay.');
+                $error = Craft::t('commerce', 'Can not find an order to pay.');
 
                 if ($request->getAcceptsJson()) {
                     return $this->asErrorJson($error);
@@ -97,7 +97,7 @@ class PaymentsController extends BaseFrontEndController
          */
         $checkPaymentCanBeMade = (($isSiteRequest && $order->getEmail() == $request->getParam('email')) || ($isCpRequest && $currentUser && $currentUser->can('commerce-manageOrders'))) && $number;
         if (!$order->getIsActiveCart() && !$checkPaymentCanBeMade) {
-            $error = Plugin::t('Email required to make payments on a completed order.');
+            $error = Craft::t('commerce', 'Email required to make payments on a completed order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -109,7 +109,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$order->shippingAddressId) {
-            $error = Plugin::t('Shipping address required.');
+            $error = Craft::t('commerce', 'Shipping address required.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -121,7 +121,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$order->billingAddressId) {
-            $error = Plugin::t('Billing address required.');
+            $error = Craft::t('commerce', 'Billing address required.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -133,7 +133,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         if (!$plugin->getSettings()->allowEmptyCartOnCheckout && $order->getIsEmpty()) {
-            $error = Plugin::t('Order can not be empty.');
+            $error = Craft::t('commerce', 'Order can not be empty.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -201,7 +201,7 @@ class PaymentsController extends BaseFrontEndController
         $gateway = $order->getGateway();
 
         if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
-            $error = Plugin::t('There is no gateway or payment source available for this order.');
+            $error = Craft::t('commerce', 'There is no gateway or payment source available for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
@@ -282,7 +282,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Check email address exists on order.
         if (!$order->email) {
-            $customError = Plugin::t('No customer email address exists on this cart.');
+            $customError = Craft::t('commerce', 'No customer email address exists on this cart.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
@@ -296,7 +296,7 @@ class PaymentsController extends BaseFrontEndController
 
         // Does the order require shipping
         if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
-            $customError = Plugin::t('There is no shipping method selected for this order.');
+            $customError = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson($customError);
@@ -334,18 +334,18 @@ class PaymentsController extends BaseFrontEndController
             // Has the order changed in a significant way?
             if ($totalPriceChanged || $totalQtyChanged || $totalAdjustmentsChanged) {
                 if ($totalPriceChanged) {
-                    $order->addError('totalPrice', Plugin::t('The total price of the order changed.'));
+                    $order->addError('totalPrice', Craft::t('commerce', 'The total price of the order changed.'));
                 }
 
                 if ($totalQtyChanged) {
-                    $order->addError('totalQty', Plugin::t('The total quantity of items within the order changed.'));
+                    $order->addError('totalQty', Craft::t('commerce', 'The total quantity of items within the order changed.'));
                 }
 
                 if ($totalAdjustmentsChanged) {
-                    $order->addError('totalAdjustments', Plugin::t('The total number of order adjustments changed.'));
+                    $order->addError('totalAdjustments', Craft::t('commerce', 'The total number of order adjustments changed.'));
                 }
 
-                $customError = Plugin::t('Something changed with the order before payment, please review your order and submit payment again.');
+                $customError = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
                 if ($request->getAcceptsJson()) {
                     return $this->asJson(['error' => $customError, 'paymentFormErrors' => $paymentForm->getErrors(), 'orderErrors' => $order->getErrors()]);
@@ -376,7 +376,7 @@ class PaymentsController extends BaseFrontEndController
                 $success = false;
             }
         } else {
-            $customError = Plugin::t('Invalid payment or order. Please review.');
+            $customError = Craft::t('commerce', 'Invalid payment or order. Please review.');
             $success = false;
         }
 
@@ -435,7 +435,7 @@ class PaymentsController extends BaseFrontEndController
         $transaction = $plugin->getTransactions()->getTransactionByHash($hash);
 
         if (!$transaction) {
-            throw new HttpException(400, Plugin::t('Can not complete payment for missing transaction.'));
+            throw new HttpException(400, Craft::t('commerce', 'Can not complete payment for missing transaction.'));
         }
 
         $customError = '';
@@ -451,7 +451,7 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
-        Craft::$app->getSession()->setError(Plugin::t('Payment error: {message}', ['message' => $customError]));
+        Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $customError]));
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $response = ['url' => $transaction->order->cancelUrl];

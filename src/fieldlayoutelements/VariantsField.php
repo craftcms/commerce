@@ -7,10 +7,10 @@
 
 namespace craft\commerce\fieldlayoutelements;
 
+use Craft;
 use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\helpers\VariantMatrix;
-use craft\commerce\Plugin;
 use craft\fieldlayoutelements\BaseField;
 use craft\helpers\Html;
 use yii\base\InvalidArgumentException;
@@ -44,7 +44,7 @@ class VariantsField extends BaseField
      */
     protected function defaultLabel(ElementInterface $element = null, bool $static = false)
     {
-        return Plugin::t('Variants');
+        return Craft::t('commerce', 'Variants');
     }
 
     /**

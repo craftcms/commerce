@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
@@ -16,6 +17,10 @@ use craft\commerce\records\Email as EmailRecord;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read string $pdfTemplatePath
+ * @property-read null|Pdf $pdf
+ * @property-read array $config
  */
 class Email extends Model
 {
@@ -120,6 +125,8 @@ class Email extends Model
      */
     public function getPdfTemplatePath()
     {
+        Craft::$app->getDeprecator()->log('\craft\commerce\models\Email::getPdfTemplatePath()', '\craft\commerce\models\Email::getPdfTemplatePath(), use \craft\commerce\models\Email::getPdf()->getTemplatePath() instead.');
+
         if ($pdf = $this->getPdf()) {
             return $pdf->templatePath;
         }

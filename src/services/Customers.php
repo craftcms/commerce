@@ -32,6 +32,7 @@ use yii\base\Component;
 use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 use yii\web\UserEvent;
 
 /**
@@ -191,7 +192,7 @@ class Customers extends Component
             $customerRecord = CustomerRecord::findOne($customer->id);
 
             if (!$customerRecord) {
-                throw new Exception(Plugin::t('No customer exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No customer exists with the ID “{id}”',
                     ['id' => $customer->id]));
             }
         }
@@ -450,7 +451,7 @@ class Customers extends Component
      */
     public function getCustomerId(): int
     {
-        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', 'Customers::getCustomerId() has been deprecated. Use Customers::getCustomer()->id, since it is guaranteed to have a ID.');
+        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', '`Customers::getCustomerId()` has been deprecated. Use `Customers::getCustomer()->id`, since it is guaranteed to have a ID.');
 
         return $this->getCustomer()->id;
     }
@@ -464,7 +465,7 @@ class Customers extends Component
      */
     public function saveUserHandler(Event $event)
     {
-        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', 'Customers::saveUserHandler() has been deprecated. Use Customers::afterSaveUserHandler() instead.');
+        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', '`Customers::saveUserHandler()` has been deprecated. Use `Customers::afterSaveUserHandler()` instead.');
 
         if ($customer = $this->getCustomerByUserId($event->sender->id)) {
             $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
@@ -484,7 +485,7 @@ class Customers extends Component
             ->select([
                 'customers.id as id',
                 'userId',
-                'orders.email as email',
+                new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END as email'),
                 'primaryBillingAddressId',
                 'billing.firstName as billingFirstName',
                 'billing.lastName as billingLastName',
@@ -497,7 +498,7 @@ class Customers extends Component
                 'primaryShippingAddressId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
-            ->innerJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
+            ->leftJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
             ->leftJoin(CraftTable::USERS . ' users', '[[users.id]] = [[customers.userId]]')
             ->leftJoin(Table::ADDRESSES . ' billing', '[[billing.id]] = [[customers.primaryBillingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' shipping', '[[shipping.id]] = [[customers.primaryShippingAddressId]]')
@@ -512,6 +513,7 @@ class Customers extends Component
                 'shipping.lastName',
                 'shipping.fullName',
                 'shipping.address1',
+                'users.email',
             ])
 
             // Exclude customer records without a user or where there isn't any data
@@ -530,11 +532,7 @@ class Customers extends Component
             ])->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                [
-                    'and',
-                    ['orders.isCompleted' => false],
-                    ['not', ['customers.userId' => null]],
-                ]
+                ['not', ['customers.userId' => null]]
             ]);
 
         if ($search) {
@@ -553,6 +551,9 @@ class Customers extends Component
                 [$likeOperator, '[[shipping.fullName]]', $search],
                 [$likeOperator, '[[shipping.lastName]]', $search],
                 [$likeOperator, '[[users.username]]', $search],
+                [$likeOperator, '[[users.firstName]]', $search],
+                [$likeOperator, '[[users.lastName]]', $search],
+                [$likeOperator, '[[users.email]]', $search],
             ]);
         }
 
@@ -664,7 +665,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setBillingAddress($snapshotBillingAddress);
             } else {
-                Craft::error(Plugin::t('Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -704,7 +705,7 @@ class Customers extends Component
                 $mutated = true;
                 $order->setShippingAddress($snapshotShippingAddress);
             } else {
-                Craft::error(Plugin::t('Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
@@ -803,7 +804,7 @@ class Customers extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
-                'label' => Plugin::t('Customer Info'),
+                'label' => Craft::t('commerce', 'Customer Info'),
                 'url' => '#customerInfo'
             ];
         }
@@ -902,7 +903,7 @@ class Customers extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if(isset($customers[$order->customerId])) {
+            if (isset($customers[$order->customerId])) {
                 $order->setCustomer($customers[$order->customerId]);
                 $orders[$key] = $order;
             }

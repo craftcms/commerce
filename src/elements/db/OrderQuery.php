@@ -1080,17 +1080,17 @@ class OrderQuery extends ElementQuery
             $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load adjustments?
         if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load customers?
         if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
         }
 
-        // Eager-load transactions?
+        // Eager-load addresses?
         if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
         }
@@ -1177,6 +1177,12 @@ class OrderQuery extends ElementQuery
         if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
             $this->query->addSelect([
                 'commerce_orders.shippingMethodName',
+            ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+            $this->query->addSelect([
+                'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
             ]);
         }
 

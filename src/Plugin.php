@@ -119,6 +119,7 @@ class Plugin extends BasePlugin
      * @see Craft::t()
      *
      * @since 2.2.0
+     * @deprecated in 3.2.4
      */
     public static function t($message, $params = [], $language = null)
     {
@@ -128,7 +129,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.2.3';
+    public $schemaVersion = '3.2.5';
 
     /**
      * @inheritdoc
@@ -224,11 +225,11 @@ class Plugin extends BasePlugin
     {
         $ret = parent::getCpNavItem();
 
-        $ret['label'] = self::t('Commerce');
+        $ret['label'] = Craft::t('commerce', 'Commerce');
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
-                'label' => self::t('Orders'),
+                'label' => Craft::t('commerce', 'Orders'),
                 'url' => 'commerce/orders'
             ];
         }
@@ -236,28 +237,28 @@ class Plugin extends BasePlugin
         $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
         if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
             $ret['subnav']['products'] = [
-                'label' => self::t('Products'),
+                'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageCustomers')) {
             $ret['subnav']['customers'] = [
-                'label' => self::t('Customers'),
+                'label' => Craft::t('commerce', 'Customers'),
                 'url' => 'commerce/customers',
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
             $ret['subnav']['subscriptions'] = [
-                'label' => self::t('Subscriptions'),
+                'label' => Craft::t('commerce', 'Subscriptions'),
                 'url' => 'commerce/subscriptions'
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
             $ret['subnav']['promotions'] = [
-                'label' => self::t('Promotions'),
+                'label' => Craft::t('commerce', 'Promotions'),
                 'url' => 'commerce/promotions'
             ];
         }
@@ -265,14 +266,14 @@ class Plugin extends BasePlugin
         if (self::getInstance()->is('pro', '>=')) {
             if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
                 $ret['subnav']['shipping'] = [
-                    'label' => self::t('Shipping'),
+                    'label' => Craft::t('commerce', 'Shipping'),
                     'url' => 'commerce/shipping'
                 ];
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
                 $ret['subnav']['tax'] = [
-                    'label' => self::t('Tax'),
+                    'label' => Craft::t('commerce', 'Tax'),
                     'url' => 'commerce/tax'
                 ];
             }
@@ -280,14 +281,14 @@ class Plugin extends BasePlugin
 
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-settings'] = [
-                'label' => self::t('Store Settings'),
+                'label' => Craft::t('commerce', 'Store Settings'),
                 'url' => 'commerce/store-settings'
             ];
         }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
-                'label' => self::t('System Settings'),
+                'label' => Craft::t('commerce', 'System Settings'),
                 'url' => 'commerce/settings'
             ];
         }
@@ -335,14 +336,14 @@ class Plugin extends BasePlugin
 
             if ($productSources) {
                 $event->linkOptions[] = [
-                    'optionTitle' => self::t('Link to a product'),
+                    'optionTitle' => Craft::t('commerce', 'Link to a product'),
                     'elementType' => Product::class,
                     'refHandle' => Product::refHandle(),
                     'sources' => $productSources
                 ];
 
                 $event->linkOptions[] = [
-                    'optionTitle' => self::t('Link to a variant'),
+                    'optionTitle' => Craft::t('commerce', 'Link to a variant'),
                     'elementType' => Variant::class,
                     'refHandle' => Variant::refHandle(),
                     'sources' => $productSources
@@ -362,33 +363,33 @@ class Plugin extends BasePlugin
             $productTypePermissions = [];
             foreach ($productTypes as $productType) {
                 $suffix = ':' . $productType->uid;
-                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => self::t('Manage “{type}” products', ['type' => $productType->name])];
+                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
-            $event->permissions[self::t('Craft Commerce')] = [
-                'commerce-manageProducts' => ['label' => self::t('Manage products'), 'nested' => $productTypePermissions],
+            $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
+                'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
                 'commerce-manageOrders' => [
-                    'label' => self::t('Manage orders'), 'nested' => [
+                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                         'commerce-editOrders' => [
-                            'label' => self::t('Edit orders')
+                            'label' => Craft::t('commerce', 'Edit orders')
                         ],
                         'commerce-deleteOrders' => [
-                            'label' => self::t('Delete orders')
+                            'label' => Craft::t('commerce', 'Delete orders')
                         ],
                         'commerce-capturePayment' => [
-                            'label' => self::t('Capture payment')
+                            'label' => Craft::t('commerce', 'Capture payment')
                         ],
                         'commerce-refundPayment' => [
-                            'label' => self::t('Refund payment')
+                            'label' => Craft::t('commerce', 'Refund payment')
                         ],
                     ]
                 ],
-                'commerce-manageCustomers' => ['label' => self::t('Manage customers')],
-                'commerce-managePromotions' => ['label' => self::t('Manage promotions')],
-                'commerce-manageSubscriptions' => ['label' => self::t('Manage subscriptions')],
-                'commerce-manageShipping' => ['label' => self::t('Manage shipping (Pro edition Only)')],
-                'commerce-manageTaxes' => ['label' => self::t('Manage taxes (Pro edition Only)')],
-                'commerce-manageStoreSettings' => ['label' => self::t('Manage store settings')],
+                'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
+                'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
+                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
+                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
+                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
         });
     }
@@ -462,6 +463,7 @@ class Plugin extends BasePlugin
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
+        Event::on(Sites::class, Sites::EVENT_AFTER_CHANGE_PRIMARY_SITE, [$this->getDonations(), 'afterChangePrimarySiteHandler']);
         Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler'], null, false); // Lets run this before other plugins if we can
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
@@ -596,12 +598,12 @@ class Plugin extends BasePlugin
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
             if (!empty($productTypes)) {
-                $label = Plugin::t('Products');
+                $label = Craft::t('commerce', 'Products');
                 $productPermissions = [];
 
                 foreach ($productTypes as $productType) {
                     $suffix = 'productTypes.' . $productType->uid;
-                    $productPermissions[$suffix . ':read'] = ['label' => self::t('View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
+                    $productPermissions[$suffix . ':read'] = ['label' => Craft::t('commerce', 'View product type - {productType}', ['productType' => Craft::t('site', $productType->name)])];
                 }
 
                 $queryComponents[$label] = $productPermissions;
@@ -643,7 +645,7 @@ class Plugin extends BasePlugin
 
             $e->options[] = [
                 'key' => 'commerce-order-exports',
-                'label' => self::t('Commerce order exports'),
+                'label' => Craft::t('commerce', 'Commerce order exports'),
                 'action' => static function() use ($path) {
                     if (file_exists($path)) {
                         FileHelper::clearDirectory($path);

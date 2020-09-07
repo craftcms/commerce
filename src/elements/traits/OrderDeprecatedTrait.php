@@ -24,7 +24,7 @@ trait OrderDeprecatedTrait
      */
     public function getAvailableShippingMethods(): array
     {
-        Craft::$app->getDeprecator()->log('Order::getAvailableShippingMethods()', 'Order::getAvailableShippingMethods() has been deprecated. Use Order::getAvailableShippingMethodOptions().');
+        Craft::$app->getDeprecator()->log('Order::getAvailableShippingMethods()', '`Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions().`');
 
         /** @var Order $this */
         return Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
@@ -37,7 +37,7 @@ trait OrderDeprecatedTrait
      */
     public function setShouldRecalculateAdjustments(bool $value)
     {
-        Craft::$app->getDeprecator()->log('Order::setShouldRecalculateAdjustments()', 'Order::setShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
+        Craft::$app->getDeprecator()->log('Order::setShouldRecalculateAdjustments()', '`Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.');
 
         if ($value) {
             /** @var Order $this */
@@ -55,7 +55,7 @@ trait OrderDeprecatedTrait
      */
     public function getShouldRecalculateAdjustments(): bool
     {
-        Craft::$app->getDeprecator()->log('Order::getShouldRecalculateAdjustments()', 'Order::getShouldRecalculateAdjustments() has been deprecated. Use Order::recalculationMode instead.');
+        Craft::$app->getDeprecator()->log('Order::getShouldRecalculateAdjustments()', '`Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.');
 
         /** @var Order $this */
         if ($this->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {

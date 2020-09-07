@@ -12,7 +12,6 @@ use craft\commerce\base\Model;
 use craft\commerce\events\DefineAddressLinesEvent;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
 use DvK\Vat\Validator;
@@ -31,13 +30,14 @@ use LitEmoji\LitEmoji;
  * @property int|string $stateValue
  * @property string $countryIso
  * @property Validator $vatValidator
+ * @property-read array $addressLines
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Address extends Model
 {
     /**
-     * @event DefineAddressLinesEvent The event that is triggered when defining the arrayable fields
+     * @event DefineAddressLinesEvent The event that is triggered when determining the lines of the address to display.
      * @see getAddressLines()
      * @since 3.2.0
      */
@@ -49,7 +49,7 @@ class Address extends Model
     public $id;
 
     /**
-     * @var bool True, if this address is the stock location.
+     * @var bool Is this the store location.
      */
     public $isStoreLocation = false;
 
@@ -152,7 +152,7 @@ class Address extends Model
     public $stateId;
 
     /**
-     * @var string Notes
+     * @var string Notes, only field that can contain Emoji
      * @since 2.2
      */
     public $notes;
@@ -217,7 +217,6 @@ class Address extends Model
 
     /**
      * @inheritdoc
-     *
      */
     public function attributes(): array
     {
@@ -260,31 +259,31 @@ class Address extends Model
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
-        $labels['firstName'] = Plugin::t('First Name');
-        $labels['lastName'] = Plugin::t('Last Name');
-        $labels['fullName'] = Plugin::t('Full Name');
-        $labels['attention'] = Plugin::t('Attention');
-        $labels['title'] = Plugin::t('Title');
-        $labels['address1'] = Plugin::t('Address 1');
-        $labels['address2'] = Plugin::t('Address 2');
-        $labels['address3'] = Plugin::t('Address 3');
-        $labels['city'] = Plugin::t('City');
-        $labels['zipCode'] = Plugin::t('Zip Code');
-        $labels['phone'] = Plugin::t('Phone');
-        $labels['alternativePhone'] = Plugin::t('Alternative Phone');
-        $labels['businessName'] = Plugin::t('Business Name');
-        $labels['businessId'] = Plugin::t('Business ID');
-        $labels['businessTaxId'] = Plugin::t('Business Tax ID');
-        $labels['countryId'] = Plugin::t('Country');
-        $labels['stateId'] = Plugin::t('State');
-        $labels['stateName'] = Plugin::t('State');
-        $labels['stateValue'] = Plugin::t('State');
-        $labels['custom1'] = Plugin::t('Custom 1');
-        $labels['custom2'] = Plugin::t('Custom 2');
-        $labels['custom3'] = Plugin::t('Custom 3');
-        $labels['custom4'] = Plugin::t('Custom 4');
-        $labels['notes'] = Plugin::t('Notes');
-        $labels['label'] = Plugin::t('Label');
+        $labels['firstName'] = Craft::t('commerce', 'First Name');
+        $labels['lastName'] = Craft::t('commerce', 'Last Name');
+        $labels['fullName'] = Craft::t('commerce', 'Full Name');
+        $labels['attention'] = Craft::t('commerce', 'Attention');
+        $labels['title'] = Craft::t('commerce', 'Title');
+        $labels['address1'] = Craft::t('commerce', 'Address 1');
+        $labels['address2'] = Craft::t('commerce', 'Address 2');
+        $labels['address3'] = Craft::t('commerce', 'Address 3');
+        $labels['city'] = Craft::t('commerce', 'City');
+        $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
+        $labels['phone'] = Craft::t('commerce', 'Phone');
+        $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
+        $labels['businessName'] = Craft::t('commerce', 'Business Name');
+        $labels['businessId'] = Craft::t('commerce', 'Business ID');
+        $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
+        $labels['countryId'] = Craft::t('commerce', 'Country');
+        $labels['stateId'] = Craft::t('commerce', 'State');
+        $labels['stateName'] = Craft::t('commerce', 'State');
+        $labels['stateValue'] = Craft::t('commerce', 'State');
+        $labels['custom1'] = Craft::t('commerce', 'Custom 1');
+        $labels['custom2'] = Craft::t('commerce', 'Custom 2');
+        $labels['custom3'] = Craft::t('commerce', 'Custom 3');
+        $labels['custom4'] = Craft::t('commerce', 'Custom 4');
+        $labels['notes'] = Craft::t('commerce', 'Notes');
+        $labels['label'] = Craft::t('commerce', 'Label');
         return $labels;
     }
 
@@ -295,39 +294,43 @@ class Address extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')];
+        $rules[] = [
+            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')
+        ];
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
                 return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
             }
         ];
-        $rules[] = [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true];
 
-        $textAttributes =
-            [
-                'firstName',
-                'lastName',
-                'fullName',
-                'attention',
-                'title',
-                'address1',
-                'address2',
-                'address3',
-                'city',
-                'zipCode',
-                'phone',
-                'alternativePhone',
-                'businessName',
-                'stateName',
-                'stateValue',
-                'custom1',
-                'custom2',
-                'custom3',
-                'custom4',
-                'notes',
-                'label'
-            ];
+        $rules[] = [
+            ['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true
+        ];
+
+        $textAttributes = [
+            'firstName',
+            'lastName',
+            'fullName',
+            'attention',
+            'title',
+            'address1',
+            'address2',
+            'address3',
+            'city',
+            'zipCode',
+            'phone',
+            'alternativePhone',
+            'businessName',
+            'stateName',
+            'stateValue',
+            'custom1',
+            'custom2',
+            'custom3',
+            'custom4',
+            'notes',
+            'label'
+        ];
 
         // Trim all text attributes
         $rules[] = [$textAttributes, 'trim'];
@@ -339,6 +342,9 @@ class Address extends Model
 
         // Don't allow Mb4 for any strings
         $rules[] = [$textAttributesMinusMb4Allowed, StringValidator::class, 'disallowMb4' => true];
+
+        // Set safe attributes to allow assignment via set attributes
+        $rules[] = [['id'], 'safe'];
 
         return $rules;
     }
@@ -353,7 +359,7 @@ class Address extends Model
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $this->addError('stateValue', Plugin::t('Country requires a related state selected.'));
+            $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
     }
 
@@ -383,7 +389,7 @@ class Address extends Model
         // Clean up if the API returned false and the item was still in cache
         if (!$validBusinessTaxId) {
             Craft::$app->getCache()->delete('commerce:validVatId:' . $this->businessTaxId);
-            $this->addError('businessTaxId', Plugin::t('Invalid Business Tax ID.'));
+            $this->addError('businessTaxId', Craft::t('commerce', 'Invalid Business Tax ID.'));
         }
     }
 
@@ -466,9 +472,9 @@ class Address extends Model
     }
 
     /**
-     * Sets the stateId or stateName based on the stateValue set.
+     * Sets the stateId or stateName based on the value parameter.
      *
-     * @param string|int $value A state ID or a state name.
+     * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      */
     public function setStateValue($value)
     {
@@ -489,11 +495,13 @@ class Address extends Model
     }
 
     /**
-     * Return a keyed array of address lines. Useful for outputting an address in a consistent format
+     * Return a keyed array of address lines. Useful for outputting an address in a consistent format.
      *
+     * @param bool $sanitize
+     * @return array
      * @since 3.2.0
      */
-    public function getAddressLines(): array
+    public function getAddressLines($sanitize = false): array
     {
         $addressLines = [
             'attention' => $this->attention,
@@ -525,15 +533,21 @@ class Address extends Model
         ]);
         $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
 
-        array_walk($event->addressLines, function(&$value, &$key) {
-            $value = Craft::$app->getFormatter()->asText($value);
-        });
+        if ($sanitize) {
+            array_walk($event->addressLines, function(&$value, &$key) {
+                $value = Craft::$app->getFormatter()->asText($value);
+            });
+        }
 
         return $event->addressLines;
     }
 
     /**
+     * This method can be used to determine if the other addresses supplied has the same address contents (minus the address ID).
+     *
      * @param Address|null $otherAddress
+     * @return bool
+     * @since 3.2.1
      */
     public function sameAs($otherAddress): bool
     {

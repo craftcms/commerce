@@ -47,7 +47,7 @@ class DownloadOrderPdf extends ElementAction
      */
     public function getTriggerLabel(): string
     {
-        return Plugin::t('Download PDF');
+        return Craft::t('commerce', 'Download PDF');
     }
 
     /**
