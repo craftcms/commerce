@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
+- Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
 
 ## 3.2.4 - 2020-09-07
 
