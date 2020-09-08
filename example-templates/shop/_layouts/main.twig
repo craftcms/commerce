@@ -19,6 +19,18 @@
         /* blue 600 */
         color: #3182ce;
       }
+
+      #paymentForm input[type="text"], #paymentForm input[type="tel"] {
+          padding: 8px 16px;
+          border: 1px solid rgb(237, 242, 247);
+          border-radius: 0.25rem;
+          line-height: 1.25;
+          margin-bottom: 0.25rem;
+      }
+
+      #paymentForm fieldset {
+          margin-bottom: 0.75rem;
+      }
     </style>
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
