@@ -46,7 +46,9 @@ class EmailsController extends BaseAdminController
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
         } else {
-            $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
+            $orderIds = Order::find()->isCompleted(true)->limit(5000)->ids();
+            $rand = array_rand($orderIds, 1);
+            $order = Order::find()->isCompleted(true)->id($orderIds[$rand])->one();
         }
 
         if ($email && $order && $template = $email->templatePath) {
