@@ -81,7 +81,7 @@ class OrderHistories extends Component
     {
         $rows = $this->_createOrderHistoryQuery()
             ->where(['orderId' => $id])
-            ->orderBy('dateCreated desc')
+            ->orderBy('dateCreated desc, id desc')
             ->all();
 
         $histories = [];
