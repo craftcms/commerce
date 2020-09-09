@@ -151,17 +151,6 @@ trait Services
     }
 
     /**
-     * Returns the donations service
-     *
-     * @return Donations The donations service
-     * @since 3.2.4
-     */
-    public function getDonations(): Donations
-    {
-        return $this->get('donations');
-    }
-
-    /**
      * Returns the emails service
      *
      * @return Emails The emails service
@@ -517,9 +506,6 @@ trait Services
             ],
             'discounts' => [
                 'class' => Discounts::class,
-            ],
-            'donations' => [
-                'class' => Donations::class,
             ],
             'emails' => [
                 'class' => Emails::class,
