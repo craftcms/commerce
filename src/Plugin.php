@@ -10,6 +10,7 @@ namespace craft\commerce;
 use Craft;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
+use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Subscription;
@@ -463,7 +464,6 @@ class Plugin extends BasePlugin
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-        Event::on(Sites::class, Sites::EVENT_AFTER_CHANGE_PRIMARY_SITE, [$this->getDonations(), 'afterChangePrimarySiteHandler']);
         Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler'], null, false); // Lets run this before other plugins if we can
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
@@ -555,6 +555,7 @@ class Plugin extends BasePlugin
             $e->types[] = Product::class;
             $e->types[] = Order::class;
             $e->types[] = Subscription::class;
+            $e->types[] = Donation::class;
         });
     }
 

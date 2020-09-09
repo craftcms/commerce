@@ -3,6 +3,7 @@
 ## Unrelased
 
 ### Fixed
+- Fixed a bug where donation queries weren’t returning complete results if the primary site had changed.
 - Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
 - Fixed a bug where order history records were ordered incorrectly if they were created at the same time.
