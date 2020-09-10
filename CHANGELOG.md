@@ -6,7 +6,7 @@
 - JSON responses from the `commerce/payments/pay` action now include order information.
 
 ### Changed
-- Purchasable descriptions are only generated based on data from the primary site.
+- Purchasable descriptions are now generated based on data from the primary site only.
 
 ### Fixed
 - Fixed a PHP error that occurred when exporting orders raw data on the order index page.
@@ -14,8 +14,8 @@
 - Fixed a PHP error that could occur when resaving products. ([#1698](https://github.com/craftcms/commerce/issues/1698))
 - Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
-- Fixed the missing validation of the order condition formula syntax on the discount edit page. ([#1716](https://github.com/craftcms/commerce/issues/1716))
-- Fixed a bug where order history records were ordered incorrectly if they were created at the same time.
+- Fixed a PHP error that occurred when there was a syntax error in an order condition formula. ([#1716](https://github.com/craftcms/commerce/issues/1716))
+- Fixed a bug where order history records created at the same time were ordered incorrectly.
 - Fixed a 400 error that could occur when a product type’s Template setting was blank.
 - Fixed a bug where purchasables without a product type were incorrectly showing on the “Top Product Types” Dashboard widget. ([#1720](https://github.com/craftcms/commerce/issues/1720))
 
