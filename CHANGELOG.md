@@ -16,6 +16,7 @@
 - Fixed the missing validation of the order condition formula syntax on the discount edit page. ([#1716](https://github.com/craftcms/commerce/issues/1716))
 - Fixed a bug where order history records were ordered incorrectly if they were created at the same time.
 - Fixed a 400 error that could occur when a product type’s Template setting was blank.
+- Fixed a bug where purchasables without a product type were incorrectly showing on the “Top Product Types” Dashboard widget. ([#1720](https://github.com/craftcms/commerce/issues/1720))
 
 ## 3.2.4 - 2020-09-07
 
