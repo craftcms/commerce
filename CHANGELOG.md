@@ -11,6 +11,7 @@
 ### Fixed
 - Fixed a PHP error that occurred when exporting orders raw data on the order index page.
 - Fixed a bug where donation queries weren’t returning complete results if the primary site had changed.
+- Fixed a PHP error that could occur when resaving products. ([#1698](https://github.com/craftcms/commerce/issues/1698))
 - Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
 - Fixed the missing validation of the order condition formula syntax on the discount edit page. ([#1716](https://github.com/craftcms/commerce/issues/1716))
