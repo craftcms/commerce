@@ -3,7 +3,7 @@
 ## Unrelased
 
 ### Added
-- 
+- JSON responses from the `commerce/payments/pay` action now include order information.
 
 ### Fixed
 - Fixed a PHP error that occurred when exporting orders raw data on the order index page.
@@ -13,7 +13,6 @@
 - Fixed the missing validation of the order condition formula syntax on the discount edit page. ([#1716](https://github.com/craftcms/commerce/issues/1716))
 - Fixed a bug where order history records were ordered incorrectly if they were created at the same time.
 - Fixed a 400 error that could occur when a product type’s Template setting was blank.
-- JSON responses from the `commerce/payments/pay` action now include order information.
 
 ## 3.2.4 - 2020-09-07
 
