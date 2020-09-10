@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unrelased
+## Unreleased
 
 ### Added
 - JSON responses from the `commerce/payments/pay` action now include order information.
