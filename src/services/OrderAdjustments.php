@@ -258,8 +258,8 @@ class OrderAdjustments extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if (isset($orderAdjustments[$order->id])) {
-                $order->setAdjustments($orderAdjustments[$order->id]);
+            if (isset($orderAdjustments[$order['id']])) {
+                $order['adjustments'] = $orderAdjustments[$order['id']];
                 $orders[$key] = $order;
             }
         }

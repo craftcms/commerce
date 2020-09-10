@@ -496,12 +496,12 @@ class Addresses extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if (isset($shippingAddresses[$order->shippingAddressId])) {
-                $order->setShippingAddress($shippingAddresses[$order->shippingAddressId]);
+            if (isset($shippingAddresses[$order['shippingAddressId']])) {
+                $order['shippingAddress'] = $shippingAddresses[$order['shippingAddressId']];
             }
 
-            if (isset($billingAddresses[$order->billingAddressId])) {
-                $order->setBillingAddress($billingAddresses[$order->billingAddressId]);
+            if (isset($billingAddresses[$order['billingAddressId']])) {
+                $order['billingAddress'] = $billingAddresses[$order['billingAddressId']];
             }
 
             $orders[$key] = $order;

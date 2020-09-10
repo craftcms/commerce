@@ -1218,7 +1218,7 @@ class Product extends Element
 
         return [
             'templates/render', [
-                'template' => $productTypeSiteSettings[$siteId]->template,
+                'template' => (string)$productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
                 ]

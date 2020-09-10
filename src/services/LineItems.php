@@ -413,8 +413,8 @@ class LineItems extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if (isset($lineItems[$order->id])) {
-                $order->setLineItems($lineItems[$order->id]);
+            if (isset($lineItems[$order['id']])) {
+                $order['lineItems'] = $lineItems[$order['id']];
                 $orders[$key] = $order;
             }
         }
