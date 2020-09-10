@@ -391,6 +391,9 @@ class Discount extends Model
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
                 $order = Order::find()->one();
+                if (!$order) {
+                    $order = new Order();
+                }
                 $orderDiscountConditionParams = [
                     'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
                 ];
