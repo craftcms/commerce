@@ -2,6 +2,9 @@
 
 ## Unrelased
 
+### Changed
+- Purchasable descriptions are only generated based on data from the primary site.
+
 ### Fixed
 - Fixed a PHP error that occurred when exporting orders raw data on the order index page.
 - Fixed a bug where donation queries weren’t returning complete results if the primary site had changed.
