@@ -10,6 +10,8 @@ namespace craft\commerce\models;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
+use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
@@ -382,7 +384,21 @@ class Discount extends Model
         $rules[] = [
             'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
-                    $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
+                    $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
+                }
+            }
+        ];
+        $rules[] = [
+            'orderConditionFormula', function($attribute, $params, $validator) {
+                $order = Order::find()->one();
+                if (!$order) {
+                    $order = new Order();
+                }
+                $orderDiscountConditionParams = [
+                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                ];
+                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderDiscountConditionParams)) {
+                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                 }
             }
         ];
