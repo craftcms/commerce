@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
+- Fixed the missing validation of the order condition formula syntax on the discount edit page. ([#1716](https://github.com/craftcms/commerce/issues/1716))
 
 ## 3.2.4 - 2020-09-07
 
