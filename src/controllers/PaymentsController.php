@@ -80,6 +80,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
+                        $this->_cartVariableName => $this->cartArray($order)
                     ]);
                 }
 
@@ -87,6 +88,9 @@ class PaymentsController extends BaseFrontEndController
 
                 return null;
             }
+
+            $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
+
         } else {
             $order = $plugin->getCarts()->getCart();
         }
@@ -105,7 +109,8 @@ class PaymentsController extends BaseFrontEndController
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
-                    'error' => $error
+                    'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -119,7 +124,8 @@ class PaymentsController extends BaseFrontEndController
 
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
-                    'error' => $error
+                    'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -134,6 +140,7 @@ class PaymentsController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -148,6 +155,7 @@ class PaymentsController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -181,6 +189,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
+                        $this->_cartVariableName => $this->cartArray($order)
                     ]);
                 }
 
@@ -222,6 +231,7 @@ class PaymentsController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -278,6 +288,7 @@ class PaymentsController extends BaseFrontEndController
                         return $this->asJson([
                             'error' => $exception->getMessage(),
                             'paymentFormErrors' => $paymentForm->getErrors(),
+                            $this->_cartVariableName => $this->cartArray($order)
                         ]);
                     }
 
@@ -305,6 +316,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -321,6 +333,7 @@ class PaymentsController extends BaseFrontEndController
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -370,9 +383,11 @@ class PaymentsController extends BaseFrontEndController
                 $error = Craft::t('commerce', 'Something changed with the order before payment, please review your order and submit payment again.');
 
                 if ($request->getAcceptsJson()) {
+
                     return $this->asJson([
                         'error' => $error,
                         'paymentFormErrors' => $paymentForm->getErrors(),
+                        $this->_cartVariableName => $this->cartArray($order)
                     ]);
                 }
 
@@ -410,6 +425,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
+                    $this->_cartVariableName => $this->cartArray($order)
                 ]);
             }
 
@@ -423,7 +439,7 @@ class PaymentsController extends BaseFrontEndController
         if ($request->getAcceptsJson()) {
             $response = [
                 'success' => true,
-                $this->_cartVariableName => $order->toArray()
+                $this->_cartVariableName => $this->cartArray($order)
             ];
 
             if ($redirect) {
