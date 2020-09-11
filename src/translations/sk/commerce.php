@@ -383,7 +383,7 @@ return [
     'Is subscription active?' => 'Je prihlásenie na odber aktívne?',
     'Send to custom recipient' => 'Odoslať vlastnému príjemcovi',
     'Select a gateway' => 'Vyberte bránu',
-    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
+    'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Po naplnení košíka a jeho premene na objednávku sa na základe tohto formátu vytvorí zrozumiteľné referenčné číslo. Napríklad {ex1} alebo<br/> {ex2}. Výsledok tohto formátovania musí byť jedinečný.',
     'Subscription Fields' => 'Polia prihlásenia na odber',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Naozaj chcete archivovať plán prihlásení na odber {name}? Táto akcia nezruší existujúce prihlásenia na odber.',
     'Cancel subscription' => 'Zrušiť prihlásenie na odber',
@@ -1146,7 +1146,7 @@ return [
     'Today' => 'Today',
     'Could not delete shipping rule' => 'Could not delete shipping rule',
     'Couldn’t save tax zone.' => 'Couldn’t save tax zone.',
-    'Subscription to “{plan}”' => 'Subscription to “{plan}”',
-    'Customer Info' => 'Customer Info',
-    'Pending' => 'Pending'
+    'Subscription to “{plan}”' => 'Prihlásenie na odber plánu {plan}',
+    'Customer Info' => 'Informácie o zákazníkovi',
+    'Pending' => 'Nevyriešené'
 ];
