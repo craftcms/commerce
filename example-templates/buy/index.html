@@ -51,7 +51,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
             <div class="flex">
             <div class="w-full/2 w-full">
                 <label for="email" class="block text-sm mb-2">E-mail</label>
-                <input id="email" name="email" type="email" value="{{cart.email}}" {% if currentUser %}}disabled{% endif %}} class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="email" name="email" type="email" value="{{cart.email}}" {% if currentUser %}}disabled{% endif %}} class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2 w-full">
             <button type="submit" class="bg-blue-commerce text-white w-full rounded px-3 py-3 ml-1 mt-6 text-sm hover:bg-blue-dark outline-0">
@@ -83,41 +83,41 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
         <div class="flex mb-4">
             <div class="w-1/2 mr-2">
                 <label for="firstName" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('firstName') %}text-red{% endif %}">First Name</label>
-                <input id="firstName" name="shippingAddress[firstName]" type="text" value="{{cart.shippingAddress.firstName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="firstName" name="shippingAddress[firstName]" type="text" value="{{cart.shippingAddress.firstName ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2 ">
                 <label for="addressLastName" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('lastName') %}text-red{% endif %}">Last Name</label>
-                <input id="addressLastName" name="shippingAddress[lastName]" type="text" value="{{cart.shippingAddress.lastName ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="addressLastName" name="shippingAddress[lastName]" type="text" value="{{cart.shippingAddress.lastName ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
         </div>
         <div class="flex mb-4">
             <div class="w-1/2 mr-2">
                 <label for="address1" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('address1') %}text-red{% endif %}">Address1</label>
-                <input id="address1" name="shippingAddress[address1]" type="text" value="{{cart.shippingAddress.address1 ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="address1" name="shippingAddress[address1]" type="text" value="{{cart.shippingAddress.address1 ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2">
                 <label for="address2" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('address2') %}text-red{% endif %}">Address2</label>
-                <input id="address2" name="shippingAddress[address2]" type="text" value="{{cart.shippingAddress.address2 ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="address2" name="shippingAddress[address2]" type="text" value="{{cart.shippingAddress.address2 ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
         </div>
         <div class="flex mb-4">
             <div class="w-1/2 mr-2">
                 <label for="city" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('city') %}text-red{% endif %}">City</label>
-                <input id="city" name="shippingAddress[city]" type="text" value="{{cart.shippingAddress.city ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="city" name="shippingAddress[city]" type="text" value="{{cart.shippingAddress.city ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2">
                 <label for="zipCode" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('zipCode') %}text-red{% endif %}">Zip</label>
-                <input id="zipCode" name="shippingAddress[zipCode]" type="text" value="{{cart.shippingAddress.zipCode ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="zipCode" name="shippingAddress[zipCode]" type="text" value="{{cart.shippingAddress.zipCode ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
         </div>
         <div class="flex mb-4">
             <div class="w-1/2 mr-2">
                 <label for="stateValue" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('stateValue') %}text-red{% endif %}">State</label>
-                <input id="stateValue" name="shippingAddress[stateValue]" type="text" value="{{cart.shippingAddress.stateValue ?? ''}}" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <input id="stateValue" name="shippingAddress[stateValue]" type="text" value="{{cart.shippingAddress.stateValue ?? ''}}" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
             </div>
             <div class="w-1/2">
                 <label for="country" class="block text-sm mb-2 {% if cart.shippingAddress and cart.shippingAddress.getFirstError('countryId') %}text-red{% endif %}">Country</label>
-                <select id="country" name="shippingAddress[countryId]" class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0">
+                <select id="country" name="shippingAddress[countryId]" class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0">
                     <option value="233">USA</option>
                 </select>
             </div>
@@ -165,33 +165,33 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
                 <label for="payment" class="block text-sm mb-2">First Name</label>
                 <input id="payment" type="text" name="firstName" value="{{ paymentForm.firstName ?? '' }}"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}border border-red-500{% endif %}">
+                       class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}border border-red-500{% endif %}">
                 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('firstName') }}</span>{% endif %}
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
                 <label for="lastName" class="block text-sm mb-2}">Last Name</label>
                 <input id="lastName" type="text" name="lastName" value="{{ paymentForm.lastName ?? '' }}"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}border border-red-500{% endif %}">
+                       class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('lastName') %}border border-red-500{% endif %}">
                 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('lastName') }}</span>{% endif %}
             </div>
 
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
                 <label for="number" class="block text-sm mb-2">Credit Card</label>
                 <input id="number" type="text" name="number"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('number') %}border border-red-500{% endif %}">
+                       class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('number') %}border border-red-500{% endif %}">
                 {% if paymentForm is defined and paymentForm.getFirstError('firstName') %}<span class="text-red-500">{{ paymentForm.getFirstError('number') }}</span>{% endif %}
             </div>
             <div class="w-3/4 md:w-1/2-almost mb-4 ml-0 md:ml-4">
                 <label for="cvv" class="block text-sm mb-2 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}text-red{% endif %}">CVV</label>
                 <input id="cvv" type="text" name="cvv"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
+                       class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
                 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}<span class="text-red-500">{{ paymentForm.getFirstError('cvv') }}</span>{% endif %}
             </div>
 
             <div class="w-3/4 md:w-1/2-almost mb-4 md:mb-0">
                 <label for="exp_month" class="block text-sm mb-2">Expiry</label>
                 <input id="exp_month" type="text" name="expiry" placeholder="02/2021"
-                       class="w-full text-sm bg-grey-light text-grey-darkest rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
+                       class="w-full text-sm bg-gray-100 rounded px-3 py-3 outline-0 {% if paymentForm is defined and paymentForm.getFirstError('cvv') %}border border-red-500{% endif %}">
                 {% if paymentForm is defined and paymentForm.getFirstError('month') %}<span class="text-red-500">{{ paymentForm.getFirstError('month') }}</span>{% endif %}
                 {% if paymentForm is defined and paymentForm.getFirstError('year') %}<span class="text-red-500">{{ paymentForm.getFirstError('year') }}</span>{% endif %}
             </div>
@@ -205,12 +205,12 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
             Buy ${{ cart.totalPrice }}
         </button>
         <div class="text-grey text-right">
-            Includes {{ cart.getTotalShippingCostAsCurrency }} shipping and
+            Includes {{ cart.totalShippingCostAsCurrency }} shipping and
             {% if cart.getTotalTax() %}
-                {{ cart.getTotalTaxAsCurrency }} taxes.
+                {{ cart.totalTaxAsCurrency }} taxes.
             {% endif %}
             {% if cart.getTotalTaxIncluded() %}
-                {{ cart.getTotalTaxIncludedAsCurrency }} included taxes.
+                {{ cart.totalTaxIncludedAsCurrency }} included taxes.
             {% endif %}
         </div>
 

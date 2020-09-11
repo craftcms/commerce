@@ -19,6 +19,7 @@
 - Fixed a 400 error that could occur when a product type’s Template setting was blank.
 - Fixed a bug where purchasables without a product type were incorrectly showing on the “Top Product Types” Dashboard widget. ([#1720](https://github.com/craftcms/commerce/issues/1720))
 - Fixed a bug where shipping zone caches weren’t getting invalidated. ([#1721](https://github.com/craftcms/commerce/issues/1721))
+- Fixed a Twig error that occurred when viewing the “Buy” example templates. ([#1722](https://github.com/craftcms/commerce/issues/1722))
 
 ## 3.2.4 - 2020-09-07
 
