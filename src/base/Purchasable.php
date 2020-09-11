@@ -7,6 +7,7 @@
 
 namespace craft\commerce\base;
 
+use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
@@ -248,7 +249,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $purchasable->sku = $this->getSku();
         $purchasable->price = $this->getPrice();
         $purchasable->id = $this->id;
-        $purchasable->description = $this->getDescription();
+
+        // Only update the description for the primary site until we have a concept
+        // of an order having a site ID
+        if ($this->siteId == Craft::$app->getSites()->getPrimarySite()->id) {
+            $purchasable->description = $this->getDescription();
+        }
 
         $purchasable->save(false);
 

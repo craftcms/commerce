@@ -175,6 +175,8 @@ class ShippingZones extends Component
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
             $transaction->commit();
+
+            $this->_clearCaches();
         } catch (\Exception $e) {
             $transaction->rollBack();
 
@@ -193,7 +195,12 @@ class ShippingZones extends Component
         $record = ShippingZoneRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $result = (bool)$record->delete();
+            if ($result) {
+                $this->_clearCaches();
+            }
+
+            return $result;
         }
 
         return false;
@@ -217,5 +224,16 @@ class ShippingZones extends Component
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);
+    }
+
+    /**
+     * Clear memoization.
+     *
+     * @since 3.x
+     */
+    private function _clearCaches()
+    {
+        $this->_fetchedAllShippingZones = false;
+        $this->_allShippingZones = [];
     }
 }

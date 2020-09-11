@@ -320,7 +320,7 @@ class CartController extends BaseFrontEndController
     private function _returnCart()
     {
         $request = Craft::$app->getRequest();
-
+        
         // Allow validation of custom fields when passing this param
         $validateCustomFields = Plugin::getInstance()->getSettings()->validateCartCustomFieldsOnSubmission;
 

@@ -789,13 +789,14 @@ class Product extends Element
     {
         $productType = $this->getType();
 
-        if (!$productType->hasProductTitleField) {
+        // check for null just incase the value comes back as 1, 0, true or false
+        if (!$productType->hasProductTitleField && $productType->hasProductTitleField !== null) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
             // Set Craft to the entry's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $title = Craft::$app->getView()->renderObjectTemplate($productType->productTitleFormat, $this);
+            $title = Craft::$app->getView()->renderObjectTemplate((string)$productType->productTitleFormat, $this);
             if ($title !== '') {
                 $this->title = $title;
             }
@@ -1218,7 +1219,7 @@ class Product extends Element
 
         return [
             'templates/render', [
-                'template' => $productTypeSiteSettings[$siteId]->template,
+                'template' => (string)$productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
                 ]
