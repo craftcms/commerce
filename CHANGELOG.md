@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.5 - 2020-09-11
 
 ### Changed
 - Purchasable descriptions are now generated based on data from the primary site only.
