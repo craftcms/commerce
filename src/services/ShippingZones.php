@@ -229,7 +229,7 @@ class ShippingZones extends Component
     /**
      * Clear memoization.
      *
-     * @since 3.x
+     * @since 3.2.5
      */
     private function _clearCaches()
     {
