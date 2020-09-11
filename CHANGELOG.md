@@ -2,17 +2,14 @@
 
 ## Unreleased
 
-### Added
-- JSON responses from the `commerce/payments/pay` action now include order information.
-
 ### Changed
 - Purchasable descriptions are now generated based on data from the primary site only.
+- JSON responses from the `commerce/payments/pay` action now include order information.
 
 ### Fixed
-- Fixed a PHP error that occurred when exporting orders raw data on the order index page.
-- Fixed a bug where donation queries weren’t returning complete results if the primary site had changed.
+- Fixed a PHP error that occurred when exporting orders using the “Raw data” export type.
 - Fixed a PHP error that could occur when resaving products. ([#1698](https://github.com/craftcms/commerce/issues/1698))
-- Fixed a PHP error that occurred when converting to a different currency with the `|commerceCurrency` twig filter. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
+- Fixed a PHP error that occurred when using the `|commerceCurrency` Twig filter for currency conversion. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
 - Fixed a PHP error that occurred when there was a syntax error in an order condition formula. ([#1716](https://github.com/craftcms/commerce/issues/1716))
 - Fixed a bug where order history records created at the same time were ordered incorrectly.
@@ -889,7 +886,7 @@
 - Fixed an error that could occur when deploying `project.yaml` changes to a new environment. ([#1085](https://github.com/craftcms/commerce/issues/1085))
 - Fixed a missing import. ([#1087](https://github.com/craftcms/commerce/issues/1087))
 - Fixed a SQL error that occurred when eager-loading variants. ([#1093](https://github.com/craftcms/commerce/pull/1093))
-- Fixed an error that occurred on the Orders index page if the "Shipping Business Name" column was shown.
+- Fixed an error that occurred on the Orders index page if the “Shipping Business Name” column was shown.
 
 ## 2.2.6 - 2019-10-26
 
