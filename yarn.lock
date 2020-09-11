@@ -362,7 +362,7 @@ chart.js@^2.9.3:
     chartjs-color "^2.1.0"
     moment "^2.10.2"
 
-chartjs-adapter-moment@^0.1.1:
+chartjs-adapter-moment@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/chartjs-adapter-moment/-/chartjs-adapter-moment-0.1.2.tgz#7bb05be24c694ecc7b5a43c512b622f6ba8bca4c"
 
@@ -537,9 +537,9 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
 
-craftcms-sass@^3.4.0-alpha.2:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/craftcms-sass/-/craftcms-sass-3.4.0.tgz#c78147fdea5536332d2d8862e91d411ce2b698f4"
+craftcms-sass@^3.4.0:
+  version "3.5.0"
+  resolved "https://registry.yarnpkg.com/craftcms-sass/-/craftcms-sass-3.5.0.tgz#628a0048bca01fda27b3330cc45d41ea2e435ce7"
 
 cross-spawn@^3.0.0:
   version "3.0.1"
@@ -1162,12 +1162,12 @@ gulp-concat@^2.6.1:
     through2 "^2.0.0"
     vinyl "^2.0.0"
 
-gulp-sass@^4.0.2:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/gulp-sass/-/gulp-sass-4.0.2.tgz#cfb1e3eff2bd9852431c7ce87f43880807d8d505"
+gulp-sass@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/gulp-sass/-/gulp-sass-4.1.0.tgz#486d7443c32d42bf31a6b1573ebbdaa361de7427"
   dependencies:
     chalk "^2.3.0"
-    lodash.clonedeep "^4.3.2"
+    lodash "^4.17.11"
     node-sass "^4.8.3"
     plugin-error "^1.0.1"
     replace-ext "^1.0.0"
@@ -1645,13 +1645,9 @@ locate-path@^3.0.0:
     p-locate "^3.0.0"
     path-exists "^3.0.0"
 
-lodash.clonedeep@^4.3.2:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/lodash.clonedeep/-/lodash.clonedeep-4.5.0.tgz#e23f3f9c4f8fbdde872529c1071857a086e5ccef"
-
-lodash@^4.0.0, lodash@^4.17.15, lodash@~4.17.10:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
+lodash@^4.0.0, lodash@^4.17.11, lodash@^4.17.15, lodash@~4.17.10:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
 
 loud-rejection@^1.0.0:
   version "1.6.0"
@@ -1816,7 +1812,7 @@ mixin-deep@^1.2.0:
   dependencies:
     minimist "0.0.8"
 
-moment@^2.10.2, moment@^2.24.0:
+moment@^2.10.2, moment@^2.27.0:
   version "2.27.0"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.27.0.tgz#8bff4e3e26a236220dfe3e36de756b6ebaa0105d"
 
@@ -1896,7 +1892,7 @@ node-pre-gyp@^0.12.0:
     semver "^5.3.0"
     tar "^4"
 
-node-sass@^4.13.0:
+node-sass@^4.14.1:
   version "4.14.1"
   resolved "https://registry.yarnpkg.com/node-sass/-/node-sass-4.14.1.tgz#99c87ec2efb7047ed638fb4c9db7f3a42e2217b5"
   dependencies:
