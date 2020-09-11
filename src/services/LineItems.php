@@ -427,7 +427,7 @@ class LineItems extends Component
      * @param LineItem $lineItem
      * @param Order $order
      * @throws Throwable
-     * @since 3.x
+     * @since 3.2.5
      */
     public function orderCompleteHandler(LineItem $lineItem, Order $order)
     {
