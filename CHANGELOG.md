@@ -18,6 +18,7 @@
 - Fixed a bug where order history records created at the same time were ordered incorrectly.
 - Fixed a 400 error that could occur when a product type’s Template setting was blank.
 - Fixed a bug where purchasables without a product type were incorrectly showing on the “Top Product Types” Dashboard widget. ([#1720](https://github.com/craftcms/commerce/issues/1720))
+- Fixed a bug where shipping zone caches weren’t getting invalidated. ([#1721](https://github.com/craftcms/commerce/issues/1721))
 
 ## 3.2.4 - 2020-09-07
 
