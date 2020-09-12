@@ -865,7 +865,7 @@ return [
     'Grams (g)' => 'Grams (g)',
     'All products' => 'All products',
     'Manage' => 'Manage',
-    'Discount is not allowed for the customer' => 'Discount is not allowed for the customer',
+    'Discount is not allowed for the customer' => 'Discount is not allowed for customer',
     'Total Included Tax' => 'Total Included Tax',
     'Are you sure you want to delete the selected orders?' => 'Are you sure you want to delete the selected orders?',
     'Invalid Business Tax ID.' => 'Invalid Business Tax ID.',
