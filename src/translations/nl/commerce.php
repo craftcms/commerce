@@ -983,7 +983,7 @@ return [
     'Create a new shipping category' => 'Maak een nieuwe verzendcategorie aan',
     'Variant Fields' => 'Variantvelden',
     '{total} orders' => '{total} bestellingen',
-    'States updated.' => 'Staten bijgewerkt.',
+    'States updated.' => 'Provincies bijgewerkt.',
     'You can not delete that currency.' => 'U kunt deze valuta niet verwijderen.',
     'Top Product Types by Revenue' => 'Top-producttypen volgens omzet',
     'Discount use has reached its limit.' => 'De limiet voor het kortinggebruik is bereikt.',
