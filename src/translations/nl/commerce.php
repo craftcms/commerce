@@ -1074,7 +1074,7 @@ return [
     'Create a new line item status' => 'Maak een regelartikelstatus aan',
     'Couldn’t save shipping method.' => 'Verzendmethode opslaan niet mogelijk.',
     'Quantities' => 'Hoeveelheden',
-    'Couldn’t update states status.' => 'Status staten bijwerken niet mogelijk.',
+    'Couldn’t update states status.' => 'Status provincies bijwerken niet mogelijk.',
     'Could not archive gateway.' => 'Gateway archiveren niet mogelijk.',
     'Couldn’t update primary address.' => 'Primair adres bijwerken niet mogelijk.',
     'Could not delete shipping zone' => 'Verzendingszone verwijderen niet mogelijk',
