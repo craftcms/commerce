@@ -852,7 +852,7 @@ return [
     'Subscriptions on hold' => 'Abonnements en attente',
     'Couldn’t reorder sales.' => 'Impossible de réorganiser les promotions.',
     'Billing First Name' => 'Nom pour la facturation',
-    'Trial expiry date' => 'Trial expiry date',
+    'Trial expiry date' => 'Date d’expiration de la version d’essai',
     'Couldn’t capture transaction: {message}' => 'Couldn’t capture transaction: {message}',
     'subscription' => 'subscription',
     'URI' => 'URI',
