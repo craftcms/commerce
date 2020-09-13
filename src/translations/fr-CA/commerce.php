@@ -1056,7 +1056,7 @@ return [
     'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}' => 'Impossible de marquer la commande {number} comme finalisée. L’enregistrement de la commande a échoué au cours de la finalisation avec des erreurs : {order}',
     'Country requires a related state selected.' => 'Pour ce pays, il est nécessaire de sélectionner un État.',
     'No sale exists with the ID “{id}”' => 'Il n’existe aucune promotion avec l’identifiant « {id} »',
-    'Consolidate all guest orders.' => 'Consolidate all guest orders.',
+    'Consolidate all guest orders.' => 'Regrouper toutes les commandes d\'invités.',
     'Invalid condition syntax' => 'Invalid condition syntax',
     'No line item exists with the ID “{id}”' => 'No line item exists with the ID “{id}”',
     'Order can not be empty.' => 'Order can not be empty.',
