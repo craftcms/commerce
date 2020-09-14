@@ -431,7 +431,7 @@ class LineItemStatuses extends Component
     /**
      * Clear all memoization
      *
-     * @since 3.x
+     * @since 3.2.5
      */
     public function _clearCaches()
     {
