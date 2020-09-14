@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 3.2.6 - 2020-09-13
+
+### Fixed
+- Fixed a bug that prevented a customer from unsubscribing from a subscription. ([#1650](https://github.com/craftcms/commerce/issues/1650))
+- Fixed a bug that prevented a customer from deleting a payment source. ([#1650](https://github.com/craftcms/commerce/issues/1650))
+
 ## 3.2.5 - 2020-09-11
 
 ### Changed

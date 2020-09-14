@@ -275,7 +275,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -335,7 +335,7 @@ class SubscriptionsController extends BaseController
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -408,7 +408,7 @@ class SubscriptionsController extends BaseController
             $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = ($subscription->userId === $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
