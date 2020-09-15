@@ -1051,7 +1051,7 @@ return [
     'Tax rate saved.' => 'Belastingtarief opgeslagen.',
     'The total price of the order changed.' => 'De totale prijs van de bestelling is veranderd.',
     'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}' => 'Dupliceren van het verzendadres bij het voltooien van bestelling niet mogelijk. ID oorspronkelijk adres-ID: {addressId}. Bestelling-ID: {orderId}',
-    'The item is not enabled for sale.' => 'Het artikel is niet ingeschakeld voor aanbiedingen.',
+    'The item is not enabled for sale.' => 'Het artikel is niet ingeschakeld voor verkoop.',
     'Products and Variants deleted.' => 'Producten en varianten verwijderd.',
     'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}' => 'Bestelling {number} kan niet als voltooid worden gemarkeerd. Opslaan bestelling mislukt vanwege fouten tijdens het voltooien van de bestelling: {order}',
     'Country requires a related state selected.' => 'Voor het land moet een provincie worden geselecteerd.',
