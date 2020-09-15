@@ -154,7 +154,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_discount_categories}}', 'discountId'), '{{%commerce_discount_categories}}', 'discountId', '{{%commerce_discounts}}', 'id', 'CASCADE', 'CASCADE');
 
         // So long product type conditions on discounts
-        MigrationHelper::dropTable('{{%commerce_discount_producttypes}}');
+        MigrationHelper::dropTable('{{%commerce_discount_producttypes}}', $this);
 
 
         //--------------------------------------------------------------------
@@ -192,7 +192,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
         $this->addForeignKey($this->db->getForeignKeyName('{{%commerce_sale_categories}}', 'saleId'), '{{%commerce_sale_categories}}', 'saleId', '{{%commerce_sales}}', 'id', 'CASCADE', 'CASCADE');
 
         // So long product type condition on sales
-        MigrationHelper::dropTable('{{%commerce_sale_producttypes}}');
+        MigrationHelper::dropTable('{{%commerce_sale_producttypes}}', $this);
 
         // Replace sales_products with sales_purchasables
         $this->createTable('{{%commerce_sale_purchasables}}', [
@@ -231,7 +231,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
         Craft::$app->getCache()->set('commerce_sale_purchasables_001', Json::encode($newSalesPurchasables));
 
-        MigrationHelper::dropTable('{{%commerce_sale_products}}');
+        MigrationHelper::dropTable('{{%commerce_sale_products}}', $this);
 
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_purchasables}}', 'saleId,purchasableId', true), '{{%commerce_sale_purchasables}}', 'saleId,purchasableId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_sale_purchasables}}', 'purchasableId', false), '{{%commerce_sale_purchasables}}', 'purchasableId', false);
@@ -279,7 +279,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
 
         Craft::$app->getCache()->set('commerce_discount_purchasables_001', Json::encode($newDiscountsPurchasables));
 
-        MigrationHelper::dropTable('{{%commerce_discount_products}}');
+        MigrationHelper::dropTable('{{%commerce_discount_products}}', $this);
 
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_purchasables}}', 'discountId,purchasableId', true), '{{%commerce_discount_purchasables}}', 'discountId,purchasableId', true);
         $this->createIndex($this->db->getIndexName('{{%commerce_discount_purchasables}}', 'purchasableId', false), '{{%commerce_discount_purchasables}}', 'purchasableId', false);
