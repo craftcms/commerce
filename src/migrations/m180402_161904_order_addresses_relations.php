@@ -45,7 +45,7 @@ class m180402_161904_order_addresses_relations extends Migration
             $this->update('{{%commerce_orders}}', ['shippingAddressId' => null], ['shippingAddressId' => $id]);
         }
 
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}');
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_orders}}', $this);
 
         $this->addForeignKey(null, '{{%commerce_orders}}', ['billingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_orders}}', ['shippingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');
