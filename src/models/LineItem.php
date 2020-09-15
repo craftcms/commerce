@@ -281,7 +281,7 @@ class LineItem extends Model
      * @param mixed $rule
      * @param PurchasableInterface $purchasable
      * @return mixed
-     * @since 2.x
+     * @since 2.2.22
      */
     private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
     {
