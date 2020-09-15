@@ -930,7 +930,7 @@ return [
     'Validating condition syntax' => 'Convalida della sintassi della condizione',
     'Manage promotions' => 'Gestisci promozioni',
     'Delete orders' => 'Elimina ordini',
-    'Link to a variant' => 'Collegamento a una variante',
+    'Link to a variant' => 'Collega a una variante',
     'No product exists with the ID “{id}”.' => 'Nessun prodotto esistente con ID “{id}”.',
     'Create a new product' => 'Crea un nuovo prodotto',
     'No state exists with the ID “{id}”' => 'Nessuno Stato esistente con ID “{id}”',
