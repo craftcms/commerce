@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Craft Commerce is now translated into Japanese.
+
 ## Fixed
 - Fixed a migration error that could occur when updating to Commerce 3. ([#1726](https://github.com/craftcms/commerce/issues/1726)) 
 - Fixed a bug that included control panel styles in rendered email previews. ([#1734](https://github.com/craftcms/commerce/issues/1734))
