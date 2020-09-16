@@ -524,7 +524,7 @@ return [
     'Custom 1' => 'Personalizzato 1',
     'Related Discounts' => 'Sconti correlati',
     'Custom 4' => 'Personalizzato 4',
-    'Not available' => 'Non disponibile',
+    'Not available' => 'Non disponibili',
     'info' => 'informazioni',
     'Custom 3' => 'Personalizzato 3',
     'Is VAT?' => 'È una partita IVA?',
