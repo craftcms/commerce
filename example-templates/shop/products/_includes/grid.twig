@@ -6,9 +6,11 @@
         {% for product in products %}
             <div class="p-4 relative">
                 <div>
-                    <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? '' }}')"
-                         class="bg-cover bg-center bg-gray-300 h-32 rounded">
-                    </div>
+                    <a class="block" href="{{ product.url }}">
+                      <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? '' }}')"
+                           class="bg-cover bg-center bg-gray-300 h-32 rounded">
+                      </div>
+                    </a>
                 </div>
                 <div class="mt-6">
                     <p class="text-lg text-bold tracking-wide mb-2">
@@ -46,6 +48,9 @@
                                 class="m-0 {{ classes.btn.base ~ ' ' ~ classes.btn.grey }} text-center">Unavailable
                         </div>
                       {% endif %}
+                    </div>
+                    <div class="mt-1">
+                      <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.greyLight }} w-full text-center" href="{{ product.url }}">View product</a>
                     </div>
                     <div class="mt-1"><label><input type="checkbox" name="options[giftWrapped]" value="yes"> Gift wrap
                             item</label></div>
