@@ -42,114 +42,206 @@ class Settings extends Model
 
 
     /**
-     * @var string Weight Units
-     */
-    public $weightUnits = 'g';
-
-    /**
-     * @var string Dimension Units
-     */
-    public $dimensionUnits = 'mm';
-
-    /**
-     * @var string Sender's email address
-     */
-    public $emailSenderAddress;
-
-    /**
-     * @var string Sender's name
-     */
-    public $emailSenderName;
-
-    /**
-     * @var string Order PDF Path
-     * @deprecated in 3.2.0. Use Default PDF instead.
-     */
-    public $orderPdfPath = 'shop/special/receipt';
-
-    /**
-     * @var string Order PDF Size
-     */
-    public $pdfPaperSize = 'letter';
-
-    /**
-     * @var string Order PDF Orientation
-     */
-    public $pdfPaperOrientation = 'portrait';
-
-    /**
-     * @var string Order PDF file name format
-     * @deprecated in 3.2.0. Use Default PDF instead.
-     */
-    public $orderPdfFilenameFormat = 'Order-{number}';
-
-    /**
-     * @var string
-     */
-    public $emailSenderAddressPlaceholder;
-
-    /**
-     * @var string
-     */
-    public $emailSenderNamePlaceholder;
-
-    /**
-     * @var string
-     */
-    public $minimumTotalPriceStrategy = 'default';
-
-    /**
-     * @var string
-     */
-    public $freeOrderPaymentStrategy = 'complete';
-
-    /**
-     * @var array
-     */
-    public $paymentCurrency;
-
-    /**
-     * @var array
-     */
-    public $paymentMethodSettings = [];
-
-    /**
-     * @var bool
-     */
-    public $purgeInactiveCarts = true;
-
-    /**
-     * @var int The default length of time before inactive carts are purged. Default: 90 days
+     * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
      *
-     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
-     */
-    public $purgeInactiveCartsDuration = 7776000;
-
-    /**
-     * @var int The default length of time a cart is considered active since its last update
-     *
-     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](api3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      * @since 2.2
      */
     public $activeCartDuration = 3600;
 
     /**
-     * @var string
+     * @var bool Whether the customer’s primary shipping and billing addresses should be set automatically on new carts.
+     */
+    public $autoSetNewCartAddresses = true;
+
+    /**
+     * @var bool Whether carts are allowed to be empty on checkout.
+     * @since 2.2
+     */
+    public $allowEmptyCartOnCheckout = false;
+
+    /**
+     * @var string Key to be used when returning cart information in a response.
+     */
+    public $cartVariable = 'cart';
+
+    /**
+     * @var string Commerce’s default control panel view. (Defaults to order index.)
+     * @since 2.2
+     */
+    public $defaultView = 'commerce/orders';
+
+    /**
+     * @var string Unit type for dimension measurements.
+     *
+     * Options:
+     *
+     * - `'mm'`
+     * - `'cm'`
+     * - `'m'`
+     * - `'ft'`
+     * - `'in'`
+     */
+    public $dimensionUnits = 'mm';
+
+    /**
+     * @var string Default email address Commerce system messages should be sent from.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](api3:craft\models\MailSettings::$fromEmail) will be used.
+     */
+    public $emailSenderAddress;
+
+    /**
+     * @var string Placeholder value displayed for the sender address control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](api3:craft\models\MailSettings::$fromEmail) will be used.
+     */
+    public $emailSenderAddressPlaceholder;
+
+    /**
+     * @var string Default from name used for Commerce system emails.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](api3:craft\models\MailSettings::$fromName) will be used.
+     */
+    public $emailSenderName;
+
+    /**
+     * @var string Placeholder value displayed for the sender name control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](api3:craft\models\MailSettings::$fromName) will be used.
+     */
+    public $emailSenderNamePlaceholder;
+
+    /**
+     * @var string How Commerce should handle free orders.
+     *
+     * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
+     *
+     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance needs to be updated or otherwise adjusted by the payment gateway.
+     */
+    public $freeOrderPaymentStrategy = 'complete';
+
+    /**
+     * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
+     *
+     * The template must contain a form that posts to the URL supplied by the `actionUrl` variable and outputs all hidden inputs with the `inputs` variable.
+     *
+     * ```twig
+     * <!DOCTYPE html>
+     * <html>
+     * <head>
+     *     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     *     <title>Redirecting...</title>
+     * </head>
+     * <body onload="document.forms[0].submit();">
+     * <form action="{{ actionUrl }}" method="post">
+     *     <p>Redirecting to payment page...</p>
+     *     <p>
+     *         {{ inputs|raw }}
+     *         <input type="submit" value="Continue">
+     *     </p>
+     * </form>
+     * </body>
+     * </html>
+     * ```
+     *
+     * ::: tip
+     * Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inline styles to reduce HTTP requests.
+     * :::
+     *
+     * If empty (default), a barebones template is used.
      */
     public $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var bool
+     * @var array Payment gateway settings indexed by each gateway’s handle.
+     *
+     * Check each gateway’s documentation for settings that may be stored.
      */
-    public $useBillingAddressForTax = false;
+    public $gatewaySettings = [];
 
     /**
-     * @var bool
+     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     *
+     * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
+     * @since 3.1
      */
-    public $validateBusinessTaxIdAsVatId = false;
+    public $loadCartRedirectUrl = null;
 
     /**
-     * @var bool
+     * @var string How Commerce should handle minimum total price for an order.
+     *
+     * Options: are `'default'`, `'zero'`, and `'shipping'`.
+     *
+     * - `'default'` [rounds](commerce3:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
+     * - `'zero'` returns `0` if the result from `'default'` would have been negative. (Minimum order total is `0`.)
+     * - `'shipping'` returns the total shipping cost if the result from `'default'` would have been negative. (Minimum order total equals shipping amount.)
+     */
+    public $minimumTotalPriceStrategy = 'default';
+
+    /**
+     * @var string Filename format to be used for order PDFs.
+     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
+     */
+    public $orderPdfFilenameFormat = 'Order-{number}';
+
+    /**
+     * @var string Path to the template to be used for order PDFs.
+     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
+     */
+    public $orderPdfPath = 'shop/special/receipt';
+
+    /**
+     * @var string Human-friendly reference number format for orders. Result must be unique.
+     *
+     * See [Order Numbers](orders.md#order-numbers).
+     */
+    public $orderReferenceFormat = '{{number[:7]}}';
+
+    /**
+     * @var array ISO codes for supported payment currencies.
+     *
+     * See [Payment Currencies](payment-currencies.md).
+     */
+    public $paymentCurrency;
+
+    /**
+     * @var string The orientation of the paper to use for generated order PDF files.
+     *
+     * Options are `'portrait'` and `'landscape'`.
+     */
+    public $pdfPaperOrientation = 'portrait';
+
+    /**
+     * @var string The size of the paper to use for generated order PDFs.
+     *
+     * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
+     */
+    public $pdfPaperSize = 'letter';
+
+    /**
+     * @var bool Whether to allow non-local images in generated order PDFs.
+     */
+    public $pdfAllowRemoteImages = false;
+
+    /**
+     * @var bool Whether inactive carts should automatically be deleted from the database during garbage collection.
+     *
+     * ::: tip
+     * You can control how long a cart should go without being updated before it gets deleted [`purgeInactiveCartsDuration`](#purgeinactivecartsduration) setting.
+     * :::
+     */
+    public $purgeInactiveCarts = true;
+
+    /**
+     * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
+     *
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](api3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     */
+    public $purgeInactiveCartsDuration = 7776000;
+
+    /**
+     * @var bool Whether a shipping address is required before making payment on an order.
      */
     public $requireShippingAddressAtCheckout = false;
 
@@ -159,75 +251,69 @@ class Settings extends Model
     public $requireBillingAddressAtCheckout = false;
 
     /**
-     * @var bool
+     * @var bool Whether shipping method selection is required before making payment on an order.
      */
     public $requireShippingMethodSelectionAtCheckout = false;
 
     /**
-     * @var bool
-     */
-    public $autoSetNewCartAddresses = true;
-
-    /**
-     * @var bool Allow the cart to be empty on checkout
-     * @since 2.2
-     */
-    public $allowEmptyCartOnCheckout = false;
-
-    /**
-     * @var bool
-     */
-    public $pdfAllowRemoteImages = false;
-
-    /**
-     * @var string The order reference format
-     */
-    public $orderReferenceFormat = '{{number[:7]}}';
-
-    /**
-     * @var string Default view for Commerce in the CP
-     * @since 2.2
-     */
-    public $defaultView = 'commerce/orders';
-
-    /**
-     * @var string
-     */
-    public $cartVariable = 'cart';
-
-    /**
-     * @var array
-     */
-    public $gatewaySettings = [];
-
-    /**
-     * @var string
-     */
-    public $updateBillingDetailsUrl = '';
-
-    /**
-     * @var bool
+     * @var bool Whether the [customer info tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
      * @since 3.0
      */
     public $showCustomerInfoTab = true;
 
     /**
-     * @var bool
-     * @since 3.0.12
+     * @var string URL for a user to resolve billing issues with their subscription.
+     *
+     * ::: tip
+     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/master/example-templates/shop/plans/update-billing-details.twig).
+     * :::
      */
-    public $validateCartCustomFieldsOnSubmission = false;
+    public $updateBillingDetailsUrl = '';
 
     /**
-     * @var string|null the uri to redirect to after using the load cart url
-     * @since 3.1
-     */
-    public $loadCartRedirectUrl = null;
-
-    /**
-     * @var bool Should the search index for a cart be updated when saving the cart on the front-end.
+     * @var bool Whether the search index for a cart should be updated when saving the cart via `commerce/cart/*` controller actions.
+     *
+     * May be set to `false` to reduce performance impact on high-traffic sites.
+     *
+     * ::: warning
+     * Setting this to `false` will result in fewer index update queue jobs, but you’ll need to manually re-index orders to ensure up-to-date cart search results in the control panel.
+     * :::
      * @since 3.1.5
      */
     public $updateCartSearchIndexes = true;
+
+    /**
+     * @var bool Whether taxes should be calculated based on the billing address instead of the shipping address.
+     */
+    public $useBillingAddressForTax = false;
+
+    /**
+     * @var bool Whether business tax ID should be validated separately from VAT ID.
+     *
+     * When set to `false`, `businessTaxId` **or** `businessVatId` may be provided for VAT.
+     *
+     * When set to `true`, `businessTaxId` **and** `businessVatId` must each be provided.
+     */
+    public $validateBusinessTaxIdAsVatId = false;
+
+    /**
+     * @var string Units to be used for weight measurements.
+     *
+     * Options:
+     *
+     * - `'g'`
+     * - `'kg'`
+     * - `'lb'`
+     */
+    public $weightUnits = 'g';
+
+    /**
+     * @var bool Whether to validate custom fields when a cart is updated.
+     *
+     * Set to `true` to allow custom content fields to return validation errors when a cart is updated.
+     * @since 3.0.12
+     */
+    public $validateCartCustomFieldsOnSubmission = false;
 
     /**
      * @return array
