@@ -18,8 +18,13 @@ use yii\base\InvalidConfigException;
 /**
  * Settings model.
  *
- * @property array $weightUnitsOptions
+ * @property-read array $weightUnitsOptions
+ * @property-read array $dimensionsUnits
+ * @property-read array $minimumTotalPriceStrategyOptions
+ * @property-read array $freeOrderPaymentStrategyOptions
+ * @property-read array $defaultViewOptions
  * @property-read string $paymentCurrency
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
