@@ -18,7 +18,7 @@ use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Customer Address Controller
+ * Class Customer Addresses Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -221,5 +221,22 @@ class CustomerAddressesController extends BaseFrontEndController
         Craft::$app->getSession()->setError($error);
 
         return null;
+    }
+
+    /**
+     * Return customer addresses.
+     *
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 3.x
+     */
+    public function actionGetAddresses(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomer();
+        $addresses = $customer->getAddresses();
+
+        return $this->asJson(['success' => true, 'addresses' => $addresses]);
     }
 }

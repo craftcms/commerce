@@ -169,13 +169,19 @@ class Customer extends Model
     }
 
     /**
-     * Returns the order elements associated with this customer.
+     * Returns the completed order elements associated with this customer.
+     * Orders are returned with the most recent first.
      *
      * @return Order[]
      */
     public function getOrders(): array
     {
-        return Order::find()->customer($this)->isCompleted()->withAll()->all();
+        return Order::find()
+            ->customer($this)
+            ->isCompleted()
+            ->withAll()
+            ->orderBy('dateOrdered DESC')
+            ->all();
     }
 
     /**

@@ -2,9 +2,20 @@
 
 ## Unreleased
 
-## Fixed
+### Added
+- Craft Commerce is now translated into Japanese.
+- Added the ability to retrieve a customer’s addresses via Ajax. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added the ability to retrieve a customer’s previous orders via Ajax. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added `craft\commerce\controllers\CustomerAddressesController::actionGetAddresses`. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added `craft\commerce\controllers\CustomerOrdersControllers`. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+
+### Changed
+- `craft\models\Customer::getOrders()` now returns orders most recent first (`dateOrdered DESC`).
+
+### Fixed
 - Fixed a migration error that could occur when updating to Commerce 3. ([#1726](https://github.com/craftcms/commerce/issues/1726)) 
 - Fixed a bug that included control panel styles in rendered email previews. ([#1734](https://github.com/craftcms/commerce/issues/1734))
+- Fixed a bug where  the `countryText` attribute was missing in the `craft\commerce\models\Address:getAddressLines()` return data. 
 
 ## 3.2.6 - 2020-09-13
 
