@@ -149,7 +149,7 @@ class Settings extends Model
      * Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inline styles to reduce HTTP requests.
      * :::
      *
-     * If empty (default), a barebones template is used.
+     * If empty (default), each gateway will decide how to handle after-payment redirects.
      */
     public $gatewayPostRedirectTemplate = '';
 
