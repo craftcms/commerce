@@ -1856,7 +1856,7 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
-        $customerUser = $customer->getUser();
+        $customerUser = $customer ? $customer->getUser() : null;
         $currentUser = Craft::$app->getUser()->getIdentity();
         $noCustomerUserOrCurrentUser = ($customerUser == null && $currentUser == null);
         $currentUserDoesntMatchCustomerUser = ($currentUser && ($customerUser == null || $currentUser->id != $customerUser->id));
