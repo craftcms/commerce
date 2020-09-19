@@ -1196,8 +1196,11 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
-        if ($customer && $email = $customer->getEmail()) {
+        if (
+            $this->customerId &&
+            ($customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)) &&
+            ($email = $customer->getEmail())
+        ) {
             $this->setEmail($email);
         }
 
