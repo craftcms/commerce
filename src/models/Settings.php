@@ -48,7 +48,7 @@ class Settings extends Model
     /**
      * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](api3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      * @group Cart
      * @since 2.2
      */
@@ -97,7 +97,7 @@ class Settings extends Model
     /**
      * @var string Default email address Commerce system messages should be sent from.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](api3:craft\models\MailSettings::$fromEmail) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
      * @group General
      */
     public $emailSenderAddress;
@@ -105,7 +105,7 @@ class Settings extends Model
     /**
      * @var string Placeholder value displayed for the sender address control panel settings field.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromEmail](api3:craft\models\MailSettings::$fromEmail) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
      * @group General
      */
     public $emailSenderAddressPlaceholder;
@@ -113,7 +113,7 @@ class Settings extends Model
     /**
      * @var string Default from name used for Commerce system emails.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromName](api3:craft\models\MailSettings::$fromName) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
      * @group General
      */
     public $emailSenderName;
@@ -121,7 +121,7 @@ class Settings extends Model
     /**
      * @var string Placeholder value displayed for the sender name control panel settings field.
      *
-     * If `null` (default), Craft’s [MailSettings::$fromName](api3:craft\models\MailSettings::$fromName) will be used.
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
      * @group General
      */
     public $emailSenderNamePlaceholder;
@@ -263,7 +263,7 @@ class Settings extends Model
     /**
      * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
      *
-     * See [craft\helpers\ConfigHelper::durationInSeconds()](api3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      * @group Cart
      */
     public $purgeInactiveCartsDuration = 7776000;
