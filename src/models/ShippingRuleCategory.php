@@ -75,6 +75,15 @@ class ShippingRuleCategory extends Model
 
             ];
 
+        $rules[] = [[
+            'shippingRuleId',
+            'shippingCategoryId',
+            'condition',
+            'perItemRate',
+            'weightRate',
+            'percentageRate',
+        ], 'safe'];
+
         return $rules;
     }
 
