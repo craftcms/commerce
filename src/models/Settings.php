@@ -356,7 +356,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of weight unit options and labels.
      * 
-     * @group Units
      * @return array
      */
     public function getWeightUnitsOptions(): array
@@ -371,7 +370,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of dimension unit options and labels.
      *
-     * @group Units
      * @return array
      */
     public function getDimensionUnits(): array
@@ -388,7 +386,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
      *
-     * @group Orders
      * @return array
      */
     public function getMinimumTotalPriceStrategyOptions(): array
@@ -403,7 +400,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
      *
-     * @group Orders
      * @return array
      */
     public function getFreeOrderPaymentStrategyOptions(): array
@@ -418,7 +414,6 @@ class Settings extends Model
      * Returns the ISO payment currency for a given site, or the default site if no handle is provided.
      *
      * @param string|null $siteHandle
-     * @group Units
      * @return string|null
      * @throws InvalidConfigException if the currency in the config file is not set up
      * @throws CurrencyException
@@ -439,7 +434,6 @@ class Settings extends Model
     /**
      * Returns a key-value array of default control panel view options and labels.
      *
-     * @group General
      * @return array
      * @since 2.2
      */
