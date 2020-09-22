@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => 'Platobná brána, ktorá sa použije pre plán prihlásení na odber.',
     'Store Location' => 'Umiestnenie obchodu',
     'Stops subsequent?' => 'Zastaví následné?',
-    'Expiration date' => 'Expiration date',
+    'Expiration date' => 'Dátum exspirácie',
     'Unsubscribe' => 'Odhlásiť odber',
     'Available for purchase?' => 'Dostupné na nákup?',
     'Manage subscription' => 'Správa prihlásení na odber',
