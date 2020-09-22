@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => 'The payment gateway that will be used for the subscription plan.',
     'Store Location' => 'Store Location',
     'Stops subsequent?' => 'Stops subsequent?',
-    'Expiration date' => 'Expiry date',
+    'Expiration date' => 'Expiration date',
     'Unsubscribe' => 'Unsubscribe',
     'Available for purchase?' => 'Available for purchase?',
     'Manage subscription' => 'Manage subscription',
