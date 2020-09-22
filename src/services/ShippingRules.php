@@ -154,9 +154,9 @@ class ShippingRules extends Component
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
                     'condition' => $ruleCategory->condition,
-                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? $ruleCategory->perItemRate : null,
-                    'weightRate' => is_numeric($ruleCategory->weightRate) ? $ruleCategory->weightRate : null,
-                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? $ruleCategory->percentageRate : null
+                    'perItemRate' => $ruleCategory->perItemRate,
+                    'weightRate' => $ruleCategory->weightRate,
+                    'percentageRate' => $ruleCategory->percentageRate
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([

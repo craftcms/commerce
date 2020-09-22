@@ -9,8 +9,9 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\models\ShippingRule;
+use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
-use craft\commerce\records\ShippingRuleCategory;
+use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\Localization;
@@ -86,9 +87,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         }
 
         $variables['categoryShippingOptions'] = [];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Allow'), 'value' => ShippingRuleCategory::CONDITION_ALLOW];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategory::CONDITION_DISALLOW];
-        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategory::CONDITION_REQUIRE];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Allow'), 'value' => ShippingRuleCategoryRecord::CONDITION_ALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
+        $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
         if ($variables['shippingRule'] && $variables['shippingRule'] instanceof ShippingRule) {
             $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
