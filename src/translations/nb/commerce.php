@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => 'Hvilken betalingsportal skal brukes for abonnementsplanen.',
     'Store Location' => 'Stedet for butikk',
     'Stops subsequent?' => 'Stopper påfølgende?',
-    'Expiration date' => 'Expiration date',
+    'Expiration date' => 'Utløpsdato',
     'Unsubscribe' => 'Avslutte abonnement',
     'Available for purchase?' => 'Tilgjengelig for kjøp?',
     'Manage subscription' => 'Administrer abonnement',
