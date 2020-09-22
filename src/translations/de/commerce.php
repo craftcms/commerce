@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => 'Der Zahlungs-Gateway, der für den Abonnementplan verwendet wird.',
     'Store Location' => 'Standort des Geschäfts',
     'Stops subsequent?' => 'Stoppt nachfolgende?',
-    'Expiration date' => 'Ablaufdatum',
+    'Expiration date' => 'Expiration date',
     'Unsubscribe' => 'Abbestellen',
     'Available for purchase?' => 'Für den Kauf verfügbar?',
     'Manage subscription' => 'Abonnement verwalten',
