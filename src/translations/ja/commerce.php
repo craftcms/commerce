@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => '定期支払いプランに使用されるペイメントゲートウェイ。',
     'Store Location' => 'ストアのロケーション',
     'Stops subsequent?' => '追加の設定を無効にする？',
-    'Expiration date' => 'Expiration date',
+    'Expiration date' => '有効期限の日付',
     'Unsubscribe' => '定期支払い解除',
     'Available for purchase?' => '購入可能にしますか？',
     'Manage subscription' => '定期支払いを管理する',
