@@ -323,7 +323,7 @@ return [
     'Which payment gateway will be used for the subscription plan.' => 'De betaalgateway die voor dit abonnementsplan wordt gebruikt.',
     'Store Location' => 'Winkellocatie',
     'Stops subsequent?' => 'Volgende stoppen?',
-    'Expiration date' => 'Vervaldatum',
+    'Expiration date' => 'Expiration date',
     'Unsubscribe' => 'Afmelden',
     'Available for purchase?' => 'Beschikbaar voor aankoop?',
     'Manage subscription' => 'Abonnement beheren',
