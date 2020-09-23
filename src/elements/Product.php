@@ -627,11 +627,8 @@ class Product extends Element
      */
     public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {
-        /** @var ElementQuery $elementQuery */
         if ($attribute === 'variants') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'variants';
-            $elementQuery->with = $with;
+            $elementQuery->andWith('variants');
         } else {
             parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
