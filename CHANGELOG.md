@@ -19,6 +19,7 @@
 - Fixed a PHP error that occurred when saving an order without a customer ID. 
 - Fixed a PHP error that occurred when rendering a PDF with a missing temp directory. ([#1745](https://github.com/craftcms/commerce/issues/1745))
 - Fixed the performance regression when using the “Raw Data (fastest)” export on the Order edit page. ([#1744](https://github.com/craftcms/commerce/issues/1744))
+- Fixed a bug where the browser autocomplete list would be trigger when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
 
 ## 3.2.6 - 2020-09-13
 
