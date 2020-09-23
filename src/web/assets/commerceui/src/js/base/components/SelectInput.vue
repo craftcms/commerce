@@ -42,7 +42,7 @@
 
             <template v-slot:search="search">
                 <slot name="search" :search="search">
-                    <input class="vs__search" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
+                    <input class="vs__search" :name="searchInputName" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
                 </slot>
             </template>
 
@@ -92,6 +92,10 @@
             },
             options: {
                 type: Array,
+            },
+            searchInputName: {
+                type: String,
+                default: 'search-search-' + Math.random().toString(36).substring(7),
             },
             searchInputQuerySelector: {
                 type: String,

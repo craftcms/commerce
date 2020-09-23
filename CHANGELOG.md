@@ -18,6 +18,7 @@
 - Fixed a bug where  the `countryText` attribute was missing in the `craft\commerce\models\Address:getAddressLines()` return data. 
 - Fixed a PHP error that occurred when saving an order without a customer ID. 
 - Fixed a PHP error that occurred when rendering a PDF with a missing temp directory. ([#1745](https://github.com/craftcms/commerce/issues/1745))
+- Fixed a bug where the browser autocomplete list would be trigger when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
 
 ## 3.2.6 - 2020-09-13
 
