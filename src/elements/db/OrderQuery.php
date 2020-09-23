@@ -1066,8 +1066,10 @@ class OrderQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function populate($orders)
+    public function populate($rows)
     {
+        $orders = parent::populate($rows);
+
         // Eager-load line items?
         if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
             $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
@@ -1093,7 +1095,7 @@ class OrderQuery extends ElementQuery
             $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
         }
 
-        return parent::populate($orders);
+        return $orders;
     }
 
     /**
