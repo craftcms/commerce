@@ -1398,19 +1398,6 @@ class Order extends Element
     }
 
     /**
-     * @inheritDoc
-     */
-    protected static function defineExporters(string $source): array
-    {
-        $default = parent::defineExporters($source);
-        // Remove the standard raw exporter and use our own
-        ArrayHelper::removeValue($default, CraftRaw::class);
-        ArrayHelper::prepend($default, Raw::class);
-
-        return $default;
-    }
-
-    /**
      * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
      */
     public function updateOrderPaidInformation()

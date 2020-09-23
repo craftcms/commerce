@@ -404,7 +404,6 @@ class LineItems extends Component
         $lineItems = [];
 
         foreach ($lineItemsResults as $result) {
-
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
             $lineItem->typecastAttributes();
