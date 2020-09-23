@@ -49,6 +49,7 @@ class Settings extends Model
      * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
      *
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     *
      * @group Cart
      * @since 2.2
      */
@@ -75,7 +76,7 @@ class Settings extends Model
 
     /**
      * @var string Commerce’s default control panel view. (Defaults to order index.)
-     * @group General
+     * @group System
      * @since 2.2
      */
     public $defaultView = 'commerce/orders';
@@ -90,6 +91,7 @@ class Settings extends Model
      * - `'m'`
      * - `'ft'`
      * - `'in'`
+     *
      * @group Units
      */
     public $dimensionUnits = 'mm';
@@ -98,7 +100,8 @@ class Settings extends Model
      * @var string Default email address Commerce system messages should be sent from.
      *
      * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
-     * @group General
+     *
+     * @group System
      */
     public $emailSenderAddress;
 
@@ -106,7 +109,8 @@ class Settings extends Model
      * @var string Placeholder value displayed for the sender address control panel settings field.
      *
      * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
-     * @group General
+     *
+     * @group System
      */
     public $emailSenderAddressPlaceholder;
 
@@ -114,7 +118,8 @@ class Settings extends Model
      * @var string Default from name used for Commerce system emails.
      *
      * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
-     * @group General
+     *
+     * @group System
      */
     public $emailSenderName;
 
@@ -122,7 +127,8 @@ class Settings extends Model
      * @var string Placeholder value displayed for the sender name control panel settings field.
      *
      * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
-     * @group General
+     *
+     * @group System
      */
     public $emailSenderNamePlaceholder;
 
@@ -131,7 +137,9 @@ class Settings extends Model
      *
      * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
      *
-     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance needs to be updated or otherwise adjusted by the payment gateway.
+     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance
+     * needs to be updated or otherwise adjusted by the payment gateway.
+     *
      * @group Orders
      */
     public $freeOrderPaymentStrategy = 'complete';
@@ -139,7 +147,8 @@ class Settings extends Model
     /**
      * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
      *
-     * The template must contain a form that posts to the URL supplied by the `actionUrl` variable and outputs all hidden inputs with the `inputs` variable.
+     * The template must contain a form that posts to the URL supplied by the `actionUrl` variable and outputs all hidden inputs with
+     * the `inputs` variable.
      *
      * ```twig
      * <!DOCTYPE html>
@@ -161,10 +170,12 @@ class Settings extends Model
      * ```
      *
      * ::: tip
-     * Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal images and inline styles to reduce HTTP requests.
+     * Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal
+     * images and inline styles to reduce HTTP requests.
      * :::
      *
      * If empty (default), each gateway will decide how to handle after-payment redirects.
+     *
      * @group Payments
      */
     public $gatewayPostRedirectTemplate = '';
@@ -173,6 +184,7 @@ class Settings extends Model
      * @var array Payment gateway settings indexed by each gateway’s handle.
      *
      * Check each gateway’s documentation for settings that may be stored.
+     *
      * @group Payments
      */
     public $gatewaySettings = [];
@@ -181,6 +193,7 @@ class Settings extends Model
      * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
+     *
      * @group Cart
      * @since 3.1
      */
@@ -192,8 +205,9 @@ class Settings extends Model
      * Options:
      *
      * - `'default'` [rounds](commerce3:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
-     * - `'zero'` returns `0` if the result from `'default'` would have been negative. (Minimum order total is `0`.)
-     * - `'shipping'` returns the total shipping cost if the result from `'default'` would have been negative. (Minimum order total equals shipping amount.)
+     * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
+     * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
+     *
      * @group Orders
      */
     public $minimumTotalPriceStrategy = 'default';
@@ -216,6 +230,7 @@ class Settings extends Model
      * @var string Human-friendly reference number format for orders. Result must be unique.
      *
      * See [Order Numbers](orders.md#order-numbers).
+     *
      * @group Orders
      */
     public $orderReferenceFormat = '{{number[:7]}}';
@@ -224,6 +239,7 @@ class Settings extends Model
      * @var array ISO codes for supported payment currencies.
      *
      * See [Payment Currencies](payment-currencies.md).
+     *
      * @group Payments
      */
     public $paymentCurrency;
@@ -232,6 +248,7 @@ class Settings extends Model
      * @var string The orientation of the paper to use for generated order PDF files.
      *
      * Options are `'portrait'` and `'landscape'`.
+     *
      * @group Orders
      */
     public $pdfPaperOrientation = 'portrait';
@@ -240,6 +257,7 @@ class Settings extends Model
      * @var string The size of the paper to use for generated order PDFs.
      *
      * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
+     *
      * @group Orders
      */
     public $pdfPaperSize = 'letter';
@@ -256,6 +274,7 @@ class Settings extends Model
      * ::: tip
      * You can control how long a cart should go without being updated before it gets deleted [`purgeInactiveCartsDuration`](#purgeinactivecartsduration) setting.
      * :::
+     *
      * @group Cart
      */
     public $purgeInactiveCarts = true;
@@ -264,6 +283,7 @@ class Settings extends Model
      * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
      *
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     *
      * @group Cart
      */
     public $purgeInactiveCartsDuration = 7776000;
@@ -288,7 +308,7 @@ class Settings extends Model
 
     /**
      * @var bool Whether the [customer info tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
-     * @group General
+     * @group System
      * @since 3.0
      */
     public $showCustomerInfoTab = true;
@@ -299,6 +319,7 @@ class Settings extends Model
      * ::: tip
      * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/master/example-templates/shop/plans/update-billing-details.twig).
      * :::
+     *
      * @group Orders
      */
     public $updateBillingDetailsUrl = '';
@@ -311,6 +332,7 @@ class Settings extends Model
      * ::: warning
      * Setting this to `false` will result in fewer index update queue jobs, but you’ll need to manually re-index orders to ensure up-to-date cart search results in the control panel.
      * :::
+     *
      * @group Cart
      * @since 3.1.5
      */
@@ -323,11 +345,16 @@ class Settings extends Model
     public $useBillingAddressForTax = false;
 
     /**
-     * @var bool Whether business tax ID should be validated separately from VAT ID.
+     * @var bool Whether to enable validation requiring the `businessTaxId` to be a valid VAT ID.
      *
-     * When set to `false`, `businessTaxId` **or** `businessVatId` may be provided for VAT.
+     * When set to `false`, no validation is applied to `businessTaxId`.
      *
-     * When set to `true`, `businessTaxId` **and** `businessVatId` must each be provided.
+     * When set to `true`, `businessTaxId` must contain a valid VAT ID.
+     *
+     * ::: tip
+     * This setting strictly toggles input validation and has no impact on tax configuration or behavior elsewhere in the system.
+     * :::
+     *
      * @group Orders
      */
     public $validateBusinessTaxIdAsVatId = false;
@@ -340,6 +367,7 @@ class Settings extends Model
      * - `'g'`
      * - `'kg'`
      * - `'lb'`
+     *
      * @group Units
      */
     public $weightUnits = 'g';
@@ -348,6 +376,7 @@ class Settings extends Model
      * @var bool Whether to validate custom fields when a cart is updated.
      *
      * Set to `true` to allow custom content fields to return validation errors when a cart is updated.
+     *
      * @group Cart
      * @since 3.0.12
      */
