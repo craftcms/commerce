@@ -18,6 +18,7 @@
 - Fixed a bug where  the `countryText` attribute was missing in the `craft\commerce\models\Address:getAddressLines()` return data. 
 - Fixed a PHP error that occurred when saving an order without a customer ID. 
 - Fixed a PHP error that occurred when rendering a PDF with a missing temp directory. ([#1745](https://github.com/craftcms/commerce/issues/1745))
+- Fixed the performance regression when using the “Raw Data (fastest)” export on the Order edit page. ([#1744](https://github.com/craftcms/commerce/issues/1744))
 
 ## 3.2.6 - 2020-09-13
 
