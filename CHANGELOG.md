@@ -20,6 +20,7 @@
 - Fixed a PHP error that could occur when saving an order without a customer ID.
 - Fixed a PHP error that occurred when rendering a PDF, if the temp directory was missing. ([#1745](https://github.com/craftcms/commerce/issues/1745))
 - Fixed a bug where `craft\commerce\models\Address:getAddressLines()` wasn’t including `countryText` in the response data.
+- Fixed a PHP error that occurred when entering a localized number as a category shipping rule price.
 - Fixed a bug where long translations would break the line item layout on the Edit Order page.
 - Fixed a JavaScript error that occurred when editing shipping rules.
 
