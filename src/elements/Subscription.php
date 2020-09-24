@@ -762,21 +762,15 @@ class Subscription extends Element
      */
     protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {
-        /** @var ElementQuery $elementQuery */
-        if ($attribute === 'subscriber') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'subscriber';
-            $elementQuery->with = $with;
-            return;
+        switch ($attribute) {
+            case 'subscriber':
+                $elementQuery->andWith('subscriber');
+                break;
+            case 'orderLink':
+                $elementQuery->andWith('order');
+                break;
+            default:
+                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
-
-        if ($attribute === 'orderLink') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'order';
-            $elementQuery->with = $with;
-            return;
-        }
-
-        parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
     }
 }

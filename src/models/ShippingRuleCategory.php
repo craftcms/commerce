@@ -55,7 +55,6 @@ class ShippingRuleCategory extends Model
      */
     public $condition;
 
-
     /**
      * @inheritdoc
      */
@@ -74,6 +73,21 @@ class ShippingRuleCategory extends Model
                 ],
 
             ];
+
+        $rules[] = [[
+            'perItemRate',
+            'weightRate',
+            'percentageRate',
+        ], 'number', 'skipOnEmpty' => true];
+
+        $rules[] = [[
+            'shippingRuleId',
+            'shippingCategoryId',
+            'condition',
+            'perItemRate',
+            'weightRate',
+            'percentageRate',
+        ], 'safe'];
 
         return $rules;
     }

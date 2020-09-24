@@ -22,6 +22,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\exports\Raw;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
@@ -41,6 +42,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -1196,8 +1198,11 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
-        if ($customer && $email = $customer->getEmail()) {
+        if (
+            $this->customerId &&
+            ($customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)) &&
+            ($email = $customer->getEmail())
+        ) {
             $this->setEmail($email);
         }
 
@@ -1853,7 +1858,7 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
-        $customerUser = $customer->getUser();
+        $customerUser = $customer ? $customer->getUser() : null;
         $currentUser = Craft::$app->getUser()->getIdentity();
         $noCustomerUserOrCurrentUser = ($customerUser == null && $currentUser == null);
         $currentUserDoesntMatchCustomerUser = ($currentUser && ($customerUser == null || $currentUser->id != $customerUser->id));

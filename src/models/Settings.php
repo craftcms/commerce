@@ -109,11 +109,6 @@ class Settings extends Model
     public $paymentCurrency;
 
     /**
-     * @var array
-     */
-    public $paymentMethodSettings = [];
-
-    /**
      * @var bool
      */
     public $purgeInactiveCarts = true;

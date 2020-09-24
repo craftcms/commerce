@@ -1,5 +1,29 @@
 # Release Notes for Craft Commerce
 
+## 3.2.7 - 2020-09-24
+
+### Added
+- Craft Commerce is now translated into Japanese.
+- Added the ability to retrieve a customer’s addresses via Ajax. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added the ability to retrieve a customer’s previous orders via Ajax. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added `craft\commerce\controllers\CustomerAddressesController::actionGetAddresses`. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+- Added `craft\commerce\controllers\CustomerOrdersControllers`. ([#1682](https://github.com/craftcms/commerce/issues/1682))
+
+### Changed
+- Improved the performance of exporting orders using the “Raw Data” export type. ([#1744](https://github.com/craftcms/commerce/issues/1744))
+- Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
+- `craft\models\Customer::getOrders()` now returns orders sorted by date ordered, in descending order.
+
+### Fixed
+- Fixed a migration error that could occur when updating to Commerce 3. ([#1726](https://github.com/craftcms/commerce/issues/1726))
+- Fixed a bug where control panel styles were getting included in rendered email previews. ([#1734](https://github.com/craftcms/commerce/issues/1734))
+- Fixed a PHP error that could occur when saving an order without a customer ID.
+- Fixed a PHP error that occurred when rendering a PDF, if the temp directory was missing. ([#1745](https://github.com/craftcms/commerce/issues/1745))
+- Fixed a bug where `craft\commerce\models\Address:getAddressLines()` wasn’t including `countryText` in the response data.
+- Fixed a PHP error that occurred when entering a localized number as a category shipping rule price.
+- Fixed a bug where long translations would break the line item layout on the Edit Order page.
+- Fixed a JavaScript error that occurred when editing shipping rules.
+
 ## 3.2.6 - 2020-09-13
 
 ### Fixed
@@ -15,7 +39,7 @@
 ### Fixed
 - Fixed a PHP error that occurred when exporting orders using the “Raw data” export type.
 - Fixed a PHP error that could occur when resaving products. ([#1698](https://github.com/craftcms/commerce/issues/1698))
-- Fixed a PHP error that occurred when using the `|commerceCurrency` Twig filter for currency conversion. ([#1702](https://github.com/craftcms/commerce/issues/1702)) 
+- Fixed a PHP error that occurred when using the `|commerceCurrency` Twig filter for currency conversion. ([#1702](https://github.com/craftcms/commerce/issues/1702))
 - Fixed a SQL error that occurred when previewing emails on PostgreSQL. ([#1673](https://github.com/craftcms/commerce/issues/1673))
 - Fixed a PHP error that occurred when there was a syntax error in an order condition formula. ([#1716](https://github.com/craftcms/commerce/issues/1716))
 - Fixed a bug where order history records created at the same time were ordered incorrectly.
@@ -47,7 +71,7 @@
 - Fixed a bug where addresses would always get a new ID when updating the cart. ([#1683](https://github.com/craftcms/commerce/issues/1683))
 - Fixed a bug where sales weren’t being applied to orders on the Edit Order page. ([#1662](https://github.com/craftcms/commerce/issues/1662))
 - Fixed a bug where users without orders weren’t available for selection in customer lists.
-- Fixed a bug where the `*AsCurrency` order attributes were showing the base currency rather than the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668)) 
+- Fixed a bug where the `*AsCurrency` order attributes were showing the base currency rather than the order currency. ([#1668](https://github.com/craftcms/commerce/issues/1668))
 - Fixed a bug where it wasn’t possible to permanently delete orders from the Orders index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
 - Fixed a bug where it wasn’t possible to permanently delete products from the Product index page. ([#1708](https://github.com/craftcms/commerce/issues/1708))
 - Fixed a missing validation error when saving a product type. ([#1678](https://github.com/craftcms/commerce/issues/1678))
