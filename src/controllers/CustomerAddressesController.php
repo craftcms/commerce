@@ -228,7 +228,7 @@ class CustomerAddressesController extends BaseFrontEndController
      *
      * @return Response
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.2.7
      */
     public function actionGetAddresses(): Response
     {

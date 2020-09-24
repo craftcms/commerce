@@ -1072,7 +1072,7 @@ class OrderQuery extends ElementQuery
 
         // Eager-load anything?
         if (!empty($orders) && !$this->asArray) {
-            
+
             // Eager-load line items?
             if ($this->withLineItems === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
@@ -1184,7 +1184,7 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
-        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.2.4', '>=')) {
             $this->query->addSelect([
                 'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
             ]);

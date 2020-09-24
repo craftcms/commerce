@@ -16,7 +16,7 @@ use yii\web\Response;
  * Class Customer Orders Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.7
  */
 class CustomerOrdersController extends BaseFrontEndController
 {

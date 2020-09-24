@@ -395,7 +395,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $attribute
-     * @since 3.x
+     * @since 3.2.7
      */
     public function validateShippingRuleCategories($attribute)
     {

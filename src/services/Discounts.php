@@ -148,7 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
-     * @deprecated in 3.x. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
+     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -309,7 +309,7 @@ class Discounts extends Component
      *
      * @param Discount $discount
      * @throws DeprecationException
-     * @deprecated in 3.x
+     * @deprecated in 3.2.4.
      */
     public function populateDiscountRelations(Discount $discount)
     {
