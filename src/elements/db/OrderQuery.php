@@ -1066,34 +1066,40 @@ class OrderQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function populate($orders)
+    public function populate($rows)
     {
-        // Eager-load line items?
-        if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+        $orders = parent::populate($rows);
+
+        // Eager-load anything?
+        if (!empty($orders) && !$this->asArray) {
+            
+            // Eager-load line items?
+            if ($this->withLineItems === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            }
+
+            // Eager-load transactions?
+            if ($this->withTransactions === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+            }
+
+            // Eager-load adjustments?
+            if ($this->withAdjustments === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+            }
+
+            // Eager-load customers?
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+            }
+
+            // Eager-load addresses?
+            if ($this->withAddresses === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            }
         }
 
-        // Eager-load transactions?
-        if (!empty($orders) && ($this->withTransactions === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
-        }
-
-        // Eager-load adjustments?
-        if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
-        }
-
-        // Eager-load customers?
-        if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
-        }
-
-        // Eager-load addresses?
-        if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
-        }
-
-        return parent::populate($orders);
+        return $orders;
     }
 
     /**

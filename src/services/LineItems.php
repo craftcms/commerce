@@ -404,7 +404,6 @@ class LineItems extends Component
         $lineItems = [];
 
         foreach ($lineItemsResults as $result) {
-
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
             $lineItem->typecastAttributes();
@@ -413,8 +412,8 @@ class LineItems extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if (isset($lineItems[$order['id']])) {
-                $order['lineItems'] = $lineItems[$order['id']];
+            if (isset($lineItems[$order->id])) {
+                $order->setLineItems($lineItems[$order->id]);
                 $orders[$key] = $order;
             }
         }
