@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.7 - 2020-09-24
 
 ### Added
 - Craft Commerce is now translated into Japanese.
