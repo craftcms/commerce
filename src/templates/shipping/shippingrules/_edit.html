@@ -412,7 +412,7 @@
                         }) }}
                     </td>
                 </tr>
-                <tr>
+                <tr class="js-category-overrides-heading">
                     <th colspan="4"
                         data-title="{{ 'Category Rate Overrides'|t('commerce') }}">
                         {{ "Category Rate Overrides"|t('commerce') }}
@@ -425,7 +425,7 @@
                     {% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
-                        class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
+                        class="{% if categoryCondition == 'disallow' %}hidden{% endif %} js-category-override-row">
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                             {{ shippingCategory.name }}
                         </th>
@@ -474,15 +474,27 @@
 {% js %}
     window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }};
 
-    $("select[name^='ruleCategories']").change(function() {
-    var id = $(this).closest('tr').data('id');
-    var value = $(this).val();
-    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
-    if (value == 'disallow')
-    {
-    $rateRow.addClass('hidden');
-    }else{
-    $rateRow.removeClass('hidden');
+    function toggleCategoryOverridesHeading() {
+      if ($('.js-category-override-row.hidden').length == Object.keys(window.shippingCategories).length) {
+        $('.js-category-overrides-heading').addClass('hidden');
+      } else {
+        $('.js-category-overrides-heading').removeClass('hidden');
+      }
     }
+
+    $("select[name^='ruleCategories']").change(function() {
+      var id = $(this).closest('tr').data('id');
+      var value = $(this).val();
+      var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
+
+      if (value == 'disallow') {
+        $rateRow.addClass('hidden');
+      } else {
+        $rateRow.removeClass('hidden');
+      }
+
+      toggleCategoryOverridesHeading();
     });
+
+    toggleCategoryOverridesHeading();
 {% endjs %}

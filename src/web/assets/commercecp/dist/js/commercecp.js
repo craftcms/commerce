@@ -897,13 +897,12 @@ Craft.Commerce.CommerceShippingItemRatesValuesInput = Craft.BaseInputGenerator.e
 
         this.listening = true;
 
-        this.addListener(this.$source, 'textchange', 'onTextChange');
+        this.addListener(this.$source, 'textchange', 'onSourceTextChange');
         this.addListener(this.$form, 'submit', 'onFormSubmit');
     },
     updateTarget: function() {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
-        console.log(sourceVal);
         this.$target.prop('placeholder', targetVal);
     },
     onFormSubmit: function() {
