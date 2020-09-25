@@ -109,11 +109,10 @@ class OrderHistories extends Component
 
         // TODO refactor the method by which we store and work out who changed the order history
         $customerId = $order->customerId;
-        $session = Craft::$app->getSession();
 
         // Use to current customer's ID only if we aren't in a console request
         // and we currently have an active session
-        if (!Craft::$app->request->isConsoleRequest && !Craft::$app->getResponse()->isSent && ($session->getHasSessionId() || $session->getIsActive())) {
+        if (!Craft::$app->request->isConsoleRequest && !Craft::$app->getResponse()->isSent && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())) {
             $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
         }
 
