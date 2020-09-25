@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a PHP error that occured when programmatically changing an order's history in a queue job.
+
 ## 3.2.7 - 2020-09-24
 
 ### Added
