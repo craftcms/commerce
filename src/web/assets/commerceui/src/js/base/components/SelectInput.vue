@@ -42,7 +42,7 @@
 
             <template v-slot:search="search">
                 <slot name="search" :search="search">
-                    <input class="vs__search" :name="searchInputName" type="text" v-bind="search.attributes" v-on="getSearchEvents(search.events)">
+                    <input class="vs__search" :name="searchInputName" type="text" v-bind="{...search.attributes,...{autocomplete: searchInputName}}" v-on="getSearchEvents(search.events)">
                 </slot>
             </template>
 

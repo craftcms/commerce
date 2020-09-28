@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changed
+- Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
+
 ### Fixed
 - Fixed a PHP error that occurred when programmatically changing an order's history in a queue job.
 
