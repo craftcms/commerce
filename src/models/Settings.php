@@ -18,8 +18,13 @@ use yii\base\InvalidConfigException;
 /**
  * Settings model.
  *
- * @property array $weightUnitsOptions
+ * @property-read array $weightUnitsOptions
+ * @property-read array $dimensionsUnits
+ * @property-read array $minimumTotalPriceStrategyOptions
+ * @property-read array $freeOrderPaymentStrategyOptions
+ * @property-read array $defaultViewOptions
  * @property-read string $paymentCurrency
+ *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -40,191 +45,346 @@ class Settings extends Model
     const VIEW_URI_TAX = 'commerce/tax/taxrates';
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
-
     /**
-     * @var string Weight Units
-     */
-    public $weightUnits = 'g';
-
-    /**
-     * @var string Dimension Units
-     */
-    public $dimensionUnits = 'mm';
-
-    /**
-     * @var string Sender's email address
-     */
-    public $emailSenderAddress;
-
-    /**
-     * @var string Sender's name
-     */
-    public $emailSenderName;
-
-    /**
-     * @var string Order PDF Path
-     * @deprecated in 3.2.0. Use Default PDF instead.
-     */
-    public $orderPdfPath = 'shop/special/receipt';
-
-    /**
-     * @var string Order PDF Size
-     */
-    public $pdfPaperSize = 'letter';
-
-    /**
-     * @var string Order PDF Orientation
-     */
-    public $pdfPaperOrientation = 'portrait';
-
-    /**
-     * @var string Order PDF file name format
-     * @deprecated in 3.2.0. Use Default PDF instead.
-     */
-    public $orderPdfFilenameFormat = 'Order-{number}';
-
-    /**
-     * @var string
-     */
-    public $emailSenderAddressPlaceholder;
-
-    /**
-     * @var string
-     */
-    public $emailSenderNamePlaceholder;
-
-    /**
-     * @var string
-     */
-    public $minimumTotalPriceStrategy = 'default';
-
-    /**
-     * @var string
-     */
-    public $freeOrderPaymentStrategy = 'complete';
-
-    /**
-     * @var array
-     */
-    public $paymentCurrency;
-
-    /**
-     * @var bool
-     */
-    public $purgeInactiveCarts = true;
-
-    /**
-     * @var int The default length of time before inactive carts are purged. Default: 90 days
+     * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
      *
-     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
-     */
-    public $purgeInactiveCartsDuration = 7776000;
-
-    /**
-     * @var int The default length of time a cart is considered active since its last update
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
-     * See [[ConfigHelper::durationInSeconds()]] for a list of supported value types.
+     * @group Cart
      * @since 2.2
      */
     public $activeCartDuration = 3600;
 
     /**
-     * @var string
-     */
-    public $gatewayPostRedirectTemplate = '';
-
-    /**
-     * @var bool
-     */
-    public $useBillingAddressForTax = false;
-
-    /**
-     * @var bool
-     */
-    public $validateBusinessTaxIdAsVatId = false;
-
-    /**
-     * @var bool
-     */
-    public $requireShippingAddressAtCheckout = false;
-
-    /**
-     * @var bool
-     */
-    public $requireBillingAddressAtCheckout = false;
-
-    /**
-     * @var bool
-     */
-    public $requireShippingMethodSelectionAtCheckout = false;
-
-    /**
-     * @var bool
+     * @var bool Whether the customer’s primary shipping and billing addresses should be set automatically on new carts.
+     * @group Cart
      */
     public $autoSetNewCartAddresses = true;
 
     /**
-     * @var bool Allow the cart to be empty on checkout
+     * @var bool Whether carts are allowed to be empty on checkout.
+     * @group Cart
      * @since 2.2
      */
     public $allowEmptyCartOnCheckout = false;
 
     /**
-     * @var bool
+     * @var string Key to be used when returning cart information in a response.
+     * @group Cart
      */
-    public $pdfAllowRemoteImages = false;
+    public $cartVariable = 'cart';
 
     /**
-     * @var string The order reference format
-     */
-    public $orderReferenceFormat = '{{number[:7]}}';
-
-    /**
-     * @var string Default view for Commerce in the CP
+     * @var string Commerce’s default control panel view. (Defaults to order index.)
+     * @group System
      * @since 2.2
      */
     public $defaultView = 'commerce/orders';
 
     /**
-     * @var string
+     * @var string Unit type for dimension measurements.
+     *
+     * Options:
+     *
+     * - `'mm'`
+     * - `'cm'`
+     * - `'m'`
+     * - `'ft'`
+     * - `'in'`
+     *
+     * @group Units
      */
-    public $cartVariable = 'cart';
+    public $dimensionUnits = 'mm';
 
     /**
-     * @var array
+     * @var string Default email address Commerce system messages should be sent from.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
+     *
+     * @group System
+     */
+    public $emailSenderAddress;
+
+    /**
+     * @var string Placeholder value displayed for the sender address control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromEmail](craft3:craft\models\MailSettings::$fromEmail) will be used.
+     *
+     * @group System
+     */
+    public $emailSenderAddressPlaceholder;
+
+    /**
+     * @var string Default from name used for Commerce system emails.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
+     *
+     * @group System
+     */
+    public $emailSenderName;
+
+    /**
+     * @var string Placeholder value displayed for the sender name control panel settings field.
+     *
+     * If `null` (default), Craft’s [MailSettings::$fromName](craft3:craft\models\MailSettings::$fromName) will be used.
+     *
+     * @group System
+     */
+    public $emailSenderNamePlaceholder;
+
+    /**
+     * @var string How Commerce should handle free orders.
+     *
+     * The default `'complete'` setting automatically completes zero-balance orders without forwarding them to the payment gateway.
+     *
+     * The `'process'` setting forwards zero-balance orders to the payment gateway for processing. This can be useful if the customer’s balance
+     * needs to be updated or otherwise adjusted by the payment gateway.
+     *
+     * @group Orders
+     */
+    public $freeOrderPaymentStrategy = 'complete';
+
+    /**
+     * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
+     *
+     * The template must contain a form that posts to the URL supplied by the `actionUrl` variable and outputs all hidden inputs with
+     * the `inputs` variable.
+     *
+     * ```twig
+     * <!DOCTYPE html>
+     * <html>
+     * <head>
+     *     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     *     <title>Redirecting...</title>
+     * </head>
+     * <body onload="document.forms[0].submit();">
+     * <form action="{{ actionUrl }}" method="post">
+     *     <p>Redirecting to payment page...</p>
+     *     <p>
+     *         {{ inputs|raw }}
+     *         <input type="submit" value="Continue">
+     *     </p>
+     * </form>
+     * </body>
+     * </html>
+     * ```
+     *
+     * ::: tip
+     * Since this template is simply used for redirecting, it only appears for a few seconds, so we suggest making it load fast with minimal
+     * images and inline styles to reduce HTTP requests.
+     * :::
+     *
+     * If empty (default), each gateway will decide how to handle after-payment redirects.
+     *
+     * @group Payments
+     */
+    public $gatewayPostRedirectTemplate = '';
+
+    /**
+     * @var array Payment gateway settings indexed by each gateway’s handle.
+     *
+     * Check each gateway’s documentation for settings that may be stored.
+     *
+     * @group Payments
      */
     public $gatewaySettings = [];
 
     /**
-     * @var string
-     */
-    public $updateBillingDetailsUrl = '';
-
-    /**
-     * @var bool
-     * @since 3.0
-     */
-    public $showCustomerInfoTab = true;
-
-    /**
-     * @var bool
-     * @since 3.0.12
-     */
-    public $validateCartCustomFieldsOnSubmission = false;
-
-    /**
-     * @var string|null the uri to redirect to after using the load cart url
+     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     *
+     * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
+     *
+     * @group Cart
      * @since 3.1
      */
     public $loadCartRedirectUrl = null;
 
     /**
-     * @var bool Should the search index for a cart be updated when saving the cart on the front-end.
+     * @var string How Commerce should handle minimum total price for an order.
+     *
+     * Options:
+     *
+     * - `'default'` [rounds](commerce3:\craft\commerce\helpers\Currency::round()) the sum of the item subtotal and adjustments.
+     * - `'zero'` returns `0` if the result from `'default'` would’ve been negative; minimum order total is `0`.
+     * - `'shipping'` returns the total shipping cost if the `'default'` result would’ve been negative; minimum order total equals shipping amount.
+     *
+     * @group Orders
+     */
+    public $minimumTotalPriceStrategy = 'default';
+
+    /**
+     * @var string Filename format to be used for order PDFs.
+     * @group Orders
+     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
+     */
+    public $orderPdfFilenameFormat = 'Order-{number}';
+
+    /**
+     * @var string Path to the template to be used for order PDFs.
+     * @group Orders
+     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
+     */
+    public $orderPdfPath = 'shop/special/receipt';
+
+    /**
+     * @var string Human-friendly reference number format for orders. Result must be unique.
+     *
+     * See [Order Numbers](orders.md#order-numbers).
+     *
+     * @group Orders
+     */
+    public $orderReferenceFormat = '{{number[:7]}}';
+
+    /**
+     * @var array ISO codes for supported payment currencies.
+     *
+     * See [Payment Currencies](payment-currencies.md).
+     *
+     * @group Payments
+     */
+    public $paymentCurrency;
+
+    /**
+     * @var string The orientation of the paper to use for generated order PDF files.
+     *
+     * Options are `'portrait'` and `'landscape'`.
+     *
+     * @group Orders
+     */
+    public $pdfPaperOrientation = 'portrait';
+
+    /**
+     * @var string The size of the paper to use for generated order PDFs.
+     *
+     * The full list of supported paper sizes can be found [in the dompdf library](https://github.com/dompdf/dompdf/blob/master/src/Adapter/CPDF.php#L45).
+     *
+     * @group Orders
+     */
+    public $pdfPaperSize = 'letter';
+
+    /**
+     * @var bool Whether to allow non-local images in generated order PDFs.
+     * @group Orders
+     */
+    public $pdfAllowRemoteImages = false;
+
+    /**
+     * @var bool Whether inactive carts should automatically be deleted from the database during garbage collection.
+     *
+     * ::: tip
+     * You can control how long a cart should go without being updated before it gets deleted [`purgeInactiveCartsDuration`](#purgeinactivecartsduration) setting.
+     * :::
+     *
+     * @group Cart
+     */
+    public $purgeInactiveCarts = true;
+
+    /**
+     * @var mixed Default length of time before inactive carts are purged. (Defaults to 90 days.)
+     *
+     * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
+     *
+     * @group Cart
+     */
+    public $purgeInactiveCartsDuration = 7776000;
+
+    /**
+     * @var bool Whether a shipping address is required before making payment on an order.
+     * @group Orders
+     */
+    public $requireShippingAddressAtCheckout = false;
+
+    /**
+     * @var bool Whether a billing address is required before making payment on an order.
+     * @group Orders
+     */
+    public $requireBillingAddressAtCheckout = false;
+
+    /**
+     * @var bool Whether shipping method selection is required before making payment on an order.
+     * @group Orders
+     */
+    public $requireShippingMethodSelectionAtCheckout = false;
+
+    /**
+     * @var bool Whether the [customer info tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
+     * @group System
+     * @since 3.0
+     */
+    public $showCustomerInfoTab = true;
+
+    /**
+     * @var string URL for a user to resolve billing issues with their subscription.
+     *
+     * ::: tip
+     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/master/example-templates/shop/plans/update-billing-details.twig).
+     * :::
+     *
+     * @group Orders
+     */
+    public $updateBillingDetailsUrl = '';
+
+    /**
+     * @var bool Whether the search index for a cart should be updated when saving the cart via `commerce/cart/*` controller actions.
+     *
+     * May be set to `false` to reduce performance impact on high-traffic sites.
+     *
+     * ::: warning
+     * Setting this to `false` will result in fewer index update queue jobs, but you’ll need to manually re-index orders to ensure up-to-date cart search results in the control panel.
+     * :::
+     *
+     * @group Cart
      * @since 3.1.5
      */
     public $updateCartSearchIndexes = true;
 
     /**
+     * @var bool Whether taxes should be calculated based on the billing address instead of the shipping address.
+     * @group Orders
+     */
+    public $useBillingAddressForTax = false;
+
+    /**
+     * @var bool Whether to enable validation requiring the `businessTaxId` to be a valid VAT ID.
+     *
+     * When set to `false`, no validation is applied to `businessTaxId`.
+     *
+     * When set to `true`, `businessTaxId` must contain a valid VAT ID.
+     *
+     * ::: tip
+     * This setting strictly toggles input validation and has no impact on tax configuration or behavior elsewhere in the system.
+     * :::
+     *
+     * @group Orders
+     */
+    public $validateBusinessTaxIdAsVatId = false;
+
+    /**
+     * @var string Units to be used for weight measurements.
+     *
+     * Options:
+     *
+     * - `'g'`
+     * - `'kg'`
+     * - `'lb'`
+     *
+     * @group Units
+     */
+    public $weightUnits = 'g';
+
+    /**
+     * @var bool Whether to validate custom fields when a cart is updated.
+     *
+     * Set to `true` to allow custom content fields to return validation errors when a cart is updated.
+     *
+     * @group Cart
+     * @since 3.0.12
+     */
+    public $validateCartCustomFieldsOnSubmission = false;
+
+    /**
+     * Returns a key-value array of weight unit options and labels.
+     * 
      * @return array
      */
     public function getWeightUnitsOptions(): array
@@ -237,6 +397,8 @@ class Settings extends Model
     }
 
     /**
+     * Returns a key-value array of dimension unit options and labels.
+     *
      * @return array
      */
     public function getDimensionUnits(): array
@@ -251,6 +413,8 @@ class Settings extends Model
     }
 
     /**
+     * Returns a key-value array of `minimumTotalPriceStrategy` options and labels.
+     *
      * @return array
      */
     public function getMinimumTotalPriceStrategyOptions(): array
@@ -263,6 +427,8 @@ class Settings extends Model
     }
 
     /**
+     * Returns a key-value array of `freeOrderPaymentStrategy` options and labels.
+     *
      * @return array
      */
     public function getFreeOrderPaymentStrategyOptions(): array
@@ -274,6 +440,8 @@ class Settings extends Model
     }
 
     /**
+     * Returns the ISO payment currency for a given site, or the default site if no handle is provided.
+     *
      * @param string|null $siteHandle
      * @return string|null
      * @throws InvalidConfigException if the currency in the config file is not set up
@@ -293,6 +461,8 @@ class Settings extends Model
     }
 
     /**
+     * Returns a key-value array of default control panel view options and labels.
+     *
      * @return array
      * @since 2.2
      */
