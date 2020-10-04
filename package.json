@@ -20,6 +20,6 @@
     "gulp-concat": "^2.6.1",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
-    "moment": "^2.27.0"
+    "moment": "^2.28.0"
   }
 }
