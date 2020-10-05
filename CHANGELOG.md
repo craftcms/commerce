@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added a “Variants” column to the Product index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
+
 ### Changed
 - Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
 

@@ -29,7 +29,10 @@ use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
@@ -1128,6 +1131,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
+            'variants' => ['label' => Craft::t('commerce','Variants')]
         ];
     }
 
@@ -1291,7 +1295,27 @@ class Product extends Element
             {
                 return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
             }
+            case 'variants':
+            {
+                $value = $this->getVariants();
+                $first = array_shift($value);
+                $html = Cp::elementHtml($first);
 
+                if (!empty($value)) {
+                    $otherHtml = '';
+                    foreach ($value as $other) {
+                        $otherHtml .= Cp::elementHtml($other);
+                    }
+                    $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger(count($value)), [
+                        'title' => implode(', ', ArrayHelper::getColumn($value, 'title')),
+                        'class' => 'btn small',
+                        'role' => 'button',
+                        'onclick' => 'jQuery(this).replaceWith(' . Json::encode($otherHtml) . ')',
+                    ]);
+                }
+
+                return $html;
+            }
             default:
             {
                 return parent::tableAttributeHtml($attribute);
