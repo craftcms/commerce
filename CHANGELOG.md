@@ -15,6 +15,7 @@
 - Fixed a bug where template suggestions weren’t showing on the product type template field.
 - Fixed a bug where deleting products would not delete related disabled variant. ([#1772](https://github.com/craftcms/commerce/issues/1772))
 - Fixed a bug during payment where carts could use an archived gateway. ([#1531](https://github.com/craftcms/commerce/issues/1531)) 
+- Fixed a bug where the incorrect confirmation message was shown when deleting a subscription plan.
 
 ## 3.2.7 - 2020-09-24
 

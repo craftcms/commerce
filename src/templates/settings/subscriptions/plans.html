@@ -56,7 +56,7 @@
         columns: columns,
         container: '#plans-vue-admin-table',
         deleteAction: 'commerce/plans/archive-plan',
-        deleteConfirmationMessage: Craft.t('commerce', 'No subscription plans exist yet.'),
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.'),
         reorderAction: 'commerce/plans/reorder',
         reorderSuccessMessage: Craft.t('commerce', 'Plans reordered.'),
         reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder plans.'),
