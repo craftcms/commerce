@@ -199,7 +199,7 @@ class Addresses extends Component
     }
 
     /**
-     * Returns the stock location or a blank address if it's not defined.
+     * Returns the store location address, or a blank address if it's not defined.
      *
      * @return Address
      */
@@ -536,7 +536,8 @@ class Addresses extends Component
                 'addresses.custom2',
                 'addresses.custom3',
                 'addresses.custom4',
-                'addresses.isEstimated'
+                'addresses.isEstimated',
+                'addresses.isStoreLocation'
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }
