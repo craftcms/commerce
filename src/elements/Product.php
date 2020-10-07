@@ -833,6 +833,7 @@ class Product extends Element
     {
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
+            ->anyStatus()
             ->all();
 
         $elementsService = Craft::$app->getElements();
