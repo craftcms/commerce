@@ -601,19 +601,32 @@ class Order extends Element
     public $orderStatusId;
 
     /**
-     * The current order status ID. This will be null if the order is not complete
-     * and is still a cart.
+     * The language the cart was created in.
      *
-     * @var int|null Order status ID
+     * @var string The language the order was made in.
      * ---
      * ```php
-     * echo $order->orderStatusId;
+     * echo $order->orderLanguage;
      * ```
      * ```twig
-     * {{ order.orderStatusId }}
+     * {{ order.orderLanguage }}
      * ```
      */
     public $orderLanguage;
+
+    /**
+     * The site the order was created in as a cart.
+     *
+     * @var int|null Order site ID
+     * ---
+     * ```php
+     * echo $order->orderSiteId;
+     * ```
+     * ```twig
+     * {{ order.orderSiteId }}
+     * ```
+     */
+    public $orderSiteId;
 
 
     /**
@@ -1062,6 +1075,10 @@ class Order extends Element
 
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
+        }
+
+        if ($this->orderSiteId === null) {
+            $this->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         }
 
         if ($this->currency === null) {
@@ -1841,6 +1858,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
+        $orderRecord->orderSiteId = $this->orderSiteId;
         $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
