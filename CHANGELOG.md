@@ -11,6 +11,7 @@
 ### Fixed
 - Fixed a PHP error that occurred when programmatically changing an order's history in a queue job.
 - Fixed a bug where the store location address had it‘s `isStoreLocation` property set to `false`. ([#1773](https://github.com/craftcms/commerce/issues/1773))
+- Fixed a bug where template suggestions weren’t showing on the product type template field.
 
 ## 3.2.7 - 2020-09-24
 
