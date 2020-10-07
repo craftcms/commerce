@@ -2850,7 +2850,9 @@ class Order extends Element
                 $gateway = Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
             }
         } else {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if ($this->gatewayId) {
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
+            }
         }
 
         return $gateway;

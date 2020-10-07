@@ -15,6 +15,7 @@ use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
@@ -163,7 +164,29 @@ class Gateways extends Component
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
 
-        return $this->saveGateway($gateway);
+        if (!$this->saveGateway($gateway)) {
+            return false;
+        }
+
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id);
+        $paymentSourceIds = ArrayHelper::getColumn($paymentSources, 'id');
+
+        // Clear this gateway from all active carts since it has been now been archived
+        $command = Craft::$app->getDb()->createCommand()
+            ->update(Table::ORDERS,
+                [
+                    'gatewayId' => null,
+                    'paymentSourceId' => null
+                ],
+                [
+                    'and',
+                    ['isCompleted' => false],
+                    ['or', ['gatewayId' => $id], ['paymentSourceId' => $paymentSourceIds]],
+                ], [], false)
+            ->execute();
+
+
+        return true;
     }
 
     /**
