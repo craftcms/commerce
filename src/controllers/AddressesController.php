@@ -247,7 +247,7 @@ class AddressesController extends BaseCpController
             /** @var AddressModel $row */
             $rows[] = [
                 'id' => $row->id,
-                'title' => $row->address1,
+                'title' => $row->address1 ?: Craft::t('commerce', 'No Address Line 1'),
                 'zipCode' => $row->zipCode,
                 'billing' => ($row->id == $customer->primaryBillingAddressId),
                 'shipping' => ($row->id == $customer->primaryShippingAddressId),
