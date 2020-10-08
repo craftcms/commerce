@@ -153,7 +153,7 @@ class Plans extends Component
      */
     public function getPlanByHandle(string $handle)
     {
-        return ArrayHelper::firstWhere($this->_getAllPlans(), 'handle', $handle);
+        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllPlans(), ['handle' => $handle, 'isArchived' => false]));
     }
 
     /**

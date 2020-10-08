@@ -116,8 +116,8 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): array
     {
-        return array_filter($this->_getAllGateways(), static function($gateway) {
-            return $gateway instanceof SubscriptionGateway;
+        return ArrayHelper::where($this->_getAllGateways(), function($gateway) {
+            return $gateway instanceof SubscriptionGateway && !$gateway->isArchived;
         });
     }
 
@@ -187,7 +187,7 @@ class Gateways extends Component
      */
     public function getGatewayByHandle(string $handle)
     {
-        return ArrayHelper::firstWhere($this->_getAllGateways(), 'handle', $handle);
+        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }
 
     /**
