@@ -129,7 +129,7 @@ class Gateways extends Component
     }
 
     /**
-     * Returns  all gateways
+     * Returns all gateways
      *
      * @return GatewayInterface[] All gateways
      */
