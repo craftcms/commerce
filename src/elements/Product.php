@@ -1132,7 +1132,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce','Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')]
         ];
     }
 
