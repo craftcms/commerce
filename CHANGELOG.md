@@ -16,6 +16,7 @@
 - Fixed a bug where deleting products would not delete related disabled variant. ([#1772](https://github.com/craftcms/commerce/issues/1772))
 - Fixed a bug during payment where carts could use an archived gateway. ([#1531](https://github.com/craftcms/commerce/issues/1531)) 
 - Fixed a bug where the incorrect confirmation message was shown when deleting a subscription plan.
+- Fixed a PHP error that occurred when a subscription plan and gateway had been deleted. ([#1667](https://github.com/craftcms/commerce/issues/1667))
 - Fixed a bug where address edits weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))
 
 ## 3.2.7 - 2020-09-24
