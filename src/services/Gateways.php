@@ -116,16 +116,9 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): array
     {
-        $gateways = $this->_getAllGateways();
-        $subscriptionGateways = [];
-
-        foreach ($gateways as $gateway) {
-            if ($gateway instanceof SubscriptionGateway) {
-                $subscriptionGateways[] = $gateway;
-            }
-        }
-
-        return $subscriptionGateways;
+        return array_filter($this->_getAllGateways(), static function($gateway) {
+            return $gateway instanceof SubscriptionGateway;
+        });
     }
 
     /**
