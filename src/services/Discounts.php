@@ -410,6 +410,7 @@ class Discounts extends Component
      *
      * @param string $code
      * @return Discount|null
+     * @throws \Exception
      */
     public function getDiscountByCode($code)
     {
@@ -417,11 +418,9 @@ class Discounts extends Component
             return null;
         }
 
-        $result = $this->_createDiscountQuery()
-            ->where(['code' => $code, 'enabled' => true])
-            ->one();
-
-        return $result ? new Discount($result) : null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
+            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        });
     }
 
     /**
