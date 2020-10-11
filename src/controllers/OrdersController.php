@@ -577,7 +577,10 @@ class OrdersController extends Controller
         }
 
         try {
-            Plugin::getInstance()->getEmails()->sendEmail($email, $order);
+            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
+                // Likely, a plugin prevented it:
+                return $this->asErrorJson(Craft::t('commerce', 'The email was not sent.'));
+            }
         } catch (\Exception $exception) {
             return $this->asErrorJson($exception->getMessage());
         }
