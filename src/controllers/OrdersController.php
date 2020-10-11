@@ -578,15 +578,9 @@ class OrdersController extends Controller
 
         $success = true;
         try {
-            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
-                $success = false;
-            }
+            Plugin::getInstance()->getEmails()->sendEmail($email, $order);
         } catch (\Exception $exception) {
-            $success = false;
-        }
-
-        if (!$success) {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not send email'));
+            return $this->asErrorJson($exception->getMessage());
         }
 
         return $this->asJson(['success' => true]);

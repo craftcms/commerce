@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\EmailException;
 use craft\commerce\events\EmailEvent;
 use craft\commerce\events\MailEvent;
 use craft\commerce\models\Email;
@@ -405,10 +406,10 @@ class Emails extends Component
      * @param Order $order
      * @param OrderHistory $orderHistory
      * @param array $orderData Since the order may have changed by the time the email sends.
-     * @return bool $result
+     * @return bool Whether the message was sent. True, unless another plugin or module suppresses it.
      * @throws Exception
      * @throws Throwable
-     * @throws \yii\base\InvalidConfigException
+     * @throws EmailException
      */
     public function sendEmail($email, $order, $orderHistory = null, $orderData = null): bool
     {
@@ -484,7 +485,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'An error occurred when building the email’s to address.'));
             }
         }
 
@@ -495,7 +496,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'A valid address could not be determined for the email.'));
         }
 
         // BCC:
@@ -521,7 +522,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'An error occurred when building the email’s BCC address.'));
             }
         }
 
@@ -548,7 +549,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'An error occurred when building the email’s CC address.'));
             }
         }
 
@@ -569,7 +570,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'An error occurred when building the email’s reply-to address.'));
             }
         }
 
@@ -589,7 +590,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'An error occurred when rendering the email’s subject.'));
         }
 
         // Template Path
@@ -608,7 +609,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'An error occurred when resolving a template for the email.'));
         }
 
         // Email Body
@@ -624,8 +625,9 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'The email template could not be found.'));
         }
+
         // Plain Text Template Path
         $plainTextTemplatePath = null;
         try {
@@ -643,7 +645,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'The plain text email path could not be determined.'));
         }
 
         // Plain Text Body
@@ -659,7 +661,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'The plain text email template could not be found.'));
         }
 
         if ($pdf = $email->getPdf()) {
@@ -675,7 +677,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'The PDF template does not exist.'));
             }
 
             try {
@@ -706,7 +708,7 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'Failed to generate a PDF.'));
             }
         }
 
@@ -727,7 +729,7 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            throw new EmailException(Craft::t('commerce', 'An error occurred when rendering the body of the email.'));
         }
 
         // Render Plain Text body
@@ -748,12 +750,12 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                throw new EmailException(Craft::t('commerce', 'An error occurred when rendering the body of the plain-text email.'));
             }
         }
 
         try {
-            //raising event
+            // Raise an event before sending...
             $event = new MailEvent([
                 'craftEmail' => $newEmail,
                 'commerceEmail' => $email,
@@ -774,21 +776,13 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
+                // Just return—cancellation should just suppress the email, not be treated as a failure:
                 return false;
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
-                $error = Craft::t('commerce', 'Commerce email “{email}” could not be sent for order “{order}”.', [
-                    'email' => $email->name,
-                    'order' => $order->getShortNumber()
-                ]);
-
-                Craft::error($error, __METHOD__);
-
-                Craft::$app->language = $originalLanguage;
-                $view->setTemplateMode($oldTemplateMode);
-
-                return false;
+                // No need to re-set language + template mode here, because the `catch` block takes care of it:
+                throw new EmailException(Craft::t('commerce', 'The email could not be sent due to an error with the mailer.'));
             }
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}', [
@@ -804,7 +798,8 @@ class Emails extends Component
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
 
-            return false;
+            // In this case, we just want to re-throw the internal failure:
+            throw $e;
         }
 
         // Raise an 'afterSendEmail' event
@@ -818,6 +813,7 @@ class Emails extends Component
             ]));
         }
 
+        // Restore language + template mode, given there were no failures:
         Craft::$app->language = $originalLanguage;
         $view->setTemplateMode($oldTemplateMode);
 
