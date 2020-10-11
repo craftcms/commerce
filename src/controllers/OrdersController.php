@@ -576,7 +576,6 @@ class OrdersController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
         }
 
-        $success = true;
         try {
             Plugin::getInstance()->getEmails()->sendEmail($email, $order);
         } catch (\Exception $exception) {
