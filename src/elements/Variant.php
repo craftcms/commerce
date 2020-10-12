@@ -673,8 +673,7 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        if($this->_sku && PurchasableHelper::isTempSku($this->_sku))
-        {
+        if ($this->_sku && PurchasableHelper::isTempSku($this->_sku)) {
             return '';
         }
 
@@ -1075,16 +1074,19 @@ class Variant extends Purchasable
         $this->updateTitle($product);
         $this->updateSku($product);
 
-        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
-            $this->sku = PurchasableHelper::tempSku();
-        }
+        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
 
-        if (!$this->price && $this->getScenario() === self::SCENARIO_DEFAULT) {
-            $this->price = 0;
-        }
+            if (!$this->sku) {
+                $this->sku = PurchasableHelper::tempSku();
+            }
 
-        if (!$this->stock && $this->getScenario() === self::SCENARIO_DEFAULT) {
-            $this->stock = 0;
+            if (!$this->price) {
+                $this->price = 0;
+            }
+
+            if (!$this->stock) {
+                $this->stock = 0;
+            }
         }
 
         // Zero out stock if unlimited stock is turned on
