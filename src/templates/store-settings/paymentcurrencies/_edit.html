@@ -16,17 +16,31 @@
     {{ redirectInput('commerce/store-settings/paymentcurrencies') }}
     {% if currency.id %}<input type="hidden" name="currencyId"
                                value="{{ currency.id }}">{% endif %}
-
-    {{ forms.selectField({
+    {% if currency.id and currency.primary and hasCompletedOrders %}
+      {{ hiddenInput('iso', currency.iso) }}
+      {{ forms.textField({
         label: 'Currency Code'|t('commerce'),
-        first: true,
         instructions: 'Choose the currency’s ISO code.'|t('commerce'),
-        id: 'iso',
-        name: 'iso',
-        value: currency.iso,
-        errors: currency.getErrors('iso'),
-        class: 'selectize fullwidth',
-    }) }}
+        id: 'iso-readonly',
+        name: 'iso-readonly',
+        readonly: true,
+        value: currency.currency ~ ' (' ~ currency.iso ~ ')',
+        class: 'disabled',
+        warning: 'Changing the primary currency is prohibited when completed orders exist.'|t('commerce')
+      }) }}
+    {% else %}
+      {{ forms.selectField({
+          label: 'Currency Code'|t('commerce'),
+          first: true,
+          instructions: 'Choose the currency’s ISO code.'|t('commerce'),
+          id: 'iso',
+          name: 'iso',
+          value: currency.iso,
+          errors: currency.getErrors('iso'),
+          class: 'selectize fullwidth',
+          warning: currency.id and currency.primary ? 'Changing the primary currency should only take place during development, all carts will be deleted.'|t('commerce') : ''
+      }) }}
+    {% endif %}
 
     {{ forms.textField({
         label: "Conversion Rate"|t('commerce'),
