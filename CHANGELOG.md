@@ -3,10 +3,12 @@
 ## Unreleased
 
 ### Added
+- Added the `commerce/reset-data` console command. ([#581](https://github.com/craftcms/commerce/issues/581))
 - Added a “Variants” column to the Products index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
-- Added `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()`.
-- Added `craft\commerce\helpers\Purchasable`.
+- Added `craft\commerce\console\controlllers\ResetData`.
 - Added `craft\commerce\elements\Variants::getSkuAsText()`.
+- Added `craft\commerce\helpers\Purchasable`.
+- Added `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()`.
 
 ### Changed
 - Coupon codes are no longer case-sensitive. ([#1763](https://github.com/craftcms/commerce/issues/1763))
