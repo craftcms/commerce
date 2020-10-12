@@ -21,6 +21,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -672,7 +673,7 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        if($this->_sku && \craft\commerce\helpers\Purchasable::isTempSku($this->_sku))
+        if($this->_sku && PurchasableHelper::isTempSku($this->_sku))
         {
             return '';
         }
@@ -1075,7 +1076,7 @@ class Variant extends Purchasable
         $this->updateSku($product);
 
         if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
-            $this->sku = \craft\commerce\helpers\Purchasable::tempSku();
+            $this->sku = PurchasableHelper::tempSku();
         }
 
         if (!$this->price && $this->getScenario() === self::SCENARIO_DEFAULT) {
