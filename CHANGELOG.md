@@ -6,6 +6,7 @@
 - Added a “Variants” column to the Products index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
 - Added `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()`.
 - Added `craft\commerce\helpers\Purchasable`.
+- Added `craft\commerce\elements\Variants::getSkuAsText()`.
 
 ### Changed
 - Coupon codes are no longer case-sensitive. ([#1763](https://github.com/craftcms/commerce/issues/1763))

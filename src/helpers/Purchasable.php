@@ -17,6 +17,8 @@ use craft\helpers\StringHelper;
  */
 class Purchasable
 {
+    const TEMPORARY_SKU_PREFIX = '__temp_';
+
     /**
      * Generates a new temporary SKU.
      *
@@ -25,7 +27,7 @@ class Purchasable
      */
     public static function tempSku(): string
     {
-        return '__temp_' . StringHelper::randomString();
+        return static::TEMPORARY_SKU_PREFIX . StringHelper::randomString();
     }
 
     /**
@@ -37,6 +39,6 @@ class Purchasable
      */
     public static function isTempSku(string $sku): bool
     {
-        return strpos($sku, '__temp_') === 0;
+        return strpos($sku, static::TEMPORARY_SKU_PREFIX) === 0;
     }
 }

@@ -673,11 +673,23 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        if ($this->_sku && PurchasableHelper::isTempSku($this->_sku)) {
-            return '';
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
+     *
+     * @return string
+     */
+    public function getSkuAsText(): string
+    {
+        $sku = $this->getSku();
+
+        if (PurchasableHelper::isTempSku($sku)) {
+            $sku = '';
         }
 
-        return $this->_sku ?? '';
+        return $sku;
     }
 
     /**
@@ -1014,6 +1026,11 @@ class Variant extends Purchasable
             return false;
         }
 
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
@@ -1077,7 +1094,7 @@ class Variant extends Purchasable
         if ($this->getScenario() === self::SCENARIO_DEFAULT) {
 
             if (!$this->sku) {
-                $this->sku = PurchasableHelper::tempSku();
+                $this->setSku(PurchasableHelper::tempSku());
             }
 
             if (!$this->price) {
@@ -1275,7 +1292,7 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->sku;
+                return $this->getSkuAsText();
             }
             case 'product':
             {

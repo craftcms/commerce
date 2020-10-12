@@ -83,7 +83,6 @@
     }) }}
 {% endmacro %}
 
-
 {% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
@@ -100,7 +99,7 @@
             label: 'SKU'|t('commerce'),
             required: true,
             name: 'sku',
-            value: variant.sku,
+            value: variant.getSkuAsText(),
             placeholder: 'Enter SKU'|t('commerce'),
             class: 'code',
             errors: variant.getErrors('sku')
