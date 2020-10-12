@@ -183,11 +183,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public $sku;
-
-    /**
-     * @inheritdoc
-     */
     public $price;
 
     /**
@@ -247,6 +242,13 @@ class Variant extends Purchasable
      * @see setProduct()
      */
     private $_product;
+
+    /**
+     * @var string SKU
+     * @see getSku()
+     * @see setSku()
+     */
+    public $_sku;
 
     /**
      * @return array
@@ -670,7 +672,21 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        return $this->sku;
+        if($this->_sku && \craft\commerce\helpers\Purchasable::isTempSku($this->_sku))
+        {
+            return '';
+        }
+
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * @param string|null $sku
+     * @return void
+     */
+    public function setSku(string $sku = null)
+    {
+        $this->_sku = $sku;
     }
 
     /**
@@ -1057,6 +1073,18 @@ class Variant extends Purchasable
 
         $this->updateTitle($product);
         $this->updateSku($product);
+
+        if (!$this->sku && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->sku = \craft\commerce\helpers\Purchasable::tempSku();
+        }
+
+        if (!$this->price && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->price = 0;
+        }
+
+        if (!$this->stock && $this->getScenario() === self::SCENARIO_DEFAULT) {
+            $this->stock = 0;
+        }
 
         // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
