@@ -15,6 +15,7 @@ use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
@@ -26,7 +27,6 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
-use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
@@ -62,7 +62,7 @@ class Product extends Element
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
-    
+
     /**
      * @var DateTime Post date
      */
@@ -718,7 +718,7 @@ class Product extends Element
             $record->shippingCategoryId = $this->shippingCategoryId;
 
             $record->defaultVariantId = $this->getDefaultVariant()->id ?? null;
-            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+            $record->defaultSku = $this->getDefaultVariant()->getSkuAsText();
             $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
             $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
             $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
