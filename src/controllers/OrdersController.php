@@ -18,6 +18,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
@@ -35,6 +36,7 @@ use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
+use craft\db\Table as CraftTable;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
@@ -47,6 +49,7 @@ use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\Expression;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -500,17 +503,25 @@ class OrdersController extends Controller
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
         $sqlQuery = (new Query())
-            ->select(['id', 'price', 'description', 'sku'])
-            ->from(Table::PURCHASABLES);
+            ->select(['purchasables.id', 'purchasables.price', 'purchasables.description', 'purchasables.sku'])
+            ->leftJoin(['elements' => CraftTable::ELEMENTS], [
+                'and',
+                '[[elements.id]] = [[purchasables.id]]'
+            ])
+            ->where(['elements.enabled' => true])
+            ->from(['purchasables' => Table::PURCHASABLES]);
 
         // Are they searching for a SKU or purchasable description?
         if ($search) {
-            $sqlQuery->where([
+            $sqlQuery->andwhere([
                 'or',
-                [$likeOperator, 'description', '%' . str_replace(' ', '%', $search) . '%', false],
-                [$likeOperator, 'sku', $search]
+                [$likeOperator, 'purchasables.description', '%' . str_replace(' ', '%', $search) . '%', false],
+                [$likeOperator, 'purchasables.sku', $search]
             ]);
         }
+
+        // Do not return any purchasables with temp SKUs
+        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
         $total = $sqlQuery->count();
 
