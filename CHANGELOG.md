@@ -22,6 +22,7 @@
 - Fixed a PHP error that occurred when a subscription plan and gateway had been deleted. ([#1667](https://github.com/craftcms/commerce/issues/1667))
 - Fixed a bug where address changes weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))  
 - Fixed a SQL error when saving a disabled product without populating the variant price, SKU, or stock required fields. ([#1764](https://github.com/craftcms/commerce/issues/1764))
+- Fixed a bug where it was possible to change the primary currency after completed orders had been placed. ([#1777](https://github.com/craftcms/commerce/issues/1777))
 
 ## 3.2.7 - 2020-09-24
 

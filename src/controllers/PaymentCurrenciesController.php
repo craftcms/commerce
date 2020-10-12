@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\elements\Order;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
+use craft\db\Table as CraftTable;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -66,6 +68,8 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());
 
+        $variables['hasCompletedOrders'] = Order::find()->isCompleted(true)->exists();
+
         return $this->renderTemplate('commerce/store-settings/paymentcurrencies/_edit', $variables);
     }
 
@@ -84,9 +88,31 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         $currency->rate = Craft::$app->getRequest()->getBodyParam('rate');
         $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
 
+        // Check to see if the primary currency is being changed
+        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
+        $changingPrimaryCurrency = false;
+        if ($currency->id && $currency->primary && $primaryCurrency && $primaryCurrency->iso != $currency->iso) {
+            $changingPrimaryCurrency = true;
+        }
+
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
             Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Currency saved.'));
+
+            // Delete all carts if primary currency is being changed
+            if ($changingPrimaryCurrency) {
+                $cartIds = Order::find()->isCompleted(false)->ids();
+                if (!empty($cartIds)) {
+                    // Delete in the same way that carts are purged
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(CraftTable::ELEMENTS, ['id' => $cartIds])
+                        ->execute();
+
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(CraftTable::SEARCHINDEX, ['elementId' => $cartIds])
+                        ->execute();
+                }
+            }
             $this->redirectToPostedUrl($currency);
         } else {
             Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save currency.'));
