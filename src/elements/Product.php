@@ -62,8 +62,7 @@ class Product extends Element
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
-
-
+    
     /**
      * @var DateTime Post date
      */
