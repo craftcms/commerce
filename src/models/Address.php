@@ -203,6 +203,8 @@ class Address extends Model
     public function init()
     {
         $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
+        $this->isEstimated = (bool)$this->isEstimated;
+        $this->isStoreLocation = (bool)$this->isStoreLocation;
 
         parent::init();
     }

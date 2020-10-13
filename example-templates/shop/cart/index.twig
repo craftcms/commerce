@@ -238,8 +238,7 @@
                                 </div>
                                 <div>
                                     {% if not cart.hasErrors() %}
-                                        {{ redirectInput('shop/checkout') }}
-                                        <input class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" type="submit" value="Update & Checkout &rarr;"/>
+                                        <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" href="{{ url('shop/checkout') }}">Checkout &rarr;</a>
                                     {% endif %}
                                 </div>
                             </div>

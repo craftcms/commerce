@@ -15,6 +15,7 @@ use craft\commerce\db\Table;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\gateways\Manual;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\Plugin;
 use craft\commerce\records\Gateway as GatewayRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
@@ -115,40 +116,19 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): array
     {
-        $gateways = $this->getAllGateways();
-        $subscriptionGateways = [];
-
-        foreach ($gateways as $gateway) {
-            if ($gateway instanceof SubscriptionGateway) {
-                $subscriptionGateways[] = $gateway;
-            }
-        }
-
-        return $subscriptionGateways;
+        return ArrayHelper::where($this->_getAllGateways(), function($gateway) {
+            return $gateway instanceof SubscriptionGateway && !$gateway->isArchived;
+        });
     }
 
     /**
-     * Returns  all gateways
+     * Returns all gateways
      *
      * @return GatewayInterface[] All gateways
      */
     public function getAllGateways(): array
     {
-        if ($this->_allGateways === null) {
-
-            $rows = $this->_createGatewayQuery()
-                ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-                ->orderBy(['sortOrder' => SORT_ASC])
-                ->all();
-
-            $this->_allGateways = [];
-
-            foreach ($rows as $row) {
-                $this->_allGateways[$row['id']] = $this->createGateway($row);
-            }
-        }
-
-        return $this->_allGateways;
+        return ArrayHelper::where($this->_getAllGateways(), 'isArchived', false);
     }
 
     /**
@@ -163,7 +143,29 @@ class Gateways extends Component
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
 
-        return $this->saveGateway($gateway);
+        if (!$this->saveGateway($gateway)) {
+            return false;
+        }
+
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id);
+        $paymentSourceIds = ArrayHelper::getColumn($paymentSources, 'id');
+
+        // Clear this gateway from all active carts since it has been now been archived
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::ORDERS,
+                [
+                    'gatewayId' => null,
+                    'paymentSourceId' => null
+                ],
+                [
+                    'and',
+                    ['isCompleted' => false],
+                    ['or', ['gatewayId' => $id], ['paymentSourceId' => $paymentSourceIds]],
+                ], [], false)
+            ->execute();
+
+
+        return true;
     }
 
     /**
@@ -174,7 +176,7 @@ class Gateways extends Component
      */
     public function getGatewayById(int $id)
     {
-        return ArrayHelper::firstWhere($this->getAllGateways(), 'id', $id);
+        return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
     }
 
     /**
@@ -185,7 +187,7 @@ class Gateways extends Component
      */
     public function getGatewayByHandle(string $handle)
     {
-        return ArrayHelper::firstWhere($this->getAllGateways(), 'handle', $handle);
+        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }
 
     /**
@@ -413,6 +415,7 @@ class Gateways extends Component
                 'uid',
                 'sortOrder'
             ])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
     }
 
@@ -429,5 +432,26 @@ class Gateways extends Component
         }
 
         return new GatewayRecord();
+    }
+
+    /**
+     * @return GatewayInterface[]|array|null
+     */
+    private function _getAllGateways()
+    {
+        if ($this->_allGateways === null) {
+            $gateways = $this->_createGatewayQuery()
+                ->all();
+
+            $this->_allGateways = [];
+
+            if (!empty($gateways)) {
+                foreach ($gateways as $gateway) {
+                    $this->_allGateways[$gateway['id']] = $this->createGateway($gateway);
+                }
+            }
+        }
+
+        return $this->_allGateways;
     }
 }

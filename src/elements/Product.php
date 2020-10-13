@@ -15,6 +15,7 @@ use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
@@ -26,10 +27,12 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
-use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
@@ -59,7 +62,6 @@ class Product extends Element
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
-
 
     /**
      * @var DateTime Post date
@@ -716,7 +718,7 @@ class Product extends Element
             $record->shippingCategoryId = $this->shippingCategoryId;
 
             $record->defaultVariantId = $this->getDefaultVariant()->id ?? null;
-            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
+            $record->defaultSku = $this->getDefaultVariant()->getSkuAsText();
             $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
             $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
             $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
@@ -830,6 +832,7 @@ class Product extends Element
     {
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
+            ->anyStatus()
             ->all();
 
         $elementsService = Craft::$app->getElements();
@@ -1128,6 +1131,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
+            'variants' => ['label' => Craft::t('commerce', 'Variants')]
         ];
     }
 
@@ -1291,7 +1295,27 @@ class Product extends Element
             {
                 return ($this->$attribute ? '<span data-icon="check" title="' . Craft::t('commerce', 'Yes') . '"></span>' : '');
             }
+            case 'variants':
+            {
+                $value = $this->getVariants();
+                $first = array_shift($value);
+                $html = Cp::elementHtml($first);
 
+                if (!empty($value)) {
+                    $otherHtml = '';
+                    foreach ($value as $other) {
+                        $otherHtml .= Cp::elementHtml($other);
+                    }
+                    $html .= Html::tag('span', '+' . Craft::$app->getFormatter()->asInteger(count($value)), [
+                        'title' => implode(', ', ArrayHelper::getColumn($value, 'title')),
+                        'class' => 'btn small',
+                        'role' => 'button',
+                        'onclick' => 'jQuery(this).replaceWith(' . Json::encode($otherHtml) . ')',
+                    ]);
+                }
+
+                return $html;
+            }
             default:
             {
                 return parent::tableAttributeHtml($attribute);

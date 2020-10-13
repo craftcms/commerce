@@ -1,5 +1,32 @@
 # Release Notes for Craft Commerce
 
+## 3.2.8 - 2020-10-13
+
+### Added
+- Added a “Variants” column to the Products index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
+- Added the `commerce/reset-data` command. ([#581](https://github.com/craftcms/commerce/issues/581))
+- Added `craft\commerce\console\controlllers\ResetData`.
+- Added `craft\commerce\elements\Variants::getSkuAsText()`.
+- Added `craft\commerce\helpers\Purchasable`.
+- Added `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()`.
+
+### Changed
+- Coupon codes are no longer case-sensitive. ([#1763](https://github.com/craftcms/commerce/issues/1763))
+- Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
+
+### Fixed
+- Fixed a PHP error that occurred when an order’s history was changed via a queue job.
+- Fixed a bug where the store location address had its `isStoreLocation` property set to `false`. ([#1773](https://github.com/craftcms/commerce/issues/1773))
+- Fixed a bug where the Template setting for product types wasn’t showing autosuggestions.
+- Fixed a bug where disabled variants weren’t getting deleted along with their products. ([#1772](https://github.com/craftcms/commerce/issues/1772))
+- Fixed a bug where incomplete carts weren’t getting updated when their selected payment gateway was disabled. ([#1531](https://github.com/craftcms/commerce/issues/1531)) 
+- Fixed a bug where the incorrect confirmation message was shown when deleting a subscription plan.
+- Fixed a PHP error that occurred when a subscription plan and gateway had been deleted. ([#1667](https://github.com/craftcms/commerce/issues/1667))
+- Fixed a bug where address changes weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))  
+- Fixed a SQL error that could occur when saving a product, if it was disabled and missing required field values. ([#1764](https://github.com/craftcms/commerce/issues/1764))
+- Fixed a bug where it was possible to change the primary currency after completed orders had been placed. ([#1777](https://github.com/craftcms/commerce/issues/1777))
+- Fixed a JavaScript error that occurred on the payment page of the example templates.
+
 ## 3.2.7 - 2020-09-24
 
 ### Added

@@ -21,6 +21,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -183,11 +184,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public $sku;
-
-    /**
-     * @inheritdoc
-     */
     public $price;
 
     /**
@@ -247,6 +243,13 @@ class Variant extends Purchasable
      * @see setProduct()
      */
     private $_product;
+
+    /**
+     * @var string SKU
+     * @see getSku()
+     * @see setSku()
+     */
+    public $_sku;
 
     /**
      * @return array
@@ -670,7 +673,32 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        return $this->sku;
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
+     *
+     * @return string
+     */
+    public function getSkuAsText(): string
+    {
+        $sku = $this->getSku();
+
+        if (PurchasableHelper::isTempSku($sku)) {
+            $sku = '';
+        }
+
+        return $sku;
+    }
+
+    /**
+     * @param string|null $sku
+     * @return void
+     */
+    public function setSku(string $sku = null)
+    {
+        $this->_sku = $sku;
     }
 
     /**
@@ -998,6 +1026,11 @@ class Variant extends Purchasable
             return false;
         }
 
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
@@ -1057,6 +1090,21 @@ class Variant extends Purchasable
 
         $this->updateTitle($product);
         $this->updateSku($product);
+
+        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
+
+            if (!$this->sku) {
+                $this->setSku(PurchasableHelper::tempSku());
+            }
+
+            if (!$this->price) {
+                $this->price = 0;
+            }
+
+            if (!$this->stock) {
+                $this->stock = 0;
+            }
+        }
 
         // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
@@ -1244,7 +1292,7 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->sku;
+                return $this->getSkuAsText();
             }
             case 'product':
             {
