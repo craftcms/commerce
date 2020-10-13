@@ -19,7 +19,7 @@ use yii\console\ExitCode;
  * Allows you to reset Commerce data.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.8
  */
 class ResetDataController extends Controller
 {

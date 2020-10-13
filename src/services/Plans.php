@@ -88,7 +88,7 @@ class Plans extends Component
      * Memoized array of plans.
      *
      * @var Plan[]|null
-     * @since 3.x
+     * @since 3.2.8
      */
     private $_allPlans;
 
@@ -363,7 +363,7 @@ class Plans extends Component
      * Get all plans memoized.
      *
      * @return array
-     * @since 3.x
+     * @since 3.2.8
      */
     private function _getAllPlans()
     {

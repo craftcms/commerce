@@ -13,7 +13,7 @@ use craft\helpers\StringHelper;
  * Purchasable helper
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.8
  */
 class Purchasable
 {
@@ -23,7 +23,7 @@ class Purchasable
      * Generates a new temporary SKU.
      *
      * @return string
-     * @since 3.x
+     * @since 3.2.8
      */
     public static function tempSku(): string
     {
@@ -35,7 +35,7 @@ class Purchasable
      *
      * @param string $sku
      * @return bool
-     * @since 3.x
+     * @since 3.2.8
      */
     public static function isTempSku(string $sku): bool
     {
