@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.8 - 2020-10-13
 
 ### Added
 - Added a “Variants” column to the Products index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
