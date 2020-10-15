@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-### Unreleased
+## 3.2.8.1 - 2020-10-15
 
 ### Fixed
 - Fixed a PHP error that occurred when duplicating a product. ([#1783](https://github.com/craftcms/commerce/issues/1783))
