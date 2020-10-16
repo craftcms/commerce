@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where errors would show when updating the cart after logging in. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+
 ## 2.2.22 - 2020-09-15
 
 ### Fixed
