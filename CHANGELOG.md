@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+
 ## 3.2.8.1 - 2020-10-15
 
 ### Fixed

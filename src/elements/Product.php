@@ -1111,6 +1111,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
+            'id' => ['label' => Craft::t('commerce', 'ID')],
             'title' => ['label' => Craft::t('commerce', 'Title')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
