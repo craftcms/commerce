@@ -66,6 +66,7 @@ use yii\base\InvalidConfigException;
  * @property Address $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
+ * @property int|null $customerId
  * @property-read ShippingMethod[] $availableShippingMethods
  * @property-read bool $activeCart Is the current order the same as the active cart
  * @property-read Customer $customer
@@ -353,7 +354,7 @@ class Order extends Element
     /**
      * @var int Customer ID
      */
-    public $customerId;
+    private $_customerId;
 
     /**
      * @var bool Register the email on order completion
@@ -469,11 +470,11 @@ class Order extends Element
         }
 
         // Get the customer ID from the session
-        if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
+        if (!$this->_customerId && !Craft::$app->request->isConsoleRequest) {
+            $this->_customerId = Plugin::getInstance()->getCustomers()->getCustomerId();
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->_customerId);
         if ($email = $customer->getEmail()) {
             $this->setEmail($email);
         }
@@ -972,7 +973,7 @@ class Order extends Element
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
-        $orderRecord->customerId = $this->customerId;
+        $orderRecord->customerId = $this->_customerId;
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
@@ -1130,12 +1131,44 @@ class Order extends Element
     }
 
     /**
+     * @return int|null
+     */
+    public function getCustomerId()
+    {
+        return $this->_customerId;
+    }
+
+    /**
+     * @param int $customerId
+     */
+    public function setCustomerId(int $customerId)
+    {
+        // If we are changing the customer we need to sanitize some data
+        if ($this->_customerId && ($this->shippingAddressId || $this->billingAddressId) && $this->_customerId != $customerId) {
+            if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
+                $shippingAddress->id = null;
+                $this->setShippingAddress($shippingAddress);
+            }
+
+            if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
+                $billingAddress->id = null;
+                $this->setBillingAddress($billingAddress);
+            }
+
+            $this->estimatedBillingAddressId = null;
+            $this->_estimatedBillingAddress = null;
+        }
+
+        $this->_customerId = $customerId;
+    }
+
+    /**
      * @return Customer|null
      */
     public function getCustomer()
     {
-        if ($this->customerId) {
-            return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if ($this->_customerId) {
+            return Plugin::getInstance()->getCustomers()->getCustomerById($this->_customerId);
         }
 
         return null;
