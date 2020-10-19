@@ -1132,6 +1132,7 @@ class Order extends Element
 
     /**
      * @return int|null
+     * @since 2.2.23
      */
     public function getCustomerId()
     {
@@ -1140,6 +1141,7 @@ class Order extends Element
 
     /**
      * @param int $customerId
+     * @since 2.2.23
      */
     public function setCustomerId(int $customerId)
     {

@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where errors would show when updating the cart after logging in. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+- Fixed a bug where addresses were incorrectly associated with a customer after logging in. ([#1227](https://github.com/craftcms/commerce/issues/1227))
 
 ## 2.2.22 - 2020-09-15
 
