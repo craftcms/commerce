@@ -5,6 +5,9 @@
 ### Added
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 
+### Changed
+- `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
+
 ## 3.2.8.1 - 2020-10-15
 
 ### Fixed
