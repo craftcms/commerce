@@ -615,7 +615,7 @@ class Order extends Element
     public $orderLanguage;
 
     /**
-     * The site the order was created in as a cart.
+     * The site the order was created in.
      *
      * @var int|null Order site ID
      * ---
