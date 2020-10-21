@@ -8,6 +8,9 @@
 ### Changed
 - `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
 
+### Fixed
+- Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+
 ## 3.2.8.1 - 2020-10-15
 
 ### Fixed
