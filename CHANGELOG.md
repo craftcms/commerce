@@ -3,7 +3,10 @@
 ## Unreleased
 
 ### Added
+- Added the ability to specify which site and order was placed on.
+- Added a “Order Site” column to the Order index page.
 - Added a “Variants” column to the Product index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
+- Added `Order::$orderSiteId`.
 
 ### Changed
 - Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
