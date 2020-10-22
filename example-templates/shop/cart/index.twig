@@ -5,6 +5,10 @@
     <h1 class="text-3xl block sm:inline">Cart</h1>
 
     {% if cart.lineItems|length %}
+      <form method="post" action="">
+        <input type="hidden" name="action" value="commerce/cart/update-cart">
+        <input type="hidden" name="cartUpdatedNotice" value="The cart was updated.">
+        {{ csrfInput() }}
         <table class="w-full mt-4">
             <thead>
             <tr class="text-gray-600 bg-gray-200">
@@ -13,10 +17,6 @@
                 <th class="py-2 pr-3 text-right">Price</th>
             </tr>
             </thead>
-            <form method="post" action="">
-                <input type="hidden" name="action" value="commerce/cart/update-cart">
-                <input type="hidden" name="cartUpdatedNotice" value="The cart was updated.">
-                {{ csrfInput() }}
                 <tbody>
                 {% for item in cart.lineItems %}
                     <tr class="align-top">
@@ -238,16 +238,16 @@
                                 </div>
                                 <div>
                                     {% if not cart.hasErrors() %}
-                                        <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" href="{{ url('shop/checkout') }}">Checkout &rarr;</a>
+                                        <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" href="{{ url('shop/checkout') }}">Checkout</a>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
-                </tbody>
-            </form>
-        </table>
+              </tbody>
+          </table>
+        </form>
     {% endif %}
 
     {% if not cart.lineItems|length %}
