@@ -51,6 +51,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\models\Site;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -129,6 +130,7 @@ use yii\log\Logger;
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
+ * @property-read Site|null $orderSite
  * @property null|array|Address $estimatedBillingAddress
  * @property float $totalDiscount
  * @property null|array|Address $estimatedShippingAddress
@@ -1366,6 +1368,7 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
+        $names[] = 'orderSite';
         return $names;
     }
 
@@ -3026,6 +3029,21 @@ class Order extends Element
     public function getOrderStatus()
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+    }
+
+    /**
+     * Get the site for the order.
+     *
+     * @return Site|null
+     * @since 3.x
+     */
+    public function getOrderSite()
+    {
+        if (!$this->orderSiteId) {
+            return null;
+        }
+
+        return Craft::$app->getSites()->getSiteById($this->orderSiteId);
     }
 
     /**

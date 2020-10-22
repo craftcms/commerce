@@ -1274,7 +1274,7 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
-        if ($commerce && version_compare($commerce['version'], '3.2.8', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.2.9', '>=')) {
             $this->query->addSelect(['commerce_orders.orderSiteId']);
             $this->query->addSelect(['commerce_orders.orderLanguage']);
         }
