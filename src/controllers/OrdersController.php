@@ -1383,6 +1383,11 @@ class OrdersController extends Controller
                     $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 }
                 $row['isAvailable'] = $purchasable->getIsAvailable();
+                $row['detail'] = [
+                    'title' => Craft::t('commerce', 'Information'),
+                    'content' => $purchasable->getSnapshot(),
+                    'showAsList' => true,
+                ];
                 $purchasables[] = $row;
             }
         }

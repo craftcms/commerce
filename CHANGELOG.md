@@ -6,6 +6,7 @@
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 
 ### Changed
+- Add line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
 - `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
 
 ### Fixed
