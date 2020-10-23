@@ -1243,7 +1243,10 @@ class Product extends Element
             {
                 return ($productType ? Craft::t('site', $productType->name) : '');
             }
-
+            case 'defaultSku':
+            {
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+            }
             case 'taxCategory':
             {
                 $taxCategory = $this->getTaxCategory();
