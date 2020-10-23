@@ -8,6 +8,7 @@
 ### Changed
 - Add line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
 - `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
+- A notice is displayed when editing an address that is a primary billing or shipping address for a customer. ([#1802](https://github.com/craftcms/commerce/issues/1802))
 
 ### Fixed
 - Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))

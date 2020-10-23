@@ -64,6 +64,7 @@ class AddressesController extends BaseCpController
             ->where(['addressId' => $variables['address']->id])
             ->scalar();
 
+        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
         $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '');
 
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
