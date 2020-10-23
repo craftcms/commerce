@@ -249,7 +249,7 @@ class Variant extends Purchasable
      * @see getSku()
      * @see setSku()
      */
-    public $_sku;
+    private $_sku;
 
     /**
      * @return array
