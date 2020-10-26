@@ -42,8 +42,8 @@ class m160531_154500_craft3_upgrade extends Migration
         $this->update('{{%widgets}}', ['type' => Revenue::class], ['type' => 'Commerce_Revenue']);
 
         // Before messing with columns, it's much safer to drop all the FKs and indexes
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_i18n}}');
-        MigrationHelper::dropAllIndexesOnTable('{{%commerce_producttypes_i18n}}');
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_i18n}}', $this);
+        MigrationHelper::dropAllIndexesOnTable('{{%commerce_producttypes_i18n}}', $this);
 
         // Drop the old locale FK column and rename the new siteId FK column
         $this->dropColumn('{{%commerce_producttypes_i18n}}', 'locale');

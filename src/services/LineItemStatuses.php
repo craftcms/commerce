@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\events\DefaultLineItemStatusEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\LineItemStatus;
-use craft\commerce\Plugin;
 use craft\commerce\records\LineItemStatus as LineItemStatusRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
@@ -192,7 +191,7 @@ class LineItemStatuses extends Component
         $existingStatus = $this->getLineItemStatusByHandle($lineItemStatus->handle);
 
         if ($existingStatus && (!$lineItemStatus->id || $lineItemStatus->id !== $existingStatus->id)) {
-            $lineItemStatus->addError('handle', Plugin::t('That handle is already in use'));
+            $lineItemStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
             return false;
         }
 
@@ -432,7 +431,7 @@ class LineItemStatuses extends Component
     /**
      * Clear all memoization
      *
-     * @since 3.x
+     * @since 3.2.5
      */
     public function _clearCaches()
     {

@@ -796,7 +796,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
             var $rightWrapper = $('<div class="right"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup"/>').appendTo($rightWrapper);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
-            this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Save') + '"/>').appendTo($mainBtnGroup);
+            this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Add') + '"/>').appendTo($mainBtnGroup);
             this.$spinner = $('<div class="spinner hidden" />').appendTo($rightWrapper);
 
             this.$saveBtn.addClass('disabled');
@@ -897,13 +897,12 @@ Craft.Commerce.CommerceShippingItemRatesValuesInput = Craft.BaseInputGenerator.e
 
         this.listening = true;
 
-        this.addListener(this.$source, 'textchange', 'onTextChange');
+        this.addListener(this.$source, 'textchange', 'onSourceTextChange');
         this.addListener(this.$form, 'submit', 'onFormSubmit');
     },
     updateTarget: function() {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
-        console.log(sourceVal);
         this.$target.prop('placeholder', targetVal);
     },
     onFormSubmit: function() {

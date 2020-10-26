@@ -203,6 +203,8 @@ class Address extends Model
     public function init()
     {
         $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
+        $this->isEstimated = (bool)$this->isEstimated;
+        $this->isStoreLocation = (bool)$this->isStoreLocation;
 
         parent::init();
     }
@@ -259,31 +261,31 @@ class Address extends Model
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
-        $labels['firstName'] = Plugin::t('First Name');
-        $labels['lastName'] = Plugin::t('Last Name');
-        $labels['fullName'] = Plugin::t('Full Name');
-        $labels['attention'] = Plugin::t('Attention');
-        $labels['title'] = Plugin::t('Title');
-        $labels['address1'] = Plugin::t('Address 1');
-        $labels['address2'] = Plugin::t('Address 2');
-        $labels['address3'] = Plugin::t('Address 3');
-        $labels['city'] = Plugin::t('City');
-        $labels['zipCode'] = Plugin::t('Zip Code');
-        $labels['phone'] = Plugin::t('Phone');
-        $labels['alternativePhone'] = Plugin::t('Alternative Phone');
-        $labels['businessName'] = Plugin::t('Business Name');
-        $labels['businessId'] = Plugin::t('Business ID');
-        $labels['businessTaxId'] = Plugin::t('Business Tax ID');
-        $labels['countryId'] = Plugin::t('Country');
-        $labels['stateId'] = Plugin::t('State');
-        $labels['stateName'] = Plugin::t('State');
-        $labels['stateValue'] = Plugin::t('State');
-        $labels['custom1'] = Plugin::t('Custom 1');
-        $labels['custom2'] = Plugin::t('Custom 2');
-        $labels['custom3'] = Plugin::t('Custom 3');
-        $labels['custom4'] = Plugin::t('Custom 4');
-        $labels['notes'] = Plugin::t('Notes');
-        $labels['label'] = Plugin::t('Label');
+        $labels['firstName'] = Craft::t('commerce', 'First Name');
+        $labels['lastName'] = Craft::t('commerce', 'Last Name');
+        $labels['fullName'] = Craft::t('commerce', 'Full Name');
+        $labels['attention'] = Craft::t('commerce', 'Attention');
+        $labels['title'] = Craft::t('commerce', 'Title');
+        $labels['address1'] = Craft::t('commerce', 'Address 1');
+        $labels['address2'] = Craft::t('commerce', 'Address 2');
+        $labels['address3'] = Craft::t('commerce', 'Address 3');
+        $labels['city'] = Craft::t('commerce', 'City');
+        $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
+        $labels['phone'] = Craft::t('commerce', 'Phone');
+        $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
+        $labels['businessName'] = Craft::t('commerce', 'Business Name');
+        $labels['businessId'] = Craft::t('commerce', 'Business ID');
+        $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
+        $labels['countryId'] = Craft::t('commerce', 'Country');
+        $labels['stateId'] = Craft::t('commerce', 'State');
+        $labels['stateName'] = Craft::t('commerce', 'State');
+        $labels['stateValue'] = Craft::t('commerce', 'State');
+        $labels['custom1'] = Craft::t('commerce', 'Custom 1');
+        $labels['custom2'] = Craft::t('commerce', 'Custom 2');
+        $labels['custom3'] = Craft::t('commerce', 'Custom 3');
+        $labels['custom4'] = Craft::t('commerce', 'Custom 4');
+        $labels['notes'] = Craft::t('commerce', 'Notes');
+        $labels['label'] = Craft::t('commerce', 'Label');
         return $labels;
     }
 
@@ -295,7 +297,7 @@ class Address extends Model
         $rules = parent::defineRules();
 
         $rules[] = [
-            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Plugin::t('Country requires valid input.')
+            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')
         ];
 
         $rules[] = [
@@ -359,7 +361,7 @@ class Address extends Model
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $this->addError('stateValue', Plugin::t('Country requires a related state selected.'));
+            $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
     }
 
@@ -389,7 +391,7 @@ class Address extends Model
         // Clean up if the API returned false and the item was still in cache
         if (!$validBusinessTaxId) {
             Craft::$app->getCache()->delete('commerce:validVatId:' . $this->businessTaxId);
-            $this->addError('businessTaxId', Plugin::t('Invalid Business Tax ID.'));
+            $this->addError('businessTaxId', Craft::t('commerce', 'Invalid Business Tax ID.'));
         }
     }
 
@@ -518,6 +520,7 @@ class Address extends Model
             'notes' => $this->notes,
             'businessName' => $this->businessName,
             'stateText' => $this->stateText,
+            'countryText' => $this->countryText,
             'custom1' => $this->custom1,
             'custom2' => $this->custom2,
             'custom3' => $this->custom3,

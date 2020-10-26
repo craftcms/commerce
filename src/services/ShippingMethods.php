@@ -178,7 +178,7 @@ class ShippingMethods extends Component
             $record = ShippingMethodRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No shipping method exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping method exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

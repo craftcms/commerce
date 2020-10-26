@@ -16,7 +16,6 @@ use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Localization;
 use yii\base\Component;
 use yii\base\Exception;
 
@@ -93,7 +92,7 @@ class ShippingRules extends Component
             $record = ShippingRuleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No shipping rule exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No shipping rule exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -155,9 +154,9 @@ class ShippingRules extends Component
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
                     'condition' => $ruleCategory->condition,
-                    'perItemRate' => is_numeric($ruleCategory->perItemRate) ? Localization::normalizeNumber($ruleCategory->perItemRate) : null,
-                    'weightRate' => is_numeric($ruleCategory->weightRate) ? Localization::normalizeNumber($ruleCategory->weightRate) : null,
-                    'percentageRate' => is_numeric($ruleCategory->percentageRate) ? Localization::normalizeNumber($ruleCategory->percentageRate) : null
+                    'perItemRate' => $ruleCategory->perItemRate,
+                    'weightRate' => $ruleCategory->weightRate,
+                    'percentageRate' => $ruleCategory->percentageRate
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([

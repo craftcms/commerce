@@ -63,7 +63,7 @@ class m180417_161904_fix_purchasables extends Migration
 
         $this->delete('{{%elements}}', ['id' => $elementIds]);
 
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}');
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}', $this);
 
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres

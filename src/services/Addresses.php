@@ -13,7 +13,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
@@ -200,7 +199,7 @@ class Addresses extends Component
     }
 
     /**
-     * Returns the stock location or a blank address if it's not defined.
+     * Returns the store location address, or a blank address if it's not defined.
      *
      * @return Address
      */
@@ -479,30 +478,22 @@ class Addresses extends Component
     {
         $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
+        $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
+        $addresses = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
 
-        $shippingAddressResults = $this->_createAddressQuery()->andWhere(['id' => $shippingAddressIds])->all();
-        $billingAddressResults = $this->_createAddressQuery()->andWhere(['id' => $billingAddressIds])->all();
-
-        $shippingAddresses = [];
-        $billingAddresses = [];
-
-        foreach ($shippingAddressResults as $result) {
-            $shippingAddress = new Address($result);
-            $shippingAddresses[$shippingAddress->id] = $shippingAddresses[$shippingAddress->id] ?? $shippingAddress ?? null;
-        }
-
-        foreach ($billingAddressResults as $result) {
-            $billingAddress = new Address($result);
-            $billingAddresses[$billingAddress->id] = $billingAddresses[$billingAddress->id] ?? $billingAddress ?? null;
+        foreach ($addresses as $result) {
+            $address = new Address($result);
+            $addresses[$address->id] = $addresses[$address->id] ?? $address ?? null;
         }
 
         foreach ($orders as $key => $order) {
-            if(isset($shippingAddresses[$order->shippingAddressId])) {
-                $order->setShippingAddress($shippingAddresses[$order->shippingAddressId]);
+
+            if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
+                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
             }
 
-            if(isset($billingAddresses[$order->billingAddressId])) {
-                $order->setBillingAddress($billingAddresses[$order->billingAddressId]);
+            if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
+               $order->setBillingAddress($addresses[$order['billingAddressId']]);
             }
 
             $orders[$key] = $order;
@@ -545,7 +536,8 @@ class Addresses extends Component
                 'addresses.custom2',
                 'addresses.custom3',
                 'addresses.custom4',
-                'addresses.isEstimated'
+                'addresses.isEstimated',
+                'addresses.isStoreLocation'
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

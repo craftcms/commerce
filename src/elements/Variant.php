@@ -21,6 +21,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -183,11 +184,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public $sku;
-
-    /**
-     * @inheritdoc
-     */
     public $price;
 
     /**
@@ -247,6 +243,13 @@ class Variant extends Purchasable
      * @see setProduct()
      */
     private $_product;
+
+    /**
+     * @var string SKU
+     * @see getSku()
+     * @see setSku()
+     */
+    private $_sku;
 
     /**
      * @return array
@@ -318,7 +321,7 @@ class Variant extends Purchasable
      */
     public static function displayName(): string
     {
-        return Plugin::t('Product Variant');
+        return Craft::t('commerce', 'Product Variant');
     }
 
     /**
@@ -326,7 +329,7 @@ class Variant extends Purchasable
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('product variant');
+        return Craft::t('commerce', 'product variant');
     }
 
     /**
@@ -334,7 +337,7 @@ class Variant extends Purchasable
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Product Variants');
+        return Craft::t('commerce', 'Product Variants');
     }
 
     /**
@@ -342,7 +345,7 @@ class Variant extends Purchasable
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('product variants');
+        return Craft::t('commerce', 'product variants');
     }
 
     /**
@@ -670,7 +673,32 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        return $this->sku;
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
+     *
+     * @return string
+     */
+    public function getSkuAsText(): string
+    {
+        $sku = $this->getSku();
+
+        if (PurchasableHelper::isTempSku($sku)) {
+            $sku = '';
+        }
+
+        return $sku;
+    }
+
+    /**
+     * @param string|null $sku
+     * @return void
+     */
+    public function setSku(string $sku = null)
+    {
+        $this->_sku = $sku;
     }
 
     /**
@@ -740,7 +768,7 @@ class Variant extends Purchasable
                     /** @var Purchasable $purchasable */
                     $purchasable = $lineItem->getPurchasable();
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('The item is not enabled for sale.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
                 }
             ],
@@ -748,22 +776,22 @@ class Variant extends Purchasable
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
                     if (!$this->hasStock()) {
-                        $error = Plugin::t('"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', '"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Plugin::t('There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->minQty > 1 && $getQty($lineItem) < $this->minQty) {
-                        $error = Plugin::t('Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
+                        $error = Craft::t('commerce', 'Minimum order quantity for this item is {num}.', ['num' => $this->minQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->maxQty != 0 && $getQty($lineItem) > $this->maxQty) {
-                        $error = Plugin::t('Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
+                        $error = Craft::t('commerce', 'Maximum order quantity for this item is {num}.', ['num' => $this->maxQty]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
                 },
@@ -998,6 +1026,11 @@ class Variant extends Purchasable
             return false;
         }
 
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
@@ -1057,6 +1090,21 @@ class Variant extends Purchasable
 
         $this->updateTitle($product);
         $this->updateSku($product);
+
+        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
+
+            if (!$this->sku) {
+                $this->setSku(PurchasableHelper::tempSku());
+            }
+
+            if (!$this->price) {
+                $this->price = 0;
+            }
+
+            if (!$this->stock) {
+                $this->stock = 0;
+            }
+        }
 
         // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
@@ -1175,16 +1223,16 @@ class Variant extends Purchasable
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => Plugin::t('Title'),
-            'product' => Plugin::t('Product'),
-            'sku' => Plugin::t('SKU'),
-            'price' => Plugin::t('Price'),
-            'width' => Plugin::t('Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'height' => Plugin::t('Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'length' => Plugin::t('Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
-            'weight' => Plugin::t('Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
-            'stock' => Plugin::t('Stock'),
-            'minQty' => Plugin::t('Quantities')
+            'title' => Craft::t('commerce', 'Title'),
+            'product' => Craft::t('commerce', 'Product'),
+            'sku' => Craft::t('commerce', 'SKU'),
+            'price' => Craft::t('commerce', 'Price'),
+            'width' => Craft::t('commerce', 'Width ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'height' => Craft::t('commerce', 'Height ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
+            'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
+            'stock' => Craft::t('commerce', 'Stock'),
+            'minQty' => Craft::t('commerce', 'Quantities')
         ];
     }
 
@@ -1229,7 +1277,7 @@ class Variant extends Purchasable
     protected static function defineSortOptions(): array
     {
         return [
-            'title' => Plugin::t('Title')
+            'title' => Craft::t('commerce', 'Title'),
         ];
     }
 
@@ -1244,7 +1292,7 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->sku;
+                return $this->getSkuAsText();
             }
             case 'product':
             {

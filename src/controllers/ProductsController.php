@@ -100,7 +100,7 @@ class ProductsController extends BaseCpController
         $product = $variables['product'];
 
         if ($product->id === null) {
-            $variables['title'] = Plugin::t('Create a new product');
+            $variables['title'] = Craft::t('commerce', 'Create a new product');
         } else {
             $variables['title'] = $product->title;
         }
@@ -168,7 +168,7 @@ class ProductsController extends BaseCpController
         $product = Plugin::getInstance()->getProducts()->getProductById($productId);
 
         if (!$product) {
-            throw new Exception(Plugin::t('No product exists with the ID “{id}”.',
+            throw new Exception(Craft::t('commerce', 'No product exists with the ID “{id}”.',
                 ['id' => $productId]));
         }
 
@@ -179,7 +179,7 @@ class ProductsController extends BaseCpController
                 return $this->asJson(['success' => false]);
             }
 
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t delete product.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));
             Craft::$app->getUrlManager()->setRouteParams([
                 'product' => $product
             ]);
@@ -189,7 +189,7 @@ class ProductsController extends BaseCpController
             return $this->asJson(['success' => true]);
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Product deleted.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
         return $this->redirectToPostedUrl($product);
     }
 
@@ -250,7 +250,7 @@ class ProductsController extends BaseCpController
                         ]);
                     }
 
-                    Craft::$app->getSession()->setError(Plugin::t('Couldn’t duplicate product.'));
+                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t duplicate product.'));
 
                     // Send the original product back to the template, with any validation errors on the clone
                     $oldProduct->addErrors($clone->getErrors());
@@ -260,7 +260,7 @@ class ProductsController extends BaseCpController
 
                     return null;
                 } catch (\Throwable $e) {
-                    throw new ServerErrorHttpException(Plugin::t('An error occurred when duplicating the product.'), 0, $e);
+                    throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0, $e);
                 }
             } else {
                 $product = $oldProduct;
@@ -294,7 +294,7 @@ class ProductsController extends BaseCpController
                     ]);
                 }
 
-                Craft::$app->getSession()->setError(Plugin::t('Couldn’t save product.'));
+                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
 
                 if ($duplicate) {
                     // Add validation errors on the original product
@@ -324,7 +324,7 @@ class ProductsController extends BaseCpController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Product saved.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
 
         return $this->redirectToPostedUrl($product);
     }
@@ -442,7 +442,7 @@ class ProductsController extends BaseCpController
         }
 
         if (empty($variables['productType'])) {
-            throw new HttpException(400, Plugin::t('Wrong product type specified'));
+            throw new HttpException(400, Craft::t('commerce', 'Wrong product type specified'));
         }
 
         // Get the product

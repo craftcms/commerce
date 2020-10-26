@@ -15,6 +15,20 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+  {% if customer and address.id and (customer.primaryBillingAddressId == address.id or customer.primaryShippingAddressId == address.id) %}
+    <div class="pane">
+      <p><span data-icon="info"></span>
+        {% if customer.primaryBillingAddressId == address.id and customer.primaryShippingAddressId == address.id %}
+          {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% elseif customer.primaryBillingAddressId == address.id %}
+          {{ 'This is the primary billing address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% elseif customer.primaryShippingAddressId == address.id %}
+          {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',

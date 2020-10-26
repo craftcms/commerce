@@ -22,6 +22,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\exports\Raw;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
@@ -41,6 +42,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -49,7 +51,6 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
-use craft\web\View;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -829,7 +830,7 @@ class Order extends Element
 
     /**
      * @var float The item subtotal as stored in the database from last retrieval
-     * @since 3.x.
+     * @since 3.2.4
      * ---
      * ```php
      * echo $order->storedItemSubtotal;
@@ -1144,7 +1145,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return Plugin::t('Order');
+        return Craft::t('commerce', 'Order');
     }
 
     /**
@@ -1152,7 +1153,7 @@ class Order extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('order');
+        return Craft::t('commerce', 'order');
     }
 
     /**
@@ -1160,7 +1161,7 @@ class Order extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Orders');
+        return Craft::t('commerce', 'Orders');
     }
 
     /**
@@ -1168,7 +1169,7 @@ class Order extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('orders');
+        return Craft::t('commerce', 'orders');
     }
 
     /**
@@ -1197,8 +1198,11 @@ class Order extends Element
             $this->gatewayId = null;
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
-        if ($customer && $email = $customer->getEmail()) {
+        if (
+            $this->customerId &&
+            ($customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)) &&
+            ($email = $customer->getEmail())
+        ) {
             $this->setEmail($email);
         }
 
@@ -1552,7 +1556,7 @@ class Order extends Element
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
-            Craft::error(Plugin::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
                 ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
             $mutex->release($lockName);
@@ -1681,7 +1685,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Plugin::t('Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -1854,7 +1858,7 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
-        $customerUser = $customer->getUser();
+        $customerUser = $customer ? $customer->getUser() : null;
         $currentUser = Craft::$app->getUser()->getIdentity();
         $noCustomerUserOrCurrentUser = ($customerUser == null && $currentUser == null);
         $currentUserDoesntMatchCustomerUser = ($currentUser && ($customerUser == null || $currentUser->id != $customerUser->id));
@@ -2035,9 +2039,29 @@ class Order extends Element
             if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
+            $previousCustomerId = $this->customerId;
 
             $this->_customer = $customer;
             $this->customerId = $customer->id;
+
+            // If the customer is changing then we should be resetting the association with the addresses on the cart
+            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousCustomerId) {
+                if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
+                    $shippingAddress->id = null;
+                    $this->setShippingAddress($shippingAddress);
+                }
+
+                if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
+                    $billingAddress->id = null;
+                    $this->setBillingAddress($billingAddress);
+                }
+
+                $this->estimatedBillingAddressId = null;
+                $this->_estimatedBillingAddress = null;
+
+                $this->estimatedShippingAddressId = null;
+                $this->_estimatedShippingAddress = null;
+            }
         } else {
             $this->_customer = null;
             $this->customerId = null;
@@ -2163,19 +2187,19 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_OVERPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Plugin::t('Overpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
             }
             case self::PAID_STATUS_PAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Plugin::t('Paid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
             }
             case self::PAID_STATUS_PARTIAL:
             {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Plugin::t('Partial') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
             }
             case self::PAID_STATUS_UNPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Plugin::t('Unpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
             }
         }
 
@@ -2846,7 +2870,9 @@ class Order extends Element
                 $gateway = Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
             }
         } else {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if ($this->gatewayId) {
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
+            }
         }
 
         return $gateway;
@@ -2931,10 +2957,12 @@ class Order extends Element
     }
 
     /**
-     * @param array|Transaction[] $transactions
+     * Set transactions on the order. Set to null to clear cache and force next getTransactions() call to get the latest transactions.
+     *
+     * @param Transaction[]|null $transactions
      * @since 3.2.0
      */
-    public function setTransactions(array $transactions)
+    public function setTransactions($transactions)
     {
         $this->_transactions = $transactions;
     }

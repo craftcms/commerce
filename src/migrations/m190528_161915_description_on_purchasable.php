@@ -22,8 +22,8 @@ class m190528_161915_description_on_purchasable extends Migration
      */
     public function safeUp()
     {
-        if (!$this->db->columnExists('{{%commerce_lineitems}}', 'description')) {
-            $this->addColumn('{{%commerce_lineitems}}', 'description', $this->text());
+        if (!$this->db->columnExists('{{%commerce_purchasables}}', 'description')) {
+            $this->addColumn('{{%commerce_purchasables}}', 'description', $this->text());
         }
 
         $variantIds = (new Query())
@@ -65,7 +65,6 @@ class m190528_161915_description_on_purchasable extends Migration
                 }
             }
         }
-
     }
 
     /**

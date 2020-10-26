@@ -48,6 +48,7 @@ class TopProductTypes extends Stat
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
+
     /**
      * @inheritDoc
      */
@@ -76,6 +77,7 @@ class TopProductTypes extends Stat
                 '[[content.elementId]] = [[v.productId]]',
                 ['content.siteId' => $primarySite->id],
             ])
+            ->andWhere(['not', ['pt.name' => null]])
             ->groupBy('[[pt.id]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);

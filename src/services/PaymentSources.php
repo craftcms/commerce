@@ -127,6 +127,31 @@ class PaymentSources extends Component
     }
 
     /**
+     * Returns all payment sources for a gateway.
+     *
+     * @param int|null $gatewayId the gateway's ID
+     * @return PaymentSource[]
+     */
+    public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): array
+    {
+        if (null === $gatewayId) {
+            return [];
+        }
+
+        $results = $this->_createPaymentSourcesQuery()
+            ->where(['gatewayId' => $gatewayId])
+            ->all();
+
+        $sources = [];
+
+        foreach ($results as $result) {
+            $sources[] = new PaymentSource($result);
+        }
+
+        return $sources;
+    }
+
+    /**
      * Returns a user's payment sources on a gateway, per the user's ID.
      *
      * @param int|null $gatewayId the gateway's ID
@@ -210,7 +235,7 @@ class PaymentSources extends Component
         }
 
         if (!$this->savePaymentSource($source)) {
-            throw new PaymentSourceException(Plugin::t('Could not create the payment source.'));
+            throw new PaymentSourceException(Craft::t('commerce', 'Could not create the payment source.'));
         }
 
         return $source;
@@ -230,7 +255,7 @@ class PaymentSources extends Component
             $record = PaymentSourceRecord::findOne($paymentSource->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Plugin::t('No payment source exists with the ID “{id}”',
+                throw new InvalidConfigException(Craft::t('commerce', 'No payment source exists with the ID “{id}”',
                     ['id' => $paymentSource->id]));
             }
         } else {

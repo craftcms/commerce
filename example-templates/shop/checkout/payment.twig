@@ -91,19 +91,19 @@
         </div>
     </div>
 
-
-
     {% js %}
-        $('#paymentForm').on('submit', function (ev) {
-            $form = $(this);
+        var $paymentForm = document.querySelector('#paymentForm');
 
-            if ($form.data('processing')) {
-                ev.preventDefault();
+        if ($paymentForm) {
+            $paymentForm.addEventListener('submit', function(ev) {
+                if ($paymentForm.dataset.processing) {
+                    ev.preventDefault();
 
-                return false;
-            }
+                    return false;
+                }
 
-            $form.data('processing', true);
-        });
+                $paymentForm.dataset.processing = true;
+            });
+        }
     {% endjs %}
 {% endblock %}

@@ -34,7 +34,7 @@ class Webhooks extends Component
         $transactionLockName = 'commerceTransaction:' . $transactionHash;
         $mutex = Craft::$app->getMutex();
 
-        if ($useMutex && !$mutex->acquire($transactionLockName, 5)) {
+        if ($useMutex && !$mutex->acquire($transactionLockName, 15)) {
             throw new \Exception('Unable to acquire a lock for transaction: ' . $transactionHash);
         }
 

@@ -35,45 +35,6 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @return Response
-     */
-    public function actionPreviewEmail(): Response
-    {
-        $emailId = Craft::$app->getRequest()->getParam('emailId');
-        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
-        $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
-
-        if ($orderNumber) {
-            $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
-        } else {
-            $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
-        }
-
-        if ($email && $order && $template = $email->templatePath) {
-            if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
-                // use the order's language for template rendering the email.
-                $orderLanguage = $order->orderLanguage ?: Craft::$app->language;
-                Craft::$app->language = $orderLanguage;
-            }
-
-            $view = Craft::$app->getView();
-            $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
-            return $this->renderTemplate($template, compact('order'));
-        }
-
-        $errors = [];
-        if (!$email) {
-            $errors[] = Plugin::t('Could not find the email or template.');
-        }
-
-        if (!$order) {
-            $errors[] = Plugin::t('Could not find the order.');
-        }
-
-        return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
-    }
-
-    /**
      * @param int|null $id
      * @param Email|null $email
      * @return Response
@@ -98,11 +59,11 @@ class EmailsController extends BaseAdminController
         if ($variables['email']->id) {
             $variables['title'] = $variables['email']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new email');
+            $variables['title'] = Craft::t('commerce', 'Create a new email');
         }
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllPdfs();
-        $pdfList = [null => Plugin::t('Do not attach a PDF to this email')];
+        $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
         $variables['pdfList'] = $pdfList;
 
@@ -144,10 +105,10 @@ class EmailsController extends BaseAdminController
 
         // Save it
         if ($emailsService->saveEmail($email)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Email saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save email.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save email.'));
         }
 
         // Send the model back to the template

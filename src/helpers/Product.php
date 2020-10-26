@@ -91,7 +91,7 @@ class Product
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new NotFoundHttpException(Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
+                throw new NotFoundHttpException(Craft::t('commerce', 'No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new ProductModel();

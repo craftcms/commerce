@@ -17,8 +17,11 @@
               <div class="text-sm">
                 {% for item in cart.lineItems %}
                     <div class="flex w-full justify-between">
-                      <div>
-                        {{ item.description }} <span class="text-gray-500 text-xs uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</span>
+                      <div class="flex justify-between mr-3 overflow-hidden items-center">
+                        <div class="truncate">
+                          {{ item.description }}
+                        </div>
+                        <div class="text-gray-500 text-xs uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</div>
                       </div>
                       <div>
                         {{ item.subtotal|currency(cart.currency) }}

@@ -12,9 +12,9 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\events\PdfSaveEvent;
-use craft\commerce\records\Pdf as PdfRecord;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
+use craft\commerce\records\Pdf as PdfRecord;
 use craft\db\Query;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
@@ -426,7 +426,7 @@ class Pdfs extends Component
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
-            $html = Plugin::t('An error occurred while generating this PDF.');
+            $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
         // Restore the original template mode
@@ -440,9 +440,21 @@ class Pdfs extends Component
         $dompdfFontCache = $pathService->getCachePath() . DIRECTORY_SEPARATOR . 'commerce_dompdf';
         $dompdfLogFile = $pathService->getLogPath() . DIRECTORY_SEPARATOR . 'commerce_dompdf.htm';
 
-        // Should throw an error if not writable
-        FileHelper::isWritable($dompdfTempDir);
-        FileHelper::isWritable($dompdfLogFile);
+        // Ensure directories are created
+        FileHelper::createDirectory($dompdfTempDir);
+        FileHelper::createDirectory($dompdfFontCache);
+
+        if (!FileHelper::isWritable($dompdfLogFile)) {
+            throw new ErrorException("Unable to write to file: $dompdfLogFile");
+        }
+
+        if (!FileHelper::isWritable($dompdfFontCache)) {
+            throw new ErrorException("Unable to write to folder: $dompdfFontCache");
+        }
+
+        if (!FileHelper::isWritable($dompdfTempDir)) {
+            throw new ErrorException("Unable to write to folder: $dompdfTempDir");
+        }
 
         $isRemoteEnabled = Plugin::getInstance()->getSettings()->pdfAllowRemoteImages;
 

@@ -167,7 +167,7 @@ class Subscription extends Element
      */
     public static function displayName(): string
     {
-        return Plugin::t('Subscription');
+        return Craft::t('commerce', 'Subscription');
     }
 
     /**
@@ -175,7 +175,7 @@ class Subscription extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('subscription');
+        return Craft::t('commerce', 'subscription');
     }
 
     /**
@@ -183,7 +183,7 @@ class Subscription extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Subscriptions');
+        return Craft::t('commerce', 'Subscriptions');
     }
 
     /**
@@ -191,7 +191,7 @@ class Subscription extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('subscriptions');
+        return Craft::t('commerce', 'subscriptions');
     }
 
     /**
@@ -199,7 +199,7 @@ class Subscription extends Element
      */
     public function __toString()
     {
-        return Plugin::t('Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
 
     /**
@@ -411,7 +411,7 @@ class Subscription extends Element
      */
     public function getName()
     {
-        return Plugin::t('Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
+        return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
     }
 
     /**
@@ -452,13 +452,13 @@ class Subscription extends Element
         $sources = [
             '*' => [
                 'key' => '*',
-                'label' => Plugin::t('All active subscriptions'),
+                'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
                 'defaultSort' => ['dateCreated', 'desc']
             ]
         ];
 
-        $sources[] = ['heading' => Plugin::t('Subscription plans')];
+        $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
 
         foreach ($plans as $plan) {
             $key = 'plan:' . $plan->id;
@@ -473,12 +473,12 @@ class Subscription extends Element
             ];
         }
 
-        $sources[] = ['heading' => Plugin::t('Subscriptions on hold')];
+        $sources[] = ['heading' => Craft::t('commerce', 'Subscriptions on hold')];
 
         $criteriaFailedToStart = ['isSuspended' => true, 'hasStarted' => false];
         $sources[] = [
             'key' => 'carts:failed-to-start',
-            'label' => Plugin::t('Failed to start'),
+            'label' => Craft::t('commerce', 'Failed to start'),
             'criteria' => $criteriaFailedToStart,
             'defaultSort' => ['commerce_subscriptions.dateUpdated', 'desc'],
         ];
@@ -486,7 +486,7 @@ class Subscription extends Element
         $criteriaPaymentIssue = ['isSuspended' => true, 'hasStarted' => true];
         $sources[] = [
             'key' => 'carts:payment-issue',
-            'label' => Plugin::t('Payment method issue'),
+            'label' => Craft::t('commerce', 'Payment method issue'),
             'criteria' => $criteriaPaymentIssue,
             'defaultSort' => ['commerce_subscriptions.dateUpdated', 'desc'],
         ];
@@ -563,8 +563,8 @@ class Subscription extends Element
     public static function statuses(): array
     {
         return [
-            self::STATUS_ACTIVE => Plugin::t('Active'),
-            self::STATUS_EXPIRED => Plugin::t('Expired'),
+            self::STATUS_ACTIVE => Craft::t('commerce', 'Active'),
+            self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
         ];
     }
 
@@ -674,13 +674,13 @@ class Subscription extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Plugin::t('Subscription plan')],
-            'subscriber' => ['label' => Plugin::t('Subscribing user')],
-            'reference' => ['label' => Plugin::t('Subscription reference')],
-            'dateCanceled' => ['label' => Plugin::t('Cancellation date')],
-            'dateCreated' => ['label' => Plugin::t('Subscription date')],
-            'dateExpired' => ['label' => Plugin::t('Expiry date')],
-            'trialExpires' => ['label' => Plugin::t('Trial expiry date')]
+            'title' => ['label' => Craft::t('commerce', 'Subscription plan')],
+            'subscriber' => ['label' => Craft::t('commerce', 'Subscribing user')],
+            'reference' => ['label' => Craft::t('commerce', 'Subscription reference')],
+            'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
+            'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
+            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
         ];
     }
 
@@ -727,7 +727,7 @@ class Subscription extends Element
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
 
-                return $url ? '<a href="' . $url . '">' . Plugin::t('View order') . '</a>' : '';
+                return $url ? '<a href="' . $url . '">' . Craft::t('commerce', 'View order') . '</a>' : '';
 
             default:
             {
@@ -743,9 +743,10 @@ class Subscription extends Element
     {
         return [
             [
-                'label' => Plugin::t('Subscription date'),
+                'label' => Craft::t('commerce', 'Subscription date'),
                 'orderBy' => 'commerce_subscriptions.dateCreated',
-                'attribute' => 'dateCreated'
+                'attribute' => 'dateCreated',
+                'defaultDir' => 'desc',
             ],
             [
                 'label' => Craft::t('app', 'ID'),
@@ -761,21 +762,15 @@ class Subscription extends Element
      */
     protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
     {
-        /** @var ElementQuery $elementQuery */
-        if ($attribute === 'subscriber') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'subscriber';
-            $elementQuery->with = $with;
-            return;
+        switch ($attribute) {
+            case 'subscriber':
+                $elementQuery->andWith('subscriber');
+                break;
+            case 'orderLink':
+                $elementQuery->andWith('order');
+                break;
+            default:
+                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
         }
-
-        if ($attribute === 'orderLink') {
-            $with = $elementQuery->with ?: [];
-            $with[] = 'order';
-            $elementQuery->with = $with;
-            return;
-        }
-
-        parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
     }
 }

@@ -18,7 +18,7 @@ use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Customer Address Controller
+ * Class Customer Addresses Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -45,7 +45,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
-            $error = Plugin::t('Not allowed to edit that address.');
+            $error = Craft::t('commerce', 'Not allowed to edit that address.');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['error' => $error]);
             }
@@ -108,7 +108,7 @@ class CustomerAddressesController extends BaseFrontEndController
             }
 
             if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
-                $error = Plugin::t('Unable to update primary address.');
+                $error = Craft::t('commerce', 'Unable to update primary address.');
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     return $this->asJson(['error' => $error]);
                 }
@@ -133,11 +133,11 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
 
             $this->redirectToPostedUrl();
         } else {
-            $errorMsg = Plugin::t('Could not save address.');
+            $errorMsg = Craft::t('commerce', 'Could not save address.');
 
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
@@ -208,10 +208,10 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Plugin::t('Address removed.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
             return $this->redirectToPostedUrl();
         } else {
-            $error = Plugin::t('Could not delete address.');
+            $error = Craft::t('commerce', 'Could not delete address.');
         }
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -221,5 +221,22 @@ class CustomerAddressesController extends BaseFrontEndController
         Craft::$app->getSession()->setError($error);
 
         return null;
+    }
+
+    /**
+     * Return customer addresses.
+     *
+     * @return Response
+     * @throws BadRequestHttpException
+     * @since 3.2.7
+     */
+    public function actionGetAddresses(): Response
+    {
+        $this->requireAcceptsJson();
+
+        $customer = Plugin::getInstance()->getCustomers()->getCustomer();
+        $addresses = $customer->getAddresses();
+
+        return $this->asJson(['success' => true, 'addresses' => $addresses]);
     }
 }

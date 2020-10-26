@@ -25,7 +25,6 @@ use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
-use yii\base\InvalidCallException;
 
 /**
  * Line item service.
@@ -224,7 +223,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -405,7 +404,6 @@ class LineItems extends Component
         $lineItems = [];
 
         foreach ($lineItemsResults as $result) {
-
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
             $lineItem->typecastAttributes();
@@ -428,7 +426,7 @@ class LineItems extends Component
      * @param LineItem $lineItem
      * @param Order $order
      * @throws Throwable
-     * @since 3.x
+     * @since 3.2.5
      */
     public function orderCompleteHandler(LineItem $lineItem, Order $order)
     {

@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements;
 
+use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\db\DonationQuery;
@@ -96,7 +97,7 @@ class Donation extends Purchasable
      */
     public function __toString(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
@@ -104,7 +105,7 @@ class Donation extends Purchasable
      */
     public static function displayName(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
@@ -112,7 +113,7 @@ class Donation extends Purchasable
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('donation');
+        return Craft::t('commerce', 'donation');
     }
 
     /**
@@ -120,7 +121,7 @@ class Donation extends Purchasable
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Donations');
+        return Craft::t('commerce', 'Donations');
     }
 
     /**
@@ -128,7 +129,7 @@ class Donation extends Purchasable
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('donations');
+        return Craft::t('commerce', 'donations');
     }
 
     /**
@@ -155,7 +156,7 @@ class Donation extends Purchasable
      */
     public function getDescription(): string
     {
-        return Plugin::t('Donation');
+        return Craft::t('commerce', 'Donation');
     }
 
     /**
@@ -237,13 +238,13 @@ class Donation extends Purchasable
                 function($attribute, $params, Validator $validator) use ($lineItem) {
                     $options = $lineItem->getOptions();
                     if (!isset($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('No donation amount supplied.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'No donation amount supplied.'));
                     }
                     if (isset($options['donationAmount']) && !is_numeric($options['donationAmount'])) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('Donation needs to be an amount.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation needs to be an amount.'));
                     }
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
-                        $validator->addError($lineItem, $attribute, Plugin::t('Donation can not be zero.'));
+                        $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
                 }
             ]

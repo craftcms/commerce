@@ -217,7 +217,7 @@
             'Create a new shipping zone'|t('commerce'),
             newShippingZoneFields,
             newShippingZoneJs,
-            'commerce/shippingZones/save',
+            'commerce/shipping-zones/save',
             'Shipping zone saved.'|t
         ) }}
 
@@ -378,7 +378,7 @@
                     <td scope="row" data-title="{{ 'Name'|t('commerce') }}">
 
                     </td>
-                    <td data-title="{{ 'Per Item Rate'|t('commerce') }}">
+                    <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'perItemRate',
                             value: shippingRule.perItemRate,
@@ -389,7 +389,7 @@
                             required: true,
                         }) }}
                     </td>
-                    <td data-title="{{ 'Weight Rate'|t('commerce') }}">
+                    <td class="topalign" data-title="{{ 'Weight Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'weightRate',
                             value: shippingRule.weightRate,
@@ -400,7 +400,7 @@
                             required: true,
                         }) }}
                     </td>
-                    <td data-title="{{ 'Percentage Rate'|t('commerce') }}">
+                    <td class="topalign" data-title="{{ 'Percentage Rate'|t('commerce') }}">
                         {{ commerceForms.numberField({
                             name: 'percentageRate',
                             value: shippingRule.percentageRate,
@@ -412,51 +412,56 @@
                         }) }}
                     </td>
                 </tr>
-                <tr>
+                <tr class="js-category-overrides-heading">
                     <th colspan="4"
                         data-title="{{ 'Category Rate Overrides'|t('commerce') }}">
                         {{ "Category Rate Overrides"|t('commerce') }}
                     </th>
                 </tr>
                 {% for shippingCategory in shippingCategories %}
-                    {% set perItemRate = shippingRule.getShippingRuleCategories[shippingCategory.id].perItemRate ?? '' %}
-                    {% set weightRate = shippingRule.getShippingRuleCategories[shippingCategory.id].weightRate ?? '' %}
-                    {% set percentageRate = shippingRule.getShippingRuleCategories[shippingCategory.id].percentageRate ?? '' %}
-                    {% set categoryCondition = shippingRule.getShippingRuleCategories[shippingCategory.id].condition ?? '' %}
+                    {% set shippingCategoryRule = shippingRule.getShippingRuleCategories[shippingCategory.id] ?? null %}
+                    {% set perItemRate = shippingCategoryRule ? shippingCategoryRule.perItemRate ?? '' : '' %}
+                    {% set weightRate = shippingCategoryRule ? shippingCategoryRule.weightRate ?? '' : '' %}
+                    {% set percentageRate = shippingCategoryRule ? shippingCategoryRule.percentageRate ?? '' : '' %}
+                    {% set categoryCondition = shippingCategoryRule ? shippingCategoryRule.condition ?? '' : '' %}
+
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
-                        class="{% if categoryCondition == 'disallow' %}hidden{% endif %}">
+                        class="{% if categoryCondition == 'disallow' %}hidden{% endif %} js-category-override-row">
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
                             {{ shippingCategory.name }}
                         </th>
-                        <td data-title="{{ 'Per Item Rate'|t('commerce') }}">
+                        <td class="topalign" data-title="{{ 'Per Item Rate'|t('commerce') }}">
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
                                 placeholder: shippingRule.perItemRate,
                                 class: 'categoryPerItemRate',
-                                value: perItemRate ? perItemRate + 0 : '',
+                                value: perItemRate ? perItemRate : '',
                                 type: 'number',
-                                step: 'any'
+                                step: 'any',
+                                errors: shippingCategoryRule ? shippingCategoryRule.getErrors('perItemRate') : null,
                             }) }}
                         </td>
-                        <td data-title="{{ 'Weight Rate'|t('commerce') }}">
+                        <td class="topalign" data-title="{{ 'Weight Rate'|t('commerce') }}">
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
                                 class: 'categoryWeightRate',
-                                placeholder: shippingRule.weightRate + 0,
-                                value: weightRate ? weightRate + 0 : '',
+                                placeholder: shippingRule.weightRate,
+                                value: weightRate ? weightRate : '',
                                 type: 'number',
-                                step: 'any'
+                                step: 'any',
+                                errors: shippingCategoryRule ? shippingCategoryRule.getErrors('weightRate') : null,
                             }) }}
                         </td>
-                        <td data-title="{{ 'Percentage Rate'|t('commerce') }}">
+                        <td class="topalign" data-title="{{ 'Percentage Rate'|t('commerce') }}">
                             {{ commerceForms.numberField({
                                 name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
                                 class: 'categoryPercentageRate',
-                                placeholder: shippingRule.percentageRate + 0,
-                                value: percentageRate ? percentageRate + 0 : '',
+                                placeholder: shippingRule.percentageRate,
+                                value: percentageRate ? percentageRate : '',
                                 type: 'number',
-                                step: 'any'
+                                step: 'any',
+                                errors: shippingCategoryRule ? shippingCategoryRule.getErrors('percentageRate') : null,
                             }) }}
                         </td>
                     </tr>
@@ -474,15 +479,27 @@
 {% js %}
     window.shippingCategories = {{ craft.commerce.shippingCategories.allShippingCategories|json_encode|raw }};
 
-    $("select[name^='ruleCategories']").change(function() {
-    var id = $(this).closest('tr').data('id');
-    var value = $(this).val();
-    var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
-    if (value == 'disallow')
-    {
-    $rateRow.addClass('hidden');
-    }else{
-    $rateRow.removeClass('hidden');
+    function toggleCategoryOverridesHeading() {
+      if ($('.js-category-override-row.hidden').length == Object.keys(window.shippingCategories).length) {
+        $('.js-category-overrides-heading').addClass('hidden');
+      } else {
+        $('.js-category-overrides-heading').removeClass('hidden');
+      }
     }
+
+    $("select[name^='ruleCategories']").change(function() {
+      var id = $(this).closest('tr').data('id');
+      var value = $(this).val();
+      var $rateRow = $("#shipping-categories-rates").find("tr[data-id="+id+"]");
+
+      if (value == 'disallow') {
+        $rateRow.addClass('hidden');
+      } else {
+        $rateRow.removeClass('hidden');
+      }
+
+      toggleCategoryOverridesHeading();
     });
+
+    toggleCategoryOverridesHeading();
 {% endjs %}

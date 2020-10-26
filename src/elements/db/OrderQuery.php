@@ -1070,29 +1070,33 @@ class OrderQuery extends ElementQuery
     {
         $orders = parent::populate($rows);
 
-        // Eager-load line items?
-        if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
-        }
+        // Eager-load anything?
+        if (!empty($orders) && !$this->asArray) {
 
-        // Eager-load transactions?
-        if (!empty($orders) && ($this->withTransactions === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
-        }
+            // Eager-load line items?
+            if ($this->withLineItems === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            }
 
-        // Eager-load adjustments?
-        if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
-        }
+            // Eager-load transactions?
+            if ($this->withTransactions === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+            }
 
-        // Eager-load customers?
-        if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
-        }
+            // Eager-load adjustments?
+            if ($this->withAdjustments === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+            }
 
-        // Eager-load addresses?
-        if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            // Eager-load customers?
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+            }
+
+            // Eager-load addresses?
+            if ($this->withAddresses === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            }
         }
 
         return $orders;
@@ -1180,7 +1184,7 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
-        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.2.4', '>=')) {
             $this->query->addSelect([
                 'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
             ]);

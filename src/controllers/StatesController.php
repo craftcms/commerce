@@ -62,7 +62,7 @@ class StatesController extends BaseStoreSettingsController
         if ($variables['state']->id) {
             $variables['title'] = $variables['state']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new state');
+            $variables['title'] = Craft::t('commerce', 'Create a new state');
         }
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
@@ -122,10 +122,10 @@ class StatesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('State saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'State saved.'));
             $this->redirect(UrlHelper::cpUrl('commerce/store-settings/countries/' . $state->getCountry()->id));
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save state.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save state.'));
         }
 
         // Send the model back to the template
@@ -161,7 +161,7 @@ class StatesController extends BaseStoreSettingsController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update states status.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update states status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -176,7 +176,7 @@ class StatesController extends BaseStoreSettingsController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Plugin::t('States updated.'));
+        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'States updated.'));
     }
 
     /**
@@ -195,6 +195,6 @@ class StatesController extends BaseStoreSettingsController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder countries.')]);
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
     }
 }

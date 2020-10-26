@@ -53,7 +53,7 @@ class AddressesController extends BaseCpController
             }
         }
 
-        $variables['title'] = Plugin::t('Edit Address', ['id' => $variables['addressId']]);
+        $variables['title'] = Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']]);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
@@ -64,6 +64,7 @@ class AddressesController extends BaseCpController
             ->where(['addressId' => $variables['address']->id])
             ->scalar();
 
+        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
         $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '');
 
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
@@ -126,17 +127,17 @@ class AddressesController extends BaseCpController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Plugin::t('Address saved.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'error' => Plugin::t('Couldn’t save address.'),
+                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
                     'errors' => $address->errors
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save address.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
         }
 
         // Send the model back to the template
@@ -161,14 +162,14 @@ class AddressesController extends BaseCpController
         $ids = $request->getRequiredParam('ids');
 
         if (empty($ids) || !$id = $ids[0] ?? null) {
-            Craft::$app->getSession()->setError(Plugin::t('An address ID is required.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'An address ID is required.'));
             return null;
         }
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 
         if (!$address) {
-            Craft::$app->getSession()->setError(Plugin::t('Unable to find address.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Unable to find address.'));
             return null;
         }
 
@@ -181,7 +182,7 @@ class AddressesController extends BaseCpController
             ->scalar();
 
         if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            Craft::$app->getSession()->setError(Plugin::t('Cannot find customer.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Cannot find customer.'));
             return null;
         }
 
@@ -192,9 +193,9 @@ class AddressesController extends BaseCpController
         }
 
         if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Primary address updated.'));
+            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Primary address updated.'));
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t update primary address.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update primary address.'));
         }
 
         return $this->redirectToPostedUrl();
@@ -234,7 +235,7 @@ class AddressesController extends BaseCpController
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
-            return $this->asErrorJson(Plugin::t('Unable to retrieve customer.'));
+            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
         }
 
         $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
@@ -247,7 +248,7 @@ class AddressesController extends BaseCpController
             /** @var AddressModel $row */
             $rows[] = [
                 'id' => $row->id,
-                'title' => $row->address1,
+                'title' => $row->address1 ?: Craft::t('commerce', 'No Address Line 1'),
                 'zipCode' => $row->zipCode,
                 'billing' => ($row->id == $customer->primaryBillingAddressId),
                 'shipping' => ($row->id == $customer->primaryShippingAddressId),
@@ -275,7 +276,7 @@ class AddressesController extends BaseCpController
         $addressPost = $request->getParam('address', null);
 
         if (!$addressPost) {
-            return $this->asErrorJson(Plugin::t('An address must be provided.'));
+            return $this->asErrorJson(Craft::t('commerce', 'An address must be provided.'));
         }
 
         $addressPost = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($addressPost);
@@ -306,17 +307,17 @@ class AddressesController extends BaseCpController
         $addressId = $request->getParam('id', null);
 
         if (!$addressId) {
-            return $this->asErrorJson(Plugin::t('Address ID is required.'));
+            return $this->asErrorJson(Craft::t('commerce', 'Address ID is required.'));
         }
 
         if (!is_numeric($addressId)) {
-            return $this->asErrorJson(Plugin::t('Address ID must be numeric.'));
+            return $this->asErrorJson(Craft::t('commerce', 'Address ID must be numeric.'));
         }
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$addressId);
 
         if (!$address) {
-            return $this->asErrorJson(Plugin::t('Couldn’t retrieve address.'));
+            return $this->asErrorJson(Craft::t('commerce', 'Couldn’t retrieve address.'));
         }
 
         return $this->asJson([

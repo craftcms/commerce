@@ -148,7 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
-     * @deprecated in 3.x. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
+     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -309,7 +309,7 @@ class Discounts extends Component
      *
      * @param Discount $discount
      * @throws DeprecationException
-     * @deprecated in 3.x
+     * @deprecated in 3.2.4.
      */
     public function populateDiscountRelations(Discount $discount)
     {
@@ -361,22 +361,22 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid.');
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
             return false;
         }
 
         if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is not allowed for the order');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is out of date.');
+            $explanation = Craft::t('commerce', 'Discount is out of date.');
             return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            $explanation = Plugin::t('Discount use has reached its limit.');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
 
@@ -384,19 +384,19 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Plugin::t('Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
             return false;
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
             return false;
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -410,6 +410,7 @@ class Discounts extends Component
      *
      * @param string $code
      * @return Discount|null
+     * @throws \Exception
      */
     public function getDiscountByCode($code)
     {
@@ -417,11 +418,9 @@ class Discounts extends Component
             return null;
         }
 
-        $result = $this->_createDiscountQuery()
-            ->where(['code' => $code, 'enabled' => true])
-            ->one();
-
-        return $result ? new Discount($result) : null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
+            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        });
     }
 
     /**
@@ -630,7 +629,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();

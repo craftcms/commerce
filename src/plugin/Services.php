@@ -30,7 +30,6 @@ use craft\commerce\services\Plans;
 use craft\commerce\services\Products;
 use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Purchasables;
-use craft\commerce\services\Reports;
 use craft\commerce\services\Sales;
 use craft\commerce\services\ShippingCategories;
 use craft\commerce\services\ShippingMethods;

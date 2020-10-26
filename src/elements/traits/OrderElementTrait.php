@@ -8,12 +8,14 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
-use craft\commerce\elements\actions\DeleteOrder;
 use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
+use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
+use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 
@@ -141,12 +143,12 @@ trait OrderElementTrait
             case 'totals':
             {
                 $values = [
-                    [Plugin::t('Items'), $this->itemSubtotalAsCurrency],
-                    [Plugin::t('Discounts'), $this->storedTotalDiscountAsCurrency],
-                    [Plugin::t('Shipping'), $this->storedTotalShippingCostAsCurrency],
-                    [Plugin::t('Tax (inc)'), $this->storedTotalTaxIncludedAsCurrency],
-                    [Plugin::t('Tax'), $this->storedTotalTaxAsCurrency],
-                    [Plugin::t('Price'), $this->storedTotalPriceAsCurrency],
+                    [Craft::t('commerce', 'Items'), $this->itemSubtotalAsCurrency],
+                    [Craft::t('commerce', 'Discounts'), $this->storedTotalDiscountAsCurrency],
+                    [Craft::t('commerce', 'Shipping'), $this->storedTotalShippingCostAsCurrency],
+                    [Craft::t('commerce', 'Tax (inc)'), $this->storedTotalTaxIncludedAsCurrency],
+                    [Craft::t('commerce', 'Tax'), $this->storedTotalTaxAsCurrency],
+                    [Craft::t('commerce', 'Price'), $this->storedTotalPriceAsCurrency],
                 ];
                 return $this->_miniTable($values);
             }
@@ -223,7 +225,7 @@ trait OrderElementTrait
         $sources = [
             '*' => [
                 'key' => '*',
-                'label' => Plugin::t('All Orders'),
+                'label' => Craft::t('commerce', 'All Orders'),
                 'criteria' => ['isCompleted' => true],
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => 0,
@@ -233,7 +235,7 @@ trait OrderElementTrait
             ]
         ];
 
-        $sources[] = ['heading' => Plugin::t('Order Status')];
+        $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
 
         foreach (Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses() as $orderStatus) {
             $key = 'orderStatus:' . $orderStatus->handle;
@@ -253,7 +255,7 @@ trait OrderElementTrait
             ];
         }
 
-        $sources[] = ['heading' => Plugin::t('Carts')];
+        $sources[] = ['heading' => Craft::t('commerce', 'Carts')];
 
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
 
@@ -263,7 +265,7 @@ trait OrderElementTrait
         $criteriaActive = ['dateUpdated' => $updatedAfter, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:active',
-            'label' => Plugin::t('Active Carts'),
+            'label' => Craft::t('commerce', 'Active Carts'),
             'criteria' => $criteriaActive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'asc'],
             'data' => [
@@ -277,7 +279,7 @@ trait OrderElementTrait
         $criteriaInactive = ['dateUpdated' => $updatedBefore, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:inactive',
-            'label' => Plugin::t('Inactive Carts'),
+            'label' => Craft::t('commerce', 'Inactive Carts'),
             'criteria' => $criteriaInactive,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
@@ -289,7 +291,7 @@ trait OrderElementTrait
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
         $sources[] = [
             'key' => 'carts:attempted-payment',
-            'label' => Plugin::t('Attempted Payments'),
+            'label' => Craft::t('commerce', 'Attempted Payments'),
             'criteria' => $criteriaAttemptedPayment,
             'defaultSort' => ['commerce_orders.dateUpdated', 'desc'],
             'data' => [
@@ -318,9 +320,9 @@ trait OrderElementTrait
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
                 $deleteAction = $elementService->createAction(
                     [
-                        'type' => DeleteOrder::class,
-                        'confirmationMessage' => Plugin::t('Are you sure you want to delete the selected orders?'),
-                        'successMessage' => Plugin::t('Orders deleted.'),
+                        'type' => Delete::class,
+                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected orders?'),
+                        'successMessage' => Craft::t('commerce', 'Orders deleted.'),
                     ]
                 );
                 $actions[] = $deleteAction;
@@ -343,9 +345,9 @@ trait OrderElementTrait
                 // Restore
                 $actions[] = Craft::$app->getElements()->createAction([
                     'type' => Restore::class,
-                    'successMessage' => Plugin::t('Orders restored.'),
-                    'partialSuccessMessage' => Plugin::t('Some orders restored.'),
-                    'failMessage' => Plugin::t('Orders not restored.'),
+                    'successMessage' => Craft::t('commerce', 'Orders restored.'),
+                    'partialSuccessMessage' => Craft::t('commerce', 'Some orders restored.'),
+                    'failMessage' => Craft::t('commerce', 'Orders not restored.'),
                 ]);
             }
         }
@@ -354,45 +356,58 @@ trait OrderElementTrait
     }
 
     /**
+     * @inheritDoc
+     */
+    protected static function defineExporters(string $source): array
+    {
+        $default = parent::defineExporters($source);
+        // Remove the standard expanded exporter and use our own
+        ArrayHelper::removeValue($default, CraftExpanded::class);
+        ArrayHelper::append($default, Expanded::class);
+
+        return $default;
+    }
+
+    /**
      * @inheritdoc
      */
     protected static function defineTableAttributes(): array
     {
         return [
-            'order' => ['label' => Plugin::t('Order')],
-            'reference' => ['label' => Plugin::t('Reference')],
-            'shortNumber' => ['label' => Plugin::t('Short Number')],
-            'number' => ['label' => Plugin::t('Number')],
-            'id' => ['label' => Plugin::t('ID')],
-            'orderStatus' => ['label' => Plugin::t('Status')],
-            'totals' => ['label' => Plugin::t('All Totals')],
-            'total' => ['label' => Plugin::t('Total')],
-            'totalPrice' => ['label' => Plugin::t('Total Price')],
-            'totalPaid' => ['label' => Plugin::t('Total Paid')],
-            'totalDiscount' => ['label' => Plugin::t('Total Discount')],
-            'totalShippingCost' => ['label' => Plugin::t('Total Shipping')],
-            'totalTax' => ['label' => Plugin::t('Total Tax')],
-            'totalIncludedTax' => ['label' => Plugin::t('Total Included Tax')],
-            'dateOrdered' => ['label' => Plugin::t('Date Ordered')],
-            'datePaid' => ['label' => Plugin::t('Date Paid')],
-            'dateCreated' => ['label' => Plugin::t('Date Created')],
-            'dateUpdated' => ['label' => Plugin::t('Date Updated')],
-            'email' => ['label' => Plugin::t('Email')],
-            'customer' => ['label' => Plugin::t('Customer')],
-            'shippingFullName' => ['label' => Plugin::t('Shipping Full Name')],
-            'shippingFirstName' => ['label' => Plugin::t('Shipping First Name')],
-            'shippingLastName' => ['label' => Plugin::t('Shipping Last Name')],
-            'billingFullName' => ['label' => Plugin::t('Billing Full Name')],
-            'billingFirstName' => ['label' => Plugin::t('Billing First Name')],
-            'billingLastName' => ['label' => Plugin::t('Billing Last Name')],
-            'shippingBusinessName' => ['label' => Plugin::t('Shipping Business Name')],
-            'billingBusinessName' => ['label' => Plugin::t('Billing Business Name')],
-            'shippingMethodName' => ['label' => Plugin::t('Shipping Method')],
-            'gatewayName' => ['label' => Plugin::t('Gateway')],
-            'paidStatus' => ['label' => Plugin::t('Paid Status')],
-            'couponCode' => ['label' => Plugin::t('Coupon Code')],
-            'itemTotal' => ['label' => Plugin::t('Item Total')],
-            'itemSubtotal' => ['label' => Plugin::t('Item Subtotal')],
+            'order' => ['label' => Craft::t('commerce', 'Order')],
+            'reference' => ['label' => Craft::t('commerce', 'Reference')],
+            'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
+            'number' => ['label' => Craft::t('commerce', 'Number')],
+            'id' => ['label' => Craft::t('commerce', 'ID')],
+            'orderStatus' => ['label' => Craft::t('commerce', 'Status')],
+            'totals' => ['label' => Craft::t('commerce', 'All Totals')],
+            'total' => ['label' => Craft::t('commerce', 'Total')],
+            'totalPrice' => ['label' => Craft::t('commerce', 'Total Price')],
+            'totalPaid' => ['label' => Craft::t('commerce', 'Total Paid')],
+            'totalDiscount' => ['label' => Craft::t('commerce', 'Total Discount')],
+            'totalShippingCost' => ['label' => Craft::t('commerce', 'Total Shipping')],
+            'totalTax' => ['label' => Craft::t('commerce', 'Total Tax')],
+            'totalIncludedTax' => ['label' => Craft::t('commerce', 'Total Included Tax')],
+            'dateOrdered' => ['label' => Craft::t('commerce', 'Date Ordered')],
+            'datePaid' => ['label' => Craft::t('commerce', 'Date Paid')],
+            'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
+            'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
+            'email' => ['label' => Craft::t('commerce', 'Email')],
+            'customer' => ['label' => Craft::t('commerce', 'Customer')],
+            'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
+            'shippingFirstName' => ['label' => Craft::t('commerce', 'Shipping First Name')],
+            'shippingLastName' => ['label' => Craft::t('commerce', 'Shipping Last Name')],
+            'billingFullName' => ['label' => Craft::t('commerce', 'Billing Full Name')],
+            'billingFirstName' => ['label' => Craft::t('commerce', 'Billing First Name')],
+            'billingLastName' => ['label' => Craft::t('commerce', 'Billing Last Name')],
+            'shippingBusinessName' => ['label' => Craft::t('commerce', 'Shipping Business Name')],
+            'billingBusinessName' => ['label' => Craft::t('commerce', 'Billing Business Name')],
+            'shippingMethodName' => ['label' => Craft::t('commerce', 'Shipping Method')],
+            'gatewayName' => ['label' => Craft::t('commerce', 'Gateway')],
+            'paidStatus' => ['label' => Craft::t('commerce', 'Paid Status')],
+            'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
+            'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
+            'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
         ];
     }
 
@@ -423,52 +438,106 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    {
+        /** @var OrderQuery $elementQuery */
+
+        switch ($attribute) {
+            case 'totals':
+            case 'total':
+            case 'totalPrice':
+            case 'totalDiscount':
+            case 'totalShippingCost':
+            case 'totalTax':
+            case 'totalIncludedTax':
+                $elementQuery->withAdjustments();
+                break;
+            case 'totalPaid':
+            case 'paidStatus':
+                $elementQuery->withTransactions();
+                break;
+            case 'shippingFullName':
+            case 'shippingFirstName':
+            case 'shippingLastName':
+            case 'billingFullName':
+            case 'billingFirstName':
+            case 'billingLastName':
+            case 'shippingBusinessName':
+            case 'billingBusinessName':
+            case 'shippingMethodName':
+                $elementQuery->withAddresses();
+                break;
+            case 'email':
+            case 'customer':
+                $elementQuery->withCustomer();
+                break;
+            case 'itemTotal':
+            case 'itemSubtotal':
+                $elementQuery->withLineItems();
+                break;
+            default:
+                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected static function defineSortOptions(): array
     {
         return [
-            'number' => Plugin::t('Number'),
-            'reference' => Plugin::t('Reference'),
-            'orderStatusId' => Plugin::t('Order Status'),
-            'totalPrice' => Plugin::t('Total Price'),
-            'totalPaid' => Plugin::t('Total Paid'),
+            'number' => Craft::t('commerce', 'Number'),
+            'reference' => Craft::t('commerce', 'Reference'),
+            'orderStatusId' => Craft::t('commerce', 'Order Status'),
+            'totalPrice' => Craft::t('commerce', 'Total Price'),
+            'totalPaid' => Craft::t('commerce', 'Total Paid'),
             [
-                'label' => Plugin::t('Shipping First Name'),
+                'label' => Craft::t('commerce', 'Shipping First Name'),
                 'orderBy' => 'shipping_address.firstName',
                 'attribute' => 'shippingFirstName',
             ],
             [
-                'label' => Plugin::t('Shipping Last Name'),
+                'label' => Craft::t('commerce', 'Shipping Last Name'),
                 'orderBy' => 'shipping_address.lastName',
                 'attribute' => 'shippingLastName',
             ],
             [
-                'label' => Plugin::t('Shipping Full Name'),
+                'label' => Craft::t('commerce', 'Shipping Full Name'),
                 'orderBy' => 'shipping_address.fullName',
                 'attribute' => 'shippingFullName',
             ],
             [
-                'label' => Plugin::t('Billing First Name'),
+                'label' => Craft::t('commerce', 'Billing First Name'),
                 'orderBy' => 'billing_address.firstName',
                 'attribute' => 'billingFirstName',
             ],
             [
-                'label' => Plugin::t('Billing Last Name'),
+                'label' => Craft::t('commerce', 'Billing Last Name'),
                 'orderBy' => 'billing_address.lastName',
                 'attribute' => 'billingLastName',
             ],
             [
-                'label' => Plugin::t('Billing Full Name'),
+                'label' => Craft::t('commerce', 'Billing Full Name'),
                 'orderBy' => 'billing_address.fullName',
                 'attribute' => 'billingFullName',
             ],
-            'dateOrdered' => Plugin::t('Date Ordered'),
             [
-                'label' => Plugin::t('Date Updated'),
-                'orderBy' => 'commerce_orders.dateUpdated',
-                'attribute' => 'dateUpdated'
+                'label' => Craft::t('commerce', 'Date Ordered'),
+                'orderBy' => 'dateOrdered',
+                'defaultDir' => 'desc',
             ],
-            'datePaid' => Plugin::t('Date Paid'),
-            'couponCode' => Plugin::t('Coupon Code'),
+            [
+                'label' => Craft::t('commerce', 'Date Updated'),
+                'orderBy' => 'commerce_orders.dateUpdated',
+                'attribute' => 'dateUpdated',
+                'defaultDir' => 'desc',
+            ],
+            [
+                'label' => Craft::t('commerce', 'Date Paid'),
+                'orderBy' => 'datePaid',
+                'defaultDir' => 'desc',
+            ],
+            'couponCode' => Craft::t('commerce', 'Coupon Code'),
             [
                 'label' => Craft::t('app', 'ID'),
                 'orderBy' => 'elements.id',
