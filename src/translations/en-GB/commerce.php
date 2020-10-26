@@ -117,7 +117,7 @@ return [
     'Enter weight' => 'Enter weight',
     'Exclude this discount for products that are already on sale' => 'Exclude this discount for products that are already on sale',
     'Expand' => 'Expand',
-    'Expiry Date' => 'Expiry Date',
+    'Expiry Date' => 'Expired',
     'Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition.' => 'Filtering conditions which describe to which orders this rule is applicable to. Write 0 to skip a condition.',
     'First Name' => 'First Name',
     'Free Shipping' => 'Free Shipping',
