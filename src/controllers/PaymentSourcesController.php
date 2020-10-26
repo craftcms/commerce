@@ -142,7 +142,7 @@ class PaymentSourcesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Payment source deleted.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Payment source deleted.'));
         } else {
             if ($request->getAcceptsJson()) {
                 return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));

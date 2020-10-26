@@ -19,8 +19,8 @@
                     <p>Description of the item here.</p>
                 </div>
                 <form method="post" class="js-form mt-6">
-                    <input type="hidden" name="action" value="commerce/cart/update-cart">
-                    <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
+                    {{ actionInput('commerce/cart/update-cart') }}
+                    {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
                         <select name="purchasableId"
