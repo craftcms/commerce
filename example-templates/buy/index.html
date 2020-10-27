@@ -63,7 +63,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
     {% endif  %}
     {% if showEmailInfo %}
         {{ cart.email }}
-        {% if not currentUser %}<a href="buy?step=1" class="text-blue block mt-5">Edit</a>{% endif %}
+        {% if not currentUser %}<a href="{{ url('buy?step=1') }}" class="text-blue block mt-5">Edit</a>{% endif %}
     {% endif %}
 
 </div>
@@ -141,7 +141,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
         {{ cart.shippingAddress.address2 ?? ''}}<br>
         {{ cart.shippingAddress.city ?? ''}}, {{ cart.shippingAddress.zipCode ?? ''}}<br>
         {{ cart.shippingAddress.stateValue ?? ''}} {{ cart.shippingAddress.countryText ?? ''}}<br>
-        <a href="buy?step=2" class="text-blue block mt-5">Edit</a>
+        <a href="{{ url('buy?step=2') }}" class="text-blue block mt-5">Edit</a>
     {% endif %}
 
 
