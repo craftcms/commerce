@@ -436,6 +436,12 @@ class Payments extends Component
             $transaction->order->markAsComplete();
         }
 
+        if ($this->hasEventHandlers(self::EVENT_AFTER_PAYMENT_TRANSACTION)) {
+            $this->trigger(self::EVENT_AFTER_PAYMENT_TRANSACTION, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
+
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $mutex->release($transactionLockName);
             $this->_handleRedirect($response, $redirect);
