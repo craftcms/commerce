@@ -62,6 +62,10 @@ class ProductsController extends BaseController
      */
     public function beforeAction($action): bool
     {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
         if (!in_array($action->id, $this->ignorePluginPermission)) {
             $this->requirePermission('accessPlugin-commerce');
         }
