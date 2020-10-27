@@ -54,17 +54,19 @@ class ProductsController extends BaseController
     {
         parent::init();
 
-        $actionSegs = Craft::$app->getRequest()->getActionSegments();
+        $this->requirePermission('commerce-manageProducts');
+    }
 
-        $actionName = $actionSegs[2] ?? null;
-
-        $requireAccessPluginCommerce = ($actionName !== null && in_array($actionName, $this->ignorePluginPermission)) ? false : true;
-
-        if ($requireAccessPluginCommerce === true) {
+    /**
+     * @inheritDoc
+     */
+    public function beforeAction($action): bool
+    {
+        if (!in_array($action->id, $this->ignorePluginPermission)) {
             $this->requirePermission('accessPlugin-commerce');
         }
 
-        $this->requirePermission('commerce-manageProducts');
+        return true;
     }
 
     /**
