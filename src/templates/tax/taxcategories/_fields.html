@@ -31,22 +31,15 @@
     errors: taxCategory is defined ? taxCategory.getErrors('description')
 }) }}
 
-{% set productTypeInputs %}
-    {% for productType in productTypes %}
-        {{ forms.checkboxField({
-            label: productType.name,
-            name: 'productTypes['~productType.id~']',
-            value: productType.id,
-            id: 'productType:'~productType.id,
-            checked: taxCategory is defined ? (productType.id in taxCategory.productTypeIds) : false,
-        }) }}
-    {% endfor %}
-{% endset %}
-
-{{ forms.field({
-    label: "Available to Product Types"|t('commerce'),
-    instructions: "Which product types should this category be available to?"|t('commerce')
-}, productTypeInputs) }}
+{{ forms.checkboxSelectField({
+  label: "Available to Product Types"|t('commerce'),
+  instructions: "Which product types should this category be available to?"|t('commerce'),
+  id: 'productTypes',
+  name: 'productTypes',
+  options: productTypesOptions,
+  values: taxCategory is defined ? taxCategory.productTypeIds : [],
+  showAllOption: false,
+}) }}
 
 {% set defaultInput %}
     {{ forms.checkboxField({
@@ -55,12 +48,16 @@
         name: 'default',
         value: 1,
         checked: taxCategory is defined ? taxCategory.default,
-        errors: taxCategory is defined ? taxCategory.getErrors('default')
+        errors: taxCategory is defined ? taxCategory.getErrors('default'),
+        disabled: isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory
     }) }}
+    {% if isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory %}
+      {{ hiddenInput('default', 1) }}
+    {% endif %}
 {% endset %}
 
 {{ forms.field({
-    label: "Default Category"|t('commerce')
+    label: "Default Category"|t('commerce'),
 }, defaultInput) }}
 
 {% if taxCategory is not defined or not taxCategory.handle %}

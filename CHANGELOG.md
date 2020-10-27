@@ -5,6 +5,7 @@
 ### Added
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
+- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 
 ### Changed
 - Add a line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
@@ -18,6 +19,7 @@
 - Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
 - Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission.
+- Fixed a bug where it was possible to delete the default tax category.
 
 ## 3.2.8.1 - 2020-10-15
 
