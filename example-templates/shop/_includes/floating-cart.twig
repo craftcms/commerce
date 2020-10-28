@@ -29,7 +29,7 @@
                     </div>
                 {% else %}
                     <div class="mb-3">
-                        <p>Nothing in your cart yet, <a class="underline text-blue-500" href="/shop/products">add something</a>.</p>
+                        <p>Nothing in your cart yet, <a class="underline text-blue-500" href="{{ url('shop/products') }}">add something</a>.</p>
                     </div>
                 {% endfor %}
               </div>
@@ -43,10 +43,10 @@
                   <div class="pt-2">
                     <div class="flex w-full justify-between">
                       <div>
-                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.grey }}" href="/shop/cart">View Cart</a>
+                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.grey }}" href=" {{ url('shop/cart') }}">View Cart</a>
                       </div>
                       <div>
-                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }}" href="/shop/checkout">Checkout</a>
+                        <a class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }}" href="{{ url('shop/checkout') }}">Checkout</a>
                       </div>
                     </div>
                   </div>
