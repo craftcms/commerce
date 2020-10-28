@@ -286,7 +286,6 @@ class DiscountsController extends BaseCpController
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discounts updated.'));
     }
 
-
     /**
      * @param array $variables
      */

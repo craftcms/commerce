@@ -5,9 +5,10 @@
 ### Added
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
+- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 
 ### Changed
-- Add line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
+- Add a line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
 - `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
 - A notice is displayed when editing an address that is a primary billing or shipping address for a customer. ([#1802](https://github.com/craftcms/commerce/issues/1802))
 
@@ -17,8 +18,9 @@
 ### Fixed
 - Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
 - Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
-- Fixed a bug where 'commerce/products/save-product', 'commerce/products/duplicate-product' and 'commerce/products/delete-product' actions require "Access Craft Commerce" permission.
 - Fixed some example templates commerce url by applying url() template function. ([#1808](https://github.com/craftcms/commerce/issues/1808))
+- Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
+- Fixed a bug where it was possible to delete the default tax category.
 
 ## 3.2.8.1 - 2020-10-15
 
