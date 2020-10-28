@@ -18,6 +18,7 @@
 ### Fixed
 - Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
 - Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
+- Fixed some example templates commerce url by applying url() template function. ([#1808](https://github.com/craftcms/commerce/issues/1808))
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
 - Fixed a bug where it was possible to delete the default tax category.
 
