@@ -28,10 +28,35 @@
         { name: 'type', title: Craft.t('app', 'Type') },
     ];
 
+    var actions = [
+        {
+            label: Craft.t('app', 'Set Status'),
+            actions: [
+                {
+                    label: Craft.t('app', 'Enabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('app', 'Disabled'),
+                    action: 'commerce/shipping-methods/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        }
+    ];
+
     new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
         columns: columns,
         container: '#shipping-vue-admin-table',
         deleteAction: 'commerce/shipping-methods/delete',
+        padded: true,
         tableData: {{ tableData|json_encode|raw }}
     });
 {% endjs %}

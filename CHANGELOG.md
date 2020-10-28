@@ -5,7 +5,8 @@
 ### Added
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
-- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change statuses right from the Shipping Methods index page.
 - Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`, `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`, `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS` and `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
 
 ### Changed
