@@ -67,6 +67,8 @@
   </div>
 </div>
 {% endif %}
+
+    {% hook 'cp.commerce.shippingMethods.edit.content' %}
 {% endblock %}
 
 {% set tableData = [] %}
