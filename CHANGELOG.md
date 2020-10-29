@@ -14,6 +14,7 @@
 - Added the ability to see a purchasable’s snaphsot data when adding to an order on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
 - Addresses now show whether they are the primary shipping or billing address for a customer on the Address edit page. ([#1802](https://github.com/craftcms/commerce/issues/1802))
 - Added `craft\commerce\elements\Order::$orderSiteId`.
+- Added the `cp.commerce.shippingMethods.edit.content` template hook. ([#1819](https://github.com/craftcms/commerce/pull/1819))
 - Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
 - Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
 - Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
