@@ -405,7 +405,13 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethodOptions', 'billingAddress', 'shippingAddress'];
+        $extraFields = [
+            'lineItems.snapshot',
+            'availableShippingMethodOptions',
+            'billingAddress',
+            'shippingAddress',
+            'orderSite',
+        ];
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
@@ -958,6 +964,9 @@ class OrdersController extends Controller
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
 
+        $orderSites = Craft::$app->getSites()->getAllSites();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(ArrayHelper::toArray($orderSites)) . ';', View::POS_BEGIN);
+
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
 
@@ -1059,6 +1068,7 @@ class OrdersController extends Controller
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
+        $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
