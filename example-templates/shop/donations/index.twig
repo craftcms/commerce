@@ -7,11 +7,11 @@
     {% set donation = craft.commerce.donation %}
     {% if donation and donation.isAvailable %}
         <form method="post" action="" class="pt-2 pb-8">
-            <input type="hidden" name="action" value="commerce/cart/update-cart">
-            <input type="hidden" name="cartUpdatedNotice" value="Donation added.">
+            {{ actionInput('commerce/cart/update-cart') }}
+            {{ hiddenInput('successMessage', 'Donation added.'|hash) }}
             {{ redirectInput('shop/cart') }}
+            {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
             {{ csrfInput() }}
-            <input type="hidden" name="purchasableId" value="{{ craft.commerce.donation.id }}">
 
             <div>
                 <label for="donation-amount">Enter a donation amount e.g. 10, 15, 20</label>

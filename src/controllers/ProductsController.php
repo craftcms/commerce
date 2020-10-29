@@ -40,15 +40,37 @@ use yii\web\ServerErrorHttpException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class ProductsController extends BaseCpController
+class ProductsController extends BaseController
 {
+    /**
+     * @var string[] The action names that bypass the "Access Craft Commerce" permission.
+     */
+    protected $ignorePluginPermission = ['save-product', 'duplicate-product', 'delete-product'];
+
     /**
      * @inheritdoc
      */
     public function init()
     {
         parent::init();
+
         $this->requirePermission('commerce-manageProducts');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function beforeAction($action): bool
+    {
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
+        if (!in_array($action->id, $this->ignorePluginPermission)) {
+            $this->requirePermission('accessPlugin-commerce');
+        }
+
+        return true;
     }
 
     /**

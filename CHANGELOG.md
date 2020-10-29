@@ -1,5 +1,42 @@
 # Release Notes for Craft Commerce
 
+## 3.2.9 - 2020-10-29
+
+### Added
+- Added the ability to track which site an order was placed from.
+- Added the “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Added the “Order Site” column to the Orders index page.
+- Added the ability to retry failed order status emails. ([#1397](https://github.com/craftcms/commerce/issues/1379))
+- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default shipping category right from the Shipping Categories index page.
+- Added the ability to update a shipping method’s status right from the Shipping Methods index page.
+- All front-end success/fail flash messages are now customizable by passing hashed `successMessage`/`failMessage` params with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
+- It’s now possible to see purchasables’ snaphsot data when adding line items to an order from the Edit Order page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
+- Addresses now show whether they are the primary shipping/billing address for a customer on the Edit Address page. ([#1802](https://github.com/craftcms/commerce/issues/1802))
+- Added the `cp.commerce.shippingMethods.edit.content` hook to the `shipping/shippingmethods/_edit.html` template. ([#1819](https://github.com/craftcms/commerce/pull/1819))
+- Added `craft\commerce\elements\Order::$orderSiteId`.
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+- Added `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+
+### Changed
+- `salePrice` is now included when calling a purchasable’s `toArray()` method. ([#1793](https://github.com/craftcms/commerce/issues/1793))
+
+### Deprecated
+- Deprecated support for passing a `cartUpdatedNotice` param to the `commerce/cart/update-cart` action. A hashed `successMessage` param should be passed instead.
+
+### Fixed
+- Fixed a bug where changing the customer of an order could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+- Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
+- Fixed formatting of URLs in the example templates. ([#1808](https://github.com/craftcms/commerce/issues/1808))
+- Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions required the “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
+- Fixed a bug where it was possible to delete the default tax category.
+- Fixed a bug where it was possible to delete the default shipping category.
+- Restored the missing `craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
+
 ## 3.2.8.1 - 2020-10-15
 
 ### Fixed
@@ -24,10 +61,10 @@
 - Fixed a bug where the store location address had its `isStoreLocation` property set to `false`. ([#1773](https://github.com/craftcms/commerce/issues/1773))
 - Fixed a bug where the Template setting for product types wasn’t showing autosuggestions.
 - Fixed a bug where disabled variants weren’t getting deleted along with their products. ([#1772](https://github.com/craftcms/commerce/issues/1772))
-- Fixed a bug where incomplete carts weren’t getting updated when their selected payment gateway was disabled. ([#1531](https://github.com/craftcms/commerce/issues/1531)) 
+- Fixed a bug where incomplete carts weren’t getting updated when their selected payment gateway was disabled. ([#1531](https://github.com/craftcms/commerce/issues/1531))
 - Fixed a bug where the incorrect confirmation message was shown when deleting a subscription plan.
 - Fixed a PHP error that occurred when a subscription plan and gateway had been deleted. ([#1667](https://github.com/craftcms/commerce/issues/1667))
-- Fixed a bug where address changes weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))  
+- Fixed a bug where address changes weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))
 - Fixed a SQL error that could occur when saving a product, if it was disabled and missing required field values. ([#1764](https://github.com/craftcms/commerce/issues/1764))
 - Fixed a bug where it was possible to change the primary currency after completed orders had been placed. ([#1777](https://github.com/craftcms/commerce/issues/1777))
 - Fixed a JavaScript error that occurred on the payment page of the example templates.

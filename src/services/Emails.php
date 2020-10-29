@@ -405,14 +405,16 @@ class Emails extends Component
      * @param Order $order
      * @param OrderHistory $orderHistory
      * @param array $orderData Since the order may have changed by the time the email sends.
+     * @param string $error The reason this method failed.
      * @return bool $result
      * @throws Exception
      * @throws Throwable
      * @throws \yii\base\InvalidConfigException
      */
-    public function sendEmail($email, $order, $orderHistory = null, $orderData = null): bool
+    public function sendEmail($email, $order, $orderHistory = null, $orderData = null, &$error = ''): bool
     {
         if (!$email->enabled) {
+            $error = Craft::t('commerce', 'Email is not enabled.');
             return false;
         }
 

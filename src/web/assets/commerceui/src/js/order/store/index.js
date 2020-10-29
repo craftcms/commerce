@@ -142,6 +142,10 @@ export default new Vuex.Store({
             return window.orderEdit.orderStatuses
         },
 
+        orderSites() {
+            return window.orderEdit.orderSites
+        },
+
         getErrors(state) {
             return (errorKey) => {
                 if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {

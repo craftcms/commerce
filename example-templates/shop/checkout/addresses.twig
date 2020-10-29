@@ -11,7 +11,7 @@
             <div class="mt-6">
 
               <form method="post" action="">
-                  <input type="hidden" name="action" value="commerce/cart/update-cart">
+                  {{ actionInput('commerce/cart/update-cart') }}
                   {{ redirectInput('shop/checkout/shipping') }}
                   {{ csrfInput() }}
 
@@ -29,7 +29,7 @@
                       name: 'shippingAddress'
                   } %}
 
-                  <input type="hidden" name="billingAddressSameAsShipping" value="0">
+                  {{ hiddenInput('billingAddressSameAsShipping', 0) }}
 
                   <div class="mt-3">
                     <label for="billingAddressSameAsShipping">

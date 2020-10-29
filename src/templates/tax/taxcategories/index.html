@@ -36,7 +36,7 @@
         taxRates: taxRates,
         default: taxCategory.default ? true : false,
 
-        _showDelete: not taxCategory.taxRates|length
+        _showDelete: not taxCategory.taxRates|length and (taxCategories|length > 1 and not taxCategory.default)
     }]) %}
 {% endfor %}
 
@@ -70,8 +70,27 @@
         },
     ];
 
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set Default Category'),
+                    action: 'commerce/tax-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
     new Craft.VueAdminTable({
         columns: columns,
+        checkboxes: true,
+        actions: actions,
+        padded: true,
         container: '#tax-vue-admin-table',
         deleteAction: {{ craft.commerce.taxes.deleteTaxCategories() ? 'commerce/tax-categories/delete'|json_encode|raw : 'null' }},
         tableData: {{ tableData|json_encode|raw }},
