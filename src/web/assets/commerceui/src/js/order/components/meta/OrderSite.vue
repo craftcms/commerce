@@ -2,7 +2,7 @@
     <div>
         <div>
             <a class="btn menubtn" ref="orderSite">
-                {{orderSite.name}}
+                {{orderSite.name}} ({{orderSite.language}})
             </a>
 
             <div class="menu">
@@ -12,7 +12,7 @@
                                 :data-id="site.id"
                                 :data-name="site.name"
                                 :class="{sel: orderSite.id === site.value}">
-                            {{site.name}}
+                            {{site.name}} ({{site.language}})
                         </a>
                     </li>
                 </ul>
