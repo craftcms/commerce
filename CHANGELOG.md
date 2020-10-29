@@ -3,18 +3,17 @@
 ## Unreleased
 
 ### Added
-- Added the ability to track which site an order was place from.
+- Added the ability to track which site an order was placed from.
+- Added the “ID” and “Order Site” columns to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - Added the ability to retry failed order status emails. ([#1397](https://github.com/craftcms/commerce/issues/1379))
 - Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 - Added the ability to change the default shipping category right from the Shipping Categories index page.
 - Added the ability to update a shipping method’s status right from the Shipping Methods index page.
-- Added the “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
-- Added the “Order Site” column to the Orders index page.
-- All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
-- Added the ability to see a purchasable’s snaphsot data when adding to an order on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
-- Addresses now show whether they are the primary shipping or billing address for a customer on the Address edit page. ([#1802](https://github.com/craftcms/commerce/issues/1802))
+- All front-end success/fail flash messages are now customizable by passing hashed `successMessage`/`failMessage` params with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
+- It’s now possible to see purchasables’ snaphsot data when adding line items to an order from the Edit Order page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
+- Addresses now show whether they are the primary shipping/billing address for a customer on the Edit Address page. ([#1802](https://github.com/craftcms/commerce/issues/1802))
+- Added the `cp.commerce.shippingMethods.edit.content` hook to the `shipping/shippingmethods/_edit.html` template. ([#1819](https://github.com/craftcms/commerce/pull/1819))
 - Added `craft\commerce\elements\Order::$orderSiteId`.
-- Added the `cp.commerce.shippingMethods.edit.content` template hook. ([#1819](https://github.com/craftcms/commerce/pull/1819))
 - Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
 - Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
 - Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
@@ -23,19 +22,19 @@
 - Added `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
 
 ### Changed
-- `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
+- `salePrice` is now included when calling a purchasable’s `toArray()` method. ([#1793](https://github.com/craftcms/commerce/issues/1793))
 
 ### Deprecated
-- Deprecated the use of the `cartUpdatedNotice` parameter passed to the `commerce/cart/update-cart` action. Use the standard `successMessage` parameter instead.
+- Deprecated support for passing a `cartUpdatedNotice` param to the `commerce/cart/update-cart` action. A hashed `successMessage` param should be passed instead.
 
 ### Fixed
 - Fixed a bug where changing the customer of an order could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
-- Fixed a bug where cached discounts were not getting updated when a discount is saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
+- Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
 - Fixed formatting of URLs in the example templates. ([#1808](https://github.com/craftcms/commerce/issues/1808))
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions required the “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
 - Fixed a bug where it was possible to delete the default tax category.
 - Fixed a bug where it was possible to delete the default shipping category.
-- Restored the missing `\craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
+- Restored the missing `craft\commerce\services\Payments::EVENT_AFTER_PROCESS_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
 
 ## 3.2.8.1 - 2020-10-15
 
