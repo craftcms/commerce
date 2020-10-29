@@ -4,6 +4,7 @@
 
 ### Added
 - Added the ability to track which site an order was place from.
+- Order status emails that failed to send can now be retried from the queue. ([#1397](https://github.com/craftcms/commerce/issues/1379))
 - Added a “Order Site” column to the Order index page.
 - Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 - Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))

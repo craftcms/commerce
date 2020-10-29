@@ -585,17 +585,20 @@ class OrdersController extends Controller
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
-        if ($email === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find email'));
+        if ($email === null || !$email->enabled) {
+            return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         if ($order === null) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
         }
 
+        $orderData = $order->toArray();
+
         $success = true;
+        $error = '';
         try {
-            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
+            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, null, $orderData, $error)) {
                 $success = false;
             }
         } catch (\Exception $exception) {
@@ -603,7 +606,8 @@ class OrdersController extends Controller
         }
 
         if (!$success) {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not send email'));
+            $error = $error ?: Craft::t('commerce', 'Could not send email');
+            return $this->asErrorJson($error);
         }
 
         return $this->asJson(['success' => true]);
