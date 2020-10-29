@@ -39,7 +39,8 @@ use yii\base\Component;
 class Payments extends Component
 {
     /**
-     * @event TransactionEvent The event that is triggered after a payment transaction is made.
+     * @event TransactionEvent The event that is triggered when a complete-payment request is made.
+     * After this event, the customer will be redirected offsite or be redirected to the order success returnUrl.
      *
      * ```php
      * use craft\commerce\events\TransactionEvent;
@@ -49,7 +50,7 @@ class Payments extends Component
      *
      * Event::on(
      *     Payments::class,
-     *     Payments::EVENT_AFTER_PAYMENT_TRANSACTION,
+     *     Payments::EVENT_AFTER_COMPLETE_PAYMENT,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
@@ -61,7 +62,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_PAYMENT_TRANSACTION = 'afterPaymentTransaction';
+    const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
 
     /**
      * @event TransactionEvent The event that is triggered before a payment transaction is captured.
@@ -436,8 +437,8 @@ class Payments extends Component
             $transaction->order->markAsComplete();
         }
 
-        if ($this->hasEventHandlers(self::EVENT_AFTER_PAYMENT_TRANSACTION)) {
-            $this->trigger(self::EVENT_AFTER_PAYMENT_TRANSACTION, new TransactionEvent([
+        if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
+            $this->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, new TransactionEvent([
                 'transaction' => $transaction
             ]));
         }
@@ -536,7 +537,7 @@ class Payments extends Component
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
-        // redirect to off-site gateway
+        // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
             $redirect = $response->getRedirectUrl();
         } else {
@@ -572,6 +573,7 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
+            // Let the gateways response redirect us
             $response->redirect();
         }
 
