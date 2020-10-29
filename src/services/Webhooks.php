@@ -42,6 +42,7 @@ class Webhooks extends Component
      *     }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_BEFORE_PROCESS_WEBHOOK = 'beforeProcessWebhook';
 
@@ -64,6 +65,7 @@ class Webhooks extends Component
      *     }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 
@@ -116,6 +118,7 @@ class Webhooks extends Component
         // Fire a 'afterProcessWebhook' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_PROCESS_WEBHOOK)) {
             $this->trigger(self::EVENT_AFTER_PROCESS_WEBHOOK, new WebhookEvent([
+                'gateway' => $gateway,
                 'response' => $response
             ]));
         }

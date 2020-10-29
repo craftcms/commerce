@@ -15,7 +15,7 @@ use yii\web\Response;
  * Class WebhookEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.2
+ * @since 3.x
  */
 class WebhookEvent extends Event
 {
