@@ -4,7 +4,8 @@
 
 ### Added
 - Added the ability to track which site an order was placed from.
-- Added the “ID” and “Order Site” columns to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Added the “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Added the “Order Site” column to the Orders index page.
 - Added the ability to retry failed order status emails. ([#1397](https://github.com/craftcms/commerce/issues/1379))
 - Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 - Added the ability to change the default shipping category right from the Shipping Categories index page.
