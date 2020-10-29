@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.9 - 2020-10-29
 
 ### Added
 - Added the ability to track which site an order was placed from.
