@@ -24,6 +24,7 @@
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
 - Fixed a bug where it was possible to delete the default tax category.
 - Fixed a bug where it was possible to delete the default shipping category.
+- Restored the removed `\craft\commerce\services\Payments::EVENT_AFTER_COMPLETE_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
 
 ## 3.2.8.1 - 2020-10-15
 
