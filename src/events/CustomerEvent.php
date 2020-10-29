@@ -14,7 +14,7 @@ use yii\base\Event;
  * Class CustomerEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.9
  */
 class CustomerEvent extends Event
 {

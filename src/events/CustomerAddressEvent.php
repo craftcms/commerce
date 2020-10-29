@@ -15,7 +15,7 @@ use yii\base\Event;
  * Class CustomerAddressEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.9
  */
 class CustomerAddressEvent extends Event
 {
@@ -23,7 +23,7 @@ class CustomerAddressEvent extends Event
      * @var Address The address model
      */
     public $address;
-    
+
     /**
      * @var Customer
      */

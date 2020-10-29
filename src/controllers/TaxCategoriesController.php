@@ -156,7 +156,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.2.9
      */
     public function actionSetDefaultCategory()
     {

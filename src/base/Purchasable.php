@@ -69,7 +69,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @inheritdoc
-     * @since 3.x
+     * @since 3.2.9
      */
     public function fields()
     {

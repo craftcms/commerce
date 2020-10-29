@@ -3057,7 +3057,7 @@ class Order extends Element
      * Get the site for the order.
      *
      * @return Site|null
-     * @since 3.x
+     * @since 3.2.9
      */
     public function getOrderSite()
     {

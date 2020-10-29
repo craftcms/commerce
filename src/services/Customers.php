@@ -58,6 +58,7 @@ class Customers extends Component
 
     /**
      * @event CustomerEvent The event that is triggered before customer details is saved.
+     * @since 3.2.9
      *
      * ```php
      * Event::on(
@@ -69,12 +70,12 @@ class Customers extends Component
      *     }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
 
     /**
      * @event CustomerEvent The event that is triggered after customer details is saved.
+     * @since 3.2.9
      *
      * ```php
      * Event::on(
@@ -86,12 +87,12 @@ class Customers extends Component
      *     }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
 
     /**
      * @event CustomerAddressEvent The event that is triggered before customer address is saved.
+     * @since 3.2.9
      *
      * ```php
      * Event::on(
@@ -106,12 +107,12 @@ class Customers extends Component
      *      }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
 
     /**
      * @event CustomerAddressEvent The event that is triggered after customer address is successfully saved.
+     * @since 3.2.9
      *
      * ```php
      * Event::on(
@@ -126,7 +127,6 @@ class Customers extends Component
      *      }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
 
