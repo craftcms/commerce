@@ -27,7 +27,7 @@
             {% if cart.availableShippingMethodOptions|length %}
               <div class="mt-3">
                 <form method="post">
-                  <input type="hidden" name="action" value="commerce/cart/update-cart">
+                  {{ actionInput('commerce/cart/update-cart') }}
                   {{ redirectInput('shop/checkout/payment-method') }}
                   {{ csrfInput() }}
 

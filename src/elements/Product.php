@@ -15,6 +15,7 @@ use craft\commerce\elements\actions\CreateDiscount;
 use craft\commerce\elements\actions\CreateSale;
 use craft\commerce\elements\db\ProductQuery;
 use craft\commerce\helpers\Product as ProductHelper;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\models\TaxCategory;
@@ -26,7 +27,6 @@ use craft\elements\actions\Delete;
 use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
-use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
@@ -62,7 +62,6 @@ class Product extends Element
     const STATUS_LIVE = 'live';
     const STATUS_PENDING = 'pending';
     const STATUS_EXPIRED = 'expired';
-
 
     /**
      * @var DateTime Post date
@@ -718,13 +717,14 @@ class Product extends Element
             $record->taxCategoryId = $this->taxCategoryId;
             $record->shippingCategoryId = $this->shippingCategoryId;
 
-            $record->defaultVariantId = $this->getDefaultVariant()->id ?? null;
-            $record->defaultSku = $this->getDefaultVariant()->sku ?? '';
-            $record->defaultPrice = $this->getDefaultVariant()->price ?? 0;
-            $record->defaultHeight = $this->getDefaultVariant()->height ?? 0;
-            $record->defaultLength = $this->getDefaultVariant()->length ?? 0;
-            $record->defaultWidth = $this->getDefaultVariant()->width ?? 0;
-            $record->defaultWeight = $this->getDefaultVariant()->weight ?? 0;
+            $defaultVariant = $this->getDefaultVariant();
+            $record->defaultVariantId = $defaultVariant->id ?? null;
+            $record->defaultSku = $defaultVariant->skuAsText ?? '';
+            $record->defaultPrice = $defaultVariant->price ?? 0;
+            $record->defaultHeight = $defaultVariant->height ?? 0;
+            $record->defaultLength = $defaultVariant->length ?? 0;
+            $record->defaultWidth = $defaultVariant->width ?? 0;
+            $record->defaultWeight = $defaultVariant->weight ?? 0;
 
             // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
             $record->dateUpdated = $this->dateUpdated;
@@ -833,6 +833,7 @@ class Product extends Element
     {
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
+            ->anyStatus()
             ->all();
 
         $elementsService = Craft::$app->getElements();
@@ -1110,6 +1111,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
+            'id' => ['label' => Craft::t('commerce', 'ID')],
             'title' => ['label' => Craft::t('commerce', 'Title')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -1131,7 +1133,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce','Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')]
         ];
     }
 
@@ -1241,7 +1243,10 @@ class Product extends Element
             {
                 return ($productType ? Craft::t('site', $productType->name) : '');
             }
-
+            case 'defaultSku':
+            {
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+            }
             case 'taxCategory':
             {
                 $taxCategory = $this->getTaxCategory();

@@ -78,6 +78,11 @@
                         if (value) {
                             return '<span data-icon="check" title=""></span>'
                         }
+                    } },
+                    { name: '__slot:detail', title: '', titleClass: 'thin', callback: function(value) {
+                        if (value && (Object.keys(value).length || value.length)) {
+                            return '<textarea>' + value + '</textarea>';
+                        }
                     } }
                 ],
             }

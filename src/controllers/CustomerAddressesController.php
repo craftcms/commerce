@@ -133,7 +133,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
 
             $this->redirectToPostedUrl();
         } else {
@@ -208,7 +208,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 return $this->asJson(['success' => true]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address removed.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Address removed.'));
             return $this->redirectToPostedUrl();
         } else {
             $error = Craft::t('commerce', 'Could not delete address.');

@@ -87,7 +87,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
             var $rightWrapper = $('<div class="right"/>').appendTo($footer);
             var $mainBtnGroup = $('<div class="btngroup"/>').appendTo($rightWrapper);
             this.$cancelBtn = $('<input type="button" class="btn" value="' + Craft.t('commerce', 'Cancel') + '"/>').appendTo($mainBtnGroup);
-            this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Save') + '"/>').appendTo($mainBtnGroup);
+            this.$saveBtn = $('<input type="button" class="btn submit" value="' + Craft.t('commerce', 'Add') + '"/>').appendTo($mainBtnGroup);
             this.$spinner = $('<div class="spinner hidden" />').appendTo($rightWrapper);
 
             this.$saveBtn.addClass('disabled');

@@ -69,13 +69,25 @@ abstract class Purchasable extends Element implements PurchasableInterface
 
     /**
      * @inheritdoc
+     * @since 3.x
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+
+        $fields['salePrice'] = 'salePrice';
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
      */
     public function extraFields()
     {
         $names = parent::extraFields();
+
         $names[] = 'description';
         $names[] = 'purchasableId';
-        $names[] = 'salePrice';
         $names[] = 'sales';
         $names[] = 'snapshot';
         return $names;

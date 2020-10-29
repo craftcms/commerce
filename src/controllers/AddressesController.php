@@ -64,6 +64,7 @@ class AddressesController extends BaseCpController
             ->where(['addressId' => $variables['address']->id])
             ->scalar();
 
+        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
         $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '');
 
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
@@ -247,7 +248,7 @@ class AddressesController extends BaseCpController
             /** @var AddressModel $row */
             $rows[] = [
                 'id' => $row->id,
-                'title' => $row->address1,
+                'title' => $row->address1 ?: Craft::t('commerce', 'No Address Line 1'),
                 'zipCode' => $row->zipCode,
                 'billing' => ($row->id == $customer->primaryBillingAddressId),
                 'shipping' => ($row->id == $customer->primaryShippingAddressId),

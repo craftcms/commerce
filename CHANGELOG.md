@@ -3,18 +3,70 @@
 ## Unreleased
 
 ### Added
-- Added the ability to specify which site and order was placed on.
+- Added the ability to track which site an order was place from.
 - Added a “Order Site” column to the Order index page.
-- Added a “Variants” column to the Product index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
-- Added `Order::$orderSiteId`.
+- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default shipping category right from the Shipping Categories index page.
+- Added the ability to change statuses right from the Shipping Methods index page.
+- Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
+- Added `craft\commerce\elements\Order::$orderSiteId`.
+- Added `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+- Added `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
 
 ### Changed
+- Add a line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
+- `salePrice` is now returned when calling `toArray()` on a purchasable. ([#1793](https://github.com/craftcms/commerce/issues/1793))
+- A notice is displayed when editing an address that is a primary billing or shipping address for a customer. ([#1802](https://github.com/craftcms/commerce/issues/1802))
+
+### Deprecated
+- Deprecated the use of the `cartUpdatedNotice` parameter passed to the `commerce/cart/update-cart` action. Use the standard `successMessage` parameter instead.
+
+### Fixed
+- Fixed a bug where changing a customer could result in an “Address does not belong to customer” error. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+- Fixed a bug where cached discounts were not getting updated when a discount was saved or deleted. ([#1813](https://github.com/craftcms/commerce/pull/1813))
+- Fixed some example templates commerce url by applying url() template function. ([#1808](https://github.com/craftcms/commerce/issues/1808))
+- Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
+- Fixed a bug where it was possible to delete the default tax category.
+- Fixed a bug where it was possible to delete the default shipping category.
+- Restored the removed `\craft\commerce\services\Payments::EVENT_AFTER_COMPLETE_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
+
+## 3.2.8.1 - 2020-10-15
+
+### Fixed
+- Fixed a PHP error that occurred when duplicating a product. ([#1783](https://github.com/craftcms/commerce/issues/1783))
+
+## 3.2.8 - 2020-10-13
+
+### Added
+- Added a “Variants” column to the Products index page. ([#1765](https://github.com/craftcms/commerce/issues/1765))
+- Added the `commerce/reset-data` command. ([#581](https://github.com/craftcms/commerce/issues/581))
+- Added `craft\commerce\console\controlllers\ResetData`.
+- Added `craft\commerce\elements\Variants::getSkuAsText()`.
+- Added `craft\commerce\helpers\Purchasable`.
+- Added `craft\commerce\services\PaymentSources::getAllPaymentSourcesByGatewayId()`.
+
+### Changed
+- Coupon codes are no longer case-sensitive. ([#1763](https://github.com/craftcms/commerce/issues/1763))
 - Disabled the browser autosuggest list when searching for a customer on the Edit Order page. ([#1752](https://github.com/craftcms/commerce/issues/1752))
 
 ### Fixed
-- Fixed a PHP error that occurred when programmatically changing an order's history in a queue job.
-- Fixed a bug where the store location address had it‘s `isStoreLocation` property set to `false`. ([#1773](https://github.com/craftcms/commerce/issues/1773))
-- Fixed a bug where template suggestions weren’t showing on the product type template field.
+- Fixed a PHP error that occurred when an order’s history was changed via a queue job.
+- Fixed a bug where the store location address had its `isStoreLocation` property set to `false`. ([#1773](https://github.com/craftcms/commerce/issues/1773))
+- Fixed a bug where the Template setting for product types wasn’t showing autosuggestions.
+- Fixed a bug where disabled variants weren’t getting deleted along with their products. ([#1772](https://github.com/craftcms/commerce/issues/1772))
+- Fixed a bug where incomplete carts weren’t getting updated when their selected payment gateway was disabled. ([#1531](https://github.com/craftcms/commerce/issues/1531)) 
+- Fixed a bug where the incorrect confirmation message was shown when deleting a subscription plan.
+- Fixed a PHP error that occurred when a subscription plan and gateway had been deleted. ([#1667](https://github.com/craftcms/commerce/issues/1667))
+- Fixed a bug where address changes weren’t persisting on the Edit Order page. ([#1766](https://github.com/craftcms/commerce/issues/1766))  
+- Fixed a SQL error that could occur when saving a product, if it was disabled and missing required field values. ([#1764](https://github.com/craftcms/commerce/issues/1764))
+- Fixed a bug where it was possible to change the primary currency after completed orders had been placed. ([#1777](https://github.com/craftcms/commerce/issues/1777))
+- Fixed a JavaScript error that occurred on the payment page of the example templates.
 
 ## 3.2.7 - 2020-09-24
 

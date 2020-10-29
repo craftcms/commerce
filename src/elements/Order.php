@@ -2060,9 +2060,29 @@ class Order extends Element
             if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
+            $previousCustomerId = $this->customerId;
 
             $this->_customer = $customer;
             $this->customerId = $customer->id;
+
+            // If the customer is changing then we should be resetting the association with the addresses on the cart
+            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousCustomerId) {
+                if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
+                    $shippingAddress->id = null;
+                    $this->setShippingAddress($shippingAddress);
+                }
+
+                if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
+                    $billingAddress->id = null;
+                    $this->setBillingAddress($billingAddress);
+                }
+
+                $this->estimatedBillingAddressId = null;
+                $this->_estimatedBillingAddress = null;
+
+                $this->estimatedShippingAddressId = null;
+                $this->_estimatedShippingAddress = null;
+            }
         } else {
             $this->_customer = null;
             $this->customerId = null;
@@ -2871,7 +2891,9 @@ class Order extends Element
                 $gateway = Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
             }
         } else {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
+            if ($this->gatewayId) {
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
+            }
         }
 
         return $gateway;

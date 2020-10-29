@@ -186,6 +186,7 @@
                 }
 
                 let addressToCopy = (destinationAddress == 'shipping') ? this.draft.order.billingAddress : this.draft.order.shippingAddress;
+                addressToCopy['id'] = 'new';
 
                 this.updateAddress(destinationAddress, addressToCopy);
             },
@@ -243,6 +244,7 @@
                             billingPromise = this.getAddressById(customer.primaryBillingAddressId)
                                 .then((address) => {
                                     if (address) {
+                                        address['id'] = 'new';
                                         $this.updateAddress('billing', address, false);
                                     }
                                 });
@@ -253,6 +255,7 @@
                             shippingPromise = this.getAddressById(customer.primaryShippingAddressId)
                                 .then((address) => {
                                     if (address) {
+                                        address['id'] = 'new';
                                         $this.updateAddress('shipping', address, false);
                                     }
                                 });

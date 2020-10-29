@@ -268,7 +268,7 @@ class DiscountsController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t updated discounts status.'));
+            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -285,7 +285,6 @@ class DiscountsController extends BaseCpController
 
         Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discounts updated.'));
     }
-
 
     /**
      * @param array $variables

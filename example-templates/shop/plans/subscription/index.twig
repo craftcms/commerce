@@ -37,8 +37,8 @@
             <dt class="w-1/2 pr-2"></dt>
             <dd class="w-1/2">
               <form method="post" action="">
-                <input type="hidden" name="action" value="commerce/subscriptions/reactivate">
-                <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
+                {{ actionInput('commerce/subscriptions/reactivate') }}
+                {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
                 {{ redirectInput('shop/plans') }}
                 {{ csrfInput() }}
 
@@ -54,8 +54,8 @@
           <dt class="w-1/2 pr-2">&nbsp;</dt>
           <dd class="pt-2">
             <form method="post" action="">
-              <input type="hidden" name="action" value="commerce/subscriptions/cancel">
-              <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}"/>
+              {{ actionInput('commerce/subscriptions/cancel') }}
+              {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
               {{ redirectInput('shop/plans') }}
               {{ csrfInput() }}
 
@@ -84,9 +84,9 @@
               <td class="p-2">{{ plan.name }}</td>
               <td class="p-2">
                 <form method="post" action="">
-                  <input type="hidden" name="action" value="commerce/subscriptions/switch">
-                  <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
-                  <input type="hidden" name="subscriptionUid" value="{{ subscription.uid|hash }}">
+                  {{ actionInput('commerce/subscriptions/switch') }}
+                  {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
+                  {{ hiddenInput('planUid', plan.uid|hash) }}
                   {{ redirectInput('shop/plans') }}
                   {{ csrfInput() }}
 
