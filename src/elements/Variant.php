@@ -702,6 +702,16 @@ class Variant extends Purchasable
     }
 
     /**
+     * @param float $salePrice
+     * @return void
+     */
+    public function setSalePrice(float $salePrice)
+    {
+        $this->_sales     = [];
+        $this->_salePrice = $salePrice;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getTaxCategoryId(): int
