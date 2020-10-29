@@ -18,7 +18,9 @@
         url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
         handle: shippingCategory.handle|e,
         description: shippingCategory.description|t('site')|e,
-        default: shippingCategory.default,
+        default: shippingCategory.default ? true : false,
+
+        _showDelete: (shippingCategories|length > 1 and not shippingCategory.default)
     }]) %}
 {% endfor %}
 
@@ -38,10 +40,29 @@
         },
     ];
 
+    var actions = [
+        {
+            label: '',
+            icon: 'settings',
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Set Default Category'),
+                    action: 'commerce/shipping-categories/set-default-category',
+                    param: 'default',
+                    value: 1,
+                    allowMultiple: false
+                }
+            ]
+        }
+    ];
+
     new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
         columns: columns,
         container: '#shipping-vue-admin-table',
         deleteAction: 'commerce/shipping-categories/delete',
+        padded: true,
         tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}

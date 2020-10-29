@@ -31,22 +31,15 @@
     errors: shippingCategory is defined ? shippingCategory.getErrors('description')
 }) }}
 
-{% set productTypeInputs %}
-    {% for productType in productTypes %}
-        {{ forms.checkboxField({
-            label: productType.name,
-            name: 'productTypes['~productType.id~']',
-            value: productType.id,
-            id: 'productType:'~productType.id,
-            checked: shippingCategory is defined ? (productType.id in shippingCategory.productTypeIds) : false,
-        }) }}
-    {% endfor %}
-{% endset %}
-
-{{ forms.field({
-    label: "Available to Product Types"|t('commerce'),
-    instructions: "Which product types should this category be available to?"|t('commerce')
-}, productTypeInputs) }}
+{{ forms.checkboxSelectField({
+  label: "Available to Product Types"|t('commerce'),
+  instructions: "Which product types should this category be available to?"|t('commerce'),
+  id: 'productTypes',
+  name: 'productTypes',
+  options: productTypesOptions,
+  values: shippingCategory is defined ? shippingCategory.productTypeIds : [],
+  showAllOption: false,
+}) }}
 
 {% set defaultInput %}
     {{ forms.checkboxField({
@@ -55,8 +48,12 @@
         name: 'default',
         value: 1,
         checked: shippingCategory is defined ? shippingCategory.default,
-        errors: shippingCategory is defined ? shippingCategory.getErrors('default')
+        errors: shippingCategory is defined ? shippingCategory.getErrors('default'),
+        disabled: (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (shippingCategory.id and shippingCategory.default)
     }) }}
+    {% if (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (shippingCategory.id and shippingCategory.default) %}
+      {{ hiddenInput('default', 1) }}
+    {% endif %}
 {% endset %}
 
 {{ forms.field({
