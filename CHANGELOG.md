@@ -3,9 +3,12 @@
 ## Unreleased
 
 ### Added
+- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default shipping category right from the Shipping Categories index page.
+- Added the ability to change statuses right from the Shipping Methods index page.
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
-- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
 - Added `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK` and `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
 
 ### Changed
@@ -22,6 +25,7 @@
 - Fixed some example templates commerce url by applying url() template function. ([#1808](https://github.com/craftcms/commerce/issues/1808))
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
 - Fixed a bug where it was possible to delete the default tax category.
+- Fixed a bug where it was possible to delete the default shipping category.
 
 ## 3.2.8.1 - 2020-10-15
 
