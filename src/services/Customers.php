@@ -69,6 +69,7 @@ class Customers extends Component
      *     }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
 
@@ -85,6 +86,7 @@ class Customers extends Component
      *     }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
 
@@ -104,6 +106,7 @@ class Customers extends Component
      *      }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
 
@@ -123,6 +126,7 @@ class Customers extends Component
      *      }
      * );
      * ```
+     * @since 3.x
      */
     const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
 
