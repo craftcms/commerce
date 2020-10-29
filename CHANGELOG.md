@@ -3,11 +3,18 @@
 ## Unreleased
 
 ### Added
+- Added the ability to change the default tax category right from the tax category index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
+- Added the ability to change the default shipping category right from the Shipping Categories index page.
+- Added the ability to change statuses right from the Shipping Methods index page.
 - Added an “ID” column to the Products index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - All front-end success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1801](https://github.com/craftcms/commerce/issues/1801))
-- Added the ability to change the default tax category right from the Tax Categories index page. ([#1499](https://github.com/craftcms/commerce/issues/1499))
-- Added the ability to change statuses right from the Shipping Methods index page.
-- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`, `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`, `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS` and `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
+- Added `craft\commerce\services\Webhooks::EVENT_BEFORE_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+- Added `craft\commerce\services\Webhooks::EVENT_AFTER_PROCESS_WEBHOOK`. ([#1799](https://github.com/craftcms/commerce/issues/1799))
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
+- Added `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
+- Added `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. ([#1220](https://github.com/craftcms/commerce/issues/1220))
 
 ### Changed
 - Add a line item table now shows the purchasable’s snaphsot data in the the toggleable detail row on the Order edit page. ([#1792](https://github.com/craftcms/commerce/issues/1792))
@@ -23,6 +30,8 @@
 - Fixed some example templates commerce url by applying url() template function. ([#1808](https://github.com/craftcms/commerce/issues/1808))
 - Fixed a bug where `commerce/products/save-product`, `commerce/products/duplicate-product` and `commerce/products/delete-product` actions require “Access Craft Commerce” permission. ([#1814](https://github.com/craftcms/commerce/pull/1814))
 - Fixed a bug where it was possible to delete the default tax category.
+- Fixed a bug where it was possible to delete the default shipping category.
+- Restored the removed `\craft\commerce\services\Payments::EVENT_AFTER_COMPLETE_PAYMENT` event. ([#1818](https://github.com/craftcms/commerce/pull/1818))
 
 ## 3.2.8.1 - 2020-10-15
 
