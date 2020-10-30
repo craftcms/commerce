@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Commerce would not work on fresh installs. ([#1828](https://github.com/craftcms/commerce/pull/1828)
+
 ## 3.2.9 - 2020-10-29
 
 ### Added
