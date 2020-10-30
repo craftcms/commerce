@@ -74,9 +74,9 @@ class Products extends Component
         $suffix = ':' . $product->getType()->uid;
 
         // Required for create and delete permission.
-        $editProductType = 'commerce-editProductType' . $suffix;
+        $editProductType = strtolower('commerce-editProductType' . $suffix);
 
-        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array($checkPermissionName, $permissions))) {
+        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array(strtolower($checkPermissionName), $permissions))) {
             return false;
         }
 

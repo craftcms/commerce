@@ -75,7 +75,7 @@ class ProductPermissionTest extends Unit
 
         $this->assertFalse($this->products->hasPermission($user, $product));
 
-        $this->mockPermissions(['commerce-editProductType:randomuid']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid']);
         $this->assertTrue($this->products->hasPermission($user, $product));
 
         // if user has access to another product type
@@ -92,22 +92,22 @@ class ProductPermissionTest extends Unit
         $product = $this->make(Product::class, ['getType' => $this->make(ProductType::class, ['id' => 1, 'uid' => 'randomuid']) ]);
 
         // User has no create product permission on a specific product type.
-        $this->mockPermissions(['commerce-editProductType:randomuid']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid']);
 
         $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-createProducts'));
 
         // User has create product permission on a specific product type.
-        $this->mockPermissions(['commerce-editProductType:randomuid', 'commerce-createProducts']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-createproducts']);
 
         $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-createProducts'));
 
         // User has no delete product permission on a specific product type.
-        $this->mockPermissions(['commerce-editProductType:randomuid']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid']);
 
         $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-deleteProducts'));
 
         // User has delete product permission on a specific product type.
-        $this->mockPermissions(['commerce-editProductType:randomuid', 'commerce-deleteProducts']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-deleteproducts']);
 
         $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-deleteProducts'));
     }
