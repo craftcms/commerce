@@ -409,6 +409,7 @@ class Install extends Migration
             'cancelUrl' => $this->string(),
             'shippingMethodHandle' => $this->string(),
             'shippingMethodName' => $this->string(),
+            'orderSiteId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

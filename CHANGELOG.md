@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.2.9.1 - 2020-10-30
+
+### Fixed
+- Fixed a bug where the `commerce_orders` table was missing the `orderSiteId` column on fresh installs. ([#1828](https://github.com/craftcms/commerce/pull/1828))
+
 ## 3.2.9 - 2020-10-29
 
 ### Added
