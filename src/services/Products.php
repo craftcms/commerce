@@ -9,6 +9,7 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\elements\User;
 use craft\events\SiteEvent;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
@@ -59,5 +60,26 @@ class Products extends Component
                 ]
             ]));
         }
+    }
+
+
+    public function hasPermission(User $user, Product $product, $checkPermissionName = null): bool
+    {
+        if ($user->admin === true) {
+            return true;
+        }
+
+        $permissions = Craft::$app->getUserPermissions()->getPermissionsByUserId($user->id);
+
+        $suffix = ':' . $product->getType()->uid;
+
+        // Required for create and delete permission.
+        $editProductType = 'commerce-editProductType' . $suffix;
+
+        if (!in_array($editProductType, $permissions) || ($checkPermissionName !== null && !in_array($checkPermissionName, $permissions))) {
+            return false;
+        }
+
+        return true;
     }
 }

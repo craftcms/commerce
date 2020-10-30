@@ -70,6 +70,7 @@ use craft\events\RegisterGqlTypesEvent;
 use craft\events\RegisterUserPermissionsEvent;
 use craft\fixfks\controllers\RestoreController;
 use craft\gql\ElementQueryConditionBuilder;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
@@ -359,16 +360,8 @@ class Plugin extends BasePlugin
     private function _registerPermissions()
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-            $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
-            $productTypePermissions = [];
-            foreach ($productTypes as $productType) {
-                $suffix = ':' . $productType->uid;
-                $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
-            }
-
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
-                'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
+            $event->permissions[Craft::t('commerce', 'Craft Commerce')]  = [
                 'commerce-manageOrders' => [
                     'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                         'commerce-editOrders' => [
@@ -392,7 +385,41 @@ class Plugin extends BasePlugin
                 'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                 'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
+
+            $productTypePermissions = $this->_registerProductTypePermission();
+
+            $event->permissions = ArrayHelper::merge($event->permissions, $productTypePermissions);
         });
+    }
+
+    private function _registerProductTypePermission()
+    {
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+
+        $permissions = [];
+        foreach ($productTypes as $productType) {
+            $suffix = ':' . $productType->uid;
+
+            $productTypePermissions = [];
+            $productTypePermissions['commerce-editProductType' . $suffix] = [
+                'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
+                'nested' => [
+                    "commerce-createProducts{$suffix}" => [
+                        'label' => Craft::t('app', 'Create products'),
+                    ],
+                    "commerce-deleteProducts{$suffix}" => [
+                        'label' => Craft::t('app', 'Delete products'),
+                    ],
+                ]
+            ];
+
+            $label = Craft::t('commerce', 'Product Type - {type}',
+                ['type' => Craft::t('commerce', $productType->name)]);
+
+            $permissions[$label] = $productTypePermissions;
+        }
+
+        return $permissions;
     }
 
     /**
