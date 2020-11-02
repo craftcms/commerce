@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where restoring a deleted product restored previously deleted variants. ([#1827](https://github.com/craftcms/commerce/issues/1827))
+
 ## 3.2.9.1 - 2020-10-30
 
 ### Added

@@ -1200,6 +1200,21 @@ class Variant extends Purchasable
     }
 
     /**
+     * @throws \yii\db\Exception
+     */
+    public function afterRestore()
+    {
+        // Once restored, we no longer track if it was deleted with variant or not
+        $this->deletedWithProduct = null;
+        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
+            ['deletedWithProduct' => null],
+            ['id' => $this->getId()]
+        )->execute();
+
+        parent::afterRestore();
+    }
+
+    /**
      * @param string $attribute
      * @return string
      * @throws InvalidConfigException
