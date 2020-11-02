@@ -2,6 +2,7 @@
 
 ### Fixed
 - Fixed a bug where restoring a deleted product restored previously deleted variants. ([#1827](https://github.com/craftcms/commerce/issues/1827))
+- Fixed a template error that would occur when creating or editing a tax rate. ([#1841](https://github.com/craftcms/commerce/issues/1841))
 
 ## 3.2.9.1 - 2020-10-30
 
