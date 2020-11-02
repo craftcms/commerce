@@ -223,8 +223,8 @@ class CartController extends BaseFrontEndController
         }
 
         // Submit payment source on cart
-        if ($paymentSourceId = $request->getParam('paymentSourceId')) {
-            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+        if (($paymentSourceId = $request->getParam('paymentSourceId')) !== null) {
+            if ($paymentSourceId && $paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
                 $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
@@ -232,6 +232,8 @@ class CartController extends BaseFrontEndController
                 if ($allowedToUsePaymentSource) {
                     $this->_cart->setPaymentSource($paymentSource);
                 }
+            } else {
+                $this->_cart->setPaymentSource(null);
             }
         }
 
