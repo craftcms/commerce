@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.2.10 - 2020-11-02
+
 ### Added
 - Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action. ([#1835](https://github.com/craftcms/commerce/issues/1835))
 
