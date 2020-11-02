@@ -772,7 +772,7 @@ class Product extends Element
      */
     public function beforeRestore(): bool
     {
-        $variants = Variant::find()->trashed(null)->productId($this->id)->status(null)->all();
+        $variants = Variant::find()->trashed(false)->productId($this->id)->status(null)->all();
         Craft::$app->getElements()->restoreElements($variants);
         $this->setVariants($variants);
 
