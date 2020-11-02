@@ -768,18 +768,6 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public function beforeRestore(): bool
-    {
-        $variants = Variant::find()->trashed(false)->productId($this->id)->status(null)->all();
-        Craft::$app->getElements()->restoreElements($variants);
-        $this->setVariants($variants);
-
-        return parent::beforeRestore();
-    }
-
-    /**
      * Updates the entry's title, if its entry type has a dynamic title format.
      *
      * @since 3.0.3
