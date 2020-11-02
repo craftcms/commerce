@@ -27,7 +27,7 @@ class m201102_064231_fix_deletedWithProduct_bool extends Migration
             // (see https://github.com/yiisoft/yii2/issues/12077)
 
             $this->execute('ALTER TABLE {{%commerce_variants}} ALTER COLUMN [[deletedWithProduct]] DROP DEFAULT;');
-            $this->execute('ALTER TABLE {{%commerce_variants}} ALTER [[deletedWithProduct]] TYPE bool USING CASE WHEN [[deletedWithProduct]]=1 THEN TRUE CASE WHEN [[deletedWithProduct]]=0 THEN FALSE ELSE NULL END;');
+            $this->execute('ALTER TABLE {{%commerce_variants}} ALTER [[deletedWithProduct]] TYPE bool USING CASE WHEN [[deletedWithProduct]]=1 THEN TRUE WHEN [[deletedWithProduct]]=0 THEN FALSE ELSE NULL END;');
             $this->execute('ALTER TABLE {{%commerce_variants}} ALTER COLUMN [[deletedWithProduct]] SET DEFAULT NULL;');
 
         } else {
