@@ -861,13 +861,14 @@ class Product extends Element
     public function afterRestore()
     {
         // Also restore any variants for this element
-        $variants = Variant::find()
+        $variantsQuery = Variant::find()
             ->anyStatus()
             ->siteId($this->siteId)
             ->productId($this->id)
             ->trashed()
-            ->andWhere(['commerce_variants.deletedWithProduct' => true])
-            ->all();
+            ->andWhere(['commerce_variants.deletedWithProduct' => true]);
+
+        $variants = $variantsQuery->all();
 
         Craft::$app->getElements()->restoreElements($variants);
         $this->setVariants($variants);
