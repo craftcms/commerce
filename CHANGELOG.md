@@ -4,9 +4,10 @@
 
 ### Added
 - Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action ([#1835](https://github.com/craftcms/commerce/issues/1835))
- 
+
 ### Fixed
 - Fixed a bug where the `commerce_orders` table was missing the `orderSiteId` column on fresh installs. ([#1828](https://github.com/craftcms/commerce/pull/1828))
+- Fixed a PHP error that occurred when retrieving the field layout for a variant whose  product was deleted. ([#1830](https://github.com/craftcms/commerce/pull/1830))
 
 ## 3.2.9 - 2020-10-29
 
