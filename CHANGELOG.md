@@ -1,17 +1,19 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action. ([#1835](https://github.com/craftcms/commerce/issues/1835))
+
 ### Fixed
-- Fixed a bug where restoring a deleted product restored previously deleted variants. ([#1827](https://github.com/craftcms/commerce/issues/1827))
+- Fixed a PHP error that occurred when retrieving the field layout for a variant of a deleted product. ([#1830](https://github.com/craftcms/commerce/pull/1830))
+- Fixed a bug where restoring a deleted product restored previously-deleted variants. ([#1827](https://github.com/craftcms/commerce/issues/1827))
 - Fixed a template error that would occur when creating or editing a tax rate. ([#1841](https://github.com/craftcms/commerce/issues/1841))
 
 ## 3.2.9.1 - 2020-10-30
 
-### Added
-- Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action ([#1835](https://github.com/craftcms/commerce/issues/1835))
-
 ### Fixed
 - Fixed a bug where the `commerce_orders` table was missing the `orderSiteId` column on fresh installs. ([#1828](https://github.com/craftcms/commerce/pull/1828))
-- Fixed a PHP error that occurred when retrieving the field layout for a variant whose  product was deleted. ([#1830](https://github.com/craftcms/commerce/pull/1830))
 
 ## 3.2.9 - 2020-10-29
 
