@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans`. ([#1846](https://github.com/craftcms/commerce/issues/1846))
+
 ## 3.2.10.1 - 2020-11-03
 
 ### Fixed
