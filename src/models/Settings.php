@@ -269,6 +269,11 @@ class Settings extends Model
     public $pdfAllowRemoteImages = false;
 
     /**
+     * @var string|null The absolute path of files to be generated. [in the dompdf library](https://github.com/dompdf/dompdf/blob/8d8a529500a2e5e01152c9b99488adb815d568cb/src/Options.php#L62)
+     */
+    public $pdfChroot = null;
+
+    /**
      * @var bool Whether inactive carts should automatically be deleted from the database during garbage collection.
      *
      * ::: tip
@@ -384,7 +389,7 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of weight unit options and labels.
-     * 
+     *
      * @return array
      */
     public function getWeightUnitsOptions(): array

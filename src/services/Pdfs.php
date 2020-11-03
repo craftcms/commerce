@@ -464,6 +464,13 @@ class Pdfs extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
+        $pdfChroot = Plugin::getInstance()->getSettings()->pdfChroot;
+
+        // Set files' absolute path only if set on commerce settings.
+        if ($pdfChroot !== null) {
+            $options->setChroot($pdfChroot);
+        }
+
         // Set the options
         $dompdf->setOptions($options);
 

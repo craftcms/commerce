@@ -6,6 +6,7 @@
 
 ### Added
 - Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action. ([#1835](https://github.com/craftcms/commerce/issues/1835))
+- Added pdfChroot setting that allows user to set an absolute path for generated files in the order pdf. ([#1761](https://github.com/craftcms/commerce/issues/1761))
 
 ### Fixed
 - Fixed a PHP error that occurred when retrieving the field layout for a variant of a deleted product. ([#1830](https://github.com/craftcms/commerce/pull/1830))
