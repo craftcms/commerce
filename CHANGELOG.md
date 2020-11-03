@@ -1,6 +1,9 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.10.1 - 2020-11-03
+
+### Fixed
+- Fixed a PostgreSQL migration issue. ([#1845](https://github.com/craftcms/commerce/pull/1845))
 
 ## 3.2.10 - 2020-11-02
 
