@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
+use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\events\PdfSaveEvent;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -145,6 +146,29 @@ class Pdfs extends Component
      * ```
      */
     const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+
+    /**
+     * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
+     * @since 3.x
+     *
+     * ```php
+     * use craft\commerce\events\PdfRenderOptionsEvent;
+     * use craft\commerce\services\Pdfs;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdfs::class,
+     *    Pdfs::EVENT_ADD_RENDER_OPTIONS,
+     *    function (PdfRenderOptionsEvent $event) {
+     *        $storagePath = Craft::$app->getPath()->getStoragePath();
+     *
+     *        // E.g. of setting additional render options.
+     *        $event->options->setChroot($storagePath);
+     *    }
+     * );
+     *```
+     */
+    const EVENT_ADD_RENDER_OPTIONS = 'addRenderOptions';
 
     const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
@@ -464,11 +488,11 @@ class Pdfs extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
-        $pdfChroot = Plugin::getInstance()->getSettings()->pdfChroot;
-
-        // Set files' absolute path only if set on commerce settings.
-        if ($pdfChroot !== null) {
-            $options->setChroot($pdfChroot);
+        // Set additional rener options
+        if ($this->hasEventHandlers(self::EVENT_ADD_RENDER_OPTIONS)) {
+            $this->trigger(self::EVENT_ADD_RENDER_OPTIONS, new PdfRenderOptionsEvent([
+                'options' => $options
+            ]));
         }
 
         // Set the options
