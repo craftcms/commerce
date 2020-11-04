@@ -1,5 +1,28 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans`. ([#1846](https://github.com/craftcms/commerce/issues/1846))
+
+### Fixed
+- Emails that are prevented from being sent using the `\craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` event are no longer shown as failed jobs on the queue. ([#1842](https://github.com/craftcms/commerce/issues/1842))
+
+## 3.2.10.1 - 2020-11-03
+
+### Fixed
+- Fixed a PostgreSQL migration issue. ([#1845](https://github.com/craftcms/commerce/pull/1845))
+
+## 3.2.10 - 2020-11-02
+
+### Added
+- Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action. ([#1835](https://github.com/craftcms/commerce/issues/1835))
+
+### Fixed
+- Fixed a PHP error that occurred when retrieving the field layout for a variant of a deleted product. ([#1830](https://github.com/craftcms/commerce/pull/1830))
+- Fixed a bug where restoring a deleted product restored previously-deleted variants. ([#1827](https://github.com/craftcms/commerce/issues/1827))
+- Fixed a template error that would occur when creating or editing a tax rate. ([#1841](https://github.com/craftcms/commerce/issues/1841))
+
 ## 3.2.9.1 - 2020-10-30
 
 ### Fixed
