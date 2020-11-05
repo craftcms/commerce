@@ -158,7 +158,7 @@ class Pdfs extends Component
      *
      * Event::on(
      *     Pdfs::class,
-     *    Pdfs::EVENT_ADD_RENDER_OPTIONS,
+     *    Pdfs::EVENT_MODIFY_RENDER_OPTIONS,
      *    function (PdfRenderOptionsEvent $event) {
      *        $storagePath = Craft::$app->getPath()->getStoragePath();
      *
@@ -168,7 +168,7 @@ class Pdfs extends Component
      * );
      *```
      */
-    const EVENT_ADD_RENDER_OPTIONS = 'addRenderOptions';
+    const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
 
     const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
@@ -489,8 +489,8 @@ class Pdfs extends Component
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
         // Set additional rener options
-        if ($this->hasEventHandlers(self::EVENT_ADD_RENDER_OPTIONS)) {
-            $this->trigger(self::EVENT_ADD_RENDER_OPTIONS, new PdfRenderOptionsEvent([
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
+            $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
                 'options' => $options
             ]));
         }
