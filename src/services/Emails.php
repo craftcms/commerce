@@ -776,7 +776,11 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
+                // The blocking of the send will still be logged as an error though for now.
+                // @TODO make this cleaner in Commerce 4
+                // https://github.com/craftcms/commerce/issues/1842
+                return true;
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {

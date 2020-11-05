@@ -2,11 +2,11 @@
 {% set title = brandNewPlan ? 'Create a new subscription plan'|t('commerce') : plan.name %}
 
 {% set crumbs = [
-    { label: "Commerce Settings"|t('commerce'), url: url('commerce/settings') },
-    { label: "Subscription plans"|t('commerce'), url: url('commerce/settings/subscriptions/plans') },
+    { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
+    { label: "Subscription plans"|t('commerce'), url: url('commerce/store-settings/subscription-plans') },
 ] %}
 
-{% set selectedSubnavItem = 'settings' %}
+{% set selectedSubnavItem = 'store-settings' %}
 
 {% set fullPageForm = gatewayOptions|length > 0 %}
 
@@ -16,7 +16,7 @@
     {% if gatewayOptions|length > 0 or plan is not null %}
 
         <input type="hidden" name="action" value="commerce/plans/save-plan">
-        {{ redirectInput('commerce/settings/subscriptions/plans') }}
+        {{ redirectInput('commerce/store-settings/subscription-plans') }}
 
         {% if plan is not null and plan.id %}
             <input type="hidden" name="planId" value="{{ plan.id }}">

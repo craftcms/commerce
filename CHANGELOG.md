@@ -1,5 +1,14 @@
 # Release Notes for Craft Commerce
 
+## 3.2.11 - 2020-11-04
+
+### Changed
+- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans` in the control panel. ([#1846](https://github.com/craftcms/commerce/issues/1846))
+
+### Fixed
+- Emails that are prevented from being sent using the `\craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` event are no longer shown as failed jobs on the queue. ([#1842](https://github.com/craftcms/commerce/issues/1842))
+- Fixed a PHP error that occurred when creating a new Product with multiple variants. ([#1851](https://github.com/craftcms/commerce/issues/1851))
+
 ## 3.2.10.1 - 2020-11-03
 
 ### Fixed
