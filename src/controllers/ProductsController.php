@@ -115,17 +115,20 @@ class ProductsController extends BaseController
         }
 
         $this->_prepEditProductVariables($variables);
-
-
+        
         /** @var Product $product */
         $product = $variables['product'];
-
+        
         $user = Craft::$app->getUser()->getIdentity();
-        if (!Plugin::getInstance()->getProducts()->hasPermission($user, $product)) {
+        if (Plugin::getInstance()->getProducts()->hasPermission($user, $product) === false) {
            throw new ForbiddenHttpException('User not permitted to edit this product.');
         }
 
         if ($product->id === null) {
+            if (Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-createProducts') === false ) {
+                throw new ForbiddenHttpException('User not permitted to create a product for the product type.');
+            }
+            
             $variables['title'] = Craft::t('commerce', 'Create a new product');
         } else {
             $variables['title'] = $product->title;

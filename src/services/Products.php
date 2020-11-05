@@ -65,7 +65,8 @@ class Products extends Component
 
     public function hasPermission(User $user, Product $product, $checkPermissionName = null): bool
     {
-        if ($user->admin === true) {
+
+        if ($user->admin == true) {
             return true;
         }
 
