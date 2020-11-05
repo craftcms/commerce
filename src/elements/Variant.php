@@ -450,6 +450,8 @@ class Variant extends Purchasable
             $this->productId = $product->id;
         }
 
+        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
+
         $this->_product = $product;
     }
 
@@ -1116,8 +1118,6 @@ class Variant extends Purchasable
         if ($this->hasUnlimitedStock) {
             $this->stock = 0;
         }
-
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
     }
