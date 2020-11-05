@@ -1,9 +1,9 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.11 - 2020-11-04
 
 ### Changed
-- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans`. ([#1846](https://github.com/craftcms/commerce/issues/1846))
+- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans` in the control panel. ([#1846](https://github.com/craftcms/commerce/issues/1846))
 
 ### Fixed
 - Emails that are prevented from being sent using the `\craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` event are no longer shown as failed jobs on the queue. ([#1842](https://github.com/craftcms/commerce/issues/1842))
