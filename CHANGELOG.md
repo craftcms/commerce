@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
+- Fixed a PHP error that occurred when attempting to preview an email without any completed orders in the system. ([#1858](https://github.com/craftcms/commerce/issues/1858))
 
 ## 3.2.11 - 2020-11-04
 
