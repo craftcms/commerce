@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
+
 ## 3.2.11 - 2020-11-04
 
 ### Changed
