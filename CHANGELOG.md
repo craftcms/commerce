@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+- Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+
 ## 3.2.11 - 2020-11-04
 
 ### Changed

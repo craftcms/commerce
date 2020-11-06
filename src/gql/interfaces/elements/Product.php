@@ -78,6 +78,11 @@ class Product extends Element
                 'type' => Type::float(),
                 'description' => 'The price of the default variant for the product.'
             ],
+            'defaultPriceAsCurrency' => [
+                'name' => 'defaultPriceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted price of the default variant for the product.'
+            ],
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
