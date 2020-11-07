@@ -26,7 +26,7 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseAdminController
+class PlansController extends BaseStoreSettingsController
 {
     /**
      * @return Response
