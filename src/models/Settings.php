@@ -384,7 +384,7 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of weight unit options and labels.
-     * 
+     *
      * @return array
      */
     public function getWeightUnitsOptions(): array
