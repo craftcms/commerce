@@ -19,7 +19,7 @@
 
     <form method="post" action="">
         {{ csrfInput() }}
-        <input type="hidden" name="action" value="commerce/customer-addresses/save">
+        {{ actionInput('commerce/customer-addresses/save') }}
         {% if redirect %}
             {{ redirectInput(redirect) }}
         {% else %}
@@ -27,7 +27,7 @@
         {% endif %}
 
         {% if addressId %}
-            <input type="hidden" name="address[id]" value="{{ addressId }}">
+            {{ hiddenInput('address[id]', addressId) }}
         {% endif %}
 
         {% include 'shop/_includes/addresses/form' %}

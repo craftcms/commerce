@@ -223,8 +223,8 @@ class CartController extends BaseFrontEndController
         }
 
         // Submit payment source on cart
-        if ($paymentSourceId = $request->getParam('paymentSourceId')) {
-            if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
+        if (($paymentSourceId = $request->getParam('paymentSourceId')) !== null) {
+            if ($paymentSourceId && $paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
                 $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
                 $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
@@ -232,6 +232,8 @@ class CartController extends BaseFrontEndController
                 if ($allowedToUsePaymentSource) {
                     $this->_cart->setPaymentSource($paymentSource);
                 }
+            } else {
+                $this->_cart->setPaymentSource(null);
             }
         }
 
@@ -361,9 +363,11 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
-        $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
-        if (($cartUpdatedNotice = $request->getParam('cartUpdatedNotice')) !== null) {
+        if (($cartUpdatedNotice = $this->request->getParam('cartUpdatedNotice')) !== null) {
             $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
+            Craft::$app->getDeprecator()->log('cartUpdatedNotice', 'The `cartUpdatedNotice` param has been deprecated for `carts/*` requests. Use a hashed `successMessage` param instead.');
+        } else {
+            $cartUpdatedMessage = Craft::t('app', 'Cart updated.');
         }
 
         if ($request->getAcceptsJson()) {
@@ -374,7 +378,7 @@ class CartController extends BaseFrontEndController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice($cartUpdatedMessage);
+        $this->setSuccessFlash($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
             $this->_cartVariable => $this->_cart

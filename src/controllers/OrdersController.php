@@ -405,7 +405,13 @@ class OrdersController extends Controller
         // Typecast order attributes
         $order->typeCastAttributes();
 
-        $extraFields = ['lineItems.snapshot', 'availableShippingMethodOptions', 'billingAddress', 'shippingAddress'];
+        $extraFields = [
+            'lineItems.snapshot',
+            'availableShippingMethodOptions',
+            'billingAddress',
+            'shippingAddress',
+            'orderSite',
+        ];
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
@@ -579,17 +585,20 @@ class OrdersController extends Controller
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
-        if ($email === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find email'));
+        if ($email === null || !$email->enabled) {
+            return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         if ($order === null) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
         }
 
+        $orderData = $order->toArray();
+
         $success = true;
+        $error = '';
         try {
-            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order)) {
+            if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, null, $orderData, $error)) {
                 $success = false;
             }
         } catch (\Exception $exception) {
@@ -597,7 +606,8 @@ class OrdersController extends Controller
         }
 
         if (!$success) {
-            return $this->asErrorJson(Craft::t('commerce', 'Could not send email'));
+            $error = $error ?: Craft::t('commerce', 'Could not send email');
+            return $this->asErrorJson($error);
         }
 
         return $this->asJson(['success' => true]);
@@ -958,6 +968,9 @@ class OrdersController extends Controller
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
         Craft::$app->getView()->registerJs('window.orderEdit.orderStatuses = ' . Json::encode(ArrayHelper::toArray($orderStatuses)) . ';', View::POS_BEGIN);
 
+        $orderSites = Craft::$app->getSites()->getAllSites();
+        Craft::$app->getView()->registerJs('window.orderEdit.orderSites = ' . Json::encode(ArrayHelper::toArray($orderSites)) . ';', View::POS_BEGIN);
+
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
         Craft::$app->getView()->registerJs('window.orderEdit.lineItemStatuses = ' . Json::encode(array_values($lineItemStatuses)) . ';', View::POS_BEGIN);
 
@@ -1059,6 +1072,7 @@ class OrdersController extends Controller
         $order->couponCode = $orderRequestData['order']['couponCode'];
         $order->isCompleted = $orderRequestData['order']['isCompleted'];
         $order->orderStatusId = $orderRequestData['order']['orderStatusId'];
+        $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 

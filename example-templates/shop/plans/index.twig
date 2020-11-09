@@ -73,9 +73,9 @@
                     <div class="px-2 w-full sm:w-1/2 lg:w-1/3">
                         <div class="{{ classes.box.base }} mt-3">
                             <form method="post" action="">
-                                <input type="hidden" name="action" value="commerce/subscriptions/subscribe">
-                                <input type="hidden" name="planUid" value="{{ plan.uid|hash }}">
+                                {{ actionInput('commerce/subscriptions/subscribe') }}
                                 {{ redirectInput('shop/plans') }}
+                                {{ hiddenInput('planUid', plan.uid|hash) }}
                                 {{ csrfInput() }}
 
                                 <h4 class="font-semibold">{{ plan.name }}</h4>
