@@ -237,7 +237,7 @@ class Plugin extends BasePlugin
         }
 
         $hasEditableProductTypes = !empty($this->getProductTypes()->getEditableProductTypes());
-        if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
+        if ($hasEditableProductTypes) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products'
