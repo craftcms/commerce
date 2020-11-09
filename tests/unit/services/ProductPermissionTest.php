@@ -73,7 +73,7 @@ class ProductPermissionTest extends Unit
 
         $this->mockPermissions([]);
 
-        $this->assertFalse($this->products->hasPermission($user, $product));
+       $this->assertFalse($this->products->hasPermission($user, $product));
 
         $this->mockPermissions(['commerce-editproducttype:randomuid']);
         $this->assertTrue($this->products->hasPermission($user, $product));
@@ -97,17 +97,17 @@ class ProductPermissionTest extends Unit
         $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-createProducts'));
 
         // User has create product permission on a specific product type.
-        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-createproducts']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-createproducts:randomuid']);
 
         $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-createProducts'));
 
         // User has no delete product permission on a specific product type.
         $this->mockPermissions(['commerce-editproducttype:randomuid']);
 
-        $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-deleteProducts'));
+        $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-deleteProducts:randomuid'));
 
         // User has delete product permission on a specific product type.
-        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-deleteproducts']);
+        $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-deleteproducts:randomuid']);
 
         $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-deleteProducts'));
     }

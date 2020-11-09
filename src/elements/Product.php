@@ -1002,7 +1002,7 @@ class Product extends Element
 
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $productType->uid);
+            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
 
             $sources[$key] = [
                 'key' => $key,
@@ -1068,21 +1068,28 @@ class Product extends Element
             $canManage = false;
 
             foreach ($productTypes as $productType) {
-                $canManage = $userSession->checkPermission('commerce-manageProductType:' . $productType->uid);
-            }
-
-            if ($canManage) {
-                // Duplicate
-                $actions[] = Duplicate::class;
-
-                // Allow deletion
-                $deleteAction = Craft::$app->getElements()->createAction([
-                    'type' => Delete::class,
-                    'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
-                    'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
-                ]);
-                $actions[] = $deleteAction;
-                $actions[] = SetStatus::class;
+                $canDelete = $userSession->checkPermission('commerce-deleteProducts:' . $productType->uid);
+                $canCreate = $userSession->checkPermission('commerce-createProducts:' . $productType->uid);
+                $canEdit = $userSession->checkPermission('commerce-editProducts:' . $productType->uid);
+                
+                if ($canCreate) {
+                    // Duplicate
+                    $actions[] = Duplicate::class;
+                }
+                
+                if ($canDelete) {
+                    // Allow deletion
+                    $deleteAction = Craft::$app->getElements()->createAction([
+                        'type' => Delete::class,
+                        'confirmationMessage' => Craft::t('commerce', 'Are you sure you want to delete the selected product and its variants?'),
+                        'successMessage' => Craft::t('commerce', 'Products and Variants deleted.'),
+                    ]);
+                    $actions[] = $deleteAction;
+                }
+                
+                if ($canEdit) {
+                    $actions[] = SetStatus::class;
+                }
             }
 
             if ($userSession->checkPermission('commerce-managePromotions')) {
