@@ -65,9 +65,9 @@
 
     {# Shipping Methods #}
     <div class="js-estimate-shipping-methods">
-      {% if cart.availableShippingMethods|length and cart.estimatedShippingAddressId %}
+      {% if cart.availableShippingMethodOptions|length and cart.estimatedShippingAddressId %}
         <div class="mt-3">
-          {% for handle, method in cart.availableShippingMethods %}
+          {% for handle, method in cart.availableShippingMethodOptions %}
             <div class="js-shipping-select">
               <label>
                 <input type="radio" name="shippingMethodHandle" value="{{ handle }}" {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
