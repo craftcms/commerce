@@ -2,12 +2,23 @@
 
 ## Unreleased
 
+### Added
+- Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+- Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+
+### Fixed
+- Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
+- Fixed a PHP error that occurred when attempting to preview an email without any completed orders in the system. ([#1858](https://github.com/craftcms/commerce/issues/1858))
+- Fixed a bug where purchasables template cache doesn't invalidates when adding or removing sales in the control panel sales page. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+
+## 3.2.11 - 2020-11-04
+
 ### Changed
-- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans`. ([#1846](https://github.com/craftcms/commerce/issues/1846))
+- Moved subscription plans from `commerce/settings/subscriptions/plans` to `commerce/store-settings/subscription-plans` in the control panel. ([#1846](https://github.com/craftcms/commerce/issues/1846))
 
 ### Fixed
 - Emails that are prevented from being sent using the `\craft\commerce\services\Emails::EVENT_BEFORE_SEND_MAIL` event are no longer shown as failed jobs on the queue. ([#1842](https://github.com/craftcms/commerce/issues/1842))
-- Fixed a bug where purchasables template cache doesn't invalidates when adding or removing sales in the control panel sales page.
+- Fixed a PHP error that occurred when creating a new Product with multiple variants. ([#1851](https://github.com/craftcms/commerce/issues/1851))
 
 ## 3.2.10.1 - 2020-11-03
 
