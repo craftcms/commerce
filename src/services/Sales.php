@@ -611,6 +611,8 @@ class Sales extends Component
                 $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();
+
+                Craft::$app->getElements()->invalidateCachesForElement($purchasable);
             }
 
             $transaction->commit();
