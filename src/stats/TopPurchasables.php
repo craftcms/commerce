@@ -9,6 +9,7 @@ namespace craft\commerce\stats;
 
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
+use craft\commerce\Plugin;
 use yii\db\Expression;
 
 /**
@@ -55,7 +56,9 @@ class TopPurchasables extends Stat
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
-
+        
+        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        
         $topPurchasables = $this->_createStatQuery()
             ->select([
                 '[[li.purchasableId]]',
@@ -66,6 +69,10 @@ class TopPurchasables extends Stat
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
+            ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
+            ->andWhere(['pt.id' => $editableProductTypeIds])
             ->groupBy('[[li.purchasableId]], [[p.sku]], [[p.description]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->limit($this->limit);

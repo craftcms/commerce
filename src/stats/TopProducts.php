@@ -59,7 +59,9 @@ class TopProducts extends Stat
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
         $orderByRevenue = new Expression('SUM([[li.total]]) DESC');
-
+        
+        $editableProductTypeIds = Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds();
+        
         $topProducts = $this->_createStatQuery()
             ->select([
                 '[[v.productId]] as id',
@@ -70,6 +72,8 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
+            ->leftJoin(Table::PRODUCTS . ' pr', '[[pr.id]] = [[v.productId]]')
+            ->leftJoin(Table::PRODUCTTYPES . ' pt', '[[pt.id]] = [[pr.typeId]]')
             ->leftJoin(CraftTable::CONTENT . ' content', [
                 'and',
                 '[[content.elementId]] = [[v.productId]]',
@@ -78,6 +82,7 @@ class TopProducts extends Stat
             ->groupBy('[[v.productId]], [[content.title]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->andWhere(['not', ['[[v.productId]]' => null]])
+            ->andWhere(['pt.id' => $editableProductTypeIds])
             ->limit($this->limit);
 
         return $topProducts->all();
