@@ -11,6 +11,7 @@
     "axios": "^0.20.0",
     "lodash.debounce": "^4.0.8",
     "lodash.find": "^4.6.0",
+    "lodash.isequal": "^4.5.0",
     "lodash.isobjectlike": "^4.0.0",
     "prismjs": "^1.21.0",
     "vue": "^2.6.12",
