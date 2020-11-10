@@ -303,7 +303,7 @@ class Product extends Element
         if ($this->getType()) {
             $uid = $this->getType()->uid;
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
+            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
         }
 
         return false;

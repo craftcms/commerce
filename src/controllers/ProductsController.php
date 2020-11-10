@@ -249,8 +249,12 @@ class ProductsController extends BaseController
         $variants = $request->getBodyParam('variants');
 
         $user = Craft::$app->getUser()->getIdentity();
-        if (!Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct, 'commerce-deleteProducts')) {
+        if ($oldProduct->id !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct)) {
             throw new ForbiddenHttpException('User not permitted to save this product.');
+        }
+        
+        if ($oldProduct->id === null && $request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct, 'commerce-createProducts')) {
+            throw new ForbiddenHttpException('User not permitted to create a product for this type.');
         }
 
         $elementsService = Craft::$app->getElements();
@@ -386,7 +390,7 @@ class ProductsController extends BaseController
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        $this->requirePermission('commerce-editProductType:' . $product->getType()->uid);
     }
 
 
