@@ -1,6 +1,5 @@
 {% set permissionsToView = {
     'commerce/orders': 'commerce-manageOrders',
-    'commerce/products': 'commerce-manageProducts',
     'commerce/promotions': 'commerce-managePromotions',
     'commerce/shipping/shippingmethods': 'commerce-manageShipping',
     'commerce/tax/taxrates': 'commerce-manageTaxes',
@@ -11,11 +10,15 @@
     {% redirect craft.commerce.settings.defaultView %}
 {% endif %}
 
+{% if craft.commerce.settings.defaultView and craft.commerce.settings.defaultView == 'commerce/products' and craft.commerce.productTypes.editableProductTypes|length > 0 %}
+    {% redirect 'commerce/products' %}
+{% endif  %}
+
 {% if currentUser.can('commerce-manageOrders') %}
     {% redirect 'commerce/orders' %}
 {% endif %}
 
-{% if currentUser.can('commerce-manageProducts') %}
+{% if craft.commerce.productTypes.editableProductTypes|length > 0  %}
     {% redirect 'commerce/products' %}
 {% endif %}
 
