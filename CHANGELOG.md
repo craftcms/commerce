@@ -6,6 +6,7 @@
 - Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
+- Fixed a bug where sales percentage ignores decimal numbers formatted as commas on other languages.
 
 ### Fixed
 - Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
