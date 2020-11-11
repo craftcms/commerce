@@ -17,6 +17,7 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
+use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
@@ -40,6 +41,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\commerce\records\OrderNotice;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\elements\exporters\Raw as CraftRaw;
@@ -147,6 +149,7 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
+    use OrderNoticesTrait;
 
     /**
      * Payments exceed order total.
@@ -1717,6 +1720,7 @@ class Order extends Element
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
                 if (!$item->refreshFromPurchasable()) {
+                    $this->addNotice('lineItems', $item->getDescription() . Craft::t('commerce', ' is no longer available and was removed from the order.'));
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
@@ -1752,8 +1756,8 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
+                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Selected shipping method is longer available.'));
                 $this->recalculate();
-
                 return;
             }
         }
@@ -1963,6 +1967,7 @@ class Order extends Element
         $this->_saveAdjustments();
 
         $this->_saveLineItems();
+        $this->_saveNotices();
 
         if ($this->isCompleted) {
             //creating order history record
@@ -2856,14 +2861,17 @@ class Order extends Element
             return $shippingMethod;
         }
 
-        $handles = [];
-        foreach ($shippingMethods as $method) {
-            $handles[] = $method->getHandle();
-        }
+        $handles = ArrayHelper::getColumn($shippingMethods, 'handle');
 
         if (!empty($handles)) {
             /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = array_values($shippingMethods)[0];
+            $firstAvailable = ArrayHelper::firstValue($shippingMethods);
+
+            if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
+                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Previously selected shipping method is longer available.'));
+                $this->shippingMethodHandle = null;
+            }
+
             if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
                 $this->shippingMethodHandle = $firstAvailable->getHandle();
             }
@@ -3116,6 +3124,26 @@ class Order extends Element
         return null;
     }
 
+
+    private function _saveNotices()
+    {
+        // Line items that are currently in the DB
+        $previousNotices = OrderNotice::find()
+            ->where(['orderId' => $this->id])
+            ->all();
+
+        foreach ($previousNotices as $notice) {
+            $notice->delete();
+        }
+
+        foreach ($this->getNotices() as $attribute => $messages) {
+            foreach ($messages as $message) {
+                $notice = new OrderNotice(['orderId' => $this->id, 'attribute' => $attribute, 'message' => $message]);
+                $notice->save(false);
+            }
+        }
+    }
+
     /**
      * Updates the line items, including deleting the old ones.
      */
@@ -3181,5 +3209,20 @@ class Order extends Element
                 }
             }
         }
+    }
+
+    public function getIsDeletable(): bool
+    {
+        // TODO: Implement getIsDeletable() method.
+    }
+
+    public function getHasCheckeredThumb(): bool
+    {
+        // TODO: Implement getHasCheckeredThumb() method.
+    }
+
+    public function getHasRoundedThumb(): bool
+    {
+        // TODO: Implement getHasRoundedThumb() method.
     }
 }

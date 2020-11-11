@@ -21,6 +21,7 @@
                 <form method="post" class="js-form mt-6">
                     {{ actionInput('commerce/cart/update-cart') }}
                     {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
+                    <input type="hidden" name="clearNotices" value="1"/>
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
                         <select name="purchasableId"

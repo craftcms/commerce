@@ -59,6 +59,16 @@ class CartController extends BaseFrontEndController
     }
 
     /**
+     * Returns the cart as JSON
+     */
+    public function actionClearNotices()
+    {
+        $this->_cart = $this->_getCart();
+        $this->_cart->clearNotices();
+        $this->_returnCart();
+    }
+
+    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
      * @throws \yii\base\InvalidConfigException
@@ -152,6 +162,7 @@ class CartController extends BaseFrontEndController
         // Update multiple line items in the cart
         if ($lineItems = $request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
+
                 $lineItemId = $key;
                 $note = $request->getParam("lineItems.{$key}.note");
                 $options = $request->getParam("lineItems.{$key}.options");
@@ -160,9 +171,9 @@ class CartController extends BaseFrontEndController
 
                 $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
-                // Line item not found, or does not belong to their order
+                // Line item not found, or does not belong to their order, or has been removed since it is out of stock or disabled, so silently skip it.
                 if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-                    throw new NotFoundHttpException('Line item not found');
+                    break;
                 }
 
                 if ($qty) {
@@ -240,6 +251,11 @@ class CartController extends BaseFrontEndController
         // Set Shipping method on cart.
         if ($shippingMethodHandle = $request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
+        }
+
+        // Set Shipping method on cart.
+        if ($clearNotices = $request->getParam('clearNotices')) {
+            $this->_cart->clearNotices();
         }
 
         return $this->_returnCart();

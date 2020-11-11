@@ -45,6 +45,7 @@ class Carts extends Component
      */
     private $_cart;
 
+    private $_getCartCount = 0;
     /**
      * Get the current cart for this session.
      *
@@ -56,6 +57,7 @@ class Carts extends Component
      */
     public function getCart($forceSave = false): Order
     {
+        $this->_getCartCount++;
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.

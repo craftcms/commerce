@@ -89,6 +89,23 @@
     </div>
 {% endif %}
 
+{% if cart.hasNotices() %} {# Add `or true` to this if condition to temporarily see what this flash error would look like #}
+    <div class="bg-blue-500 text-white">
+        <div class="container mx-auto px-6 py-4 relative">
+            <span>Cart Notifications</span>
+            {%  for notice in cart.getNoticeSummary(true) %}
+                <li class="list-disc">{{ notice }}</li>
+            {%  endfor  %}
+            <form method="post" class="js-form">
+                {{ actionInput('commerce/cart/clear-notices') }}
+                {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
+                {{ csrfInput() }}
+                <input class="absolute mt-4 mr-4 top-0 right-0 {{ classes.btn.small ~ ' ' ~ classes.btn.greyLight }}" type="submit" value="OK"/>
+            </form>
+        </div>
+    </div>
+{% endif %}
+
 {% if cart.errors|length %}
     <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
@@ -116,5 +133,6 @@
 {% if devMode %}
     <script>console.log('Cart on page load: ', {{ cart.toArray()|json_encode|raw }});</script>
 {% endif %}
+
 </body>
 </html>
