@@ -162,7 +162,7 @@ class CartController extends BaseFrontEndController
 
                 // Line item not found, or does not belong to their order
                 if (!$lineItem || ($this->_cart->id != $lineItem->orderId)) {
-                    throw new NotFoundHttpException('Line item not found');
+                    break;
                 }
 
                 if ($qty) {
