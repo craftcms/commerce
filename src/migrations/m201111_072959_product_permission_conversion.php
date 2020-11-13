@@ -79,6 +79,37 @@ class m201111_072959_product_permission_conversion extends Migration
                     }
                 }
             }
+
+            $projectConfig = Craft::$app->getProjectConfig();
+            
+            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+            if (version_compare($schemaVersion, '3.2.10', '>=')) {
+                return;
+            }
+
+            $groups = (new Query())
+                ->select(['id', 'name', 'uid'])
+                ->from(['groups' => Table::USERGROUPS])
+                ->all();
+
+            $setGroupPermissions = [];
+
+            if (count($groups) > 0) {
+                foreach ($groups as $group) {
+                    $groupPermissions = (new Query())
+                        ->select(['up.name'])
+                        ->from(['up_ug' => Table::USERPERMISSIONS_USERGROUPS])
+                        ->where(['up_ug.groupId' => $group['id']])
+                        ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[up_ug.permissionId]]')
+                        ->column();
+
+                    $setGroupPermissions[$group['uid']] = $groupPermissions;
+                }
+
+                foreach ($setGroupPermissions as $uid => $setGroupPermission) {
+                    $projectConfig->set('users.groups.' . $uid . '.permissions', $setGroupPermission);
+                }
+            }
         }
         
         $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-manageproducts']);
