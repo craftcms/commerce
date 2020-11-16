@@ -2366,13 +2366,19 @@ class Order extends Element
             }
         }
     }
-
+    
+    /**
+     * Removes the shipping address from the order
+     */
     public function removeShippingAddress()
     {
         $this->shippingAddressId = null;
         $this->_shippingAddress = null;
     }
-
+    
+    /**
+     * Removes the billing address from the order
+     */
     public function removeBillingAddress()
     {
         $this->billingAddressId = null;
