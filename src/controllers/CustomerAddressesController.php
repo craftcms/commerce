@@ -181,11 +181,11 @@ class CustomerAddressesController extends BaseFrontEndController
         // current customer is the owner of the address
         if (in_array($id, $addressIds, false) && Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
             if ($cart->shippingAddressId == $id) {
-                $cart->shippingAddressId = null;
+                $cart->removeShippingAddress();
             }
 
             if ($cart->billingAddressId == $id) {
-                $cart->billingAddressId = null;
+                $cart->removeBillingAddress();
             }
 
             Craft::$app->getElements()->saveElement($cart);
