@@ -2366,4 +2366,16 @@ class Order extends Element
             }
         }
     }
+
+    public function removeShippingAddress()
+    {
+        $this->shippingAddressId = null;
+        $this->_shippingAddress = null;
+    }
+
+    public function removeBillingAddress()
+    {
+        $this->billingAddressId = null;
+        $this->_billingAddress = null;
+    }
 }

@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug when deleting an address as a customer throws an error when cart is not empty.
+
 ## 2.2.23 - 2020-10-19
 
 ### Fixed
