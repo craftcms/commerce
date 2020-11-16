@@ -11,6 +11,7 @@
 - Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
 - Fixed a PHP error that occurred when attempting to preview an email without any completed orders in the system. ([#1858](https://github.com/craftcms/commerce/issues/1858))
 - Fixed a bug where purchasables template cache doesn't invalidates when adding or removing sales in the control panel sales page. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+- Fixed an error that occurred when adding a new address to a completed order on the Edit Order page.
 
 ## 3.2.11 - 2020-11-04
 

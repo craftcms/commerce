@@ -1128,7 +1128,7 @@ class OrdersController extends Controller
         $shippingAddress = null;
 
         // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $order->isCompleted) {
+        if ($billingAddressId && $billingAddressId != 'new' &&  $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $billingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
@@ -1139,7 +1139,7 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId && $order->isCompleted) {
+        if ($shippingAddressId && $shippingAddressId != 'new' &&  $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $shippingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
