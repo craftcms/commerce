@@ -299,7 +299,7 @@ return [
     'Width' => 'Width',
     'Yes' => 'Yes',
     'YYYY' => 'YYYY',
-    'Zip Code' => 'Zip Code',
+    'Zip Code' => 'Postcode',
     '{name} (Primary)' => '{name} (Primary)',
     '{number} more…' => '{number} more…',
     'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.' => 'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.',
