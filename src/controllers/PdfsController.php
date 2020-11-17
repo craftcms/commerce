@@ -97,10 +97,10 @@ class PdfsController extends BaseAdminController
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'PDF saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'PDF saved.'));
             return $this->redirectToPostedUrl($pdf);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save PDF.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save PDF.'));
         }
 
         // Send the model back to the template

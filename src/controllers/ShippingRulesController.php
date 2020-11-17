@@ -186,10 +186,10 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         // Save it
         if (Plugin::getInstance()->getShippingRules()->saveShippingRule($shippingRule)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping rule saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Shipping rule saved.'));
             $this->redirectToPostedUrl($shippingRule);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping rule.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping rule.'));
         }
 
         // Send the model back to the template

@@ -1,5 +1,23 @@
 # Release Notes for Craft Commerce
 
+## 3.2.12 - 2020-11-17
+
+### Added
+- Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+- Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+
+### Changed
+- Improved the Edit Order page’s ability to warn against losing unsaved changes. ([#1850](https://github.com/craftcms/commerce/issues/1850))
+- All built-in success/fail flash messages are now customizable by passing hashed `successMessage` and `failMessage` params with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))
+
+### Fixed
+- Fixed an error that occurred when attempting to edit a subscription plan, if `allowAdminChanges` was disabled. ([#1857](https://github.com/craftcms/commerce/issues/1857))
+- Fixed an error that occurred when attempting to preview an email, if no orders had been completed yet. ([#1858](https://github.com/craftcms/commerce/issues/1858))
+- Fixed an error that occurred when adding a new address to a completed order on the Edit Order page, if using PostgreSQL.
+- Fixed a bug where template caches weren’t getting invalidated when sales were added or removed. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+- Fixed a bug where sales weren’t properly supporting localized number formats.
+- Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
+
 ## 3.2.11 - 2020-11-04
 
 ### Changed
@@ -18,6 +36,7 @@
 
 ### Added
 - Added the ability to unset a cart’s selected payment source with the `commerce/cart/update-cart` action. ([#1835](https://github.com/craftcms/commerce/issues/1835))
+- Added `craft\commerce\services\Pdfs::EVENT_MODIFY_RENDER_OPTIONS`. ([#1761](https://github.com/craftcms/commerce/issues/1761))
 
 ### Fixed
 - Fixed a PHP error that occurred when retrieving the field layout for a variant of a deleted product. ([#1830](https://github.com/craftcms/commerce/pull/1830))
@@ -904,6 +923,36 @@
 - Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
+
+## 2.2.24 - 2020-11-16
+
+### Fixed
+- Fixed a bug when deleting an address as a customer throws an error when cart is not empty. ([#1874](https://github.com/craftcms/commerce/pull/1874))
+
+## 2.2.23 - 2020-10-19
+
+### Fixed
+- Fixed a bug where addresses were incorrectly associated with a customer after logging in. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+
+## 2.2.22 - 2020-09-15
+
+### Fixed
+- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
+- Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+- Fixed a bug where it wasn’t possible to update the rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
+
+## 2.2.21 - 2020-06-17
+
+### Changed
+- Improved handling of race conditions between processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+
+## 2.2.20 - 2020-05-27
+
+### Fixed
+- Fixed a bug where free shipping discounts could be applied incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
 
 ## 2.2.19 - 2020-04-15
 
