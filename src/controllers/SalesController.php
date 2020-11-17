@@ -18,6 +18,7 @@ use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use Exception;
 use Throwable;
@@ -119,6 +120,8 @@ class SalesController extends BaseCpController
         $sale->stopProcessing = $request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
+        $applyAmount = Localization::normalizeNumber($applyAmount);
+        
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
