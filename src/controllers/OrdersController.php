@@ -205,7 +205,7 @@ class OrdersController extends Controller
                 $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
                 'order' => $order
@@ -245,7 +245,7 @@ class OrdersController extends Controller
             return $this->asJson(['success' => false]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order deleted.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Order deleted.'));
 
         return $this->asJson(['success' => true]);
     }
@@ -780,16 +780,16 @@ class OrdersController extends Controller
 
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                 $child->order->updateOrderPaidInformation();
-                Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction captured successfully: {message}', [
+                $this->setSuccessFlash(Craft::t('commerce', 'Transaction captured successfully: {message}', [
                     'message' => $message
                 ]));
             } else {
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction: {message}', [
+                $this->setFailFlash(Craft::t('commerce', 'Couldn’t capture transaction: {message}', [
                     'message' => $message
                 ]));
             }
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t capture transaction.', ['id' => $id]));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t capture transaction.', ['id' => $id]));
         }
 
         return $this->redirectToPostedUrl();
@@ -819,7 +819,7 @@ class OrdersController extends Controller
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             } else {
-                Craft::$app->getSession()->setError($error);
+                $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
             }
         }
@@ -833,7 +833,7 @@ class OrdersController extends Controller
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             } else {
-                Craft::$app->getSession()->setError($error);
+                $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
             }
         }
@@ -847,19 +847,19 @@ class OrdersController extends Controller
 
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                     $child->order->updateOrderPaidInformation();
-                    Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
+                    $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
                         'message' => $message
                     ]));
                 } else {
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
+                    $this->setFailFlash(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
                         'message' => $message
                     ]));
                 }
             } catch (RefundException $exception) {
-                Craft::$app->getSession()->setError($exception->getMessage());
+                $this->setFailFlash($exception->getMessage());
             }
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t refund transaction.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t refund transaction.'));
         }
 
         return $this->redirectToPostedUrl();
@@ -1128,7 +1128,7 @@ class OrdersController extends Controller
         $shippingAddress = null;
 
         // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $order->isCompleted) {
+        if ($billingAddressId && $billingAddressId != 'new' &&  $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $billingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
@@ -1139,7 +1139,7 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId && $order->isCompleted) {
+        if ($shippingAddressId && $shippingAddressId != 'new' &&  $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $shippingAddressId])
                 ->andWhere(['not', ['customerId' => null]])

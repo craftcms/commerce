@@ -302,7 +302,7 @@ class Address extends Model
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
-                return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+                return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
             }
         ];
 
