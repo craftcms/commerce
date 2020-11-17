@@ -134,11 +134,9 @@ class GatewaysController extends BaseAdminController
         /** @var Gateway $gateway */
         $gateway = $gatewayService->createGateway($config);
 
-        $session = Craft::$app->getSession();
-
         // Save it
         if (!Plugin::getInstance()->getGateways()->saveGateway($gateway)) {
-            $session->setError(Craft::t('commerce', 'Couldn’t save gateway.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save gateway.'));
 
             // Send the volume back to the template
             Craft::$app->getUrlManager()->setRouteParams([
@@ -148,7 +146,7 @@ class GatewaysController extends BaseAdminController
             return null;
         }
 
-        $session->setNotice(Craft::t('commerce', 'Gateway saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Gateway saved.'));
         return $this->redirectToPostedUrl($gateway);
     }
 

@@ -105,10 +105,10 @@ class EmailsController extends BaseAdminController
 
         // Save it
         if ($emailsService->saveEmail($email)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Email saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save email.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         }
 
         // Send the model back to the template

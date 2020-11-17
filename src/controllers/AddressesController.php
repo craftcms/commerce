@@ -127,7 +127,7 @@ class AddressesController extends BaseCpController
                 return $this->asJson(['success' => true, 'address' => $address]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Address saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
             $this->redirectToPostedUrl();
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -137,7 +137,7 @@ class AddressesController extends BaseCpController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save address.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save address.'));
         }
 
         // Send the model back to the template
@@ -162,14 +162,14 @@ class AddressesController extends BaseCpController
         $ids = $request->getRequiredParam('ids');
 
         if (empty($ids) || !$id = $ids[0] ?? null) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'An address ID is required.'));
+            $this->setFailFlash(Craft::t('commerce', 'An address ID is required.'));
             return null;
         }
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
 
         if (!$address) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Unable to find address.'));
+            $this->setFailFlash(Craft::t('commerce', 'Unable to find address.'));
             return null;
         }
 
@@ -182,7 +182,7 @@ class AddressesController extends BaseCpController
             ->scalar();
 
         if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Cannot find customer.'));
+            $this->setFailFlash(Craft::t('commerce', 'Cannot find customer.'));
             return null;
         }
 
@@ -193,9 +193,9 @@ class AddressesController extends BaseCpController
         }
 
         if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Primary address updated.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Primary address updated.'));
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update primary address.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update primary address.'));
         }
 
         return $this->redirectToPostedUrl();

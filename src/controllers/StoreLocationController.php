@@ -82,12 +82,12 @@ class StoreLocationController extends BaseStoreSettingsController
         $address->isStoreLocation = true;
 
         if ($address->validate() && Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Store Location saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Store Location saved.'));
 
             return $this->redirectToPostedUrl();
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save Store Location.'));
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save Store Location.'));
 
         $variables = [
             'storeLocation' => $address
