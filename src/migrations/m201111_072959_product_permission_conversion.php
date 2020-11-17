@@ -6,6 +6,7 @@ use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
+use yii\db\Expression;
 
 /**
  * m201111_072959_product_permission_conversion migration.
@@ -21,7 +22,7 @@ class m201111_072959_product_permission_conversion extends Migration
         $permissions = (new Query())
             ->select(['id', 'name'])
             ->from([Table::USERPERMISSIONS])
-            ->where(['like', 'name', 'commerce-manageproducttype'])
+            ->where(new Expression("LEFT([[name]], 26) = 'commerce-manageproducttype'"))
             ->all();
 
         if (count($permissions) > 0) {
