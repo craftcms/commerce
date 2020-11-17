@@ -160,10 +160,10 @@ class SalesController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sale saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save sale.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
         $variables = [
@@ -354,7 +354,7 @@ class SalesController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t updated sales status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -369,7 +369,7 @@ class SalesController extends BaseCpController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sales updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales updated.'));
     }
 
 
