@@ -175,10 +175,10 @@ class DiscountsController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
         ) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discount saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
             $this->redirectToPostedUrl($discount);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save discount.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
         }
 
         // Send the model back to the template
@@ -268,7 +268,7 @@ class DiscountsController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -283,7 +283,7 @@ class DiscountsController extends BaseCpController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discounts updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Discounts updated.'));
     }
 
     /**

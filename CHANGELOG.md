@@ -6,6 +6,8 @@
 - Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
+- All built-in success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))
+- Added ability to change error and success message response for json request in `commerce/cart/update-cart` action by passing a hashed `successMessage`/`failMessage` param with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))  
 
 ### Fixed
 - Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))

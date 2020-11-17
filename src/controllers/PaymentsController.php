@@ -64,7 +64,6 @@ class PaymentsController extends BaseFrontEndController
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
         $request = Craft::$app->getRequest();
-        $session = Craft::$app->getSession();
         $currentUser = Craft::$app->getUser()->getIdentity();
         $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
@@ -84,7 +83,7 @@ class PaymentsController extends BaseFrontEndController
                     ]);
                 }
 
-                $session->setError($error);
+                $this->setFailFlash($error);
 
                 return null;
             }
@@ -114,7 +113,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -129,7 +128,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -144,7 +143,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -159,7 +158,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -194,7 +193,7 @@ class PaymentsController extends BaseFrontEndController
                 }
 
                 $order->addError('paymentCurrency', $exception->getMessage());
-                $session->setError($exception->getMessage());
+                $this->setFailFlash($exception->getMessage());
 
                 return null;
             }
@@ -243,7 +242,7 @@ class PaymentsController extends BaseFrontEndController
                 $order->addError('paymentSourceId', $error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -292,7 +291,7 @@ class PaymentsController extends BaseFrontEndController
                         ]);
                     }
 
-                    $session->setError($error);
+                    $this->setFailFlash($error);
                     Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
                     return null;
@@ -320,7 +319,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
             return null;
@@ -337,7 +336,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
 
             return null;
@@ -391,7 +390,7 @@ class PaymentsController extends BaseFrontEndController
                     ]);
                 }
 
-                $session->setError($error);
+                $this->setFailFlash($error);
                 Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
                 return null;
@@ -429,7 +428,7 @@ class PaymentsController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
@@ -498,7 +497,7 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Payment error: {message}', ['message' => $error]));
+        $this->setFailFlash(Craft::t('commerce', 'Payment error: {message}', ['message' => $error]));
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $response = ['url' => $transaction->order->cancelUrl];

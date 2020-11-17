@@ -263,7 +263,7 @@ class CartController extends BaseFrontEndController
                 return $this->asErrorJson($error);
             }
 
-            Craft::$app->getSession()->setError($error);
+            $this->setFailFlash($error);
             return $request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
@@ -276,7 +276,7 @@ class CartController extends BaseFrontEndController
                 return $this->asErrorJson($error);
             }
 
-            Craft::$app->getSession()->setError($error);
+            $this->setFailFlash($error);
             return $request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
@@ -290,7 +290,7 @@ class CartController extends BaseFrontEndController
                 return $this->asErrorJson($error);
             }
 
-            Craft::$app->getSession()->setError($error);
+            $this->setFailFlash($error);
             return $request->getIsGet() ? $this->redirect($redirect) : null;
         }
 
@@ -343,13 +343,14 @@ class CartController extends BaseFrontEndController
 
         if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Craft::t('commerce', 'Unable to update cart.');
-
+            $message = $this->request->getValidatedBodyParam('failMessage') ?? $error;
+            
             if ($request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
-                    'message' => $error,
+                    'message' => $message,
                     $this->_cartVariable => $this->cartArray($this->_cart)
                 ]);
             }
@@ -357,8 +358,8 @@ class CartController extends BaseFrontEndController
             Craft::$app->getUrlManager()->setRouteParams([
                 $this->_cartVariable => $this->_cart
             ]);
-
-            Craft::$app->getSession()->setError($error);
+            
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -369,12 +370,14 @@ class CartController extends BaseFrontEndController
         } else {
             $cartUpdatedMessage = Craft::t('app', 'Cart updated.');
         }
-
+        
         if ($request->getAcceptsJson()) {
+            $message = $this->request->getValidatedBodyParam('successMessage') ?? $cartUpdatedMessage;
+            
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
                 $this->_cartVariable => $this->cartArray($this->_cart),
-                'message' => $cartUpdatedMessage,
+                'message' => $message
             ]);
         }
 

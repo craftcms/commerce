@@ -134,10 +134,10 @@ class PlansController extends BaseStoreSettingsController
 
         // Save $plan
         if ($planService->savePlan($plan)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription plan saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Subscription plan saved.'));
             $this->redirectToPostedUrl($plan);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription plan.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save subscription plan.'));
         }
 
         // Send the productType back to the template

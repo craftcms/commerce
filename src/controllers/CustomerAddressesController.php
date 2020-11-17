@@ -49,7 +49,7 @@ class CustomerAddressesController extends BaseFrontEndController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson(['error' => $error]);
             }
-            Craft::$app->getSession()->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -112,7 +112,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
                     return $this->asJson(['error' => $error]);
                 }
-                Craft::$app->getSession()->setError($error);
+                $this->setFailFlash($error);
 
                 return null;
             }
@@ -146,7 +146,7 @@ class CustomerAddressesController extends BaseFrontEndController
                 ]);
             }
 
-            Craft::$app->getSession()->setError($errorMsg);
+            $this->setFailFlash($errorMsg);
 
             Craft::$app->getUrlManager()->setRouteParams([
                 'address' => $address,
@@ -218,7 +218,7 @@ class CustomerAddressesController extends BaseFrontEndController
             return $this->asJson(['error' => $error]);
         }
 
-        Craft::$app->getSession()->setError($error);
+        $this->setFailFlash($error);
 
         return null;
     }

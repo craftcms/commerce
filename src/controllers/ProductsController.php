@@ -201,7 +201,7 @@ class ProductsController extends BaseController
                 return $this->asJson(['success' => false]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete product.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete product.'));
             Craft::$app->getUrlManager()->setRouteParams([
                 'product' => $product
             ]);
@@ -211,7 +211,7 @@ class ProductsController extends BaseController
             return $this->asJson(['success' => true]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product deleted.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Product deleted.'));
         return $this->redirectToPostedUrl($product);
     }
 
@@ -272,7 +272,7 @@ class ProductsController extends BaseController
                         ]);
                     }
 
-                    Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t duplicate product.'));
+                    $this->setFailFlash(Craft::t('commerce', 'Couldn’t duplicate product.'));
 
                     // Send the original product back to the template, with any validation errors on the clone
                     $oldProduct->addErrors($clone->getErrors());
@@ -316,7 +316,7 @@ class ProductsController extends BaseController
                     ]);
                 }
 
-                Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product.'));
+                $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product.'));
 
                 if ($duplicate) {
                     // Add validation errors on the original product
@@ -346,7 +346,7 @@ class ProductsController extends BaseController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Product saved.'));
 
         return $this->redirectToPostedUrl($product);
     }
