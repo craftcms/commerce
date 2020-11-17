@@ -43,7 +43,6 @@ class PaymentSourcesController extends BaseFrontEndController
 
         $plugin = Plugin::getInstance();
         $request = Craft::$app->getRequest();
-        $session = Craft::$app->getSession();
 
         // Are we paying anonymously?
         $userId = Craft::$app->getUser()->getId();
@@ -65,7 +64,7 @@ class PaymentSourcesController extends BaseFrontEndController
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -90,7 +89,7 @@ class PaymentSourcesController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
 
             return null;
@@ -148,7 +147,7 @@ class PaymentSourcesController extends BaseFrontEndController
                 return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete the payment source.'));
         }
 
         return $this->redirectToPostedUrl();

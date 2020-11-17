@@ -115,7 +115,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax category saved.'));
             $this->redirectToPostedUrl($taxCategory);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -124,7 +124,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax category.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax category.'));
         }
 
         // Send the tax category back to the template
@@ -171,12 +171,12 @@ class TaxCategoriesController extends BaseTaxSettingsController
             if ($taxCategory) {
                 $taxCategory->default = true;
                 if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
-                    Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category updated.'));
+                    $this->setSuccessFlash(Craft::t('commerce', 'Tax category updated.'));
                     return null;
                 }
             }
         }
 
-        Craft::$app->getSession()->setError(Craft::t('commerce', 'Unable to set default tax category.'));
+        $this->setFailFlash(Craft::t('commerce', 'Unable to set default tax category.'));
     }
 }
