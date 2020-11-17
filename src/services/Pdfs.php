@@ -149,7 +149,7 @@ class Pdfs extends Component
 
     /**
      * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
-     * @since 3.x
+     * @since 3.2.10
      *
      * ```php
      * use craft\commerce\events\PdfRenderOptionsEvent;
