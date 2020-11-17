@@ -7,15 +7,14 @@
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
 - Added extra checks when exiting the Order Edit page to warn against unsaved changes. ([#1850](https://github.com/craftcms/commerce/issues/1850))
-- Fixed a bug where sales percentage ignores decimal numbers formatted as commas on other languages.
+- Fixed a bug where sales weren’t properly supporting localized number formats.
 - All built-in success/fail flash messages are now customizable by passing a hashed `successMessage`/`failMessage` param with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))
-- Added ability to change error and success message response for json request in `commerce/cart/update-cart` action by passing a hashed `successMessage`/`failMessage` param with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))
 
 ### Fixed
 - Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
 - Fixed a PHP error that occurred when attempting to preview an email without any completed orders in the system. ([#1858](https://github.com/craftcms/commerce/issues/1858))
-- Fixed a bug where the template cache didn't invalidate when adding or removing sales. ([#1849](https://github.com/craftcms/commerce/issues/1849))
-- Fixed an error that occurred when adding a new address to a completed order on the Edit Order page.
+- Fixed a bug where template cache wasn’t invalidated when adding or removing sales. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+- Fixed a SQL error that occurred when adding a new address to a completed order on the Edit Order page on PostgreSQL.
 
 ## 3.2.11 - 2020-11-04
 
