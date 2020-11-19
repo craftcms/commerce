@@ -1223,7 +1223,7 @@ class Order extends Element
      */
     public function getPaidStatus(): string
     {
-        if ($this->getIsPaid() && $this->getTotal() > 0 && round($this->getTotalPaid(), 2) > round($this->getTotal(), 2)) {
+        if ($this->getIsPaid() && $this->getTotal() > 0 && $this->getTotalPaid() > $this->getTotal()) {
             return self::PAID_STATUS_OVERPAID;
         }
 
@@ -1328,7 +1328,7 @@ class Order extends Element
      */
     public function getTotalPaid(): float
     {
-        return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+        return Currency::round(Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this));
     }
 
     /**
