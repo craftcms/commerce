@@ -135,7 +135,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
             $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
 
-            $this->redirectToPostedUrl();
+            return $this->redirectToPostedUrl();
         } else {
             $errorMsg = Craft::t('commerce', 'Could not save address.');
 
