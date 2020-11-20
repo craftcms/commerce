@@ -68,6 +68,11 @@ class Pdf extends Model
     public $uid;
 
     /**
+     * @var string locale language
+     */
+    public $pdfLanguage;
+
+    /**
      * @inheritdoc
      */
     public function defineRules(): array
