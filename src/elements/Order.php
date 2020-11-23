@@ -1328,7 +1328,7 @@ class Order extends Element
      */
     public function getTotalPaid(): float
     {
-        return Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this);
+        return Currency::round(Plugin::getInstance()->getPayments()->getTotalPaidForOrder($this));
     }
 
     /**
