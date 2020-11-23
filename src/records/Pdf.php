@@ -22,6 +22,7 @@ use craft\db\ActiveRecord;
  * @property string $sortOrder
  * @property bool $enabled
  * @property bool $isDefault
+ * @property string $locale
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
  */

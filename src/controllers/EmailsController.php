@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use craft\commerce\records\Pdf as PdfRecord;
 use craft\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -66,6 +67,19 @@ class EmailsController extends BaseAdminController
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
         $variables['pdfList'] = $pdfList;
+        
+        $emailLanguageOptions = [
+            PdfRecord::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
+        ];
+        
+        // get current site's locale
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            $locale = Craft::$app->getI18n()->getLocaleById($site->language);
+
+            $emailLanguageOptions[$site->id] = Craft::t('commerce', $site->name . ' - ' . $locale->getDisplayName());
+        }
+
+        $variables['emailLanguageOptions'] = $emailLanguageOptions;
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }

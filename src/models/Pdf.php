@@ -70,7 +70,7 @@ class Pdf extends Model
     /**
      * @var string locale language
      */
-    public $pdfLanguage;
+    public $locale;
 
     /**
      * @inheritdoc
@@ -101,6 +101,7 @@ class Pdf extends Model
             'enabled' => (bool)$this->enabled,
             'sortOrder' => (int)$this->sortOrder ?: 9999,
             'isDefault' => (bool)$this->isDefault,
+            'locale' => $this->locale
         ];
     }
 }

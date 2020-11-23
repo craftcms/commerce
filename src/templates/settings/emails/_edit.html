@@ -130,6 +130,18 @@
         options: pdfList
     }) }}
 
+    {{ forms.selectField({
+        first: true,
+        label: 'Language'|t('commerce'),
+        instructions: "The language to be used when email is rendered."|t,
+        id: 'emailLanguage',
+        name: 'emailLanguage',
+        options : emailLanguageOptions,
+        value : email.locale,
+        errors: email.getErrors('locale') ?? null,
+        toggle: true
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this email will not send.'|t('commerce'),

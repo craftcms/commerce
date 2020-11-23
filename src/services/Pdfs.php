@@ -312,6 +312,7 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
+            $pdfRecord->locale = $data['locale'];
             $pdfRecord->uid = $pdfUid;
 
             $pdfRecord->save(false);
@@ -554,6 +555,7 @@ class Pdfs extends Component
                 'enabled',
                 'sortOrder',
                 'isDefault',
+                'locale',
                 'uid',
             ])
             ->orderBy('name')

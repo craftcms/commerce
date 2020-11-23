@@ -108,6 +108,7 @@ class PdfsController extends BaseAdminController
         $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
         $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
         $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
+        $pdf->locale = Craft::$app->getRequest()->getBodyParam('locale');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {

@@ -77,11 +77,11 @@
         first: true,
         label: 'Language'|t('commerce'),
         instructions: "The language to be used when PDF is rendered."|t,
-        id: 'pdfLanguage',
-        name: 'pdfLanguage',
+        id: 'locale',
+        name: 'locale',
         options : pdfLanguageOptions,
-        value : pdf.pdfLanguage,
-        errors: pdf.getErrors('pdfLanguage') ?? null,
+        value : pdf.locale,
+        errors: pdf.getErrors('locale') ?? null,
         toggle: true
     }) }}
 

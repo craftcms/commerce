@@ -82,7 +82,12 @@ class Email extends Model
     /**
      * @var int The PDF UID.
      */
-    public $pdfId;
+    public $pdfId;    
+    
+    /**
+     * @var string The locale.
+     */
+    public $locale;
 
     /**
      * @var string UID
