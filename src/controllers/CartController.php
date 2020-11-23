@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\LineItem as LineItemHelper;
+use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
@@ -159,34 +160,15 @@ class CartController extends BaseFrontEndController
         // Update multiple line items in the cart
         if ($lineItems = $this->request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
-                $lineItemId = $key;
 
-                $note = $this->request->getParam("lineItems.{$key}.note");
-                $options = $this->request->getParam("lineItems.{$key}.options");
-                $qty = $this->request->getParam("lineItems.{$key}.qty");
-                $removeLine = $this->request->getParam("lineItems.{$key}.remove");
+                $lineItem = $this->_getCartLineItemById($key);
+                if ($lineItem) {
+                    $lineItem->qty = $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
+                    $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 
-                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
-
-                // Line item not found, or does not belong to their order
-                if ($lineItem && ($this->_cart->id == $lineItem->orderId)) {
-                    if ($qty) {
-                        $lineItem->qty = $qty;
-                    }
-
-                    if ($note) {
-                        $lineItem->note = $note;
-                    }
-
-                    if ($options) {
-                        $lineItem->setOptions($options);
-                    }
-
-                    if ($qty !== null && $qty == 0) {
-                        $removeLine = true;
-                    }
-
-                    if ($removeLine) {
+                    $removeLine = $this->request->getParam("lineItems.{$key}.remove", false);
+                    if (($lineItem->qty !== null && $lineItem->qty == 0) || $removeLine) {
                         $this->_cart->removeLineItem($lineItem);
                     } else {
                         $this->_cart->addLineItem($lineItem);
@@ -314,6 +296,23 @@ class CartController extends BaseFrontEndController
         }
 
         return $this->request->getIsGet() ? $this->redirect($redirect) : $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @param $lineItemId |nulls
+     * @return LineItem|null
+     */
+    private function _getCartLineItemById($lineItemId)
+    {
+        $lineItem = null;
+
+        foreach ($this->_cart->getLineItems() as $item) {
+            if ($item->id && $item->id == $lineItemId) {
+                $lineItem = $item;
+            }
+        }
+
+        return $lineItem;
     }
 
     /**
