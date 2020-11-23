@@ -34,9 +34,9 @@ class DownloadsController extends BaseFrontEndController
      */
     public function actionPdf(): Response
     {
-        $number = Craft::$app->getRequest()->getQueryParam('number');
-        $pdfHandle = Craft::$app->getRequest()->getQueryParam('pdfHandle');
-        $option = Craft::$app->getRequest()->getQueryParam('option', '');
+        $number = $this->request->getQueryParam('number');
+        $pdfHandle = $this->request->getQueryParam('pdfHandle');
+        $option = $this->request->getQueryParam('option', '');
 
         if (!$number) {
             throw new HttpInvalidParamException('Order number required');
