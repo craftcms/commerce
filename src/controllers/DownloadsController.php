@@ -43,7 +43,7 @@ class DownloadsController extends BaseFrontEndController
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
-
+        
         if (!$order) {
             throw new HttpException('404', 'Order not found');
         }
