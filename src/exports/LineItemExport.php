@@ -7,12 +7,12 @@
 
 namespace craft\commerce\exports;
 
+use Craft;
 use craft\base\ElementExporter;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\adjusters\Shipping;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\db\Table;
-use craft\commerce\Plugin;
 use craft\db\Query as CraftQuery;
 use craft\elements\db\ElementQueryInterface;
 
@@ -23,7 +23,7 @@ class LineItemExport extends ElementExporter
      */
     public static function displayName(): string
     {
-        return Plugin::t('Line Items');
+        return Craft::t('commerce', 'Line Items');
     }
 
     /**
@@ -50,24 +50,24 @@ class LineItemExport extends ElementExporter
             'totalTax' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
-                ->where(['and','[[adjustments.orderId]] = [[lineitems.orderId]]','[[adjustments.lineItemId]] = [[lineitems.id]]' ])
+                ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[adjustments.lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 0]),
             'totalTaxIncluded' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
-                ->where(['and','[[adjustments.orderId]] = [[lineitems.orderId]]','[[lineItemId]] = [[lineitems.id]]' ])
+                ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Tax::ADJUSTMENT_TYPE])
                 ->andWhere(['included' => 1]),
             'totalShipping' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
-                ->where(['and','[[adjustments.orderId]] = [[lineitems.orderId]]','[[lineItemId]] = [[lineitems.id]]' ])
+                ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Shipping::ADJUSTMENT_TYPE]),
             'totalDiscount' => (new CraftQuery())
                 ->select('SUM([[amount]])')
                 ->from(Table::ORDERADJUSTMENTS . ' adjustments')
-                ->where(['and','[[adjustments.orderId]] = [[lineitems.orderId]]','[[adjustments.lineItemId]] = [[lineitems.id]]' ])
+                ->where(['and', '[[adjustments.orderId]] = [[lineitems.orderId]]', '[[adjustments.lineItemId]] = [[lineitems.id]]'])
                 ->andWhere(['type' => Discount::ADJUSTMENT_TYPE]),
             'lineitems.total',
             'lineitems.weight',

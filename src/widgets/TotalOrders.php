@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TotalOrders as TotalOrdersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
@@ -77,7 +76,7 @@ class TotalOrders extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Total Orders');
+        return Craft::t('commerce', 'Total Orders');
     }
 
     /**
@@ -98,10 +97,10 @@ class TotalOrders extends Widget
         }
 
         $stats = $this->_stat->get();
-        $total =  $stats['total'] ?? 0;
+        $total = $stats['total'] ?? 0;
         $total = Craft::$app->getFormatter()->asInteger($total);
 
-        return Plugin::t('{total} orders', ['total' => $total]);
+        return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
     public function getSubtitle()

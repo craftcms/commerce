@@ -1,0 +1,140 @@
+<!-- Template: {{ _self }}.twig -->
+{# Allow passing of cart into partial #}
+{% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
+
+{% if showShippingAddress is not defined %}
+  {% set showShippingAddress = false %}
+{% endif %}
+
+{% if showShippingMethod is not defined %}
+  {% set showShippingMethod = false %}
+{% endif %}
+
+<div class="{{ classes.box.base }}">
+  <h3 class="mt-0 text-lg font-bold">Order Review</h3>
+
+  {% if showShippingAddress %}
+    <div class="border-b border-gray-300 pb-3">
+
+      <h4 class="font-semibold mt-3">Shipping to</h4>
+      {% if cart.shippingAddress %}
+        <div class="address-select js-address-select border-0">
+          {% include 'shop/_includes/addresses/address' with {'address': cart.shippingAddress} %}
+        </div>
+      {% else %}
+        <p>No shipping address selected.</p>
+      {% endif %}
+
+      {% if currentUser %}<a class="edit" href="{{ url('shop/checkout/addresses') }}">Edit</a>{% endif %}
+    </div>
+  {% endif %}
+
+  {% if showShippingMethod %}
+    <div class="border-b border-gray-300 pb-3">
+      <h4 class="font-semibold mt-3">Shipping method</h4>
+
+      <div>
+        {% if cart.shippingMethod %}
+          {{ cart.shippingMethod.name }}
+        {% else %}
+          No shipping method selected.
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+
+  <h4 class="font-semibold mt-3">Items</h4>
+  {% for item in cart.lineItems %}
+    <div class="flex w-full justify-between">
+      <div class="flex justify-between mr-3 overflow-hidden items-center">
+        <div class="truncate">
+          {{ item.description }}
+        </div>
+        <div class="text-gray-500 text-xs uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</div>
+      </div>
+      <div>
+        {{ item.subtotal|currency(cart.currency) }}
+      </div>
+    </div>
+  {% else %}
+    <div class="mb-3">
+      <p>Nothing in your cart yet, <a class="underline text-blue-500" href="{{ url('shop/products') }}">add something</a>.</p>
+    </div>
+  {% endfor %}
+
+  {% if not cart.shippingMethod %}
+
+    {#
+      If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
+      {% redirect "shop/checkout/shipping" %}
+      You might also want to add a php plugin hook to require
+    #}
+
+    <div class="border-b border-gray-300 pb-3">
+      <strong>Shipping</strong> None selected. <a href="{{ url('shop/checkout/shipping') }}">Choose a shipping method.</a>
+    </div>
+  {% endif %}
+
+  <div class="mt-3 pt-3 border-t border-gray-300">
+    <div class="flex w-full justify-end items-center text-xs text-gray-500">
+      <div class="pr-2">
+        Shipping:
+      </div>
+      <div>
+        {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}
+      </div>
+    </div>
+    <div class="flex w-full justify-end items-center text-xs text-gray-500">
+      <div class="pr-2">
+        Tax:
+      </div>
+      <div>
+        {{ cart.totalTax|commerceCurrency(cart.currency) }}
+      </div>
+    </div>
+    <div class="flex w-full justify-end items-center text-xs text-gray-500">
+      <div class="pr-2">
+        Tax (inc):
+      </div>
+      <div>
+        {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}
+      </div>
+    </div>
+    <div class="flex w-full justify-end items-center text-xs text-gray-500">
+      <div class="pr-2">
+        Discount:
+      </div>
+      <div>
+        {{ (cart.totalDiscount * -1)|commerceCurrency(cart.currency) }}
+      </div>
+    </div>
+    <div class="flex w-full justify-end items-center">
+      <div class="text-gray-600 pr-2">
+        Total:
+      </div>
+      <div class="text-lg font-bold">
+        {{ cart.totalPrice|commerceCurrency(cart.currency) }}
+      </div>
+    </div>
+  </div>
+  {% if cart.currency != cart.paymentCurrency and cart.totalPrice == cart.getOutstandingBalance() %}
+    <div class="mt-1 flex w-full justify-end">
+      <div class="text-gray-600 pr-2">
+        Payment {{ cart.paymentCurrency }}:
+      </div>
+      <div>
+        {{ cart.totalPrice|commerceCurrency(cart.paymentCurrency,convert=true) }}
+      </div>
+    </div>
+  {% endif %}
+  {% if cart.hasOutstandingBalance and cart.totalPrice != cart.getOutstandingBalance() %}
+    <div class="mt-1 flex w-full justify-end">
+      <div class="text-gray-600 pr-2">
+        Outstanding Balance {{ cart.paymentCurrency }}:
+      </div>
+      <div>
+        {{ cart.outstandingBalance|commerceCurrency(cart.paymentCurrency,convert=true) }}
+      </div>
+    </div>
+  {% endif %}
+</div>

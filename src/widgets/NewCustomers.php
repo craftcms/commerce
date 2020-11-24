@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\NewCustomers as NewCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -75,7 +74,7 @@ class NewCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'New Customers');
+        return Craft::t('commerce', 'New Customers');
     }
 
     /**

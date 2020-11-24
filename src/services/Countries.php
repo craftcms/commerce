@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\Country;
-use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -221,7 +220,7 @@ class Countries extends Component
             $record = CountryRecord::findOne($country->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No country exists with the ID “{id}”', ['id' => $country->id]));
+                throw new Exception(Craft::t('commerce', 'No country exists with the ID “{id}”', ['id' => $country->id]));
             }
         } else {
             $record = new CountryRecord();
@@ -288,6 +287,7 @@ class Countries extends Component
 
     /**
      * Clear memoization caches
+     *
      * @since 3.1.4
      */
     private function _clearCaches()

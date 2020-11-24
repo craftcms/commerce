@@ -43,17 +43,17 @@ class ConsolidateGuestOrders extends BaseJob
         $step = 1;
 
         foreach ($this->emails as $email) {
-            $this->setProgress($this->_queue, $step / $total, Plugin::t('Email {step} of {total}', compact('step', 'total')));
+            $this->setProgress($this->_queue, $step / $total, Craft::t('commerce', 'Email {step} of {total}', compact('step', 'total')));
             try {
                 Plugin::getInstance()->getCustomers()->consolidateGuestOrdersByEmail($email);
             } catch (\Throwable $e) {
-                Craft::warning('Could not consolidate orders for guest email'.$email, 'commerce');
+                Craft::warning('Could not consolidate orders for guest email' . $email, 'commerce');
             }
 
             $step++;
         }
 
-        $this->setProgress($queue, $step / $total, Plugin::t('Purging orphaned customers.'));
+        $this->setProgress($queue, $step / $total, Craft::t('commerce', 'Purging orphaned customers.'));
         Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
     }
 
@@ -106,6 +106,6 @@ class ConsolidateGuestOrders extends BaseJob
      */
     protected function defaultDescription(): string
     {
-        return Plugin::t('Consolidate all guest orders.');
+        return Craft::t('commerce', 'Consolidate all guest orders.');
     }
 }

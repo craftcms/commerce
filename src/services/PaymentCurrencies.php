@@ -81,7 +81,7 @@ class PaymentCurrencies extends Component
 
                 // TODO: Fix this with money/money package in 4.0
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
-                    throw new CurrencyException(Plugin::t('No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
+                    throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }
 
                 $paymentCurrency->setCurrency($currency);
@@ -168,7 +168,7 @@ class PaymentCurrencies extends Component
             $record = PaymentCurrencyRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No currency exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No currency exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {
@@ -195,7 +195,7 @@ class PaymentCurrencies extends Component
         if ($record->primary) {
             // The store wll not usually change primary currency in production, this fix is mainly for developers
             // who had a cart created before they started setting up their currencies.
-            if ($originalIso != $record->iso){
+            if ($originalIso != $record->iso) {
                 Order::updateAll(['currency' => $record->iso, 'paymentCurrency' => $record->iso], ['isCompleted' => false]);
             }
 

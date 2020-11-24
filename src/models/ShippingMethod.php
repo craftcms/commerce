@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\ShippingMethod as BaseShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -31,7 +32,7 @@ class ShippingMethod extends BaseShippingMethod
         $behaviors = parent::behaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
@@ -49,7 +50,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getType(): string
     {
-        return Plugin::t('Custom');
+        return Craft::t('commerce', 'Custom');
     }
 
     /**

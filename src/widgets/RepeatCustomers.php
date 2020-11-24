@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\RepeatCustomers as RepeatingCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -74,7 +73,7 @@ class RepeatCustomers extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t('Repeat Customers');
+        return Craft::t('commerce', 'Repeat Customers');
     }
 
     /**

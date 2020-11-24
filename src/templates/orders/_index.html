@@ -15,6 +15,16 @@
     "Apply"
 ]) %}
 
+{% block initJs %}
+    Craft.elementIndex = Craft.createElementIndex('{{ elementType|e("js") }}', $('#page-container'), {
+        elementTypeName: '{{ elementInstance.displayName()|e("js") }}',
+        elementTypePluralName: '{{ elementInstance.pluralDisplayName()|e("js") }}',
+        context: '{{ context }}',
+        storageKey: 'elementindex.{{ elementType|e("js") }}',
+        toolbarSelector: '#toolbar'
+    });
+{% endblock %}
+
 {% if orderStatusHandle is defined and orderStatusHandle %}
     {% js %}
         window.defaultStatusHandle = '{{ orderStatusHandle }}';

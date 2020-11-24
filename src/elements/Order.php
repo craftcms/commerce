@@ -20,7 +20,9 @@ use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
+use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\exports\Raw;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
@@ -40,6 +42,7 @@ use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -48,7 +51,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
-use craft\web\View;
+use craft\models\Site;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -122,10 +125,12 @@ use yii\log\Logger;
  * @property-read string $storedTotalPriceAsCurrency
  * @property-read string $storedTotalPaidAsCurrency
  * @property-read string $storedItemTotalAsCurrency
+ * @property-read string $storedItemSubtotalAsCurrency
  * @property-read string $storedTotalShippingCostAsCurrency
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
+ * @property-read Site|null $orderSite
  * @property null|array|Address $estimatedBillingAddress
  * @property float $totalDiscount
  * @property null|array|Address $estimatedShippingAddress
@@ -230,6 +235,30 @@ class Order extends Element
      *
      * Event::on(
      *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_ADD_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_ADD_LINE_ITEM = 'afterApplyAddLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been added to an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
      *     Order::EVENT_AFTER_ADD_LINE_ITEM,
      *     function(LineItemEvent $event) {
      *         // @var LineItem $lineItem
@@ -245,7 +274,7 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`)
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -267,6 +296,30 @@ class Order extends Element
      * ```
      */
     const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
+
+    /**
+     * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
+     *
+     * ```php
+     * use craft\commerce\elements\Order;
+     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\models\LineItem;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Order::class,
+     *     Order::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM,
+     *     function(LineItemEvent $event) {
+     *         // @var LineItem $lineItem
+     *         $lineItem = $event->lineItem;
+     *         // @var bool $isNew
+     *         $isNew = $event->isNew;
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_APPLY_REMOVE_LINE_ITEM = 'afterApplyRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered before an order is completed.
@@ -550,19 +603,32 @@ class Order extends Element
     public $orderStatusId;
 
     /**
-     * The current order status ID. This will be null if the order is not complete
-     * and is still a cart.
+     * The language the cart was created in.
      *
-     * @var int|null Order status ID
+     * @var string The language the order was made in.
      * ---
      * ```php
-     * echo $order->orderStatusId;
+     * echo $order->orderLanguage;
      * ```
      * ```twig
-     * {{ order.orderStatusId }}
+     * {{ order.orderLanguage }}
      * ```
      */
     public $orderLanguage;
+
+    /**
+     * The site the order was created in.
+     *
+     * @var int|null Order site ID
+     * ---
+     * ```php
+     * echo $order->orderSiteId;
+     * ```
+     * ```twig
+     * {{ order.orderSiteId }}
+     * ```
+     */
+    public $orderSiteId;
 
 
     /**
@@ -699,6 +765,12 @@ class Order extends Element
     public $shippingMethodHandle;
 
     /**
+     * @var string Shipping Method Name
+     * @since 3.2.0
+     */
+    public $shippingMethodName;
+
+    /**
      * @var int Customer ID
      */
     public $customerId;
@@ -770,6 +842,19 @@ class Order extends Element
      * ```
      */
     public $storedItemTotal;
+
+    /**
+     * @var float The item subtotal as stored in the database from last retrieval
+     * @since 3.2.4
+     * ---
+     * ```php
+     * echo $order->storedItemSubtotal;
+     * ```
+     * ```twig
+     * {{ order.storedItemSubtotal }}
+     * ```
+     */
+    public $storedItemSubtotal;
 
     /**
      * @var float The total shipping cost adjustments as stored in the database from last retrieval
@@ -895,7 +980,7 @@ class Order extends Element
      * ```twig
      * {% for lineItem in order.lineItems %}
      * {{ lineItem.description }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_lineItems;
@@ -913,7 +998,7 @@ class Order extends Element
      * ```twig
      * {% for adjustment in order.adjustments %}
      * {{ adjustment.amount }}
-     * {% endif %}
+     * {% endfor %}
      * ```
      */
     private $_orderAdjustments;
@@ -994,6 +1079,10 @@ class Order extends Element
             $this->orderLanguage = Craft::$app->language;
         }
 
+        if ($this->orderSiteId === null) {
+            $this->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
+        }
+
         if ($this->currency === null) {
             $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
@@ -1052,6 +1141,7 @@ class Order extends Element
                 'storedTotalPrice' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalPaid' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedItemTotal' => AttributeTypecastBehavior::TYPE_FLOAT,
+                'storedItemSubtotal' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalShippingCost' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
@@ -1061,7 +1151,7 @@ class Order extends Element
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => []
         ];
@@ -1074,7 +1164,7 @@ class Order extends Element
      */
     public static function displayName(): string
     {
-        return Plugin::t('Order');
+        return Craft::t('commerce', 'Order');
     }
 
     /**
@@ -1082,7 +1172,7 @@ class Order extends Element
      */
     public static function lowerDisplayName(): string
     {
-        return Plugin::t('order');
+        return Craft::t('commerce', 'order');
     }
 
     /**
@@ -1090,7 +1180,7 @@ class Order extends Element
      */
     public static function pluralDisplayName(): string
     {
-        return Plugin::t('Orders');
+        return Craft::t('commerce', 'Orders');
     }
 
     /**
@@ -1098,7 +1188,7 @@ class Order extends Element
      */
     public static function pluralLowerDisplayName(): string
     {
-        return Plugin::t('orders');
+        return Craft::t('commerce', 'orders');
     }
 
     /**
@@ -1122,13 +1212,16 @@ class Order extends Element
             }
         }
 
-        // Get the customer ID from the session
-        if (!$this->customerId && !Craft::$app->request->isConsoleRequest) {
-            $this->setCustomer(Plugin::getInstance()->getCustomers()->getCustomer());
+        // If the gateway ID doesn't exist, just drop it.
+        if ($this->gatewayId && !$this->getGateway()) {
+            $this->gatewayId = null;
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
-        if ($customer && $email = $customer->getEmail()) {
+        if (
+            $this->customerId &&
+            ($customer = Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId)) &&
+            ($email = $customer->getEmail())
+        ) {
             $this->setEmail($email);
         }
 
@@ -1209,6 +1302,7 @@ class Order extends Element
         $attributes[] = 'storedTotalPrice';
         $attributes[] = 'storedTotalPaid';
         $attributes[] = 'storedItemTotal';
+        $attributes[] = 'storedItemSubtotal';
         $attributes[] = 'storedTotalShippingCost';
         $attributes[] = 'storedTotalDiscount';
         $attributes[] = 'storedTotalTax';
@@ -1274,6 +1368,7 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
+        $names[] = 'orderSite';
         return $names;
     }
 
@@ -1481,7 +1576,7 @@ class Order extends Element
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
-            Craft::error(Plugin::t('Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
+            Craft::error(Craft::t('commerce', 'Could not mark order {number} as complete. Order save failed during order completion with errors: {order}',
                 ['number' => $this->number, 'order' => json_encode($this->errors)]), __METHOD__);
 
             $mutex->release($lockName);
@@ -1505,9 +1600,7 @@ class Order extends Element
         Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
-            if ($lineItem->getPurchasable()) {
-                $lineItem->getPurchasable()->afterOrderComplete($this, $lineItem);
-            }
+            Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
         }
 
         // Raising the 'afterCompleteOrder' event
@@ -1531,7 +1624,6 @@ class Order extends Element
             }
         }
 
-        // Raising the 'afterRemoveLineItemToOrder' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REMOVE_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_REMOVE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
@@ -1547,10 +1639,10 @@ class Order extends Element
     public function addLineItem($lineItem)
     {
         $lineItems = $this->getLineItems();
-        $isNew = !$lineItem->id;
+        $isNew = ($lineItem->id === null);
 
         if ($isNew && $this->hasEventHandlers(self::EVENT_BEFORE_ADD_LINE_ITEM)) {
-            $lineItemEvent = new LineItemEvent(compact('lineItem', 'isNew'));
+            $lineItemEvent = new AddLineItemEvent(compact('lineItem', 'isNew'));
             $this->trigger(self::EVENT_BEFORE_ADD_LINE_ITEM, $lineItemEvent);
 
             if (!$lineItemEvent->isValid) {
@@ -1613,7 +1705,7 @@ class Order extends Element
         }
 
         if ($this->hasErrors()) {
-            Craft::getLogger()->log(Plugin::t('Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
+            Craft::getLogger()->log(Craft::t('commerce', 'Do not call recalculate on the order (Number: {orderNumber}) if errors are present.', ['orderNumber' => $this->number]), Logger::LEVEL_INFO);
             return;
         }
 
@@ -1693,6 +1785,20 @@ class Order extends Element
         return $options;
     }
 
+    public function beforeSave(bool $isNew): bool
+    {
+
+        if (null === $this->shippingMethodHandle) {
+            // Reset shipping method name if there is no handle
+            $this->shippingMethodName = null;
+        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            // Update shipping method name if there is a handle and we can retrieve the method
+            $this->shippingMethodName = $shippingMethod->name;
+        }
+
+        return parent::beforeSave($isNew);
+    }
+
     /**
      * @inheritdoc
      */
@@ -1740,6 +1846,7 @@ class Order extends Element
         $orderRecord->datePaid = $this->datePaid ?: null;
         $orderRecord->dateAuthorized = $this->dateAuthorized ?: null;
         $orderRecord->shippingMethodHandle = $this->shippingMethodHandle;
+        $orderRecord->shippingMethodName = $this->shippingMethodName;
         $orderRecord->paymentSourceId = $this->getPaymentSource() ? $this->getPaymentSource()->id : null;
         $orderRecord->gatewayId = $this->gatewayId;
         $orderRecord->orderStatusId = $this->orderStatusId;
@@ -1754,6 +1861,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
+        $orderRecord->orderSiteId = $this->orderSiteId;
         $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
@@ -1771,7 +1879,7 @@ class Order extends Element
         $customer = $this->getCustomer();
         $existingAddresses = $customer ? $customer->getAddresses() : [];
 
-        $customerUser = $customer->getUser();
+        $customerUser = $customer ? $customer->getUser() : null;
         $currentUser = Craft::$app->getUser()->getIdentity();
         $noCustomerUserOrCurrentUser = ($customerUser == null && $currentUser == null);
         $currentUserDoesntMatchCustomerUser = ($currentUser && ($customerUser == null || $currentUser->id != $customerUser->id));
@@ -1905,24 +2013,18 @@ class Order extends Element
      * Returns the URL to the order’s PDF invoice.
      *
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
+     * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
      * @throws Exception
      */
-    public function getPdfUrl($option = null)
+    public function getPdfUrl($option = null, $pdfHandle = null)
     {
-        $url = null;
-        $view = Craft::$app->getView();
-        $oldTemplateMode = $view->getTemplateMode();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-        $file = Plugin::getInstance()->getSettings()->orderPdfPath;
-
-        if (!$file || !$view->doesTemplateExist($file)) {
-            $view->setTemplateMode($oldTemplateMode);
-            return null;
-        }
-        $view->setTemplateMode($oldTemplateMode);
-
         $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+
+        if ($pdfHandle !== null) {
+            $path .= '&pdfHandle=' . $pdfHandle;
+        }
+
         $url = UrlHelper::actionUrl(trim($path, '/'));
 
         return $url;
@@ -1958,9 +2060,29 @@ class Order extends Element
             if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
+            $previousCustomerId = $this->customerId;
 
             $this->_customer = $customer;
             $this->customerId = $customer->id;
+
+            // If the customer is changing then we should be resetting the association with the addresses on the cart
+            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousCustomerId) {
+                if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
+                    $shippingAddress->id = null;
+                    $this->setShippingAddress($shippingAddress);
+                }
+
+                if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
+                    $billingAddress->id = null;
+                    $this->setBillingAddress($billingAddress);
+                }
+
+                $this->estimatedBillingAddressId = null;
+                $this->_estimatedBillingAddress = null;
+
+                $this->estimatedShippingAddressId = null;
+                $this->_estimatedShippingAddress = null;
+            }
         } else {
             $this->_customer = null;
             $this->customerId = null;
@@ -2086,19 +2208,19 @@ class Order extends Element
         switch ($this->getPaidStatus()) {
             case self::PAID_STATUS_OVERPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Plugin::t('Overpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
             }
             case self::PAID_STATUS_PAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Plugin::t('Paid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
             }
             case self::PAID_STATUS_PARTIAL:
             {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Plugin::t('Partial') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
             }
             case self::PAID_STATUS_UNPAID:
             {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Plugin::t('Unpaid') . '</span>';
+                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
             }
         }
 
@@ -2335,7 +2457,7 @@ class Order extends Element
      */
     public function getAdjustmentsTotalByType($types, $included = false)
     {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', 'Order::getAdjustmentsTotalByType() has been deprecated. Use Order::getTotalTax(), Order::getTotalDiscount(), Order::getTotalShippingCost() instead.');
+        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
 
         return $this->_getAdjustmentsTotalByType($types, $included);
     }
@@ -2542,17 +2664,32 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array|null $address
+     * @param Address|array $address
      */
     public function setShippingAddress($address)
     {
         if ($address === null) {
             $this->shippingAddressId = null;
             $this->_shippingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->shippingAddressId = $address->id;
-            $this->_shippingAddress = $address;
+            return;
+        }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->shippingAddressId = $address->id;
+        $this->_shippingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+            $this->_billingAddress = $this->_shippingAddress;
         }
     }
 
@@ -2619,17 +2756,32 @@ class Order extends Element
     /**
      * Set the billing address on the order.
      *
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setBillingAddress($address)
     {
         if ($address === null) {
             $this->billingAddressId = null;
             $this->_billingAddress = null;
-        } else {
-            $address = is_array($address) ? new Address($address) : $address;
-            $this->billingAddressId = $address->id;
-            $this->_billingAddress = $address;
+            return;
+        }
+
+        if (is_array($address)) {
+            $addressModel = new Address();
+            $addressModel->setAttributes($address);
+            $address = $addressModel;
+        }
+
+        if (!$address instanceof Address) {
+            throw new InvalidArgumentException('Not an address');
+        }
+
+        $this->billingAddressId = $address->id;
+        $this->_billingAddress = $address;
+
+        // When we are setting an address we need to keep them in sync if they have the same ID
+        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+            $this->_shippingAddress = $this->_billingAddress;
         }
     }
 
@@ -2697,11 +2849,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        if ($this->isCompleted) {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        } else {
-            $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        }
+        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         // Do we have a shipping method available based on the current selection?
         if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
@@ -2743,11 +2891,9 @@ class Order extends Element
                 $gateway = Plugin::getInstance()->getGateways()->getGatewayById($paymentSource->gatewayId);
             }
         } else {
-            $gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
-        }
-
-        if (null === $gateway) {
-            throw new InvalidArgumentException("Invalid gateway ID: {$this->gatewayId}");
+            if ($this->gatewayId) {
+                $gateway = Plugin::getInstance()->getGateways()->getGatewayById((int)$this->gatewayId);
+            }
         }
 
         return $gateway;
@@ -2806,10 +2952,26 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource(PaymentSource $paymentSource)
+    public function setPaymentSource($paymentSource)
     {
-        $this->paymentSourceId = $paymentSource->id;
-        $this->gatewayId = null;
+        if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
+            throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
+        }
+
+        // Setting the payment source to null clears it
+        if ($paymentSource === null) {
+            $this->paymentSourceId = null;
+        }
+
+        if ($paymentSource instanceof PaymentSource) {
+            $user = $this->getUser();
+            if ($user && $paymentSource->getUser()->id != $user->id) {
+                throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
+            }
+
+            $this->paymentSourceId = $paymentSource->id;
+            $this->gatewayId = null;
+        }
     }
 
     /**
@@ -2829,6 +2991,17 @@ class Order extends Element
     public function getHistories(): array
     {
         return Plugin::getInstance()->getOrderHistories()->getAllOrderHistoriesByOrderId($this->id);
+    }
+
+    /**
+     * Set transactions on the order. Set to null to clear cache and force next getTransactions() call to get the latest transactions.
+     *
+     * @param Transaction[]|null $transactions
+     * @since 3.2.0
+     */
+    public function setTransactions($transactions)
+    {
+        $this->_transactions = $transactions;
     }
 
     /**
@@ -2897,6 +3070,21 @@ class Order extends Element
     }
 
     /**
+     * Get the site for the order.
+     *
+     * @return Site|null
+     * @since 3.2.9
+     */
+    public function getOrderSite()
+    {
+        if (!$this->orderSiteId) {
+            return null;
+        }
+
+        return Craft::$app->getSites()->getSiteById($this->orderSiteId);
+    }
+
+    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @return null
@@ -2942,23 +3130,45 @@ class Order extends Element
 
         // Determine the line items that will be saved
         foreach ($this->getLineItems() as $lineItem) {
-            // If the ID is null that's ok, it's a new line item and will be saves anyway
+            // If the ID is null that's ok, it's a new line item and will be saved anyway
             $currentLineItemIds[] = $lineItem->id;
         }
 
         // Delete any line items that no longer will be saved on this order.
         foreach ($previousLineItems as $previousLineItem) {
             if (!in_array($previousLineItem->id, $currentLineItemIds, false)) {
+
+                $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($previousLineItem->id);
                 $previousLineItem->delete();
+
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem
+                    ]));
+                }
             }
         }
 
         // Save the line items last, as we know that any possible duplicates are already removed.
         // We also need to re-save any adjustments that didn't have an line item ID for a line item if it's new.
         foreach ($this->getLineItems() as $lineItem) {
-            $lineItem->setOrder($this);
+
+            $originalId = $lineItem->id;
+            $lineItem->setOrder($this); // just in case.
+
             // Don't run validation as validation of the line item should happen before saving the order
             Plugin::getInstance()->getLineItems()->saveLineItem($lineItem, false);
+
+            // Is this a new line item?
+            if ($originalId === null) {
+                // Raising the 'afterAddLineItemToOrder' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
+                    $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
+                        'lineItem' => $lineItem,
+                        'isNew' => true
+                    ]));
+                }
+            }
 
             // Update any adjustments to this line item with the new line item ID.
             foreach ($this->getAdjustments() as $adjustment) {

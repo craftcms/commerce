@@ -1,22 +1,3 @@
-{% macro titleField(product) %}
-    {%- import "_includes/forms" as forms -%}
-
-    {{ forms.textField({
-        label: product.type.titleLabel|t('site')|e ?: 'Title'|t('app'),
-        site: product.site,
-        id: 'title',
-        name: 'title',
-        value: product.title,
-        placeholder: 'Enter title'|t('commerce'),
-        errors: product.getErrors('title'),
-        first: true,
-        autofocus: true,
-        required: true,
-        maxlength: 255
-    }) }}
-{% endmacro %}
-
-
 {% macro generalMetaFields(product) %}
     {%- import "_includes/forms" as forms -%}
 
@@ -102,25 +83,9 @@
     }) }}
 {% endmacro %}
 
-
 {% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
-
-    {% if product.type.hasVariantTitleField and product.type.hasVariants %}
-        {{ forms.textField({
-            label: product.type.variantTitleLabel|t('site')|e ?: 'Title'|t('app'),
-            site: variant.site,
-            id: 'title',
-            name: 'title',
-            value: variant.title,
-            placeholder: 'Enter title'|t('commerce'),
-            errors: variant.getErrors('title'),
-            first: true,
-            required: true,
-            maxlength: 255
-        }) }}
-    {% endif %}
 
     {# For a new product hide/show the SKU field#}
     {% if product.type.skuFormat and (not product.id or not variant.id) %}
@@ -134,7 +99,7 @@
             label: 'SKU'|t('commerce'),
             required: true,
             name: 'sku',
-            value: variant.sku,
+            value: variant.getSkuAsText(),
             placeholder: 'Enter SKU'|t('commerce'),
             class: 'code',
             errors: variant.getErrors('sku')
@@ -277,6 +242,7 @@
     {%- import "_includes/forms" as forms -%}
     {% set output %}
         {% if not showAddAll %}
+            <div class="product-sales commerce-sales-spinner spinner" data-id="{{ id }}" data-loading="false"></div>
             <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
             <div class="commerce-sales-buttons">
                 {# Add to existing sale #}
@@ -294,5 +260,19 @@
     {{ forms.field({
         label: 'Related Sales'|t('commerce'),
         id: 'related-sales',
+    }, output) }}
+{% endmacro %}
+
+
+{% macro relatedDiscounts(id, defaultVariant) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        <ul class="commerce-discounts product-discounts commerce-sales" data-id="{{ id }}"></ul>
+        <a class="btn small add icon" target="_blank" href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~defaultVariant.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Discounts'|t('commerce'),
+        id: 'related-discounts',
     }, output) }}
 {% endmacro %}

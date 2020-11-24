@@ -32,6 +32,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path dev/element-queries/order-queries.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -92,6 +93,16 @@ class OrderQuery extends ElementQuery
     public $orderStatusId;
 
     /**
+     * @var int The language the order was made that the resulting the order must have.
+     */
+    public $orderLanguage;
+
+    /**
+     * @var int The Order Site ID that the resulting orders must have.
+     */
+    public $orderSiteId;
+
+    /**
      * @var string|null The origin the resulting orders must have.
      */
     public $origin;
@@ -130,6 +141,36 @@ class OrderQuery extends ElementQuery
      * @var bool Whether the order has any line items.
      */
     public $hasLineItems;
+
+    /**
+     * @var bool Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     */
+    public $withAll;
+
+    /**
+     * @var bool Eager loads the the shipping and billing addressees on the resulting orders.
+     */
+    public $withAddresses;
+
+    /**
+     * @var bool Eager loads the order adjustments on the resulting orders.
+     */
+    public $withAdjustments;
+
+    /**
+     * @var bool Eager load the customer (and related user) on to the order.
+     */
+    public $withCustomer;
+
+    /**
+     * @var bool Eager loads the line items on the resulting orders.
+     */
+    public $withLineItems;
+
+    /**
+     * @var bool Eager loads the transactions on the resulting orders.
+     */
+    public $withTransactions;
 
     /**
      * @inheritdoc
@@ -548,14 +589,14 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order status with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .authorGroupId(1)
+     *     .orderStatusId(1)
      *     .all() %}
      * ```
      *
      * ```php
      * // Fetch {elements} with an order status with an ID of 1
      * ${elements-var} = {php-method}
-     *     ->authorGroupId(1)
+     *     ->orderStatusId(1)
      *     ->all();
      * ```
      *
@@ -565,6 +606,80 @@ class OrderQuery extends ElementQuery
     public function orderStatusId($value)
     {
         $this->orderStatusId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `en` | with an order language that is 'en'.
+     * | `'not en'` | not with an order language that is no 'en'.
+     * | `['en', 'en-us']` | with an order language that is 'en' or 'en-us'.
+     * | `['not', 'en']` | not with an order language that is not 'en'.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order status with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .orderLanguage('en')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order status with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->orderLanguage('en')
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderLanguage($value)
+    {
+        $this->orderLanguage = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with an order site ID of 1.
+     * | `'not 1'` | not with an order site ID that is no 1.
+     * | `[1, 2]` | with an order site ID of 1 or 2.
+     * | `['not', 1, 2]` | not with an order site ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order site ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .orderSiteId(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order site ID of 1
+     * ${elements-var} = {php-method}
+     *     ->orderSiteId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderSiteId($value)
+    {
+        $this->orderSiteId = $value;
         return $this;
     }
 
@@ -907,6 +1022,171 @@ class OrderQuery extends ElementQuery
     }
 
     /**
+     * Eager loads all relational data (addresses, adjustents, customers, line items, transactions) for the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses, adjustents, customers, line items, transactions
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAll()
+     */
+    public function withAll($value = true)
+    {
+        $this->withAll = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the the shipping and billing addressees on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches addresses
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAddresses()
+     */
+    public function withAddresses($value = true)
+    {
+        $this->withAddresses = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the order adjustments on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withAdjustments()
+     */
+    public function withAdjustments($value = true)
+    {
+        $this->withAdjustments = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the customer (and related user) on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches adjustments
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withCustomer()
+     */
+    public function withCustomer($value = true)
+    {
+        $this->withCustomer = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the line items on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches line items…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withLineItems()
+     */
+    public function withLineItems($value = true)
+    {
+        $this->withLineItems = $value;
+
+        return $this;
+    }
+
+    /**
+     * Eager loads the transactions on the resulting orders.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches transactions…
+     * | - | -
+     * | bool | `true` to eager-load, `false` to not eager load.
+     *
+     * @param bool|null $value The property value
+     * @return static self reference
+     *
+     * @used-by withTransactions()
+     */
+    public function withTransactions($value = true)
+    {
+        $this->withTransactions = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function populate($rows)
+    {
+        $orders = parent::populate($rows);
+
+        // Eager-load anything?
+        if (!empty($orders) && !$this->asArray) {
+
+            // Eager-load line items?
+            if ($this->withLineItems === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            }
+
+            // Eager-load transactions?
+            if ($this->withTransactions === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+            }
+
+            // Eager-load adjustments?
+            if ($this->withAdjustments === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+            }
+
+            // Eager-load customers?
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+            }
+
+            // Eager-load addresses?
+            if ($this->withAddresses === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function beforePrepare(): bool
@@ -982,6 +1262,23 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
+            $this->query->addSelect([
+                'commerce_orders.shippingMethodName',
+            ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.2.4', '>=')) {
+            $this->query->addSelect([
+                'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.2.9', '>=')) {
+            $this->query->addSelect(['commerce_orders.orderSiteId']);
+            $this->query->addSelect(['commerce_orders.orderLanguage']);
+        }
+
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {
@@ -1028,6 +1325,14 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
         }
 
+        if ($this->orderLanguage) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderStatusId));
+        }
+
+        if ($this->orderSiteId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderStatusId));
+        }
+
         if ($this->customerId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
         }
@@ -1046,8 +1351,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('[[commerce_orders.totalPaid]] < [[commerce_orders.totalPrice]]'));
         }
 
-        // Allow true ot false but not null
-        if (($this->hasPurchasables !== null) && $this->hasPurchasables) {
+        // Allow integer/PurchasableInterface object or array of integers/PurchasableInterface objects
+        if ($this->hasPurchasables !== null) {
             $purchasableIds = [];
 
             if (!is_array($this->hasPurchasables)) {
@@ -1065,20 +1370,33 @@ class OrderQuery extends ElementQuery
             // Remove any blank purchasable IDs (if any)
             $purchasableIds = array_filter($purchasableIds);
 
-            $this->subQuery->innerJoin(Table::LINEITEMS . ' lineitems', '[[lineitems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['lineitems.purchasableId' => $purchasableIds]);
+            $this->subQuery->andWhere([
+                'exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->andWhere(['lineitems.purchasableId' => $purchasableIds])
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasTransactions !== null) && $this->hasTransactions) {
-            $this->subQuery->leftJoin(Table::TRANSACTIONS . ' transactions', '[[transactions.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['transactions.id' => null]]);
+        if ($this->hasTransactions !== null) {
+            $this->subQuery->andWhere([
+                $this->hasTransactions ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['transactions' => Table::TRANSACTIONS])
+                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]'))
+            ]);
         }
 
         // Allow true or false but not null
-        if (($this->hasLineItems !== null) && $this->hasLineItems) {
-            $this->subQuery->leftJoin(Table::LINEITEMS . ' lineItems', '[[lineItems.orderId]] = [[commerce_orders.id]]');
-            $this->subQuery->andWhere(['not', ['lineItems.id' => null]]);
+        if ($this->hasLineItems !== null) {
+            $this->subQuery->andWhere([
+                $this->hasLineItems ? 'exists' : 'not exists',
+                (new Query())
+                    ->from(['lineitems' => Table::LINEITEMS])
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+            ]);
         }
 
         return parent::beforePrepare();

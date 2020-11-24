@@ -7,6 +7,7 @@
 
 namespace craft\commerce\stats;
 
+use Craft;
 use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
@@ -47,11 +48,13 @@ class TopProducts extends Stat
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
+
     /**
      * @inheritDoc
      */
     public function getData()
     {
+        $primarySite = Craft::$app->getSites()->getPrimarySite();
         $selectTotalQty = new Expression('SUM([[li.qty]]) as qty');
         $orderByQty = new Expression('SUM([[li.qty]]) DESC');
         $selectTotalRevenue = new Expression('SUM([[li.total]]) as revenue');
@@ -67,7 +70,11 @@ class TopProducts extends Stat
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')
             ->leftJoin(Table::VARIANTS . ' v', '[[v.id]] = [[p.id]]')
-            ->leftJoin(CraftTable::CONTENT . ' content', '[[content.elementId]] = [[v.productId]]')
+            ->leftJoin(CraftTable::CONTENT . ' content', [
+                'and',
+                '[[content.elementId]] = [[v.productId]]',
+                ['content.siteId' => $primarySite->id],
+            ])
             ->groupBy('[[v.productId]], [[content.title]]')
             ->orderBy($this->type == 'revenue' ? $orderByRevenue : $orderByQty)
             ->andWhere(['not', ['[[v.productId]]' => null]])

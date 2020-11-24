@@ -1,0 +1,20 @@
+<!-- Template: {{ _self }}.twig -->
+{% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
+{% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
+
+{% if currencies|length > 1 %}
+  <label class="block font-semibold mt-6">Choose payment currency:</label>
+  {% for currency in currencies %}
+    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+      <div class="flex justify-start items-center">
+        <div class="pr-2">
+          <input type="radio" name="paymentCurrency" value="{{ currency.iso }}" {% if currency.iso == cart.paymentCurrency %}checked{% endif %} />
+        </div>
+        <div>
+          <strong>{{ currency.name }} {{  currency.iso }}</strong><br>
+          <span class="text-gray-600">{{ cart.totalPrice|commerceCurrency(currency.iso,convert=true) }}</span>
+        </div>
+      </div>
+    </label>
+  {% endfor %}
+{% endif %}

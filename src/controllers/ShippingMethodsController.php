@@ -10,6 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
+use craft\errors\MissingComponentException;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -57,7 +61,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         if ($variables['shippingMethod']->id) {
             $variables['title'] = $variables['shippingMethod']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new shipping method');
+            $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
         $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);
@@ -83,10 +87,10 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         // Save it
         if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Shipping method saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Shipping method saved.'));
             $this->redirectToPostedUrl($shippingMethod);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping method.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping method.'));
         }
 
         // Send the model back to the template
@@ -107,6 +111,38 @@ class ShippingMethodsController extends BaseShippingSettingsController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asErrorJson(Plugin::t('Could delete shipping method and it’s rules.'));
+        return $this->asErrorJson(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
     }
+
+    /**
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     * @since 3.2.9
+     */
+    public function actionUpdateStatus()
+    {
+        $this->requirePostRequest();
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+        $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
+
+        if (empty($ids)) {
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
+        }
+
+        $transaction = Craft::$app->getDb()->beginTransaction();
+        $shippingMethods = ShippingMethodRecord::find()
+            ->where(['id' => $ids])
+            ->all();
+
+        /** @var ShippingMethodRecord $discount */
+        foreach ($shippingMethods as $shippingMethod) {
+            $shippingMethod->enabled = ($status == 'enabled');
+            $shippingMethod->save();
+        }
+        $transaction->commit();
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
+    }
+
 }

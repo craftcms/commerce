@@ -27,6 +27,7 @@ use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
@@ -147,6 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
+     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -306,9 +308,13 @@ class Discounts extends Component
      * Populates a discount's relations.
      *
      * @param Discount $discount
+     * @throws DeprecationException
+     * @deprecated in 3.2.4.
      */
     public function populateDiscountRelations(Discount $discount)
     {
+        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
+
         $rows = (new Query())->select(
             'dp.purchasableId,
             dpt.categoryId,
@@ -326,15 +332,15 @@ class Discounts extends Component
 
         foreach ($rows as $row) {
             if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
+                $purchasableIds[] = (int)$row['purchasableId'];
             }
 
             if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
+                $categoryIds[] = (int)$row['categoryId'];
             }
 
             if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
+                $userGroupIds[] = (int)$row['userGroupId'];
             }
         }
 
@@ -355,17 +361,22 @@ class Discounts extends Component
         $discount = $this->getDiscountByCode($order->couponCode);
 
         if (!$discount) {
-            $explanation = Plugin::t('Coupon not valid.');
+            $explanation = Craft::t('commerce', 'Coupon not valid.');
+            return false;
+        }
+
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the order');
             return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            $explanation = Plugin::t('Discount is out of date.');
+            $explanation = Craft::t('commerce', 'Discount is out of date.');
             return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            $explanation = Plugin::t('Discount use has reached its limit.');
+            $explanation = Craft::t('commerce', 'Discount use has reached its limit.');
             return false;
         }
 
@@ -373,19 +384,19 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Plugin::t('Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
             return false;
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            $explanation = Plugin::t('This coupon is for registered users and limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
             return false;
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            $explanation = Plugin::t('This coupon is limited to {limit} uses.', [
+            $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
             ]);
             return false;
@@ -399,6 +410,7 @@ class Discounts extends Component
      *
      * @param string $code
      * @return Discount|null
+     * @throws \Exception
      */
     public function getDiscountByCode($code)
     {
@@ -406,11 +418,9 @@ class Discounts extends Component
             return null;
         }
 
-        $result = $this->_createDiscountQuery()
-            ->where(['code' => $code, 'enabled' => true])
-            ->one();
-
-        return $result ? new Discount($result) : null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
+            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        });
     }
 
     /**
@@ -433,7 +443,7 @@ class Discounts extends Component
                 $categoryIds = $discount->getCategoryIds();
                 $relatedCategories = Category::find()->id($categoryIds)->relatedTo($relatedTo)->ids();
 
-                if (in_array($id, $purchasableIds) || !empty($relatedCategories)) {
+                if (in_array($id, $purchasableIds, false) || !empty($relatedCategories)) {
                     $discounts[$discount->id] = $discount;
                 }
             }
@@ -456,7 +466,7 @@ class Discounts extends Component
             return false;
         }
 
-        if ($lineItem->onSale && $discount->excludeOnSale) {
+        if ($lineItem->getOnSale() && $discount->excludeOnSale) {
             return false;
         }
 
@@ -467,7 +477,7 @@ class Discounts extends Component
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
-            if (!in_array($purchasableId, $discount->getPurchasableIds(), true)) {
+            if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
                 return false;
             }
         }
@@ -494,7 +504,6 @@ class Discounts extends Component
         }
 
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            Craft::$app->getDeprecator()->log('Discounts::EVENT_BEFORE_MATCH_LINE_ITEM', 'Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.');
             $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 
@@ -620,7 +629,7 @@ class Discounts extends Component
             $record = DiscountRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No discount exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No discount exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new DiscountRecord();
@@ -716,6 +725,10 @@ class Discounts extends Component
                 ]));
             }
 
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -750,6 +763,10 @@ class Discounts extends Component
             ]));
         }
 
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
+
         return $result;
     }
 
@@ -765,6 +782,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -779,6 +800,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::EMAIL_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -794,6 +819,10 @@ class Discounts extends Component
         $db->createCommand()
             ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], ['id' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -809,6 +838,10 @@ class Discounts extends Component
                 ->update(Table::DISCOUNTS, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
 
         return true;
     }
@@ -928,6 +961,10 @@ class Discounts extends Component
                     'id' => $discount['discountUseId']
                 ])
                 ->execute();
+
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
         }
     }
 
@@ -964,6 +1001,24 @@ class Discounts extends Component
         $to = $discount->dateTo;
 
         return !(($from && $from > $now) || ($to && $to < $now));
+    }
+
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     */
+    private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
+    {
+        if ($discount->orderConditionFormula) {
+            $orderDiscountConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+        }
+
+        return true;
     }
 
     /**

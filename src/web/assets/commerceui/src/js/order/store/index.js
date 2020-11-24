@@ -5,6 +5,7 @@ import Vuex from 'vuex'
 import ordersApi from '../api/orders'
 import addressesApi from '../api/addresses'
 import utils from '../helpers/utils'
+import _isEqual from 'lodash.isequal'
 
 Vue.use(Vuex)
 
@@ -16,10 +17,10 @@ export default new Vuex.Store({
         editing: false,
         draft: null,
         originalDraft: null,
-        purchasables: [],
         customers: [],
         orderData: null,
         lastPurchasableIds: [],
+        unloadEventInit: false,
     },
 
     getters: {
@@ -143,6 +144,10 @@ export default new Vuex.Store({
             return window.orderEdit.orderStatuses
         },
 
+        orderSites() {
+            return window.orderEdit.orderSites
+        },
+
         getErrors(state) {
             return (errorKey) => {
                 if (state && state.draft && state.draft.order && state.draft.order.errors && state.draft.order.errors[errorKey]) {
@@ -240,7 +245,8 @@ export default new Vuex.Store({
             // Retrieve dynamic link corresponding to selected static one and click it
             if ($selectedLink && $selectedLink.classList.contains('static')) {
                 const staticLink = $selectedLink.getAttribute('href')
-                const dynamicLink = staticLink.substr(0, staticLink.length - 'Static'.length)
+                let prefixLength = '#static-'.length;
+                const dynamicLink = '#' + staticLink.substr(prefixLength, staticLink.length - prefixLength)
 
                 $tabLinks.forEach(function($tabLink) {
                     if ($tabLink.classList.contains('custom-tab') && $tabLink.getAttribute('href') === dynamicLink) {
@@ -291,15 +297,6 @@ export default new Vuex.Store({
             return ordersApi.deleteOrder(orderId)
                 .then(() => {
                     commit('updateRecalculateLoading', false)
-                })
-        },
-
-        getPurchasables({commit, getters}) {
-            const orderId = getters.orderId
-
-            return ordersApi.purchasableSearch(orderId)
-                .then((response) => {
-                    commit('updatePurchasables', response.data)
                 })
         },
 
@@ -389,6 +386,18 @@ export default new Vuex.Store({
 
     mutations: {
         updateEditing(state, editing) {
+            if (!state.unloadEventInit && editing) {
+                state.unloadEventInit = true
+                // Add event listener for leaving the page
+                window.addEventListener('beforeunload', function(ev) {
+                    // Only check if we are not saving
+                    if (!state.saveLoading && !_isEqual(state.draft, state.originalDraft)) {
+                        ev.preventDefault();
+                        ev.returnValue = '';
+                    }
+                });
+            }
+
             state.editing = editing
         },
 
@@ -402,10 +411,6 @@ export default new Vuex.Store({
 
         updateOriginalDraft(state, originalDraft) {
             state.originalDraft = originalDraft
-        },
-
-        updatePurchasables(state, purchasables) {
-            state.purchasables = purchasables
         },
 
         updateCustomers(state, customers) {

@@ -33,6 +33,13 @@
                 <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
+            <field v-if="order.isCompleted" :label="$options.filters.t('Order Site', 'commerce')">
+                <order-site
+                    :originalOrderSiteId="originalDraft.order.orderSiteId"
+                    :order="order"
+                    @updateOrder="updateOrder"></order-site>
+            </field>
+
             <div class="field" id="isCompleted-field"
                  v-if="!draft.order.isCompleted">
                 <div class="heading">
@@ -92,6 +99,12 @@
                 </div>
             </template>
 
+            <div class="data">
+                <h5 class="heading">{{"Order Site"|t('commerce')}}</h5>
+                <span class="value"
+                      v-if="draft.order.orderSite">{{draft.order.orderSite.name}} ({{draft.order.orderSite.language}})</span>
+            </div>
+
             <template v-if="draft.order.isCompleted">
                 <div class="data">
                     <h5 class="heading">{{"Status"|t('commerce')}}</h5>
@@ -102,11 +115,9 @@
 
             <div class="data">
                 <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
-                <div class="value" v-if="shippingMethod">
-                    <span v-if="typeof shippingMethod == 'object'">{{shippingMethod.name}}</span>
-                    <span v-if="typeof shippingMethod == 'object'" class="small code shipping-method-handle"><br>{{shippingMethod.handle}}</span>
-
-                    <span class="code" v-if="typeof shippingMethod == 'string'">{{shippingMethod}}</span>
+                <div class="value" v-if="draft.order.shippingMethodHandle">
+                    <span v-if="draft.order.shippingMethodName">{{draft.order.shippingMethodName}}</span>
+                    <span class="small code shipping-method-handle"><br>{{draft.order.shippingMethodHandle}}</span>
                 </div>
             </div>
         </div>
@@ -197,6 +208,7 @@
     import debounce from 'lodash.debounce'
     import {mapActions, mapGetters, mapState} from 'vuex'
     import OrderStatus from '../components/meta/OrderStatus'
+    import OrderSite from '../components/meta/OrderSite'
     import ShippingMethod from '../components/meta/ShippingMethod'
     import DateOrderedInput from '../components/meta/DateOrderedInput'
     import Field from '../../base/components/Field'
@@ -207,6 +219,7 @@
 
         components: {
             OrderStatus,
+            OrderSite,
             ShippingMethod,
             DateOrderedInput,
             Field,

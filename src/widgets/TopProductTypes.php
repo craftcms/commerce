@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TopProductTypes as TopProductTypesStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -68,24 +67,24 @@ class TopProductTypes extends Widget
     public function init()
     {
         $this->_typeOptions = [
-            'qty' => Plugin::t('Qty'),
-            'revenue' => Plugin::t('Revenue'),
+            'qty' => Craft::t('commerce', 'Qty'),
+            'revenue' => Craft::t('commerce', 'Revenue'),
         ];
 
         switch ($this->type) {
             case 'revenue':
             {
-                $this->_title = Plugin::t('Top Product Types by Revenue');
+                $this->_title = Craft::t('commerce', 'Top Product Types by Revenue');
                 break;
             }
             case 'qty':
             {
-                $this->_title = Plugin::t('Top Product Types by Qty Sold');
+                $this->_title = Craft::t('commerce', 'Top Product Types by Qty Sold');
                 break;
             }
             default:
             {
-                $this->_title = Plugin::t('Top Product Types');
+                $this->_title = Craft::t('commerce', 'Top Product Types');
                 break;
             }
         }
@@ -114,7 +113,7 @@ class TopProductTypes extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Product Types');
+        return Craft::t('commerce', 'Top Product Types');
     }
 
     /**

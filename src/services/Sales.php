@@ -188,29 +188,31 @@ class Sales extends Component
     public function getAllSales(): array
     {
         if (null === $this->_allSales) {
-            $sales = (new Query())->select(
-                'sales.id,
-                sales.name,
-                sales.description,
-                sales.dateFrom,
-                sales.dateTo,
-                sales.apply,
-                sales.applyAmount,
-                sales.stopProcessing,
-                sales.ignorePrevious,
-                sales.allGroups,
-                sales.allPurchasables,
-                sales.allCategories,
-                sales.categoryRelationshipType,
-                sales.enabled,
-                sp.purchasableId,
-                spt.categoryId,
-                sug.userGroupId')
+            $sales = (new Query())->select([
+                'sales.id',
+                'sales.name',
+                'sales.description',
+                'sales.dateFrom',
+                'sales.dateTo',
+                'sales.apply',
+                'sales.applyAmount',
+                'sales.stopProcessing',
+                'sales.ignorePrevious',
+                'sales.allGroups',
+                'sales.allPurchasables',
+                'sales.allCategories',
+                'sales.sortOrder',
+                'sales.categoryRelationshipType',
+                'sales.enabled',
+                'sp.purchasableId',
+                'spt.categoryId',
+                'sug.userGroupId'
+            ])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]] = [[sales.id]]')
                 ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]] = [[sales.id]]')
-                ->orderBy('sortOrder asc')
+                ->orderBy(['sales.sortOrder' => 'ASC'])
                 ->all();
 
             $allSalesById = [];
@@ -255,7 +257,7 @@ class Sales extends Component
      * Populates a sale's relations.
      *
      * @param Sale $sale
-     * @deprecated in 3.x. No longer required as IDs are populated when retrieving the sale using the service.
+     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
      */
     public function populateSaleRelations(Sale $sale)
     {
@@ -432,7 +434,8 @@ class Sales extends Component
             $this->_purchasableSaleMatch[$purchasableId][$saleId] = null;
         }
 
-        if ($this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
+        // Only use memoized data if we are matching outside of the context of an order
+        if (!$order && $this->_purchasableSaleMatch[$purchasableId][$saleId] !== null) {
             return $this->_purchasableSaleMatch[$purchasableId][$saleId];
         }
 
@@ -449,17 +452,22 @@ class Sales extends Component
             return false;
         }
 
-        // Category match
-        if (!$sale->allCategories) {
-            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-            $saleCategories = $sale->getCategoryIds();
-            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+        $date = new DateTime();
 
-            if (empty($relatedCategories)) {
-                return false;
-            }
+        if ($order) {
+            // Date we care about in the context of an order is the date the order was placed.
+            // If the order is still a cart, use the current date time.
+            $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
+        if ($sale->dateFrom && $sale->dateFrom >= $date) {
+            return false;
+        }
+
+        if ($sale->dateTo && $sale->dateTo <= $date) {
+            return false;
+        }
+        
         if ($order) {
             $user = $order->getUser();
 
@@ -484,21 +492,16 @@ class Sales extends Component
                 return false;
             }
         }
+        
+        // Category match
+        if (!$sale->allCategories) {
+            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+            $saleCategories = $sale->getCategoryIds();
+            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-        $date = new DateTime();
-
-        if ($order) {
-            // Date we care about in the context of an order is the date the order was placed.
-            // If the order is still a cart, use the current date time.
-            $date = $order->isCompleted ? $order->dateOrdered : $date;
-        }
-
-        if ($sale->dateFrom && $sale->dateFrom >= $date) {
-            return false;
-        }
-
-        if ($sale->dateTo && $sale->dateTo <= $date) {
-            return false;
+            if (empty($relatedCategories)) {
+                return false;
+            }
         }
 
         $saleMatchEvent = new SaleMatchEvent(compact('sale', 'purchasable'));
@@ -506,6 +509,12 @@ class Sales extends Component
         // Raising the 'beforeMatchPurchasableSale' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_MATCH_PURCHASABLE_SALE, $saleMatchEvent);
+        }
+
+        // If an order has been supplied we do not want to memoize the match
+        if ($order) {
+            unset($this->_purchasableSaleMatch[$purchasableId][$saleId]);
+            return $saleMatchEvent->isValid;
         }
 
         $this->_purchasableSaleMatch[$purchasableId][$saleId] = $saleMatchEvent->isValid;
@@ -531,7 +540,7 @@ class Sales extends Component
             $record = SaleRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No sale exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No sale exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         }
@@ -602,6 +611,8 @@ class Sales extends Component
                 $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();
+
+                Craft::$app->getElements()->invalidateCachesForElement($purchasable);
             }
 
             $transaction->commit();

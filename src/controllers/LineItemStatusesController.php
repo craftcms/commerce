@@ -64,7 +64,7 @@ class LineItemStatusesController extends BaseAdminController
         if ($variables['lineItemStatus']->id) {
             $variables['title'] = $variables['lineItemStatus']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new line item status');
+            $variables['title'] = Craft::t('commerce', 'Create a new line item status');
         }
 
         return $this->renderTemplate('commerce/settings/lineitemstatuses/_edit', $variables);
@@ -94,10 +94,10 @@ class LineItemStatusesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getLineItemStatuses()->saveLineItemStatus($lineItemStatus)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Order status saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Order status saved.'));
             $this->redirectToPostedUrl($lineItemStatus);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save line item status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save line item status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('lineItemStatus'));
@@ -121,7 +121,7 @@ class LineItemStatusesController extends BaseAdminController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder  Line Item Statuses.')]);
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.')]);
     }
 
     /**
@@ -139,6 +139,6 @@ class LineItemStatusesController extends BaseAdminController
             return $this->asJson(['success' => true]);
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t archive Line Item Status.')]);
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Line Item Status.')]);
     }
 }

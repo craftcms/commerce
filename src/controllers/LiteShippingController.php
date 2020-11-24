@@ -27,11 +27,11 @@ class LiteShippingController extends BaseStoreSettingsController
      */
     public function init()
     {
+        parent::init();
+
         if (!Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             throw new WrongEditionException('Lite settings editable when using the lite edition only');
         }
-
-        parent::init();
     }
 
     /**
@@ -60,7 +60,7 @@ class LiteShippingController extends BaseStoreSettingsController
         $settings->shippingBaseRate = Craft::$app->getRequest()->getBodyParam('shippingBaseRate');
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save shipping settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping settings.'));
             return $this->renderTemplate('commerce/store-settings/shipping', compact('settings'));
         }
 
@@ -77,7 +77,7 @@ class LiteShippingController extends BaseStoreSettingsController
             throw new Exception('Could not save internal shipping method or rule for lite shipping');
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }

@@ -61,6 +61,6 @@ class ProductFixture extends ElementFixture
      */
     protected function isPrimaryKey(string $key): bool
     {
-        return parent::isPrimaryKey($key) || in_array($key, ['typeId', 'title']);
+        return parent::isPrimaryKey($key) || in_array($key, ['typeId', 'title'], true);
     }
 }

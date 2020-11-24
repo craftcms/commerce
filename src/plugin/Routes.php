@@ -55,9 +55,10 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/plan-index';
-            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
-            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/edit-plan';
+            // @todo remove the following three lines at the next breakpoint
+            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/redirect';
+            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/redirect';
+            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/redirect';
 
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
@@ -79,6 +80,10 @@ trait Routes
             $event->rules['commerce/settings/emails'] = 'commerce/emails/index';
             $event->rules['commerce/settings/emails/new'] = 'commerce/emails/edit';
             $event->rules['commerce/settings/emails/<id:\d+>'] = 'commerce/emails/edit';
+
+            $event->rules['commerce/settings/pdfs'] = 'commerce/pdfs/index';
+            $event->rules['commerce/settings/pdfs/new'] = 'commerce/pdfs/edit';
+            $event->rules['commerce/settings/pdfs/<id:\d+>'] = 'commerce/pdfs/edit';
 
             $event->rules['commerce/settings/orderstatuses'] = 'commerce/order-statuses/index';
             $event->rules['commerce/settings/orderstatuses/new'] = 'commerce/order-statuses/edit';
@@ -125,6 +130,10 @@ trait Routes
             $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/new'] = 'commerce/shipping-rules/edit';
             $event->rules['commerce/shipping/shippingmethods/<methodId:\d+>/shippingrules/<ruleId:\d+>'] = 'commerce/shipping-rules/edit';
 
+            // Subscription plans
+            $event->rules['commerce/store-settings/subscription-plans'] = 'commerce/plans/plan-index';
+            $event->rules['commerce/store-settings/subscription-plans/plan/<planId:\d+>'] = 'commerce/plans/edit-plan';
+            $event->rules['commerce/store-settings/subscription-plans/plan/new'] = 'commerce/plans/edit-plan';
 
             // Taxes
             $event->rules['commerce/tax/taxcategories'] = 'commerce/tax-categories/index';

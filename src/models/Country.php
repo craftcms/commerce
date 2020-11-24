@@ -15,6 +15,7 @@ use craft\helpers\UrlHelper;
  * Country Model
  *
  * @property string $cpEditUrl
+ * @property-read array $states
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -43,7 +44,7 @@ class Country extends Model
     /**
      * @var bool Is Enabled
      */
-    public $enabled;
+    public $enabled = true;
 
 
     /**

@@ -4,11 +4,11 @@
  * @copyright Copyright (c) Pixel & Tonic, Inc.
  * @license https://craftcms.github.io/license/
  */
+
 namespace craft\commerce\base;
 
 use Craft;
 use craft\commerce\db\Table;
-use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
@@ -143,47 +143,47 @@ abstract class Stat implements StatInterface
         switch ($this->dateRange) {
             case self::DATE_RANGE_ALL:
             {
-                return Plugin::t('All');
+                return Craft::t('commerce', 'All');
                 break;
             }
             case self::DATE_RANGE_TODAY:
             {
-                return Plugin::t('Today');
+                return Craft::t('commerce', 'Today');
                 break;
             }
             case self::DATE_RANGE_THISWEEK:
             {
-                return Plugin::t('This week');
+                return Craft::t('commerce', 'This week');
                 break;
             }
             case self::DATE_RANGE_THISMONTH:
             {
-                return Plugin::t('This month');
+                return Craft::t('commerce', 'This month');
                 break;
             }
             case self::DATE_RANGE_THISYEAR:
             {
-                return Plugin::t('This year');
+                return Craft::t('commerce', 'This year');
                 break;
             }
             case self::DATE_RANGE_PAST7DAYS:
             {
-                return Plugin::t('Past {num} days', ['num' => 7]);
+                return Craft::t('commerce', 'Past {num} days', ['num' => 7]);
                 break;
             }
             case self::DATE_RANGE_PAST30DAYS:
             {
-                return Plugin::t('Past {num} days', ['num' => 30]);
+                return Craft::t('commerce', 'Past {num} days', ['num' => 30]);
                 break;
             }
             case self::DATE_RANGE_PAST90DAYS:
             {
-                return Plugin::t('Past {num} days', ['num' => 90]);
+                return Craft::t('commerce', 'Past {num} days', ['num' => 90]);
                 break;
             }
             case self::DATE_RANGE_PASTYEAR:
             {
-                return Plugin::t('Past year');
+                return Craft::t('commerce', 'Past year');
                 break;
             }
             case self::DATE_RANGE_CUSTOM:
@@ -228,6 +228,7 @@ abstract class Stat implements StatInterface
             $this->setEndDate($this->_getEndDate($this->dateRange));
         }
     }
+
     /**
      * Based on the date range return the start date.
      *
@@ -273,7 +274,7 @@ abstract class Stat implements StatInterface
                 // Minus one so we include today as a "past day"
                 $number--;
                 $date = $this->_getEndDate($dateRange);
-                $interval = new \DateInterval('P'.$number.'D');
+                $interval = new \DateInterval('P' . $number . 'D');
                 $date->sub($interval);
                 break;
             }
@@ -284,7 +285,6 @@ abstract class Stat implements StatInterface
                 $date->sub($interval);
                 $date->add(new \DateInterval('P1M'));
                 break;
-
             }
         }
 
@@ -480,7 +480,8 @@ abstract class Stat implements StatInterface
      * @param int $days
      * @return mixed
      */
-    private function _getCustomDateChartQueryOptions(int $days) {
+    private function _getCustomDateChartQueryOptions(int $days)
+    {
         if ($days > 90) {
             return $this->getChartQueryOptionsByInterval('month');
         }

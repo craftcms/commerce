@@ -8,9 +8,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -72,7 +74,7 @@ class TaxRatesController extends BaseTaxSettingsController
         if ($variables['taxRate']->id) {
             $variables['title'] = $variables['taxRate']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a new tax rate');
+            $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
         }
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
@@ -92,16 +94,16 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $taxable = [];
-        $taxable[TaxRateRecord::TAXABLE_PRICE] = Plugin::t('Line item price');
-        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Plugin::t('Line item shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Plugin::t('Both (Line item price + Line item shipping costs)');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Plugin::t('Order total shipping cost');
-        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Plugin::t('Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
+        $taxable[TaxRateRecord::TAXABLE_PRICE] = Craft::t('commerce', 'Line item price');
+        $taxable[TaxRateRecord::TAXABLE_SHIPPING] = Craft::t('commerce', 'Line item shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_PRICE_SHIPPING] = Craft::t('commerce', 'Both (Line item price + Line item shipping costs)');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_SHIPPING] = Craft::t('commerce', 'Order total shipping cost');
+        $taxable[TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE] = Craft::t('commerce', 'Order total taxable price (Line item subtotal + Total discounts + Total shipping)');
         $variables['taxables'] = $taxable;
         $variables['taxablesNoTaxCategory'] = TaxRateRecord::ORDER_TAXABALES;
 
         $variables['hideTaxCategory'] = false;
-        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'])) {
+        if ($variables['taxRate']->id && in_array($variables['taxRate']->taxable, $variables['taxablesNoTaxCategory'], false)) {
             $variables['hideTaxCategory'] = true;
         }
 
@@ -120,10 +122,16 @@ class TaxRatesController extends BaseTaxSettingsController
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
         $view->startJsBuffer();
+
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypesOptions = [];
+        if (!empty($productTypes)) {
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', function(ProductType $row) {
+                return ['label' => $row->name, 'value' => $row->id];
+            });
+        }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxcategories/_fields', [
-                'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
-            ])
+            $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
@@ -166,10 +174,10 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Tax rate saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save tax rate.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax rate.'));
         }
 
         // Send the model back to the template

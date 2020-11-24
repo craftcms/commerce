@@ -21,7 +21,11 @@ use yii\web\Response;
  * CartTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+<<<<<<< HEAD
  * @since 3.x
+=======
+ * @since 3.2.0
+>>>>>>> develop
  */
 class CartTest extends Unit
 {

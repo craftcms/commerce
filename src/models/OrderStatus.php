@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -87,7 +88,7 @@ class OrderStatus extends Model
         $behaviors = $this->softDeleteBehaviors();
 
         $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::className(),
+            'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
@@ -116,9 +117,8 @@ class OrderStatus extends Model
      */
     public function getDisplayName(): string
     {
-        if ($this->dateDeleted !== null)
-        {
-            return $this->name . Plugin::t(' (Trashed)');
+        if ($this->dateDeleted !== null) {
+            return $this->name . Craft::t('commerce', ' (Trashed)');
         }
 
         return $this->name;

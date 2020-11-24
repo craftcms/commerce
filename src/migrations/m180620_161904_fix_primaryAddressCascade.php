@@ -20,7 +20,7 @@ class m180620_161904_fix_primaryAddressCascade extends Migration
      */
     public function safeUp()
     {
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}');
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_customers}}', $this);
 
         $this->addForeignKey(null, '{{%commerce_customers}}', ['userId'], '{{%users}}', ['id'], 'SET NULL');
         $this->addForeignKey(null, '{{%commerce_customers}}', ['primaryBillingAddressId'], '{{%commerce_addresses}}', ['id'], 'SET NULL');

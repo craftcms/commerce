@@ -18,6 +18,7 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 
 /**
@@ -43,7 +44,7 @@ class Transactions extends Component
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     *         
+     *
      *         // Run custom logic for failed transactions
      *         // ...
      *     }
@@ -60,14 +61,14 @@ class Transactions extends Component
      * use craft\commerce\services\Transactions;
      * use craft\commerce\models\Transaction;
      * use yii\base\Event;
-     * 
+     *
      * Event::on(
      *     Transactions::class,
      *     Transactions::EVENT_AFTER_CREATE_TRANSACTION,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
-     * 
+     *
      *         // Run custom logic depending on the transaction type
      *         // ...
      *     }
@@ -432,6 +433,8 @@ class Transactions extends Component
             $model->order->markAsComplete();
         }
 
+        $model->getOrder()->setTransactions(null); // clear the local cache of transactions from the order.
+
         // Raise 'afterSaveTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
@@ -440,6 +443,34 @@ class Transactions extends Component
         }
 
         return true;
+    }
+
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadTransactionsForOrders(array $orders): array
+    {
+        $orderIds = array_filter(ArrayHelper::getColumn($orders, 'id'));
+        $transactionResults = $this->_createTransactionQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $transactions = [];
+
+        foreach ($transactionResults as $result) {
+            $transaction = new Transaction($result);
+            $transactions[$transaction->orderId] = $transactions[$transaction->orderId] ?? [];
+            $transactions[$transaction->orderId][] = $transaction;
+        }
+
+        foreach ($orders as $key => $order) {
+            if (isset($transactions[$order->id])) {
+                $order->setTransactions($transactions[$order->id]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
     }
 
     /**

@@ -14,8 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 use craft\web\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 
 /**
  * Product helper
@@ -76,7 +75,7 @@ class Product
      *
      * @param Request|null $request
      * @return ProductModel
-     * @throws HttpException
+     * @throws NotFoundHttpException
      * @since 3.1.3
      */
     public static function productFromPost(Request $request = null): ProductModel
@@ -92,7 +91,7 @@ class Product
             $product = Plugin::getInstance()->getProducts()->getProductById($productId, $siteId);
 
             if (!$product) {
-                throw new NotFoundHttpException(Plugin::t('No product with the ID “{id}”', ['id' => $productId]));
+                throw new NotFoundHttpException(Craft::t('commerce', 'No product with the ID “{id}”', ['id' => $productId]));
             }
         } else {
             $product = new ProductModel();
@@ -109,7 +108,7 @@ class Product
      * @param ProductModel|null $product
      * @param Request|null $request
      * @return ProductModel
-     * @throws HttpException
+     * @throws NotFoundHttpException
      */
     public static function populateProductFromPost(ProductModel $product = null, Request $request = null): ProductModel
     {
@@ -128,6 +127,7 @@ class Product
         if (($expiryDate = $request->getBodyParam('expiryDate')) !== null) {
             $product->expiryDate = DateTimeHelper::toDateTime($expiryDate) ?: null;
         }
+
         $product->promotable = (bool)$request->getBodyParam('promotable');
         $product->availableForPurchase = (bool)$request->getBodyParam('availableForPurchase');
         $product->freeShipping = (bool)$request->getBodyParam('freeShipping');
@@ -139,6 +139,8 @@ class Product
         $product->title = $request->getBodyParam('title', $product->title);
 
         $product->setFieldValuesFromRequest('fields');
+        $product->updateTitle();
+
         if ($variants = $request->getBodyParam('variants')) {
             $product->setVariants($variants);
         } else {

@@ -28,11 +28,11 @@ class LiteTaxController extends BaseStoreSettingsController
      */
     public function init()
     {
+        parent::init();
+
         if (!Plugin::getInstance()->is(Plugin::EDITION_LITE)) {
             throw new WrongEditionException('Lite settings editable when using the lite edition only');
         }
-
-        parent::init();
     }
 
     /**
@@ -74,7 +74,7 @@ class LiteTaxController extends BaseStoreSettingsController
         }
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/store-settings/tax', compact('settings'));
         }
 
@@ -88,7 +88,7 @@ class LiteTaxController extends BaseStoreSettingsController
             throw new Exception('Could not save internal tax rate for lite tax.');
         }
 
-        Craft::$app->getSession()->setNotice(Plugin::t('Settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }

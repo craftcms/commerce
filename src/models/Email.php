@@ -7,7 +7,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 
 /**
@@ -15,6 +17,10 @@ use craft\commerce\records\Email as EmailRecord;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read string $pdfTemplatePath
+ * @property-read null|Pdf $pdf
+ * @property-read array $config
  */
 class Email extends Model
 {
@@ -61,7 +67,7 @@ class Email extends Model
     /**
      * @var bool Is Enabled
      */
-    public $enabled;
+    public $enabled = true;
 
     /**
      * @var string Template path
@@ -74,14 +80,9 @@ class Email extends Model
     public $plainTextTemplatePath;
 
     /**
-     * @var bool Whether the email should attach a pdf template
+     * @var int The PDF UID.
      */
-    public $attachPdf;
-
-    /**
-     * @var string Template path to the pdf.
-     */
-    public $pdfTemplatePath;
+    public $pdfId;
 
     /**
      * @var string UID
@@ -106,5 +107,58 @@ class Email extends Model
         ];
         $rules[] = [['templatePath'], 'required'];
         return $rules;
+    }
+
+    /**
+     * @return Pdf|null
+     */
+    public function getPdf()
+    {
+        if (!$this->pdfId) {
+            return null;
+        }
+        return Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
+    }
+
+    /**
+     * @deprecated in 3.2.0 Use $email->getPdf()->templatePath instead
+     */
+    public function getPdfTemplatePath()
+    {
+        Craft::$app->getDeprecator()->log('\craft\commerce\models\Email::getPdfTemplatePath()', '\craft\commerce\models\Email::getPdfTemplatePath(), use \craft\commerce\models\Email::getPdf()->getTemplatePath() instead.');
+
+        if ($pdf = $this->getPdf()) {
+            return $pdf->templatePath;
+        }
+
+        return "";
+    }
+
+    /**
+     * Returns the field layout config for this email.
+     *
+     * @return array
+     * @since 3.2.0
+     */
+    public function getConfig(): array
+    {
+        $config = [
+            'name' => $this->name,
+            'subject' => $this->subject,
+            'recipientType' => $this->recipientType,
+            'to' => $this->to ?: null,
+            'bcc' => $this->bcc ?: null,
+            'cc' => $this->cc ?: null,
+            'replyTo' => $this->replyTo ?: null,
+            'enabled' => (bool)$this->enabled,
+            'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
+            'templatePath' => $this->templatePath ?: null,
+        ];
+
+        if ($pdf = $this->getPdf()) {
+            $config['pdf'] = $pdf->uid;
+        }
+
+        return $config;
     }
 }

@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\TopPurchasables as TopPurchasablesStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -80,29 +79,29 @@ class TopPurchasables extends Widget
         $this->nameField = $this->nameField ?: 'description';
 
         $this->_nameFieldOptions = [
-            'description' => Plugin::t('Description'),
-            'sku' => Plugin::t('SKU'),
+            'description' => Craft::t('commerce', 'Description'),
+            'sku' => Craft::t('commerce', 'SKU'),
         ];
 
         $this->_typeOptions = [
-            'qty' => Plugin::t('Qty'),
-            'revenue' => Plugin::t('Revenue'),
+            'qty' => Craft::t('commerce', 'Qty'),
+            'revenue' => Craft::t('commerce', 'Revenue'),
         ];
 
         switch ($this->type) {
             case 'revenue':
             {
-                $this->_title = Plugin::t('Top Purchasables by Revenue');
+                $this->_title = Craft::t('commerce', 'Top Purchasables by Revenue');
                 break;
             }
             case 'qty':
             {
-                $this->_title = Plugin::t('Top Purchasables by Qty Sold');
+                $this->_title = Craft::t('commerce', 'Top Purchasables by Qty Sold');
                 break;
             }
             default:
             {
-                $this->_title = Plugin::t('Top Purchasables');
+                $this->_title = Craft::t('commerce', 'Top Purchasables');
                 break;
             }
         }
@@ -131,7 +130,7 @@ class TopPurchasables extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Top Purchasables');
+        return Craft::t('commerce', 'Top Purchasables');
     }
 
     /**

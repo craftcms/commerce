@@ -196,6 +196,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
             ], 'required'
         ];
 
+        $rules[] = [[
+            'perItemRate',
+            'weightRate',
+            'percentageRate',
+        ], 'number'];
+
+        $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true ];
+
         return $rules;
     }
 
@@ -385,6 +393,22 @@ class ShippingRule extends Model implements ShippingRuleInterface
         return $this->description;
     }
 
+    /**
+     * @param $attribute
+     * @since 3.2.7
+     */
+    public function validateShippingRuleCategories($attribute)
+    {
+        $ruleCategories = $this->$attribute;
+
+        if (!empty($ruleCategories)) {
+            foreach ($ruleCategories as $key => $ruleCategory) {
+                if (!$ruleCategory->validate()) {
+                    $this->addModelErrors($ruleCategory, $attribute . '.' . $key);
+                }
+            }
+        }
+    }
 
     /**
      * @param $attribute

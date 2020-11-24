@@ -15,6 +15,20 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+  {% if customer and address.id and (customer.primaryBillingAddressId == address.id or customer.primaryShippingAddressId == address.id) %}
+    <div class="pane">
+      <p><span data-icon="info"></span>
+        {% if customer.primaryBillingAddressId == address.id and customer.primaryShippingAddressId == address.id %}
+          {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% elseif customer.primaryBillingAddressId == address.id %}
+          {{ 'This is the primary billing address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% elseif customer.primaryShippingAddressId == address.id %}
+          {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+        {% endif %}
+      </p>
+    </div>
+  {% endif %}
+
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',
@@ -95,6 +109,16 @@
     errors: address.getErrors('zipCode'),
   }) }}
 
+  {{ forms.selectField({
+    label: 'Country'|t('commerce'),
+    id: 'country',
+    name: 'countryId',
+    options: craft.commerce.countries.allEnabledCountriesAsList,
+    value: address.countryId,
+    errors: address.getErrors('countryId'),
+    class: 'selectize fullwidth',
+  }) }}
+
   {{ forms.textField({
     label: 'State'|t('commerce'),
     name: 'stateName',
@@ -110,16 +134,6 @@
     options: craft.commerce.states.allEnabledStatesAsList,
     value: address.stateId,
     errors: address.getErrors('stateValue'),
-  }) }}
-
-  {{ forms.selectField({
-    label: 'Country'|t('commerce'),
-    id: 'country',
-    name: 'countryId',
-    options: craft.commerce.countries.allEnabledCountriesAsList,
-    value: address.countryId,
-    errors: address.getErrors('countryId'),
-    class: 'selectize fullwidth',
   }) }}
 
   {{ forms.textField({

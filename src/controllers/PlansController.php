@@ -26,7 +26,7 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseAdminController
+class PlansController extends BaseStoreSettingsController
 {
     /**
      * @return Response
@@ -34,7 +34,7 @@ class PlansController extends BaseAdminController
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
-        return $this->renderTemplate('commerce/settings/subscriptions/plans', ['plans' => $plans]);
+        return $this->renderTemplate('commerce/store-settings/subscription-plans', ['plans' => $plans]);
     }
 
     /**
@@ -69,7 +69,7 @@ class PlansController extends BaseAdminController
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
         } else {
-            $variables['title'] = Plugin::t('Create a Subscription Plan');
+            $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
 
         $variables['entryElementType'] = Entry::class;
@@ -82,7 +82,7 @@ class PlansController extends BaseAdminController
             $variables['gatewayOptions'][] = ['value' => $gateway->id, 'label' => $gateway->name];
         }
 
-        return $this->renderTemplate('commerce/settings/subscriptions/_editPlan', $variables);
+        return $this->renderTemplate('commerce/store-settings/subscription-plans/_edit', $variables);
     }
 
     /**
@@ -134,10 +134,10 @@ class PlansController extends BaseAdminController
 
         // Save $plan
         if ($planService->savePlan($plan)) {
-            Craft::$app->getSession()->setNotice(Plugin::t('Subscription plan saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Subscription plan saved.'));
             $this->redirectToPostedUrl($plan);
         } else {
-            Craft::$app->getSession()->setError(Plugin::t('Couldn’t save subscription plan.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save subscription plan.'));
         }
 
         // Send the productType back to the template
@@ -179,6 +179,28 @@ class PlansController extends BaseAdminController
             return $this->asJson(['success' => $success]);
         }
 
-        return $this->asJson(['error' => Plugin::t('Couldn’t reorder plans.')]);
+        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
+    }
+
+    /**
+     * Temporary redirect function after subscriptions plans were moved.
+     *
+     * @param int|null $planId
+     * @return Response
+     * @deprecated 3.x
+     */
+    public function actionRedirect($planId = null): Response
+    {
+        $request = Craft::$app->getRequest();
+
+        if ($request->getSegment(5) == 'new') {
+            return $this->redirect('commerce/store-settings/subscription-plans/plan/new', 301);
+        }
+
+        if ($request->getSegment(5) && $planId) {
+            return $this->redirect('commerce/store-settings/subscription-plans/plan/' . $planId, 301);
+        }
+
+        return $this->redirect('commerce/store-settings/subscription-plans', 301);
     }
 }

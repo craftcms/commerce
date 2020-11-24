@@ -22,11 +22,11 @@ class BaseCpController extends BaseController
      */
     public function init()
     {
+        parent::init();
+
         // All system setting actions require access to commerce
         $this->requirePermission('accessPlugin-commerce');
 
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
-
-        parent::init();
     }
 }

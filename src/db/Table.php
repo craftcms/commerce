@@ -38,6 +38,7 @@ abstract class Table
     const ORDERSTATUSES = '{{%commerce_orderstatuses}}';
     const PAYMENTCURRENCIES = '{{%commerce_paymentcurrencies}}';
     const PAYMENTSOURCES = '{{%commerce_paymentsources}}';
+    const PDFS = '{{%commerce_pdfs}}';
     const PLANS = '{{%commerce_plans}}';
     const PRODUCTS = '{{%commerce_products}}';
     const PRODUCTTYPES = '{{%commerce_producttypes}}';

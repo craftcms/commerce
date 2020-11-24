@@ -12,6 +12,7 @@ use craft\commerce\Plugin;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
+use yii\base\InvalidCallException;
 use yii\web\HttpException;
 use yii\web\RangeNotSatisfiableHttpException;
 use yii\web\Response;
@@ -33,29 +34,44 @@ class DownloadsController extends BaseFrontEndController
      */
     public function actionPdf(): Response
     {
-        $number = Craft::$app->getRequest()->getQueryParam('number');
-        $option = Craft::$app->getRequest()->getQueryParam('option', '');
+        $number = $this->request->getQueryParam('number');
+        $pdfHandle = $this->request->getQueryParam('pdfHandle');
+        $option = $this->request->getQueryParam('option', '');
 
         if (!$number) {
             throw new HttpInvalidParamException('Order number required');
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderByNumber($number);
-
+        
         if (!$order) {
             throw new HttpException('404', 'Order not found');
         }
 
-        $pdf = Plugin::getInstance()->getPdf()->renderPdfForOrder($order, $option);
-        $filenameFormat = Plugin::getInstance()->getSettings()->orderPdfFilenameFormat;
+        $pdf = null;
 
-        $fileName = $this->getView()->renderObjectTemplate($filenameFormat, $order);
+        if ($pdfHandle) {
+            $pdf = Plugin::getInstance()->getPdfs()->getPdfByHandle($pdfHandle);
 
-        if (!$fileName) {
-            $fileName = 'Order-' . $order->number;
+            if (!$pdf) {
+                throw new InvalidCallException("Can not find the PDF to render based on the handle supplied.");
+            }
+        } else {
+            $pdf = Plugin::getInstance()->getPdfs()->getDefaultPdf();
         }
 
-        return Craft::$app->getResponse()->sendContentAsFile($pdf, $fileName . '.pdf', [
+        if (!$pdf) {
+            throw new InvalidCallException("Can not find a PDF to render.");
+        }
+
+        $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
+
+        $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+        if (!$fileName) {
+            $fileName = $pdf->handle . '-' . $order->number;
+        }
+
+        return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
             'mimeType' => 'application/pdf'
         ]);
     }

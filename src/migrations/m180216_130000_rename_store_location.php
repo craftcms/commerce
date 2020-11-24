@@ -20,7 +20,7 @@ class m180216_130000_rename_store_location extends Migration
      */
     public function safeUp()
     {
-        MigrationHelper::renameColumn('{{%commerce_addresses}}', 'stockLocation', 'storeLocation');
+        MigrationHelper::renameColumn('{{%commerce_addresses}}', 'stockLocation', 'storeLocation', $this);
         return true;
     }
 

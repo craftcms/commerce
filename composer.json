@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.1.12",
+  "version": "3.2.12",
   "keywords": [
     "cms",
     "craftcms",
@@ -16,12 +16,12 @@
     "issues": "https://github.com/craftcms/commerce/issues?state=open",
     "forum": "https://craftcms.stackexchange.com/",
     "source": "https://github.com/craftcms/commerce",
-    "docs": "https://docs.craftcms.com/commerce/v3/",
+    "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.4.0",
-    "dompdf/dompdf": "^0.8.3",
+    "craftcms/cms": "^3.5.4",
+    "dompdf/dompdf": "~0.8.3",
     "moneyphp/money": "^3.2.1",
     "ibericode/vat": "^1.1.2"
   },
@@ -36,7 +36,7 @@
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
-    "documentationUrl": "https://docs.craftcms.com/commerce/v3/"
+    "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
     "roave/security-advisories": "dev-master",

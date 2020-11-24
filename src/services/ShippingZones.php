@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\ShippingAddressZone;
-use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
@@ -103,7 +102,7 @@ class ShippingZones extends Component
             $record = ShippingZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t('No shipping zone exists with the ID “{id}”', ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No shipping zone exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new ShippingZoneRecord();
@@ -135,13 +134,13 @@ class ShippingZones extends Component
             $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
 
             if (!$exist) {
-                $model->addError('countries', Plugin::t('At least one country must be selected.'));
+                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
             }
         } else {
             $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
 
             if (!$exist) {
-                $model->addError('states', Plugin::t('At least one state must be selected.'));
+                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
             }
         }
 
@@ -176,6 +175,8 @@ class ShippingZones extends Component
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
 
             $transaction->commit();
+
+            $this->_clearCaches();
         } catch (\Exception $e) {
             $transaction->rollBack();
 
@@ -194,7 +195,12 @@ class ShippingZones extends Component
         $record = ShippingZoneRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $result = (bool)$record->delete();
+            if ($result) {
+                $this->_clearCaches();
+            }
+
+            return $result;
         }
 
         return false;
@@ -218,5 +224,16 @@ class ShippingZones extends Component
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);
+    }
+
+    /**
+     * Clear memoization.
+     *
+     * @since 3.2.5
+     */
+    private function _clearCaches()
+    {
+        $this->_fetchedAllShippingZones = false;
+        $this->_allShippingZones = [];
     }
 }

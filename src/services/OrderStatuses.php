@@ -254,7 +254,7 @@ class OrderStatuses extends Component
         $existingStatus = $this->getOrderStatusByHandle($orderStatus->handle);
 
         if ($existingStatus && (!$orderStatus->id || $orderStatus->id != $existingStatus->id)) {
-            $orderStatus->addError('handle', Plugin::t('That handle is already in use'));
+            $orderStatus->addError('handle', Craft::t('commerce', 'That handle is already in use'));
             return false;
         }
 
@@ -430,12 +430,14 @@ class OrderStatuses extends Component
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
-                    Craft::$app->getQueue()->push(new SendEmail([
-                        'orderId' => $order->id,
-                        'commerceEmailId' => $email->id,
-                        'orderHistoryId' => $orderHistory->id,
-                        'orderData' => $order->toArray()
-                    ]));
+                    if($email->enabled) {
+                        Craft::$app->getQueue()->push(new SendEmail([
+                            'orderId' => $order->id,
+                            'commerceEmailId' => $email->id,
+                            'orderHistoryId' => $orderHistory->id,
+                            'orderData' => $order->toArray()
+                        ]));
+                    }
                 }
             }
         }

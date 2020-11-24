@@ -15,6 +15,7 @@ use craft\commerce\events\PlanEvent;
 use craft\commerce\Plugin;
 use craft\commerce\records\Plan as PlanRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
@@ -83,6 +84,13 @@ class Plans extends Component
      */
     const EVENT_AFTER_SAVE_PLAN = 'afterSavePlan';
 
+    /**
+     * Memoized array of plans.
+     *
+     * @var Plan[]|null
+     * @since 3.2.8
+     */
+    private $_allPlans;
 
     /**
      * Returns all subscription plans
@@ -91,10 +99,7 @@ class Plans extends Component
      */
     public function getAllPlans(): array
     {
-        $results = $this->_createPlansQuery()
-            ->all();
-
-        return $this->_populatePlans($results);
+        return ArrayHelper::where($this->_getAllPlans(), 'isArchived', false);
     }
 
     /**
@@ -104,11 +109,7 @@ class Plans extends Component
      */
     public function getAllEnabledPlans(): array
     {
-        $results = $this->_createPlansQuery()
-            ->andWhere(['enabled' => true])
-            ->all();
-
-        return $this->_populatePlans($results);
+        return ArrayHelper::whereMultiple($this->_getAllPlans(), ['enabled' => true, 'isArchived' => false]);
     }
 
     /**
@@ -119,11 +120,7 @@ class Plans extends Component
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {
-        $results = $this->_createPlansQuery()
-            ->where(['gatewayId' => $gatewayId])
-            ->all();
-
-        return $this->_populatePlans($results);
+        return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
     }
 
     /**
@@ -131,15 +128,10 @@ class Plans extends Component
      *
      * @param int $planId The plan id.
      * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanById(int $planId)
     {
-        $result = $this->_createPlansQuery()
-            ->where(['id' => $planId])
-            ->one();
-
-        return $result ? $this->_populatePlan($result) : null;
+        return ArrayHelper::firstWhere($this->_getAllPlans(), 'id', $planId);
     }
 
     /**
@@ -147,15 +139,10 @@ class Plans extends Component
      *
      * @param string $planUid The plan uid.
      * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanByUid(string $planUid)
     {
-        $result = $this->_createPlansQuery()
-            ->where(['uid' => $planUid])
-            ->one();
-
-        return $result ? $this->_populatePlan($result) : null;
+        return ArrayHelper::firstWhere($this->_getAllPlans(), 'uid', $planUid);
     }
 
     /**
@@ -163,15 +150,10 @@ class Plans extends Component
      *
      * @param string $handle the plan handle
      * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanByHandle(string $handle)
     {
-        $result = $this->_createPlansQuery()
-            ->where(['handle' => $handle])
-            ->one();
-
-        return $result ? $this->_populatePlan($result) : null;
+        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllPlans(), ['handle' => $handle, 'isArchived' => false]));
     }
 
     /**
@@ -179,15 +161,10 @@ class Plans extends Component
      *
      * @param string $reference the plan reference
      * @return Plan|null
-     * @throws InvalidConfigException if the plan configuration is not correct
      */
     public function getPlanByReference(string $reference)
     {
-        $result = $this->_createPlansQuery()
-            ->where(['reference' => $reference])
-            ->one();
-
-        return $result ? $this->_populatePlan($result) : null;
+        return ArrayHelper::firstWhere($this->_getAllPlans(), 'reference', $reference);
     }
 
     /**
@@ -198,11 +175,7 @@ class Plans extends Component
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
-        $results = $this->_createPlansQuery()
-            ->where(['planInformationId' => $entryId])
-            ->all();
-
-        return $this->_populatePlans($results);
+        return ArrayHelper::firstWhere($this->_getAllPlans(), 'planInformationId', $entryId);
     }
 
     /**
@@ -219,7 +192,7 @@ class Plans extends Component
             $record = PlanRecord::findOne($plan->id);
 
             if (!$record) {
-                throw new InvalidConfigException(Plugin::t( 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
+                throw new InvalidConfigException(Craft::t('commerce', 'No subscription plan exists with the ID “{id}”', ['id' => $plan->id]));
             }
         } else {
             $record = new PlanRecord();
@@ -261,6 +234,9 @@ class Plans extends Component
                 'plan' => $plan,
             ]));
         }
+
+        // Reset cache/memoization
+        $this->_allPlans = null;
 
         return true;
     }
@@ -307,9 +283,11 @@ class Plans extends Component
             $command->update(Table::PLANS, ['sortOrder' => $planOrder + 1], ['id' => $planId])->execute();
         }
 
+        // Reset cache/memoization
+        $this->_allPlans = null;
+
         return true;
     }
-
 
 
     /**
@@ -334,7 +312,6 @@ class Plans extends Component
                 'sortOrder',
                 'uid'
             ])
-            ->where(['isArchived' => false])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::PLANS]);
     }
@@ -380,5 +357,28 @@ class Plans extends Component
         $plan->setAttributes($result, false);
 
         return $plan;
+    }
+
+    /**
+     * Get all plans memoized.
+     *
+     * @return array
+     * @since 3.2.8
+     */
+    private function _getAllPlans()
+    {
+        if ($this->_allPlans === null) {
+            $plans = $this->_createPlansQuery()->all();
+
+            $this->_allPlans = [];
+            if (!empty($plans)) {
+                $plans = $this->_populatePlans($plans);
+                foreach ($plans as $plan) {
+                    $this->_allPlans[$plan->id] = $plan;
+                }
+            }
+        }
+
+        return $this->_allPlans;
     }
 }

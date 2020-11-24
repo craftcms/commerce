@@ -42,11 +42,11 @@ class Extension extends AbstractExtension
      * @param $input
      * @return string
      * @throws \craft\errors\DeprecationException
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function jsonEncodeFiltered($input): string
     {
-        \Craft::$app->getDeprecator()->log('|json_encode_filtered', 'The json_encode_filtered twig filter has been deprecated. Use standard js encoding.');
+        \Craft::$app->getDeprecator()->log('|json_encode_filtered', 'The `json_encode_filtered` Twig filter has been deprecated. Use standard JS encoding instead.');
 
         $array = $this->_recursiveSanitizeArray($input);
 

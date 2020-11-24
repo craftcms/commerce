@@ -78,8 +78,8 @@ class Discount extends Component implements AdjusterInterface
      */
     private $_appliedDiscounts = [];
 
-    /*
-     * @var
+    /**
+     * @var float
      */
     private $_discountTotal = 0;
 
@@ -149,7 +149,6 @@ class Discount extends Component implements AdjusterInterface
                     $orderLevelAdjustments[] = $previousAdjustment;
                     unset($allAdjustments[$key]);
                 }
-
             }
             $this->_order->setAdjustments($allAdjustments);
 

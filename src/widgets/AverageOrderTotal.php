@@ -9,7 +9,6 @@ namespace craft\commerce\widgets;
 
 use Craft;
 use craft\base\Widget;
-use craft\commerce\Plugin;
 use craft\commerce\stats\AverageOrderTotal as AverageOrderTotalStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
@@ -75,7 +74,7 @@ class AverageOrderTotal extends Widget
      */
     public static function displayName(): string
     {
-        return Plugin::t( 'Average Order Total');
+        return Craft::t('commerce', 'Average Order Total');
     }
 
     /**

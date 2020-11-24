@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\models\TaxCategory;
-use craft\commerce\Plugin;
 use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -181,7 +180,7 @@ class TaxCategories extends Component
             $record = TaxCategoryRecord::findOne($taxCategory->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No tax category exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No tax category exists with the ID “{id}”',
                     ['id' => $taxCategory->id]));
             }
 

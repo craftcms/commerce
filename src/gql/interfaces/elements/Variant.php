@@ -84,10 +84,20 @@ class Variant extends Element
                 'type' => Type::float(),
                 'description' => 'The price of the variant.',
             ],
+            'priceAsCurrency' => [
+                'name' => 'priceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted price of the variant.',
+            ],
             'salePrice' => [
                 'name' => 'salePrice',
                 'type' => Type::float(),
                 'description' => 'The sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
+            ],
+            'salePriceAsCurrency' => [
+                'name' => 'salePriceAsCurrency',
+                'type' => Type::string(),
+                'description' => 'The formatted sale price of the variant. CAUTION: This will not take into account sales that utilize user group conditions.',
             ],
             'sales' => [
                 'name' => 'sales',
@@ -143,6 +153,11 @@ class Variant extends Element
                 'name' => 'productId',
                 'type' => Type::int(),
                 'description' => 'The ID of the variant’s parent product.',
+            ],
+            'product' => [
+                'name' => 'product',
+                'type' => Product::getType(),
+                'description' => 'The variant’s parent product.'
             ],
             'productTitle' => [
                 'name' => 'productTitle',

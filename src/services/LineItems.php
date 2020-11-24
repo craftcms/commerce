@@ -10,12 +10,14 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use LitEmoji\LitEmoji;
@@ -221,7 +223,7 @@ class LineItems extends Component
             $lineItemRecord = LineItemRecord::findOne($lineItem->id);
 
             if (!$lineItemRecord) {
-                throw new Exception(Plugin::t('No line item exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No line item exists with the ID “{id}”',
                     ['id' => $lineItem->id]));
             }
         }
@@ -276,7 +278,9 @@ class LineItems extends Component
 
                 if ($success) {
                     $dateCreated = DateTimeHelper::toDateTime($lineItemRecord->dateCreated);
+                    $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;
+                    $lineItem->dateUpdated = $dateUpdated;
 
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
@@ -331,22 +335,27 @@ class LineItems extends Component
     /**
      * Create a line item.
      *
-     * @param int $purchasableId The ID of the purchasable the line item represents
      * @param int $orderId The order ID the line item is associated with
+     * @param int $purchasableId The ID of the purchasable the line item represents
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
+     * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
+     * TODO: Refactor method signature so that the 2 order assignment params are no needed.
      * @return LineItem
      *
-     * @throws InvalidArgumentException if the purchasable ID is not valid
      */
-    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = ''): LineItem
+    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = '', Order $order = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
-        $lineItem->orderId = $orderId;
         $lineItem->note = $note;
+
+        if ($order == null) {
+            $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+        }
+        $lineItem->setOrder($order);
 
         /** @var PurchasableInterface $purchasable */
         $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
@@ -382,6 +391,61 @@ class LineItems extends Component
         return (bool)LineItemRecord::deleteAll(['orderId' => $orderId]);
     }
 
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadLineItemsForOrders(array $orders): array
+    {
+        $orderIds = ArrayHelper::getColumn($orders, 'id');
+        $lineItemsResults = $this->_createLineItemQuery()->andWhere(['orderId' => $orderIds])->all();
+
+        $lineItems = [];
+
+        foreach ($lineItemsResults as $result) {
+            $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
+            $lineItem = new LineItem($result);
+            $lineItem->typecastAttributes();
+            $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
+            $lineItems[$lineItem->orderId][] = $lineItem;
+        }
+
+        foreach ($orders as $key => $order) {
+            if (isset($lineItems[$order->id])) {
+                $order->setLineItems($lineItems[$order->id]);
+                $orders[$key] = $order;
+            }
+        }
+
+        return $orders;
+    }
+
+    /**
+     *
+     * @param LineItem $lineItem
+     * @param Order $order
+     * @throws Throwable
+     * @since 3.2.5
+     */
+    public function orderCompleteHandler(LineItem $lineItem, Order $order)
+    {
+        // Called the after order complete method for the purchasable if there is one
+        if ($lineItem->getPurchasable()) {
+            $lineItem->getPurchasable()->afterOrderComplete($order, $lineItem);
+        }
+
+        // Retrieve the default status for the current line item. This is a chance for
+        // developers to hook into an event for finer control
+        $defaultStatus = Plugin::getInstance()->getLineItemStatuses()->getDefaultLineItemStatusForLineItem($lineItem);
+        if (!$defaultStatus) {
+            return;
+        }
+
+        // Set the status ID and save the line item
+        $lineItem->setLineItemStatus($defaultStatus);
+        $this->saveLineItem($lineItem, false);
+    }
 
     /**
      * Returns a Query object prepped for retrieving line items.

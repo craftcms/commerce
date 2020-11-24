@@ -46,7 +46,7 @@ class OrderHistories extends Component
      *         $orderHistory = $event->orderHistory;
      *         // @var Order $order
      *         $order = $event->order;
-     *         
+     *
      *         // Let the delivery department know the order’s ready to be delivered
      *         // ...
      *     }
@@ -81,7 +81,7 @@ class OrderHistories extends Component
     {
         $rows = $this->_createOrderHistoryQuery()
             ->where(['orderId' => $id])
-            ->orderBy('dateCreated desc')
+            ->orderBy('dateCreated desc, id desc')
             ->all();
 
         $histories = [];
@@ -106,7 +106,18 @@ class OrderHistories extends Component
         $orderHistoryModel->orderId = $order->id;
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
-        $orderHistoryModel->customerId = Craft::$app->request->isConsoleRequest ? $order->customerId : Plugin::getInstance()->getCustomers()->getCustomer()->id;
+
+        // TODO refactor the method by which we store and work out who changed the order history
+        $customerId = $order->customerId;
+
+        // Use to current customer's ID only if we aren't in a console request
+        // and we currently have an active session
+        if (!Craft::$app->request->isConsoleRequest && !Craft::$app->getResponse()->isSent && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())) {
+            $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
+        }
+
+        $orderHistoryModel->customerId = $customerId;
+
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel)) {
@@ -140,7 +151,7 @@ class OrderHistories extends Component
             $record = OrderHistoryRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Plugin::t( 'No order history exists with the ID “{id}”',
+                throw new Exception(Craft::t('commerce', 'No order history exists with the ID “{id}”',
                     ['id' => $model->id]));
             }
         } else {

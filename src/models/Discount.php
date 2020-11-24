@@ -9,8 +9,11 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\db\Query;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -126,7 +129,7 @@ class Discount extends Model
     public $percentageOffSubject;
 
     /**
-     * @var bool Exclude on sale purchasables
+     * @var bool Exclude the “On Sale” Purchasables
      */
     public $excludeOnSale;
 
@@ -243,36 +246,36 @@ class Discount extends Model
     }
 
     /**
-     * @return array
+     * @return int[]
      */
     public function getCategoryIds(): array
     {
         if (null === $this->_categoryIds) {
-            $this->_loadRelations();
+            $this->_loadCategoryRelations();
         }
 
         return $this->_categoryIds;
     }
 
     /**
-     * @return array
+     * @return int[]
      */
     public function getPurchasableIds(): array
     {
         if (null === $this->_purchasableIds) {
-            $this->_loadRelations();
+            $this->_loadPurchasableRelations();
         }
 
         return $this->_purchasableIds;
     }
 
     /**
-     * @return array
+     * @return int[]
      */
     public function getUserGroupIds(): array
     {
         if (null === $this->_userGroupIds) {
-            $this->_loadRelations();
+            $this->_loadUserGroupRelations();
         }
 
         return $this->_userGroupIds;
@@ -281,7 +284,7 @@ class Discount extends Model
     /**
      * Sets the related product type ids
      *
-     * @param array $categoryIds
+     * @param int[] $categoryIds
      */
     public function setCategoryIds(array $categoryIds)
     {
@@ -291,7 +294,7 @@ class Discount extends Model
     /**
      * Sets the related product ids
      *
-     * @param array $purchasableIds
+     * @param int[] $purchasableIds
      */
     public function setPurchasableIds(array $purchasableIds)
     {
@@ -301,7 +304,7 @@ class Discount extends Model
     /**
      * Sets the related user group ids
      *
-     * @param array $userGroupIds
+     * @param int[] $userGroupIds
      */
     public function setUserGroupIds(array $userGroupIds)
     {
@@ -381,7 +384,21 @@ class Discount extends Model
         $rules[] = [
             'hasFreeShippingForOrder', function($attribute, $params, $validator) {
                 if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
-                    $this->addError($attribute, 'Free shipping can only be for whole order or matching items, not both.');
+                    $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
+                }
+            }
+        ];
+        $rules[] = [
+            'orderConditionFormula', function($attribute, $params, $validator) {
+                $order = Order::find()->one();
+                if (!$order) {
+                    $order = new Order();
+                }
+                $orderDiscountConditionParams = [
+                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                ];
+                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderDiscountConditionParams)) {
+                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                 }
             }
         ];
@@ -389,12 +406,45 @@ class Discount extends Model
         return $rules;
     }
 
+    /**
+     * Loads the related purchasable IDs into this discount
+     */
+    private function _loadPurchasableRelations()
+    {
+        $purchasableIds = (new Query())->select(['dp.purchasableId'])
+            ->from(Table::DISCOUNTS . ' discounts')
+            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->where(['discounts.id' => $this->id])
+            ->column();
+
+        $this->setPurchasableIds($purchasableIds);
+    }
 
     /**
-     * Loads the discount relations
+     * Loads the related category IDs into this discount
      */
-    private function _loadRelations()
+    private function _loadCategoryRelations()
     {
-        Plugin::getInstance()->getDiscounts()->populateDiscountRelations($this);
+        $categoryIds = (new Query())->select(['dpt.categoryId'])
+            ->from(Table::DISCOUNTS . ' discounts')
+            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->where(['discounts.id' => $this->id])
+            ->column();
+
+        $this->setCategoryIds($categoryIds);
+    }
+
+    /**
+     * Loads the related user group IDs into this discount
+     */
+    private function _loadUserGroupRelations()
+    {
+        $userGroupIds = (new Query())->select(['dug.userGroupId'])
+            ->from(Table::DISCOUNTS . ' discounts')
+            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
+            ->where(['discounts.id' => $this->id])
+            ->column();
+
+        $this->setUserGroupIds($userGroupIds);
     }
 }

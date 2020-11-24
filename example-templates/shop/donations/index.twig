@@ -1,0 +1,29 @@
+{% extends 'shop/_layouts/main' %}
+
+{% block main %}
+    <!-- Template: {{ _self }}.twig -->
+    <h1 class="text-3xl block sm:inline">Donation</h1>
+
+    {% set donation = craft.commerce.donation %}
+    {% if donation and donation.isAvailable %}
+        <form method="post" action="" class="pt-2 pb-8">
+            {{ actionInput('commerce/cart/update-cart') }}
+            {{ hiddenInput('successMessage', 'Donation added.'|hash) }}
+            {{ redirectInput('shop/cart') }}
+            {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
+            {{ csrfInput() }}
+
+            <div>
+                <label for="donation-amount">Enter a donation amount e.g. 10, 15, 20</label>
+            </div>
+            <div>
+                <input id="donation-amount" class="{{ classes.input }}" type="text" name="options[donationAmount]" value="" placeholder="10">
+            </div>
+            <div class="mt-3">
+                <input class="{{ classes.btn.base ~ ' ' ~ classes.btn.blue }}" type="submit" value="Add Donation"/>
+            </div>
+        </form>
+    {% else %}
+      <h2 class="text-lg font-semibold text-gray-600 mt-4">No donation set up</h2>
+    {% endif %}
+{% endblock %}

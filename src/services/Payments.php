@@ -20,6 +20,7 @@ use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\models\payments\BasePaymentForm;
+use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
@@ -38,7 +39,8 @@ use yii\base\Component;
 class Payments extends Component
 {
     /**
-     * @event TransactionEvent The event that is triggered after a payment transaction is made.
+     * @event TransactionEvent The event that is triggered when a complete-payment request is made.
+     * After this event, the customer will be redirected offsite or be redirected to the order success returnUrl.
      *
      * ```php
      * use craft\commerce\events\TransactionEvent;
@@ -48,7 +50,7 @@ class Payments extends Component
      *
      * Event::on(
      *     Payments::class,
-     *     Payments::EVENT_AFTER_PAYMENT_TRANSACTION,
+     *     Payments::EVENT_AFTER_COMPLETE_PAYMENT,
      *     function(TransactionEvent $event) {
      *         // @var Transaction $transaction
      *         $transaction = $event->transaction;
@@ -60,7 +62,7 @@ class Payments extends Component
      * );
      * ```
      */
-    const EVENT_AFTER_PAYMENT_TRANSACTION = 'afterPaymentTransaction';
+    const EVENT_AFTER_COMPLETE_PAYMENT = 'afterCompletePayment';
 
     /**
      * @event TransactionEvent The event that is triggered before a payment transaction is captured.
@@ -245,11 +247,12 @@ class Payments extends Component
         if (!$event->isValid) {
             // This error potentially is going to be displayed in the frontend, so we have to be vague about it.
             // Long story short - a plugin said "no."
-            throw new PaymentException(Plugin::t('Unable to make payment at this time.'));
+            throw new PaymentException(Craft::t('commerce', 'Unable to make payment at this time.'));
         }
 
         // Order could have zero totalPrice and already considered 'paid'. Free orders complete immediately.
-        if (!$order->hasOutstandingBalance() && !$order->datePaid) {
+        $paymentStrategy = Plugin::getInstance()->getSettings()->freeOrderPaymentStrategy;
+        if (!$order->hasOutstandingBalance() && !$order->datePaid && $paymentStrategy === Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE) {
             $order->updateOrderPaidInformation();
 
             if ($order->isCompleted) {
@@ -266,10 +269,10 @@ class Payments extends Component
 
         if ($defaultAction === TransactionRecord::TYPE_AUTHORIZE) {
             if (!$gateway->supportsAuthorize()) {
-                throw new PaymentException(Plugin::t('Gateway doesn’t support authorize'));
+                throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support authorize'));
             }
         } else if (!$gateway->supportsPurchase()) {
-            throw new PaymentException(Plugin::t('Gateway doesn’t support purchase'));
+            throw new PaymentException(Craft::t('commerce', 'Gateway doesn’t support purchase'));
         }
 
         //creating order, transaction and request
@@ -391,7 +394,7 @@ class Payments extends Component
         $transactionLockName = 'commerceTransaction:' . $transaction->hash;
         $mutex = Craft::$app->getMutex();
 
-        if (!$mutex->acquire($transactionLockName, 5)) {
+        if (!$mutex->acquire($transactionLockName, 15)) {
             throw new \Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
         }
 
@@ -434,6 +437,12 @@ class Payments extends Component
             $transaction->order->markAsComplete();
         }
 
+        if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
+            $this->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, new TransactionEvent([
+                'transaction' => $transaction
+            ]));
+        }
+
         if ($response->isRedirect() && $transaction->status === TransactionRecord::STATUS_REDIRECT) {
             $mutex->release($transactionLockName);
             $this->_handleRedirect($response, $redirect);
@@ -455,11 +464,11 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x Use
+     * @deprecated 3.1.11. Use getTotalPaid() instead.
      */
     public function getTotalPaidForOrder(Order $order): float
     {
-        Craft::$app->getDeprecator()->log('Payments::getTotalPaidForOrder()', 'Payments::getTotalPaidForOrder() has been deprecated. Use Order::getTotalPaid() instead.');
+        Craft::$app->getDeprecator()->log('Payments::getTotalPaidForOrder()', '`Payments::getTotalPaidForOrder()` has been deprecated. Use `Order::getTotalPaid()` instead.');
 
         return $order->getTotalPaid();
     }
@@ -469,11 +478,11 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalRefundedForOrder(Order $order): float
     {
-        Craft::$app->getDeprecator()->log('Payments::getTotalRefundedForOrder()', 'Payments::getTotalRefundedForOrder() has been deprecated.');
+        Craft::$app->getDeprecator()->log('Payments::getTotalRefundedForOrder()', '`Payments::getTotalRefundedForOrder()` has been deprecated.');
 
         // Since this method was only used by getTotalPaidForOrder, we don't need to move this to the order model since the logic is inside Order::getTotalPaid()
         $transactions = ArrayHelper::where($order->getTransactions(), static function(Transaction $transaction) {
@@ -488,11 +497,11 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalAuthorizedOnlyForOrder(Order $order): float
     {
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedOnlyForOrder()', 'Payments::getTotalAuthorizedOnlyForOrder() has been deprecated. Use Order::getTotalAuthorized()');
+        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedOnlyForOrder()', '`Payments::getTotalAuthorizedOnlyForOrder()` has been deprecated. Use `Order::getTotalAuthorized()` instead.');
 
         return $order->getTotalAuthorized();
     }
@@ -501,12 +510,12 @@ class Payments extends Component
      *
      * @param Order $order
      * @return float
-     * @deprecated 3.x
+     * @deprecated in 3.1.11.
      */
     public function getTotalAuthorizedForOrder(Order $order): float
     {
         // At time of deprecation this method has no internal uses.
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedForOrder()', 'Payments::getTotalAuthorizedForOrder() has been deprecated. It is not an accurate result since it does not take the amount paid from the authorized. Use Order::getTotalAuthorized()');
+        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedForOrder()', '`Payments::getTotalAuthorizedForOrder()` has been deprecated. It is not an accurate result since it does not take the amount paid from the authorized. Use `Order::getTotalAuthorized()` instead.');
 
         return (float)(new Query())
             ->from([Table::TRANSACTIONS])
@@ -528,7 +537,7 @@ class Payments extends Component
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
-        // redirect to off-site gateway
+        // If the gateway tells is it is a GET redirect, let them
         if ($response->getRedirectMethod() === 'GET') {
             $redirect = $response->getRedirectUrl();
         } else {
@@ -564,6 +573,7 @@ class Payments extends Component
                 Craft::$app->end();
             }
 
+            // Let the gateways response redirect us
             $response->redirect();
         }
 
@@ -612,11 +622,11 @@ class Payments extends Component
             $gateway = $parent->getGateway();
 
             if (!$gateway->supportsRefund()) {
-                throw new SubscriptionException(Plugin::t('Gateway doesn’t support refunds.'));
+                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support refunds.'));
             }
 
             if ($amount < $parent->paymentAmount && !$gateway->supportsPartialRefund()) {
-                throw new SubscriptionException(Plugin::t('Gateway doesn’t support partial refunds.'));
+                throw new SubscriptionException(Craft::t('commerce', 'Gateway doesn’t support partial refunds.'));
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
@@ -631,7 +641,7 @@ class Payments extends Component
                 $response = $gateway->refund($child);
                 $this->_updateTransaction($child, $response);
             } catch (Throwable $exception) {
-                Craft::error(Plugin::t('Error refunding transaction: {transactionHash}', ['transactionHash' => $parent->hash]), 'commerce');
+                Craft::error(Craft::t('commerce', 'Error refunding transaction: {transactionHash}', ['transactionHash' => $parent->hash]), 'commerce');
                 $child->status = TransactionRecord::STATUS_FAILED;
                 $child->message = $exception->getMessage();
                 $this->_saveTransaction($child);

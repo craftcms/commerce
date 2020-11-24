@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
@@ -84,6 +85,29 @@ class Addresses extends Component
      * ```
      */
     const EVENT_AFTER_SAVE_ADDRESS = 'afterSaveAddress';
+
+    /**
+     * @event AddressEvent The event that is triggered before an address is deleted.
+     *
+     * ```php
+     * use craft\commerce\events\AddressEvent;
+     * use craft\commerce\services\Addresses;
+     * use craft\commerce\models\Address;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Addresses::class,
+     *     Addresses::EVENT_BEFORE_DELETE_ADDRESS,
+     *     function(AddressEvent $event) {
+     *         // @var Address $address
+     *         $address = $event->address;
+     *
+     *         // Invalidate customer address cache
+     *         // ...
+     *     }
+     * );
+     */
+    const EVENT_BEFORE_DELETE_ADDRESS = 'beforeDeleteAddress';
 
     /**
      * @event AddressEvent The event that is triggered after an address is deleted.
@@ -175,7 +199,7 @@ class Addresses extends Component
     }
 
     /**
-     * Returns the stock location or a blank address if it's not defined.
+     * Returns the store location address, or a blank address if it's not defined.
      *
      * @return Address
      */
@@ -294,6 +318,14 @@ class Addresses extends Component
         // Get the Address model before deletion to pass to the Event.
         $address = $this->getAddressById($id);
 
+        //Raise the beforeDeleteAddress event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
+            $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
+                'address' => $address,
+                'isNew' => false
+            ]));
+        }
+
         $result = (bool)$addressRecord->delete();
 
         //Raise the afterDeleteAddress event
@@ -355,7 +387,7 @@ class Addresses extends Component
             if (Craft::$app->cache->exists($cacheKey)) {
                 $result = Craft::$app->cache->get($cacheKey);
             } else {
-                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode'=>$zipCode], 'Zip Code condition formula matching address');
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode' => $zipCode], 'Zip Code condition formula matching address');
                 Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
             }
 
@@ -385,14 +417,18 @@ class Addresses extends Component
             ->leftJoin(Table::ORDERS . ' so', '[[addresses.id]] = [[so.shippingAddressId]]')
             ->leftJoin(Table::ORDERS . ' seo', '[[addresses.id]] = [[seo.estimatedShippingAddressId]]')
             ->leftJoin(Table::CUSTOMERS_ADDRESSES . ' c', '[[addresses.id]] = [[c.addressId]]')
-            ->where(['and', [
-                '[[so.shippingAddressId]]' => null,
-                '[[seo.estimatedShippingAddressId]]' => null,
-                '[[c.addressId]]' => null,
-                '[[bo.billingAddressId]]' => null,
-                '[[beo.estimatedBillingAddressId]]' => null,
-                '[[addresses.isStoreLocation]]' => 0,
-            ]]);
+            ->where([
+                'and', [
+                    '[[so.shippingAddressId]]' => null,
+                    '[[seo.estimatedShippingAddressId]]' => null,
+                    '[[c.addressId]]' => null,
+                    '[[bo.billingAddressId]]' => null,
+                    '[[beo.estimatedBillingAddressId]]' => null,
+                    '[[addresses.isStoreLocation]]' => 0,
+                ]
+            ]);
+
+        //TODO: allow modification of orphaned addresses query in an event https://github.com/craftcms/commerce/issues/1627
 
         foreach ($addresses->batch(500) as $address) {
             $ids = ArrayHelper::getColumn($address, 'id', false);
@@ -422,6 +458,7 @@ class Addresses extends Component
             'countryText',
             'stateText',
             'abbreviationText',
+            'addressLines',
         ];
         foreach ($readOnly as $item) {
             if (array_key_exists($item, $address)) {
@@ -430,6 +467,39 @@ class Addresses extends Component
         }
 
         return $address;
+    }
+
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 3.2.0
+     */
+    public function eagerLoadAddressesForOrders(array $orders): array
+    {
+        $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
+        $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
+        $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
+        $addresses = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
+
+        foreach ($addresses as $result) {
+            $address = new Address($result);
+            $addresses[$address->id] = $addresses[$address->id] ?? $address ?? null;
+        }
+
+        foreach ($orders as $key => $order) {
+
+            if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
+                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
+            }
+
+            if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
+               $order->setBillingAddress($addresses[$order['billingAddressId']]);
+            }
+
+            $orders[$key] = $order;
+        }
+
+        return $orders;
     }
 
     /**
@@ -466,7 +536,8 @@ class Addresses extends Component
                 'addresses.custom2',
                 'addresses.custom3',
                 'addresses.custom4',
-                'addresses.isEstimated'
+                'addresses.isEstimated',
+                'addresses.isStoreLocation'
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

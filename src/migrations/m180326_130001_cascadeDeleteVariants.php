@@ -21,7 +21,7 @@ class m180326_130001_cascadeDeleteVariants extends Migration
     public function safeUp()
     {
         $this->delete('{{%commerce_variants}}', ['productId' => null]);
-        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}');
+        MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_variants}}', $this);
 
         // Now we can set the productId column to NOT NULL
         if ($this->db->getIsPgsql()) {

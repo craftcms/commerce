@@ -49,6 +49,10 @@ class Gateways extends Component
      */
     private $_overrides;
 
+    /**
+     * @var array|null All gateways
+     */
+    private $_allGateways;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.
@@ -101,22 +105,8 @@ class Gateways extends Component
      */
     public function getAllCustomerEnabledGateways(): array
     {
-        $rows = $this->_createGatewayQuery()
-            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->andWhere(['isFrontendEnabled' => true])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->all();
-
-        $gateways = [];
-
-        foreach ($rows as $row) {
-            $gateways[$row['id']] = $this->createGateway($row);
-        }
-
         // Filter gateways to respect custom config files settings `isFrontendEnabled` to `false`
-        $gateways = ArrayHelper::where($gateways, 'isFrontendEnabled', true);
-
-        return $gateways;
+        return ArrayHelper::where($this->getAllGateways(), 'isFrontendEnabled', true);
     }
 
     /**
@@ -126,37 +116,19 @@ class Gateways extends Component
      */
     public function getAllSubscriptionGateways(): array
     {
-        $gateways = $this->getAllGateways();
-        $subscriptionGateways = [];
-
-        foreach ($gateways as $gateway) {
-            if ($gateway instanceof SubscriptionGateway) {
-                $subscriptionGateways[] = $gateway;
-            }
-        }
-
-        return $subscriptionGateways;
+        return ArrayHelper::where($this->_getAllGateways(), function($gateway) {
+            return $gateway instanceof SubscriptionGateway && !$gateway->isArchived;
+        });
     }
 
     /**
-     * Returns  all gateways
+     * Returns all gateways
      *
      * @return GatewayInterface[] All gateways
      */
     public function getAllGateways(): array
     {
-        $rows = $this->_createGatewayQuery()
-            ->where(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->orderBy(['sortOrder' => SORT_ASC])
-            ->all();
-
-        $gateways = [];
-
-        foreach ($rows as $row) {
-            $gateways[$row['id']] = $this->createGateway($row);
-        }
-
-        return $gateways;
+        return ArrayHelper::where($this->_getAllGateways(), 'isArchived', false);
     }
 
     /**
@@ -171,7 +143,29 @@ class Gateways extends Component
         $gateway = $this->getGatewayById($id);
         $gateway->isArchived = true;
 
-        return $this->saveGateway($gateway);
+        if (!$this->saveGateway($gateway)) {
+            return false;
+        }
+
+        $paymentSources = Plugin::getInstance()->getPaymentSources()->getAllPaymentSourcesByGatewayId($id);
+        $paymentSourceIds = ArrayHelper::getColumn($paymentSources, 'id');
+
+        // Clear this gateway from all active carts since it has been now been archived
+        Craft::$app->getDb()->createCommand()
+            ->update(Table::ORDERS,
+                [
+                    'gatewayId' => null,
+                    'paymentSourceId' => null
+                ],
+                [
+                    'and',
+                    ['isCompleted' => false],
+                    ['or', ['gatewayId' => $id], ['paymentSourceId' => $paymentSourceIds]],
+                ], [], false)
+            ->execute();
+
+
+        return true;
     }
 
     /**
@@ -182,11 +176,7 @@ class Gateways extends Component
      */
     public function getGatewayById(int $id)
     {
-        $result = $this->_createGatewayQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        return $result ? $this->createGateway($result) : null;
+        return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
     }
 
     /**
@@ -197,12 +187,7 @@ class Gateways extends Component
      */
     public function getGatewayByHandle(string $handle)
     {
-        $result = $this->_createGatewayQuery()
-            ->where(['handle' => $handle])
-            ->andWhere(['or', ['isArchived' => null], ['not', ['isArchived' => true]]])
-            ->one();
-
-        return $result ? $this->createGateway($result) : null;
+        return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllGateways(), ['handle' => $handle, 'isArchived' => false]));
     }
 
     /**
@@ -231,7 +216,7 @@ class Gateways extends Component
         $existingGateway = $this->getGatewayByHandle($gateway->handle);
 
         if ($existingGateway && (!$gateway->id || $gateway->id != $existingGateway->id)) {
-            $gateway->addError('handle', Plugin::t( 'That handle is already in use.'));
+            $gateway->addError('handle', Craft::t('commerce', 'That handle is already in use.'));
             return false;
         }
 
@@ -257,6 +242,8 @@ class Gateways extends Component
         if ($isNewGateway) {
             $gateway->id = Db::idByUid(Table::GATEWAYS, $gatewayUid);
         }
+
+        $this->_allGateways = null; // reset cache
 
         return true;
     }
@@ -345,6 +332,8 @@ class Gateways extends Component
             }
         }
 
+        $this->_allGateways = null; // reset cache
+
         return true;
     }
 
@@ -426,6 +415,7 @@ class Gateways extends Component
                 'uid',
                 'sortOrder'
             ])
+            ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
     }
 
@@ -442,5 +432,26 @@ class Gateways extends Component
         }
 
         return new GatewayRecord();
+    }
+
+    /**
+     * @return GatewayInterface[]|array|null
+     */
+    private function _getAllGateways()
+    {
+        if ($this->_allGateways === null) {
+            $gateways = $this->_createGatewayQuery()
+                ->all();
+
+            $this->_allGateways = [];
+
+            if (!empty($gateways)) {
+                foreach ($gateways as $gateway) {
+                    $this->_allGateways[$gateway['id']] = $this->createGateway($gateway);
+                }
+            }
+        }
+
+        return $this->_allGateways;
     }
 }
