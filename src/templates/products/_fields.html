@@ -261,3 +261,17 @@
         id: 'related-sales',
     }, output) }}
 {% endmacro %}
+
+
+{% macro relatedDiscounts(id, defaultVariant) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        <ul class="commerce-discounts product-discounts commerce-sales" data-id="{{ id }}"></ul>
+        <a class="btn small add icon" target="_blank" href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~defaultVariant.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Discounts'|t('commerce'),
+        id: 'related-discounts',
+    }, output) }}
+{% endmacro %}
