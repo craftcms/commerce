@@ -242,6 +242,7 @@
     {%- import "_includes/forms" as forms -%}
     {% set output %}
         {% if not showAddAll %}
+            <div class="product-sales commerce-sales-spinner spinner" data-id="{{ id }}" data-loading="false"></div>
             <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
             <div class="commerce-sales-buttons">
                 {# Add to existing sale #}
