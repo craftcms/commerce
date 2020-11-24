@@ -330,7 +330,8 @@ class Emails extends Component
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
-
+            $emailRecord->locale = $data['locale'];
+         
             $emailRecord->save(false);
 
             $transaction->commit();
@@ -880,6 +881,7 @@ class Emails extends Component
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
                 'emails.pdfId',
+                'emails.locale',
                 'emails.uid',
             ])
             ->orderBy('name')

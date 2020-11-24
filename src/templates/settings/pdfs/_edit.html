@@ -74,15 +74,13 @@
         }) }}
 
     {{ forms.selectField({
-        first: true,
         label: 'Language'|t('commerce'),
         instructions: "The language to be used when PDF is rendered."|t,
         id: 'locale',
         name: 'locale',
         options : pdfLanguageOptions,
         value : pdf.locale,
-        errors: pdf.getErrors('locale') ?? null,
-        toggle: true
+        errors: pdf.getErrors('locale') ?? null
     }) }}
 
     {{ forms.lightswitchField({

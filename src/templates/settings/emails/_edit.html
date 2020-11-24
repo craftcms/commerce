@@ -131,11 +131,10 @@
     }) }}
 
     {{ forms.selectField({
-        first: true,
         label: 'Language'|t('commerce'),
         instructions: "The language to be used when email is rendered."|t,
-        id: 'emailLanguage',
-        name: 'emailLanguage',
+        id: 'locale',
+        name: 'locale',
         options : emailLanguageOptions,
         value : email.locale,
         errors: email.getErrors('locale') ?? null,
