@@ -12,8 +12,11 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     $addToSale: null,
     addToSaleSelector: '.product-add-to-sale',
     $salesList: null,
+    $discountsList: null,
     salesListSelector: '.product-sales.commerce-sales',
+    discountListSelector: '.product-discounts.commerce-discounts',
     saleIdsByVariantId: {},
+    discountIdsByVariantId: {},
     $container: null,
 
     init: function(settings) {
@@ -25,6 +28,11 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
             this.$salesList = this.$container.find(this.salesListSelector);
             if (this.$salesList && this.$salesList.length) {
                 this.populateSalesList();
+            }
+
+            this.$discountsList = this.$container.find(this.discountListSelector);
+            if (this.$discountsList && this.$discountsList.length) {
+                this.populateDiscountList();
             }
 
             // Add to sale button
@@ -63,7 +71,6 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
 
         var salesModal = new Craft.Commerce.ProductSalesModal(sales, data);
     },
-
     populateSalesList: function() {
         if (this.$salesList && this.$salesList.length) {
             var _this = this;
@@ -87,6 +94,36 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
 
                             $('<li>\n' +
                                 '<a href="'+sale.cpEditUrl+'"><span>'+sale.name+'</span></a>\n' +
+                                '</li>').appendTo(element);
+                        }
+                    }
+                });
+            });
+        }
+    },
+    populateDiscountList: function() {
+        if (this.$discountsList && this.$discountsList.length) {
+            var _this = this;
+            this.$discountsList.each(function(el) {
+                var element = $(this);
+                var id = element.data('id');
+                var data = {
+                    id: id
+                };
+
+                element.empty();
+
+                Craft.postActionRequest('commerce/discounts/get-discounts-by-purchasable-id', data, function(response) {
+                    if (response && response.success && response.discounts.length) {
+                        for (var i = 0; i < response.discounts.length; i++) {
+                            var discount = response.discounts[i];
+                            if (_this.discountIdsByVariantId[id] === undefined) {
+                                _this.discountIdsByVariantId[id] = [];
+                            }
+                            _this.discountIdsByVariantId[id].push(discount.id);
+
+                            $('<li>\n' +
+                                '<a href="'+discount.cpEditUrl+'"><span>'+discount.name+'</span></a>\n' +
                                 '</li>').appendTo(element);
                         }
                     }
