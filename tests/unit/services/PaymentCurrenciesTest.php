@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\services;
 
 use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
