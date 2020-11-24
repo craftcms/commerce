@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
@@ -21,11 +21,7 @@ use yii\web\Response;
  * CartTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
-<<<<<<< HEAD
- * @since 3.x
-=======
  * @since 3.2.0
->>>>>>> develop
  */
 class CartTest extends Unit
 {
