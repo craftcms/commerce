@@ -8,11 +8,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\elements\Order;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email as EmailRecord;
-use craft\commerce\records\Pdf as PdfRecord;
+use craft\commerce\services\Locales;
 use craft\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -69,7 +67,7 @@ class EmailsController extends BaseAdminController
         $variables['pdfList'] = $pdfList;
         
         $emailLanguageOptions = [
-            EmailRecord::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
+            Locales::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
         ];
         
         // get current site's locale

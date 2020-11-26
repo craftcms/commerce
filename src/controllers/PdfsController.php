@@ -10,7 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
-use craft\commerce\records\Pdf as PdfRecord;
+use craft\commerce\services\Locales;
 use craft\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -46,7 +46,7 @@ class PdfsController extends BaseAdminController
         $variables = compact('pdf', 'id');
         
         $pdfLanguageOptions = [
-          PdfRecord::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
+            Locales::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
         ];
         
         // get current site's locale
