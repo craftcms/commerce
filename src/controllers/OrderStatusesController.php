@@ -92,10 +92,10 @@ class OrderStatusesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, $emailIds)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order status saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Order status saved.'));
             $this->redirectToPostedUrl($orderStatus);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save order status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('orderStatus', 'emailIds'));

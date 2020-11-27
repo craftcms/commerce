@@ -18,6 +18,7 @@ use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use Exception;
 use Throwable;
@@ -119,6 +120,8 @@ class SalesController extends BaseCpController
         $sale->stopProcessing = $request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
+        $applyAmount = Localization::normalizeNumber($applyAmount);
+        
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
@@ -160,10 +163,10 @@ class SalesController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sale saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save sale.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
         $variables = [
@@ -354,7 +357,7 @@ class SalesController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t updated sales status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -369,7 +372,7 @@ class SalesController extends BaseCpController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sales updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales updated.'));
     }
 
 

@@ -341,7 +341,7 @@ class LineItems extends Component
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
      * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
-     * TODO: Refactor method signature so that the 2 order assignment methods are no needed.
+     * TODO: Refactor method signature so that the 2 order assignment params are no needed.
      * @return LineItem
      *
      */
@@ -404,7 +404,6 @@ class LineItems extends Component
         $lineItems = [];
 
         foreach ($lineItemsResults as $result) {
-
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
             $lineItem->typecastAttributes();
@@ -413,8 +412,8 @@ class LineItems extends Component
         }
 
         foreach ($orders as $key => $order) {
-            if (isset($lineItems[$order['id']])) {
-                $order['lineItems'] = $lineItems[$order['id']];
+            if (isset($lineItems[$order->id])) {
+                $order->setLineItems($lineItems[$order->id]);
                 $orders[$key] = $order;
             }
         }

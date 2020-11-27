@@ -31,7 +31,7 @@
 
                 <form method="post" action="" accept-charset="UTF-8">
                   {{ csrfInput() }}
-                  <input type="hidden" name="action" value="users/login">
+                  {{ actionInput('users/login') }}
                   {{ redirectInput('shop/checkout/addresses') }}
 
                   <div class="field mt-3">
@@ -66,7 +66,7 @@
 
                 <form method="post" action="" accept-charset="UTF-8">
                     {{ csrfInput() }}
-                    <input type="hidden" name="action" value="users/save-user">
+                    {{ actionInput('users/save-user') }}
                     {{ redirectInput('shop/checkout/addresses') }}
 
                     {% macro errorList(errors) %}

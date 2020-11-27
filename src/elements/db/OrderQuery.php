@@ -93,6 +93,16 @@ class OrderQuery extends ElementQuery
     public $orderStatusId;
 
     /**
+     * @var int The language the order was made that the resulting the order must have.
+     */
+    public $orderLanguage;
+
+    /**
+     * @var int The Order Site ID that the resulting orders must have.
+     */
+    public $orderSiteId;
+
+    /**
      * @var string|null The origin the resulting orders must have.
      */
     public $origin;
@@ -579,14 +589,14 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order status with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .authorGroupId(1)
+     *     .orderStatusId(1)
      *     .all() %}
      * ```
      *
      * ```php
      * // Fetch {elements} with an order status with an ID of 1
      * ${elements-var} = {php-method}
-     *     ->authorGroupId(1)
+     *     ->orderStatusId(1)
      *     ->all();
      * ```
      *
@@ -596,6 +606,80 @@ class OrderQuery extends ElementQuery
     public function orderStatusId($value)
     {
         $this->orderStatusId = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `en` | with an order language that is 'en'.
+     * | `'not en'` | not with an order language that is no 'en'.
+     * | `['en', 'en-us']` | with an order language that is 'en' or 'en-us'.
+     * | `['not', 'en']` | not with an order language that is not 'en'.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order status with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .orderLanguage('en')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order status with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->orderLanguage('en')
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderLanguage($value)
+    {
+        $this->orderLanguage = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the order language, per the language string provided.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with an order site ID of 1.
+     * | `'not 1'` | not with an order site ID that is no 1.
+     * | `[1, 2]` | with an order site ID of 1 or 2.
+     * | `['not', 1, 2]` | not with an order site ID of 1 or 2.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} with an order site ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .orderSiteId(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} with an order site ID of 1
+     * ${elements-var} = {php-method}
+     *     ->orderSiteId(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function orderSiteId($value)
+    {
+        $this->orderSiteId = $value;
         return $this;
     }
 
@@ -1066,34 +1150,40 @@ class OrderQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function populate($orders)
+    public function populate($rows)
     {
-        // Eager-load line items?
-        if (!empty($orders) && ($this->withLineItems === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+        $orders = parent::populate($rows);
+
+        // Eager-load anything?
+        if (!empty($orders) && !$this->asArray) {
+
+            // Eager-load line items?
+            if ($this->withLineItems === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getLineItems()->eagerLoadLineItemsForOrders($orders);
+            }
+
+            // Eager-load transactions?
+            if ($this->withTransactions === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
+            }
+
+            // Eager-load adjustments?
+            if ($this->withAdjustments === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
+            }
+
+            // Eager-load customers?
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
+            }
+
+            // Eager-load addresses?
+            if ($this->withAddresses === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            }
         }
 
-        // Eager-load transactions?
-        if (!empty($orders) && ($this->withTransactions === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getTransactions()->eagerLoadTransactionsForOrders($orders);
-        }
-
-        // Eager-load adjustments?
-        if (!empty($orders) && ($this->withAdjustments === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getOrderAdjustments()->eagerLoadOrderAdjustmentsForOrders($orders);
-        }
-
-        // Eager-load customers?
-        if (!empty($orders) && ($this->withCustomer === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
-        }
-
-        // Eager-load addresses?
-        if (!empty($orders) && ($this->withAddresses === true || $this->withAll)) {
-            $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
-        }
-
-        return parent::populate($orders);
+        return $orders;
     }
 
     /**
@@ -1178,10 +1268,15 @@ class OrderQuery extends ElementQuery
             ]);
         }
 
-        if ($commerce && version_compare($commerce['version'], '3.x', '>=')) {
+        if ($commerce && version_compare($commerce['version'], '3.2.4', '>=')) {
             $this->query->addSelect([
                 'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
             ]);
+        }
+
+        if ($commerce && version_compare($commerce['version'], '3.2.9', '>=')) {
+            $this->query->addSelect(['commerce_orders.orderSiteId']);
+            $this->query->addSelect(['commerce_orders.orderLanguage']);
         }
 
         if ($this->number !== null) {
@@ -1228,6 +1323,14 @@ class OrderQuery extends ElementQuery
 
         if ($this->orderStatusId) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderStatusId', $this->orderStatusId));
+        }
+
+        if ($this->orderLanguage) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderStatusId));
+        }
+
+        if ($this->orderSiteId) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderStatusId));
         }
 
         if ($this->customerId) {

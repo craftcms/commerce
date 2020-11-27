@@ -49,7 +49,7 @@
         { name: 'preview', title: Craft.t('commerce', 'Preview'),
                     callback: function(value) {
                         if (value) {
-                            return '<a class="btn small" target="_blank" href="'+Craft.getActionUrl('commerce/emails/preview-email',{ emailId: value })+'">Preview</a>';
+                            return '<a class="btn small" target="_blank" href="'+ Craft.getActionUrl('commerce/email-preview/render', { emailId: value })+'">Preview</a>';
                         }
 
                         return '';

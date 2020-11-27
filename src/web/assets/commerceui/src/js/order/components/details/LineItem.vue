@@ -32,7 +32,7 @@
                 <div class="w-3/4">
                     <div class="order-flex pb">
                         <ul class="line-item-section">
-                            <li class="order-flex">
+                            <li class="order-flex order-flex-wrap">
                                 <template v-if="editing && editMode && recalculationMode === 'none'">
                                     <field v-slot:default="slotProps">
                                         <input :id="slotProps.id" type="text" class="text" size="10" v-model="salePrice" :class="{ 'error': getErrors('lineItems.'+lineItemKey+'.salePrice').length }" />
@@ -313,7 +313,8 @@
 
 
         label {
-            @include margin-right(10px);
+            @include padding-right(10px);
+            max-width: 100%;
         }
     }
 </style>

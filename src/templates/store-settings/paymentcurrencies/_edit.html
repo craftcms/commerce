@@ -16,17 +16,31 @@
     {{ redirectInput('commerce/store-settings/paymentcurrencies') }}
     {% if currency.id %}<input type="hidden" name="currencyId"
                                value="{{ currency.id }}">{% endif %}
-
-    {{ forms.selectField({
+    {% if currency.id and currency.primary and hasCompletedOrders %}
+      {{ hiddenInput('iso', currency.iso) }}
+      {{ forms.textField({
         label: 'Currency Code'|t('commerce'),
-        first: true,
         instructions: 'Choose the currency’s ISO code.'|t('commerce'),
-        id: 'iso',
-        name: 'iso',
-        value: currency.iso,
-        errors: currency.getErrors('iso'),
-        class: 'selectize fullwidth',
-    }) }}
+        id: 'iso-readonly',
+        name: 'iso-readonly',
+        readonly: true,
+        value: currency.currency ~ ' (' ~ currency.iso ~ ')',
+        class: 'disabled',
+        warning: 'The primary currency cannot be changed after orders are placed.'|t('commerce')
+      }) }}
+    {% else %}
+      {{ forms.selectField({
+          label: 'Currency Code'|t('commerce'),
+          first: true,
+          instructions: 'Choose the currency’s ISO code.'|t('commerce'),
+          id: 'iso',
+          name: 'iso',
+          value: currency.iso,
+          errors: currency.getErrors('iso'),
+          class: 'selectize fullwidth',
+          warning: currency.id and currency.primary ? 'The primary currency should only be changed in development; changing now will delete all existing carts.'|t('commerce') : ''
+      }) }}
+    {% endif %}
 
     {{ forms.textField({
         label: "Conversion Rate"|t('commerce'),
@@ -48,7 +62,7 @@
 {% endblock %}
 
 {% js %}
-    window.currencies = {{ craft.commerce.currencies.allcurrencies|values|json_encode|raw }};
+    window.currencies = {{ craft.commerce.currencies.allCurrencies|values|json_encode|raw }};
     window.currency = {{ [currency.iso]|json_encode|raw }};
     $(function () {
         $('#iso').selectize({

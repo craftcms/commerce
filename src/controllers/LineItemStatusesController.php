@@ -94,10 +94,10 @@ class LineItemStatusesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getLineItemStatuses()->saveLineItemStatus($lineItemStatus)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Order status saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Order status saved.'));
             $this->redirectToPostedUrl($lineItemStatus);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save line item status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save line item status.'));
         }
 
         Craft::$app->getUrlManager()->setRouteParams(compact('lineItemStatus'));

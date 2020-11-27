@@ -203,6 +203,8 @@ class Address extends Model
     public function init()
     {
         $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
+        $this->isEstimated = (bool)$this->isEstimated;
+        $this->isStoreLocation = (bool)$this->isStoreLocation;
 
         parent::init();
     }
@@ -300,7 +302,7 @@ class Address extends Model
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
-                return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+                return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
             }
         ];
 
@@ -518,6 +520,7 @@ class Address extends Model
             'notes' => $this->notes,
             'businessName' => $this->businessName,
             'stateText' => $this->stateText,
+            'countryText' => $this->countryText,
             'custom1' => $this->custom1,
             'custom2' => $this->custom2,
             'custom3' => $this->custom3,

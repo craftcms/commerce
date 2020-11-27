@@ -11,9 +11,11 @@ use Craft;
 use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
+use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 
@@ -149,6 +151,11 @@ trait OrderElementTrait
                     [Craft::t('commerce', 'Price'), $this->storedTotalPriceAsCurrency],
                 ];
                 return $this->_miniTable($values);
+            }
+            case 'orderSite':
+            {
+                $site = Craft::$app->getSites()->getSiteById($this->orderSiteId);
+                return $site->name ?? '';
             }
             default:
             {
@@ -354,6 +361,19 @@ trait OrderElementTrait
     }
 
     /**
+     * @inheritDoc
+     */
+    protected static function defineExporters(string $source): array
+    {
+        $default = parent::defineExporters($source);
+        // Remove the standard expanded exporter and use our own
+        ArrayHelper::removeValue($default, CraftExpanded::class);
+        ArrayHelper::append($default, Expanded::class);
+
+        return $default;
+    }
+
+    /**
      * @inheritdoc
      */
     protected static function defineTableAttributes(): array
@@ -393,6 +413,7 @@ trait OrderElementTrait
             'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
             'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
             'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
+            'orderSite' => ['label' => Craft::t('commerce', 'Order Site')],
         ];
     }
 
@@ -418,6 +439,51 @@ trait OrderElementTrait
         }
 
         return $attributes;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    {
+        /** @var OrderQuery $elementQuery */
+
+        switch ($attribute) {
+            case 'totals':
+            case 'total':
+            case 'totalPrice':
+            case 'totalDiscount':
+            case 'totalShippingCost':
+            case 'totalTax':
+            case 'totalIncludedTax':
+                $elementQuery->withAdjustments();
+                break;
+            case 'totalPaid':
+            case 'paidStatus':
+                $elementQuery->withTransactions();
+                break;
+            case 'shippingFullName':
+            case 'shippingFirstName':
+            case 'shippingLastName':
+            case 'billingFullName':
+            case 'billingFirstName':
+            case 'billingLastName':
+            case 'shippingBusinessName':
+            case 'billingBusinessName':
+            case 'shippingMethodName':
+                $elementQuery->withAddresses();
+                break;
+            case 'email':
+            case 'customer':
+                $elementQuery->withCustomer();
+                break;
+            case 'itemTotal':
+            case 'itemSubtotal':
+                $elementQuery->withLineItems();
+                break;
+            default:
+                parent::prepElementQueryForTableAttribute($elementQuery, $attribute);
+        }
     }
 
     /**

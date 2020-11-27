@@ -67,6 +67,8 @@
   </div>
 </div>
 {% endif %}
+
+    {% hook 'cp.commerce.shippingMethods.edit.content' %}
 {% endblock %}
 
 {% set tableData = [] %}
@@ -81,13 +83,20 @@
     {% if shippingRule.maxTotal > 0 %}<strong>{{ "Maximum Order Total Value"|t('commerce') }}</strong> {{shippingRule.maxTotal}}<br>{% endif %}
     {% if shippingRule.minWeight > 0 %}<strong>{{ "Minimum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.minWeight}}<br>{% endif %}
     {% if shippingRule.maxWeight > 0 %}<strong>{{ "Maximum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.maxWeight}}<br>{% endif %}
-    <h4>Costs</h4>
+    {% if shippingRule.baseRate > 0 or
+      shippingRule.minRate > 0 or
+      shippingRule.maxRate > 0 or
+      shippingRule.perItemRate > 0 or
+      shippingRule.weightRate > 0 or
+      shippingRule.percentageRate > 0  %}
+      <h4>Costs</h4>
+    {% endif %}
     {% if shippingRule.baseRate > 0 %}<strong>{{ "Base Rate"|t('commerce') }}</strong> {{shippingRule.baseRate|commerceCurrency}}<br>{% endif %}
     {% if shippingRule.minRate > 0 %}<strong>{{ "Minimum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.minRate|commerceCurrency}}<br>{% endif %}
     {% if shippingRule.maxRate > 0 %}<strong>{{ "Maximum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.maxRate|commerceCurrency}}<br>{% endif %}
     {% if shippingRule.perItemRate > 0 %}<strong>{{ "Default Per Item Rate"|t('commerce') }}</strong> {{shippingRule.perItemRate|commerceCurrency}}<br>{% endif %}
     {% if shippingRule.weightRate > 0 %}<strong>{{ "Default Weight Rate"|t('commerce') }}</strong> {{shippingRule.weightRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}</strong> {{shippingRule.percentageRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}</strong> {{shippingRule.percentageRate|trim('0', 'right')}}<br>{% endif %}
   {% endset %}
 
 	{% set tableData = tableData|merge([{

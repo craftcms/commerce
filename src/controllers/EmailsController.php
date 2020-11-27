@@ -35,47 +35,6 @@ class EmailsController extends BaseAdminController
     }
 
     /**
-     * @return Response
-     */
-    public function actionPreviewEmail(): Response
-    {
-        $emailId = Craft::$app->getRequest()->getParam('emailId');
-        $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
-        $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
-
-        if ($orderNumber) {
-            $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
-        } else {
-            $orderIds = Order::find()->isCompleted(true)->limit(5000)->ids();
-            $rand = array_rand($orderIds, 1);
-            $order = Order::find()->isCompleted(true)->id($orderIds[$rand])->one();
-        }
-
-        if ($email && $order && $template = $email->templatePath) {
-            if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
-                // use the order's language for template rendering the email.
-                $orderLanguage = $order->orderLanguage ?: Craft::$app->language;
-                Craft::$app->language = $orderLanguage;
-            }
-
-            $view = Craft::$app->getView();
-            $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
-            return $this->renderTemplate($template, compact('order'));
-        }
-
-        $errors = [];
-        if (!$email) {
-            $errors[] = Craft::t('commerce', 'Could not find the email or template.');
-        }
-
-        if (!$order) {
-            $errors[] = Craft::t('commerce', 'Could not find the order.');
-        }
-
-        return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
-    }
-
-    /**
      * @param int|null $id
      * @param Email|null $email
      * @return Response
@@ -146,10 +105,10 @@ class EmailsController extends BaseAdminController
 
         // Save it
         if ($emailsService->saveEmail($email)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Email saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Email saved.'));
             return $this->redirectToPostedUrl($email);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save email.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         }
 
         // Send the model back to the template

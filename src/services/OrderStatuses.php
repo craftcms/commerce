@@ -430,12 +430,14 @@ class OrderStatuses extends Component
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 foreach ($status->emails as $email) {
-                    Craft::$app->getQueue()->push(new SendEmail([
-                        'orderId' => $order->id,
-                        'commerceEmailId' => $email->id,
-                        'orderHistoryId' => $orderHistory->id,
-                        'orderData' => $order->toArray()
-                    ]));
+                    if($email->enabled) {
+                        Craft::$app->getQueue()->push(new SendEmail([
+                            'orderId' => $order->id,
+                            'commerceEmailId' => $email->id,
+                            'orderHistoryId' => $orderHistory->id,
+                            'orderData' => $order->toArray()
+                        ]));
+                    }
                 }
             }
         }

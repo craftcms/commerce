@@ -7,7 +7,9 @@
 
 namespace craft\commerce\queue\jobs;
 
+use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\EmailException;
 use craft\commerce\Plugin;
 use craft\queue\BaseJob;
 
@@ -39,12 +41,17 @@ class SendEmail extends BaseJob
         $this->setProgress($queue, 0.2);
 
         $order = Order::find()->id($this->orderId)->one();
+        
         $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
         $this->setProgress($queue, 0.5);
 
-        Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData);
+
+        $error = '';
+        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
+            throw new EmailException($error);
+        }
 
         $this->setProgress($queue, 1);
     }

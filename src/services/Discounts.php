@@ -148,7 +148,7 @@ class Discounts extends Component
      *     }
      * );
      * ```
-     * @deprecated in 3.x. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
+     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
      */
     const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
 
@@ -309,7 +309,7 @@ class Discounts extends Component
      *
      * @param Discount $discount
      * @throws DeprecationException
-     * @deprecated in 3.x
+     * @deprecated in 3.2.4.
      */
     public function populateDiscountRelations(Discount $discount)
     {
@@ -410,6 +410,7 @@ class Discounts extends Component
      *
      * @param string $code
      * @return Discount|null
+     * @throws \Exception
      */
     public function getDiscountByCode($code)
     {
@@ -417,11 +418,9 @@ class Discounts extends Component
             return null;
         }
 
-        $result = $this->_createDiscountQuery()
-            ->where(['code' => $code, 'enabled' => true])
-            ->one();
-
-        return $result ? new Discount($result) : null;
+        return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
+            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        });
     }
 
     /**
@@ -726,6 +725,10 @@ class Discounts extends Component
                 ]));
             }
 
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -760,6 +763,10 @@ class Discounts extends Component
             ]));
         }
 
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
+
         return $result;
     }
 
@@ -775,6 +782,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -789,6 +800,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::EMAIL_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -804,6 +819,10 @@ class Discounts extends Component
         $db->createCommand()
             ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], ['id' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -819,6 +838,10 @@ class Discounts extends Component
                 ->update(Table::DISCOUNTS, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
 
         return true;
     }
@@ -938,6 +961,10 @@ class Discounts extends Component
                     'id' => $discount['discountUseId']
                 ])
                 ->execute();
+
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
         }
     }
 

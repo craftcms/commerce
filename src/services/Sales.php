@@ -257,7 +257,7 @@ class Sales extends Component
      * Populates a sale's relations.
      *
      * @param Sale $sale
-     * @deprecated in 3.x. No longer required as IDs are populated when retrieving the sale using the service.
+     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
      */
     public function populateSaleRelations(Sale $sale)
     {
@@ -452,17 +452,22 @@ class Sales extends Component
             return false;
         }
 
-        // Category match
-        if (!$sale->allCategories) {
-            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-            $saleCategories = $sale->getCategoryIds();
-            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
+        $date = new DateTime();
 
-            if (empty($relatedCategories)) {
-                return false;
-            }
+        if ($order) {
+            // Date we care about in the context of an order is the date the order was placed.
+            // If the order is still a cart, use the current date time.
+            $date = $order->isCompleted ? $order->dateOrdered : $date;
         }
 
+        if ($sale->dateFrom && $sale->dateFrom >= $date) {
+            return false;
+        }
+
+        if ($sale->dateTo && $sale->dateTo <= $date) {
+            return false;
+        }
+        
         if ($order) {
             $user = $order->getUser();
 
@@ -487,21 +492,16 @@ class Sales extends Component
                 return false;
             }
         }
+        
+        // Category match
+        if (!$sale->allCategories) {
+            $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+            $saleCategories = $sale->getCategoryIds();
+            $relatedCategories = Category::find()->id($saleCategories)->relatedTo($relatedTo)->ids();
 
-        $date = new DateTime();
-
-        if ($order) {
-            // Date we care about in the context of an order is the date the order was placed.
-            // If the order is still a cart, use the current date time.
-            $date = $order->isCompleted ? $order->dateOrdered : $date;
-        }
-
-        if ($sale->dateFrom && $sale->dateFrom >= $date) {
-            return false;
-        }
-
-        if ($sale->dateTo && $sale->dateTo <= $date) {
-            return false;
+            if (empty($relatedCategories)) {
+                return false;
+            }
         }
 
         $saleMatchEvent = new SaleMatchEvent(compact('sale', 'purchasable'));
@@ -611,6 +611,8 @@ class Sales extends Component
                 $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();
+
+                Craft::$app->getElements()->invalidateCachesForElement($purchasable);
             }
 
             $transaction->commit();
