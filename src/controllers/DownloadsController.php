@@ -63,9 +63,17 @@ class DownloadsController extends BaseFrontEndController
         if (!$pdf) {
             throw new InvalidCallException("Can not find a PDF to render.");
         }
-
+        
+        $previousLanguage = Craft::$app->language;
+        
+        Plugin::getInstance()->getLocales()->setOrderLocale($order, $pdf->locale);
+        
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
-
+        
+        // Set previous language back
+        Craft::$app->language = $previousLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($previousLanguage));
+        
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;

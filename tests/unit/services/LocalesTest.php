@@ -36,7 +36,7 @@ class LocalesTest extends Unit
 
     public function testSetLocale()
     {
-        $order = $this->make(Order::class, ['getLanguage' => 'en-GB']);
+        $order = $this->make(Order::class, ['orderLanguage' => 'en-GB']);
         
         $this->tester->mockCraftMethods('sites', [
             'getSiteById' => function () {

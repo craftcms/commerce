@@ -21,10 +21,18 @@ class Locales extends Component
 {
     const TYPE_LOCALE_CREATED = 'localeCreated';
 
+    /**
+     * Set language from the order language or the given locale passed as second argument.
+     *
+     * @param Order $order
+     * @param string|int $locale
+     * @return |null
+     * @throws \yii\base\InvalidConfigException
+     */
     public function setOrderLocale(Order $order, $locale)
     {
         if ($locale === static::TYPE_LOCALE_CREATED) {
-            $language = $order->getLanguage();
+            $language = $order->orderLanguage;
         } else {
             $site = Craft::$app->getSites()->getSiteById($locale);
        
@@ -34,6 +42,6 @@ class Locales extends Component
         Craft::$app->language = $language;
         Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($language));
 
-        return true;
+        return null;
     }
 }

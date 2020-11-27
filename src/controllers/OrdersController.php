@@ -585,6 +585,9 @@ class OrdersController extends Controller
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
         
+        // Set language by email's set locale
+        Plugin::getInstance()->getLocales()->setOrderLocale($order, $email->locale);
+        
         if ($email === null || !$email->enabled) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
