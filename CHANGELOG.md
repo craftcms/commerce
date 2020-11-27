@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
+- Added missing businessTaxId key in addressLines. ([#1894](https://github.com/craftcms/commerce/issues/1894))
 
 ## 3.2.12 - 2020-11-17
 
