@@ -1,20 +1,18 @@
 <!-- Template: {{ _self }}.twig -->
 <div class="my-6">
-    <h1 class="text-xl block sm:inline">Grid of products</h1>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 -mx-4">
+    <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {% for product in products %}
-            <div class="p-4 relative">
+            <div class="relative">
                 <div>
                     <a class="block" href="{{ product.url }}">
                       <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? '' }}')"
-                           class="bg-cover bg-center bg-gray-300 h-32 rounded">
+                           class="bg-cover bg-center bg-gray-300 hover:bg-gray-200 h-32 rounded">
                       </div>
                     </a>
                 </div>
                 <div class="mt-6">
                     <p class="text-lg text-bold tracking-wide mb-2">
-                        {{ product.title }}
+                        <a class="text-blue-500 hover:text-blue-400" href="{{ product.url }}">{{ product.title }}</a>
                     </p>
                     <p>Description of the item here.</p>
                 </div>
@@ -24,7 +22,7 @@
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
                         <select name="purchasableId"
-                                class="js-purchasableId block appearance-none w-full border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline">
+                                class="js-purchasableId block appearance-none w-full border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring">
                             {% for variant in product.getVariants() %}
                                 <option value="{{ variant.id }}">{{ variant.title }} {{ variant.sku }} {{ variant.salePrice|currency(cart.currency) }}</option>
                             {% endfor %}
@@ -37,7 +35,7 @@
                         </div>
                     </div>
                     <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:shadow-outline"
+                        <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring"
                                name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
                       {% if product.availableForPurchase %}
                         <button type="submit"
@@ -48,9 +46,6 @@
                                 class="m-0 {{ classes.btn.base ~ ' ' ~ classes.btn.grey }} text-center">Unavailable
                         </div>
                       {% endif %}
-                    </div>
-                    <div class="mt-1">
-                      <a class="{{ classes.btn.base ~ ' ' ~ classes.btn.greyLight }} w-full text-center" href="{{ product.url }}">View product</a>
                     </div>
                     <div class="mt-1"><label><input type="checkbox" name="options[giftWrapped]" value="yes"> Gift wrap
                             item</label></div>
