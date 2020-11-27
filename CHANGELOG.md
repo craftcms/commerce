@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
+
 ### Fixed
 - Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
 
