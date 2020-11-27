@@ -429,8 +429,13 @@ class OrderStatuses extends Component
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
+                $originalLanguage = Craft::$app->language;
+                
                 foreach ($status->emails as $email) {
                     if($email->enabled) {
+                        // Set language by email's set locale
+                        Plugin::getInstance()->getLocales()->setOrderLocale($order, $email->locale);
+                        
                         Craft::$app->getQueue()->push(new SendEmail([
                             'orderId' => $order->id,
                             'commerceEmailId' => $email->id,
@@ -439,6 +444,10 @@ class OrderStatuses extends Component
                         ]));
                     }
                 }
+                
+                // Set previous language back
+                Craft::$app->language = $originalLanguage;
+                Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
             }
         }
     }
