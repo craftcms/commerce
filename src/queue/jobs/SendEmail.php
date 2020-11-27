@@ -43,13 +43,19 @@ class SendEmail extends BaseJob
         $order = Order::find()->id($this->orderId)->one();
         
         $email = Plugin::getInstance()->getEmails()->getEmailById($this->commerceEmailId);
+        
+        // Set language by email's set locale
+        Plugin::getInstance()->getLocales()->setOrderLocale($order, $email->locale);
+        
+        $orderData = $order->toArray();
+        
         $orderHistory = Plugin::getInstance()->getOrderHistories()->getOrderHistoryById($this->orderHistoryId);
 
         $this->setProgress($queue, 0.5);
 
 
         $error = '';
-        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $this->orderData, $error)) {
+        if (!Plugin::getInstance()->getEmails()->sendEmail($email, $order, $orderHistory, $orderData, $error)) {
             throw new EmailException($error);
         }
 
