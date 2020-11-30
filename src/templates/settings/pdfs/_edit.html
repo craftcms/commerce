@@ -76,11 +76,11 @@
     {{ forms.selectField({
         label: 'Language'|t('commerce'),
         instructions: "The language to be used when PDF is rendered."|t,
-        id: 'locale',
-        name: 'locale',
+        id: 'language',
+        name: 'language',
         options : pdfLanguageOptions,
-        value : pdf.locale,
-        errors: pdf.getErrors('locale') ?? null
+        value : pdf.language,
+        errors: pdf.getErrors('language') ?? null
     }) }}
 
     {{ forms.lightswitchField({

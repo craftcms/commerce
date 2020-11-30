@@ -9,8 +9,10 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
+use yii\base\InvalidArgumentException;
 
 /**
  * Email model.
@@ -82,18 +84,38 @@ class Email extends Model
     /**
      * @var int The PDF UID.
      */
-    public $pdfId;    
-    
+    public $pdfId;
+
     /**
-     * @var string The locale.
+     * @var string The language.
      */
-    public $locale;
+    public $language;
 
     /**
      * @var string UID
      */
     public $uid;
 
+    /**
+     * Determines the language this pdf, if
+     *
+     * @param Order|null $order
+     * @return string
+     */
+    public function getRenderLanguage(Order $order = null): string
+    {
+        $language = $this->language;
+
+        if ($order == null && $language == EmailRecord::LOCALE_ORDER_LANGUAGE) {
+            throw new InvalidArgumentException('Can not get language for this email without providing an order');
+        }
+
+        if ($order && $language == EmailRecord::LOCALE_ORDER_LANGUAGE) {
+            $language = $order->orderLanguage;
+        }
+
+        return $language;
+    }
 
     /**
      * @inheritdoc
@@ -102,15 +124,13 @@ class Email extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['name'], 'required'];
-        $rules[] = [['subject'], 'required'];
+        $rules[] = [['subject', 'name', 'templatePath', 'language'], 'required'];
         $rules[] = [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]];
         $rules[] = [
             ['to'], 'required', 'when' => static function($model) {
                 return $model->recipientType == EmailRecord::TYPE_CUSTOM;
             }
         ];
-        $rules[] = [['templatePath'], 'required'];
         return $rules;
     }
 
@@ -158,7 +178,7 @@ class Email extends Model
             'enabled' => (bool)$this->enabled,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'templatePath' => $this->templatePath ?: null,
-            'locale' => $this->locale
+            'language' => $this->language
         ];
 
         if ($pdf = $this->getPdf()) {

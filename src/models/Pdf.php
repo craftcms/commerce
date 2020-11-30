@@ -8,6 +8,9 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
+use craft\commerce\elements\Order;
+use craft\commerce\records\Pdf as PdfRecord;
+use yii\base\InvalidArgumentException;
 
 /**
  * PDF model.
@@ -70,7 +73,7 @@ class Pdf extends Model
     /**
      * @var string locale language
      */
-    public $locale;
+    public $language;
 
     /**
      * @inheritdoc
@@ -79,9 +82,29 @@ class Pdf extends Model
     {
         $rules = parent::defineRules();
 
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['templatePath'], 'required'];
+        $rules[] = [['name', 'handle', 'templatePath', 'language'], 'required'];
         return $rules;
+    }
+
+    /**
+     * Determines the language this PDF
+     *
+     * @param Order|null $order
+     * @return string
+     */
+    public function getRenderLanguage(Order $order = null): string
+    {
+        $language = $this->language;
+
+        if ($order == null && $language == PdfRecord::LOCALE_ORDER_LANGUAGE) {
+            throw new InvalidArgumentException('Can not get language for this PDF without providing an order');
+        }
+
+        if ($order && $language == PdfRecord::LOCALE_ORDER_LANGUAGE) {
+            $language = $order->orderLanguage;
+        }
+
+        return $language;
     }
 
     /**
@@ -101,7 +124,7 @@ class Pdf extends Model
             'enabled' => (bool)$this->enabled,
             'sortOrder' => (int)$this->sortOrder ?: 9999,
             'isDefault' => (bool)$this->isDefault,
-            'locale' => $this->locale
+            'language' => $this->language
         ];
     }
 }

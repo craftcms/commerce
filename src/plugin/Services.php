@@ -18,7 +18,6 @@ use craft\commerce\services\Formulas;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\Locales;
 use craft\commerce\services\OrderAdjustments;
 use craft\commerce\services\OrderHistories;
 use craft\commerce\services\Orders;
@@ -188,15 +187,6 @@ trait Services
     public function getLineItems(): LineItems
     {
         return $this->get('lineItems');
-    }
-
-    /**
-     * Returns the locales service
-     * @return Locales
-     */
-    public function getLocales(): Locales
-    {
-        return $this->get('locales');
     }
 
     /**
@@ -529,9 +519,6 @@ trait Services
             ],
             'lineItemStatuses' => [
                 'class' => LineItemStatuses::class,
-            ],            
-            'locales' => [
-                'class' => Locales::class,
             ],
             'orderAdjustments' => [
                 'class' => OrderAdjustments::class,

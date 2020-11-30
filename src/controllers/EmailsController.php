@@ -10,7 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
-use craft\commerce\services\Locales;
+use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -65,18 +65,18 @@ class EmailsController extends BaseAdminController
         $pdfList = [null => Craft::t('commerce', 'Do not attach a PDF to this email')];
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
         $variables['pdfList'] = $pdfList;
-        
+
         $emailLanguageOptions = [
-            Locales::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
+            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
-        
+
         // get current site's locale
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $locale = Craft::$app->getI18n()->getLocaleById($site->language);
 
-            $emailLanguageOptions[$site->id] = Craft::t('commerce', $site->name . ' - ' . $locale->getDisplayName());
+            $emailLanguageOptions[$site->id] = $site->name . ' - ' . $locale->getDisplayName();
         }
-        
+
         $variables['emailLanguageOptions'] = $emailLanguageOptions;
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
@@ -114,7 +114,7 @@ class EmailsController extends BaseAdminController
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
         $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
-        $email->locale = Craft::$app->getRequest()->getBodyParam('locale');
+        $email->language = Craft::$app->getRequest()->getBodyParam('language');
 
         // Save it
         if ($emailsService->saveEmail($email)) {

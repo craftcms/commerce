@@ -25,12 +25,14 @@ use craft\db\ActiveRecord;
  * @property string $plainTextTemplatePath
  * @property string $pdfId
  * @property string $to
- * @property string $locale
+ * @property string $language
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Email extends ActiveRecord
 {
+    const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
+
     const TYPE_CUSTOMER = 'customer';
     const TYPE_CUSTOM = 'custom';
     

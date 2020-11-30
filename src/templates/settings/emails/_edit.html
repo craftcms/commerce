@@ -133,11 +133,11 @@
     {{ forms.selectField({
         label: 'Language'|t('commerce'),
         instructions: "The language to be used when email is rendered."|t,
-        id: 'locale',
-        name: 'locale',
+        id: 'language',
+        name: 'language',
         options : emailLanguageOptions,
-        value : email.locale,
-        errors: email.getErrors('locale') ?? null,
+        value : email.language,
+        errors: email.getErrors('language') ?? null,
         toggle: true
     }) }}
 

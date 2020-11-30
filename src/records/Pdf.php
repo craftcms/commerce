@@ -22,12 +22,14 @@ use craft\db\ActiveRecord;
  * @property string $sortOrder
  * @property bool $enabled
  * @property bool $isDefault
- * @property string $locale
+ * @property string $language
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
  */
 class Pdf extends ActiveRecord
 {
+    const LOCALE_ORDER_LANGUAGE = 'orderLanguage';
+
     /**
      * @inheritdoc
      */
