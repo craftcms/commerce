@@ -419,7 +419,7 @@ class Discounts extends Component
         }
 
         return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
-            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
         });
     }
 
