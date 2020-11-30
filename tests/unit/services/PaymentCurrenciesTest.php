@@ -50,6 +50,9 @@ class PaymentCurrenciesTest extends Unit
         ];
     }
 
+    /**
+     *
+     */
     protected function _before()
     {
         parent::_before();
@@ -58,9 +61,11 @@ class PaymentCurrenciesTest extends Unit
         $this->fixtureData = $this->tester->grabFixture('payment-currencies');
     }
 
+    /**
+     * @throws \craft\commerce\errors\CurrencyException
+     * @throws \yii\base\InvalidConfigException
+     */
     public function testGetPaymentCurrencyById() {
-        $getAllCallCount = 0;
-
         /**
          * @var PaymentCurrencies $paymentCurrenciesService
          */
@@ -68,15 +73,15 @@ class PaymentCurrenciesTest extends Unit
             'getAllPaymentCurrencies' => Expected::exactly(1, [$this, 'getAllPaymentCurrencies']),
         ]);
 
-        $paymentCurrenciesService->getPaymentCurrencyById($this->fixtureData['craftCoin']['id']);
+        $paymentCurrenciesService->getPaymentCurrencyById($this->fixtureData->data['craftCoin']['id']);
 
-        $coinModel = $this->pc->getPaymentCurrencyById($this->fixtureData['craftCoin']['id']);
-        $tokenModel = $this->pc->getPaymentCurrencyById($this->fixtureData['ptToken']['id']);
+        $coinModel = $this->pc->getPaymentCurrencyById($this->fixtureData->data['craftCoin']['id']);
+        $tokenModel = $this->pc->getPaymentCurrencyById($this->fixtureData->data['ptTokens']['id']);
 
         // $this->assertSame(1, $getAllCallCount, 'Test memoization of get all call.');
-        $this->assertNotNull($coinModel);
-        $this->assertEquals($this->fixtureData['craftCoin']['iso'], $coinModel->iso);
-        $this->assertNotNull($tokenModel);
-        $this->assertEquals($this->fixtureData['ptToken']['iso'], $tokenModel->iso);
+        self::assertNotNull($coinModel);
+        self::assertEquals($this->fixtureData->data['craftCoin']['iso'], $coinModel->iso);
+        self::assertNotNull($tokenModel);
+        self::assertEquals($this->fixtureData->data['ptTokens']['iso'], $tokenModel->iso);
     }
 }

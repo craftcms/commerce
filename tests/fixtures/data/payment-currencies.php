@@ -2,12 +2,12 @@
 
 return [
     'craftCoin' => [
-        'iso' => 'gbp',
+        'iso' => 'GBP',
         'rate' => 0.75,
         'primary' => false,
     ],
     'ptTokens' => [
-        'iso' => 'eur',
+        'iso' => 'EUR',
         'rate' => 0.8,
         'primary' => false,
     ],
