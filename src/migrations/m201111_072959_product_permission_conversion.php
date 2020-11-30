@@ -26,76 +26,64 @@ class m201111_072959_product_permission_conversion extends Migration
             ->all();
 
         if (count($permissions) > 0) {
-            
+
             foreach ($permissions as $permission) {
-                
+
                 $permissionName = explode(':', $permission['name']);
                 $productTypeUid = $permissionName[1];
-                
-                // Change manage product type to edit product type
+
+                // Rename manage product type to edit product type
                 $newName = str_replace('commerce-manageproducttype', 'commerce-editproducttype', $permission['name']);
                 $this->update(Table::USERPERMISSIONS, ['name' => $newName], ['id' => $permission['id']], [], false);
-                
+
                 // Create new create product permission by product type
                 $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createproducts:' . $productTypeUid]);
                 $createPermissionId = $this->db->getLastInsertID();
-                
+
                 // Create new delete product permission by product type
                 $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deleteproducts:' . $productTypeUid]);
                 $deletePermissionId = $this->db->getLastInsertID();
-                
-                // Check if manage product type is ticked for user permission
+
+                // Check if manage product type is ticked for user permissions
                 $manageProductTypes = (new Query())
                     ->select(['id', 'permissionId', 'userId'])
                     ->from([Table::USERPERMISSIONS_USERS])
                     ->where(['permissionId' => $permission['id']])
                     ->all();
-                
-                
-                if (count($manageProductTypes) > 0) {
-                    foreach ($manageProductTypes as $manageProductType) {
-                        if ($manageProductType !== null) {
-                            // Create new create and delete product permission relationship with user.
-                            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $manageProductType['userId'], 'permissionId' => $createPermissionId]);
-                            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $manageProductType['userId'], 'permissionId' => $deletePermissionId]);
-                        }
-                    }
-                }                
-                
-                // Check if manage product type is ticked for user permission
-                $manageProductTypes = (new Query())
+                // Add the new edit product child permissions for the same users
+                foreach ($manageProductTypes as $manageProductType) {
+                    $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $manageProductType['userId'], 'permissionId' => $createPermissionId]);
+                    $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $manageProductType['userId'], 'permissionId' => $deletePermissionId]);
+                }
+
+                // Check if manage product type is ticked for user group permissions
+                $manageProductTypesForGroups = (new Query())
                     ->select(['id', 'permissionId', 'groupId'])
                     ->from([Table::USERPERMISSIONS_USERGROUPS])
                     ->where(['permissionId' => $permission['id']])
                     ->all();
-                
-                
-                if (count($manageProductTypes) > 0) {
-                    foreach ($manageProductTypes as $manageProductType) {
-                        if ($manageProductType !== null) {
-                            // Create new create and delete product permission relationship with a group.
-                            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $manageProductType['groupId'], 'permissionId' => $createPermissionId]);
-                            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $manageProductType['groupId'], 'permissionId' => $deletePermissionId]);
-                        }
-                    }
+                // Add the new edit product child permissions for the same groups
+                foreach ($manageProductTypesForGroups as $manageProductType) {
+                    // Create new create and delete product permission relationship with a group.
+                    $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $manageProductType['groupId'], 'permissionId' => $createPermissionId]);
+                    $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $manageProductType['groupId'], 'permissionId' => $deletePermissionId]);
                 }
             }
 
+            $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-manageproducts']);
+
+            // Make project config updates
             $projectConfig = Craft::$app->getProjectConfig();
-            
             $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-            if (version_compare($schemaVersion, '3.2.10', '>=')) {
-                return;
-            }
+            if (version_compare($schemaVersion, '3.2.10', '<')) {
 
-            $groups = (new Query())
-                ->select(['id', 'name', 'uid'])
-                ->from(['groups' => Table::USERGROUPS])
-                ->all();
+                $groups = (new Query())
+                    ->select(['id', 'name', 'uid'])
+                    ->from(['groups' => Table::USERGROUPS])
+                    ->all();
 
-            $setGroupPermissions = [];
+                $setGroupPermissions = [];
 
-            if (count($groups) > 0) {
                 foreach ($groups as $group) {
                     $groupPermissions = (new Query())
                         ->select(['up.name'])
@@ -112,8 +100,6 @@ class m201111_072959_product_permission_conversion extends Migration
                 }
             }
         }
-        
-        $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-manageproducts']);
     }
 
     /**
