@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\services;
 use Codeception\Stub;
 use Codeception\Test\Unit;
 use Craft;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
@@ -191,6 +192,8 @@ class DiscountsTest extends Unit
             false,
             'This coupon is for registered users and limited to 1 uses.'
         );
+
+        Craft::$app->getDb()->createCommand()->truncateTable(TABLE::CUSTOMER_DISCOUNTUSES)->execute();
     }
 
     /**
@@ -220,8 +223,10 @@ class DiscountsTest extends Unit
 
         $explanation = '';
         $result = $this->discounts->orderCouponAvailable($order, $explanation);
-        $this->assertFalse($result);
-        $this->assertSame('This coupon is limited to 1 uses.', $explanation);
+        self::assertFalse($result);
+        self::assertSame('This coupon is limited to 1 uses.', $explanation);
+
+        Craft::$app->getDb()->createCommand()->truncateTable(TABLE::CUSTOMER_DISCOUNTUSES)->execute();
     }
 
     /**
@@ -305,7 +310,7 @@ class DiscountsTest extends Unit
             ->where(['code' => 'discount_1'])
             ->scalar();
 
-        $this->assertSame(1, $totalUses);
+        self::assertSame(1, $totalUses);
 
         // Get the Customer Discount Uses
         $customerUses = (new Query())
@@ -314,7 +319,7 @@ class DiscountsTest extends Unit
             ->where(['customerId' => '1000', 'discountId' => '1000', 'uses' => '1'])
             ->one();
 
-        $this->assertNotNull($customerUses);
+        self::assertNotNull($customerUses);
 
 
         // Get the Email Discount Uses
@@ -325,7 +330,7 @@ class DiscountsTest extends Unit
             ->where(['email' => $customerEmail, 'discountId' => '1000', 'uses' => '1'])
             ->one();
 
-        $this->assertNotNull($customerUses);
+        self::assertNotNull($customerUses);
     }
 
     /**
@@ -334,7 +339,7 @@ class DiscountsTest extends Unit
     public function testVoidIfNoCouponCode()
     {
         $order = new Order(['couponCode' => null]);
-        $this->assertNull(
+        self::assertNull(
             $this->discounts->orderCompleteHandler($order)
         );
     }
@@ -345,12 +350,18 @@ class DiscountsTest extends Unit
     public function testVoidIfInvalidCouponCode()
     {
         $order = new Order(['couponCode' => 'i_dont_exist_as_coupon']);
-        $this->assertNull(
+        self::assertNull(
             $this->discounts->orderCompleteHandler($order)
         );
     }
 
-
+    /**
+     * @param array $orderConfig
+     * @param array $lineItemConfig
+     * @param array $discountConfig
+     * @param array $purchasableConfig
+     * @param bool $desiredResult
+     */
     protected function matchLineItems(
         array $orderConfig,
         array $lineItemConfig,
@@ -409,8 +420,8 @@ class DiscountsTest extends Unit
 
         $explanation = '';
         $result = $this->discounts->orderCouponAvailable($order, $explanation);
-        $this->assertSame($desiredResult, $result);
-        $this->assertSame($desiredExplanation, $explanation);
+        self::assertSame($desiredResult, $result);
+        self::assertSame($desiredExplanation, $explanation);
     }
 
     /**
