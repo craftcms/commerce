@@ -36,18 +36,23 @@ class CountriesTest extends Unit
     /**
      * @var null|Country
      */
-    private $_country = null;
+    private $_country;
+
+    /**
+     * @var int
+     */
+    private $_usCountryId = 236;
 
     public function testGetCountryById()
     {
         $country = $this->countries->getCountryById(999);
         $this->assertNull($country);
 
-        $country = $this->countries->getCountryById(233);
+        $country = $this->countries->getCountryById($this->_usCountryId);
         $this->assertIsObject($country);
         $this->assertInstanceOf(Country::class, $country);
         $this->assertSame('United States', $country->name);
-        $this->assertEquals(233, $country->id);
+        $this->assertEquals($this->_usCountryId, $country->id);
     }
 
     public function testGetCountryByIso()
@@ -59,7 +64,7 @@ class CountriesTest extends Unit
         $this->assertIsObject($country);
         $this->assertInstanceOf(Country::class, $country);
         $this->assertSame('United States', $country->name);
-        $this->assertEquals(233, $country->id);
+        $this->assertEquals($this->_usCountryId, $country->id);
     }
 
     public function testGetAllCountries()
@@ -98,6 +103,8 @@ class CountriesTest extends Unit
         $this->assertIsObject($byIso);
         $this->assertInstanceOf(Country::class, $byIso);
         $this->assertSame($this->_country->name, $byIso->name);
+
+        $this->_destroyCountry();
     }
 
     public function testGetAllCountriesAsList()
@@ -105,8 +112,8 @@ class CountriesTest extends Unit
         $countriesAsList = $this->countries->getAllCountriesAsList();
 
         $this->assertIsArray($countriesAsList);
-        $this->assertArrayHasKey('233', $countriesAsList);
-        $this->assertSame('United States', $countriesAsList[233]);
+        $this->assertArrayHasKey($this->_usCountryId, $countriesAsList);
+        $this->assertSame('United States', $countriesAsList[$this->_usCountryId]);
     }
 
     public function testGetAllEnabledCountriesAsList()
@@ -115,9 +122,11 @@ class CountriesTest extends Unit
         $enabledCountriesAsList = $this->countries->getAllEnabledCountriesAsList();
 
         $this->assertIsArray($enabledCountriesAsList);
-        $this->assertArrayHasKey('233', $enabledCountriesAsList);
-        $this->assertSame('United States', $enabledCountriesAsList[233]);
+        $this->assertArrayHasKey($this->_usCountryId, $enabledCountriesAsList);
+        $this->assertSame('United States', $enabledCountriesAsList[$this->_usCountryId]);
         $this->assertArrayNotHasKey($this->_country->id, $enabledCountriesAsList);
+
+        $this->_destroyCountry();
     }
 
     public function testGetAllEnabledCountries()
@@ -126,21 +135,13 @@ class CountriesTest extends Unit
         $enabledCountries = $this->countries->getAllEnabledCountries();
 
         $this->assertIsArray($enabledCountries);
-        $this->assertArrayHasKey('233', $enabledCountries);
-        $this->assertIsObject($enabledCountries[233]);
-        $this->assertInstanceOf(Country::class, $enabledCountries[233]);
-        $this->assertSame('United States', $enabledCountries[233]->name);
+        $this->assertArrayHasKey($this->_usCountryId, $enabledCountries);
+        $this->assertIsObject($enabledCountries[$this->_usCountryId]);
+        $this->assertInstanceOf(Country::class, $enabledCountries[$this->_usCountryId]);
+        $this->assertSame('United States', $enabledCountries[$this->_usCountryId]->name);
         $this->assertArrayNotHasKey($this->_country->id, $enabledCountries);
-    }
 
-    public function testGetCountriesByTaxZoneId()
-    {
-        // TODO after zone fixtures
-    }
-
-    public function testGetCountriesByShippingZoneId()
-    {
-        // TODO after zone fixtures
+        $this->_destroyCountry();
     }
 
     public function testDeleteCountryById()
@@ -163,6 +164,8 @@ class CountriesTest extends Unit
 
         $byId = $this->countries->getCountryById($id);
         $this->assertNull($byId);
+
+        $this->_destroyCountry();
     }
 
     public function testReorderCountries()
@@ -185,6 +188,9 @@ class CountriesTest extends Unit
         $this->assertEquals($countriesOrder, array_keys($countriesAsList));
     }
 
+    /**
+     *
+     */
     public function _before()
     {
         parent::_before();
@@ -192,6 +198,10 @@ class CountriesTest extends Unit
         $this->countries = Plugin::getInstance()->getCountries();
     }
 
+    /**
+     * @return bool
+     * @throws \yii\base\Exception
+     */
     private function _createCountry()
     {
         $this->_country = new Country();
@@ -200,5 +210,13 @@ class CountriesTest extends Unit
         $this->_country->enabled = false;
 
         return $this->countries->saveCountry($this->_country);
+    }
+
+    /**
+     * @return bool
+     */
+    private function _destroyCountry()
+    {
+        return $this->countries->deleteCountryById($this->_country->id);
     }
 }
