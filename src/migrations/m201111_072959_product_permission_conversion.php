@@ -70,6 +70,7 @@ class m201111_072959_product_permission_conversion extends Migration
                 }
             }
 
+            // No longer need this top level permission
             $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-manageproducts']);
 
             // Make project config updates
