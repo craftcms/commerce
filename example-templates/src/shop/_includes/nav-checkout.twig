@@ -1,0 +1,49 @@
+<!-- Template: {{ _self }}.twig -->
+{% set checkoutSteps = [
+    {
+        label: "Email",
+        url: 'shop/checkout/email'
+    },
+    {
+        label: "Account",
+        url: 'shop/checkout/register-signin'
+    },
+    {
+        label: "Address",
+        url: 'shop/checkout/addresses'
+    },
+    {
+        label: "Shipping",
+        url: 'shop/checkout/shipping'
+    },
+    {
+        label: "Payment Method",
+        url: 'shop/checkout/payment-method'
+    },
+    {
+        label: "Payment",
+        url: 'shop/checkout/payment'
+    }
+] %}
+
+{% set totalSteps = checkoutSteps|length %}
+
+{% if width is not defined %}
+    {% set width = 0 %}
+{% endif %}
+
+{% if 'checkout' in craft.app.request.pathInfo and 'pay-static' not in craft.app.request.pathInfo %}
+<div class="container mx-auto justify-between items-center p-6 text-center text-xs">
+    <nav class="flex">
+        {% for step in checkoutSteps %}
+            {% if step.url == craft.app.request.pathInfo  %}
+                {% set width = ((loop.index) * 100 / totalSteps - 10) %}
+            {% endif %}
+            <a href="{{ url(step.url) }}" class="flex-1 text-gray-600 pb-2 {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
+      ">{{ step.label }}</a>
+        {% endfor %}
+    </nav>
+    <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
+    <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width:{{ width }}%;"></div>
+</div>
+{% endif %}

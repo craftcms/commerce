@@ -1,0 +1,82 @@
+<!-- Template: {{ _self }}.twig -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Shop</title>
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    {% if extraHead is defined %}{{ extraHead }}{% endif %}
+</head>
+<body class="relative text-gray-800 flex flex-col min-h-screen">
+
+{% if cart is not defined %}
+    {% set cart = craft.commerce.carts.cart %}
+{% endif %}
+
+{% set flashNotice = craft.app.session.getFlash('notice') %}
+{% set flashError = craft.app.session.getFlash('error') %}
+
+
+<header>
+    <div class="bg-gray-300">
+        <div class="container mx-auto p-6">
+            <h1 class="text-3xl"><a href="{{ url('shop') }}" class="[[classes.a]]">Shop</a></h1>
+        </div>
+    </div>
+
+    {% include 'shop/_includes/floating-cart' %}
+
+    {% include 'shop/_includes/nav-main' %}
+    {% include 'shop/_includes/nav-checkout' %}
+</header>
+
+
+{% if flashNotice %}
+    <div class="bg-[[color]]-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {{ flashNotice ?? 'Test flash notice' }}
+        </div>
+    </div>
+{% endif %}
+
+
+{% if flashError %}
+    <div class="bg-red-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {{ flashError ?? 'Test flash error' }}
+        </div>
+    </div>
+{% endif %}
+
+{% if cart.errors|length %}
+    <div class="bg-red-500 text-white">
+        <div class="container mx-auto px-6 py-4">
+            {% for attribute, errors in cart.errors %}
+                {% if loop.first %}<ul>{% endif %}
+                {% for key, error in errors %}
+                    <li>{{ attribute }}: {{ error }}</li>
+                {% endfor %}
+                {% if loop.last %}</ul>{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+{% block body %}
+    <div class="container mx-auto p-6 flex-grow">
+        {% block main %}{% endblock %}
+    </div>
+{% endblock %}
+
+<footer>
+    {% include 'shop/_includes/footer' %}
+</footer>
+
+{% if devMode %}
+    <script>console.log('Cart on page load: ', {{ cart.toArray()|json_encode|raw }});</script>
+{% endif %}
+</body>
+</html>
