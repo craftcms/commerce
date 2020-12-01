@@ -124,8 +124,11 @@ class ProductsController extends BaseController
            throw new ForbiddenHttpException('User not permitted to edit this product.');
         }
 
+        $variables['canCreateProduct'] = Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-createProducts');
+        $variables['canDeleteProduct'] = Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-deleteProducts');
+        
         if ($product->id === null) {
-            if (Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-createProducts') === false ) {
+            if ($variables['canCreateProduct'] === false ) {
                 throw new ForbiddenHttpException('User not permitted to create a product for the product type.');
             }
             
@@ -253,8 +256,10 @@ class ProductsController extends BaseController
             throw new ForbiddenHttpException('User not permitted to save this product.');
         }
         
-        if ($oldProduct->id === null && $request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct, 'commerce-createProducts')) {
-            throw new ForbiddenHttpException('User not permitted to create a product for this type.');
+        if ($request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct, 'commerce-createProducts')) {
+            if ($oldProduct->id === null || $duplicate === true) {
+                throw new ForbiddenHttpException('User not permitted to create a product for this type.');
+            }
         }
 
         $elementsService = Craft::$app->getElements();

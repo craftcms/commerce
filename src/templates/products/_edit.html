@@ -80,7 +80,7 @@
                         {{ forms.optionShortcutLabel('S') }}
                     </a>
                 </li>
-                {% if product.id %}
+                {% if product.id and canCreateProduct %}
                     <li>
                         <a class="formsubmit" data-action="commerce/products/duplicate-product" data-redirect="{{ '{cpEditUrl}'|hash }}">
                             {{ "Save as a new {type}"|t('app', { type: product.lowerDisplayName() }) }}
@@ -88,7 +88,7 @@
                     </li>
                 {% endif %}
             </ul>
-            {% if product.id %}
+            {% if product.id and canDeleteProduct %}
                 <hr>
                 <ul>
                     <li>
