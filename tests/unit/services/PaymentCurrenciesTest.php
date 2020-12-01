@@ -62,7 +62,6 @@ class PaymentCurrenciesTest extends Unit
     }
 
     /**
-     * @throws \craft\commerce\errors\CurrencyException
      * @throws \yii\base\InvalidConfigException
      */
     public function testGetPaymentCurrencyById() {

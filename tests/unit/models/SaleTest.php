@@ -39,57 +39,72 @@ class SaleTest extends Unit
 
         Plugin::getInstance()->set('sales', $mockSalesService);
         $sale->getPurchasableIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
+        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
         $sale->getCategoryIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
+        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
     }
 
+    /**
+     *
+     */
     public function testSetCategoryIds()
     {
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
+        self::assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
 
        $sale->setCategoryIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getCategoryIds());
+        self::assertSame([1, 2, 3, 4], $sale->getCategoryIds());
     }
 
+    /**
+     *
+     */
     public function testSetPurchasableIds()
     {
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
+        self::assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
 
        $sale->setPurchasableIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
+        self::assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
     }
 
+    /**
+     *
+     */
     public function testSetUserGroupIds()
     {
        $sale = new Sale();
        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
+        self::assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
 
        $sale->setUserGroupIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
+        self::assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
     }
 
+    /**
+     *
+     */
     public function testGetApplyAmountAsPercent()
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1000';
 
-        $this->assertSame('10%', $sale->getApplyAmountAsPercent());
+        self::assertSame('10%', $sale->getApplyAmountAsPercent());
     }
 
+    /**
+     *
+     */
     public function testGetApplyAmountAsFlat()
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1500';
 
-        $this->assertSame('0.15', $sale->getApplyAmountAsFlat());
+        self::assertSame('0.15', $sale->getApplyAmountAsFlat());
     }
 }

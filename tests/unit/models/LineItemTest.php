@@ -39,6 +39,9 @@ class LineItemTest extends Unit
         ];
     }
 
+    /**
+     *
+     */
     public function testPriceRounding()
     {
         $lineItem = new LineItem();
@@ -46,36 +49,45 @@ class LineItemTest extends Unit
         $lineItem->setSalePrice(1.114);
         $lineItem->qty = 2;
 
-        $this->assertSame(1.24, $lineItem->getPrice());
-        $this->assertSame(1.11, $lineItem->getSalePrice());
-        $this->assertSame(2.22, $lineItem->getSubtotal());
+        self::assertSame(1.24, $lineItem->getPrice());
+        self::assertSame(1.11, $lineItem->getSalePrice());
+        self::assertSame(2.22, $lineItem->getSubtotal());
     }
 
+    /**
+     *
+     */
     public function testPopulateFromPurchasable()
     {
         $purchasable = new Purchasable();
         $lineItem = new LineItem();
         $lineItem->populateFromPurchasable($purchasable);
 
-        $this->assertSame(25.10, $lineItem->price);
-        $this->assertSame(25.10, $lineItem->salePrice);
-        $this->assertSame(0.0, $lineItem->saleAmount);
-        $this->assertSame('commerce_testing_unique_sku', $lineItem->sku);
-        $this->assertSame(false, $lineItem->getOnSale());
+        self::assertSame(25.10, $lineItem->price);
+        self::assertSame(25.10, $lineItem->salePrice);
+        self::assertSame(0.0, $lineItem->saleAmount);
+        self::assertSame('commerce_testing_unique_sku', $lineItem->sku);
+        self::assertFalse($lineItem->getOnSale());
     }
 
+    /**
+     *
+     */
     public function testAppliedSale()
     {
         $variant = Variant::find()->sku('rad-hood')->one();
         $lineItem = new LineItem();
         $lineItem->populateFromPurchasable($variant);
 
-        $this->assertSame(123.99, $lineItem->price);
-        $this->assertSame(111.59, $lineItem->salePrice);
-        $this->assertSame(12.40, $lineItem->saleAmount);
-        $this->assertSame(true, $lineItem->getOnSale());
+        self::assertSame(123.99, $lineItem->price);
+        self::assertSame(111.59, $lineItem->salePrice);
+        self::assertSame(12.40, $lineItem->saleAmount);
+        self::assertTrue($lineItem->getOnSale());
     }
 
+    /**
+     *
+     */
     public function testSetOptions()
     {
         $options = [
@@ -92,23 +104,25 @@ class LineItemTest extends Unit
             'emoji' => ':x:'
         ];
 
-
         // TODO change this when set options for emojis is refactored
         $lineItem->setOptions($options);
         if (Craft::$app->getDb()->getSupportsMb4()) {
-            $this->assertSame($options, $lineItem->getOptions());
+            self::assertSame($options, $lineItem->getOptions());
         } else {
-            $this->assertSame($output, $lineItem->getOptions());
+            self::assertSame($output, $lineItem->getOptions());
         }
 
         $lineItem->setOptions($jsonOptions);
         if (Craft::$app->getDb()->getSupportsMb4()) {
-            $this->assertSame($options, $lineItem->getOptions());
+            self::assertSame($options, $lineItem->getOptions());
         } else {
-            $this->assertSame($output, $lineItem->getOptions());
+            self::assertSame($output, $lineItem->getOptions());
         }
     }
 
+    /**
+     *
+     */
     public function testConsistentOptionsSignatures()
     {
         $options = ['Larry' => 'David'];
@@ -118,9 +132,12 @@ class LineItemTest extends Unit
         $lineItem1->setOptions($options);
         $lineItem2->setOptions($options);
 
-        $this->assertSame($lineItem1->getOptionsSignature(), $lineItem2->getOptionsSignature());
+        self::assertSame($lineItem1->getOptionsSignature(), $lineItem2->getOptionsSignature());
     }
 
+    /**
+     *
+     */
     public function testUniqueOptionSignatures()
     {
         $lineItem = new LineItem();
@@ -129,6 +146,6 @@ class LineItemTest extends Unit
 
         $lineItem->setOptions(['foo' => 2]);
 
-        $this->assertNotSame($signature, $lineItem->getOptionsSignature());
+        self::assertNotSame($signature, $lineItem->getOptionsSignature());
     }
 }

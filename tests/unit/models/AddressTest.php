@@ -27,10 +27,12 @@ use yii\caching\DummyCache;
  */
 class AddressTest extends Unit
 {
+    /**
+     *
+     */
     public function testGetCpEditUrl() {
         $address = new Address(['id' => '1001']);
-
-        $this->assertSame('http://craftcms.com/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
+        self::assertSame('http://craftcms.com/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
     }
 
     /**
@@ -69,8 +71,8 @@ class AddressTest extends Unit
 
         $addressModel->validateState(null, null, null);
 
-        $this->assertSame($hasErrors, $addressModel->hasErrors());
-        $this->assertSame($errors, $addressModel->getErrors());
+        self::assertSame($hasErrors, $addressModel->hasErrors());
+        self::assertSame($errors, $addressModel->getErrors());
     }
 
     /**
@@ -103,8 +105,8 @@ class AddressTest extends Unit
         $addressModel->validateBusinessTaxId(null, null, null);
 
         // No validation to take place
-        $this->assertSame($hasErrors, $addressModel->hasErrors());
-        $this->assertSame($errors, $addressModel->getErrors());
+        self::assertSame($hasErrors, $addressModel->hasErrors());
+        self::assertSame($errors, $addressModel->getErrors());
     }
 
     /**
@@ -123,7 +125,7 @@ class AddressTest extends Unit
 
         $address->countryId = $countryId;
 
-        $this->assertSame($countryText, $address->getCountryText());
+        self::assertSame($countryText, $address->getCountryText());
     }
 
     /**
@@ -146,7 +148,7 @@ class AddressTest extends Unit
 
         Plugin::getInstance()->set('countries', $countries);
 
-        $this->assertEquals($country, $address->getCountry());
+        self::assertEquals($country, $address->getCountry());
     }
 
     /**
@@ -164,7 +166,7 @@ class AddressTest extends Unit
 
         $address->countryId = $countryId;
 
-        $this->assertSame($countryIso, $address->getCountryIso());
+        self::assertSame($countryIso, $address->getCountryIso());
     }
 
     /**
@@ -184,7 +186,7 @@ class AddressTest extends Unit
         $address->stateId = $stateId;
         $address->stateName = $stateName;
 
-        $this->assertSame($stateText, $address->getStateText());
+        self::assertSame($stateText, $address->getStateText());
     }
 
     /**
@@ -202,7 +204,7 @@ class AddressTest extends Unit
 
         $address->stateId = $stateId;
 
-        $this->assertSame($abbreviationText, $address->getAbbreviationText());
+        self::assertSame($abbreviationText, $address->getAbbreviationText());
     }
 
     /**
@@ -225,7 +227,7 @@ class AddressTest extends Unit
 
         Plugin::getInstance()->set('states', $states);
 
-        $this->assertEquals($state, $address->getState());
+        self::assertEquals($state, $address->getState());
     }
 
     /**
@@ -235,7 +237,7 @@ class AddressTest extends Unit
      * @param $stateValue
      */
     public function testGetStateValue($address, $stateValue) {
-        $this->assertSame($stateValue, $address->getStateValue());
+        self::assertSame($stateValue, $address->getStateValue());
     }
 
     /**
@@ -262,10 +264,13 @@ class AddressTest extends Unit
         $address = new Address();
         $address->setStateValue($value);
 
-        $this->assertSame($stateId, $address->stateId);
-        $this->assertSame($stateName, $address->stateName);
+        self::assertSame($stateId, $address->stateId);
+        self::assertSame($stateName, $address->stateName);
     }
 
+    /**
+     * @return array[]
+     */
     public function validateStateDataProvider(): array
     {
         return [
@@ -275,6 +280,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function validateBusinessTaxIdDataProvider(): array
     {
         return [
@@ -285,6 +293,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getCountryTextDataProvider(): array
     {
         return [
@@ -294,6 +305,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getCountryDataProvider(): array
     {
         return [
@@ -303,6 +317,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getCountryIsoDataProvider(): array
     {
         return [
@@ -312,6 +329,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getStateTextDataProvider(): array
     {
         return [
@@ -322,6 +342,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getAbbreviationTextDataProvider(): array
     {
         return [
@@ -331,6 +354,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function getStateDataProvider(): array
     {
         return [
@@ -340,6 +366,10 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array[]
+     * @throws \Exception
+     */
     public function getStateValueDataProvider(): array
     {
         return [
@@ -351,6 +381,9 @@ class AddressTest extends Unit
         ];
     }
 
+    /**
+     * @return array
+     */
     public function setStateValueDataProvider(): array
     {
         return [

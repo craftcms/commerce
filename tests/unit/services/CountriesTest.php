@@ -43,30 +43,39 @@ class CountriesTest extends Unit
      */
     private $_usCountryId = 236;
 
+    /**
+     *
+     */
     public function testGetCountryById()
     {
         $country = $this->countries->getCountryById(999);
-        $this->assertNull($country);
+        self::assertNull($country);
 
         $country = $this->countries->getCountryById($this->_usCountryId);
-        $this->assertIsObject($country);
-        $this->assertInstanceOf(Country::class, $country);
-        $this->assertSame('United States', $country->name);
-        $this->assertEquals($this->_usCountryId, $country->id);
+        self::assertIsObject($country);
+        self::assertInstanceOf(Country::class, $country);
+        self::assertSame('United States', $country->name);
+        self::assertEquals($this->_usCountryId, $country->id);
     }
 
+    /**
+     *
+     */
     public function testGetCountryByIso()
     {
         $country = $this->countries->getCountryByIso('XX');
-        $this->assertNull($country);
+        self::assertNull($country);
 
         $country = $this->countries->getCountryByIso('US');
-        $this->assertIsObject($country);
-        $this->assertInstanceOf(Country::class, $country);
-        $this->assertSame('United States', $country->name);
-        $this->assertEquals($this->_usCountryId, $country->id);
+        self::assertIsObject($country);
+        self::assertInstanceOf(Country::class, $country);
+        self::assertSame('United States', $country->name);
+        self::assertEquals($this->_usCountryId, $country->id);
     }
 
+    /**
+     *
+     */
     public function testGetAllCountries()
     {
         $countriesCount = (new Query())
@@ -75,75 +84,90 @@ class CountriesTest extends Unit
 
         $countries = $this->countries->getAllCountries();
 
-        $this->assertCount($countriesCount, $countries);
+        self::assertCount($countriesCount, $countries);
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function testSaveCountry()
     {
         // Force memoization for testing
         $this->countries->getAllCountries();
 
         $result = $this->_createCountry();
-        $this->assertTrue($result);
+        self::assertTrue($result);
 
         // Test it is in the DB
         $exists = (new Query())
             ->from(Table::COUNTRIES)
             ->where(['iso' => 'KA'])
             ->exists();
-        $this->assertTrue($exists);
+        self::assertTrue($exists);
 
         // Test we can retrieve new data by ID and ISO
         $byId = $this->countries->getCountryById($this->_country->id);
-        $this->assertIsObject($byId);
-        $this->assertInstanceOf(Country::class, $byId);
-        $this->assertSame($this->_country->name, $byId->name);
+        self::assertIsObject($byId);
+        self::assertInstanceOf(Country::class, $byId);
+        self::assertSame($this->_country->name, $byId->name);
 
         $byIso = $this->countries->getCountryByIso($this->_country->iso);
-        $this->assertIsObject($byIso);
-        $this->assertInstanceOf(Country::class, $byIso);
-        $this->assertSame($this->_country->name, $byIso->name);
+        self::assertIsObject($byIso);
+        self::assertInstanceOf(Country::class, $byIso);
+        self::assertSame($this->_country->name, $byIso->name);
 
         $this->_destroyCountry();
     }
 
+    /**
+     *
+     */
     public function testGetAllCountriesAsList()
     {
         $countriesAsList = $this->countries->getAllCountriesAsList();
 
-        $this->assertIsArray($countriesAsList);
-        $this->assertArrayHasKey($this->_usCountryId, $countriesAsList);
-        $this->assertSame('United States', $countriesAsList[$this->_usCountryId]);
+        self::assertIsArray($countriesAsList);
+        self::assertArrayHasKey($this->_usCountryId, $countriesAsList);
+        self::assertSame('United States', $countriesAsList[$this->_usCountryId]);
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function testGetAllEnabledCountriesAsList()
     {
         $this->_createCountry();
         $enabledCountriesAsList = $this->countries->getAllEnabledCountriesAsList();
 
-        $this->assertIsArray($enabledCountriesAsList);
-        $this->assertArrayHasKey($this->_usCountryId, $enabledCountriesAsList);
-        $this->assertSame('United States', $enabledCountriesAsList[$this->_usCountryId]);
-        $this->assertArrayNotHasKey($this->_country->id, $enabledCountriesAsList);
+        self::assertIsArray($enabledCountriesAsList);
+        self::assertArrayHasKey($this->_usCountryId, $enabledCountriesAsList);
+        self::assertSame('United States', $enabledCountriesAsList[$this->_usCountryId]);
+        self::assertArrayNotHasKey($this->_country->id, $enabledCountriesAsList);
 
         $this->_destroyCountry();
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function testGetAllEnabledCountries()
     {
         $this->_createCountry();
         $enabledCountries = $this->countries->getAllEnabledCountries();
 
-        $this->assertIsArray($enabledCountries);
-        $this->assertArrayHasKey($this->_usCountryId, $enabledCountries);
-        $this->assertIsObject($enabledCountries[$this->_usCountryId]);
-        $this->assertInstanceOf(Country::class, $enabledCountries[$this->_usCountryId]);
-        $this->assertSame('United States', $enabledCountries[$this->_usCountryId]->name);
-        $this->assertArrayNotHasKey($this->_country->id, $enabledCountries);
+        self::assertIsArray($enabledCountries);
+        self::assertArrayHasKey($this->_usCountryId, $enabledCountries);
+        self::assertIsObject($enabledCountries[$this->_usCountryId]);
+        self::assertInstanceOf(Country::class, $enabledCountries[$this->_usCountryId]);
+        self::assertSame('United States', $enabledCountries[$this->_usCountryId]->name);
+        self::assertArrayNotHasKey($this->_country->id, $enabledCountries);
 
         $this->_destroyCountry();
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
     public function testDeleteCountryById()
     {
         $this->_createCountry();
@@ -153,21 +177,24 @@ class CountriesTest extends Unit
         $this->countries->getAllCountries();
 
         $result = $this->countries->deleteCountryById($id);
-        $this->assertTrue($result);
+        self::assertTrue($result);
 
         // Check DB
         $exists = (new Query())
             ->from(Table::COUNTRIES)
             ->where(['id' => $id])
             ->exists();
-        $this->assertFalse($exists);
+        self::assertFalse($exists);
 
         $byId = $this->countries->getCountryById($id);
-        $this->assertNull($byId);
+        self::assertNull($byId);
 
         $this->_destroyCountry();
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testReorderCountries()
     {
         $countriesAsList = $this->countries->getAllCountriesAsList();
@@ -175,17 +202,17 @@ class CountriesTest extends Unit
         $countriesOrder = array_reverse($countriesOrder);
 
         $result = $this->countries->reorderCountries($countriesOrder);
-        $this->assertTrue($result);
+        self::assertTrue($result);
 
         $dbCountriesOrder = (new Query())
             ->from(Table::COUNTRIES)
             ->select(['id'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC])
             ->column();
-        $this->assertEquals($countriesOrder, $dbCountriesOrder);
+        self::assertEquals($countriesOrder, $dbCountriesOrder);
 
         $countriesAsList = $this->countries->getAllCountriesAsList();
-        $this->assertEquals($countriesOrder, array_keys($countriesAsList));
+        self::assertEquals($countriesOrder, array_keys($countriesAsList));
     }
 
     /**
