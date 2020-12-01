@@ -57,9 +57,9 @@ before_script:
   psql --version
   mysql --version
   sudo mysql_upgrade || echo "MySQL is already up to date"
-- travis_retry mysql -e 'CREATE DATABASE `commerce-test`;';
+- travis_retry mysql -e 'CREATE DATABASE `commercetest`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
-- psql -U postgres -c 'CREATE DATABASE "commerce-test";';
+- psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - pear config-set preferred_state beta
 - pecl channel-update pecl.php.net
 - yes | pecl install imagick
