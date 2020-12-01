@@ -424,7 +424,7 @@ class Addresses extends Component
                     '[[c.addressId]]' => null,
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
-                    '[[addresses.isStoreLocation]]' => 0,
+                    '[[addresses.isStoreLocation]]' => false,
                 ]
             ]);
 
