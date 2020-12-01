@@ -84,14 +84,8 @@ after_script:
     bash <(curl -s https://codecov.io/bash)
   fi
 notifications:
-  slack:
+  webhooks:
+    urls:
+      - https://hooks.zapier.com/hooks/catch/666712/oerycxe/
     on_success: always
     on_failure: always
-    rooms:
-      secure: gyz9L5Cuv4B2mn3B/w6c6DaPiRk941KiEIzJihiBIk1ocY0UApWrvTOxqr4f/VSRDkaLUw81F0RXjsof+LhVKytmf0vJw19v4bEqGCPr6ZQabxPE1IrMhMfpOyLYPhh6MEjZdNdEHxyFp06lTsGPA57ikJofOHg5J4zQbnz0yGh1QHzyxzbLnJDkQUGdxpi+eXzvlHMCDQKGyNQ+pgq4dv4d6pJQi6NvHoUqveveJlp0plN3BDT3fCJTTVIipqx0jnHDoJT988QJcaeeyciCEYHK2APwmOqEjdo68JLlFgWr+ohSTs8c1OdYSQTsvpd8i3+oPtpiFStu2Jc7ns2MhuyjU3FGJUiSiC40se4ASiqz/FAUusYpXSWSdcbZGVK2f1yzof1tV2u/VMQaGx5rN/vDCUrgLTR4m+HjMmLasrOKrLd1hrhzSanu0fhaXrecMY6yxc8r3G3kGLL5io4eAOsJUdjutrCcxBlQsDM321A9Su6JjOP4dwVUHklaHh465JyH5ddEmODfln8L24e0JJkmM6fzAAuN02UJ9kJLHQ1Vu4UMDVTkBW9zeHmRgvagJTJEoAt02xfUi/aRXMvnB+BM8MpVp+6yujIBSEp6mkCTIQhk6oSw6khjOoTfDi2TXF9mKdabBo/I1qIFthhJfl3yfEppBxXxSEtEJ6ykY+A=
-  email:
-    recipients:
-    - brad@craftcms.com
-    - brandon@craftcms.com
-    - luke@craftcms.com
-    - nathaniel@craftcms.com
