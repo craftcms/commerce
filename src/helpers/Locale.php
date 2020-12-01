@@ -26,13 +26,7 @@ class Locale
      */
     public static function switchAppLanguage($toLanguage)
     {
-        $language = Craft::$app->language;
-
-        if ($site = Craft::$app->getSites()->getSiteById($toLanguage)) {
-            $language = $site->language;
-        }
-
-        Craft::$app->language = $language;
-        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($language));
+        Craft::$app->language = $toLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($toLanguage));
     }
 }
