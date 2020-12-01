@@ -21,8 +21,9 @@
 
         <div class="footer">
             <div class="buttons right">
+                <input type="number" id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.currency }} {{ order.outstandingBalance }}" min="0" max="{{ order.outstandingBalance }}" style="margin: 0 6px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
                 <input type="submit" class="btn submit"
-                       value="Pay {{ order.outstandingBalance|commerceCurrency(order.currency,convert=true) }} Now">
+                       value="Pay Now">
             </div>
         </div>
 
