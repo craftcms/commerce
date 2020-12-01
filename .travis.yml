@@ -86,6 +86,6 @@ after_script:
 notifications:
   webhooks:
     urls:
-      - https://hooks.zapier.com/hooks/catch/666712/oerycxe/
+      - secure: "NSPPPO9zXMYAFjmFBT+3PXvp1RDT1fq0RgxEfAvHzaUMzj5RTwqQ3GlLucCGol/S314Rdof7eCJyrkpok5C6V5ebyW5aU/hPRc/thmFCcs/UJSHEVcbPzrAA6CaJ4GxLCm2Siwhlt5PA13jC+WJBe8+9WxDE3v+8n0G6g+X4feUv6dePj3lDf12lvzpLaHNC0BW+I7+9aipDp+EDM7ecKaT7eIUoQsYHyaerP4hVtQoC1r48qM3cvknGD/38tj68EXzPoAJwfzOV4o6V3fNKwm7JPe+qzxhYhCYf44thjXlDOLiIBorUtrX5eX746JLbt/6luyH2wnrGbBed5WZj5tOFWq503eMrqHFOPE2zdlxLjfcR2hKvw3ZdwrX+C3YsFaJjxEVROH5eO3NxF46olUW6say84EOvsSnZbA//vehzYeC786g70Ziavs32v7kGdwMDa3G3bmP7nSC3vpX0AhZaNmfxJ4mlNzFIH8feECYU3uJPcYTmFgN0Qk8FSNmfOTBvOZqUKEB2EkOpwK7YHfGzqaNCyhUfjg72IlWlmM6gWqzUbrSLtklHxBNdPAKE3p/we8JDKGd55EHzwqFnyqVj6v50LKIcPpsqthxbzSB4zeEkuHfR1UGUZXNT7Nf0mpSfYnUs5j5ZIClKsn/VHTjRmFJrltjenUS8wlEXHfw="
     on_success: always
     on_failure: always
