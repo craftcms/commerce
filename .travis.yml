@@ -8,13 +8,16 @@ env:
 branches:
   only:
   - develop
-  - feature/tests
 services:
 - mysql
 - postgresql
 jobs:
   fast_finish: true
   include:
+  - php: 7.4
+    env: DB=mysql
+  - php: 7.4
+    env: DB=pgsql
   - php: 7.3
     env: DB=mysql
   - php: 7.3
@@ -32,7 +35,7 @@ cache:
   - "$HOME/.composer/cache"
   - "$HOME/.npm"
 addons:
-  postgresql: '9.6'
+  postgresql: "9.6"
 install:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
@@ -54,13 +57,19 @@ before_script:
   psql --version
   mysql --version
   sudo mysql_upgrade || echo "MySQL is already up to date"
-- travis_retry mysql -e 'CREATE DATABASE `craft-test`;';
+- travis_retry mysql -e 'CREATE DATABASE `commerce-test`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
-- psql -U postgres -c 'CREATE DATABASE "craft-test";';
+- psql -U postgres -c 'CREATE DATABASE "commerce-test";';
 - pear config-set preferred_state beta
 - pecl channel-update pecl.php.net
 - yes | pecl install imagick
 - cp tests/.env.example.$DB tests/.env
+- |
+  if [[ $DB == "mysql" ]]; then
+    sed -i 's/DB_USER="craft"/DB_USER="root"/' tests/.env
+  else
+    sed -i 's/DB_USER="craft"/DB_USER="postgres"/' tests/.env
+  fi
 script:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then

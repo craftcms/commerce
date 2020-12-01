@@ -519,6 +519,7 @@ class Address extends Model
             'label' => $this->label,
             'notes' => $this->notes,
             'businessName' => $this->businessName,
+            'businessTaxId' => $this->businessTaxId,
             'stateText' => $this->stateText,
             'countryText' => $this->countryText,
             'custom1' => $this->custom1,

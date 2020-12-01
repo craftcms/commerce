@@ -5,33 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Shop</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-    <style>
-      {% include('shop/tailwind.css') %}
-
-      a {
-        /* blue 500 */
-        color: #4299e1;
-      }
-
-      a:hover {
-        /* blue 600 */
-        color: #3182ce;
-      }
-
-      #paymentForm input[type="text"], #paymentForm input[type="tel"] {
-          padding: 8px 16px;
-          border: 1px solid rgb(237, 242, 247);
-          border-radius: 0.25rem;
-          line-height: 1.25;
-          margin-bottom: 0.25rem;
-      }
-
-      #paymentForm fieldset {
-          margin-bottom: 0.75rem;
-      }
-    </style>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen">
