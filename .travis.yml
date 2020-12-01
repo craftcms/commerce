@@ -14,10 +14,6 @@ services:
 jobs:
   fast_finish: true
   include:
-  - php: 8.0
-    env: DB=mysql
-  - php: 8.0
-    env: DB=pgsql
   - php: 7.4
     env: DB=mysql
   - php: 7.4
