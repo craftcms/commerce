@@ -74,7 +74,7 @@ class EmailsController extends BaseAdminController
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $locale = Craft::$app->getI18n()->getLocaleById($site->language);
 
-            $emailLanguageOptions[$site->id] = $site->name . ' - ' . $locale->getDisplayName();
+            $emailLanguageOptions[$site->language] = $locale->getDisplayName();
         }
 
         $variables['emailLanguageOptions'] = $emailLanguageOptions;
