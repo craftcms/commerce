@@ -123,10 +123,10 @@ class CountriesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getCountries()->saveCountry($country)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Country saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Country saved.'));
             $this->redirectToPostedUrl($country);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save country.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save country.'));
         }
 
         // Send the model back to the template
@@ -183,7 +183,7 @@ class CountriesController extends BaseStoreSettingsController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update countries status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update countries status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -198,6 +198,6 @@ class CountriesController extends BaseStoreSettingsController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Countries updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Countries updated.'));
     }
 }

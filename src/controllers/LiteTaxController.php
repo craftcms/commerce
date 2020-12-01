@@ -74,7 +74,7 @@ class LiteTaxController extends BaseStoreSettingsController
         }
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/store-settings/tax', compact('settings'));
         }
 
@@ -88,7 +88,7 @@ class LiteTaxController extends BaseStoreSettingsController
             throw new Exception('Could not save internal tax rate for lite tax.');
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }

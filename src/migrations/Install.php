@@ -276,6 +276,7 @@ class Install extends Migration
             'enabled' => $this->boolean(),
             'isDefault' => $this->boolean(),
             'sortOrder' => $this->integer(),
+            'pdfLanguage' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

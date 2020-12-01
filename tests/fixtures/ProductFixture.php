@@ -10,6 +10,7 @@ namespace craftcommercetests\fixtures;
 use Craft;
 use craft\commerce\elements\Product;
 use craft\errors\InvalidElementException;
+use craft\records\Element;
 use craft\test\fixtures\elements\ElementFixture;
 use yii\db\Exception;
 
@@ -68,13 +69,15 @@ class ProductFixture extends ElementFixture
                 }
             }
 
+            foreach ($data as $handle => $value) {
+                if ($handle !== '_variants') {
+                    $element->$handle = $value;
+                }
+            }
+
             if (isset($data['_variants'])) {
                 $element->setVariants($data['_variants']);
                 unset($data['_variants']);
-            }
-
-            foreach ($data as $handle => $value) {
-                $element->$handle = $value;
             }
 
             if (!Craft::$app->getElements()->saveElement($element)) {
@@ -83,7 +86,7 @@ class ProductFixture extends ElementFixture
 
             // Add it here
             if ($dateDeleted) {
-                $elementRecord = \craft\records\Element::find()
+                $elementRecord = Element::find()
                     ->where(['id' => $element->id])
                     ->one();
 

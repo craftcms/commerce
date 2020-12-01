@@ -8,7 +8,7 @@
 namespace craft\commerce\controllers;
 
 /**
- * Class BaseTaxSettingsController
+ * Class BaseStoreSettingsController
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

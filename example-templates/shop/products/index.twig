@@ -5,13 +5,7 @@
 <!-- Template: {{ _self }}.twig -->
     <h1 class="text-3xl block sm:inline">Products</h1>
 
-    {% paginate craft.products.limit(4) as pageInfo, pageProducts %}
-
-    {#
-        {% include 'shop/products/_includes/pagination' with { products: pageProducts, pageInfo: pageInfo } %}
-
-        {% include 'shop/products/_includes/simple-list' with { products: pageProducts } %}
-    #}
+    {% paginate craft.products.limit(100) as pageInfo, pageProducts %}
 
     {% include 'shop/products/_includes/grid' with { products: pageProducts } %}
 

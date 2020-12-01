@@ -26,7 +26,7 @@ use function is_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class PlansController extends BaseAdminController
+class PlansController extends BaseStoreSettingsController
 {
     /**
      * @return Response
@@ -134,10 +134,10 @@ class PlansController extends BaseAdminController
 
         // Save $plan
         if ($planService->savePlan($plan)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription plan saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Subscription plan saved.'));
             $this->redirectToPostedUrl($plan);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription plan.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save subscription plan.'));
         }
 
         // Send the productType back to the template

@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Email;
+use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
@@ -41,12 +42,19 @@ class EmailPreviewController extends Controller
         $view = Craft::$app->getView();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
+        $order = null;
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
         } else {
             $orderIds = Order::find()->isCompleted(true)->limit(5000)->ids();
-            $rand = array_rand($orderIds, 1);
-            $order = Order::find()->isCompleted(true)->id($orderIds[$rand])->one();
+            if ($orderIds) {
+                $rand = array_rand($orderIds, 1);
+                $order = Order::find()->isCompleted(true)->id($orderIds[$rand])->one();
+            }
+        }
+
+        if (!$order) {
+            $order = new Order();
         }
 
         if ($email && $order && $template = $email->templatePath) {
@@ -56,7 +64,10 @@ class EmailPreviewController extends Controller
                 Craft::$app->language = $orderLanguage;
             }
 
-            return $this->renderTemplate($template, compact('order'));
+            $orderHistory = ArrayHelper::firstValue($order->getHistories()) ?: new OrderHistory();
+            $orderData = $order->toArray();
+            $option = 'email';
+            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'));
         }
 
         $errors = [];
@@ -64,10 +75,8 @@ class EmailPreviewController extends Controller
             $errors[] = Craft::t('commerce', 'Could not find the email or template.');
         }
 
-        if (!$order) {
-            $errors[] = Craft::t('commerce', 'Could not find the order.');
-        }
-
+        $view = Craft::$app->getView();
+        $view->setTemplateMode(View::TEMPLATE_MODE_CP);
         return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
     }
 }
