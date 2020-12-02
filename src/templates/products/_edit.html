@@ -172,25 +172,7 @@
     {# TODO allow viewing of sales when a view promotions permission is introduced #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
       {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
-
-      <div class="data">
-        <h5 class="heading">{{ "Related Discounts"|t('commerce') }}</h5>
-        <div class="value">
-          {% if discounts|length %}
-            <ul class="commerce-sales">
-              {% for discount in discounts %}
-                <li>
-                  <a href="{{ discount.getCpEditUrl() }}"><span>{{ discount.name }}</span></a>
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-
-          {# Add Discount Button #}
-          <a class="btn small add icon"
-             href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~product.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
-        </div>
-      </div>
+      {{ productFields.relatedDiscounts(product.defaultVariant.id, product.defaultVariant) }}
     {% endif %}
     <div class="data">
       <h5 class="heading">{{ "Date Created"|t('commerce') }}</h5>

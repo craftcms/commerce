@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
+use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\elements\Category;
@@ -21,6 +22,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\i18n\Locale;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -284,6 +286,45 @@ class DiscountsController extends BaseCpController
         $transaction->commit();
 
         $this->setSuccessFlash(Craft::t('commerce', 'Discounts updated.'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionGetDiscountsByPurchasableId(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+        }
+
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+
+        if (!$purchasable) {
+            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+        }
+
+        $discounts = [];
+        $purchasableDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($purchasable);
+        foreach ($purchasableDiscounts as $discount) {
+            if (!ArrayHelper::firstWhere($discounts, 'id', $discount->id)) {
+                /** @var Sale $discount */
+                $discountArray = $discount->toArray();
+                $discountArray['cpEditUrl'] = $discount->getCpEditUrl();
+                $discounts[] = $discountArray;
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'discounts' => $discounts,
+        ]);
     }
 
     /**

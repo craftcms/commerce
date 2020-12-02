@@ -27,6 +27,7 @@ use craft\db\ActiveRecord;
  */
 class Pdf extends ActiveRecord
 {
+    const TYPE_LOCALE_CREATED = 'localeCreated';
     /**
      * @inheritdoc
      */

@@ -415,23 +415,6 @@ class ProductsController extends BaseController
         $form = $productType->getProductFieldLayout()->createForm($product);
         $variables['tabs'] = $form->getTabMenu();
         $variables['fieldsHtml'] = $form->render();
-
-        $sales = [];
-        $discounts = [];
-        foreach ($product->getVariants() as $variant) {
-            $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
-            foreach ($variantSales as $sale) {
-                $sales[$sale->id] = $sale;
-            }
-
-            $variantDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($variant);
-            foreach ($variantDiscounts as $discount) {
-                $discounts[$discount->id] = $discount;
-            }
-        }
-
-        $variables['sales'] = $sales;
-        $variables['discounts'] = $discounts;
     }
 
     /**

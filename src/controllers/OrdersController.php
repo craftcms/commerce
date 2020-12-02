@@ -584,7 +584,7 @@ class OrdersController extends Controller
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
-
+        
         if ($email === null || !$email->enabled) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
