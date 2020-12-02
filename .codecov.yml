@@ -16,13 +16,7 @@ coverage:
     slack:
       default:
         url: secret:hkc9PnyAujlK34l8CtNCju8rQe5N357lb5HJR0aKm04dJgyWLPLXwouf3f2+6MON0bKRLeKEmU4bG1CJFCK/+AIsbRtS5GawVKz5H5flO93BBndGTpae4bV8raxSy1LY5kd59wEvWRCk0NzJ+XmZJ4W9rtPdTQFqVkUuuZy1MSs=
-        threshold: 1%
-        only_pulls: false
         branches: develop
-        flags: null
-        attachments: "sunburst, diff"
-        paths: null
-        message: "Coverage {{changed}} for {{owner}}/{{repo}}"
 
 parsers:
   gcov:
