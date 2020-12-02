@@ -4,7 +4,8 @@
 
 ### Changed
 - Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
-- Added the `cp.commerce.order.content` template hooks to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269)
+- Added the `cp.commerce.order.content` template hook to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269)
+- Added the `cp.commerce.order.edit.order-actions`. and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138)
 - Added `craft\commerce\controllers\OrdersController::EVENT_REGISTER_ORDER_TABS`.
 
 ### Fixed
