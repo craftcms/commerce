@@ -9,9 +9,9 @@ use craft\db\Table;
 use yii\db\Expression;
 
 /**
- * m201111_072959_product_permission_conversion migration.
+ * m201111_072959_v4_product_permission_conversion migration.
  */
-class m201111_072959_product_permission_conversion extends Migration
+class m201111_072959_v4_product_permission_conversion extends Migration
 {
     /**
      * @inheritdoc
@@ -76,7 +76,7 @@ class m201111_072959_product_permission_conversion extends Migration
             // Make project config updates
             $projectConfig = Craft::$app->getProjectConfig();
             $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-            if (version_compare($schemaVersion, '3.2.10', '<')) {
+            if (version_compare($schemaVersion, '4.0', '<')) {
 
                 $groups = (new Query())
                     ->select(['id', 'name', 'uid'])
@@ -108,7 +108,7 @@ class m201111_072959_product_permission_conversion extends Migration
      */
     public function safeDown()
     {
-        echo "m201111_072959_product_permission_conversion cannot be reverted.\n";
+        echo "m201111_072959_v4_product_permission_conversion cannot be reverted.\n";
         return false;
     }
 }
