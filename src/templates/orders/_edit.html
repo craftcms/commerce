@@ -189,6 +189,8 @@
     {% include 'commerce/orders/_transactions' %}
     {% include 'commerce/orders/_history' %}
 
+    {% hook "cp.commerce.order.content" %}
+
 {% endblock %}
 
 {% js %}
