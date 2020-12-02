@@ -48,12 +48,14 @@ class PdfsController extends BaseAdminController
         $pdfLanguageOptions = [
             PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
-
+        
+        $pdfLanguageOptions[]['optgroup'] = Craft::t('commerce', 'Site Languages');
+        
         // Get current site's locale
         foreach (Craft::$app->getSites()->getAllSites() as $site) {
             $locale = Craft::$app->getI18n()->getLocaleById($site->language);
 
-            $pdfLanguageOptions[$site->id] = $site->name . ' - ' . $locale->getDisplayName();
+            $pdfLanguageOptions[$locale->getLanguageID()] = $locale->getDisplayName();
         }
 
         $variables['pdfLanguageOptions'] = $pdfLanguageOptions;

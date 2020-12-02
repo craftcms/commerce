@@ -80,7 +80,8 @@
         name: 'language',
         options : pdfLanguageOptions,
         value : pdf.language,
-        errors: pdf.getErrors('language') ?? null
+        errors: pdf.getErrors('language') ?? null,
+        hasOptgroups: true
     }) }}
 
     {{ forms.lightswitchField({
