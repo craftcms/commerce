@@ -1057,6 +1057,20 @@ class Order extends Element
      * ```
      */
     private $_customer;
+    
+    /**
+     * @var float
+     * @see Order::setPaymentAmount() To set the order payment amount
+     * @see Order::getPaymentAmount() To get the order payment amount
+     * ---
+     * ```php
+     * echo $order->paymentAmount;
+     * ```
+     * ```twig
+     * {{ order.paymentAmount }}
+     * ```
+     */
+    private $_paymentAmount;
 
     /**
      * @inheritdoc
@@ -2137,6 +2151,31 @@ class Order extends Element
     public function getIsUnpaid(): bool
     {
         return $this->hasOutstandingBalance();
+    }
+    
+    /**
+     * Returns the paymentAmount for this order.
+     *
+     * @return float
+     * @throws InvalidConfigException
+     */
+    public function getPaymentAmount()
+    {
+        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
+            return $this->_paymentAmount;
+        }
+
+        return $this->getOutstandingBalance();
+    }
+
+    /**
+     * Sets the orders payment amount.
+     *
+     * @param float|null $value
+     */
+    public function setPaymentAmount($value)
+    {
+        $this->_paymentAmount = (float) $value;
     }
 
     /**
