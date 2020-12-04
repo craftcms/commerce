@@ -8,6 +8,7 @@
 namespace craft\commerce\helpers;
 
 use Craft;
+use craft\helpers\ArrayHelper;
 
 /**
  * Locale Helper
@@ -28,5 +29,41 @@ class Locale
     {
         Craft::$app->language = $toLanguage;
         Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($toLanguage));
+    }
+
+    /**
+     * Get the created sites languages and all languages.
+     * 
+     * @return array
+     */
+    public static function getSiteAndOtherLanguages()
+    {
+        $pdfLanguageOptions['siteLanguages']['optgroup'] = Craft::t('commerce', 'Site Languages');
+
+        $siteLanguageOptions = [];
+        // Get current site's locale
+        foreach (Craft::$app->getSites()->getAllSites() as $site) {
+            $locale = Craft::$app->getI18n()->getLocaleById($site->language);
+
+            $siteLanguageOptions[$locale->getLanguageID()] = $site->name . ' - ' . $locale->getDisplayName();
+        }
+
+        $pdfLanguageOptions = array_merge($pdfLanguageOptions, $siteLanguageOptions);
+
+        $pdfLanguageOptions['otherLanguages']['optgroup'] = Craft::t('commerce', 'Other Languages');
+
+        /** @var \craft\i18n\Locale[] $allLocales */
+        $allLocales = ArrayHelper::index(Craft::$app->getI18n()->getAppLocales(), 'id');
+        ArrayHelper::multisort($allLocales, 'displayName');
+
+        $allLocaleOptions = [];
+
+        foreach ($allLocales as $locale) {
+            $allLocaleOptions[$locale->id] = $locale->getDisplayName();
+        }
+
+        $otherLocaleOptions = array_diff_key($allLocaleOptions, $siteLanguageOptions);
+
+        return array_merge($pdfLanguageOptions, $otherLocaleOptions);
     }
 }

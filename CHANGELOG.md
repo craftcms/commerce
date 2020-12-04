@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added language options in pdf and email setting page and the selected language will be used for rendering pdf and sending emails. ([#1884](https://github.com/craftcms/commerce/issues/1884))
+
 ### Changed
 - Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
 

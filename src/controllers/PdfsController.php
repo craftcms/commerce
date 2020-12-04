@@ -8,10 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use craft\i18n\Locale;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -49,17 +52,8 @@ class PdfsController extends BaseAdminController
             PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
         
-        $pdfLanguageOptions[]['optgroup'] = Craft::t('commerce', 'Site Languages');
+        $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
         
-        // Get current site's locale
-        foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $locale = Craft::$app->getI18n()->getLocaleById($site->language);
-
-            $pdfLanguageOptions[$locale->getLanguageID()] = $locale->getDisplayName();
-        }
-
-        $variables['pdfLanguageOptions'] = $pdfLanguageOptions;
-
         if (!$variables['pdf']) {
             if ($variables['id']) {
                 $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id']);

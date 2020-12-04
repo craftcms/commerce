@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
@@ -69,15 +70,8 @@ class EmailsController extends BaseAdminController
         $emailLanguageOptions = [
             EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
-
-        // get current site's locale
-        foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $locale = Craft::$app->getI18n()->getLocaleById($site->language);
-
-            $emailLanguageOptions[$site->language] = $locale->getDisplayName();
-        }
-
-        $variables['emailLanguageOptions'] = $emailLanguageOptions;
+        
+        $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
