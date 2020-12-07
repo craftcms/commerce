@@ -8,6 +8,7 @@
 - Added the `cp.commerce.order.edit.order-actions`. and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138))
 - Added `craft\commerce\controllers\OrdersController::EVENT_REGISTER_ORDER_TABS`.
 - Orders are no longer required to have a line item to be saved on the Edit Order page. 
+- Tax categories and shipping categories are now archived instead of deleted. ([#1815](https://github.com/craftcms/commerce/issues/1815))
 
 ### Fixed
 - Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
