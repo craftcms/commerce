@@ -7,12 +7,17 @@
 
 ### Changed
 - Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
+- Added the `cp.commerce.order.content` template hook to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269))
+- Added the `cp.commerce.order.edit.order-actions`. and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138))
+- Added `craft\commerce\controllers\OrdersController::EVENT_REGISTER_ORDER_TABS`.
+- Orders are no longer required to have a line item to be saved on the Edit Order page. 
 
 ### Fixed
 - Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
 - Added missing `businessTaxId` key in default address lines output. ([#1894](https://github.com/craftcms/commerce/issues/1894))
 - Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` would return disabled discounts.
 - Fixed some PostgreSQL compatibility issues.
+- Fixed a bug where `businessId` wasn’t being set on an address when using the `setAttributes` method. ([#1909](https://github.com/craftcms/commerce/issues/1909))
 
 ## 3.2.12 - 2020-11-17
 
