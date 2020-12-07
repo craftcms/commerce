@@ -1263,7 +1263,7 @@ class Product extends Element
                         $hasUnlimited = true;
                     }
                 }
-                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
+                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '0');
             }
             case 'defaultWeight':
             {
