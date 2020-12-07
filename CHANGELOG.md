@@ -15,6 +15,7 @@
 - Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` would return disabled discounts.
 - Fixed some PostgreSQL compatibility issues.
 - Fixed a bug where `businessId` wasn’t being set on an address when using the `setAttributes` method. ([#1909](https://github.com/craftcms/commerce/issues/1909))
+- Fixed 0 stock not displaying on columns in product index page. ([#1908](https://github.com/craftcms/commerce/issues/1908)) 
 
 ## 3.2.12 - 2020-11-17
 
