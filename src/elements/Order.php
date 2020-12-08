@@ -53,8 +53,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
-use JetBrains\PhpStorm\ArrayShape;
-use JetBrains\PhpStorm\Deprecated;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -2496,7 +2494,6 @@ class Order extends Element
      * @return float|int
      * @deprecated in 2.2
      */
-    #[Deprecated(since: 2.2, reason: 'Because', replacement: 'getIt()')]
     public function getAdjustmentsTotalByType($types, $included = false)
     {
         Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
