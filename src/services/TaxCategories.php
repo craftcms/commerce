@@ -338,6 +338,7 @@ class TaxCategories extends Component
                 'taxCategories.description',
                 'taxCategories.default'
             ])
+            ->where(['[[taxCategories.dateDeleted]]' => null])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
 }
