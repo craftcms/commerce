@@ -404,10 +404,11 @@ class PaymentsController extends BaseFrontEndController
         // We don't want to save the order in this mode in case the payment fails. The customer should still be able to edit and recalculate the cart.
         // When the order is marked as complete from a payment later, the order will be set to 'recalculate none' mode permanently.
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
-        
+
         // set a partial payment amount on the order
-        if (($paymentAmount = $this->request->getParam('paymentAmount')) && $this->request->isCpRequest) {
-            $order->setPaymentAmount($paymentAmount);   
+        $patialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowFrontEndPartialPayments) || $this->request->isCpRequest);
+        if ($patialAllowed && ($paymentAmount = $this->request->getParam('paymentAmount'))) {
+            $order->setPaymentAmount($paymentAmount);
         }
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {

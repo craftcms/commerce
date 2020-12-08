@@ -145,6 +145,15 @@ class Settings extends Model
     public $freeOrderPaymentStrategy = 'complete';
 
     /**
+     * @var bool Whether partial payment can be made from the front-end. Gateway must also allow them.
+     *
+     * The default `false` does not allow partial payments on the front end.
+     *
+     * @group Payments
+     */
+    public $allowFrontEndPartialPayments = false;
+
+    /**
      * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.
      *
      * The template must contain a form that posts to the URL supplied by the `actionUrl` variable and outputs all hidden inputs with
