@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Partial payments on orders can now be made from the Edit Order page.
+- Added the `allowFrontEndPartialPayments` config setting.
+
 ### Changed
 - Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
 - Added the `cp.commerce.order.content` template hook to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269))
