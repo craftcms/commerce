@@ -406,7 +406,7 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
         
         // set a partial payment amount on the order
-        if (($paymentAmount = $request->getParam('paymentAmount')) && $request->isCpRequest) {
+        if (($paymentAmount = $this->request->getParam('paymentAmount')) && $this->request->isCpRequest) {
             $order->setPaymentAmount($paymentAmount);   
         }
 

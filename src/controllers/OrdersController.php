@@ -86,7 +86,7 @@ class OrdersController extends Controller
      * );
      * ```
      */
-    const EVENT_REGISTER_ORDER_TABS = 'beforeSaveCustomer';
+    const EVENT_REGISTER_ORDER_TABS = 'registerOrderTabs';
 
 
     /**

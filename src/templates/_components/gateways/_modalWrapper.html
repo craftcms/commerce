@@ -21,9 +21,35 @@
 
         <div class="footer">
             <div class="buttons right">
-                <input type="number" id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.currency }} {{ order.outstandingBalance }}" min="0" max="{{ order.outstandingBalance }}" style="margin: 0 6px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
-                <input type="submit" class="btn submit"
-                       value="Pay Now">
+                <input type="number" id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+
+                {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
+                {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+
+                <select type="number" id="paymentCurrency" class="text" name="paymentCurrency"  style="margin: 0 5px;">
+                    {% if currencies|length > 1 %}
+
+                        {% for currency in currencies %}
+                            {% if primaryCurrency.iso == currency.iso %}
+                                {% set primary = true %}
+                            {% else %}
+                                {% set primary = false %}
+                            {% endif %}
+                            {% if order.paymentCurrency and (order.paymentCurrency == currency.iso and order.origin == 'web') %}
+                                {% set selectedByCustomer = true %}
+                            {% else %}
+                                {% set selectedByCustomer = false %}
+                            {% endif %}
+                            <option value="{{currency.iso}}" {% if selectedByCustomer %}selected{% endif %} >
+                                {{ currency.name }} {% if primary %}({{ 'Base Currency'|t('commerce')}}){% endif %}
+                            </option>
+                        {% endfor %}
+                    {% else %}
+                     <option value="{{primaryCurrency.iso}}">{{ primaryCurrency.name }}</option>
+                    {% endif %}
+                </select>
+
+                <input type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
 
@@ -31,14 +57,13 @@
 </div>
 {% js %}
     $('#gateway-{{ gateway.id }}-form').on('submit', function (ev) {
-    $form = $(this);
+        $form = $(this);
 
-    if ($form.data('processing')) {
-    ev.preventDefault();
+        if ($form.data('processing')) {
+            ev.preventDefault();
+            return false;
+        }
 
-    return false;
-    }
-
-    $form.data('processing', true);
+        $form.data('processing', true);
     });
 {% endjs %}

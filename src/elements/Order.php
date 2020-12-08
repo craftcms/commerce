@@ -53,6 +53,8 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use JetBrains\PhpStorm\ArrayShape;
+use JetBrains\PhpStorm\Deprecated;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -2157,9 +2159,8 @@ class Order extends Element
      * Returns the paymentAmount for this order.
      *
      * @return float
-     * @throws InvalidConfigException
      */
-    public function getPaymentAmount()
+    public function getPaymentAmount(): float
     {
         if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
             return $this->_paymentAmount;
@@ -2169,13 +2170,13 @@ class Order extends Element
     }
 
     /**
-     * Sets the orders payment amount.
+     * Sets the orders payment amount. This amount is not persisted.
      *
-     * @param float|null $value
+     * @param float|null $amount
      */
-    public function setPaymentAmount($value)
+    public function setPaymentAmount($amount)
     {
-        $this->_paymentAmount = (float) $value;
+        $this->_paymentAmount = (float) $amount;
     }
 
     /**
@@ -2317,6 +2318,7 @@ class Order extends Element
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
+     *
      */
     public function getOutstandingBalance(): float
     {
@@ -2494,6 +2496,7 @@ class Order extends Element
      * @return float|int
      * @deprecated in 2.2
      */
+    #[Deprecated(since: 2.2, reason: 'Because', replacement: 'getIt()')]
     public function getAdjustmentsTotalByType($types, $included = false)
     {
         Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
