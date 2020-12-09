@@ -3,7 +3,7 @@
 ## 3.2.13 - 2020-12-10
 
 ### Added
-- It’s now possible to specify the language that emails and PDFs should be rendered in, rather than going with the language of the order. ([#1884](https://github.com/craftcms/commerce/issues/1884))
+- Emails and PDFs now have Language settings that can be used to specify the language that should be used, instead of the order’s language. ([#1884](https://github.com/craftcms/commerce/issues/1884))
 - Added the `cp.commerce.order.content`, `cp.commerce.order.edit.order-actions`, and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138), [#1269](https://github.com/craftcms/commerce/issues/1269))
 
 ### Changed
@@ -23,7 +23,6 @@
 ### Added
 - Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
-- Added language setting (Language order created and sites language) for emails and pdfs when it gets rendered. ([#1876](https://github.com/craftcms/commerce/issues/1876))
 
 ### Changed
 - Improved the Edit Order page’s ability to warn against losing unsaved changes. ([#1850](https://github.com/craftcms/commerce/issues/1850))
