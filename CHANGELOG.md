@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Added
-- It’s now possible to specify the language that emails and PDFs should be rendered in, rather than going with the language of the order.
+- It’s now possible to specify the language that emails and PDFs should be rendered in, rather than going with the language of the order. ([#1884](https://github.com/craftcms/commerce/issues/1884))
 - Added the `cp.commerce.order.content`, `cp.commerce.order.edit.order-actions`, and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138), [#1269](https://github.com/craftcms/commerce/issues/1269))
 
 ### Changed
