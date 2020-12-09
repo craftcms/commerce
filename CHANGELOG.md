@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.13 - 2020-12-10
 
 ### Added
 - It’s now possible to specify the language that emails and PDFs should be rendered in, rather than going with the language of the order. ([#1884](https://github.com/craftcms/commerce/issues/1884))
