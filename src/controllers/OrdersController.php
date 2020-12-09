@@ -65,31 +65,6 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
-
-
-    /**
-     * @event OrderTabsEvent The event allows additional tabs to be added or modified on the Edit Order page.
-     * @since 3.2.9
-     *
-     * ```php
-     * Event::on(
-     * OrdersController::class,
-     * OrdersController::EVENT_REGISTER_ORDER_TABS,
-     *     function(OrderTabsEvent $event) {
-     *         $tabs = $event->tabs;
-     *         $tabs[] = [
-     *           'label' => Craft::t('commerce', 'Mine'),
-     *           'url' => '#mineTab',
-     *           'class' => null
-     *         ];
-     *         $event->tabs = $tabs;
-     *     }
-     * );
-     * ```
-     */
-    const EVENT_REGISTER_ORDER_TABS = 'beforeSaveCustomer';
-
-
     /**
      * @throws HttpException
      * @throws InvalidConfigException
@@ -958,15 +933,6 @@ class OrdersController extends Controller
             'url' => '#orderHistoryTab',
             'class' => null
         ];
-
-        $orderTabsEvent = new OrderTabsEvent();
-        $orderTabsEvent->tabs = $variables['tabs'];
-
-        if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_TABS)) {
-            $this->trigger(self::EVENT_REGISTER_ORDER_TABS, $orderTabsEvent);
-        }
-
-        $variables['tabs'] = $orderTabsEvent->tabs;
 
         $variables['fullPageForm'] = true;
 
