@@ -6,8 +6,7 @@
 - Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
 - Added the `cp.commerce.order.content` template hook to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269))
 - Added the `cp.commerce.order.edit.order-actions`. and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138))
-- Added `craft\commerce\controllers\OrdersController::EVENT_REGISTER_ORDER_TABS`.
-- Orders are no longer required to have a line item to be saved on the Edit Order page. 
+- Orders are no longer required to have a line item to be saved on the Edit Order page.
 
 ### Fixed
 - Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
