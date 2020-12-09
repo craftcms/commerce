@@ -396,7 +396,7 @@ class Variant extends Purchasable
     public function getFieldLayout()
     {
         $fieldLayout = parent::getFieldLayout();
-        
+
         // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
         if (!$fieldLayout && $this->productId) {
             $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
@@ -865,6 +865,7 @@ class Variant extends Purchasable
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+            $this->addNotice('lineItems', $item->getDescription() . Craft::t('commerce', ' only has {stock} in stock', ['stock' => $this->stock]));
             $lineItem->qty = $this->stock;
         }
 
