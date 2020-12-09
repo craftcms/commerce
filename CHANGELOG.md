@@ -23,6 +23,7 @@
 ### Added
 - Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
+- Added language setting (Language order created and sites language) for emails and pdfs when it gets rendered. ([#1876](https://github.com/craftcms/commerce/issues/1876))
 
 ### Changed
 - Improved the Edit Order page’s ability to warn against losing unsaved changes. ([#1850](https://github.com/craftcms/commerce/issues/1850))
