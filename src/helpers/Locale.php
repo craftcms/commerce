@@ -14,7 +14,7 @@ use craft\helpers\ArrayHelper;
  * Locale Helper
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.13
  */
 class Locale
 {

@@ -27,7 +27,7 @@ class m201120_093135_add_locale_setting_to_email_and_pdf extends Migration
 
         $projectConfig = Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '3.2.10', '<')) {
+        if (version_compare($schemaVersion, '3.2.13', '<')) {
 
             $emailUids = (new Query())
                 ->select(['uid'])
