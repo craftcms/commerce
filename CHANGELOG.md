@@ -2,19 +2,21 @@
 
 ## Unreleased
 
+### Added
+- It’s now possible to specify the language that emails and PDFs should be rendered in, rather than going with the language of the order.
+- Added the `cp.commerce.order.content`, `cp.commerce.order.edit.order-actions`, and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138), [#1269](https://github.com/craftcms/commerce/issues/1269))
+
 ### Changed
-- Related sales are now populated on demand when the variant is visible on the Edit Product page. ([#1883](https://github.com/craftcms/commerce/issues/1883))
-- Added the `cp.commerce.order.content` template hook to the Edit Order page. ([#1269](https://github.com/craftcms/commerce/issues/1269))
-- Added the `cp.commerce.order.edit.order-actions`. and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138))
-- Orders are no longer required to have a line item to be saved on the Edit Order page.
+- Improved the Edit Product page load time by lazy-loading variants’ related sales on scroll. ([#1883](https://github.com/craftcms/commerce/issues/1883))
+- The Edit Order page no longer requires orders to have at least one line item to be saved.
 
 ### Fixed
-- Fixed a bug where sending an email and downloading a pdf that's using twig template doesn't get the correct order locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
-- Added missing `businessTaxId` key in default address lines output. ([#1894](https://github.com/craftcms/commerce/issues/1894))
-- Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` would return disabled discounts.
+- Fixed a bug where Products indexes weren’t displaying `0` stock values. ([#1908](https://github.com/craftcms/commerce/issues/1908))
+- Fixed a bug where dates and numbers in order PDFs weren’t always rendered with the order’s locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
+- Fixed a bug where `craft\commerce\models\Address::getAddressLines()` wasn’t including a `businessTaxId` key. ([#1894](https://github.com/craftcms/commerce/issues/1894))
+- Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` was returning disabled discounts.
+- Fixed a bug where `craft\commerce\models\Address::setAttributes()` wasn’t setting the `businessId` by default. ([#1909](https://github.com/craftcms/commerce/issues/1909))
 - Fixed some PostgreSQL compatibility issues.
-- Fixed a bug where `businessId` wasn’t being set on an address when using the `setAttributes` method. ([#1909](https://github.com/craftcms/commerce/issues/1909))
-- Fixed 0 stock not displaying on columns in product index page. ([#1908](https://github.com/craftcms/commerce/issues/1908)) 
 
 ## 3.2.12 - 2020-11-17
 
