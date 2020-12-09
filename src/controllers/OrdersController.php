@@ -17,7 +17,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
+use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -592,6 +594,10 @@ class OrdersController extends Controller
         if ($order === null) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
         }
+
+        // Set language by email's set locale
+        $language = $email->getRenderLanguage($order);
+        Locale::switchAppLanguage($language);
 
         $orderData = $order->toArray();
 

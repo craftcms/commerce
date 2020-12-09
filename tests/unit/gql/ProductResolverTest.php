@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\gql;
 
 use Codeception\Test\Unit;
 use Craft;
@@ -24,6 +24,9 @@ class ProductResolverTest extends Unit
      */
     protected $tester;
 
+    /**
+     * @throws \Exception
+     */
     protected function _before()
     {
         // Mock the GQL token for the volumes below
@@ -37,10 +40,6 @@ class ProductResolverTest extends Unit
                 ]
             ])]
         );
-    }
-
-    protected function _after()
-    {
     }
 
     /**
@@ -75,9 +74,11 @@ class ProductResolverTest extends Unit
     /**
      * Run the test on an element for a type class with the property name.
      *
+     * @param $element
      * @param string $gqlTypeClass The Gql type class
-     * @param string $propertyName The propery being tested
+     * @param string $propertyName The property being tested
      * @param mixed $result True for exact match, false for non-existing or a callback for fetching the data
+     * @throws \Exception
      */
     public function _runTest($element, string $gqlTypeClass, string $propertyName, $result)
     {
@@ -87,10 +88,10 @@ class ProductResolverTest extends Unit
         };
 
         if (is_callable($result)) {
-            $this->assertEquals($result($element), $resolve());
+            self::assertEquals($result($element), $resolve());
         } else if ($result === true) {
-            $this->assertEquals($element->$propertyName, $resolve());
-            $this->assertNotNull($element->$propertyName);
+            self::assertEquals($element->$propertyName, $resolve());
+            self::assertNotNull($element->$propertyName);
         } else {
             $this->tester->expectThrowable(GqlException::class, $resolve);
         }
