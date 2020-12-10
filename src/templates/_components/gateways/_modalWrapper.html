@@ -21,7 +21,7 @@
 
         <div class="footer">
             <div class="buttons right">
-                <input type="number" id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+                <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
                 {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
                 {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
