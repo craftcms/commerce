@@ -7,8 +7,8 @@
                 type="button"
                 class="btn submit"
                 :value="$options.filters.t('Update order', 'commerce')"
-                :class="{ disabled: !hasCustomer || draft.order.lineItems.length == 0 || recalculateLoading }"
-                :disabled="!hasCustomer || draft.order.lineItems.length == 0 || recalculateLoading"
+                :class="{ disabled: !hasCustomer || recalculateLoading }"
+                :disabled="!hasCustomer || recalculateLoading"
                 @click="save()"
             />
 

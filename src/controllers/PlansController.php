@@ -187,7 +187,7 @@ class PlansController extends BaseStoreSettingsController
      *
      * @param int|null $planId
      * @return Response
-     * @deprecated 3.x
+     * @deprecated 3.2.11
      */
     public function actionRedirect($planId = null): Response
     {

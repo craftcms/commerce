@@ -1,29 +1,18 @@
 codecov:
-  notify:
-    require_ci_to_pass: yes
-
+  require_ci_to_pass: yes
 coverage:
-  range: 20..100
-    round: down
-    precision: 2
-    status:
-      project:
-        default:
-          threshold: .1
-          base: pr
-
-  notify:
-    slack:
+  range: "20...100"
+  round: down
+  precision: 2
+  status:
+    project:
       default:
-        url: secret:hkc9PnyAujlK34l8CtNCju8rQe5N357lb5HJR0aKm04dJgyWLPLXwouf3f2+6MON0bKRLeKEmU4bG1CJFCK/+AIsbRtS5GawVKz5H5flO93BBndGTpae4bV8raxSy1LY5kd59wEvWRCk0NzJ+XmZJ4W9rtPdTQFqVkUuuZy1MSs=
-        threshold: 1%
-        only_pulls: false
-        branches: 3.0
-        flags: null
-        attachments: "sunburst, diff"
-        paths: null
-        message: "Coverage {{changed}} for {{owner}}/{{repo}}"
-
+        threshold: .1
+        base: pr
+  notify:
+      slack:
+        default:
+          url: "secret:hbWp/me8PnbBJSIUO451vp1r/ckaonSCbx/yN43zapDfJ1b9X/K6rgqTN4PfPmujZZJ7Jz8+k9ql4p9aWKpmZbP/Yqd0wOcZchYKKKBiXHopaa53xw/DJ4o16NYpwSHz6gYKku89r0/teupDUosc4KBlEPwl09Rx/ak5/R/dXXU="
 parsers:
   gcov:
     branch_detection:
@@ -31,9 +20,7 @@ parsers:
       loop: yes
       method: no
       macro: no
-
 comment: off
-
 ignore:
   - "src/etc"
   - "src/migrations"

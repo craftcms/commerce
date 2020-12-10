@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\State;
@@ -20,6 +20,9 @@ use yii\base\InvalidConfigException;
  */
 class StateTest extends Unit
 {
+    /**
+     * @throws InvalidConfigException
+     */
     public function testGetInvalidCountry()
     {
         $state = new State();
@@ -30,10 +33,13 @@ class StateTest extends Unit
 
         $state->countryId = $country->id;
         $stateCountry = $state->getCountry();
-        $this->assertIsObject($stateCountry);
-        $this->assertEquals($country, $stateCountry);
+        self::assertIsObject($stateCountry);
+        self::assertEquals($country, $stateCountry);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function testGetCountry()
     {
         $state = new State();
@@ -41,10 +47,13 @@ class StateTest extends Unit
         $state->countryId = $country->id;
 
         $stateCountry = $state->getCountry();
-        $this->assertIsObject($stateCountry);
-        $this->assertEquals($country, $stateCountry);
+        self::assertIsObject($stateCountry);
+        self::assertEquals($country, $stateCountry);
     }
 
+    /**
+     *
+     */
     public function testGetLabel()
     {
         $name = 'My State';
@@ -54,6 +63,6 @@ class StateTest extends Unit
         $state->countryId = $country->id;
         $label = $name . ' (' . $country->name . ')';
 
-        $this->assertSame($label, $state->getLabel());
+        self::assertSame($label, $state->getLabel());
     }
 }

@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.2.12",
+  "version": "3.2.13",
   "keywords": [
     "cms",
     "craftcms",
@@ -39,6 +39,7 @@
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
+    "vlucas/phpdotenv": "^3.4",
     "codeception/codeception": "^4.0.0",
     "codeception/module-asserts": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
@@ -48,7 +49,6 @@
     "fzaninotto/faker": "^1.8",
     "roave/security-advisories": "dev-master",
     "seregazhuk/php-watcher": "^0.5.2",
-    "vlucas/phpdotenv": "^3.4"
   },
   "scripts": {
     "testunit": [

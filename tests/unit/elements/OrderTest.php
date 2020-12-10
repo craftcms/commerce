@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit\services;
+namespace craftcommercetests\unit\elements;
 
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Discount;
@@ -52,15 +52,15 @@ class OrderTest extends Unit
         $lineItem1 = new LineItem();
         $lineItem1->qty = 2;
         $lineItem1->salePrice = 10;
-        $this->assertEquals($lineItem1->getSubtotal(),  20);
+        self::assertEquals(20, $lineItem1->getSubtotal());
 
         $lineItem2 = new LineItem();
         $lineItem2->qty = 3;
         $lineItem2->salePrice = 20;
-        $this->assertEquals($lineItem2->getSubtotal(),  60);
+        self::assertEquals(60, $lineItem2->getSubtotal());
 
         $this->order->setLineItems([$lineItem1, $lineItem2]);
-        $this->assertEquals($this->order->getTotalPrice(),  80);
+        self::assertEquals(80, $this->order->getTotalPrice());
 
         $adjustment1 = new OrderAdjustment();
         $adjustment1->amount = -10;
@@ -71,7 +71,7 @@ class OrderTest extends Unit
         $adjustment1->setOrder($this->order);
         $this->order->setAdjustments([$adjustment1]);
 
-        $this->assertEquals($this->order->getTotalPrice(),  70);
+        self::assertEquals(70, $this->order->getTotalPrice());
 
         $adjustment2 = new OrderAdjustment();
         $adjustment2->amount = -5;
@@ -82,7 +82,7 @@ class OrderTest extends Unit
         $adjustment2->setOrder($this->order);
 
         $this->order->setAdjustments([$adjustment1, $adjustment2]);
-        $this->assertEquals($this->order->getTotalPrice(),  65);
+        self::assertEquals(65, $this->order->getTotalPrice());
 
         $adjustment3 = new OrderAdjustment();
         $adjustment3->amount = 5;
@@ -93,7 +93,7 @@ class OrderTest extends Unit
         $adjustment3->setOrder($this->order);
 
         $this->order->setAdjustments([$adjustment1, $adjustment2, $adjustment3]);
-        $this->assertEquals($this->order->getTotalPrice(),  65);
+        self::assertEquals(65, $this->order->getTotalPrice());
     }
 
 
@@ -111,6 +111,9 @@ class OrderTest extends Unit
         $this->order = new Order();
     }
 
+    /**
+     *
+     */
     protected function _after()
     {
         parent::_after();

@@ -330,7 +330,8 @@ class Emails extends Component
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
-
+            $emailRecord->language = $data['language'];
+         
             $emailRecord->save(false);
 
             $transaction->commit();
@@ -457,10 +458,6 @@ class Emails extends Component
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
-            // use the order's language for template rendering the email fields and body.
-            $orderLanguage = $order->orderLanguage ?: $originalLanguage;
-            Craft::$app->language = $orderLanguage;
-
             if ($order->getCustomer()) {
                 $newEmail->setTo($order->getEmail());
             }
@@ -880,6 +877,7 @@ class Emails extends Component
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
                 'emails.pdfId',
+                'emails.language',
                 'emails.uid',
             ])
             ->orderBy('name')
