@@ -1,6 +1,6 @@
 # Set in accordance to your environment
 
-DB_DSN="pgsql:host=localhost;port=5432;dbname=commercetest"
+DB_DSN="pgsql:host=127.0.0.1;port=5432;dbname=commercetest"
 DB_USER="postgres"
 DB_PASSWORD=""
 DB_SCHEMA="public"

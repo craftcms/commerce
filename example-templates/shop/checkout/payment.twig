@@ -33,8 +33,8 @@
 
                   <form method="post" action="" class="js-paymentSource-form" id="paymentForm">
                       {{ actionInput('commerce/payments/pay') }}
-                      {{ redirectInput('/shop/customer/order?number='~cart.number~'&success=true') }}
-                      {{ hiddenInput('cancelUrl', '/shop/checkout/payment'|hash) }}
+                      {{ redirectInput(siteUrl('shop/customer/order', { number: cart.number, success: 'true' })) }}
+                      {{ hiddenInput('cancelUrl', siteUrl('shop/checkout/payment')|hash) }}
                       {{ hiddenInput('orderEmail', cart.email) }}
 
                       {{ csrfInput() }}

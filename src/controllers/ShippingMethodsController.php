@@ -87,10 +87,10 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         // Save it
         if (Plugin::getInstance()->getShippingMethods()->saveShippingMethod($shippingMethod)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping method saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Shipping method saved.'));
             $this->redirectToPostedUrl($shippingMethod);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping method.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping method.'));
         }
 
         // Send the model back to the template
@@ -118,7 +118,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @throws MissingComponentException
      * @throws Exception
      * @throws BadRequestHttpException
-     * @since 3.x
+     * @since 3.2.9
      */
     public function actionUpdateStatus()
     {
@@ -127,7 +127,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -142,7 +142,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping methods updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
     }
 
 }

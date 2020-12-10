@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
+use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\events\PdfSaveEvent;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
@@ -145,6 +146,29 @@ class Pdfs extends Component
      * ```
      */
     const EVENT_AFTER_RENDER_PDF = 'afterRenderPdf';
+
+    /**
+     * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
+     * @since 3.2.10
+     *
+     * ```php
+     * use craft\commerce\events\PdfRenderOptionsEvent;
+     * use craft\commerce\services\Pdfs;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Pdfs::class,
+     *    Pdfs::EVENT_MODIFY_RENDER_OPTIONS,
+     *    function (PdfRenderOptionsEvent $event) {
+     *        $storagePath = Craft::$app->getPath()->getStoragePath();
+     *
+     *        // E.g. of setting additional render options.
+     *        $event->options->setChroot($storagePath);
+     *    }
+     * );
+     *```
+     */
+    const EVENT_MODIFY_RENDER_OPTIONS = 'modifyRenderOptions';
 
     const CONFIG_PDFS_KEY = 'commerce.pdfs';
 
@@ -288,6 +312,7 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
+            $pdfRecord->language = $data['language'];
             $pdfRecord->uid = $pdfUid;
 
             $pdfRecord->save(false);
@@ -464,6 +489,13 @@ class Pdfs extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
+        // Set additional rener options
+        if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
+            $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
+                'options' => $options
+            ]));
+        }
+
         // Set the options
         $dompdf->setOptions($options);
 
@@ -523,6 +555,7 @@ class Pdfs extends Component
                 'enabled',
                 'sortOrder',
                 'isDefault',
+                'language',
                 'uid',
             ])
             ->orderBy('name')

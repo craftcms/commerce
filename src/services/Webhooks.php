@@ -25,6 +25,8 @@ class Webhooks extends Component
 {
     /**
      * @event WebhookEvent The event that is triggered before a Webhook is processed.
+     * @since 3.2.9
+     *
      * ```php
      * use craft\commerce\events\WebhookEvent;
      * use craft\commerce\services\Webhooks;
@@ -42,12 +44,13 @@ class Webhooks extends Component
      *     }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_BEFORE_PROCESS_WEBHOOK = 'beforeProcessWebhook';
 
     /**
      * @event WebhookEvent The event that is triggered after a Webhook is processed.
+     * @since 3.2.9
+     *
      * ```php
      * use craft\commerce\events\WebhookEvent;
      * use craft\commerce\services\Webhooks;
@@ -65,7 +68,6 @@ class Webhooks extends Component
      *     }
      * );
      * ```
-     * @since 3.x
      */
     const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 

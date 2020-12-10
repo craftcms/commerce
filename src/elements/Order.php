@@ -2952,10 +2952,26 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource(PaymentSource $paymentSource)
+    public function setPaymentSource($paymentSource)
     {
-        $this->paymentSourceId = $paymentSource->id;
-        $this->gatewayId = null;
+        if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
+            throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
+        }
+
+        // Setting the payment source to null clears it
+        if ($paymentSource === null) {
+            $this->paymentSourceId = null;
+        }
+
+        if ($paymentSource instanceof PaymentSource) {
+            $user = $this->getUser();
+            if ($user && $paymentSource->getUser()->id != $user->id) {
+                throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
+            }
+
+            $this->paymentSourceId = $paymentSource->id;
+            $this->gatewayId = null;
+        }
     }
 
     /**
@@ -3057,7 +3073,7 @@ class Order extends Element
      * Get the site for the order.
      *
      * @return Site|null
-     * @since 3.x
+     * @since 3.2.9
      */
     public function getOrderSite()
     {

@@ -110,7 +110,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax zone saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax zone saved.'));
             $this->redirectToPostedUrl($taxZone);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -119,7 +119,7 @@ class TaxZonesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax zone.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax zone.'));
         }
 
         // Send the model back to the template

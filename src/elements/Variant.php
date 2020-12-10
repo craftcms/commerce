@@ -395,8 +395,14 @@ class Variant extends Purchasable
      */
     public function getFieldLayout()
     {
+        $fieldLayout = parent::getFieldLayout();
+        
         // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
-        return parent::getFieldLayout() ?? $this->getProduct()->getType()->getVariantFieldLayout();
+        if (!$fieldLayout && $this->productId) {
+            $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+        }
+
+        return $fieldLayout;
     }
 
     /**
@@ -443,6 +449,8 @@ class Variant extends Purchasable
         if ($product->id) {
             $this->productId = $product->id;
         }
+
+        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         $this->_product = $product;
     }
@@ -1121,8 +1129,6 @@ class Variant extends Purchasable
             $this->stock = 0;
         }
 
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
-
         return parent::beforeValidate();
     }
 
@@ -1201,6 +1207,21 @@ class Variant extends Purchasable
         }
 
         return true;
+    }
+
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function afterRestore()
+    {
+        // Once restored, we no longer track if it was deleted with variant or not
+        $this->deletedWithProduct = null;
+        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
+            ['deletedWithProduct' => null],
+            ['id' => $this->getId()]
+        )->execute();
+
+        parent::afterRestore();
     }
 
     /**

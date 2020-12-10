@@ -768,18 +768,6 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
-     */
-    public function beforeRestore(): bool
-    {
-        $variants = Variant::find()->trashed(null)->productId($this->id)->status(null)->all();
-        Craft::$app->getElements()->restoreElements($variants);
-        $this->setVariants($variants);
-
-        return parent::beforeRestore();
-    }
-
-    /**
      * Updates the entry's title, if its entry type has a dynamic title format.
      *
      * @since 3.0.3
@@ -861,13 +849,14 @@ class Product extends Element
     public function afterRestore()
     {
         // Also restore any variants for this element
-        $variants = Variant::find()
+        $variantsQuery = Variant::find()
             ->anyStatus()
             ->siteId($this->siteId)
             ->productId($this->id)
             ->trashed()
-            ->andWhere(['commerce_variants.deletedWithProduct' => true])
-            ->all();
+            ->andWhere(['commerce_variants.deletedWithProduct' => true]);
+
+        $variants = $variantsQuery->all();
 
         Craft::$app->getElements()->restoreElements($variants);
         $this->setVariants($variants);
@@ -1274,7 +1263,7 @@ class Product extends Element
                         $hasUnlimited = true;
                     }
                 }
-                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
+                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '0');
             }
             case 'defaultWeight':
             {

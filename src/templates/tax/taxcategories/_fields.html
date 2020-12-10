@@ -49,9 +49,9 @@
         value: 1,
         checked: taxCategory is defined ? taxCategory.default,
         errors: taxCategory is defined ? taxCategory.getErrors('default'),
-        disabled: (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (taxCategory.id and taxCategory.default)
+        disabled: (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (taxCategory is defined and taxCategory.id and taxCategory.default)
     }) }}
-    {% if (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (taxCategory.id and taxCategory.default) %}
+    {% if (isDefaultAndOnlyCategory is defined and isDefaultAndOnlyCategory) or (taxCategory is defined and taxCategory.id and taxCategory.default) %}
       {{ hiddenInput('default', 1) }}
     {% endif %}
 {% endset %}

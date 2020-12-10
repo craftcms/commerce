@@ -156,12 +156,14 @@
 
     <div id="order-secondary-actions">
         <div id="order-secondary-actions-app"></div>
+        {% hook "cp.commerce.order.edit.order-secondary-actions" %}
     </div>
 
     <div class="flex-grow"></div>
 
     <div id="order-actions">
         <div id="order-actions-app"></div>
+        {% hook "cp.commerce.order.edit.order-actions" %}
     </div>
 {% endblock %}
 
@@ -188,6 +190,8 @@
 
     {% include 'commerce/orders/_transactions' %}
     {% include 'commerce/orders/_history' %}
+
+    {% hook "cp.commerce.order.content" %}
 
 {% endblock %}
 

@@ -42,8 +42,6 @@ class PaymentSourcesController extends BaseFrontEndController
         $order = null;
 
         $plugin = Plugin::getInstance();
-        $request = Craft::$app->getRequest();
-        $session = Craft::$app->getSession();
 
         // Are we paying anonymously?
         $userId = Craft::$app->getUser()->getId();
@@ -53,7 +51,7 @@ class PaymentSourcesController extends BaseFrontEndController
         }
 
         // Allow setting the payment method at time of submitting payment.
-        $gatewayId = $request->getRequiredBodyParam('gatewayId');
+        $gatewayId = $this->request->getRequiredBodyParam('gatewayId');
 
         /** @var Gateway $gateway */
         $gateway = $plugin->getGateways()->getGatewayById($gatewayId);
@@ -61,19 +59,19 @@ class PaymentSourcesController extends BaseFrontEndController
         if (!$gateway || !$gateway->supportsPaymentSources()) {
             $error = Craft::t('commerce', 'There is no gateway selected that supports payment sources.');
 
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
 
         // Get the payment method' gateway adapter's expected form model
         $paymentForm = $gateway->getPaymentFormModel();
-        $paymentForm->setAttributes($request->getBodyParams(), false);
-        $description = (string)$request->getBodyParam('description');
+        $paymentForm->setAttributes($this->request->getBodyParams(), false);
+        $description = (string)$this->request->getBodyParam('description');
 
         try {
             $paymentSource = $plugin->getPaymentSources()->createPaymentSource($userId, $gateway, $paymentForm, $description);
@@ -81,7 +79,7 @@ class PaymentSourcesController extends BaseFrontEndController
             Craft::$app->getErrorHandler()->logException($exception);
             $error = Craft::t('commerce', 'Could not create the payment source.');
 
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
                     // TODO remove `paymentForm` key at next breaking changing
@@ -90,13 +88,13 @@ class PaymentSourcesController extends BaseFrontEndController
                 ]);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(compact('paymentForm'));
 
             return null;
         }
 
-        if ($request->getAcceptsJson()) {
+        if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
                 'paymentSource' => $paymentSource
@@ -118,8 +116,6 @@ class PaymentSourcesController extends BaseFrontEndController
         $this->requirePostRequest();
         $this->requireLogin();
 
-        $request = Craft::$app->getRequest();
-
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         $paymentSources = Commerce::getInstance()->getPaymentSources();
@@ -138,17 +134,17 @@ class PaymentSourcesController extends BaseFrontEndController
         $result = $paymentSources->deletePaymentSourceById($id);
 
         if ($result) {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asJson(['success' => true]);
             }
 
             $this->setSuccessFlash(Craft::t('commerce', 'Payment source deleted.'));
         } else {
-            if ($request->getAcceptsJson()) {
+            if ($this->request->getAcceptsJson()) {
                 return $this->asErrorJson(Craft::t('commerce', 'Couldn’t delete the payment source.'));
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t delete the payment source.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete the payment source.'));
         }
 
         return $this->redirectToPostedUrl();
