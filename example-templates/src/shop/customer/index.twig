@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% set extraHead %}
 {# We don't want the order info indexed by search engines. #}
@@ -44,7 +44,7 @@
                 {% for order in orders %}
                     {% set rowClass = cycle(['bg-gray-100', ''], loop.index0) %}
                     <tr class="{{ rowClass }}">
-                        <td class="p-2"><a href="{{ url('shop/customer/order', { number: order.number }) }}" class="[[classes.a]]">Order {{ order.reference }}</a></td>
+                        <td class="p-2"><a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="[[classes.a]]">Order {{ order.reference }}</a></td>
                         <td class="p-2">{{ order.dateOrdered|date }}</td>
                         <td class="p-2">{{ order.totalQty }} items</td>
                         <td class="p-2">{{ order.totalPriceAsCurrency }}</td>
@@ -69,14 +69,14 @@
         {% else %}
             <div class="empty-index">
                 <i class="fas fa-box-open"></i>
-                <p>You don’t have any orders yet. <br /><a href="{{ url('shop/products') }}" class="[[classes.a]]">Continue shopping</a></p>
+                <p>You don’t have any orders yet. <br /><a href="{{ url('/[[folderName]]/products') }}" class="[[classes.a]]">Continue shopping</a></p>
             </div>
         {% endif %}
 
       <hr class="my-3">
 
       <div>
-        <a class="[[classes.btn.base]] [[classes.btn.mainColor]]" href="{{ url('shop/customer/cards') }}">Manage Stored Cards</a>
+        <a class="[[classes.btn.base]] [[classes.btn.mainColor]]" href="{{ url('/[[folderName]]/customer/cards') }}">Manage Stored Cards</a>
       </div>
     {% endif %}
 {% endblock %}

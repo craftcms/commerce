@@ -88,12 +88,32 @@ class ExampleTemplatesController extends Controller
      */
     public function actionGenerate(): int
     {
+
+        // Example templates to use
+        $exampleTemplates = Craft::$app->getPath()->getVendorPath() . DIRECTORY_SEPARATOR . 'craftcms' . DIRECTORY_SEPARATOR . 'commerce' . DIRECTORY_SEPARATOR . 'example-templates' . DIRECTORY_SEPARATOR . 'src';
+
+        $sourceFolder = 'shop'; // As defaulted by the `templatesType` of 'pro'
+        if ($this->templatesType == 'lite') {
+            $sourceFolder = 'buy'; // As defaulted by the `templatesType` of 'lite'
+        }
+
+        $source = $exampleTemplates . DIRECTORY_SEPARATOR . $sourceFolder;
+
+
+        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => $sourceFolder]);
+        if (!$folderName) {
+            $errors[] = 'No destination folder name provided.';
+            $this->stderr('Invalid arguments:' . PHP_EOL . '    - ' . implode(PHP_EOL . '    - ', $errors) . PHP_EOL, Console::FG_RED);
+            return ExitCode::USAGE;
+        }
+
         $colors = ['gray', 'red', 'blue', 'yellow', 'green', 'indigo', 'purple', 'pink'];
 
         $mainColor = $this->baseTailwindColor ?: $this->select('Base Tailwind CSS color:', array_combine($colors, $colors));
         $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
 
         $this->_replacementData = [
+            '[[folderName]]' => $folderName,
             '[[color]]' => $mainColor,
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
             '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
@@ -105,16 +125,6 @@ class ExampleTemplatesController extends Controller
             '[[classes.btn.grayColor]]' => "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
             '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white"
         ];
-
-        // Example templates to use
-        $exampleTemplates = Craft::$app->getPath()->getVendorPath() . DIRECTORY_SEPARATOR . 'craftcms' . DIRECTORY_SEPARATOR . 'commerce' . DIRECTORY_SEPARATOR . 'example-templates' . DIRECTORY_SEPARATOR . 'src';
-
-        $sourceFolder = 'shop'; // As defaulted by the `templatesType` of 'pro'
-        if ($this->templatesType == 'lite') {
-            $sourceFolder = 'buy'; // As defaulted by the `templatesType` of 'lite'
-        }
-
-        $source = $exampleTemplates . DIRECTORY_SEPARATOR . $sourceFolder;
 
         $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
 
@@ -148,13 +158,6 @@ class ExampleTemplatesController extends Controller
         }
 
         $errors = [];
-
-        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => $sourceFolder]);
-        if (!$folderName) {
-            $errors[] = 'No destination folder name provided.';
-            $this->stderr('Invalid arguments:' . PHP_EOL . '    - ' . implode(PHP_EOL . '    - ', $errors) . PHP_EOL, Console::FG_RED);
-            return ExitCode::USAGE;
-        }
 
         $destination = $templatesPath . DIRECTORY_SEPARATOR . $folderName;
         $alreadyExists = is_dir($destination);

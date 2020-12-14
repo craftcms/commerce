@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
 <!-- Template: {{ _self }}.twig -->
@@ -9,16 +9,16 @@
     {% if customer.addresses|length %}
         <div class="flex justify-between items-center">
             <h1>Manage your addresses</h1>
-            <a class="button button-primary right" href="{{ url('shop/customer/addresses/edit') }}">Add New Address</a>
+            <a class="button button-primary right" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add New Address</a>
         </div>
 
         <div class="grid-addresses mt-6">
             {% for address in customer.addresses %}
                 <div class="address-card">
-                    {% include 'shop/_includes/addresses/address' with {'address': address} %}
+                    {% include '[[folderName]]/_includes/addresses/address' with {'address': address} %}
 
                     <div class="buttons mt-4">
-                        <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
+                        <a class="button button-primary" href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
                         <form method="post" action="">
                             {{ actionInput('commerce/customer-addresses/delete') }}
                             {{ hiddenInput('id', address.id) }}
@@ -46,7 +46,7 @@
             <div>
                 You don’t have any addresses yet.
                 <div class="mt-6">
-                    <a class="button button-primary" href="{{ url('shop/customer/addresses/edit') }}">Add a new address</a>
+                    <a class="button button-primary" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add a new address</a>
                 </div>
             </div>
         </div>

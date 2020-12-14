@@ -1,8 +1,8 @@
 {% if currentUser %}
-    {% redirect 'shop/checkout/addresses' %}
+    {% redirect '[[folderName]]/checkout/addresses' %}
 {% endif %}
 
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -12,7 +12,7 @@
         <div class="w-full max-w-xl px-8">
             <form method="post" action="">
                 {{ actionInput('commerce/cart/update-cart') }}
-                {{ redirectInput('shop/checkout/register-signin') }}
+                {{ redirectInput('[[folderName]]/checkout/register-signin') }}
                 {{ csrfInput() }}
 
                 <div class="field">

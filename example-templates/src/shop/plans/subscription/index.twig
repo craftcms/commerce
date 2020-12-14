@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -6,7 +6,7 @@
     {% set subscription = craft.subscriptions.id(subscriptionId).one() %}
 
     {% if not subscription or currentUser is null or subscription.userId != currentUser.id %}
-        {% redirect 'shop/plans' %}
+        {% redirect '[[folderName]]/plans' %}
     {% endif %}
 
     <h1 class="text-3xl block sm:inline">Manage "{{ subscription.plan.name }}"</h1>
@@ -39,7 +39,7 @@
               <form method="post" action="">
                 {{ actionInput('commerce/subscriptions/reactivate') }}
                 {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
-                {{ redirectInput('shop/plans') }}
+                {{ redirectInput('[[folderName]]/plans') }}
                 {{ csrfInput() }}
 
                 <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">{{ "Reactivate" }}</button>
@@ -56,7 +56,7 @@
             <form method="post" action="">
               {{ actionInput('commerce/subscriptions/cancel') }}
               {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
-              {{ redirectInput('shop/plans') }}
+              {{ redirectInput('[[folderName]]/plans') }}
               {{ csrfInput() }}
 
               {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
@@ -87,7 +87,7 @@
                   {{ actionInput('commerce/subscriptions/switch') }}
                   {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
                   {{ hiddenInput('planUid', plan.uid|hash) }}
-                  {{ redirectInput('shop/plans') }}
+                  {{ redirectInput('[[folderName]]/plans') }}
                   {{ csrfInput() }}
 
                   {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}

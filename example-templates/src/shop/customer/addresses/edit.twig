@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
 <!-- Template: {{ _self }}.twig -->
@@ -23,14 +23,14 @@
         {% if redirect %}
             {{ redirectInput(redirect) }}
         {% else %}
-            {{ redirectInput('shop/customer/addresses') }}
+            {{ redirectInput('[[folderName]]/customer/addresses') }}
         {% endif %}
 
         {% if addressId %}
             {{ hiddenInput('address[id]', addressId) }}
         {% endif %}
 
-        {% include 'shop/_includes/addresses/form' %}
+        {% include '[[folderName]]/_includes/addresses/form' %}
         {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
         {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
 
@@ -49,7 +49,7 @@
             {% if redirect %}
               <a href="/{{ redirect }}" class="[[classes.a]]">Cancel</a>
             {% else %}
-              <a href="{{ url('shop/customer/addresses') }}" class="[[classes.a]]">Cancel</a>
+              <a href="{{ url('/[[folderName]]/customer/addresses') }}" class="[[classes.a]]">Cancel</a>
             {% endif %}
           </div>
           <div>

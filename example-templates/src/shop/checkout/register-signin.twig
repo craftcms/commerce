@@ -1,13 +1,13 @@
 {% if currentUser %}
-    {% redirect 'shop/checkout/addresses' %}
+    {% redirect '[[folderName]]/checkout/addresses' %}
 {% endif %}
 
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
 <!-- Template: {{ _self }}.twig -->
     {% if not cart.email %}
-        {% redirect 'shop/checkout' %}
+        {% redirect '[[folderName]]/checkout' %}
     {% endif %}
 
     {# Does a user exist with this email address? #}
@@ -15,7 +15,7 @@
     {% set userExistsButCantLogin = craft.users.email(cart.email).status(['locked','suspended','pending']).one() %}
 
     {% if userExistsButCantLogin %}
-            {% redirect 'shop/checkout/addresses' %}
+            {% redirect '[[folderName]]/checkout/addresses' %}
     {% endif %}
 
     {% set userExists = craft.users.email(cart.email).one() %}
@@ -32,7 +32,7 @@
                 <form method="post" action="" accept-charset="UTF-8">
                   {{ csrfInput() }}
                   {{ actionInput('users/login') }}
-                  {{ redirectInput('shop/checkout/addresses') }}
+                  {{ redirectInput('[[folderName]]/checkout/addresses') }}
 
                   <div class="field mt-3">
                           <label for="loginName" class="block text-sm font-medium text-gray-700">
@@ -57,7 +57,7 @@
 
                   <div class="mt-3 flex justify-between items-center">
                     <div>
-                        <a href="{{ url('shop/customer/forgot-password') }}" class="[[classes.a]]">Forgot your password?</a>
+                        <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">Forgot your password?</a>
                     </div>
                     <div>
                         <input type="submit" value="Login" class="[[classes.btn.base]] [[classes.btn.mainColor]]"/>
@@ -70,7 +70,7 @@
                 <form method="post" action="" accept-charset="UTF-8">
                     {{ csrfInput() }}
                     {{ actionInput('users/save-user') }}
-                    {{ redirectInput('shop/checkout/addresses') }}
+                    {{ redirectInput('[[folderName]]/checkout/addresses') }}
 
                     {% macro errorList(errors) %}
                       {% if errors %}
@@ -124,7 +124,7 @@
         <div class="w-1/2 px-8">
             <h2 class="mt-6 text-lg font-bold">Checkout</h2>
             <div class="mt-3">
-              <a href="{{ url('shop/checkout/addresses')}}" class="[[classes.a]]">Or, just continue as guest &rarr;</a>
+              <a href="{{ url('/[[folderName]]/checkout/addresses')}}" class="[[classes.a]]">Or, just continue as guest &rarr;</a>
             </div>
         </div>
     </div>

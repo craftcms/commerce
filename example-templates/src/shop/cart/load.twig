@@ -1,10 +1,10 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
   <form method="post" action="" class="">
     {{ actionInput('commerce/cart/load-cart') }}
-    {{ redirectInput('/shop/cart') }}
+    {{ redirectInput('/[[folderName]]/cart') }}
     {{ csrfInput() }}
 
     <h1 class="text-xl font-bold">Load Cart</h1>

@@ -2,26 +2,26 @@
 {% set pages = [
     {
         label: "Products",
-        url: 'shop/products'
+        url: '[[folderName]]/products'
     },
     {
         label: "Plans",
-        url: 'shop/plans'
+        url: '[[folderName]]/plans'
     },
     {
         label: "Donations",
-        url: 'shop/donations'
+        url: '[[folderName]]/donations'
     },
     {
         label: "Cart",
-        url: 'shop/cart'
+        url: '[[folderName]]/cart'
     }
 ] %}
 
 {% if currentUser %}
     {% set pages = pages|merge([{
         label: "My Account",
-        url: 'shop/customer'
+        url: '[[folderName]]/customer'
     }]) %}
 {%  endif %}
 

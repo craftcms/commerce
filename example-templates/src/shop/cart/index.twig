@@ -1,4 +1,4 @@
-{% extends "shop/_layouts/main" %}
+{% extends "[[folderName]]/_layouts/main" %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -179,7 +179,7 @@
                 <tr>
                     <td colspan="2" class="border-t-2 border-gray-300">
                         <div class="pt-3">
-                            {% include 'shop/cart/_includes/shipping-estimator' %}
+                            {% include '[[folderName]]/cart/_includes/shipping-estimator' %}
                         </div>
                     </td>
                     <td class="text-right align-text-top border-t-2 border-gray-300 pt-3 pr-3">
@@ -233,12 +233,12 @@
                         <div class="pt-3">
                             <div class="flex w-full justify-end">
                                 <div class="pr-2">
-                                    {{ redirectInput('shop/cart') }}
+                                    {{ redirectInput('[[folderName]]/cart') }}
                                     <input class="[[classes.btn.small]] [[classes.btn.grayColor]]" type="submit" value="Update Cart"/>
                                 </div>
                                 <div>
                                     {% if not cart.hasErrors() %}
-                                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]" href="{{ url('shop/checkout') }}">Checkout</a>
+                                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]" href="{{ url('/[[folderName]]/checkout') }}">Checkout</a>
                                     {% endif %}
                                 </div>
                             </div>
@@ -251,6 +251,6 @@
     {% endif %}
 
     {% if not cart.lineItems|length %}
-        <p>You have no items in your cart, add some on the <a href="{{ url('shop/products') }}">products page</a>.</p>
+        <p>You have no items in your cart, add some on the <a href="{{ url('/[[folderName]]/products') }}">products page</a>.</p>
     {% endif %}
 {% endblock %}

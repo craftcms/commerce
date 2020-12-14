@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -9,7 +9,7 @@
         <form method="post" action="" class="pt-2 pb-8">
             {{ actionInput('commerce/cart/update-cart') }}
             {{ hiddenInput('successMessage', 'Donation added.'|hash) }}
-            {{ redirectInput('shop/cart') }}
+            {{ redirectInput('[[folderName]]/cart') }}
             {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
             {{ csrfInput() }}
 

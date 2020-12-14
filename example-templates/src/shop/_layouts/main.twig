@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Shop</title>
+    <title>Craft Commerce</title>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
@@ -23,14 +23,14 @@
 <header>
     <div class="bg-gray-300">
         <div class="container mx-auto p-6">
-            <h1 class="text-3xl"><a href="{{ url('shop') }}" class="[[classes.a]]">Shop</a></h1>
+            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}" class="[[classes.a]]">{{ '[[folderName]]'|title }}</a></h1>
         </div>
     </div>
 
-    {% include 'shop/_includes/floating-cart' %}
+    {% include '[[folderName]]/_includes/floating-cart' %}
 
-    {% include 'shop/_includes/nav-main' %}
-    {% include 'shop/_includes/nav-checkout' %}
+    {% include '[[folderName]]/_includes/nav-main' %}
+    {% include '[[folderName]]/_includes/nav-checkout' %}
 </header>
 
 
@@ -72,7 +72,7 @@
 {% endblock %}
 
 <footer>
-    {% include 'shop/_includes/footer' %}
+    {% include '[[folderName]]/_includes/footer' %}
 </footer>
 
 {% if devMode %}

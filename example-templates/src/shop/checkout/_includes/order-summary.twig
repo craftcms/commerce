@@ -19,13 +19,13 @@
       <h4 class="font-semibold mt-3">Shipping to</h4>
       {% if cart.shippingAddress %}
         <div class="address-select js-address-select border-0">
-          {% include 'shop/_includes/addresses/address' with {'address': cart.shippingAddress} %}
+          {% include '[[folderName]]/_includes/addresses/address' with {'address': cart.shippingAddress} %}
         </div>
       {% else %}
         <p>No shipping address selected.</p>
       {% endif %}
 
-      {% if currentUser %}<a class="edit" href="{{ url('shop/checkout/addresses') }}">Edit</a>{% endif %}
+      {% if currentUser %}<a class="edit" href="{{ url('/[[folderName]]/checkout/addresses') }}">Edit</a>{% endif %}
     </div>
   {% endif %}
 
@@ -58,7 +58,7 @@
     </div>
   {% else %}
     <div class="mb-3">
-      <p>Nothing in your cart yet, <a class="underline text-[[color]]-500" href="{{ url('shop/products') }}">add something</a>.</p>
+      <p>Nothing in your cart yet, <a class="underline text-[[color]]-500" href="{{ url('/[[folderName]]/products') }}">add something</a>.</p>
     </div>
   {% endfor %}
 
@@ -66,12 +66,12 @@
 
     {#
       If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
-      {% redirect "shop/checkout/shipping" %}
+      {% redirect "[[folderName]]/checkout/shipping" %}
       You might also want to add a php plugin hook to require
     #}
 
     <div class="border-b border-gray-300 pb-3">
-      <strong>Shipping</strong> None selected. <a href="{{ url('shop/checkout/shipping') }}" class="[[classes.a]]">Choose a shipping method.</a>
+      <strong>Shipping</strong> None selected. <a href="{{ url('/[[folderName]]/checkout/shipping') }}" class="[[classes.a]]">Choose a shipping method.</a>
     </div>
   {% endif %}
 

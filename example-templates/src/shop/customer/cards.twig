@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 
 {% if not currentUser %}
     {% exit 404 %}
@@ -24,7 +24,7 @@
                     <div>
                         <form method="post" action="">
                             {{ csrfInput() }}
-                            {{ redirectInput('/shop/customer/cards') }}
+                            {{ redirectInput('/[[folderName]]/customer/cards') }}
                             {{ actionInput('commerce/payment-sources/delete') }}
                             {{ hiddenInput('id', paymentSource.id) }}
                             <input class="[[classes.btn.base]] [[classes.btn.grayColor]]" type="submit" value="Delete"/>
@@ -63,8 +63,8 @@
                       <form method="post" action="" class="form-horizontal max-w-md" id="gateway-{{ gateway.id }}">
                           {{ actionInput('commerce/payment-sources/add') }}
                           {{ hiddenInput('gatewayId', gateway.id) }}
-                          {{ hiddenInput('cancelUrl', '/shop/customer/cards'|hash) }}
-                          {{ redirectInput('/shop/customer/cards') }}
+                          {{ hiddenInput('cancelUrl', '/[[folderName]]/customer/cards'|hash) }}
+                          {{ redirectInput('/[[folderName]]/customer/cards') }}
                           {{ csrfInput() }}
 
                           {{ gateway.getPaymentFormHtml({})|raw }}

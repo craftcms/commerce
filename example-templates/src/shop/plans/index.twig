@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends '[[folderName]]/_layouts/main' %}
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
     <h1 class="text-3xl block sm:inline">Plans</h1>
@@ -53,7 +53,7 @@
                             {{ subscription.isCanceled ? 'expires on ' : '' }}{{ subscription.nextPaymentDate|date('Y-m-d') }}
                           </td>
                           <td class="p-2 text-right">
-                            <a class="[[classes.btn.base]] [[classes.btn.grayColor]]" href="{{ url('/shop/plans/subscription', {subscription: subscription.id}) }}">Manage</a>
+                            <a class="[[classes.btn.base]] [[classes.btn.grayColor]]" href="{{ url('/[[folderName]]/plans/subscription', {subscription: subscription.id}) }}">Manage</a>
                           </td>
                       </tr>
                   {% endfor %}
@@ -74,7 +74,7 @@
                         <div class="[[classes.box.base]] mt-3">
                             <form method="post" action="">
                                 {{ actionInput('commerce/subscriptions/subscribe') }}
-                                {{ redirectInput('shop/plans') }}
+                                {{ redirectInput('[[folderName]]/plans') }}
                                 {{ hiddenInput('planUid', plan.uid|hash) }}
                                 {{ csrfInput() }}
 

@@ -1,10 +1,10 @@
 <!-- Template: {{ _self }}.twig -->
 {% if 'checkout' not in craft.app.request.pathInfo %}
-<div x-data="{ expanded: {{ flashNotice and 'shop/cart' not in craft.app.request.pathInfo and 'shop/checkout' not in craft.app.request.pathInfo ? "true" : "false" }} }">
+<div x-data="{ expanded: {{ flashNotice and '[[folderName]]/cart' not in craft.app.request.pathInfo and '[[folderName]]/checkout' not in craft.app.request.pathInfo ? "true" : "false" }} }">
     <div class="absolute right-0 top-0 transition duration-500 ease-in-out transform hover:scale-110 " >
         <div @click="expanded = true" class="cursor-pointer m-6 p-3 bg-white rounded-lg relative shadow-lg hover:shadow-xl">
             {% if cart.totalQty %}<span x-show="!expanded" class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
-            {% include 'shop/_images/cart.svg' %}
+            {% include '[[folderName]]/_images/cart.svg' %}
         </div>
     </div>
 
@@ -29,7 +29,7 @@
                     </div>
                 {% else %}
                     <div class="mb-3">
-                        <p>Nothing in your cart yet, <a class="underline text-[[color]]-500" href="{{ url('shop/products') }}">add something</a>.</p>
+                        <p>Nothing in your cart yet, <a class="underline text-[[color]]-500" href="{{ url('/[[folderName]]/products') }}">add something</a>.</p>
                     </div>
                 {% endfor %}
               </div>
@@ -43,10 +43,10 @@
                   <div class="pt-2">
                     <div class="flex w-full justify-between">
                       <div>
-                        <a class="[[classes.btn.small]] [[classes.btn.grayColor]]" href=" {{ url('shop/cart') }}">View Cart</a>
+                        <a class="[[classes.btn.small]] [[classes.btn.grayColor]]" href=" {{ url('/[[folderName]]/cart') }}">View Cart</a>
                       </div>
                       <div>
-                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]" href="{{ url('shop/checkout') }}">Checkout</a>
+                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]" href="{{ url('/[[folderName]]/checkout') }}">Checkout</a>
                       </div>
                     </div>
                   </div>
