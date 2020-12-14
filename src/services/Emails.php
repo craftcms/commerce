@@ -330,7 +330,6 @@ class Emails extends Component
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
 
-
             // todo: remove schema version condition after next beakpoint
             $projectConfig = Craft::$app->getProjectConfig();
             $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
