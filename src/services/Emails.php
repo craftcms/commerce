@@ -892,7 +892,8 @@ class Emails extends Component
             ->from([Table::EMAILS . ' emails']);
 
         // todo: remove schema version condition after next beakpoint
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
 
         if (version_compare($schemaVersion, '3.2.0', '>=')) {
             $query->addSelect(['emails.pdfId']);
