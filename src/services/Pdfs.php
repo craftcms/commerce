@@ -544,7 +544,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
@@ -561,5 +561,12 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        $schemaVersion = Plugin::getInstance()->schemaVersion;
+        if (version_compare($schemaVersion, '3.2.13', '>=')) {
+            $query->addSelect(['language']);
+        }
+
+        return $query;
     }
 }

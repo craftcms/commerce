@@ -331,7 +331,7 @@ class Emails extends Component
             $emailRecord->uid = $emailUid;
             $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
             $emailRecord->language = $data['language'];
-         
+
             $emailRecord->save(false);
 
             $transaction->commit();
@@ -863,7 +863,7 @@ class Emails extends Component
      */
     private function _createEmailQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'emails.id',
                 'emails.name',
@@ -876,12 +876,23 @@ class Emails extends Component
                 'emails.enabled',
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
-                'emails.pdfId',
-                'emails.language',
                 'emails.uid',
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);
+
+        // todo: remove schema version condition after next beakpoint
+        $schemaVersion = Plugin::getInstance()->schemaVersion;
+
+        if (version_compare($schemaVersion, '3.2.0', '>=')) {
+            $query->addSelect(['emails.pdfId']);
+        }
+
+        if (version_compare($schemaVersion, '3.2.13', '>=')) {
+            $query->addSelect(['emails.language']);
+        }
+
+        return $query;
     }
 
 
