@@ -332,7 +332,8 @@ class Emails extends Component
 
 
             // todo: remove schema version condition after next beakpoint
-            $schemaVersion = Plugin::getInstance()->schemaVersion;
+            $projectConfig = Craft::$app->getProjectConfig();
+            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
 
             if (version_compare($schemaVersion, '3.2.0', '>=')) {
                 $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
