@@ -312,7 +312,12 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
-            $pdfRecord->language = $data['language'];
+
+            $schemaVersion = Plugin::getInstance()->schemaVersion;
+            if (version_compare($schemaVersion, '3.2.13', '>=')) {
+                $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
+            }
+
             $pdfRecord->uid = $pdfUid;
 
             $pdfRecord->save(false);

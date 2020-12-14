@@ -329,8 +329,18 @@ class Emails extends Component
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
-            $emailRecord->language = $data['language'];
+
+
+            // todo: remove schema version condition after next beakpoint
+            $schemaVersion = Plugin::getInstance()->schemaVersion;
+
+            if (version_compare($schemaVersion, '3.2.0', '>=')) {
+                $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
+            }
+
+            if (version_compare($schemaVersion, '3.2.13', '>=')) {
+                $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
+            }
 
             $emailRecord->save(false);
 
