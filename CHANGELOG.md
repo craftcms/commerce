@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.13.1 - 2020-12-15
 
 ### Fixed
 - Fixed a migration error that could occur when updating from Commerce 3.1 ([#1928](https://github.com/craftcms/commerce/issues/1928))
