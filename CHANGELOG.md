@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.2.13.2 - 2020-12-15
+
+### Fixed
+- Fixed a bug where product URLs were resolving even though the product was not live. ([#1929](https://github.com/craftcms/commerce/pull/1929))
+
 ## 3.2.13.1 - 2020-12-15
 
 ### Fixed
