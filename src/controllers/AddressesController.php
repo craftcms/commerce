@@ -128,7 +128,8 @@ class AddressesController extends BaseCpController
             }
 
             $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
-            $this->redirectToPostedUrl();
+
+            $this->redirectToPostedUrl($address);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
