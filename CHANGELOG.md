@@ -22,6 +22,7 @@
 - Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` was returning disabled discounts.
 - Fixed a bug where `craft\commerce\models\Address::setAttributes()` wasn’t setting the `businessId` by default. ([#1909](https://github.com/craftcms/commerce/issues/1909))
 - Fixed some PostgreSQL compatibility issues.
+- Fixed products still displaying in product entry page even post date is set in the future. ([]())
 
 ## 3.2.12 - 2020-11-17
 

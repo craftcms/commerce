@@ -1201,6 +1201,11 @@ class Product extends Element
      */
     protected function route()
     {
+        // Make sure that the product is actually live
+        if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {
+            return null;
+        }
+        
         // Make sure the product type is set to have URLs for this site
         $siteId = Craft::$app->getSites()->currentSite->id;
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
