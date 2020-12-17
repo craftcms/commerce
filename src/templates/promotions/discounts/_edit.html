@@ -199,6 +199,43 @@
             }) }}
         {% endif %}
 
+        {% set usersInput %}
+            <div class="flex">
+                <div>
+                    {{ forms.select({
+                        id: 'recipient-type',
+                        name: 'recipientType',
+                        options: [
+                            { label: "Any or none"|t('commerce'), value: 'any' },
+                            { label: "Include All"|t('commerce'), value: 'includeAll' },
+                            { label: "Include Any"|t('commerce'), value: 'includeAny' },
+                            { label: "Excluded"|t('commerce'), value: 'excluded' },
+                        ],
+                        value: 'any',
+                        toggle: true,
+                        targetPrefix: 'to-option-'
+                    }) }}
+                </div>
+                <div id="to-option-includeAll"
+                     class="flex-grow hidden">
+                    {{ forms.text({
+                        id: 'to',
+                        name: 'to',
+                        value: '',
+                        placeholder: 'jane@acme.com, joe@acme.com'
+                    }) }}
+                </div>
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            id: 'user-restriction',
+            label: 'User Restriction'|t('commerce'),
+            instructions: 'Choose a condition for user restriction.'|t('commerce'),
+            errors: [],
+            required: true,
+        }, usersInput) }}
+
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
             instructions: "Restrict the discount to only those orders where the customer has purchased a minimum total value of matching items."|t('commerce'),

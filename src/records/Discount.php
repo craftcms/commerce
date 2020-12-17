@@ -70,7 +70,12 @@ class Discount extends ActiveRecord
 
     const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
     const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
-
+    
+    const CONDITION_USERS_ANY_OR_NONE = 'usersAnyOrNone';
+    const CONDITION_USERS_INCLUDE_ALL = 'usersIncludeAll';
+    const CONDITION_USERS_INCLUDE_ANY = 'usersIncludeAny';
+    const CONDITION_USERS_EXCLUDED = 'usersExcluded';
+    
     /**
      * @inheritdoc
      */
