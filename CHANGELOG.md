@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Added
+- Trigger resaving of products when assigning a new product type for shipping and tax categories. ([]())
+
 ## 3.2.13.2 - 2020-12-15
 
 ### Fixed
