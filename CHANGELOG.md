@@ -1,7 +1,7 @@
 # Release Notes for Craft Commerce
 
 ### Added
-- Trigger resaving of products when assigning a new product type for shipping and tax categories. ([]())
+- Trigger resaving of products when assigning a new product type for shipping and tax categories. ([#1933](https://github.com/craftcms/commerce/pull/1933))
 
 ## 3.2.13.2 - 2020-12-15
 
