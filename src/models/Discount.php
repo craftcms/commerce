@@ -341,6 +341,16 @@ class Discount extends Model
 
         return Craft::$app->formatter->asPercent(0);
     }
+    
+    public function getUserConditions(): array
+    {
+        return [
+          DiscountRecord::CONDITION_USERS_ANY_OR_NONE => Craft::t('commerce', 'Any or none'),
+          DiscountRecord::CONDITION_USERS_INCLUDE_ALL => Craft::t('commerce', 'Include All'),
+          DiscountRecord::CONDITION_USERS_INCLUDE_ANY => Craft::t('commerce', 'Include Any'),
+          DiscountRecord::CONDITION_USERS_EXCLUDE => Craft::t('commerce', 'Exclude')
+        ];
+    }
 
     /**
      * @inheritdoc

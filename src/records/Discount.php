@@ -74,7 +74,7 @@ class Discount extends ActiveRecord
     const CONDITION_USERS_ANY_OR_NONE = 'usersAnyOrNone';
     const CONDITION_USERS_INCLUDE_ALL = 'usersIncludeAll';
     const CONDITION_USERS_INCLUDE_ANY = 'usersIncludeAny';
-    const CONDITION_USERS_EXCLUDED = 'usersExcluded';
+    const CONDITION_USERS_EXCLUDE = 'usersExclude';
     
     /**
      * @inheritdoc
