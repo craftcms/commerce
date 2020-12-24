@@ -20,7 +20,7 @@ use craft\commerce\Plugin;
 class BaseFrontEndController extends BaseController
 {
     /**
-     * @event Event The event that is triggered when an cart is returned as an array (for ajax cart update requests)
+     * @event Event The event that’s triggered when a cart is returned as an array for AJAX cart update requests.
      *
      * ---
      * ```php
@@ -28,11 +28,15 @@ class BaseFrontEndController extends BaseController
      * use craft\commerce\events\ModifyCartInfoEvent;
      * use yii\base\Event;
      *
-     * Event::on(BaseFrontEndController::class, BaseFrontEndController::EVENT_MODIFY_CART_INFO, function(ModifyCartInfoEvent $e) {
-     *     $cartArray = $e->cartInfo;
-     *     $cartArray['anotherOne'] = 'Howdy';
-     *     $e->cartInfo = $cartArray;
-     * });
+     * Event::on(
+     *     BaseFrontEndController::class,
+     *     BaseFrontEndController::EVENT_MODIFY_CART_INFO,
+     *     function(ModifyCartInfoEvent $e) {
+     *         $cartArray = $e->cartInfo;
+     *         $cartArray['anotherOne'] = 'Howdy';
+     *         $e->cartInfo = $cartArray;
+     *     }
+     * );
      * ```
      */
     const EVENT_MODIFY_CART_INFO = 'modifyCartInfo';
