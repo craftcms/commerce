@@ -530,6 +530,12 @@ class OrdersController extends Controller
 
         // Do not return any purchasables with temp SKUs
         $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        
+        // Do not return any deleted purchasables
+        $sqlQuery->andWhere("elements.dateDeleted IS NULL");
+
+        // Order by purchasable description
+        $sqlQuery->orderBy("purchasables.description");
 
         $total = $sqlQuery->count();
 
