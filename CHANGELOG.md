@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where soft deleted purchasables were showing in the add a line item table on the Edit Order page. ([#1939](https://github.com/craftcms/commerce/issues/1939))
+
 ## 3.2.13.2 - 2020-12-15
 
 ### Fixed
