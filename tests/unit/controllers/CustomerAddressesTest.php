@@ -15,7 +15,6 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Address;
 use craft\web\Request;
 use craftcommercetests\fixtures\CustomersAddressesFixture;
-use craftcommercetests\fixtures\SalesFixture;
 use UnitTester;
 
 /**
