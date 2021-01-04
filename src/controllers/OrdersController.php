@@ -540,6 +540,8 @@ class OrdersController extends Controller
             if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
+        } else {
+            $sqlQuery->orderBy(['id' => 'asc']);
         }
 
         $total = $sqlQuery->count();
