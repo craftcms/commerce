@@ -533,6 +533,15 @@ class OrdersController extends Controller
 
         // Do not return soft deleted purchasables
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);
+
+        // Apply sorting if required
+        if ($sort && strpos($sort, '|')) {
+            list($column, $direction) = explode('|', $sort);
+            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
+            }
+        }
+
         $total = $sqlQuery->count();
 
         $sqlQuery->limit($limit);
