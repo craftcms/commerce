@@ -92,4 +92,19 @@ class OrdersControllerTest extends Unit
 
         $this->assertEquals('hct-blue', $purchasable['sku']);
     }
+
+    public function testPurchasblesTableSort()
+    {
+        $this->request->headers->set('Accept', 'application/json');
+
+        Craft::$app->getRequest()->setQueryParams(['sort' => 'sku|desc']);
+
+        $response = $this->controller->runAction('purchasables-table');
+
+        $this->assertInstanceOf(Response::class, $response);
+
+        $purchasable = array_pop($response->data['data']);
+
+        $this->assertEquals('ANT-001', $purchasable['sku']);
+    }
 }
