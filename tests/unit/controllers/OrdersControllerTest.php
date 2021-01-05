@@ -12,6 +12,7 @@ use Craft;
 use craft\commerce\controllers\OrdersController;
 use craft\commerce\Plugin;
 use craft\web\Request;
+use craftcommercetests\fixtures\CustomersAddressesFixture;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 use yii\web\Response;
@@ -48,6 +49,9 @@ class OrdersControllerTest extends Unit
             'products' => [
                 'class' => ProductFixture::class
             ],
+            'customers-addresses' => [
+                'class' => CustomersAddressesFixture::class
+            ]
         ];
     }
 
@@ -75,22 +79,22 @@ class OrdersControllerTest extends Unit
 
         $response = $this->controller->runAction('purchasables-table');
 
-        $this->assertInstanceOf(Response::class, $response);
+        self::assertInstanceOf(Response::class, $response);
 
-        $this->assertArrayHasKey('pagination', $response->data);
-        $this->assertArrayHasKey('data', $response->data);
+        self::assertArrayHasKey('pagination', $response->data);
+        self::assertArrayHasKey('data', $response->data);
 
-        $this->assertSame(10, $response->data['pagination']['total']);
-        $this->assertCount(10, $response->data['data']);
+        self::assertSame(10, $response->data['pagination']['total']);
+        self::assertCount(10, $response->data['data']);
 
         $purchasable = array_pop($response->data['data']);
 
         $keys = ['id', 'price', 'description', 'sku', 'priceAsCurrency', 'isAvailable', 'detail'];
         foreach ($keys as $key) {
-            $this->assertArrayHasKey($key, $purchasable);
+            self::assertArrayHasKey($key, $purchasable);
         }
 
-        $this->assertEquals('hct-blue', $purchasable['sku']);
+        self::assertEquals('hct-blue', $purchasable['sku']);
     }
 
     public function testPurchasblesTableSort()
@@ -101,10 +105,46 @@ class OrdersControllerTest extends Unit
 
         $response = $this->controller->runAction('purchasables-table');
 
-        $this->assertInstanceOf(Response::class, $response);
+        self::assertInstanceOf(Response::class, $response);
 
         $purchasable = array_pop($response->data['data']);
 
-        $this->assertEquals('ANT-001', $purchasable['sku']);
+        self::assertEquals('ANT-001', $purchasable['sku']);
+    }
+
+    public function testCustomerSearch()
+    {
+        $this->request->headers->set('Accept', 'application/json');
+
+        $response = $this->controller->runAction('customer-search', ['query' => 'support']);
+
+        self::assertEquals(200, $response->statusCode);
+        self::assertIsArray($response->data);
+        self::assertCount(1, $response->data);
+        $customer = $response->data[0] ?? [];
+        $keys = [
+            'id',
+            'userId',
+            'email',
+            'primaryBillingAddressId',
+            'billingFirstName',
+            'billingLastName',
+            'billingFullName',
+            'billingAddress',
+            'shippingFirstName',
+            'shippingLastName',
+            'shippingFullName',
+            'shippingAddress',
+            'primaryShippingAddressId',
+            'user',
+            'photo',
+            'url',
+        ];
+
+        foreach ($keys as $key) {
+            self::assertArrayHasKey($key, $customer);
+        }
+        // self::assertArrayHasKey('');
+        self::assertEquals('support@craftcms.com', $customer['email']);
     }
 }
