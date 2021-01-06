@@ -11,6 +11,7 @@
 ### Fixed
 - Fixed a bug where soft deleted purchasables were showing in the add a line item table on the Edit Order page. ([#1939](https://github.com/craftcms/commerce/issues/1939))
 - Fixed a bug where the “ID” column was showing incorrectly on the Product index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Fixed a bug where defaultCurrency for lineItem always returns the primary currency. ([#1890](https://github.com/craftcms/commerce/issues/1890))
 
 ## 3.2.13.2 - 2020-12-15
 
