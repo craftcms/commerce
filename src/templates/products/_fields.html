@@ -228,14 +228,11 @@
         errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
     }, dimensionsInput) }}
 
-{#    {{ forms.errorList(variant.getErrors('length')) }}#}
-{#    {{ forms.errorList(variant.getErrors('width')) }}#}
-{#    {{ forms.errorList(variant.getErrors('height')) }}#}
     {{ forms.textField({
         id: 'weight',
         label: 'Weight'|t('commerce'),
         name: 'weight',
-        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight : ''),
+        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight|number : ''),
         placeholder: 'Enter weight'|t('commerce'),
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')
