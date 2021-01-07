@@ -286,9 +286,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $discountAdjustments = [];
         $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
         foreach ($discountAdjusters as $discountAdjuster) {
-            /** @var AdjusterInterface $adjuster */
-            $adjuster = new $adjuster();
-            $discountAdjustments = array_merge($discountAdjustments, $adjuster->adjust($order));
+            /** @var AdjusterInterface $discountAdjuster */
+            $adjuster = new $discountAdjuster();
         }
 
         $discountAmount = 0;
@@ -297,13 +296,13 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
 
         $itemSubtotal = $order->getItemSubtotal();
-
         $itemSubtotalWithDiscounts = $itemSubtotal + $discountAmount;
 
         // order total rules exclude maximum limit (min <= x < max)
         if ($this->minTotal && $this->minTotal > $itemSubtotalWithDiscounts) {
             return false;
         }
+
         if ($this->maxTotal && $this->maxTotal <= $itemSubtotalWithDiscounts) {
             return false;
         }
