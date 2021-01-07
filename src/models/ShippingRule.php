@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
@@ -282,11 +283,28 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
+        $discountAdjustments = [];
+        $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
+        foreach ($discountAdjusters as $discountAdjuster) {
+            /** @var AdjusterInterface $adjuster */
+            $adjuster = new $adjuster();
+            $discountAdjustments = array_merge($discountAdjustments, $adjuster->adjust($order));
+        }
+
+        $discountAmount = 0;
+        foreach ($discountAdjustments as $adjustment) {
+            $discountAmount += $adjustment->amount;
+        }
+
+        $itemSubtotal = $order->getItemSubtotal();
+
+        $itemSubtotalWithDiscounts = $itemSubtotal + $discountAmount;
+
         // order total rules exclude maximum limit (min <= x < max)
-        if ($this->minTotal && $this->minTotal > $order->getItemSubtotal()) {
+        if ($this->minTotal && $this->minTotal > $itemSubtotalWithDiscounts) {
             return false;
         }
-        if ($this->maxTotal && $this->maxTotal <= $order->getItemSubtotal()) {
+        if ($this->maxTotal && $this->maxTotal <= $itemSubtotalWithDiscounts) {
             return false;
         }
 
