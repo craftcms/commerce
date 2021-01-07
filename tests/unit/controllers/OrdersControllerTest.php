@@ -13,6 +13,7 @@ use craft\commerce\controllers\OrdersController;
 use craft\commerce\Plugin;
 use craft\web\Request;
 use craftcommercetests\fixtures\CustomersAddressesFixture;
+use craftcommercetests\fixtures\OrdersFixture;
 use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 use yii\web\Response;
@@ -46,12 +47,15 @@ class OrdersControllerTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'products' => [
-                'class' => ProductFixture::class
-            ],
             'customers-addresses' => [
-                'class' => CustomersAddressesFixture::class
-            ]
+                'class' => CustomersAddressesFixture::class,
+            ],
+            'orders' => [
+                'class' => OrdersFixture::class,
+            ],
+            'products' => [
+                'class' => ProductFixture::class,
+            ],
         ];
     }
 
@@ -75,7 +79,7 @@ class OrdersControllerTest extends Unit
 
     public function testPurchasblesTable()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         $response = $this->controller->runAction('purchasables-table');
 
@@ -99,7 +103,7 @@ class OrdersControllerTest extends Unit
 
     public function testPurchasblesTableSort()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         Craft::$app->getRequest()->setQueryParams(['sort' => 'sku|desc']);
 
@@ -114,7 +118,7 @@ class OrdersControllerTest extends Unit
 
     public function testCustomerSearch()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         $response = $this->controller->runAction('customer-search', ['query' => 'support']);
 
