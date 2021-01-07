@@ -233,7 +233,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new InvalidArgumentException('No address exists with the ID “{id}”', ['id' => $addressModel->id]);
+                throw new InvalidArgumentException(Craft::t('commerce', 'No address exists with the ID “{id}”', ['id' => $addressModel->id]));
             }
         } else {
             $addressRecord = new AddressRecord();
