@@ -151,4 +151,22 @@ class OrdersControllerTest extends Unit
         // self::assertArrayHasKey('');
         self::assertEquals('support@craftcms.com', $customer['email']);
     }
+
+    public function testGetIndexSourcesBadgeCounts()
+    {
+        $this->request->getHeaders()->set('Accept', 'application/json');
+
+        $response = $this->controller->runAction('get-index-sources-badge-counts');
+
+        self::assertEquals(200, $response->statusCode);
+        self::assertIsArray($response->data);
+        self::assertArrayHasKey('counts', $response->data);
+        self::assertArrayHasKey('total', $response->data);
+        self::assertCount(4, $response->data['counts']);
+
+        $keys = ['orderStatusId', 'handle', 'orderCount'];
+        foreach ($keys as $key) {
+            self::assertArrayHasKey($key, array_shift($response->data['counts']));
+        }
+    }
 }
