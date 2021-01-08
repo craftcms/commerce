@@ -10,6 +10,7 @@ namespace craftcommercetests\fixtures;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -53,5 +54,28 @@ class OrderStatusesFixture extends BaseModelFixture
         $this->service = Plugin::getInstance()->get($this->service);
 
         parent::init();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function unload()
+    {
+        if (!empty($this->ids)) {
+            foreach ($this->ids as $id) {
+                if ($id == 1) {
+                    // keep the new default status
+                    continue;
+                }
+
+                $arInstance = OrderStatusRecord::find()
+                    ->where(['id' => $id])
+                    ->one();
+
+                if ($arInstance && !$arInstance->delete()) {
+                    throw new InvalidArgumentException('Unable to delete Order Status instance');
+                }
+            }
+        }
     }
 }
