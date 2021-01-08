@@ -24,7 +24,7 @@ $hctBlueLineItem = !array_key_exists('hct-white', $variants) ? ![] : [
 $orderStatuses = OrderStatus::find()->select(['id', 'handle'])->indexBy('handle')->column();
 
 return [
-    [
+    'completed-new' => [
         'customerId' => '1000',
         'email' => 'support@craftcms.com',
         'billingAddressId' => '1002',
@@ -33,7 +33,7 @@ return [
         '_lineItems' => array_filter([$hctWhiteLineItem, $hctBlueLineItem]),
         '_markAsComplete' => false
     ],
-    [
+    'completed-shipped' => [
         'customerId' => '1000',
         'email' => 'support@craftcms.com',
         'billingAddressId' => '1002',
