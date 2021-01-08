@@ -12,9 +12,7 @@ use Craft;
 use craft\commerce\controllers\OrdersController;
 use craft\commerce\Plugin;
 use craft\web\Request;
-use craftcommercetests\fixtures\CustomersAddressesFixture;
 use craftcommercetests\fixtures\OrdersFixture;
-use craftcommercetests\fixtures\ProductFixture;
 use UnitTester;
 use yii\web\Response;
 
@@ -47,14 +45,8 @@ class OrdersControllerTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'customers-addresses' => [
-                'class' => CustomersAddressesFixture::class,
-            ],
             'orders' => [
                 'class' => OrdersFixture::class,
-            ],
-            'products' => [
-                'class' => ProductFixture::class,
             ],
         ];
     }
