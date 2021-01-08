@@ -43,6 +43,11 @@ class OrdersFixture extends ElementFixture
     ];
 
     /**
+     * @var array
+     */
+    public $ids = [];
+
+    /**
      * @inheritdoc
      */
     public function load()
@@ -51,7 +56,7 @@ class OrdersFixture extends ElementFixture
 
         foreach ($this->getData() as $alias => $data) {
             /* @var Order $element */
-            $element = $this->getElement($data) ?: new $this->modelClass;
+            $element = isset($data['id']) ? $this->getElement(['id' => $data['id']]) : new $this->modelClass;
 
             // If they want to add a date deleted. Store it but dont set that as an element property
             $dateDeleted = null;
@@ -114,6 +119,7 @@ class OrdersFixture extends ElementFixture
             }
 
             $this->data[$alias] = array_merge($data, ['id' => $element->id]);
+            $this->ids[] = $element->id;
         }
     }
 
@@ -125,20 +131,46 @@ class OrdersFixture extends ElementFixture
      */
     public function unload()
     {
-        if ($this->unload) {
-            foreach ($this->getData() as $data) {
-                $element = $this->getElement($data);
+        if ($this->unload && !empty($this->ids)) {
+            foreach ($this->ids as $id) {
+                /** @var Order $element */
+                $element = Order::find()->id($id)->anyStatus()->one();
 
-                // TODO check if we need to delete anything manually.
+                $addressIds = $element->isCompleted
+                    ? [$element->billingAddressId, $element->estimatedBillingAddressId, $element->shippingAddressId, $element->estimatedShippingAddressId]
+                    : [];
 
                 if ($element && !Craft::$app->getElements()->deleteElement($element, true)) {
                     throw new InvalidElementException($element, 'Unable to delete element.');
                 }
 
+                $addressIds = array_filter($addressIds);
+                if (!empty($addressIds)) {
+                    foreach ($addressIds as $addressId) {
+                        Plugin::getInstance()->getAddresses()->deleteAddressById($addressId);
+                    }
+                }
             }
 
             $this->data = [];
+            $this->ids = [];
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function beforeUnload()
+    {
+        Craft::$app->db->createCommand()->checkIntegrity(true)->execute();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function afterUnload()
+    {
+        Craft::$app->db->createCommand()->checkIntegrity(false)->execute();
     }
 
     /**
