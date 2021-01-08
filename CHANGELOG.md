@@ -13,6 +13,7 @@
 - Fixed a bug where the “ID” column was showing incorrectly on the Product index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
 - Fixed a bug where defaultCurrency for lineItem always returns the primary currency. ([#1890](https://github.com/craftcms/commerce/issues/1890))
 - Fixed a PHP error that could occur when saving an address. ([#1947](https://github.com/craftcms/commerce/issues/1947))
+- Fixed a PHP error that occurred when using the `Plans::getPlansByInformationEntryId` method. ([#1949](https://github.com/craftcms/commerce/issues/1949))
 
 ## 3.2.13.2 - 2020-12-15
 
