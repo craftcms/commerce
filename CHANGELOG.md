@@ -4,6 +4,7 @@
 
 ### Added
 - It is now possible to sort purchasables by `description`, `sku` or `price` when adding a line item on the Edit Order page. ([#1940](https://github.com/craftcms/commerce/issues/1940))
+- Added `craft\commerce\elements\db\ProductQuery::defaultPrice()`, `defaultWidth()`, `defaultHeight()`, `defaultLength()`, `defaultWeight()`, `defaultSku()`. ([#1877](https://github.com/craftcms/commerce/issues/1877))
 
 ### Changed
 - Purchasables, by default, are sorted by `id` in the add a line item table on the Edit Order page.
