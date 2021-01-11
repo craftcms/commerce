@@ -170,7 +170,7 @@ class ShippingCategories extends Component
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this shipping category available to them
-                $this->_reSaveProducts($oldProductTypeId);
+                $this->_resaveProductsByProductTypeId($oldProductTypeId);
             }
         }
 
@@ -178,7 +178,7 @@ class ShippingCategories extends Component
             // If we are adding a product type for this shipping category the products of that type should be re-saved
             if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
                 // Re-save all products when assigning this shipping category available to them
-                $this->_reSaveProducts($newProductTypeId);
+                $this->_resaveProductsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -202,7 +202,7 @@ class ShippingCategories extends Component
      * 
      * @param int $productTypeId
      */
-    private function _reSaveProducts(int $productTypeId)
+    private function _resaveProductsByProductTypeId(int $productTypeId)
     {
         Craft::$app->getQueue()->push(new ResaveElements([
             'elementType' => Product::class,
