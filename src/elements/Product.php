@@ -817,8 +817,12 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterDelete()
+    public function beforeDelete(): bool
     {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
             ->anyStatus()
@@ -827,7 +831,6 @@ class Product extends Element
         $elementsService = Craft::$app->getElements();
 
         foreach ($variants as $variant) {
-
             $hardDelete = false;
             $variant->deletedWithProduct = true;
 
@@ -840,7 +843,7 @@ class Product extends Element
             $elementsService->deleteElement($variant, $hardDelete);
         }
 
-        parent::afterDelete();
+        return true;
     }
 
     /**

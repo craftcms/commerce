@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
-use craft\test\Fixture;
+use craft\test\ActiveFixture;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 
@@ -18,7 +18,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.x
  */
-abstract class BaseModelFixture extends Fixture
+abstract class BaseModelFixture extends ActiveFixture
 {
     /**
      * Name of the delete method in the service.
