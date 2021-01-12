@@ -8,19 +8,10 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\elements\Variant;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\services\Customers;
 use craft\commerce\services\Orders;
-use craft\commerce\services\Sales;
-use craft\db\Query;
-use craft\elements\Category;
-use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\OrdersFixture;
-use craftcommercetests\fixtures\SalesFixture;
 use UnitTester;
 
 /**
