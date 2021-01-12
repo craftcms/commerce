@@ -375,15 +375,12 @@ class Customers extends Component
             ->select(['[[customers.id]] id'])
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
-            ->column();
-
-        if ($customers) {
-            // This will also remove all addresses related to the customer.
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $customers])
-                ->execute();
-        }
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null]);
+        
+        // This will also remove all addresses related to the customer.
+        Craft::$app->getDb()->createCommand()
+            ->delete(Table::CUSTOMERS, ['id' => $customers])
+            ->execute();
     }
 
     /**

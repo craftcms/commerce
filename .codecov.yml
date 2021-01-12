@@ -1,5 +1,4 @@
 codecov:
-  branch: develop
   require_ci_to_pass: yes
 coverage:
   range: "20...100"
@@ -22,6 +21,8 @@ parsers:
       method: no
       macro: no
 comment: off
+github_checks:
+  annotations: false
 ignore:
   - "src/etc"
   - "src/migrations"

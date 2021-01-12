@@ -19,6 +19,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -64,31 +65,6 @@ use yii\web\Response;
  */
 class OrdersController extends Controller
 {
-
-
-    /**
-     * @event OrderTabsEvent The event allows additional tabs to be added or modified on the Edit Order page.
-     * @since 3.2.9
-     *
-     * ```php
-     * Event::on(
-     * OrdersController::class,
-     * OrdersController::EVENT_REGISTER_ORDER_TABS,
-     *     function(OrderTabsEvent $event) {
-     *         $tabs = $event->tabs;
-     *         $tabs[] = [
-     *           'label' => Craft::t('commerce', 'Mine'),
-     *           'url' => '#mineTab',
-     *           'class' => null
-     *         ];
-     *         $event->tabs = $tabs;
-     *     }
-     * );
-     * ```
-     */
-    const EVENT_REGISTER_ORDER_TABS = 'beforeSaveCustomer';
-
-
     /**
      * @throws HttpException
      * @throws InvalidConfigException
@@ -555,6 +531,19 @@ class OrdersController extends Controller
         // Do not return any purchasables with temp SKUs
         $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
+        // Do not return soft deleted purchasables
+        $sqlQuery->andWhere(['elements.dateDeleted' => null]);
+
+        // Apply sorting if required
+        if ($sort && strpos($sort, '|')) {
+            list($column, $direction) = explode('|', $sort);
+            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
+            }
+        } else {
+            $sqlQuery->orderBy(['id' => 'asc']);
+        }
+
         $total = $sqlQuery->count();
 
         $sqlQuery->limit($limit);
@@ -610,7 +599,7 @@ class OrdersController extends Controller
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
-        
+
         if ($email === null || !$email->enabled) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
@@ -618,6 +607,10 @@ class OrdersController extends Controller
         if ($order === null) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
         }
+
+        // Set language by email's set locale
+        $language = $email->getRenderLanguage($order);
+        Locale::switchAppLanguage($language);
 
         $orderData = $order->toArray();
 
@@ -953,15 +946,6 @@ class OrdersController extends Controller
             'url' => '#orderHistoryTab',
             'class' => null
         ];
-
-        $orderTabsEvent = new OrderTabsEvent();
-        $orderTabsEvent->tabs = $variables['tabs'];
-
-        if ($this->hasEventHandlers(self::EVENT_REGISTER_ORDER_TABS)) {
-            $this->trigger(self::EVENT_REGISTER_ORDER_TABS, $orderTabsEvent);
-        }
-
-        $variables['tabs'] = $orderTabsEvent->tabs;
 
         $variables['fullPageForm'] = true;
 

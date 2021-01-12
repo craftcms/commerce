@@ -8,10 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use craft\i18n\Locale;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -44,19 +47,12 @@ class PdfsController extends BaseAdminController
     public function actionEdit(int $id = null, Pdf $pdf = null): Response
     {
         $variables = compact('pdf', 'id');
-        
+
         $pdfLanguageOptions = [
-          PdfRecord::TYPE_LOCALE_CREATED => Craft::t('commerce', 'The language the order was made in.')
+            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
         
-        // get current site's locale
-        foreach (Craft::$app->getSites()->getAllSites() as $site) {
-            $locale = Craft::$app->getI18n()->getLocaleById($site->language);
-  
-            $pdfLanguageOptions[$site->id] = Craft::t('commerce', $site->name . ' - ' . $locale->getDisplayName());
-        }
-        
-        $variables['pdfLanguageOptions'] = $pdfLanguageOptions;
+        $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
         
         if (!$variables['pdf']) {
             if ($variables['id']) {
@@ -108,6 +104,7 @@ class PdfsController extends BaseAdminController
         $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
         $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
         $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
+        $pdf->language = Craft::$app->getRequest()->getBodyParam('language');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {

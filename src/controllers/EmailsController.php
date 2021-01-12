@@ -8,7 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\elements\Order;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
@@ -67,6 +67,12 @@ class EmailsController extends BaseAdminController
         $pdfList = ArrayHelper::merge($pdfList, ArrayHelper::map($pdfs, 'id', 'name'));
         $variables['pdfList'] = $pdfList;
 
+        $emailLanguageOptions = [
+            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+        ];
+        
+        $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
     }
 
@@ -102,6 +108,7 @@ class EmailsController extends BaseAdminController
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
         $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
+        $email->language = Craft::$app->getRequest()->getBodyParam('language');
 
         // Save it
         if ($emailsService->saveEmail($email)) {
