@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "lodash.debounce": "^4.0.8",
     "lodash.find": "^4.6.0",
     "lodash.isequal": "^4.5.0",
@@ -18,7 +18,7 @@
     "vue-prism-editor": "^0.6.1",
     "vue-select": "3.5.2",
     "vuelidate": "^0.7.6",
-    "vuex": "^3.5.1"
+    "vuex": "^3.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",
