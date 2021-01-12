@@ -49,9 +49,6 @@ class OrdersTest extends Unit
         ];
     }
 
-    /*
-     *
-     */
     protected function _before()
     {
         parent::_before();
