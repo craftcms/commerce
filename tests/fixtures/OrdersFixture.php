@@ -118,7 +118,12 @@ class OrdersFixture extends ElementFixture
                 Craft::$app->getSearch()->indexElementAttributes($element);
             }
 
-            $this->data[$alias] = array_merge($data, ['id' => $element->id]);
+            $this->data[$alias] = array_merge($data, [
+                'id' => $element->id,
+                'number' => $element->number,
+                'shortNumber' => $element->getShortNumber(),
+                'reference' => $element->reference
+            ]);
             $this->ids[] = $element->id;
         }
     }
