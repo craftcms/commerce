@@ -71,10 +71,44 @@ class OrdersTest extends Unit
 
     public function testGetOrderById()
     {
-        $id = $this->fixtureData['completed-new']['id'];
-        $order = $this->service->getOrderById($id);
+        $order = $this->service->getOrderById($this->fixtureData['completed-new']['id']);
 
         self::assertInstanceOf(Order::class, $order);
-        self::assertEquals($id, $order->id);
+        self::assertEquals($this->fixtureData['completed-new']['id'], $order->id);
+    }
+
+    public function testGetOrderByNumber()
+    {
+        $order = $this->service->getOrderByNumber($this->fixtureData['completed-new']['number']);
+
+        self::assertInstanceOf(Order::class, $order);
+        self::assertEquals($this->fixtureData['completed-new']['number'], $order->number);
+        self::assertEquals($this->fixtureData['completed-new']['id'], $order->id);
+
+        $order = $this->service->getOrderByNumber('invalid');
+
+        self::assertNull($order);
+    }
+
+    public function testGetOrdersByCustomer()
+    {
+        $orders = $this->service->getOrdersByCustomer($this->fixtureData['completed-new']['customerId']);
+
+        self::assertIsArray($orders);
+        self::assertCount(2, $orders);
+        foreach ($orders as $order) {
+            self::assertTrue(in_array($order->id, [$this->fixtureData['completed-new']['id'], $this->fixtureData['completed-shipped']['id']]));
+        }
+    }
+
+    public function testGetOrdersByEmail()
+    {
+        $orders = $this->service->getOrdersByEmail($this->fixtureData['completed-new']['email']);
+
+        self::assertIsArray($orders);
+        self::assertCount(2, $orders);
+        foreach ($orders as $order) {
+            self::assertEquals($this->fixtureData['completed-new']['email'], $order->email);
+        }
     }
 }
