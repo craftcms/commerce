@@ -52,6 +52,7 @@ class OrdersFixture extends ElementFixture
      */
     public function load()
     {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->data = [];
 
         foreach ($this->getData() as $alias => $data) {
@@ -125,6 +126,10 @@ class OrdersFixture extends ElementFixture
                 'reference' => $element->reference
             ]);
             $this->ids[] = $element->id;
+
+            foreach ($element->getLineItems() as $key => $lineItem) {
+                $this->data[$alias]['_lineItems'][$key]['id'] = $lineItem->id;
+            }
         }
     }
 
@@ -194,7 +199,7 @@ class OrdersFixture extends ElementFixture
 
         $orderLineItems = [];
         foreach ($lineItems as $lineItem) {
-            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $lineItem['purchasbleId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
+            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $lineItem['purchasableId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
         }
 
         $order->setLineItems($orderLineItems);
