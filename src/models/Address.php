@@ -323,6 +323,7 @@ class Address extends Model
             'zipCode',
             'phone',
             'alternativePhone',
+            'businessId',
             'businessName',
             'stateName',
             'stateValue',

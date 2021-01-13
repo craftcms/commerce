@@ -50,6 +50,8 @@
                     <div class="buttons">
                         <input type="button" class="btn small"
                                :value="$options.filters.t('Mark as completed', 'commerce')"
+                               :class="{ disabled: !hasCustomer || recalculateLoading}"
+                               :disabled="!hasCustomer || recalculateLoading"
                                @click="markAsCompleted"/>
                     </div>
                 </div>
@@ -231,11 +233,13 @@
             ...mapState({
                 draft: state => state.draft,
                 originalDraft: state => state.originalDraft,
+                recalculateLoading: state => state.recalculateLoading,
                 editing: state => state.editing,
             }),
 
             ...mapGetters([
                 'getErrors',
+                'hasCustomer'
             ]),
 
             reference: {
