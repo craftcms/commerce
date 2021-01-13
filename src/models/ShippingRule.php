@@ -12,6 +12,7 @@ use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 
 /**
@@ -80,6 +81,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var float Maximum total
      */
     public $maxTotal = 0;
+
+    /**
+     * @var float Minimum type rule
+     */
+    public $minMaxTotalType = 'salePrice';
 
     /**
      * @var float Minimum Weight
@@ -185,6 +191,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 'minQty',
                 'maxQty',
                 'minTotal',
+                'minMaxTotalType',
                 'maxTotal',
                 'minWeight',
                 'maxWeight',
@@ -283,27 +290,42 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        $discountAdjustments = [];
-        $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
-        foreach ($discountAdjusters as $discountAdjuster) {
-            /** @var AdjusterInterface $discountAdjuster */
-            $adjuster = new $discountAdjuster();
-        }
-
-        $discountAmount = 0;
-        foreach ($discountAdjustments as $adjustment) {
-            $discountAmount += $adjustment->amount;
-        }
-
         $itemSubtotal = $order->getItemSubtotal();
-        $itemSubtotalWithDiscounts = $itemSubtotal + $discountAmount;
+
+        switch ($this->minMaxTotalType) {
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE:
+
+                $itemTotal = $itemSubtotal;
+                break;
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS:
+
+                $discountAdjustments = [];
+                $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
+                foreach ($discountAdjusters as $discountAdjuster) {
+                    /** @var AdjusterInterface $discountAdjuster */
+                    $adjuster = new $discountAdjuster();
+                    $discountAdjustments = array_merge($discountAdjustments, $adjuster->adjust($order));
+                }
+
+                $discountAmount = 0;
+                foreach ($discountAdjustments as $adjustment) {
+                    $discountAmount += $adjustment->amount;
+                }
+
+                $itemTotal = $itemSubtotal + $discountAmount;
+                break;
+            default:
+
+                $itemTotal = $itemSubtotal; // Default is ShippingRule::TYPE_MIN_ORDER_TOTAL_SALEPRICE
+                break;
+        }
 
         // order total rules exclude maximum limit (min <= x < max)
-        if ($this->minTotal && $this->minTotal > $itemSubtotalWithDiscounts) {
+        if ($this->minTotal && $this->minTotal > $itemTotal) {
             return false;
         }
 
-        if ($this->maxTotal && $this->maxTotal <= $itemSubtotalWithDiscounts) {
+        if ($this->maxTotal && $this->maxTotal <= $itemTotal) {
             return false;
         }
 
