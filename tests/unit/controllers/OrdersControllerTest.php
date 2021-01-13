@@ -12,8 +12,7 @@ use Craft;
 use craft\commerce\controllers\OrdersController;
 use craft\commerce\Plugin;
 use craft\web\Request;
-use craftcommercetests\fixtures\CustomersAddressesFixture;
-use craftcommercetests\fixtures\ProductFixture;
+use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
 use yii\web\Response;
 
@@ -46,12 +45,9 @@ class OrdersControllerTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'products' => [
-                'class' => ProductFixture::class
+            'orders' => [
+                'class' => OrdersFixture::class,
             ],
-            'customers-addresses' => [
-                'class' => CustomersAddressesFixture::class
-            ]
         ];
     }
 
@@ -75,7 +71,7 @@ class OrdersControllerTest extends Unit
 
     public function testPurchasblesTable()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         $response = $this->controller->runAction('purchasables-table');
 
@@ -99,7 +95,7 @@ class OrdersControllerTest extends Unit
 
     public function testPurchasblesTableSort()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         Craft::$app->getRequest()->setQueryParams(['sort' => 'sku|desc']);
 
@@ -114,7 +110,7 @@ class OrdersControllerTest extends Unit
 
     public function testCustomerSearch()
     {
-        $this->request->headers->set('Accept', 'application/json');
+        $this->request->getHeaders()->set('Accept', 'application/json');
 
         $response = $this->controller->runAction('customer-search', ['query' => 'support']);
 
@@ -146,5 +142,23 @@ class OrdersControllerTest extends Unit
         }
         // self::assertArrayHasKey('');
         self::assertEquals('support@craftcms.com', $customer['email']);
+    }
+
+    public function testGetIndexSourcesBadgeCounts()
+    {
+        $this->request->getHeaders()->set('Accept', 'application/json');
+
+        $response = $this->controller->runAction('get-index-sources-badge-counts');
+
+        self::assertEquals(200, $response->statusCode);
+        self::assertIsArray($response->data);
+        self::assertArrayHasKey('counts', $response->data);
+        self::assertArrayHasKey('total', $response->data);
+        self::assertCount(4, $response->data['counts']);
+
+        $keys = ['orderStatusId', 'handle', 'orderCount'];
+        foreach ($keys as $key) {
+            self::assertArrayHasKey($key, array_shift($response->data['counts']));
+        }
     }
 }
