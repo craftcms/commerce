@@ -12,6 +12,7 @@
 ### Fixed
 - Fixed a bug where soft deleted purchasables were showing in the add a line item table on the Edit Order page. ([#1939](https://github.com/craftcms/commerce/issues/1939))
 - Fixed a bug where the “ID” column was showing incorrectly on the Product index page. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Fixed a bug where saving a non numeric price, weight and dimensions value on a product throws an error instead of validation message. ([#1942](https://github.com/craftcms/commerce/issues/1942))
 - Fixed a bug where defaultCurrency for lineItem always returns the primary currency. ([#1890](https://github.com/craftcms/commerce/issues/1890))
 - Fixed a PHP error that could occur when saving an address. ([#1947](https://github.com/craftcms/commerce/issues/1947))
 - Fixed a PHP error that occurred when using the `Plans::getPlansByInformationEntryId` method. ([#1949](https://github.com/craftcms/commerce/issues/1949))
