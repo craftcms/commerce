@@ -126,6 +126,10 @@ class OrdersFixture extends ElementFixture
                 'reference' => $element->reference
             ]);
             $this->ids[] = $element->id;
+
+            foreach ($element->getLineItems() as $key => $lineItem) {
+                $this->data[$alias]['_lineItems'][$key]['id'] = $lineItem->id;
+            }
         }
     }
 
