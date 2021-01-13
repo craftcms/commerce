@@ -16,6 +16,7 @@
 - Fixed a bug where line item prices could show the wrong currency on Edit Order pages. ([#1890](https://github.com/craftcms/commerce/issues/1890))
 - Fixed an error that could occur when saving an address. ([#1947](https://github.com/craftcms/commerce/issues/1947))
 - Fixed an error that occurred when calling `Plans::getPlansByInformationEntryId()`. ([#1949](https://github.com/craftcms/commerce/issues/1949))
+- Fixed a SQL error that occurred when purging customers on MySQL. ([#1958](https://github.com/craftcms/commerce/issues/1958))
 - Fixed a SQL error that occurred when retrieving the default line item status on PostgreSQL.
 
 ## 3.2.13.2 - 2020-12-15
