@@ -11,7 +11,6 @@
     {% endif %}
 
     {# Does a user exist with this email address? #}
-
     {% set userExistsButCantLogin = craft.users.email(cart.email).status(['locked','suspended','pending']).one() %}
 
     {% if userExistsButCantLogin %}

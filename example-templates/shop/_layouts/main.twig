@@ -47,8 +47,8 @@
     {% include 'shop/_includes/nav-checkout' %}
 </header>
 
-
-{% if flashNotice %} {# Add `or true` to this if condition to temporarily see what this flash notice would look like #}
+{# Add `or true` to this if condition to temporarily see what this flash notice would look like #}
+{% if flashNotice %}
     <div class="bg-blue-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {{ flashNotice ?? 'Test flash notice' }}
@@ -56,8 +56,8 @@
     </div>
 {% endif %}
 
-
-{% if flashError %} {# Add `or true` to this if condition to temporarily see what this flash error would look like #}
+{# Add `or true` to this if condition to temporarily see what this flash error would look like #}
+{% if flashError %}
     <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {{ flashError ?? 'Test flash error' }}

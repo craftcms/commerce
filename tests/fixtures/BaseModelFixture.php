@@ -16,7 +16,7 @@ use yii\base\InvalidConfigException;
  * Base Model Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.14
  */
 abstract class BaseModelFixture extends Fixture
 {
@@ -39,6 +39,9 @@ abstract class BaseModelFixture extends Fixture
      */
     public $service;
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function init()
     {
         parent::init();

@@ -18,14 +18,9 @@
         <div class="w-2/3 px-8">
             <h1 class="text-xl font-bold mb-3">Cart/Order Payment</h1>
 
-            {#
-                Show form to be filled out allowing access to the payment form.
-            #}
+            {# Show form to be filled out allowing access to the payment form #}
             {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
-                {#
-                    Display errors if cart cannot be retrieved or if there is no
-                    outstanding balance to be paid.
-                #}
+                {# Display errors if cart cannot be retrieved or if there is no outstanding balance to be paid #}
                 {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}
                     <div class="bg-red-500 text-white mb-4">
                         <div class="flash container mx-auto px-6 py-4">
@@ -59,11 +54,9 @@
                 </form>
             {% else %}
                 {% set customer = cart.customer ?? null %}
-                {#
-                    Display payment form.
-                #}
+                {# Display the payment form #}
                 {% if not gatewayId and not paymentSourceId %}
-                    {# Get the available payment sources the user has to be used later in this page. #}
+                    {# Get the available payment sources the user has to be used later in this page #}
                     {% set paymentSources = [] %}
                     {% if customer and customer.userId and currentUser and currentUser.id == customer.userId %}
                         {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id) %}
@@ -126,7 +119,7 @@
                                       {{ hiddenInput('gatewayId', gateway.id) }}
 
                                       {% set params = {} %}
-                                      {# Set gateway specific parameters #}
+                                      {# Set gateway-specific parameters #}
                                       {% if className(gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
                                           {% set params = { currency: cart.paymentCurrency } %}
                                       {% endif %}
