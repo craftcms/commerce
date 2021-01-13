@@ -11,14 +11,14 @@ use craft\commerce\records\OrderStatus;
 
 $variants = Variant::find()->indexBy('sku')->all();
 
-$hctWhiteLineItem = !array_key_exists('hct-white', $variants) ? ![] : [
-    'purchasbleId' => $variants['hct-white']->id,
+$hctWhiteLineItem = !array_key_exists('hct-white', $variants) ? [] : [
+    'purchasableId' => $variants['hct-white']->id,
     'options' => [],
     'qty' => 1,
     'note' => '',
 ];
-$hctBlueLineItem = !array_key_exists('hct-white', $variants) ? ![] : [
-    'purchasbleId' => $variants['hct-blue']->id,
+$hctBlueLineItem = !array_key_exists('hct-blue', $variants) ? [] : [
+    'purchasableId' => $variants['hct-blue']->id,
     'options' => ['giftWrapped' => 'yes'],
     'qty' => 2,
     'note' => '',
