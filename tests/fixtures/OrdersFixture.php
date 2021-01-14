@@ -38,33 +38,59 @@ class OrdersFixture extends BaseElementFixture
     ];
 
     /**
-     * @inheritDoc
+     * @var array
      */
-    protected function populateElement(ElementInterface $element, array $attributes): void
-    {
-        $keys = ['!_lineItems', '!_markAsComplete'];
-        $attributes = ArrayHelper::filter($attributes, $keys);
+    private $_lineItems = [];
 
-        parent::populateElement($element, $attributes);
+    /**
+     * @var bool
+     */
+    private $_markAsComplete = false;
+
+    public function init()
+    {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
+
+        parent::init();
     }
 
     /**
      * @inheritDoc
      */
-    protected function afterSaveElement(ElementInterface $element, array $attributes): void
+    protected function populateElement(ElementInterface $element, array $attributes): void
     {
+        $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
+        $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
+
+        parent::populateElement($element, $attributes);
+    }
+
+    /**
+     * @inerhitDoc
+     */
+    protected function saveElement(ElementInterface $element): bool
+    {
+        // Do an initial save to get an ID
+        $result = parent::saveElement($element);
+
         /** @var Order $element */
-        $this->_setLineItems($element, $attributes['_lineItems'] ?? []);
+        $this->_setLineItems($element, $this->_lineItems);
 
         // Resave after extra data
-        if (!Craft::$app->getElements()->saveElement($element)) {
+        if (!$result = Craft::$app->getElements()->saveElement($element)) {
             throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
 
         // Complete order if required
-        if ($attributes['_markAsComplete']) {
+        if ($this->_markAsComplete) {
             $element->markAsComplete();
         }
+
+        // Reset private variables
+        $this->_lineItems = [];
+        $this->_markAsComplete = false;
+
+        return $result;
     }
 
     /**
@@ -85,7 +111,6 @@ class OrdersFixture extends BaseElementFixture
         }
 
         $order->setLineItems($orderLineItems);
-
     }
 
     /**
