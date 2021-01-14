@@ -316,7 +316,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        // order qty rules are inclusive (min > x < max)
+        // order qty rules are inclusive (min > x <  max)
         if ($this->minQty && $this->minQty > $order->totalQty) {
             return false;
         }
