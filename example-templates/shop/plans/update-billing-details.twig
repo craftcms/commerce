@@ -20,7 +20,7 @@
     {% endif %}
 
     {% if subscription.isCanceled == true %}
-        {# It has canceled, redirect to subscription manage page #}
+        {# It has been canceled. You might want to redirect to the subscription management page here. #}
         {% exit 404 %}
     {% endif %}
 
