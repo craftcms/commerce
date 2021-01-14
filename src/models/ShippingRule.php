@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
@@ -61,6 +62,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var bool Enabled
      */
     public $enabled = true;
+
+    /**
+     * @var string Order Condition Formula
+     */
+    public $orderConditionFormula = '';
 
     /**
      * @var int Minimum Quantity
@@ -188,6 +194,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 'methodId',
                 'priority',
                 'enabled',
+                'orderConditionFormula',
                 'minQty',
                 'maxQty',
                 'minTotal',
@@ -204,14 +211,31 @@ class ShippingRule extends Model implements ShippingRuleInterface
             ], 'required'
         ];
 
-        $rules[] = [[
-            'perItemRate',
-            'weightRate',
-            'percentageRate',
-        ], 'number'];
+        $rules[] = [
+            [
+                'perItemRate',
+                'weightRate',
+                'percentageRate',
+            ], 'number'
+        ];
 
-        $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true ];
+        $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
 
+        $rules[] = [
+            'orderConditionFormula', function($attribute, $params, $validator) {
+                $order = Order::find()->one();
+                if (!$order) {
+                    $order = new Order();
+                }
+                $orderConditionParams = [
+                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                ];
+                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
+                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                }
+            }
+        ];
+        
         return $rules;
     }
 
@@ -234,6 +258,16 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $lineItems = $order->getLineItems();
 
+        if ($this->orderConditionFormula) {
+            $orderConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
+                return false;
+            };
+        }
+
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
@@ -248,7 +282,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         if ($shippableItemsInOrder) {
             $shippingRuleCategories = $this->getShippingRuleCategories();
             $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-            list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+            [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
 
             // Does the order have any disallowed categories in the cart?

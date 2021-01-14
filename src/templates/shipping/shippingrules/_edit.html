@@ -221,6 +221,31 @@
             'Shipping zone saved.'|t
         ) }}
 
+        {% embed '_includes/forms/field' with {
+            label: 'Order Condition Formula'|t('commerce'),
+            id: 'orderConditionFormula',
+            rows: 5,
+            instructions: 'Use a formula to match the the. Leave this blank to match all orders. Use the `order` variable.',
+            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
+            } %}
+            {% block input %}
+                {% import "_includes/forms" as forms %}
+                <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
+                    <div  class="zip-condition">
+                        {{ forms.textarea({
+                            value: shippingRule is defined ? shippingRule.orderConditionFormula,
+                            name: 'orderConditionFormula',
+                            class: 'code',
+                            rows: 5,
+                            placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
+                        }) }}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
+
+
         {% set minMaxTotalQtyInput %}
         <table class="inputs">
             <tr>
