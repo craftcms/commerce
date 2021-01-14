@@ -663,6 +663,7 @@ class Install extends Migration
             'maxQty' => $this->integer()->notNull()->defaultValue(0),
             'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'minMaxTotalType' => $this->enum('minMaxTotalType', ['salePrice', 'salePriceWithDiscounts'])->notNull()->defaultValue('salePrice'),
             'minWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
