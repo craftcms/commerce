@@ -8,6 +8,7 @@ env:
 branches:
   only:
   - develop
+  - 3.3
 services:
 - mysql
 - postgresql
@@ -22,13 +23,9 @@ jobs:
     env: DB=mysql
   - php: 7.3
     env: DB=pgsql
-  - php: 7.2
+  - php: 7.2.5
     env: DB=mysql
-  - php: 7.2
-    env: DB=pgsql
-  - php: 7.1
-    env:  DB=mysql
-  - php: 7.1
+  - php: 7.2.5
     env: DB=pgsql
 cache:
   directories:
