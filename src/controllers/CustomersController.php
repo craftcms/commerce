@@ -90,10 +90,10 @@ class CustomersController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Customer saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Customer saved.'));
             $this->redirectToPostedUrl();
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save customer.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save customer.'));
         }
 
         // Send the model back to the template

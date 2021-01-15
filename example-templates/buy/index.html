@@ -9,15 +9,20 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
 {% redirect 'buy/add' %}
 {% endif %}
 
-{# Do we have have more than 1 line item? If so, we are likely on Pro, let's use the main cart checkout example template #}
+{# Do we have have more than 1 line item? If so, we are likely on Pro, let's use the main cart checkout
+   example template. #}
 {% if cart.lineItems|length > 1 %}
     {% redirect '/shop/cart' %}
 {% endif %}
 
 {% set step = craft.app.request.param('step') %}
 
+{% set step1url = url('buy', {'step' : 1 }) %}
+{% set step2url = url('buy', {'step' : 2 }) %}
+{% set step3url = url('buy', {'step' : 3 }) %}
+
 {% if not step %}
-    {% redirect 'buy?step=1' %}
+    {% redirect step2url %}
 {% endif %}
 
 {% set showEmailForm = (step == 1) %}
@@ -29,11 +34,11 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
 {% set showPaymentForm = (step == 3) %}
 
 {% if showPaymentForm and not cart.email %}
-{% redirect 'buy?step=1' %}
+{% redirect step1url %}
 {% endif %}
 
 {% if showPaymentForm and not cart.shippingAddress %}
-{% redirect 'buy?step=2' %}
+{% redirect step2url %}
 {% endif %}
 
 <div class="p-10 pt-8 border-b border-solid border-grey-light">
@@ -46,7 +51,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
     {% if showEmailForm %}
         <form method="POST" class="add-to-cart-form">
             <input type="hidden" name="action" value="commerce/cart/update-cart">
-            {{ redirectInput('buy?step=2') }}
+            {{ redirectInput(step2url) }}
             {{ csrfInput() }}
             <div class="flex">
             <div class="w-full/2 w-full">
@@ -63,7 +68,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
     {% endif  %}
     {% if showEmailInfo %}
         {{ cart.email }}
-        {% if not currentUser %}<a href="buy?step=1" class="text-blue block mt-5">Edit</a>{% endif %}
+        {% if not currentUser %}<a href="{{ step1url }}" class="text-blue block mt-5">Edit</a>{% endif %}
     {% endif %}
 
 </div>
@@ -78,7 +83,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
     {% if showShippingForm %}
     <form method="POST" class="add-to-cart-form">
         <input type="hidden" name="action" value="commerce/cart/update-cart">
-        {{ redirectInput('buy?step=3') }}
+        {{ redirectInput(step3url) }}
         {{ csrfInput() }}
         <div class="flex mb-4">
             <div class="w-1/2 mr-2">
@@ -141,7 +146,7 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
         {{ cart.shippingAddress.address2 ?? ''}}<br>
         {{ cart.shippingAddress.city ?? ''}}, {{ cart.shippingAddress.zipCode ?? ''}}<br>
         {{ cart.shippingAddress.stateValue ?? ''}} {{ cart.shippingAddress.countryText ?? ''}}<br>
-        <a href="buy?step=2" class="text-blue block mt-5">Edit</a>
+        <a href="{{ step2url }}" class="text-blue block mt-5">Edit</a>
     {% endif %}
 
 
@@ -150,7 +155,8 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
 
     <form method="POST" class="add-to-cart-form">
         <input type="hidden" name="action" value="commerce/payments/pay">
-        <input type="hidden" name="gatewayId" value="1"> {# the dummy gateway ID #}
+        {# 1 = the dummy gateway ID #}
+        <input type="hidden" name="gatewayId" value="1">
         {{ redirectInput('buy/confirm?number={number}') }}
         {{ csrfInput() }}
     <div class="p-10 pt-8">

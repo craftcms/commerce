@@ -52,6 +52,7 @@ class Settings extends Model
      *
      * @group Cart
      * @since 2.2
+     * @defaultAlt 1 hour
      */
     public $activeCartDuration = 3600;
 
@@ -285,6 +286,7 @@ class Settings extends Model
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
+     * @defaultAlt 90 days
      */
     public $purgeInactiveCartsDuration = 7776000;
 
@@ -384,7 +386,7 @@ class Settings extends Model
 
     /**
      * Returns a key-value array of weight unit options and labels.
-     * 
+     *
      * @return array
      */
     public function getWeightUnitsOptions(): array

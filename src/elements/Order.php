@@ -51,6 +51,7 @@ use craft\helpers\StringHelper;
 use craft\helpers\Template;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use craft\models\Site;
 use DateTime;
 use Throwable;
 use yii\base\Exception;
@@ -129,6 +130,7 @@ use yii\log\Logger;
  * @property-read string $storedTotalDiscountAsCurrency
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
+ * @property-read Site|null $orderSite
  * @property null|array|Address $estimatedBillingAddress
  * @property float $totalDiscount
  * @property null|array|Address $estimatedShippingAddress
@@ -601,19 +603,32 @@ class Order extends Element
     public $orderStatusId;
 
     /**
-     * The current order status ID. This will be null if the order is not complete
-     * and is still a cart.
+     * The language the cart was created in.
      *
-     * @var int|null Order status ID
+     * @var string The language the order was made in.
      * ---
      * ```php
-     * echo $order->orderStatusId;
+     * echo $order->orderLanguage;
      * ```
      * ```twig
-     * {{ order.orderStatusId }}
+     * {{ order.orderLanguage }}
      * ```
      */
     public $orderLanguage;
+
+    /**
+     * The site the order was created in.
+     *
+     * @var int|null Order site ID
+     * ---
+     * ```php
+     * echo $order->orderSiteId;
+     * ```
+     * ```twig
+     * {{ order.orderSiteId }}
+     * ```
+     */
+    public $orderSiteId;
 
 
     /**
@@ -1064,6 +1079,10 @@ class Order extends Element
             $this->orderLanguage = Craft::$app->language;
         }
 
+        if ($this->orderSiteId === null) {
+            $this->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
+        }
+
         if ($this->currency === null) {
             $this->currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         }
@@ -1349,6 +1368,7 @@ class Order extends Element
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
+        $names[] = 'orderSite';
         return $names;
     }
 
@@ -1841,6 +1861,7 @@ class Order extends Element
         $orderRecord->currency = $this->currency;
         $orderRecord->lastIp = $this->lastIp;
         $orderRecord->orderLanguage = $this->orderLanguage;
+        $orderRecord->orderSiteId = $this->orderSiteId;
         $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
         $orderRecord->customerId = $this->customerId;
@@ -2039,9 +2060,29 @@ class Order extends Element
             if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
+            $previousCustomerId = $this->customerId;
 
             $this->_customer = $customer;
             $this->customerId = $customer->id;
+
+            // If the customer is changing then we should be resetting the association with the addresses on the cart
+            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousCustomerId) {
+                if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
+                    $shippingAddress->id = null;
+                    $this->setShippingAddress($shippingAddress);
+                }
+
+                if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
+                    $billingAddress->id = null;
+                    $this->setBillingAddress($billingAddress);
+                }
+
+                $this->estimatedBillingAddressId = null;
+                $this->_estimatedBillingAddress = null;
+
+                $this->estimatedShippingAddressId = null;
+                $this->_estimatedShippingAddress = null;
+            }
         } else {
             $this->_customer = null;
             $this->customerId = null;
@@ -2911,10 +2952,26 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource(PaymentSource $paymentSource)
+    public function setPaymentSource($paymentSource)
     {
-        $this->paymentSourceId = $paymentSource->id;
-        $this->gatewayId = null;
+        if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
+            throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
+        }
+
+        // Setting the payment source to null clears it
+        if ($paymentSource === null) {
+            $this->paymentSourceId = null;
+        }
+
+        if ($paymentSource instanceof PaymentSource) {
+            $user = $this->getUser();
+            if ($user && $paymentSource->getUser()->id != $user->id) {
+                throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
+            }
+
+            $this->paymentSourceId = $paymentSource->id;
+            $this->gatewayId = null;
+        }
     }
 
     /**
@@ -3010,6 +3067,21 @@ class Order extends Element
     public function getOrderStatus()
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+    }
+
+    /**
+     * Get the site for the order.
+     *
+     * @return Site|null
+     * @since 3.2.9
+     */
+    public function getOrderSite()
+    {
+        if (!$this->orderSiteId) {
+            return null;
+        }
+
+        return Craft::$app->getSites()->getSiteById($this->orderSiteId);
     }
 
     /**

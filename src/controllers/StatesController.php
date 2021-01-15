@@ -122,10 +122,10 @@ class StatesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getStates()->saveState($state)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'State saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'State saved.'));
             $this->redirect(UrlHelper::cpUrl('commerce/store-settings/countries/' . $state->getCountry()->id));
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save state.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save state.'));
         }
 
         // Send the model back to the template
@@ -161,7 +161,7 @@ class StatesController extends BaseStoreSettingsController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update states status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update states status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -176,7 +176,7 @@ class StatesController extends BaseStoreSettingsController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'States updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'States updated.'));
     }
 
     /**

@@ -88,7 +88,7 @@ class Plans extends Component
      * Memoized array of plans.
      *
      * @var Plan[]|null
-     * @since 3.x
+     * @since 3.2.8
      */
     private $_allPlans;
 
@@ -175,7 +175,7 @@ class Plans extends Component
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
-        return ArrayHelper::firstWhere($this->_getAllPlans(), 'planInformationId', $entryId);
+        return ArrayHelper::where($this->_getAllPlans(), 'planInformationId', $entryId);
     }
 
     /**
@@ -363,7 +363,7 @@ class Plans extends Component
      * Get all plans memoized.
      *
      * @return array
-     * @since 3.x
+     * @since 3.2.8
      */
     private function _getAllPlans()
     {

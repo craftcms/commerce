@@ -11,6 +11,8 @@ use Craft;
 use craft\base\Element;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\events\CustomerAddressEvent;
+use craft\commerce\events\CustomerEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\Plugin;
@@ -54,6 +56,79 @@ class Customers extends Component
      */
     private $_customer;
 
+    /**
+     * @event CustomerEvent The event that is triggered before customer details is saved.
+     * @since 3.2.9
+     *
+     * ```php
+     * Event::on(
+     * Customers::class,
+     * Customers::EVENT_BEFORE_SAVE_CUSTOMER,
+     *     function(CustomerEvent $event) {
+     *         // @var Customer $customer
+     *         $customer = $event->customer;;
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_BEFORE_SAVE_CUSTOMER = 'beforeSaveCustomer';
+
+    /**
+     * @event CustomerEvent The event that is triggered after customer details is saved.
+     * @since 3.2.9
+     *
+     * ```php
+     * Event::on(
+     * Customers::class,
+     * Customers::EVENT_AFTER_SAVE_CUSTOMER,
+     *     function(CustomerEvent $event) {
+     *         // @var Customer $customer
+     *         $customer = $event->customer;;
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_SAVE_CUSTOMER = 'afterSaveCustomer';
+
+    /**
+     * @event CustomerAddressEvent The event that is triggered before customer address is saved.
+     * @since 3.2.9
+     *
+     * ```php
+     * Event::on(
+     * Customers::class,
+     * Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS,
+     *      function(CustomerAddressEvent $event) {
+     *          // @var Customer $customer
+     *          $customer = $event->customer;
+     *
+     *          // @var Address $address
+     *          $address = $event->address;
+     *      }
+     * );
+     * ```
+     */
+    const EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS = 'beforeSaveCustomerAddress';
+
+    /**
+     * @event CustomerAddressEvent The event that is triggered after customer address is successfully saved.
+     * @since 3.2.9
+     *
+     * ```php
+     * Event::on(
+     * Customers::class,
+     * Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS,
+     *      function(CustomerAddressEvent $event) {
+     *          // @var Customer $customer
+     *          $customer = $event->customer;
+     *
+     *          // @var Address $address
+     *          $address = $event->address;
+     *      }
+     * );
+     * ```
+     */
+    const EVENT_AFTER_SAVE_CUSTOMER_ADDRESS = 'afterSaveCustomerAddress';
 
     /**
      * Get all customers.
@@ -150,6 +225,14 @@ class Customers extends Component
      */
     public function saveAddress(Address $address, Customer $customer = null, bool $runValidation = true): bool
     {
+        // Fire a 'beforeSaveCustomerAddress' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
+                'address' => $address,
+                'customer' => $customer
+            ]));
+        }
+
         // default to customer in session.
         if (null === $customer) {
             $customer = $this->getCustomer();
@@ -169,6 +252,14 @@ class Customers extends Component
             $customerAddress->addressId = $address->id;
 
             if ($customerAddress->save()) {
+                // Fire a 'afterSaveCustomerAddress' event
+                if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS)) {
+                    $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
+                        'address' => $address,
+                        'customer' => $customer
+                    ]));
+                }
+
                 return true;
             }
         }
@@ -186,6 +277,13 @@ class Customers extends Component
      */
     public function saveCustomer(Customer $customer, bool $runValidation = true): bool
     {
+        // Fire a 'beforeSaveCustomer' event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER)) {
+            $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER, new CustomerEvent([
+                'customer' => $customer
+            ]));
+        }
+
         if (!$customer->id) {
             $customerRecord = new CustomerRecord();
         } else {
@@ -216,6 +314,13 @@ class Customers extends Component
         // Update the current customer if it was the one saved
         if ($this->_customer && $this->_customer->id == $customer->id) {
             $this->_customer = $customer;
+        }
+
+        // Fire a 'afterSaveCustomer' event
+        if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER)) {
+            $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER, new CustomerEvent([
+                'customer' => $customer
+            ]));
         }
 
         return true;
@@ -270,15 +375,17 @@ class Customers extends Component
             ->select(['[[customers.id]] id'])
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
-            ->column();
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null]);
 
-        if ($customers) {
-            // This will also remove all addresses related to the customer.
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $customers])
-                ->execute();
-        }
+        // Wrap subquery in another subquery to just select the ID. This is for MySQL compatibility.
+        $customersIds = (new Query())
+            ->select('custs.id')
+            ->from(['custs' => $customers]);
+
+        // This will also remove all addresses related to the customer.
+        Craft::$app->getDb()->createCommand()
+            ->delete(Table::CUSTOMERS, ['id' => $customersIds])
+            ->execute();
     }
 
     /**

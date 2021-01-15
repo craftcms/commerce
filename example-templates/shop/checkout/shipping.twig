@@ -5,14 +5,9 @@
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
             <h1 class="font-bold text-xl">How should your order be shipped?</h1>
-            {#
-                Choosing a shipping method.
-                Now that we know the cart's address, we need to show all available shipping methods. Only those that match
-                at least one rule contained in the shipping method are compatible with the order. `cart.shippingMethods` only returns
-                methods available to the order. If you require shipping and no methods are avaialable, create a catch all rule
-                in a method that matches all addresses.
-            #}
 
+            {# `cart.shippingMethods` only returns methods available to the order, per the shipping methods'
+               rules. You can create a catchall rule that matches all addresses if necessary. #}
             {% if cart.availableShippingMethodOptions|length < 2 and cart.shippingMethod %}
                 {% redirect 'shop/checkout/payment-method' %}
             {% endif %}
@@ -27,7 +22,7 @@
             {% if cart.availableShippingMethodOptions|length %}
               <div class="mt-3">
                 <form method="post">
-                  <input type="hidden" name="action" value="commerce/cart/update-cart">
+                  {{ actionInput('commerce/cart/update-cart') }}
                   {{ redirectInput('shop/checkout/payment-method') }}
                   {{ csrfInput() }}
 

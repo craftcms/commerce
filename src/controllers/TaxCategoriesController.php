@@ -10,6 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
+use craft\errors\MissingComponentException;
+use craft\helpers\ArrayHelper;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -62,6 +66,16 @@ class TaxCategoriesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
         }
 
+        $variables['productTypesOptions'] = [];
+        if (!empty($variables['productTypes'])) {
+            $variables['productTypesOptions'] = ArrayHelper::map($variables['productTypes'], 'id', function($row) {
+                return ['label' => $row->name, 'value' => $row->id];
+            });
+        }
+
+        $allTaxCategoryIds = array_keys(Plugin::getInstance()->getTaxCategories()->getAllTaxCategories());
+        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allTaxCategoryIds) === 1 && in_array($variables['id'], $allTaxCategoryIds);
+
         return $this->renderTemplate('commerce/tax/taxcategories/_edit', $variables);
     }
 
@@ -101,7 +115,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax category saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax category saved.'));
             $this->redirectToPostedUrl($taxCategory);
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -110,7 +124,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax category.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax category.'));
         }
 
         // Send the tax category back to the template
@@ -136,5 +150,33 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         return $this->asErrorJson(Craft::t('commerce', 'Could not delete tax category'));
+    }
+
+    /**
+     * @throws MissingComponentException
+     * @throws Exception
+     * @throws BadRequestHttpException
+     * @since 3.2.9
+     */
+    public function actionSetDefaultCategory()
+    {
+        $this->requirePostRequest();
+
+        $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
+
+        if (!empty($ids)) {
+            $id = ArrayHelper::firstValue($ids);
+
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($id);
+            if ($taxCategory) {
+                $taxCategory->default = true;
+                if (Plugin::getInstance()->getTaxCategories()->saveTaxCategory($taxCategory)) {
+                    $this->setSuccessFlash(Craft::t('commerce', 'Tax category updated.'));
+                    return null;
+                }
+            }
+        }
+
+        $this->setFailFlash(Craft::t('commerce', 'Unable to set default tax category.'));
     }
 }

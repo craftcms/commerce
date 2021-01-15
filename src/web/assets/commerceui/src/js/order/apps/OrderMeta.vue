@@ -33,6 +33,13 @@
                 <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
+            <field v-if="order.isCompleted" :label="$options.filters.t('Order Site', 'commerce')">
+                <order-site
+                    :originalOrderSiteId="originalDraft.order.orderSiteId"
+                    :order="order"
+                    @updateOrder="updateOrder"></order-site>
+            </field>
+
             <div class="field" id="isCompleted-field"
                  v-if="!draft.order.isCompleted">
                 <div class="heading">
@@ -43,6 +50,8 @@
                     <div class="buttons">
                         <input type="button" class="btn small"
                                :value="$options.filters.t('Mark as completed', 'commerce')"
+                               :class="{ disabled: !hasCustomer || recalculateLoading}"
+                               :disabled="!hasCustomer || recalculateLoading"
                                @click="markAsCompleted"/>
                     </div>
                 </div>
@@ -91,6 +100,12 @@
                     <span class="value">{{draft.order.dateOrdered.date}} {{draft.order.dateOrdered.time}}</span>
                 </div>
             </template>
+
+            <div class="data">
+                <h5 class="heading">{{"Order Site"|t('commerce')}}</h5>
+                <span class="value"
+                      v-if="draft.order.orderSite">{{draft.order.orderSite.name}} ({{draft.order.orderSite.language}})</span>
+            </div>
 
             <template v-if="draft.order.isCompleted">
                 <div class="data">
@@ -195,6 +210,7 @@
     import debounce from 'lodash.debounce'
     import {mapActions, mapGetters, mapState} from 'vuex'
     import OrderStatus from '../components/meta/OrderStatus'
+    import OrderSite from '../components/meta/OrderSite'
     import ShippingMethod from '../components/meta/ShippingMethod'
     import DateOrderedInput from '../components/meta/DateOrderedInput'
     import Field from '../../base/components/Field'
@@ -205,6 +221,7 @@
 
         components: {
             OrderStatus,
+            OrderSite,
             ShippingMethod,
             DateOrderedInput,
             Field,
@@ -216,11 +233,13 @@
             ...mapState({
                 draft: state => state.draft,
                 originalDraft: state => state.originalDraft,
+                recalculateLoading: state => state.recalculateLoading,
                 editing: state => state.editing,
             }),
 
             ...mapGetters([
                 'getErrors',
+                'hasCustomer'
             ]),
 
             reference: {

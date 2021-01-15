@@ -11,7 +11,6 @@
     {% endif %}
 
     {# Does a user exist with this email address? #}
-
     {% set userExistsButCantLogin = craft.users.email(cart.email).status(['locked','suspended','pending']).one() %}
 
     {% if userExistsButCantLogin %}
@@ -31,7 +30,7 @@
 
                 <form method="post" action="" accept-charset="UTF-8">
                   {{ csrfInput() }}
-                  <input type="hidden" name="action" value="users/login">
+                  {{ actionInput('users/login') }}
                   {{ redirectInput('shop/checkout/addresses') }}
 
                   <div class="field mt-3">
@@ -66,7 +65,7 @@
 
                 <form method="post" action="" accept-charset="UTF-8">
                     {{ csrfInput() }}
-                    <input type="hidden" name="action" value="users/save-user">
+                    {{ actionInput('users/save-user') }}
                     {{ redirectInput('shop/checkout/addresses') }}
 
                     {% macro errorList(errors) %}

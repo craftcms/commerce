@@ -152,6 +152,11 @@ trait OrderElementTrait
                 ];
                 return $this->_miniTable($values);
             }
+            case 'orderSite':
+            {
+                $site = Craft::$app->getSites()->getSiteById($this->orderSiteId);
+                return $site->name ?? '';
+            }
             default:
             {
                 return parent::tableAttributeHtml($attribute);
@@ -408,6 +413,7 @@ trait OrderElementTrait
             'couponCode' => ['label' => Craft::t('commerce', 'Coupon Code')],
             'itemTotal' => ['label' => Craft::t('commerce', 'Item Total')],
             'itemSubtotal' => ['label' => Craft::t('commerce', 'Item Subtotal')],
+            'orderSite' => ['label' => Craft::t('commerce', 'Order Site')],
         ];
     }
 

@@ -21,6 +21,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -183,11 +184,6 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public $sku;
-
-    /**
-     * @inheritdoc
-     */
     public $price;
 
     /**
@@ -247,6 +243,13 @@ class Variant extends Purchasable
      * @see setProduct()
      */
     private $_product;
+
+    /**
+     * @var string SKU
+     * @see getSku()
+     * @see setSku()
+     */
+    private $_sku;
 
     /**
      * @return array
@@ -362,7 +365,7 @@ class Variant extends Purchasable
 
         $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price'], 'number'];
+        $rules[] = [['price', 'weight', 'width', 'height', 'length'], 'number'];
         $rules[] = [
             ['stock'],
             'required',
@@ -392,8 +395,14 @@ class Variant extends Purchasable
      */
     public function getFieldLayout()
     {
+        $fieldLayout = parent::getFieldLayout();
+        
         // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
-        return parent::getFieldLayout() ?? $this->getProduct()->getType()->getVariantFieldLayout();
+        if (!$fieldLayout && $this->productId) {
+            $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
+        }
+
+        return $fieldLayout;
     }
 
     /**
@@ -440,6 +449,8 @@ class Variant extends Purchasable
         if ($product->id) {
             $this->productId = $product->id;
         }
+
+        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         $this->_product = $product;
     }
@@ -670,7 +681,32 @@ class Variant extends Purchasable
      */
     public function getSku(): string
     {
-        return $this->sku;
+        return $this->_sku ?? '';
+    }
+
+    /**
+     * Returns the SKU as text but returns a blank string if it’s a temp SKU.
+     *
+     * @return string
+     */
+    public function getSkuAsText(): string
+    {
+        $sku = $this->getSku();
+
+        if (PurchasableHelper::isTempSku($sku)) {
+            $sku = '';
+        }
+
+        return $sku;
+    }
+
+    /**
+     * @param string|null $sku
+     * @return void
+     */
+    public function setSku(string $sku = null)
+    {
+        $this->_sku = $sku;
     }
 
     /**
@@ -998,6 +1034,11 @@ class Variant extends Purchasable
             return false;
         }
 
+        // Temporary SKU can not be added to the cart
+        if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
         return $this->stock >= 1 || $this->hasUnlimitedStock;
     }
 
@@ -1058,12 +1099,25 @@ class Variant extends Purchasable
         $this->updateTitle($product);
         $this->updateSku($product);
 
+        if ($this->getScenario() === self::SCENARIO_DEFAULT) {
+
+            if (!$this->sku) {
+                $this->setSku(PurchasableHelper::tempSku());
+            }
+
+            if (!$this->price) {
+                $this->price = 0;
+            }
+
+            if (!$this->stock) {
+                $this->stock = 0;
+            }
+        }
+
         // Zero out stock if unlimited stock is turned on
         if ($this->hasUnlimitedStock) {
             $this->stock = 0;
         }
-
-        $this->fieldLayoutId = $product->getType()->variantFieldLayoutId;
 
         return parent::beforeValidate();
     }
@@ -1143,6 +1197,21 @@ class Variant extends Purchasable
         }
 
         return true;
+    }
+
+    /**
+     * @throws \yii\db\Exception
+     */
+    public function afterRestore()
+    {
+        // Once restored, we no longer track if it was deleted with variant or not
+        $this->deletedWithProduct = null;
+        Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
+            ['deletedWithProduct' => null],
+            ['id' => $this->getId()]
+        )->execute();
+
+        parent::afterRestore();
     }
 
     /**
@@ -1244,7 +1313,7 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->sku;
+                return $this->getSkuAsText();
             }
             case 'product':
             {

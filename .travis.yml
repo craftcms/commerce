@@ -8,13 +8,17 @@ env:
 branches:
   only:
   - develop
-  - feature/tests
+  - 3.3
 services:
 - mysql
 - postgresql
 jobs:
   fast_finish: true
   include:
+  - php: 7.4
+    env: DB=mysql TASK_TESTS_COVERAGE=1
+  - php: 7.4
+    env: DB=pgsql
   - php: 7.3
     env: DB=mysql
   - php: 7.3
@@ -24,15 +28,15 @@ jobs:
   - php: 7.2
     env: DB=pgsql
   - php: 7.1
-    env: TASK_TESTS_COVERAGE=1 DB=mysql
+    env:  DB=mysql
   - php: 7.1
-    env: TASK_TESTS_COVERAGE=1 DB=pgsql
+    env: DB=pgsql
 cache:
   directories:
   - "$HOME/.composer/cache"
   - "$HOME/.npm"
 addons:
-  postgresql: '9.6'
+  postgresql: "9.6"
 install:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
@@ -54,13 +58,19 @@ before_script:
   psql --version
   mysql --version
   sudo mysql_upgrade || echo "MySQL is already up to date"
-- travis_retry mysql -e 'CREATE DATABASE `craft-test`;';
+- travis_retry mysql -e 'CREATE DATABASE `commercetest`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
-- psql -U postgres -c 'CREATE DATABASE "craft-test";';
+- psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - pear config-set preferred_state beta
 - pecl channel-update pecl.php.net
 - yes | pecl install imagick
 - cp tests/.env.example.$DB tests/.env
+- |
+  if [[ $DB == "mysql" ]]; then
+    sed -i 's/DB_USER="craft"/DB_USER="root"/' tests/.env
+  else
+    sed -i 's/DB_USER="craft"/DB_USER="postgres"/' tests/.env
+  fi
 script:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
@@ -75,14 +85,9 @@ after_script:
     bash <(curl -s https://codecov.io/bash)
   fi
 notifications:
-  slack:
+  webhooks:
+    urls:
+      - secure: "NSPPPO9zXMYAFjmFBT+3PXvp1RDT1fq0RgxEfAvHzaUMzj5RTwqQ3GlLucCGol/S314Rdof7eCJyrkpok5C6V5ebyW5aU/hPRc/thmFCcs/UJSHEVcbPzrAA6CaJ4GxLCm2Siwhlt5PA13jC+WJBe8+9WxDE3v+8n0G6g+X4feUv6dePj3lDf12lvzpLaHNC0BW+I7+9aipDp+EDM7ecKaT7eIUoQsYHyaerP4hVtQoC1r48qM3cvknGD/38tj68EXzPoAJwfzOV4o6V3fNKwm7JPe+qzxhYhCYf44thjXlDOLiIBorUtrX5eX746JLbt/6luyH2wnrGbBed5WZj5tOFWq503eMrqHFOPE2zdlxLjfcR2hKvw3ZdwrX+C3YsFaJjxEVROH5eO3NxF46olUW6say84EOvsSnZbA//vehzYeC786g70Ziavs32v7kGdwMDa3G3bmP7nSC3vpX0AhZaNmfxJ4mlNzFIH8feECYU3uJPcYTmFgN0Qk8FSNmfOTBvOZqUKEB2EkOpwK7YHfGzqaNCyhUfjg72IlWlmM6gWqzUbrSLtklHxBNdPAKE3p/we8JDKGd55EHzwqFnyqVj6v50LKIcPpsqthxbzSB4zeEkuHfR1UGUZXNT7Nf0mpSfYnUs5j5ZIClKsn/VHTjRmFJrltjenUS8wlEXHfw="
+      - secure: "nkSeOSak4S9h4ZWND7MH5rnQ+iSV2jo7LeVZfKMyKEa2sVPP80SRrxcAPl3fWdkWKC1ZJRaLdOFvO3HtAieH35Yg4TIUe1S0vy2wZqMR4majP4CdElrbq13js8dodg2bOy4W5iEEXw2dKj1p3km+tm7Jja46LPhppnUZk1FlaL/pk0Dpq5GcMfRaC6KM7EjTSSYZokKPkj6nxIybjAhoVFKXcVSCC8meKvJXCY3LiX6IHFeCQnjfYJZKemYjaQBcyMnVS1/wrADRIeACfx6ozZPMaSVBynz/qnYuwXghI1yxSidb/X8sGbF8g1vjomCe6uG40ajnLimHltVxFfVvnphYhxY7aW1o5xXB/he6EyyujX5G8WpneeQ3/Rg6KCtn61ZndQv/wL1Vr9wgGlG30PFLBW8QsaIArl/MJ0WRIe5Cmx8iUhZFAhU+PGUibMfFoGZgbYA33rd98znXr4vw823Ssb7gWTe1u8U1CwCwsrPJAdie91v8dftsW6MdYENn7xQPxXCsT/PEkPt1GAX0NlAmiZt7mBfIMB9R2temJCt1atiIOovVF2D+tuJ6tEkluo0Ot4oEZMQ6OlnkuoewTkegss1TdT+nIMljf2EUNWUyHwcMGzmvXyAuH3RW5JE+HvJjo1qV7ttJ08GFbeGCOZLzMGqmC7l2i9qbT8NhYzU="
     on_success: always
     on_failure: always
-    rooms:
-      secure: gyz9L5Cuv4B2mn3B/w6c6DaPiRk941KiEIzJihiBIk1ocY0UApWrvTOxqr4f/VSRDkaLUw81F0RXjsof+LhVKytmf0vJw19v4bEqGCPr6ZQabxPE1IrMhMfpOyLYPhh6MEjZdNdEHxyFp06lTsGPA57ikJofOHg5J4zQbnz0yGh1QHzyxzbLnJDkQUGdxpi+eXzvlHMCDQKGyNQ+pgq4dv4d6pJQi6NvHoUqveveJlp0plN3BDT3fCJTTVIipqx0jnHDoJT988QJcaeeyciCEYHK2APwmOqEjdo68JLlFgWr+ohSTs8c1OdYSQTsvpd8i3+oPtpiFStu2Jc7ns2MhuyjU3FGJUiSiC40se4ASiqz/FAUusYpXSWSdcbZGVK2f1yzof1tV2u/VMQaGx5rN/vDCUrgLTR4m+HjMmLasrOKrLd1hrhzSanu0fhaXrecMY6yxc8r3G3kGLL5io4eAOsJUdjutrCcxBlQsDM321A9Su6JjOP4dwVUHklaHh465JyH5ddEmODfln8L24e0JJkmM6fzAAuN02UJ9kJLHQ1Vu4UMDVTkBW9zeHmRgvagJTJEoAt02xfUi/aRXMvnB+BM8MpVp+6yujIBSEp6mkCTIQhk6oSw6khjOoTfDi2TXF9mKdabBo/I1qIFthhJfl3yfEppBxXxSEtEJ6ykY+A=
-  email:
-    recipients:
-    - brad@craftcms.com
-    - brandon@craftcms.com
-    - luke@craftcms.com
-    - nathaniel@craftcms.com

@@ -8,9 +8,11 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -120,10 +122,16 @@ class TaxRatesController extends BaseTaxSettingsController
         $variables['newTaxZoneJs'] = $view->clearJsBuffer(false);
 
         $view->startJsBuffer();
+
+        $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
+        $productTypesOptions = [];
+        if (!empty($productTypes)) {
+            $productTypesOptions = ArrayHelper::map($productTypes, 'id', function(ProductType $row) {
+                return ['label' => $row->name, 'value' => $row->id];
+            });
+        }
         $variables['newTaxCategoryFields'] = $view->namespaceInputs(
-            $view->renderTemplate('commerce/tax/taxcategories/_fields', [
-                'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
-            ])
+            $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
 
@@ -166,10 +174,10 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax rate saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax rate.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax rate.'));
         }
 
         // Send the model back to the template

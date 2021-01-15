@@ -283,7 +283,7 @@ class Discounts extends Component
                 ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
                 // Restricted by enabled discounts
                 ->where([
-                    'enabled' => 1,
+                    'enabled' => true,
                 ])
                 // Restrict by things that a definitely not in date
                 ->andWhere([
@@ -419,7 +419,7 @@ class Discounts extends Component
         }
 
         return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
-            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
         });
     }
 
@@ -725,6 +725,10 @@ class Discounts extends Component
                 ]));
             }
 
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
+
             return true;
         } catch (\Exception $e) {
             $transaction->rollBack();
@@ -759,6 +763,10 @@ class Discounts extends Component
             ]));
         }
 
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
+
         return $result;
     }
 
@@ -774,6 +782,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -788,6 +800,10 @@ class Discounts extends Component
         $db->createCommand()
             ->delete(Table::EMAIL_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -803,6 +819,10 @@ class Discounts extends Component
         $db->createCommand()
             ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], ['id' => $id])
             ->execute();
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
     }
 
     /**
@@ -818,6 +838,10 @@ class Discounts extends Component
                 ->update(Table::DISCOUNTS, ['sortOrder' => $sortOrder + 1], ['id' => $id])
                 ->execute();
         }
+
+        // Reset internal cache
+        $this->_allDiscounts = null;
+        $this->_allActiveDiscounts = null;
 
         return true;
     }
@@ -937,6 +961,10 @@ class Discounts extends Component
                     'id' => $discount['discountUseId']
                 ])
                 ->execute();
+
+            // Reset internal cache
+            $this->_allDiscounts = null;
+            $this->_allActiveDiscounts = null;
         }
     }
 

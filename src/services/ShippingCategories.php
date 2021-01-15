@@ -29,25 +29,9 @@ use yii\base\Exception;
 class ShippingCategories extends Component
 {
     /**
-     * @var bool
+     * @var ShippingCategory[]|null
      */
-    private $_fetchedAllShippingCategories = false;
-
-    /**
-     * @var ShippingCategory[]
-     */
-    private $_shippingCategoriesById = [];
-
-    /**
-     * @var ShippingCategory[]
-     */
-    private $_shippingCategoriesByHandle;
-
-    /**
-     * @var ShippingCategory
-     */
-    private $_defaultShippingCategory;
-
+    private $_allShippingCategories = null;
 
     /**
      * Returns all Shipping Categories
@@ -56,18 +40,17 @@ class ShippingCategories extends Component
      */
     public function getAllShippingCategories(): array
     {
-        if (!$this->_fetchedAllShippingCategories) {
+        if ($this->_allShippingCategories === null) {
             $results = $this->_createShippingCategoryQuery()->all();
 
+            $this->_allShippingCategories = [];
             foreach ($results as $result) {
                 $shippingCategory = new ShippingCategory($result);
-                $this->_memoizeShippingCategory($shippingCategory);
+                $this->_allShippingCategories[] = $shippingCategory;
             }
-
-            $this->_fetchedAllShippingCategories = true;
         }
 
-        return $this->_shippingCategoriesById;
+        return $this->_allShippingCategories;
     }
 
     /**
@@ -91,25 +74,9 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoryById(int $shippingCategoryId)
     {
-        if (isset($this->_shippingCategoriesById[$shippingCategoryId])) {
-            return $this->_shippingCategoriesById[$shippingCategoryId];
-        }
+        $categories = $this->getAllShippingCategories();
 
-        if ($this->_fetchedAllShippingCategories) {
-            return null;
-        }
-
-        $result = $this->_createShippingCategoryQuery()
-            ->where(['id' => $shippingCategoryId])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingCategory(new ShippingCategory($result));
-
-        return $this->_shippingCategoriesById[$shippingCategoryId];
+        return ArrayHelper::firstWhere($categories, 'id', $shippingCategoryId);
     }
 
     /**
@@ -120,25 +87,9 @@ class ShippingCategories extends Component
      */
     public function getShippingCategoryByHandle(string $shippingCategoryHandle)
     {
-        if (isset($this->_shippingCategoriesByHandle[$shippingCategoryHandle])) {
-            return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
-        }
+        $categories = $this->getAllShippingCategories();
 
-        if ($this->_fetchedAllShippingCategories) {
-            return null;
-        }
-
-        $result = $this->_createShippingCategoryQuery()
-            ->where(['handle' => $shippingCategoryHandle])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        $this->_memoizeShippingCategory(new ShippingCategory($result));
-
-        return $this->_shippingCategoriesByHandle[$shippingCategoryHandle];
+        return ArrayHelper::firstWhere($categories, 'handle', $shippingCategoryHandle);
     }
 
     /**
@@ -148,19 +99,15 @@ class ShippingCategories extends Component
      */
     public function getDefaultShippingCategory()
     {
-        if ($this->_defaultShippingCategory !== null) {
-            return $this->_defaultShippingCategory;
+        $categories = $this->getAllShippingCategories();
+
+        $default = ArrayHelper::firstWhere($categories, 'default', true);
+
+        if (!$default) {
+            $default = ArrayHelper::firstValue($categories);
         }
 
-        $row = $this->_createShippingCategoryQuery()
-            ->where(['default' => true])
-            ->one();
-
-        if (!$row) {
-            return null;
-        }
-
-        return $this->_defaultShippingCategory = new ShippingCategory($row);
+        return $default;
     }
 
     /**
@@ -245,13 +192,8 @@ class ShippingCategories extends Component
             Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $data)->execute();
         }
 
-        // Update Service cache
-        $this->_memoizeShippingCategory($shippingCategory);
-
-        if (null !== $oldHandle && $shippingCategory->handle != $oldHandle) {
-            unset($this->_shippingCategoriesByHandle[$oldHandle]);
-        }
-
+        // Clear cache
+        $this->_allShippingCategories = null;
 
         return true;
     }
@@ -272,6 +214,9 @@ class ShippingCategories extends Component
         if ($record) {
             return (bool)$record->delete();
         }
+
+        // Clear cache
+        $this->_allShippingCategories = null;
 
         return false;
     }
@@ -308,18 +253,6 @@ class ShippingCategories extends Component
         }
 
         return $shippingCategories;
-    }
-
-
-    /**
-     * Memoize a shipping category model by its ID and handle.
-     *
-     * @param ShippingCategory $shippingCategory
-     */
-    private function _memoizeShippingCategory(ShippingCategory $shippingCategory)
-    {
-        $this->_shippingCategoriesById[$shippingCategory->id] = $shippingCategory;
-        $this->_shippingCategoriesByHandle[$shippingCategory->handle] = $shippingCategory;
     }
 
     /**

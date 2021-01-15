@@ -329,7 +329,18 @@ class Emails extends Component
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
+
+            // todo: remove schema version condition after next beakpoint
+            $projectConfig = Craft::$app->getProjectConfig();
+            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+            if (version_compare($schemaVersion, '3.2.0', '>=')) {
+                $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
+            }
+
+            if (version_compare($schemaVersion, '3.2.13', '>=')) {
+                $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
+            }
 
             $emailRecord->save(false);
 
@@ -405,14 +416,16 @@ class Emails extends Component
      * @param Order $order
      * @param OrderHistory $orderHistory
      * @param array $orderData Since the order may have changed by the time the email sends.
+     * @param string $error The reason this method failed.
      * @return bool $result
      * @throws Exception
      * @throws Throwable
      * @throws \yii\base\InvalidConfigException
      */
-    public function sendEmail($email, $order, $orderHistory = null, $orderData = null): bool
+    public function sendEmail($email, $order, $orderHistory = null, $orderData = null, &$error = ''): bool
     {
         if (!$email->enabled) {
+            $error = Craft::t('commerce', 'Email is not enabled.');
             return false;
         }
 
@@ -455,10 +468,6 @@ class Emails extends Component
         }
 
         if ($email->recipientType == EmailRecord::TYPE_CUSTOMER) {
-            // use the order's language for template rendering the email fields and body.
-            $orderLanguage = $order->orderLanguage ?: $originalLanguage;
-            Craft::$app->language = $orderLanguage;
-
             if ($order->getCustomer()) {
                 $newEmail->setTo($order->getEmail());
             }
@@ -774,7 +783,11 @@ class Emails extends Component
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
 
-                return false;
+                // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
+                // The blocking of the send will still be logged as an error though for now.
+                // @TODO make this cleaner in Commerce 4
+                // https://github.com/craftcms/commerce/issues/1842
+                return true;
             }
 
             if (!Craft::$app->getMailer()->send($newEmail)) {
@@ -860,7 +873,7 @@ class Emails extends Component
      */
     private function _createEmailQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'emails.id',
                 'emails.name',
@@ -873,11 +886,24 @@ class Emails extends Component
                 'emails.enabled',
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
-                'emails.pdfId',
                 'emails.uid',
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);
+
+        // todo: remove schema version condition after next beakpoint
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
+
+        if (version_compare($schemaVersion, '3.2.0', '>=')) {
+            $query->addSelect(['emails.pdfId']);
+        }
+
+        if (version_compare($schemaVersion, '3.2.13', '>=')) {
+            $query->addSelect(['emails.language']);
+        }
+
+        return $query;
     }
 
 

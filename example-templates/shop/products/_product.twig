@@ -15,13 +15,12 @@
           </p>
           <h4 class="text-gray-500 mt-3">Variants</h4>
           <form method="post" class="js-form">
-            <input type="hidden" name="action" value="commerce/cart/update-cart">
-            <input type="hidden" name="cartUpdatedNotice" value="Added {{ product.title }} to the cart.">
-
+            {{ actionInput('commerce/cart/update-cart') }}
+            {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
             {{ csrfInput() }}
             <div>
               {% for variant in product.variants %}
-                <input type="hidden" name="purchasables[{{ loop.index }}][id]" value="{{ variant.id }}">
+                {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
                 <div class="flex items-center justify-between w-full">
                   <div class="w-1/2">
                     <span class="italic">{{ variant.title }}</span>

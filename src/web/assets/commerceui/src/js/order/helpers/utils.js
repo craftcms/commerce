@@ -22,6 +22,7 @@ export default {
                 dateOrdered: draft.order.dateOrdered,
                 lineItems: [],
                 orderAdjustments: [],
+                orderSiteId: draft.order.orderSiteId,
             }
         }
 

@@ -83,7 +83,6 @@
     }) }}
 {% endmacro %}
 
-
 {% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
@@ -100,7 +99,7 @@
             label: 'SKU'|t('commerce'),
             required: true,
             name: 'sku',
-            value: variant.sku,
+            value: variant.getSkuAsText(),
             placeholder: 'Enter SKU'|t('commerce'),
             class: 'code',
             errors: variant.getErrors('sku')
@@ -111,7 +110,7 @@
         id: 'price',
         label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
         name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
+        value: (variant.price == '0' ? '0'|number : (variant.price and variant.getErrors('price') is empty ? variant.price|number : variant.price)),
         placeholder: 'Enter price'|t('commerce'),
         required: true,
         errors: variant.getErrors('price')
@@ -188,7 +187,7 @@
                 {{ forms.text({
                     id: 'length',
                     name: 'length',
-                    value: (variant.length ? variant.length|number : ''),
+                    value: (variant.length and variant.getErrors('length') is empty ? variant.length|number : variant.length),
                     placeholder: 'Length'|t|upper[0:1],
                     title: 'Length'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -200,7 +199,7 @@
                 {{ forms.text({
                     id: 'width',
                     name: 'width',
-                    value: (variant.width ? variant.width|number : ''),
+                    value: (variant.width and variant.getErrors('width') is empty  ? variant.width|number : variant.width),
                     placeholder: 'Width'|t|upper[0:1],
                     title: 'Width'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -212,7 +211,7 @@
                 {{ forms.text({
                     id: 'height',
                     name: 'height',
-                    value: (variant.height ? variant.height|number : ''),
+                    value: (variant.height and variant.getErrors('height') is empty ? variant.height|number : variant.height),
                     placeholder: 'Height'|t|upper[0:1],
                     title: 'Height'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -225,14 +224,15 @@
 
     {{ forms.field({
         label: 'Dimensions'|t('commerce'),
-        id: 'width'
+        id: 'width',
+        errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
     }, dimensionsInput) }}
 
     {{ forms.textField({
         id: 'weight',
         label: 'Weight'|t('commerce'),
         name: 'weight',
-        value: (variant.weight ? variant.weight|number : ''),
+        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight|number : variant.weight),
         placeholder: 'Enter weight'|t('commerce'),
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')
@@ -243,6 +243,7 @@
     {%- import "_includes/forms" as forms -%}
     {% set output %}
         {% if not showAddAll %}
+            <div class="product-sales commerce-sales-spinner spinner" data-id="{{ id }}" data-loading="false"></div>
             <ul class="commerce-sales product-sales" data-id="{{ id }}"></ul>
             <div class="commerce-sales-buttons">
                 {# Add to existing sale #}
@@ -260,5 +261,19 @@
     {{ forms.field({
         label: 'Related Sales'|t('commerce'),
         id: 'related-sales',
+    }, output) }}
+{% endmacro %}
+
+
+{% macro relatedDiscounts(id, defaultVariant) %}
+    {%- import "_includes/forms" as forms -%}
+    {% set output %}
+        <ul class="commerce-discounts product-discounts commerce-sales" data-id="{{ id }}"></ul>
+        <a class="btn small add icon" target="_blank" href="{{ cpUrl('commerce/promotions/discounts/new?purchasableIds='~defaultVariant.id) }}">{{ 'Add Discount'|t('commerce') }}</a>
+    {% endset %}
+
+    {{ forms.field({
+        label: 'Related Discounts'|t('commerce'),
+        id: 'related-discounts',
     }, output) }}
 {% endmacro %}

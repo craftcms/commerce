@@ -25,8 +25,8 @@
                         <form method="post" action="">
                             {{ csrfInput() }}
                             {{ redirectInput('/shop/customer/cards') }}
-                            <input type="hidden" name="action" value="commerce/payment-sources/delete">
-                            <input type="hidden" name="id" value="{{ paymentSource.id }}"/>
+                            {{ actionInput('commerce/payment-sources/delete') }}
+                            {{ hiddenInput('id', paymentSource.id) }}
                             <input class="{{ classes.btn.base ~ ' ' ~ classes.btn.grey }} text-sm" type="submit" value="Delete"/>
                         </form>
                     </div>
@@ -61,9 +61,9 @@
             {% for gateway in gateways if gateway.supportsPaymentSources() %}
                   <div id="fields-{{ gateway.id }}" class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed">
                       <form method="post" action="" class="form-horizontal max-w-md" id="gateway-{{ gateway.id }}">
-                          <input type="hidden" name="action" value="commerce/payment-sources/add"/>
-                          <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
-                          <input type="hidden" name="cancelUrl" value="{{ '/shop/customer/cards'|hash }}"/>
+                          {{ actionInput('commerce/payment-sources/add') }}
+                          {{ hiddenInput('gatewayId', gateway.id) }}
+                          {{ hiddenInput('cancelUrl', '/shop/customer/cards'|hash) }}
                           {{ redirectInput('/shop/customer/cards') }}
                           {{ csrfInput() }}
 

@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
@@ -429,14 +430,28 @@ class OrderStatuses extends Component
         if ($order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
+                $originalLanguage = Craft::$app->language;
+
                 foreach ($status->emails as $email) {
-                    Craft::$app->getQueue()->push(new SendEmail([
-                        'orderId' => $order->id,
-                        'commerceEmailId' => $email->id,
-                        'orderHistoryId' => $orderHistory->id,
-                        'orderData' => $order->toArray()
-                    ]));
+                    if ($email->enabled) {
+
+                        // Set language by email's set locale
+                        // We need to do this here since $order->toArray() uses the locale to format asCurrency attributes
+                        $language = $email->getRenderLanguage($order);
+                        Locale::switchAppLanguage($language);
+
+                        Craft::$app->getQueue()->push(new SendEmail([
+                            'orderId' => $order->id,
+                            'commerceEmailId' => $email->id,
+                            'orderHistoryId' => $orderHistory->id,
+                            'orderData' => $order->toArray()
+                        ]));
+                    }
                 }
+
+                // Set previous language back
+                Craft::$app->language = $originalLanguage;
+                Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
             }
         }
     }
