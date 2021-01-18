@@ -46,11 +46,7 @@ class EmailPreviewController extends Controller
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
         } else {
-            $orderIds = Order::find()->isCompleted(true)->limit(5000)->ids();
-            if ($orderIds) {
-                $rand = array_rand($orderIds, 1);
-                $order = Order::find()->isCompleted(true)->id($orderIds[$rand])->one();
-            }
+            $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
         }
 
         if (!$order) {
