@@ -46,7 +46,15 @@ class EmailPreviewController extends Controller
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
         } else {
-            $order = Order::find()->isCompleted(true)->orderBy('RAND()')->one();
+            $orderQuery = Order::find()->isCompleted(true);
+
+            if (Craft::$app->getDb()->getIsPgsql()) {
+                $orderQuery->orderBy('RANDOM()');
+            } else {
+                $orderQuery->orderBy('RAND()');
+            }
+
+            $order = $orderQuery->one();
         }
 
         if (!$order) {
