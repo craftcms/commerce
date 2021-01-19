@@ -74,14 +74,6 @@ class EmailPreviewControllerTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
-    protected function _after()
-    {
-        parent::_after();
-
-        // TODO figure out the bug where the record is being removed twice
-        $this->tester->mockCraftMethods('projectConfig', ['remove' => function($string) {}]);
-    }
-
     public function testRenderRandomOrder()
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
