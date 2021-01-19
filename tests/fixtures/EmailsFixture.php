@@ -46,6 +46,8 @@ class EmailsFixture extends BaseModelFixture
      */
     public $service = 'emails';
 
+    private $_muteEvents;
+
     /**
      * @inheritDoc
      */
@@ -54,5 +56,27 @@ class EmailsFixture extends BaseModelFixture
         $this->service = Plugin::getInstance()->get($this->service);
 
         parent::init();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function beforeUnload()
+    {
+        parent::beforeUnload();
+
+        // TODO remove this when we figure out why things are being unlaoded twice
+        $this->_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
+        Craft::$app->getProjectConfig()->muteEvents = true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function afterUnload()
+    {
+        parent::afterUnload();
+
+        Craft::$app->getProjectConfig()->muteEvents = $this->_muteEvents;
     }
 }
