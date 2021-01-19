@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\controllers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\controllers\EmailPreviewController;
+use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\web\Request;
 use craftcommercetests\fixtures\EmailsFixture;
@@ -81,7 +82,7 @@ class EmailPreviewControllerTest extends Unit
         $this->tester->mockCraftMethods('projectConfig', ['remove' => function($string) {}]);
     }
 
-    public function testRender()
+    public function testRenderRandomOrder()
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
         Craft::$app->getRequest()->setQueryParams(['emailId' => $email['id']]);
@@ -92,5 +93,24 @@ class EmailPreviewControllerTest extends Unit
         self::assertIsString($response->data);
         self::assertContains('<title>Order Confirmation</title>', $response->data);
         self::assertRegExp('/<h1>Order Confirmation [0-9a-zA-Z]{7}<\/h1>/', $response->data);
+    }
+
+    public function testRenderSpecificOrder()
+    {
+        $email = $this->tester->grabFixture('emails')['order-confirmation'];
+        /** @var Order $order */
+        $order = $this->tester->grabFixture('orders')['completed-new'];
+
+        Craft::$app->getRequest()->setQueryParams([
+            'emailId' => $email['id'],
+            'orderNumber' => $order['number'],
+        ]);
+
+        $response = $this->controller->runAction('render');
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertIsString($response->data);
+        self::assertContains('<title>Order Confirmation</title>', $response->data);
+        self::assertContains('<h1>Order Confirmation ' . substr($order['number'], 0, 7) . '</h1>', $response->data);
     }
 }
