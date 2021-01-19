@@ -90,6 +90,8 @@ abstract class BaseModelFixture extends ActiveFixture
         foreach ($this->data as $key => $data) {
             if (isset($data['id'])) {
                 $this->service->$deleteMethod($data['id']);
+
+                unset($this->data[$key]);
             }
         }
     }

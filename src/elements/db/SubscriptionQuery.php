@@ -28,7 +28,7 @@ use yii\db\Schema;
  * @method Subscription|array|false nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/subscription-queries.md
+ * @doc-path subscriptions.md
  * @replace {element} subscription
  * @replace {elements} subscriptions
  * @replace {twig-method} craft.subscriptions()
