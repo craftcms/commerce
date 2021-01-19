@@ -83,7 +83,7 @@ class EmailPreviewControllerTest extends Unit
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->data);
-        self::assertContains('<title>Order Confirmation</title>', $response->data);
+        self::assertStringContainsString('<title>Order Confirmation</title>', $response->data);
         self::assertRegExp('/<h1>Order Confirmation [0-9a-zA-Z]{7}<\/h1>/', $response->data);
     }
 
@@ -102,7 +102,7 @@ class EmailPreviewControllerTest extends Unit
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->data);
-        self::assertContains('<title>Order Confirmation</title>', $response->data);
-        self::assertContains('<h1>Order Confirmation ' . $order->shortNumber . '</h1>', $response->data);
+        self::assertStringContainsString('<title>Order Confirmation</title>', $response->data);
+        self::assertStringContainsString('<h1>Order Confirmation ' . $order->shortNumber . '</h1>', $response->data);
     }
 }
