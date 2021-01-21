@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.25 - 2021-01-21
 
 ### Fixed
 - Fixed a bug where comparing getTotalPaid and getTotal methods in craft\commerce\elements\Order::getPaidStatus returns invalid boolean value. ([#1836](https://github.com/craftcms/commerce/issues/1836))
