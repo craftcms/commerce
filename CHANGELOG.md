@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where comparing getTotalPaid and getTotal methods in craft\commerce\elements\Order::getPaidStatus returns invalid boolean value. ([#1836](https://github.com/craftcms/commerce/issues/1836))
+- Fixed a bug that prevented a customer from unsubscribing from a subscription and deleting payment sources.
 
 ## 2.2.24 - 2020-11-16
 
