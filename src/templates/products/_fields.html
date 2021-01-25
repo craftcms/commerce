@@ -110,7 +110,7 @@
         id: 'price',
         label: 'Price'|t('commerce')~' ('~craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso|upper~')',
         name: 'price',
-        value: (variant.price == '0' ? '0'|number : (variant.price ? variant.price|number ?: '')),
+        value: (variant.price == '0' ? '0'|number : (variant.price and variant.getErrors('price') is empty ? variant.price|number : variant.price)),
         placeholder: 'Enter price'|t('commerce'),
         required: true,
         errors: variant.getErrors('price')
@@ -187,7 +187,7 @@
                 {{ forms.text({
                     id: 'length',
                     name: 'length',
-                    value: (variant.length ? variant.length|number : ''),
+                    value: (variant.length and variant.getErrors('length') is empty ? variant.length|number : variant.length),
                     placeholder: 'Length'|t|upper[0:1],
                     title: 'Length'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -199,7 +199,7 @@
                 {{ forms.text({
                     id: 'width',
                     name: 'width',
-                    value: (variant.width ? variant.width|number : ''),
+                    value: (variant.width and variant.getErrors('width') is empty  ? variant.width|number : variant.width),
                     placeholder: 'Width'|t|upper[0:1],
                     title: 'Width'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -211,7 +211,7 @@
                 {{ forms.text({
                     id: 'height',
                     name: 'height',
-                    value: (variant.height ? variant.height|number : ''),
+                    value: (variant.height and variant.getErrors('height') is empty ? variant.height|number : variant.height),
                     placeholder: 'Height'|t|upper[0:1],
                     title: 'Height'|t('commerce'),
                     unit: craft.commerce.settings.dimensionUnits,
@@ -224,14 +224,15 @@
 
     {{ forms.field({
         label: 'Dimensions'|t('commerce'),
-        id: 'width'
+        id: 'width',
+        errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
     }, dimensionsInput) }}
 
     {{ forms.textField({
         id: 'weight',
         label: 'Weight'|t('commerce'),
         name: 'weight',
-        value: (variant.weight ? variant.weight|number : ''),
+        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight|number : variant.weight),
         placeholder: 'Enter weight'|t('commerce'),
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')
