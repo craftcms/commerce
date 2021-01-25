@@ -35,7 +35,7 @@ class ProductFixture extends ElementFixture
     /**
      * @inheritdoc
      */
-    public $depends = [ProductTypeFixture::class];
+    public $depends = [ProductTypeFixture::class, ProductTypesShippingCategoriesFixture::class, ShippingCategoryFixture::class];
 
     /**
      * @inheritdoc

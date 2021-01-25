@@ -8,13 +8,14 @@
 return [
     [
         'typeId' => '2000',
-        'title' => 'Rad Hoodie',
+        'title' => 'Rad Hoodie X',
         'slug' => 'rad-hoodie',
         'enabled' => 1,
         'enabledForSite' => 1,
         'availableForPurchase' => 1,
         'promotable' => 1,
         'postDate' => (new DateTime('now')),
+        'shippingCategoryId' => 101,
         '_variants' => [
             'new_0' => [
                 'title' => 'Rad Hoodie',
