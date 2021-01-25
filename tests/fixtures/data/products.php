@@ -8,7 +8,7 @@
 return [
     [
         'typeId' => '2000',
-        'title' => 'Rad Hoodie X',
+        'title' => 'Rad Hoodie',
         'slug' => 'rad-hoodie',
         'enabled' => 1,
         'enabledForSite' => 1,
