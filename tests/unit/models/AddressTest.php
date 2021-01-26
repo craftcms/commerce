@@ -32,7 +32,7 @@ class AddressTest extends Unit
      */
     public function testGetCpEditUrl() {
         $address = new Address(['id' => '1001']);
-        self::assertSame('http://craftcms.com/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
+        self::assertSame('http://test.craftcms.test/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
     }
 
     /**
