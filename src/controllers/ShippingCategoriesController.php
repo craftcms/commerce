@@ -74,7 +74,9 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $allShippingCategoryIds = ArrayHelper::getColumn(Plugin::getInstance()->getShippingCategories()->getAllShippingCategories(), 'id');
-        $variables['isDefaultAndOnlyCategory'] = $variables['id'] && count($allShippingCategoryIds) === 1 && in_array($variables['id'], $allShippingCategoryIds);
+        if ($variables['id'] && count($allShippingCategoryIds) === 1 && in_array($variables['id'], $allShippingCategoryIds)) {
+            $variables['isDefaultAndOnlyCategory'] = true;
+        }
 
         return $this->renderTemplate('commerce/shipping/shippingcategories/_edit', $variables);
     }
