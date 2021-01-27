@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed72b99eb34129f5ccf4696743cd643b",
+    "content-hash": "3bc1c6b6d3e5b455c96dfe1c8b94d638",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -468,16 +468,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "3.6.x-dev",
+            "version": "3.6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "e022da2e7d0a25e31ce3925bec10e63362042305"
+                "reference": "dc551778b21f44877241306b458f55d7c64ec08f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/e022da2e7d0a25e31ce3925bec10e63362042305",
-                "reference": "e022da2e7d0a25e31ce3925bec10e63362042305",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/dc551778b21f44877241306b458f55d7c64ec08f",
+                "reference": "dc551778b21f44877241306b458f55d7c64ec08f",
                 "shasum": ""
             },
             "require": {
@@ -567,7 +567,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2021-01-26T14:41:02+00:00"
+            "time": "2021-01-26T19:25:48+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -5894,16 +5894,16 @@
     "packages-dev": [
         {
             "name": "behat/gherkin",
-            "version": "v4.7.0",
+            "version": "v4.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Behat/Gherkin.git",
-                "reference": "0ffe6a7f67f8d038166143d71b30a9088f932576"
+                "reference": "987bcdc3d29ba433e6bd4b1db4ae59737ba3dacd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/0ffe6a7f67f8d038166143d71b30a9088f932576",
-                "reference": "0ffe6a7f67f8d038166143d71b30a9088f932576",
+                "url": "https://api.github.com/repos/Behat/Gherkin/zipball/987bcdc3d29ba433e6bd4b1db4ae59737ba3dacd",
+                "reference": "987bcdc3d29ba433e6bd4b1db4ae59737ba3dacd",
                 "shasum": ""
             },
             "require": {
@@ -5951,9 +5951,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Behat/Gherkin/issues",
-                "source": "https://github.com/Behat/Gherkin/tree/v4.7.0"
+                "source": "https://github.com/Behat/Gherkin/tree/v4.7.1"
             },
-            "time": "2021-01-24T14:06:27+00:00"
+            "time": "2021-01-26T16:24:32+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -8829,18 +8829,9 @@
             "time": "2021-01-20T14:39:46+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "craftcms/cms",
-            "version": "3.6.9999999.9999999-dev",
-            "alias": "3.6.0",
-            "alias_normalized": "3.6.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "craftcms/cms": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
