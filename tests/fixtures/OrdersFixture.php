@@ -19,7 +19,7 @@ use yii\db\Exception;
  * Class OrdersFixture.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.14
  */
 class OrdersFixture extends ElementFixture
 {
@@ -52,6 +52,7 @@ class OrdersFixture extends ElementFixture
      */
     public function load()
     {
+        Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->data = [];
 
         foreach ($this->getData() as $alias => $data) {
@@ -118,8 +119,17 @@ class OrdersFixture extends ElementFixture
                 Craft::$app->getSearch()->indexElementAttributes($element);
             }
 
-            $this->data[$alias] = array_merge($data, ['id' => $element->id]);
+            $this->data[$alias] = array_merge($data, [
+                'id' => $element->id,
+                'number' => $element->number,
+                'shortNumber' => $element->getShortNumber(),
+                'reference' => $element->reference
+            ]);
             $this->ids[] = $element->id;
+
+            foreach ($element->getLineItems() as $key => $lineItem) {
+                $this->data[$alias]['_lineItems'][$key]['id'] = $lineItem->id;
+            }
         }
     }
 
@@ -189,7 +199,7 @@ class OrdersFixture extends ElementFixture
 
         $orderLineItems = [];
         foreach ($lineItems as $lineItem) {
-            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $lineItem['purchasbleId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
+            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $lineItem['purchasableId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
         }
 
         $order->setLineItems($orderLineItems);

@@ -29,7 +29,8 @@ use yii\db\Schema;
  * @method Variant|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/variant-queries.md
+ * @doc-path products-variants.md
+ * @prefix-doc-params
  * @replace {element} variant
  * @replace {elements} variants
  * @replace {twig-method} craft.variants()
