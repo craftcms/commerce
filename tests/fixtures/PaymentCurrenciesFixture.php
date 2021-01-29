@@ -14,7 +14,7 @@ use craft\commerce\Plugin;
  * Payment Currencies Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.14
  */
 class PaymentCurrenciesFixture extends BaseModelFixture
 {

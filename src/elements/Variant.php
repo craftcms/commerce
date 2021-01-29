@@ -365,7 +365,7 @@ class Variant extends Purchasable
 
         $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price'], 'number'];
+        $rules[] = [['price', 'weight', 'width', 'height', 'length'], 'number'];
         $rules[] = [
             ['stock'],
             'required',
