@@ -158,10 +158,12 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
         $shippingRule->methodId = $request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
+        $shippingRule->orderConditionFormula = trim($request->getBodyParam('orderConditionFormula', ''));
         $shippingRule->minQty = $request->getBodyParam('minQty');
         $shippingRule->maxQty = $request->getBodyParam('maxQty');
         $shippingRule->minTotal = Localization::normalizeNumber($request->getBodyParam('minTotal'));
         $shippingRule->maxTotal = Localization::normalizeNumber($request->getBodyParam('maxTotal'));
+        $shippingRule->minMaxTotalType = $request->getBodyParam('minMaxTotalType');
         $shippingRule->minWeight = Localization::normalizeNumber($request->getBodyParam('minWeight'));
         $shippingRule->maxWeight = Localization::normalizeNumber($request->getBodyParam('maxWeight'));
         $shippingRule->baseRate = Localization::normalizeNumber($request->getBodyParam('baseRate'));

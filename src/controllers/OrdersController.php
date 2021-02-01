@@ -17,7 +17,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
-use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;

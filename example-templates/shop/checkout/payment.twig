@@ -9,15 +9,7 @@
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
             <h1 class="font-bold text-xl">Payment</h1>
-{#
-          ╔══════════════════════════════════════════════════╗
-          ║  ┌───────────────────────────────────────────┐   ║
-          ║  │   This makes payment using the            │   ║
-          ║  │   payment form.                           │   ║
-          ║  └───────────────────────────────────────────┘   ║
-          ╚══════════════════════════════════════════════════╝
-#}
-
+            {# Payment form #}
             {% if cart.gatewayId or cart.paymentSourceId %}
                 {% if paymentForm is defined %}
                   {% for key, errors in paymentForm.getErrors() %}
@@ -43,7 +35,7 @@
                           {{ hiddenInput('gatewayId', cart.gatewayId) }}
                           {% set params = {} %}
 
-                          {# Set gateway specific parameters #}
+                          {# Set gateway-specific parameters #}
                           {% if className(cart.gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
                               {% set params = { currency: cart.paymentCurrency } %}
                           {% endif %}
@@ -70,9 +62,7 @@
                         </div>
                       {% endif %}
 
-                      {#
-                        Only show the payment button for gateways that don't provide their own
-                      #}
+                      {# Only show the payment button for gateways that don't provide their own #}
                       {% if className(cart.gateway) not in [
                         'craft\\commerce\\paypalcheckout\\gateways\\Gateway',
                       ] %}

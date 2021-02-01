@@ -1,7 +1,7 @@
 <template>
     <div class="order-flex justify-end">
         <div class="w-1/4">
-            <btn-link @click="enableEditMode()" v-if="!editMode && draft.order.isCompleted">{{'Edit'|t('commerce')}}</btn-link>
+            <btn-link @click="enableEditMode()" v-if="!editMode && draft.order.isCompleted">{{'Edit adjustments'|t('commerce')}}</btn-link>
         </div>
         <div class="w-3/4">
             <adjustments
