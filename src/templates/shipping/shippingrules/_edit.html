@@ -221,6 +221,30 @@
             'Shipping zone saved.'|t
         ) }}
 
+        {% embed '_includes/forms/field' with {
+            label: 'Order Condition Formula'|t('commerce'),
+            id: 'orderConditionFormula',
+            rows: 5,
+            instructions: 'Use a formula to match the the. Leave this blank to match all orders. Use the `order` variable.',
+            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
+            } %}
+            {% block input %}
+                {% import "_includes/forms" as forms %}
+                <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
+                    <div  class="zip-condition">
+                        {{ forms.textarea({
+                            value: shippingRule is defined ? shippingRule.orderConditionFormula,
+                            name: 'orderConditionFormula',
+                            class: 'code',
+                            rows: 5,
+                            placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
+                        }) }}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
+
         {% set minMaxTotalQtyInput %}
         <table class="inputs">
             <tr>
@@ -256,8 +280,11 @@
             label: "Order Total Quanity"|t('commerce'),
             instructions: "The total number of items in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalQty',
+            tip: 'Order Total Quantity must be greater than the minimum value and less than the maximum value.',
             required: true
         }, minMaxTotalQtyInput) }}
+
+        <hr>
 
         {% set minMaxTotalInput %}
         <table class="inputs">
@@ -306,8 +333,11 @@
             label: "Order Total Value"|t('commerce'),
             instructions: "The total value of items (excluding shipping and taxes) in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotal',
-            required: true
+            required: true,
+            tip: 'Order Total Value must be greater than the minimum value and less than or equal to the maximum value.',
         }, minMaxTotalInput) }}
+
+        <hr>
 
         {% set minMaxTotalWeightInput %}
         <table class="inputs">
@@ -344,7 +374,8 @@
             label: "Order Total Weight"|t('commerce'),
             instructions: "The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalWeight',
-            required: true
+            required: true,
+            tip: 'Order Total Weight must be greater than the minimum value and less than or equal to the maximum value.',
         }, minMaxTotalWeightInput) }}
 
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>

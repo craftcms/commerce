@@ -659,6 +659,7 @@ class Install extends Migration
             'description' => $this->string(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean(),
+            'orderConditionFormula' => $this->text(),
             'minQty' => $this->integer()->notNull()->defaultValue(0),
             'maxQty' => $this->integer()->notNull()->defaultValue(0),
             'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),

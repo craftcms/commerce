@@ -20,6 +20,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property ShippingMethod $method
  * @property int $methodId
+ * @property string $orderConditionFormula
  * @property int $maxQty
  * @property float $maxRate
  * @property float $maxTotal
