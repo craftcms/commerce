@@ -240,7 +240,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set Shipping method on cart.
-        if ($clearNotices = $request->getParam('clearNotices')) {
+        if ($clearNotices = $this->request->getParam('clearNotices')) {
             $this->_cart->clearNotices();
         }
 
