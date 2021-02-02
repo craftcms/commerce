@@ -14,7 +14,7 @@ use yii\base\Event;
  * Class PdfRenderOptionEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.10
  */
 class PdfRenderOptionsEvent extends Event
 {

@@ -817,8 +817,12 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterDelete()
+    public function beforeDelete(): bool
     {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
             ->anyStatus()
@@ -827,7 +831,6 @@ class Product extends Element
         $elementsService = Craft::$app->getElements();
 
         foreach ($variants as $variant) {
-
             $hardDelete = false;
             $variant->deletedWithProduct = true;
 
@@ -840,7 +843,7 @@ class Product extends Element
             $elementsService->deleteElement($variant, $hardDelete);
         }
 
-        parent::afterDelete();
+        return true;
     }
 
     /**
@@ -1100,8 +1103,8 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'id' => ['label' => Craft::t('commerce', 'ID')],
             'title' => ['label' => Craft::t('commerce', 'Title')],
+            'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
             'uri' => ['label' => Craft::t('commerce', 'URI')],
@@ -1201,6 +1204,11 @@ class Product extends Element
      */
     protected function route()
     {
+        // Make sure that the product is actually live
+        if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {
+            return null;
+        }
+
         // Make sure the product type is set to have URLs for this site
         $siteId = Craft::$app->getSites()->currentSite->id;
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
@@ -1263,7 +1271,7 @@ class Product extends Element
                         $hasUnlimited = true;
                     }
                 }
-                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '');
+                return $hasUnlimited ? '∞' . ($stock ? ' & ' . $stock : '') : ($stock ?: '0');
             }
             case 'defaultWeight':
             {

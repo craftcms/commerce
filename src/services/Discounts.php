@@ -283,7 +283,7 @@ class Discounts extends Component
                 ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
                 // Restricted by enabled discounts
                 ->where([
-                    'enabled' => 1,
+                    'enabled' => true,
                 ])
                 // Restrict by things that a definitely not in date
                 ->andWhere([
@@ -419,7 +419,7 @@ class Discounts extends Component
         }
 
         return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
-            return ($discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
         });
     }
 

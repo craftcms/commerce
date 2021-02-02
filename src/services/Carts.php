@@ -279,7 +279,7 @@ class Carts extends Component
 
             $cartIds = (new Query())
                 ->select(['orders.id'])
-                ->where(['not', ['isCompleted' => 1]])
+                ->where(['not', ['isCompleted' => true]])
                 ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
                 ->from(['orders' => Table::ORDERS])
                 ->column();

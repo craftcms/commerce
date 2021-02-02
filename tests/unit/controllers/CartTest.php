@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
@@ -64,18 +64,27 @@ class CartTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
+    /**
+     * @throws \yii\base\InvalidRouteException
+     */
     public function testGetCart() {
         $this->request->headers->set('Accept', 'application/json');
         $return = $this->cartController->runAction('get-cart');
 
-        $this->assertInstanceOf(Response::class, $return);
+        self::assertInstanceOf(Response::class, $return);
 
         $data = $return->data;
-        $this->assertArrayHasKey('cart', $data);
-        $this->assertArrayHasKey('total', $data['cart']);
-        $this->assertEquals(0, $data['cart']['total']);
+        self::assertArrayHasKey('cart', $data);
+        self::assertArrayHasKey('total', $data['cart']);
+        self::assertEquals(0, $data['cart']['total']);
     }
 
+    /**
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidRouteException
+     */
     public function testAddSinglePurchasable()
     {
         $this->request->headers->set('Accept', 'application/json');
@@ -90,11 +99,17 @@ class CartTest extends Unit
         $this->cartController->runAction('update-cart');
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $this->assertCount(1, $cart->getLineItems());
-        $this->assertSame(2, $cart->getTotalQty());
-        $this->assertSame($variant->getSalePrice() * 2, $cart->getTotal());
+        self::assertCount(1, $cart->getLineItems());
+        self::assertSame(2, $cart->getTotalQty());
+        self::assertSame($variant->getSalePrice() * 2, $cart->getTotal());
     }
 
+    /**
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidRouteException
+     */
     public function testAddMultiplePurchasablesLite()
     {
         $this->request->headers->set('X-Http-Method-Override', 'POST');
@@ -116,12 +131,19 @@ class CartTest extends Unit
         $this->cartController->runAction('update-cart');
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $this->assertCount(1, $cart->getLineItems(), 'Only one line item can be added');
-        $this->assertSame($lastItem['qty'], $cart->getTotalQty());
+        self::assertCount(1, $cart->getLineItems(), 'Only one line item can be added');
+        self::assertSame($lastItem['qty'], $cart->getTotalQty());
         $lineItem = $cart->getLineItems()[0];
-        $this->assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
+        self::assertEquals($lastItem['id'], $lineItem->purchasableId, 'The last line item to be added is the one in the cart');
     }
 
+    /**
+     * @throws \Throwable
+     * @throws \craft\errors\ElementNotFoundException
+     * @throws \craft\errors\InvalidPluginException
+     * @throws \yii\base\Exception
+     * @throws \yii\base\InvalidRouteException
+     */
     public function testAddMultiplePurchasables()
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
@@ -142,6 +164,6 @@ class CartTest extends Unit
         $this->cartController->runAction('update-cart');
         $cart = Plugin::getInstance()->getCarts()->getCart();
 
-        $this->assertCount(2, $cart->getLineItems(), 'Has all items in the car');
+        self::assertCount(2, $cart->getLineItems(), 'Has all items in the car');
     }
 }

@@ -9,12 +9,12 @@
         {{ actionInput('commerce/cart/update-cart') }}
         {{ hiddenInput('successMessage', 'The cart was updated.'|hash) }}
         {{ csrfInput() }}
-        <table class="w-full mt-4">
+        <table class="w-full mt-4 rounded-lg">
             <thead>
             <tr class="text-gray-600 bg-gray-200">
-                <th class="py-2 pl-3 text-left w-1/3">Product</th>
+                <th class="py-2 pl-3 text-left w-1/3 rounded-l">Product</th>
                 <th class="py-2 text-left">Qty</th>
-                <th class="py-2 pr-3 text-right">Price</th>
+                <th class="py-2 pr-3 text-right rounded-r">Price</th>
             </tr>
             </thead>
                 <tbody>
@@ -216,7 +216,7 @@
                     <td class="pt-3 text-right" colspan="3">
                         <div class="flex w-full justify-end">
                             <div class="{{ cart.getFirstError('couponCode') ? classes.box.error : classes.box.base }} text-left max-w-sm w-full">
-                                {# Update Coupon form uses the single update controller action: #}
+                                {# The Update Coupon form uses the single update controller action #}
                                 <h5 class="font-bold">Coupon Code</h5>
                                 {% if cart.getFirstError('couponCode') %}
                                     <div class="text-red-500">{{ cart.getFirstError('couponCode') }}</div>
