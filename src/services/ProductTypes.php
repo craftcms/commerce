@@ -615,6 +615,7 @@ class ProductTypes extends Component
                     'criteria' => [
                         'siteId' => '*',
                         'status' => null,
+                        'typeId' => $productTypeRecord->id,
                         'enabledForSite' => false
                     ]
                 ]));
