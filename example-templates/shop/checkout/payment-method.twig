@@ -6,13 +6,13 @@
     <div class="w-2/3 px-8">
       <h1 class="font-bold text-xl">How would you like to pay?</h1>
 
-      {# Get the available payment sources the user has to be used later in this page. #}
+      {# Get the available payment sources the user has to be used later in this page #}
       {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
 
       {# Get the available gateways to be used later in this page #}
       {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
-      {# If there are no gateway then payment sources wont work either, so lets #}
+      {# If there is no gateway, then payment sources won't work either #}
       {% if availableGateways is empty %}
         <p>No payment methods available.</p>
       {% endif %}

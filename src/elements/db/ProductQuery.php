@@ -29,7 +29,8 @@ use yii\db\Connection;
  * @method Product|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/product-queries.md
+ * @doc-path products-variants.md
+ * @prefix-doc-params
  * @replace {element} product
  * @replace {elements} products
  * @replace {twig-method} craft.products()
