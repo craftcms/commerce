@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- `PaymentSourcesController::actionAdd()` now accepts a hashed `successMessage` param. ([#1955](https://github.com/craftcms/commerce/issues/1955))
+
 ## 3.2.14.1 - 2020-01-28
 
 ### Fixed
