@@ -204,7 +204,7 @@ class AddressesTest extends Unit
             ->from(Table::ADDRESSES)
             ->count();
 
-        self::assertEquals(3, $count);
+        self::assertEquals(4, $count);
 
         $this->addresses->purgeOrphanedAddresses();
 
@@ -213,7 +213,7 @@ class AddressesTest extends Unit
             ->count();
 
         self::assertNotEquals($count, $newCount);
-        self::assertEquals(2, $newCount);
+        self::assertEquals(3, $newCount);
     }
 
     /**

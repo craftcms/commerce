@@ -39,6 +39,9 @@ abstract class BaseModelFixture extends Fixture
      */
     public $service;
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function init()
     {
         parent::init();
