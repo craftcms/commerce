@@ -64,6 +64,7 @@
                           {{ actionInput('commerce/payment-sources/add') }}
                           {{ hiddenInput('gatewayId', gateway.id) }}
                           {{ hiddenInput('cancelUrl', '/shop/customer/cards'|hash) }}
+                          {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
                           {{ redirectInput('/shop/customer/cards') }}
                           {{ csrfInput() }}
 
