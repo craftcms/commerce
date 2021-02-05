@@ -142,11 +142,12 @@ class Discount extends Model
      * @var bool The whole order has free shipping.
      */
     public $hasFreeShippingForOrder;
-
+    
     /**
-     * @var bool Match all user groups.
+     * @var string User restriction type.
      */
-    public $allGroups;
+    public $userCondition;
+
 
     /**
      * @var bool Match all products

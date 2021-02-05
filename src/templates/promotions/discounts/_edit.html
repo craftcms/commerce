@@ -213,9 +213,9 @@
                 <div>
                     {{ forms.select({
                         id: 'user-condition',
-                        name: 'allGroups',
+                        name: 'userCondition',
                         options: discount.getUserConditions(),
-                        value: discount.allGroups,
+                        value: discount.userCondition,
                         toggle: true,
                         targetPrefix: 'to-option-'
                     }) }}
@@ -257,11 +257,11 @@
         {% endset %}
 
         {{ forms.field({
-            id: 'user-restriction',
-            label: 'User Restriction'|t('commerce'),
+            id: 'user-condition',
+            label: 'User Condition'|t('commerce'),
             instructions: 'Choose a condition for user restriction.'|t('commerce'),
             errors: [],
-            required: true,
+            required: false,
         }, usersInput) }}
 
         {{ commerceForms.numberField({
