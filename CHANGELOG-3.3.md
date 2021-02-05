@@ -9,3 +9,7 @@
 
 ### Changed
 - All front end controllers now use the `number` param for passing the order number. ([#1970](https://github.com/craftcms/commerce/issues/1970))
+
+### Deprecated
+- Using the `commerce-gateways.php` config file is deprecated. Use the gateway’s config file instead. ([#1963](https://github.com/craftcms/commerce/issues/1963))
+- Deprecated `\craft\commerce\services\Gateways::getGatewayOverrides()`.
