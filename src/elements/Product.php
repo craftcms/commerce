@@ -341,6 +341,16 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function getCacheTags(): array
+    {
+        return [
+            "productType:$this->typeId",
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getUriFormat()
     {
         $productTypeSiteSettings = $this->getType()->getSiteSettings();

@@ -19,6 +19,7 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
+use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
 /**
@@ -419,7 +420,7 @@ class ProductQuery extends ElementQuery
     public function type($value)
     {
         if ($value instanceof ProductType) {
-            $this->typeId = $value->id;
+            $this->typeId = [$value->id];
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
@@ -785,8 +786,9 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
+        $this->_normalizeTypeId();
         if ($this->typeId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
+            $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
         }
 
         if ($this->defaultPrice) {
@@ -866,6 +868,25 @@ class ProductQuery extends ElementQuery
         }
     }
 
+    /**
+     * Normalizes the typeId param to an array of IDs or null
+     *
+     * @throws InvalidConfigException
+     */
+    private function _normalizeTypeId()
+    {
+        if (empty($this->typeId)) {
+            $this->typeId = null;
+        } else if (is_numeric($this->typeId)) {
+            $this->typeId = [$this->typeId];
+        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+            $this->typeId = (new Query())
+                ->select(['id'])
+                ->from([Table::PRODUCTTYPES])
+                ->where(Db::parseParam('id', $this->typeId))
+                ->column();
+        }
+    }
 
     /**
      * Applies the 'editable' param to the query being prepared.
@@ -949,5 +970,22 @@ class ProductQuery extends ElementQuery
         if ($joinSections) {
             $this->subQuery->innerJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.5.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->typeId) {
+            foreach ($this->typeId as $typeId) {
+                $tags[] = "productType:$typeId";
+            }
+        }
+
+        return $tags;
     }
 }
