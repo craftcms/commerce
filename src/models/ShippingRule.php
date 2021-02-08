@@ -276,26 +276,26 @@ class ShippingRule extends Model implements ShippingRuleInterface
             }
         }
 
-        $shippableItemsInOrder = count($lineItems) != count($nonShippableItems);
+        $wholeOrderNonShippable = $nonShippableItems > 0 && count($lineItems) == count($nonShippableItems);
 
-        // If we have some shippable items in the cart, lets look at their allow/disallow rules
-        if ($shippableItemsInOrder) {
-            $shippingRuleCategories = $this->getShippingRuleCategories();
-            $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-            [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+        if ($wholeOrderNonShippable) {
+            return false;
+        }
 
+        $shippingRuleCategories = $this->getShippingRuleCategories();
+        $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
+        list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
-            // Does the order have any disallowed categories in the cart?
-            $result = array_intersect($orderShippingCategories, $disallowedCategories);
-            if (!empty($result)) {
-                return false;
-            }
+        // Does the order have any disallowed categories in the cart?
+        $result = array_intersect($orderShippingCategories, $disallowedCategories);
+        if (!empty($result)) {
+            return false;
+        }
 
-            // Does the order have all required categories in the cart?
-            $result = !array_diff($requiredCategories, $orderShippingCategories);
-            if (!$result) {
-                return false;
-            }
+        // Does the order have all required categories in the cart?
+        $result = !array_diff($requiredCategories, $orderShippingCategories);
+        if (!$result) {
+            return false;
         }
 
         $this->getShippingRuleCategories();
