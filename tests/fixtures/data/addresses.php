@@ -1,7 +1,7 @@
 <?php
 
 return [
-    [
+    'bob' => [
         'id' => '123',
         'isStoreLocation' => true,
         'attention' => '',
@@ -29,7 +29,7 @@ return [
         'custom4' => '',
         'isEstimated' => false,
     ],
-    [
+    'bttf' => [
         'id' => '1000',
         'isStoreLocation' => false,
         'attention' => '',
@@ -57,13 +57,13 @@ return [
         'custom4' => 'Biff',
         'isEstimated' => false,
     ],
-    [
+    'orphaned' => [
         'id' => '1001',
         'isStoreLocation' => false,
         'fullName' => 'Orphaned Address',
         'isEstimated' => false,
     ],
-    [
+    'apple' => [
         'id' => '1002',
         'isStoreLocation' => false,
         'attention' => '',
