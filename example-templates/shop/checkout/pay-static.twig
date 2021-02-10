@@ -99,7 +99,7 @@
                           {{ redirectInput('/shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
                           {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
                           {{ hiddenInput('email', email) }}
-                          {{ hiddenInput('orderNumber', cart.number) }}
+                          {{ hiddenInput('number', cart.number) }}
                           {{ hiddenInput('paymentCurrency', paymentCurrency) }}
 
                           {{ csrfInput() }}

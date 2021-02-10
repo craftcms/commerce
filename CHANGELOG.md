@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+- Carts that only contains non-shipppable items will not attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
+- Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted. 
+- `PaymentSourcesController::actionAdd()` now accepts a hashed `successMessage` param. ([#1955](https://github.com/craftcms/commerce/issues/1955))
+
 ## 3.2.14.1 - 2020-01-28
 
 ### Fixed

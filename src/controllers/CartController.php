@@ -418,7 +418,11 @@ class CartController extends BaseFrontEndController
     {
         $cart = null;
 
-        if ($orderNumber = $this->request->getBodyParam('orderNumber')) {
+        // TODO Remove `orderNumber` param in 4.0
+        $orderNumber = $this->request->getBodyParam('orderNumber');
+        $orderNumber = $this->request->getBodyParam('number', $orderNumber);
+
+        if ($orderNumber) {
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
 
