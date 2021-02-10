@@ -13,3 +13,6 @@
 ### Deprecated
 - Using the `commerce-gateways.php` config file is deprecated. Use the gateway’s config file instead. ([#1963](https://github.com/craftcms/commerce/issues/1963))
 - Deprecated `\craft\commerce\services\Gateways::getGatewayOverrides()`.
+
+### Fixed
+- Fixed a PHP 8 bug in `\craft\commerce\models\Address::addressLines()`. ([#1987](https://github.com/craftcms/commerce/issues/1987))
