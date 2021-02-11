@@ -1186,6 +1186,7 @@ class Discounts extends Component
                 '[[discounts.excludeOnSale]]',
                 '[[discounts.hasFreeShippingForMatchingItems]]',
                 '[[discounts.hasFreeShippingForOrder]]',
+                '[[discounts.userCondition]]',
                 '[[discounts.allPurchasables]]',
                 '[[discounts.allCategories]]',
                 '[[discounts.categoryRelationshipType]]',
