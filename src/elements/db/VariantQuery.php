@@ -27,6 +27,7 @@ use yii\db\Schema;
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
+ * @property-write Product $product
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  * @doc-path products-variants.md
@@ -51,11 +52,6 @@ class VariantQuery extends ElementQuery
      * @var bool Whether to only return variants that the user has permission to edit.
      */
     public $editable = false;
-
-    /**
-     * @var Product
-     */
-    public $product;
 
     /**
      * @var
@@ -150,6 +146,20 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'product':
+                $this->product($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
+
+    /**
      * Narrows the query results based on the {elements}’ SKUs.
      *
      * Possible values include:
@@ -209,7 +219,11 @@ class VariantQuery extends ElementQuery
      */
     public function product($value)
     {
-        $this->product = $value;
+        if ($value instanceof Product) {
+            $this->productId = [$value->id];
+        } else {
+            $this->productId = $value;
+        }
         return $this;
     }
 
@@ -530,14 +544,6 @@ class VariantQuery extends ElementQuery
 
         if ($this->sku) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
-        }
-
-        if ($this->product) {
-            if ($this->product instanceof Product) {
-                $this->productId = $this->product->id;
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product));
-            }
         }
 
         if ($this->productId) {
