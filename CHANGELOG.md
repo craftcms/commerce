@@ -4,7 +4,7 @@
 
 ### Fixed
 - Fixed a bug where the cart was not recalculated after saving a related billing address with the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
-- Fixed a bug where zero value category shipping cost overrides would display as blank after save. ([#1999](https://github.com/craftcms/commerce/issues/1999))
+- Fixed a bug where a zero value entered into a category shipping rule cost override would display as blank after save. ([#1999](https://github.com/craftcms/commerce/issues/1999))
 
 ### Changed
 - Carts that only contains non-shipppable items will not attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
