@@ -61,6 +61,19 @@ trait OrderNoticesTrait
     }
 
     /**
+     * Returns the first error of the specified attribute.
+     *
+     * @param string $attribute attribute name.
+     * @return string the error message. Null is returned if no error.
+     * @see getErrors()
+     * @see getFirstErrors()
+     */
+    public function getFirstNotice($attribute)
+    {
+        return isset($this->_notices[$attribute]) ? reset($this->_notices[$attribute]) : null;
+    }
+
+    /**
      * Returns the notices for all attributes as a one-dimensional array.
      *
      * @param bool $showAllNotices boolean, if set to true every notice message for each attribute will be shown otherwise

@@ -3126,6 +3126,10 @@ class Order extends Element
     }
 
 
+    /**
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
     private function _saveNotices()
     {
         // Line items that are currently in the DB
