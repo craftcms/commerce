@@ -83,7 +83,7 @@ use yii\log\Logger;
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
  * @property-read ShippingMethodInterface $shippingMethod
- * @property-read ShippingMethodInterface $shippingMethodId
+ * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
  * @property-read string $pdfUrl the URL to the order’s PDF invoice
@@ -2839,6 +2839,7 @@ class Order extends Element
 
     /**
      * @return int|null
+     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
      */
     public function getShippingMethodId()
     {
