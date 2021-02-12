@@ -546,8 +546,9 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
+        $this->_normalizeProductId();
         if ($this->productId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
+            $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
 
         if ($this->price) {
@@ -858,6 +859,24 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Normalizes the productId param to an array of IDs or null
+     */
+    private function _normalizeProductId()
+    {
+        if (empty($this->productId)) {
+            $this->productId = null;
+        } else if (is_numeric($this->productId)) {
+            $this->productId = [$this->productId];
+        } else if (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
+            $this->productId = (new Query())
+                ->select(['id'])
+                ->from([Table::PRODUCTS])
+                ->where(Db::parseParam('id', $this->productId()))
+                ->column();
+        }
+    }
+
+    /**
      * Applies the hasVariant query condition
      */
     private function _applyHasProductParam()
@@ -878,5 +897,22 @@ class VariantQuery extends ElementQuery
             $productIds = array_filter($productIds);
             $this->subQuery->andWhere(['commerce_products.id' => $productIds]);
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.5.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->productId) {
+            foreach ($this->productId as $productId) {
+                $tags[] = "product:$productId";
+            }
+        }
+
+        return $tags;
     }
 }
