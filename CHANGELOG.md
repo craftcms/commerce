@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixed
+- Fixed a bug where the cart was not recalculated after saving a related billing address with the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
+
 ### Changed
 - Carts that only contains non-shipppable items will not attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
 - Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted. 
