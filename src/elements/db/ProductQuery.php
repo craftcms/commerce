@@ -19,7 +19,6 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
-use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
 /**
@@ -870,8 +869,6 @@ class ProductQuery extends ElementQuery
 
     /**
      * Normalizes the typeId param to an array of IDs or null
-     *
-     * @throws InvalidConfigException
      */
     private function _normalizeTypeId()
     {
