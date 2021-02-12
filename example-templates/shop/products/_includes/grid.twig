@@ -5,7 +5,9 @@
             <div class="relative">
                 <div>
                     <a class="block" href="{{ product.url }}">
-                      <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? '' }}')"
+                      {% set productImage = product.defaultVariant.featureImage.one() ?? null %}
+                      <div
+                           {% if productImage %} style="background-image: url('{{ productImage.url }}')" {% endif %}
                            class="bg-cover bg-center bg-gray-300 hover:bg-gray-200 h-32 rounded">
                       </div>
                     </a>
