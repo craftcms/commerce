@@ -412,6 +412,7 @@ class OrdersController extends Controller
             'billingAddress',
             'shippingAddress',
             'orderSite',
+            'notices'
         ];
 
         $orderArray = $order->toArray($orderFields, $extraFields);

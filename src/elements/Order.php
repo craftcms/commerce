@@ -1358,7 +1358,6 @@ class Order extends Element
     public function extraFields(): array
     {
         $names = parent::extraFields();
-        $names[] = 'notices';
         $names[] = 'availableShippingMethods';
         $names[] = 'availableShippingMethodOptions';
         $names[] = 'adjustments';
@@ -1367,6 +1366,7 @@ class Order extends Element
         $names[] = 'gateway';
         $names[] = 'histories';
         $names[] = 'nestedTransactions';
+        $names[] = 'notices';
         $names[] = 'orderStatus';
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
@@ -3232,20 +3232,5 @@ class Order extends Element
                 }
             }
         }
-    }
-
-    public function getIsDeletable(): bool
-    {
-        // TODO: Implement getIsDeletable() method.
-    }
-
-    public function getHasCheckeredThumb(): bool
-    {
-        // TODO: Implement getHasCheckeredThumb() method.
-    }
-
-    public function getHasRoundedThumb(): bool
-    {
-        // TODO: Implement getHasRoundedThumb() method.
     }
 }
