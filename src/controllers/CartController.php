@@ -71,16 +71,6 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * Returns the cart as JSON
-     */
-    public function actionClearNotices()
-    {
-        $this->_cart = $this->_getCart();
-        $this->_cart->clearNotices();
-        $this->_returnCart();
-    }
-
-    /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
      * @throws InvalidConfigException
@@ -97,8 +87,14 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear notices when updating the cart
-        if ($clearNotices = $this->request->getParam('clearNotices')) {
-            $this->_cart->clearNotices();
+        if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
+            if (is_array($clearNotices)) {
+                foreach ($clearNotices as $attribute) {
+                    $this->_cart->clearNotices($attribute);
+                }
+            } else {
+                $this->_cart->clearNotices();
+            }
         }
 
         // Set the custom fields submitted

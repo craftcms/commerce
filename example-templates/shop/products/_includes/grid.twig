@@ -22,10 +22,6 @@
                     {{ actionInput('commerce/cart/update-cart') }}
                     {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
                     <input type="hidden" name="clearNotices" value="1"/>
-{#                    <input type="text" name="couponCode" width="11"#}
-{#                           class="{{ classes.input }} w-full {% if cart.getFirstError('couponCode') %}text-red-500{% endif %}"#}
-{#                           value="{{ cart.couponCode }}"#}
-{#                           placeholder="{{ "Coupon Code" }}">#}
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
                         <select name="purchasableId"

@@ -73,10 +73,11 @@
                 <li class="list-disc">{{ notice }}</li>
             {%  endfor  %}
             <form method="post" class="js-form">
-                {{ actionInput('commerce/cart/clear-notices') }}
+                {{ actionInput('commerce/cart/update-cart') }}
                 {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
+                {{ hiddenInput('clearNotices') }}
                 {{ csrfInput() }}
-                <input class="absolute mt-4 mr-4 top-0 right-0 {{ classes.btn.small ~ ' ' ~ classes.btn.greyLight }}" type="submit" value="OK"/>
+                <input class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0" type="submit" value="Dismiss"/>
             </form>
         </div>
     </div>
