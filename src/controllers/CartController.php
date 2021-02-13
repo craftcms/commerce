@@ -96,6 +96,11 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
+        // Can clear notices when updating the cart
+        if ($clearNotices = $this->request->getParam('clearNotices')) {
+            $this->_cart->clearNotices();
+        }
+
         // Set the custom fields submitted
         $this->_cart->setFieldValuesFromRequest('fields');
 
@@ -237,11 +242,6 @@ class CartController extends BaseFrontEndController
         // Set Shipping method on cart.
         if ($shippingMethodHandle = $this->request->getParam('shippingMethodHandle')) {
             $this->_cart->shippingMethodHandle = $shippingMethodHandle;
-        }
-
-        // Set Shipping method on cart.
-        if ($clearNotices = $this->request->getParam('clearNotices')) {
-            $this->_cart->clearNotices();
         }
 
         return $this->_returnCart();

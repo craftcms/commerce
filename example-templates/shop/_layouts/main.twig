@@ -66,7 +66,7 @@
 {% endif %}
 
 {% if cart.hasNotices() %} {# Add `or true` to this if condition to temporarily see what this flash error would look like #}
-    <div class="bg-blue-500 text-white">
+    <div class="bg-blue-400 text-white">
         <div class="container mx-auto px-6 py-4 relative">
             <span>⚠️ Cart Notifications</span>
             {%  for notice in cart.getNoticeSummary(true) %}

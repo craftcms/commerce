@@ -1756,7 +1756,7 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
-                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Selected shipping method is longer available.'));
+                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Previously selected shipping method is longer available.'));
                 $this->recalculate();
                 return;
             }
