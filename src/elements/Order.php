@@ -1719,8 +1719,25 @@ class Order extends Element
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
             $lineItemRemoved = false;
-            foreach ($this->getLineItems() as $item) {
-                if (!$item->refreshFromPurchasable()) {
+            foreach ($this->getLineItems() as $key => $item) {
+                $originalSalePrice = $item->getSalePrice();
+                $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
+                if ($item->refreshFromPurchasable()) {
+
+                    if ($originalSalePrice > $item->salePrice) {
+                        $this->addNotice(
+                            "lineItems.{$key}.salePrice",
+                            $item->getDescription() . Craft::t('commerce', ' price reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency])
+                        );
+                    }
+
+                    if ($originalSalePrice < $item->salePrice) {
+                        $this->addNotice(
+                            "lineItems.{$key}.salePrice",
+                            $item->getDescription() . Craft::t('commerce', ' price increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency])
+                        );
+                    }
+                } else {
                     $this->addNotice('lineItems', $item->getDescription() . Craft::t('commerce', ' is no longer available and was removed from the order.'));
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
