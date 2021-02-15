@@ -169,6 +169,7 @@
 {% endblock %}
 
 {% block details %}
+    <div id="order-notices-app"></div>
     <div id="order-meta-app"></div>
     {# Give plugins a chance to add other things here #}
     {% hook "cp.commerce.order.edit.details" %}

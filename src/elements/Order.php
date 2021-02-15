@@ -1727,18 +1727,18 @@ class Order extends Element
                     if ($originalSalePrice > $item->salePrice) {
                         $this->addNotice(
                             "lineItems.{$key}.salePrice",
-                            $item->getDescription() . Craft::t('commerce', ' price reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency])
+                            $item->getDescription() . Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
                         );
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
                         $this->addNotice(
                             "lineItems.{$key}.salePrice",
-                            $item->getDescription() . Craft::t('commerce', ' price increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency])
+                            Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
                         );
                     }
                 } else {
-                    $this->addNotice('lineItems', $item->getDescription() . Craft::t('commerce', ' is no longer available and was removed from the order.'));
+                    $this->addNotice('lineItems', Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]));
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
