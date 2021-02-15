@@ -998,6 +998,13 @@ class Variant extends Purchasable
     {
         // Don't reduce stock of unlimited items.
         if (!$this->hasUnlimitedStock) {
+            // Acquire a lock in case multiple orders are completing at once
+            $mutex = Craft::$app->getMutex();
+            $lockName = "variant:$this->id:stock";
+            if (!$mutex->acquire($lockName, 5)) {
+                throw new Exception("Unable to acquire lock to reduce stock for variant $this->id and order $order->id");
+            }
+
             // Update the qty in the db directly
             Craft::$app->getDb()->createCommand()->update(Table::VARIANTS,
                 ['stock' => new Expression('stock - :qty', [':qty' => $lineItem->qty])],
@@ -1009,6 +1016,8 @@ class Variant extends Purchasable
                 ->from(Table::VARIANTS)
                 ->where('id = :variantId', [':variantId' => $this->id])
                 ->scalar();
+
+            $mutex->release($lockName);
 
             Craft::$app->getElements()->invalidateCachesForElement($this);
         }

@@ -12,6 +12,7 @@
 ### Fixed
 - Fixed a bug where the cart was not recalculated after saving a related billing address with the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
 - Fixed a bug where a zero value entered into a category shipping rule cost override would display as blank after save. ([#1999](https://github.com/craftcms/commerce/issues/1999))
+- Fixed a potential race condition where a variant’s stock could be recalculated incorrectly, if two orders with the same variant are completed at the same time.
 
 ## 3.2.14.1 - 2020-01-28
 
