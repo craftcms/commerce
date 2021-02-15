@@ -18,10 +18,8 @@
         {{ csrfInput() }}
 
         {{ formHtml|raw }}
-
-        <div class="footer">
-            <div class="buttons right">
-                <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+        <div id="currency-selector">
+            <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
                 {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
                 {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
@@ -41,14 +39,18 @@
                                 {% set selectedByCustomer = false %}
                             {% endif %}
                             <option value="{{currency.iso}}" {% if selectedByCustomer %}selected{% endif %} >
-                                {{ currency.name }} {% if primary %}({{ 'Base Currency'|t('commerce')}}){% endif %}
+                                {{ currency.iso }}
                             </option>
                         {% endfor %}
                     {% else %}
                      <option value="{{primaryCurrency.iso}}">{{ primaryCurrency.name }}</option>
                     {% endif %}
                 </select>
+                <span id="#base-currency-amount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+        </div>
 
+        <div class="footer">
+            <div class="buttons right">
                 <input type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
