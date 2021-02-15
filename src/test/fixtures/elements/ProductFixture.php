@@ -7,6 +7,7 @@
 
 namespace craft\commerce\test\fixtures\elements;
 
+use craft\base\ElementInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
 use craft\test\fixtures\elements\BaseElementFixture;
