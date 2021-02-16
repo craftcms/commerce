@@ -8,8 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\base\ElementInterface;
-use craft\commerce\elements\Product;
-use craft\test\fixtures\elements\BaseElementFixture;
+use craft\commerce\test\fixtures\elements\ProductFixture as BaseProductFixture;
 
 /**
  * Class ProductFixture.
@@ -17,17 +16,12 @@ use craft\test\fixtures\elements\BaseElementFixture;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1.4
  */
-class ProductFixture extends BaseElementFixture
+class ProductFixture extends BaseProductFixture
 {
     /**
      * @inheritdoc
      */
     public $dataFile = __DIR__.'/data/products.php';
-
-    /**
-     * @inheritdoc
-     */
-    public $modelClass = Product::class;
 
     /**
      * @inheritdoc
@@ -46,13 +40,5 @@ class ProductFixture extends BaseElementFixture
                 $element->setVariants($value);
             }
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function createElement(): ElementInterface
-    {
-        return new Product();
     }
 }
