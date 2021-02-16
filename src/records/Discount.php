@@ -18,7 +18,6 @@ use yii\db\ActiveQueryInterface;
  * Discount record.
  *
  * @property bool $allCategories
- * @property bool $allGroups
  * @property bool $allPurchasables
  * @property float $baseDiscount
  * @property string $baseDiscountType
@@ -50,6 +49,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $totalDiscountUseLimit
  * @property int $totalDiscountUses
  * @property string $categoryRelationshipType
+ * @property string $userCondition
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -70,12 +70,12 @@ class Discount extends ActiveRecord
 
     const APPLIED_TO_MATCHING_LINE_ITEMS = 'matchingLineItems';
     const APPLIED_TO_ALL_LINE_ITEMS = 'allLineItems';
-    
+
     const CONDITION_USERS_ANY_OR_NONE = 'usersAnyOrNone';
     const CONDITION_USERS_INCLUDE_ALL = 'usersIncludeAll';
     const CONDITION_USERS_INCLUDE_ANY = 'usersIncludeAny';
     const CONDITION_USERS_EXCLUDE = 'usersExclude';
-    
+
     /**
      * @inheritdoc
      */

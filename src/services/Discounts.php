@@ -677,7 +677,7 @@ class Discounts extends Component
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
+        $record->userCondition = $model->userCondition;
         $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
         $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
@@ -1029,7 +1029,7 @@ class Discounts extends Component
      */
     private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
     {
-        if (!$discount->allGroups) {
+        if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
             $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
                 return false;
