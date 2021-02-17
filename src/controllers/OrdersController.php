@@ -19,6 +19,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
@@ -610,7 +611,7 @@ class OrdersController extends Controller
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
-        
+
         if ($email === null || !$email->enabled) {
             return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
         }
@@ -892,6 +893,43 @@ class OrdersController extends Controller
     }
 
     /**
+     * @throws BadRequestHttpException
+     */
+    public function actionPaymentAmountData()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+
+        $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
+        $paymentAmount = $this->request->getRequiredParam('paymentAmount');
+        $orderId = $this->request->getRequiredParam('orderId');
+        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        $baseCurrencyPaymentAmount = Plugin::getInstance()->getPaymentCurrencies()->convert($paymentAmount, $paymentCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
+
+        $order = Order::find()->id($orderId)->one();
+        $outstandingBalance = $order->outstandingBalance;
+        $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
+
+        $message = '';
+        if ($baseCurrencyPaymentAmount > $outstandingBalance) {
+            $baseCurrencyPaymentAmount = $outstandingBalance;
+            $baseCurrencyPaymentAmountAsCurrency = $outstandingBalanceAsCurrency;
+            $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
+        }
+
+        return $this->asJson([
+            'paymentCurrency' => $paymentCurrency,
+            'paymentAmount' => $paymentAmount,
+            'outstandingBalance' => $outstandingBalance,
+            'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
+            'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
+            'message' => $message
+        ]);
+    }
+
+    /**
      * Modifies the variables of the request.
      *
      * @param $variables
@@ -1163,7 +1201,7 @@ class OrdersController extends Controller
         $shippingAddress = null;
 
         // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' &&  $order->isCompleted) {
+        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $billingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
@@ -1174,7 +1212,7 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId && $shippingAddressId != 'new' &&  $order->isCompleted) {
+        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $shippingAddressId])
                 ->andWhere(['not', ['customerId' => null]])

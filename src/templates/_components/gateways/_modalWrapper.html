@@ -19,34 +19,24 @@
 
         {{ formHtml|raw }}
         <div id="currency-selector">
-            <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="0" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+            <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
-                {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
-                {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
+            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
 
+            {% if currencies|length > 1 %}
                 <select type="number" id="paymentCurrency" class="text" name="paymentCurrency"  style="margin: 0 5px;">
-                    {% if currencies|length > 1 %}
-
-                        {% for currency in currencies %}
-                            {% if primaryCurrency.iso == currency.iso %}
-                                {% set primary = true %}
-                            {% else %}
-                                {% set primary = false %}
-                            {% endif %}
-                            {% if order.paymentCurrency and (order.paymentCurrency == currency.iso and order.origin == 'web') %}
-                                {% set selectedByCustomer = true %}
-                            {% else %}
-                                {% set selectedByCustomer = false %}
-                            {% endif %}
-                            <option value="{{currency.iso}}" {% if selectedByCustomer %}selected{% endif %} >
-                                {{ currency.iso }}
-                            </option>
-                        {% endfor %}
-                    {% else %}
-                     <option value="{{primaryCurrency.iso}}">{{ primaryCurrency.name }}</option>
-                    {% endif %}
+                {% for currency in currencies %}
+                    <option value="{{currency.iso}}" {% if primaryCurrency.iso == currency.iso %}selected {% endif %}>
+                        {{ currency.iso }}
+                    </option>
+                {% endfor %}
                 </select>
-                <span id="#base-currency-amount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+                <span id="baseCurrencyAmount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+            {% else %}
+                 <input type="hidden" id="paymentCurrency" name="paymentCurrency" value="{{primaryCurrency.iso}}" />
+            {% endif %}
+            <p id="response-message"></p>
         </div>
 
         <div class="footer">
@@ -68,4 +58,68 @@
 
         $form.data('processing', true);
     });
+
+    let primaryCurrency = '{{ primaryCurrency.iso }}';
+    let outstandingBalance = '{{ order.outstandingBalance }}';
+    let orderId = '{{ order.id }}';
+
+    function debounce(callback, wait) {
+      let timeout;
+      return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(function () { callback.apply(this, args); }, wait);
+      };
+    }
+
+    function updatePrice() {
+        var price = $("input#paymentAmount").val();
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            headers: {
+                "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+            },
+            url: '',
+            data: {
+                'action' : 'commerce/orders/payment-amount-data',
+                'paymentAmount': price,
+                'paymentCurrency': $("#paymentCurrency").val(),
+                'orderId' : orderId
+            },
+            success: function(data){
+                console.log(data);
+                $("#baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
+
+                if(data.message.length) {
+                    $('#response-message').html(data.message);
+                    window.dispatchEvent(new Event('resize'));
+                }
+            }
+        });
+    }
+
+    $("input#paymentAmount").bind('keyup mouseup', debounce(() => {
+        var newVal = $("input#paymentAmount").val();
+        if(!newVal) {
+            newVal = outstandingBalance;
+            $("input#paymentAmount").val(newVal);
+        }
+        updatePrice();
+    }, 500));
+
+    var previous;
+    if($("select#paymentCurrency").length){
+        $("select#paymentCurrency").on('focus', function () {
+            previous = this.value;
+        }).on('change', function() {
+            if(previous != this.value)
+            if(this.value != primaryCurrency){
+                $("input#paymentAmount").removeAttr('max');
+            }else{
+                $("input#paymentAmount").attr('max', outstandingBalance);
+            }
+            updatePrice();
+        });
+    }
+
 {% endjs %}
