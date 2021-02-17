@@ -304,6 +304,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription reactivated.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -379,6 +380,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription switched.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -451,6 +453,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription cancelled.'));
         return $this->redirectToPostedUrl();
     }
 }
