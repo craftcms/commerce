@@ -536,6 +536,16 @@ class Variant extends Purchasable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getCacheTags(): array
+    {
+        return [
+            "product:$this->productId",
+        ];
+    }
+
+    /**
      * @return bool
      * @throws InvalidConfigException
      */

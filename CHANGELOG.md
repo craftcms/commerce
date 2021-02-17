@@ -2,13 +2,16 @@
 
 ## Unreleased
 
-### Fixed
-- Fixed a bug where the cart was not recalculated after saving a related billing address with the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
-
 ### Changed
 - Carts that only contains non-shipppable items will not attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
-- Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted. 
+- Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted.
+- Variant queries with the `product` or `productId` param will now only invalidate their `{% cache %}` tags when the referenced products are saved/deleted.
 - `PaymentSourcesController::actionAdd()` now accepts a hashed `successMessage` param. ([#1955](https://github.com/craftcms/commerce/issues/1955))
+- `craft\commerce\elements\db\VariantQuery::product` is now write-only.
+
+### Fixed
+- Fixed a bug where the cart was not recalculated after saving a related billing address with the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
+- Fixed a bug where a zero value entered into a category shipping rule cost override would display as blank after save. ([#1999](https://github.com/craftcms/commerce/issues/1999))
 
 ## 3.2.14.1 - 2020-01-28
 
