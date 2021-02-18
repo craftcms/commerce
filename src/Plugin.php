@@ -250,7 +250,7 @@ class Plugin extends BasePlugin
             ];
         }
 
-        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions')) {
+        if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
                 'url' => 'commerce/subscriptions'

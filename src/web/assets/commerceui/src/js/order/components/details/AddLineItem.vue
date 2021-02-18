@@ -71,9 +71,9 @@
                 selectedPurchasables: [],
                 currentTableData: null,
                 purchasableTableColumns: [
-                    { name: 'description', title: this.$options.filters.t('Description', 'commerce') },
-                    { name: 'sku', title: this.$options.filters.t('SKU', 'commerce') },
-                    { name: 'priceAsCurrency', title: this.$options.filters.t('Price', 'commerce') },
+                    { name: 'description', title: this.$options.filters.t('Description', 'commerce'), sortField: 'description' },
+                    { name: 'sku', title: this.$options.filters.t('SKU', 'commerce'), sortField: 'sku' },
+                    { name: 'priceAsCurrency', title: this.$options.filters.t('Price', 'commerce'), sortField: 'price' },
                     { name: 'isAvailable', title: this.$options.filters.t('Available?', 'commerce'), callback: function(value) {
                         if (value) {
                             return '<span data-icon="check" title=""></span>'

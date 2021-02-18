@@ -19,6 +19,7 @@ use yii\db\Connection;
  * @method Donation|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ * @doc-path donations.md
  */
 class DonationQuery extends ElementQuery
 {
