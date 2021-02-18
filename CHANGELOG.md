@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.2.15.2 - 2020-02-18
+
+### Fixed
+- Fixed a bug where querying for an empty array on the `productId` variant query param would return all variants.
+
 ## 3.2.15.1 - 2020-02-18
 
 ### Fixed
