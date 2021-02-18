@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that occurred when deleting products. ([#2009](https://github.com/craftcms/commerce/issues/2009))
+
 ## 3.2.15 - 2020-02-17
 
 ### Changed
