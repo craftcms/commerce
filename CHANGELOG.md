@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.15.1 - 2020-02-18
+
+### Fixed
+- Fixed an error that occurred when deleting products. ([#2009](https://github.com/craftcms/commerce/issues/2009))
+
+## 3.2.15 - 2020-02-17
 
 ### Changed
 - Carts that only contains non-shipppable items no longer attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))

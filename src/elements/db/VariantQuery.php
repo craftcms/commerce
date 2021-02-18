@@ -871,7 +871,7 @@ class VariantQuery extends ElementQuery
             $this->productId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTS])
-                ->where(Db::parseParam('id', $this->productId()))
+                ->where(Db::parseParam('id', $this->productId))
                 ->column();
         }
     }
