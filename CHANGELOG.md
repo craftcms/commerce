@@ -1,5 +1,18 @@
 # Release Notes for Craft Commerce
 
+## 3.2.15 - 2020-02-17
+
+### Changed
+- Carts that only contains non-shipppable items no longer attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
+- Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted.
+- Variant queries with the `product` or `productId` param will now only invalidate their `{% cache %}` tags when the referenced products are saved/deleted.
+- The `commerce/payment-sources/add`, `commerce/subscriptions/subscribe`, `commerce/subscriptions/switch`, `commerce/subscriptions/cancel`, and `commerce/subscriptions/reactivate` actions now accept hashed `successMessage` params. ([#1955](https://github.com/craftcms/commerce/issues/1955))
+- `craft\commerce\elements\db\VariantQuery::product` is now write-only.
+
+### Fixed
+- Fixed a bug where carts weren’t getting recalculated after their billing address was saved via the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
+- Fixed a bug where category shipping rules weren’t remembering their cost overrides when set to `0` . ([#1999](https://github.com/craftcms/commerce/issues/1999))
+
 ## 3.2.14.1 - 2020-01-28
 
 ### Fixed
