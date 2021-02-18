@@ -3,8 +3,8 @@
         <div class="meta read-only">
             <button @click.prevent="clearNotices" class="btn small right">clear</button>
             <ul>
-                <li v-for="(notice, key) in draft.order.notices" v-key="key">
-                    <div v-for="(item, index) in notice" v-key="index">
+                <li v-for="(notice, key) in draft.order.notices" :key="key">
+                    <div v-for="(item, index) in notice" :key="index">
                         {{ item }}
                     </div>
                 </li>
