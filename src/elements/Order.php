@@ -1727,7 +1727,7 @@ class Order extends Element
                     if ($originalSalePrice > $item->salePrice) {
                         $this->addNotice(
                             "lineItems.{$key}.salePrice",
-                            $item->getDescription() . Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
+                            Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
                         );
                     }
 
