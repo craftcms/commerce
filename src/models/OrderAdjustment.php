@@ -112,11 +112,11 @@ class OrderAdjustment extends Model
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => [
-                'amount' => $this->order->paymentCurrency
-            ]
+            'currencyAttributes' => $this->currencyAttributes()
         ];
+        if ($this->orderId) {
+            $behaviors['currencyAttributes']['attributeCurrencyMap'] = $this->order->getPaymentCurrency();
+        }
 
         return $behaviors;
     }
