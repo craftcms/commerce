@@ -516,6 +516,13 @@ class VariantQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->_normalizeProductId();
+
+        // See if 'productId' was invalid
+        if ($this->productId === []) {
+            return false;
+        }
+
         $this->joinElementTable('commerce_variants');
 
         $this->query->select([
@@ -546,7 +553,6 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
-        $this->_normalizeProductId();
         if ($this->productId) {
             $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
@@ -871,7 +877,7 @@ class VariantQuery extends ElementQuery
             $this->productId = (new Query())
                 ->select(['id'])
                 ->from([Table::PRODUCTS])
-                ->where(Db::parseParam('id', $this->productId()))
+                ->where(Db::parseParam('id', $this->productId))
                 ->column();
         }
     }
