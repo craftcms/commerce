@@ -29,7 +29,8 @@ use yii\db\Connection;
  * @method Product|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/product-queries.md
+ * @doc-path products-variants.md
+ * @prefix-doc-params
  * @replace {element} product
  * @replace {elements} products
  * @replace {twig-method} craft.products()
@@ -137,9 +138,250 @@ class ProductQuery extends ElementQuery
             case 'after':
                 $this->after($value);
                 break;
+            case 'defaultHeight':
+                $this->defaultHeight($value);
+                break;
+            case 'defaultLength':
+                $this->defaultLength($value);
+                break;
+            case 'defaultWidth':
+                $this->defaultWidth($value);
+                break;
+            case 'defaultWeight':
+                $this->defaultWeight($value);
+                break;
+            case 'defaultSku':
+                $this->defaultSku($value);
+                break;
             default:
                 parent::__set($name, $value);
         }
+    }
+
+    /**
+     * Narrows the query results based on the products’ default variant price.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `10` | of a price of 10.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000,] | of a default variant price between 100 and 2000
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product type with an ID of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaultPrice(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the product type with an ID of 1
+     * ${elements-var} = {php-method}
+     *     ->defaultPrice(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultPrice($value)
+    {
+        $this->defaultPrice = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ default variant height domention IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a type with a domention of 1.
+     * | `'not 1'` | not a domention of 1.
+     * | `[1, 2]` | of a a domention 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000,] | of a dimention between 100 and 2000
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaultHeight(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the  product default dimention of 1
+     * ${elements-var} = {php-method}
+     *     ->defaultHeight(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultHeight($value)
+    {
+        $this->defaultHeight = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ default variant length domention IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a type with a domention of 1.
+     * | `'not 1'` | not a domention of 1.
+     * | `[1, 2]` | of a a domention 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaulLength(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the  product default dimention of 1
+     * ${elements-var} = {php-method}
+     *     ->defaulLength(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultLength($value)
+    {
+        $this->defaultLength = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ default variant width domention IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a type with a domention of 1.
+     * | `'not 1'` | not a domention of 1.
+     * | `[1, 2]` | of a a domention 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaultWidth(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the  product default dimention of 1
+     * ${elements-var} = {php-method}
+     *     ->defaultWidth(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultWidth($value)
+    {
+        $this->defaultWidth = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the products’ default variant weight domention IDs.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | of a type with a domention of 1.
+     * | `'not 1'` | not a domention of 1.
+     * | `[1, 2]` | of a a domention 1 or 2.
+     * | `['and', '>= ' ~ 100, '<= ' ~ 2000] | of a dimention between 100 and 2000
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product default dimention of 1 #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaultWeight(1)
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements} of the  product default dimention of 1
+     * ${elements-var} = {php-method}
+     *     ->defaultWeight(1)
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultWeight($value)
+    {
+        $this->defaultWeight = $value;
+
+        return $this;
+    }
+
+    /**
+     * Narrows the query results based on the default productvariants defaultSku
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `xxx-001` | of products defaukt SKU of `xxx-001`.
+     * | `'not xxx-001'` | not a defaukt SKU of `xxx-001`.
+     * | `['not xxx-001', 'not xxx-002']` | of a default SKU of xxx-001 or xxx-002.
+     * | `['not', `xxx-001`, `xxx-002`]` | not a product defaukt SKU of `xxx-001` or `xxx-001`.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch {elements} of the product defaukt SKU of `xxx-001` #}
+     * {% set {elements-var} = {twig-method}
+     *     .defaultSku('xxx-001')
+     *     .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch {elements}  of the product defaukt SKU of `xxx-001`
+     * ${elements-var} = {php-method}
+     *     ->defaultSku('xxx-001')
+     *     ->all();
+     * ```
+     *
+     * @param mixed $value The property value
+     * @return static self reference
+     */
+    public function defaultSku($value)
+    {
+        $this->defaultSku = $value;
+
+        return $this;
     }
 
     /**
@@ -177,7 +419,7 @@ class ProductQuery extends ElementQuery
     public function type($value)
     {
         if ($value instanceof ProductType) {
-            $this->typeId = $value->id;
+            $this->typeId = [$value->id];
         } else if ($value !== null) {
             $this->typeId = (new Query())
                 ->select(['id'])
@@ -498,6 +740,8 @@ class ProductQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->_normalizeTypeId();
+
         // See if 'type' were set to invalid handles
         if ($this->typeId === []) {
             return false;
@@ -544,7 +788,7 @@ class ProductQuery extends ElementQuery
         }
 
         if ($this->typeId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
+            $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
         }
 
         if ($this->defaultPrice) {
@@ -624,6 +868,23 @@ class ProductQuery extends ElementQuery
         }
     }
 
+    /**
+     * Normalizes the typeId param to an array of IDs or null
+     */
+    private function _normalizeTypeId()
+    {
+        if (empty($this->typeId)) {
+            $this->typeId = null;
+        } else if (is_numeric($this->typeId)) {
+            $this->typeId = [$this->typeId];
+        } else if (!is_array($this->typeId) || !ArrayHelper::isNumeric($this->typeId)) {
+            $this->typeId = (new Query())
+                ->select(['id'])
+                ->from([Table::PRODUCTTYPES])
+                ->where(Db::parseParam('id', $this->typeId))
+                ->column();
+        }
+    }
 
     /**
      * Applies the 'editable' param to the query being prepared.
@@ -707,5 +968,22 @@ class ProductQuery extends ElementQuery
         if ($joinSections) {
             $this->subQuery->innerJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[producttypes.id]] = [[products.typeId]]');
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.5.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->typeId) {
+            foreach ($this->typeId as $typeId) {
+                $tags[] = "productType:$typeId";
+            }
+        }
+
+        return $tags;
     }
 }

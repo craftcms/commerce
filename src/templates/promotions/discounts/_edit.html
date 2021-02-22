@@ -312,12 +312,11 @@
         }, totalDiscountLimitMarkup) }}
 
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Exclude this discount for products that are already on sale"|t('commerce'),
             id: 'excludeOnSale',
             name: 'excludeOnSale',
-            value: 1,
-            checked: discount.excludeOnSale,
+            on: discount.excludeOnSale ? true : false,
             errors: discount.getErrors('excludeOnSale')
         }) }}
 
@@ -382,12 +381,11 @@
             tip: 'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.'|t('commerce')
         }, pctDiscountInput) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
             id: 'ignoreSales',
             name: 'ignoreSales',
-            value: 1,
-            checked: discount.ignoreSales
+            on: discount.ignoreSales ? true : false
         }) }}
 
         <hr>
@@ -437,29 +435,28 @@
         <hr>
         <h3>Additional Actions</h3>
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Remove all shipping costs from the order"|t('commerce'),
             id: 'hasFreeShippingForOrder',
             name: 'hasFreeShippingForOrder',
-            value: 1,
-            checked: discount.hasFreeShippingForOrder
+            on: discount.hasFreeShippingForOrder ? true : false
         }) }}
 
-        {{ forms.checkboxField({
+        {#
+          This might need to be disabled to start with. That is handled in the JS
+        #}
+        {{ forms.lightswitchField({
             label: "Remove shipping costs for matching items only"|t('commerce'),
             id: 'hasFreeShippingForMatchingItems',
             name: 'hasFreeShippingForMatchingItems',
-            value: 1,
-            checked: discount.hasFreeShippingForMatchingItems,
-            disabled: discount.hasFreeShippingForOrder
+            on: discount.hasFreeShippingForMatchingItems ? true : false
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Don’t apply any subsequent discounts to an order if this discount is applied"|t('commerce'),
             id: 'stopProcessing',
             name: 'stopProcessing',
-            value: 1,
-            checked: discount.stopProcessing,
+            on: discount.stopProcessing ? true : false,
             errors: discount.getErrors('stopProcessing')
         }) }}
     </div>
@@ -481,12 +478,28 @@
                 }
             });
 
-            $("#hasFreeShippingForOrder").click(function (){
-                if ($("#hasFreeShippingForOrder").prop("checked")){
-                    $("#hasFreeShippingForMatchingItems").prop("checked", false);
-                    $("#hasFreeShippingForMatchingItems").prop("disabled", true);
-                }else{
-                    $("#hasFreeShippingForMatchingItems").prop("disabled", false);
+            function disableShippingSwitch() {
+                $('#hasFreeShippingForMatchingItems').data('lightswitch').turnOff();
+                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", true);
+                $('#hasFreeShippingForMatchingItems').prop("disabled", true);
+                $("#hasFreeShippingForMatchingItems").addClass("disabled");
+            }
+
+            function enableShippingSwitch() {
+                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", false);
+                $('#hasFreeShippingForMatchingItems').prop("disabled", false);
+                $("#hasFreeShippingForMatchingItems").removeClass("disabled");
+            }
+
+            if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+                disableShippingSwitch();
+            }
+
+            $('#hasFreeShippingForOrder').click(function () {
+                if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+                    disableShippingSwitch();
+                } else {
+                    enableShippingSwitch();
                 }
             });
 

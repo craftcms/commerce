@@ -194,22 +194,20 @@
 
         {% set ignoresPrevious = ['toFlat','toPercent'] %}
         {% set checked = sale.apply in ignoresPrevious %}
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Ignore previous matching sales if this sale matches."|t('commerce'),
             id: 'ignorePrevious',
             name: 'ignorePrevious',
-            value: 1,
-            checked: (checked or sale.ignorePrevious),
+            on: (checked or sale.ignorePrevious),
             disabled: checked,
             errors: sale.getErrors('ignorePrevious')
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Do not apply subsequent matching sales beyond applying this sale."|t('commerce'),
             id: 'stopProcessing',
             name: 'stopProcessing',
-            value: 1,
-            checked: sale.stopProcessing,
+            on: sale.stopProcessing ? true : false,
             errors: sale.getErrors('stopProcessing')
         }) }}
 
@@ -225,7 +223,7 @@
 
     $("form").submit(function() {
         $("input[name=ignorePrevious]").prop('disabled', false);
-        if ($("input[name=ignorePrevious]").prop('checked') == true){
+        if ($("input[name=ignorePrevious]").val() == 1){
             $("#ignorePrevious-field").css('opacity', 0.25);
         };
     });
@@ -233,11 +231,13 @@
     $('input[name=apply]').change(function() {
         if (this.value == 'toFlat' || this.value == 'toPercent') {
             $('input[name=ignorePrevious]').prop('disabled', true);
-            $('input[name=ignorePrevious]').prop('checked', true);
+            $('#ignorePrevious').prop('disabled', true);
+            $('#ignorePrevious').addClass('disabled', true);
         }
         if (this.value != 'toFlat' && this.value != 'toPercent') {
             $('input[name=ignorePrevious]').prop('disabled', false);
-            $('input[name=ignorePrevious]').prop('checked', false);
+            $('#ignorePrevious').prop('disabled', false);
+            $('#ignorePrevious').removeClass('disabled', true);
         }
     });
     });

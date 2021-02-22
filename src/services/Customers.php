@@ -375,15 +375,17 @@ class Customers extends Component
             ->select(['[[customers.id]] id'])
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null])
-            ->column();
+            ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null]);
 
-        if ($customers) {
-            // This will also remove all addresses related to the customer.
-            Craft::$app->getDb()->createCommand()
-                ->delete(Table::CUSTOMERS, ['id' => $customers])
-                ->execute();
-        }
+        // Wrap subquery in another subquery to just select the ID. This is for MySQL compatibility.
+        $customersIds = (new Query())
+            ->select('custs.id')
+            ->from(['custs' => $customers]);
+
+        // This will also remove all addresses related to the customer.
+        Craft::$app->getDb()->createCommand()
+            ->delete(Table::CUSTOMERS, ['id' => $customersIds])
+            ->execute();
     }
 
     /**

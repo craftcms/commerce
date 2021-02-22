@@ -44,7 +44,7 @@ class Carts extends Component
      * @var Order
      */
     private $_cart;
-
+    
     /**
      * Get the current cart for this session.
      *
@@ -105,7 +105,8 @@ class Carts extends Component
         $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        if (($this->_cart->id && $somethingChangedOnTheCart) || $forceSave) {
+        // Manual force save only works when the order has not ID
+        if (($this->_cart->id && $somethingChangedOnTheCart) || ($forceSave && !$this->_cart->id)) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
@@ -277,7 +278,7 @@ class Carts extends Component
 
             $cartIds = (new Query())
                 ->select(['orders.id'])
-                ->where(['not', ['isCompleted' => 1]])
+                ->where(['not', ['isCompleted' => true]])
                 ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
                 ->from(['orders' => Table::ORDERS])
                 ->column();

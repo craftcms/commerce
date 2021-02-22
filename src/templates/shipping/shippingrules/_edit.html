@@ -221,75 +221,162 @@
             'Shipping zone saved.'|t
         ) }}
 
-        {{ commerceForms.numberField({
-            label: "Minimum Order Quantity"|t('commerce'),
-            name: 'minQty',
-            instructions: "The minimum number of items in the cart to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.minQty,
-            type: 'number',
-            min: 0,
-            errors: shippingRule.getErrors('minQty'),
-            required: true,
-        }) }}
+        {% embed '_includes/forms/field' with {
+            label: 'Order Condition Formula'|t('commerce'),
+            id: 'orderConditionFormula',
+            rows: 5,
+            instructions: 'Use a formula to match the the. Leave this blank to match all orders. Use the `order` variable.',
+            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
+            } %}
+            {% block input %}
+                {% import "_includes/forms" as forms %}
+                <div id="zipCodeField" class="flex flex-nowrap" style="align-items: stretch;">
+                    <div  class="zip-condition">
+                        {{ forms.textarea({
+                            value: shippingRule is defined ? shippingRule.orderConditionFormula,
+                            name: 'orderConditionFormula',
+                            class: 'code',
+                            rows: 5,
+                            placeholder: 'Example'|t('commerce') ~ ': \'@apple.com\' in order.email'
+                        }) }}
+                    </div>
+                </div>
+            {% endblock %}
+        {% endembed %}
 
-        {{ commerceForms.numberField({
-            label: "Maximum Order Quantity"|t('commerce'),
-            name: 'maxQty',
-            instructions: "The maximum number of items in the cart to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.maxQty,
-            type: 'number',
-            min: 0,
-            errors: shippingRule.getErrors('maxQty'),
-            required: true,
-        }) }}
+        {% set minMaxTotalQtyInput %}
+        <table class="inputs">
+            <tr>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'minQty',
+                        label: 'Minimum'|t('commerce'),
+                        value: shippingRule.minQty,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Minimum'|t('commerce'),
+                        errors: shippingRule.getErrors('minQty')
+                    }) }}
+                </td>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'maxQty',
+                        label: 'Maximum'|t('commerce'),
+                        value: shippingRule.maxQty,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Maximum'|t('commerce'),
+                        errors: shippingRule.getErrors('maxQty')
+                    }) }}
+                </td>
+            </tr>
+        </table>
+        {% endset %}
 
-        {{ commerceForms.numberField({
-            label: "Minimum Order Total Value"|t('commerce'),
-            name: 'minTotal',
-            instructions: "The minimum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.minTotal,
-            type: 'number',
-            min: 0,
-            step: 'any',
-            errors: shippingRule.getErrors('minTotal'),
-            required: true,
-        }) }}
+        {{ forms.field({
+            label: "Order Total Quanity"|t('commerce'),
+            instructions: "The total number of items in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
+            id: 'minMaxTotalQty',
+            tip: 'Order Total Quantity must be greater than the minimum value and less than the maximum value.',
+            required: true
+        }, minMaxTotalQtyInput) }}
 
-        {{ commerceForms.numberField({
-            label: "Maximum Order Total Value"|t('commerce'),
-            name: 'maxTotal',
-            instructions: "The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.maxTotal,
-            type: 'number',
-            min: 0,
-            step: 'any',
-            errors: shippingRule.getErrors('maxTotal'),
-            required: true,
-        }) }}
+        <hr>
 
-        {{ commerceForms.numberField({
-            label: "Minimum Order Total Weight"|t('commerce'),
-            name: 'minWeight',
-            instructions: "The minimum weight of the cart to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.minWeight,
-            type: 'number',
-            min: 0,
-            step: 'any',
-            errors: shippingRule.getErrors('minWeight'),
-            required: true,
-        }) }}
+        {% set minMaxTotalInput %}
+        <table class="inputs">
+            <tr>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'minTotal',
+                        label: 'Minimum'|t('commerce'),
+                        value: shippingRule.minTotal,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Minimum'|t('commerce'),
+                        errors: shippingRule.getErrors('minTotal')
+                    }) }}
+                </td>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'maxTotal',
+                        label: 'Maximum'|t('commerce'),
+                        value: shippingRule.maxTotal,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Maximum'|t('commerce'),
+                        errors: shippingRule.getErrors('maxTotal')
+                    }) }}
+                </td>
+                <td style="padding-left: 14px;">
+                    {{ forms.selectField({
+                        id: 'minMaxTotalType',
+                        label: '&nbsp;',
+                        name: 'minMaxTotalType',
+                        options: [
+                            {label: "Value of products before any discounts are applied."|t('commerce'), value: 'salePrice'},
+                            {label: "Value of products with applied discounts."|t('commerce'), value: 'salePriceWithDiscounts'}
+                        ],
+                        value: shippingRule.minMaxTotalType
+                    }) }}
+                </td>
+            </tr>
+        </table>
+        {% endset %}
 
-        {{ commerceForms.numberField({
-            label: "Maximum Order Total Weight"|t('commerce'),
-            name: 'maxWeight',
-            instructions: "The maximum weight of the cart to match this rule. Zero matches all carts."|t('commerce'),
-            value: shippingRule.maxWeight,
-            type: 'number',
-            min: 0,
-            step: 'any',
-            errors: shippingRule.getErrors('maxWeight'),
+        {{ forms.field({
+            label: "Order Total Value"|t('commerce'),
+            instructions: "The total value of items (excluding shipping and taxes) in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
+            id: 'minMaxTotal',
             required: true,
-        }) }}
+            tip: 'Order Total Value must be greater than the minimum value and less than or equal to the maximum value.',
+        }, minMaxTotalInput) }}
+
+        <hr>
+
+        {% set minMaxTotalWeightInput %}
+        <table class="inputs">
+            <tr>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'minWeight',
+                        label: 'Minimum'|t('commerce'),
+                        value: shippingRule.minWeight,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Minimum'|t('commerce'),
+                        errors: shippingRule.getErrors('minWeight')
+                    }) }}
+                </td>
+                <td>
+                    {{ commerceForms.numberField({
+                        name: 'maxWeight',
+                        label: 'Maximum'|t('commerce'),
+                        value: shippingRule.maxWeight,
+                        type: 'number',
+                        min: 0,
+                        step: 'any',
+                        placeholder: 'Maximum'|t('commerce'),
+                        errors: shippingRule.getErrors('maxWeight')
+                    }) }}
+                </td>
+            </tr>
+        </table>
+        {% endset %}
+
+        {{ forms.field({
+            label: "Order Total Weight"|t('commerce'),
+            instructions: "The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition."|t('commerce'),
+            id: 'minMaxTotalWeight',
+            required: true,
+            tip: 'Order Total Weight must be greater than the minimum value and less than or equal to the maximum value.',
+        }, minMaxTotalWeightInput) }}
 
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
         {% set shippingCategories = craft.commerce.shippingCategories.allShippingCategories %}
@@ -420,10 +507,10 @@
                 </tr>
                 {% for shippingCategory in shippingCategories %}
                     {% set shippingCategoryRule = shippingRule.getShippingRuleCategories[shippingCategory.id] ?? null %}
-                    {% set perItemRate = shippingCategoryRule ? shippingCategoryRule.perItemRate ?? '' : '' %}
-                    {% set weightRate = shippingCategoryRule ? shippingCategoryRule.weightRate ?? '' : '' %}
-                    {% set percentageRate = shippingCategoryRule ? shippingCategoryRule.percentageRate ?? '' : '' %}
-                    {% set categoryCondition = shippingCategoryRule ? shippingCategoryRule.condition ?? '' : '' %}
+                    {% set perItemRate = shippingCategoryRule ? shippingCategoryRule.perItemRate : '' %}
+                    {% set weightRate = shippingCategoryRule ? shippingCategoryRule.weightRate : '' %}
+                    {% set percentageRate = shippingCategoryRule ? shippingCategoryRule.percentageRate : '' %}
+                    {% set categoryCondition = shippingCategoryRule ? shippingCategoryRule.condition : '' %}
 
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}
@@ -436,7 +523,7 @@
                                 name: 'ruleCategories['~shippingCategory.id~'][perItemRate]',
                                 placeholder: shippingRule.perItemRate,
                                 class: 'categoryPerItemRate',
-                                value: perItemRate ? perItemRate : '',
+                                value: perItemRate,
                                 type: 'number',
                                 step: 'any',
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('perItemRate') : null,
@@ -447,7 +534,7 @@
                                 name: 'ruleCategories['~shippingCategory.id~'][weightRate]',
                                 class: 'categoryWeightRate',
                                 placeholder: shippingRule.weightRate,
-                                value: weightRate ? weightRate : '',
+                                value: weightRate,
                                 type: 'number',
                                 step: 'any',
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('weightRate') : null,
@@ -458,7 +545,7 @@
                                 name: 'ruleCategories['~shippingCategory.id~'][percentageRate]',
                                 class: 'categoryPercentageRate',
                                 placeholder: shippingRule.percentageRate,
-                                value: percentageRate ? percentageRate : '',
+                                value: percentageRate,
                                 type: 'number',
                                 step: 'any',
                                 errors: shippingCategoryRule ? shippingCategoryRule.getErrors('percentageRate') : null,

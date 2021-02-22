@@ -65,7 +65,7 @@ class PaymentCurrencies extends Component
      * Get all payment currencies.
      *
      * @return PaymentCurrency[]
-     * @throws CurrencyException if currency does not exist with tat iso code
+     * @throws CurrencyException if currency does not exist with the given ISO code
      */
     public function getAllPaymentCurrencies(): array
     {

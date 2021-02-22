@@ -68,7 +68,11 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        if (($number = $this->request->getBodyParam('orderNumber')) !== null) {
+        // TODO Remove `orderNumber` param in 4.0
+        $number = $this->request->getBodyParam('orderNumber');
+        $number = $this->request->getBodyParam('number', $number);
+
+        if ($number !== null) {
             /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
