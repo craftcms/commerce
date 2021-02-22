@@ -41,7 +41,7 @@
 
         <div class="footer">
             <div class="buttons right">
-                <input type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
+                <input id="submit-payment" type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
 
@@ -94,6 +94,7 @@
                     $('#response-message').html(data.message);
                     window.dispatchEvent(new Event('resize'));
                 }
+                $('#submit-payment').prop('disabled', false);
             }
         });
     }
@@ -108,16 +109,22 @@
     }, 500));
 
     var previous;
+
     if($("select#paymentCurrency").length){
         $("select#paymentCurrency").on('focus', function () {
             previous = this.value;
         }).on('change', function() {
-            if(previous != this.value)
+            $('#submit-payment').prop('disabled', true);
+
+            if(previous != this.value){
+                console.log('changed currency from '+previous+' to '+this.value);
+            }
             if(this.value != primaryCurrency){
                 $("input#paymentAmount").removeAttr('max');
             }else{
                 $("input#paymentAmount").attr('max', outstandingBalance);
             }
+
             updatePrice();
         });
     }

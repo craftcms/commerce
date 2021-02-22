@@ -155,6 +155,37 @@ class PaymentCurrencies extends Component
     }
 
     /**
+     * Convert an amount between currencies based on rates configured.
+     *
+     * @param float $amount
+     *
+     * @throws CurrencyException if currency not found by its ISO code
+     */
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency): float
+    {
+        $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
+        $toCurrency = $this->getPaymentCurrencyByIso($toCurrency);
+
+        if (!$fromCurrency) {
+            throw new CurrencyException('Currency not found: ' . $fromCurrency);
+        }
+
+        if (!$fromCurrency) {
+            throw new CurrencyException('Currency not found: ' . $toCurrency);
+        }
+
+        if($this->getPrimaryPaymentCurrency()->iso != $fromCurrency){
+            // now the amount is in the primary currency
+            $amount = $amount * (1 / $fromCurrency->rate);
+        }
+
+        $amount = $amount;
+        return $amount * $toCurrency->rate;
+
+    }
+
+
+    /**
      * Save a payment currency.
      *
      * @param PaymentCurrency $model
@@ -202,6 +233,10 @@ class PaymentCurrencies extends Component
             PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
         }
 
+        // Clear cache
+        $this->_allCurrenciesByIso = null;
+        $this->_allCurrenciesById = null;
+
         return true;
     }
 
@@ -215,11 +250,18 @@ class PaymentCurrencies extends Component
     {
         $paymentCurrency = PaymentCurrencyRecord::findOne($id);
 
-        if ($paymentCurrency) {
-            return $paymentCurrency->delete();
+        if (!$paymentCurrency) {
+            return false;
         }
 
-        return false;
+        $success = $paymentCurrency->delete();
+
+        if ($success) {
+            // Clear cache
+            $this->_allCurrenciesByIso = null;
+            $this->_allCurrenciesById = null;
+        }
+        return $success;
     }
 
 

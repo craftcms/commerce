@@ -904,11 +904,11 @@ class OrdersController extends Controller
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $order = Order::find()->id($orderId)->one();
 
         $baseCurrencyPaymentAmount = Plugin::getInstance()->getPaymentCurrencies()->convert($paymentAmount, $paymentCurrency);
-        $baseCurrencyPaymentAmountAsCurrency = Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = $order->currency . ' ' . Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
 
-        $order = Order::find()->id($orderId)->one();
         $outstandingBalance = $order->outstandingBalance;
         $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
 

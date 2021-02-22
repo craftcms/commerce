@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'craftCoin' => [
-        'iso' => 'GBP',
-        'rate' => 0.75,
-        'primary' => false,
-    ],
-    'ptTokens' => [
+    'Euro' => [
         'iso' => 'EUR',
-        'rate' => 0.8,
+        'rate' => 2,
         'primary' => false,
     ],
+    'Aussie' => [
+        'iso' => 'AUD',
+        'rate' => 0.7,
+        'primary' => false,
+    ]
 ];
