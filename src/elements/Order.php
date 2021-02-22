@@ -1726,19 +1726,21 @@ class Order extends Element
 
                     if ($originalSalePrice > $item->salePrice) {
                         $this->addNotice(
-                            "lineItems.{$key}.salePrice",
+                            'lineItems',
                             Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
                         );
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
                         $this->addNotice(
-                            "lineItems.{$key}.salePrice",
+                            'lineItems',
                             Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
                         );
                     }
                 } else {
-                    $this->addNotice('lineItems', Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]));
+                    $this->addNotice(
+                        'lineItems',
+                        Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]));
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
