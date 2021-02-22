@@ -12,6 +12,9 @@
 
 ## 3.2.15 - 2020-02-17
 
+### Fixed
+- Fixed a bug on control panel order listing getting wrong shipping and billing address for each order. ([1962](https://github.com/craftcms/commerce/issues/1962))
+
 ### Changed
 - Carts that only contains non-shipppable items no longer attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
 - Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted.
