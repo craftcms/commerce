@@ -19,7 +19,6 @@ use craft\elements\db\ElementQuery;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use DateTime;
-use yii\base\InvalidConfigException;
 use yii\db\Connection;
 
 /**
@@ -741,6 +740,8 @@ class ProductQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->_normalizeTypeId();
+
         // See if 'type' were set to invalid handles
         if ($this->typeId === []) {
             return false;
@@ -786,7 +787,6 @@ class ProductQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
-        $this->_normalizeTypeId();
         if ($this->typeId) {
             $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
         }
@@ -870,8 +870,6 @@ class ProductQuery extends ElementQuery
 
     /**
      * Normalizes the typeId param to an array of IDs or null
-     *
-     * @throws InvalidConfigException
      */
     private function _normalizeTypeId()
     {

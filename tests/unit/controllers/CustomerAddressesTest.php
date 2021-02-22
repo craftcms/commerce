@@ -87,7 +87,6 @@ class CustomerAddressesTest extends Unit
         /** @var Address $savedAddress */
         $savedAddress = Address::find()->where(['id' => 1002])->one();
 
-
         self::assertEquals(200, $response->statusCode);
         self::assertArrayHasKey('address', $response->data);
         self::assertInstanceOf(AddressModel::class, $response->data['address']);

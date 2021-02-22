@@ -1,6 +1,6 @@
 {% set boldKeys = ['attention', 'name', 'businessName'] %}
 <!-- Template: {{ _self }}.twig -->
-<ul class="address-data">
+<ul>
   {% for key, line in address.addressLines %}
   	<li>
       {% if key in boldKeys %}
