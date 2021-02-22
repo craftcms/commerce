@@ -246,7 +246,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
-        return $this->redirectToPostedUrl($subscription);
+        return $this->redirectToPostedUrl();
     }
 
     /**
