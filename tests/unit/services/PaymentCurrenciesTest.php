@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 
 use craft\commerce\services\PaymentCurrencies;
@@ -29,7 +30,7 @@ class PaymentCurrenciesTest extends Unit
     protected $tester;
 
     /**
-     * @var PaymentCurrencies $sales
+     * @var PaymentCurrencies $pc
      */
     protected $pc;
 
@@ -62,9 +63,37 @@ class PaymentCurrenciesTest extends Unit
     }
 
     /**
+     * @dataProvider convertDataProvider
+     * @param $iso
+     * @param $paymentCurrency
+     * @param $amount
+     * @param $convertedAmount
+     * @throws \craft\commerce\errors\CurrencyException
+     */
+    public function testConvert($iso, $paymentCurrency, $amount, $convertedAmount, $exception)
+    {
+        /**
+         * @var PaymentCurrencies $paymentCurrenciesService
+         */
+        $paymentCurrenciesService = $this->make(PaymentCurrencies::class, [
+            'getPaymentCurrencyByIso' => function($currencyIso) use ($paymentCurrency) {
+                return $paymentCurrency;
+            },
+        ]);
+
+        if ($exception) {
+            $this->expectExceptionMessage('No payment currency found with ISO code “' . $iso . '”.');
+            $paymentCurrenciesService->convert($amount, $iso);
+        } else {
+            self::assertEquals($convertedAmount, $paymentCurrenciesService->convert($amount, $iso));
+        }
+    }
+
+    /**
      * @throws \yii\base\InvalidConfigException
      */
-    public function testGetPaymentCurrencyById() {
+    public function testGetPaymentCurrencyById()
+    {
         /**
          * @var PaymentCurrencies $paymentCurrenciesService
          */
@@ -82,5 +111,17 @@ class PaymentCurrenciesTest extends Unit
         self::assertEquals($this->fixtureData->data['craftCoin']['iso'], $coinModel->iso);
         self::assertNotNull($tokenModel);
         self::assertEquals($this->fixtureData->data['ptTokens']['iso'], $tokenModel->iso);
+    }
+
+    /**
+     * @return array[]
+     */
+    public function convertDataProvider(): array
+    {
+        return [
+            ['xxx', new PaymentCurrency(['rate' => 0.5, 'iso' => 'xxx']), 10, 5, false],
+            ['xxx', new PaymentCurrency(['rate' => 2, 'iso' => 'xxx']), 10, 20, false],
+            ['xyz', null, 10, 5, true],
+        ];
     }
 }
