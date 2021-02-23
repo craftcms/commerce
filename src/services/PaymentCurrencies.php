@@ -140,7 +140,7 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * Convert an amount in site's primary currency to a different currecny by its ISO code.
+     * Convert an amount in site's primary currency to a different currency by its ISO code.
      *
      * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
