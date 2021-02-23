@@ -151,6 +151,10 @@ class PaymentCurrencies extends Component
     {
         $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
 
+        if (!$destinationCurrency) {
+            throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $currency]));
+        }
+
         return $amount * $destinationCurrency->rate;
     }
 

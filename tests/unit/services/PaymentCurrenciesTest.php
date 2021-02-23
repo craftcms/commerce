@@ -70,7 +70,7 @@ class PaymentCurrenciesTest extends Unit
      * @param $convertedAmount
      * @throws \craft\commerce\errors\CurrencyException
      */
-    public function testConvert($iso, $paymentCurrency, $amount, $convertedAmount)
+    public function testConvert($iso, $paymentCurrency, $amount, $convertedAmount, $exception)
     {
         /**
          * @var PaymentCurrencies $paymentCurrenciesService
@@ -81,7 +81,12 @@ class PaymentCurrenciesTest extends Unit
             },
         ]);
 
-        self::assertEquals($convertedAmount, $paymentCurrenciesService->convert($amount, $iso));
+        if ($exception) {
+            $this->expectExceptionMessage('No payment currency found with ISO code “' . $iso . '”.');
+            $paymentCurrenciesService->convert($amount, $iso);
+        } else {
+            self::assertEquals($convertedAmount, $paymentCurrenciesService->convert($amount, $iso));
+        }
     }
 
     /**
@@ -114,9 +119,9 @@ class PaymentCurrenciesTest extends Unit
     public function convertDataProvider(): array
     {
         return [
-            ['xxx', new PaymentCurrency(['rate' => 0.5, 'iso' => 'xxx']), 10, 5],
-            ['xxx', new PaymentCurrency(['rate' => 2, 'iso' => 'xxx']), 10, 20],
-            ['xyz', null, 10, 5],
+            ['xxx', new PaymentCurrency(['rate' => 0.5, 'iso' => 'xxx']), 10, 5, false],
+            ['xxx', new PaymentCurrency(['rate' => 2, 'iso' => 'xxx']), 10, 20, false],
+            ['xyz', null, 10, 5, true],
         ];
     }
 }
