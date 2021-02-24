@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.15.3 - 2020-02-24
 
 ### Fixed
 - Fixed a bug where past orders weren’t being consolidated to the user’s customer. ([#2019](https://github.com/craftcms/commerce/issues/2019))
