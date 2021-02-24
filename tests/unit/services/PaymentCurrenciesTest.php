@@ -69,19 +69,17 @@ class PaymentCurrenciesTest extends Unit
      */
     public function testGetPaymentCurrenciesData()
     {
-        $id1 = $this->fixtureData->data['Euro']['id'];
-        $id2 = $this->fixtureData->data['Aussie']['id'];
-        $eurCurrencyModel = $this->pc->getPaymentCurrencyById($id1);
-        $audCurrencyModel = $this->pc->getPaymentCurrencyById($id2);
+        $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
+        $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
 
-        // Install's USD plus 2 additional currencies.
+        // Install's USD, plus 2 additional currencies in fixture data.
         self::assertCount(3, $this->pc->getAllPaymentCurrencies());
 
         // $this->assertSame(1, $getAllCallCount, 'Test memoization of get all call.');
         self::assertNotNull($eurCurrencyModel);
-        self::assertEquals($this->fixtureData->data['Euro']['iso'], $eurCurrencyModel->iso);
+        self::assertEquals('EUR', $eurCurrencyModel->iso);
         self::assertNotNull($audCurrencyModel);
-        self::assertEquals($this->fixtureData->data['Aussie']['iso'], $audCurrencyModel->iso);
+        self::assertEquals('AUD', $audCurrencyModel->iso);
 
         // Deafult install has a USD primary currency
         $iso = $this->pc->getPrimaryPaymentCurrencyIso();
@@ -94,11 +92,8 @@ class PaymentCurrenciesTest extends Unit
      */
     public function testConvert()
     {
-        // Use the fixture data
-        $id1 = $this->fixtureData->data['Euro']['id'];
-        $id2 = $this->fixtureData->data['Aussie']['id'];
-        $eurCurrencyModel = $this->pc->getPaymentCurrencyById($id1);
-        $audCurrencyModel = $this->pc->getPaymentCurrencyById($id2);
+        $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
+        $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
 
         // Converting to the same base currency
         $iso = $this->pc->getPrimaryPaymentCurrencyIso();
@@ -112,8 +107,33 @@ class PaymentCurrenciesTest extends Unit
 
         // Converting to the AUD currency
         $iso = $audCurrencyModel->iso;
-        $converted = $this->pc->convert(10, $iso); // ->convert only converts to the primary currency
+        $converted = $this->pc->convert(10, $iso);
         self::assertEquals($converted, 13);
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
+    public function testConvertCurrency()
+    {
+        $eurCurrencyModel = $this->pc->getPaymentCurrencyByIso('EUR');
+        $audCurrencyModel = $this->pc->getPaymentCurrencyByIso('AUD');
+
+        // Converting from EUR to USD
+        $converted = $this->pc->convertCurrency(20, $eurCurrencyModel->iso, $this->pc->getPrimaryPaymentCurrencyIso());
+        self::assertEquals($converted, 40);
+
+        // Converting from AUD to USD
+        $converted = $this->pc->convertCurrency(13, $audCurrencyModel->iso, $this->pc->getPrimaryPaymentCurrencyIso());
+        self::assertEquals($converted, 10);
+
+        // Converting from USD to AUD
+        $converted = $this->pc->convertCurrency(10, $this->pc->getPrimaryPaymentCurrencyIso(), $audCurrencyModel->iso);
+        self::assertEquals($converted, 13);
+
+        // Converting from AUD to EUR
+        $converted = $this->pc->convertCurrency(13, $audCurrencyModel->iso, $eurCurrencyModel->iso);
+        self::assertEquals($converted, 5);
     }
 
     /**
@@ -131,53 +151,6 @@ class PaymentCurrenciesTest extends Unit
     public function testConvertException()
     {
         $this->expectException(CurrencyException::class);
-        $this->pc->convert(20, 'aaa', 'bbb');
+        $this->pc->convert(20, 'aaa');
     }
-
-    /**
-     * @group PaymentCurrencies
-     */
-    public function testConvertCurrency()
-    {
-        $id1 = $this->fixtureData->data['Euro']['id'];
-        $id2 = $this->fixtureData->data['Aussie']['id'];
-        $eurCurrencyModel = $this->pc->getPaymentCurrencyById($id1);
-        $audCurrencyModel = $this->pc->getPaymentCurrencyById($id2);
-
-        // Converting between EUR and primary USD
-        $fromCurrency = $eurCurrencyModel->iso;
-        $toCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
-        $converted = $this->pc->convertCurrency(20, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 40);
-
-        // Converting between AUD and primary USD
-        $fromCurrency = $audCurrencyModel->iso;
-        $toCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
-        $converted = $this->pc->convertCurrency(13, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 10);
-
-        // Converting between USD to AUD
-        $fromCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
-        $toCurrency = $audCurrencyModel->iso;
-        $converted = $this->pc->convertCurrency(10, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 13);
-
-        // Converting between AUD and EUR
-        $fromCurrency = $audCurrencyModel->iso;
-        $toCurrency = $eurCurrencyModel->iso;
-        $converted = $this->pc->convertCurrency(13, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 5);
-    }
-
-//    /**
-//     * @return array[]
-//     */
-//    public function convertDataProvider(): array
-//    {
-//        return [
-//            ['xxx', new PaymentCurrency(['rate' => 0.5, 'iso' => 'xxx']), 10, 5, false],
-//            ['xxx', new PaymentCurrency(['rate' => 2, 'iso' => 'xxx']), 10, 20, false],
-//            ['xyz', null, 10, 5, true],
-//        ];
-//    }
 }

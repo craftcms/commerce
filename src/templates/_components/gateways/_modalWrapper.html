@@ -18,26 +18,30 @@
         {{ csrfInput() }}
 
         {{ formHtml|raw }}
+
+        <fieldset>
+        <legend>Payment Amount</legend>
         <div id="currency-selector">
-            <input type="number"  id="paymentAmount" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+            <input type="text"  id="paymentAmount-{{  }}" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
             {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
             {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
 
             {% if currencies|length > 1 %}
-                <select type="number" id="paymentCurrency" class="text" name="paymentCurrency"  style="margin: 0 5px;">
+                <select id="paymentCurrency" class="text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}
                     <option value="{{currency.iso}}" {% if primaryCurrency.iso == currency.iso %}selected {% endif %}>
                         {{ currency.iso }}
                     </option>
                 {% endfor %}
                 </select>
-                <span id="baseCurrencyAmount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
             {% else %}
                  <input type="hidden" id="paymentCurrency" name="paymentCurrency" value="{{primaryCurrency.iso}}" />
             {% endif %}
+            <span id="baseCurrencyAmount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
             <p id="response-message"></p>
         </div>
+        </fieldset>
 
         <div class="footer">
             <div class="buttons right">
@@ -47,8 +51,16 @@
 
     </form>
 </div>
+
 {% js %}
-    $('#gateway-{{ gateway.id }}-form').on('submit', function (ev) {
+
+
+    var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
+    var outstandingBalance = '{{ order.outstandingBalance }}';
+    var orderId = '{{ order.id }}';
+    var $form = $("#gateway-{{ gateway.id }}-form");
+
+   $form.on('submit', function (ev) {
         $form = $(this);
 
         if ($form.data('processing')) {
@@ -59,9 +71,6 @@
         $form.data('processing', true);
     });
 
-    let primaryCurrency = '{{ primaryCurrency.iso }}';
-    let outstandingBalance = '{{ order.outstandingBalance }}';
-    let orderId = '{{ order.id }}';
 
     function debounce(callback, wait) {
       let timeout;
@@ -72,7 +81,7 @@
     }
 
     function updatePrice() {
-        var price = $("input#paymentAmount").val();
+        var price = $form.find("input#paymentAmount").val();
         $.ajax({
             type: "POST",
             dataType: 'json',
@@ -83,12 +92,12 @@
             data: {
                 'action' : 'commerce/orders/payment-amount-data',
                 'paymentAmount': price,
-                'paymentCurrency': $("#paymentCurrency").val(),
+                'paymentCurrency': $form.find("#paymentCurrency").val(),
                 'orderId' : orderId
             },
             success: function(data){
                 console.log(data);
-                $("#baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
+                $form.find("#baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
 
                 if(data.message.length) {
                     $('#response-message').html(data.message);
@@ -99,7 +108,12 @@
         });
     }
 
-    $("input#paymentAmount").bind('keyup mouseup', debounce(() => {
+    $form.find(".submit( function(e){
+        e.preventDefault();
+        console.log('SUBMITTING PAYMENT');
+    });
+
+    $form.find("input#paymentAmount").bind('keyup mouseup', debounce(() => {
         var newVal = $("input#paymentAmount").val();
         if(!newVal) {
             newVal = outstandingBalance;
@@ -119,7 +133,7 @@
             if(previous != this.value){
                 console.log('changed currency from '+previous+' to '+this.value);
             }
-            if(this.value != primaryCurrency){
+            if(this.value != primaryBaseCurrency){
                 $("input#paymentAmount").removeAttr('max');
             }else{
                 $("input#paymentAmount").attr('max', outstandingBalance);
