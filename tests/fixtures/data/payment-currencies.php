@@ -3,12 +3,12 @@
 return [
     'Euro' => [
         'iso' => 'EUR',
-        'rate' => 2,
+        'rate' => .5,
         'primary' => false,
     ],
     'Aussie' => [
         'iso' => 'AUD',
-        'rate' => 0.7,
+        'rate' => 1.3,
         'primary' => false,
     ]
 ];

@@ -183,7 +183,6 @@ class PaymentCurrencies extends Component
             $amount = $amount / $fromCurrency->rate;
         }
 
-        $amount = $amount;
         return $amount * $toCurrency->rate;
     }
 

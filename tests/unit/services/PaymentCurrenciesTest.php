@@ -108,12 +108,12 @@ class PaymentCurrenciesTest extends Unit
         // Converting to the EUR currency
         $iso = $eurCurrencyModel->iso;
         $converted = $this->pc->convert(10, $iso);
-        self::assertEquals($converted, 20);
+        self::assertEquals($converted, 5);
 
         // Converting to the AUD currency
         $iso = $audCurrencyModel->iso;
         $converted = $this->pc->convert(10, $iso); // ->convert only converts to the primary currency
-        self::assertEquals($converted, 7);
+        self::assertEquals($converted, 13);
     }
 
     /**
@@ -148,19 +148,25 @@ class PaymentCurrenciesTest extends Unit
         $fromCurrency = $eurCurrencyModel->iso;
         $toCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
         $converted = $this->pc->convertCurrency(20, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 10);
+        self::assertEquals($converted, 40);
 
         // Converting between AUD and primary USD
         $fromCurrency = $audCurrencyModel->iso;
         $toCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
+        $converted = $this->pc->convertCurrency(13, $fromCurrency, $toCurrency);
+        self::assertEquals($converted, 10);
+
+        // Converting between USD to AUD
+        $fromCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
+        $toCurrency = $audCurrencyModel->iso;
         $converted = $this->pc->convertCurrency(10, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 7);
+        self::assertEquals($converted, 13);
 
         // Converting between AUD and EUR
         $fromCurrency = $audCurrencyModel->iso;
         $toCurrency = $eurCurrencyModel->iso;
-        $converted = $this->pc->convertCurrency(10, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 14);
+        $converted = $this->pc->convertCurrency(13, $fromCurrency, $toCurrency);
+        self::assertEquals($converted, 5);
     }
 
 //    /**
