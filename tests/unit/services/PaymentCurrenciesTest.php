@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\services;
 use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 
 use craft\commerce\services\PaymentCurrencies;
@@ -30,7 +31,7 @@ class PaymentCurrenciesTest extends Unit
     protected $tester;
 
     /**
-     * @var PaymentCurrencies $sales
+     * @var PaymentCurrencies $pc
      */
     protected $pc;
 
@@ -93,6 +94,7 @@ class PaymentCurrenciesTest extends Unit
      */
     public function testConvert()
     {
+        // Use the fixture data
         $id1 = $this->fixtureData->data['Euro']['id'];
         $id2 = $this->fixtureData->data['Aussie']['id'];
         $eurCurrencyModel = $this->pc->getPaymentCurrencyById($id1);
@@ -126,6 +128,15 @@ class PaymentCurrenciesTest extends Unit
     /**
      * @group PaymentCurrencies
      */
+    public function testConvertException()
+    {
+        $this->expectException(CurrencyException::class);
+        $this->pc->convert(20, 'aaa', 'bbb');
+    }
+
+    /**
+     * @group PaymentCurrencies
+     */
     public function testConvertCurrency()
     {
         $id1 = $this->fixtureData->data['Euro']['id'];
@@ -143,12 +154,24 @@ class PaymentCurrenciesTest extends Unit
         $fromCurrency = $audCurrencyModel->iso;
         $toCurrency = $this->pc->getPrimaryPaymentCurrencyIso();
         $converted = $this->pc->convertCurrency(10, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 14);
+        self::assertEquals($converted, 7);
 
         // Converting between AUD and EUR
         $fromCurrency = $audCurrencyModel->iso;
         $toCurrency = $eurCurrencyModel->iso;
-        $converted = $this->pc->convertCurrency(7, $fromCurrency, $toCurrency);
-        self::assertEquals($converted, 20);
+        $converted = $this->pc->convertCurrency(10, $fromCurrency, $toCurrency);
+        self::assertEquals($converted, 14);
     }
+
+//    /**
+//     * @return array[]
+//     */
+//    public function convertDataProvider(): array
+//    {
+//        return [
+//            ['xxx', new PaymentCurrency(['rate' => 0.5, 'iso' => 'xxx']), 10, 5, false],
+//            ['xxx', new PaymentCurrency(['rate' => 2, 'iso' => 'xxx']), 10, 20, false],
+//            ['xyz', null, 10, 5, true],
+//        ];
+//    }
 }

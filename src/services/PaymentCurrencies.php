@@ -140,7 +140,7 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * Convert an amount in site's primary currency to a different currecny by its ISO code.
+     * Convert an amount in site's primary currency to a different currency by its ISO code.
      *
      * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
@@ -150,6 +150,10 @@ class PaymentCurrencies extends Component
     public function convert(float $amount, string $currency): float
     {
         $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
+
+        if (!$destinationCurrency) {
+            throw new CurrencyException('No payment currency found with ISO code: ' . $currency);
+        }
 
         return $amount * $destinationCurrency->rate;
     }
@@ -174,14 +178,13 @@ class PaymentCurrencies extends Component
             throw new CurrencyException('Currency not found: ' . $toCurrency);
         }
 
-        if($this->getPrimaryPaymentCurrency()->iso != $fromCurrency){
+        if ($this->getPrimaryPaymentCurrency()->iso != $fromCurrency) {
             // now the amount is in the primary currency
-            $amount = $amount * (1 / $fromCurrency->rate);
+            $amount = $amount / $fromCurrency->rate;
         }
 
         $amount = $amount;
         return $amount * $toCurrency->rate;
-
     }
 
 
