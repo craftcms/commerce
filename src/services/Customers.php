@@ -687,6 +687,15 @@ class Customers extends Component
             ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
             ->scalar(); // get the first customerId in the result
 
+        // Prefer the user's customer
+        if ($user = User::find()->email($email)->one()) {
+            $customer = $this->getCustomerByUserId($user->id);
+
+            if ($customer && $customer->id != $customerId) {
+                $customerId = $customer->id;
+            }
+        }
+
         if (!$customerId) {
             return;
         }
