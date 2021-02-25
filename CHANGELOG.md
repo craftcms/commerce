@@ -12,22 +12,22 @@
 ### Changed
 - Modified `consolidateGuestOrdersByEmail` to get all users by email regardless of status. ([#2019](https://github.com/craftcms/commerce/issues/2019))
 
-## 3.2.15.3 - 2020-02-24
+## 3.2.15.3 - 2021-02-24
 
 ### Fixed
 - Fixed a bug where past orders weren’t being consolidated to the user’s customer. ([#2019](https://github.com/craftcms/commerce/issues/2019))
 
-## 3.2.15.2 - 2020-02-18
+## 3.2.15.2 - 2021-02-18
 
 ### Fixed
 - Fixed a bug where querying for an empty array on the `productId` variant query param would return all variants.
 
-## 3.2.15.1 - 2020-02-18
+## 3.2.15.1 - 2021-02-18
 
 ### Fixed
 - Fixed an error that occurred when deleting products. ([#2009](https://github.com/craftcms/commerce/issues/2009))
 
-## 3.2.15 - 2020-02-17
+## 3.2.15 - 2021-02-17
 
 ### Changed
 - Carts that only contains non-shipppable items no longer attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
@@ -40,12 +40,12 @@
 - Fixed a bug where carts weren’t getting recalculated after their billing address was saved via the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
 - Fixed a bug where category shipping rules weren’t remembering their cost overrides when set to `0` . ([#1999](https://github.com/craftcms/commerce/issues/1999))
 
-## 3.2.14.1 - 2020-01-28
+## 3.2.14.1 - 2021-01-28
 
 ### Fixed
 - Fixed a UI bug with product dimension inputs on Craft 3.6. ([#1977](https://github.com/craftcms/commerce/issues/1977))
 
-## 3.2.14 - 2020-01-13
+## 3.2.14 - 2021-01-13
 
 ### Added
 - It is now possible to sort purchasables by `description`, `sku` or `price` when adding a line item on the Edit Order page. ([#1940](https://github.com/craftcms/commerce/issues/1940))
