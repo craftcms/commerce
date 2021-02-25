@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a PHP error that could occur when adding purchasables to a sale from the Edit Product page. ([#1998](https://github.com/craftcms/commerce/issues/1998))
+- Fixed a bug that could occur when migrating from an older version of Commerce. ([#2022](https://github.com/craftcms/commerce/issues/2022))
 
 ## 3.2.15.4 - 2020-02-25
 
