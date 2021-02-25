@@ -2,6 +2,8 @@
 
 
 ## 3.2.15.4 - 2020-02-25
+
+### Changed
 - Modified `consolidateGuestOrdersByEmail` to get all users by email regardless of status. ([#2019](https://github.com/craftcms/commerce/issues/2019))
 
 ## 3.2.15.3 - 2020-02-24
