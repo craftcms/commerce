@@ -688,7 +688,7 @@ class Customers extends Component
             ->scalar(); // get the first customerId in the result
 
         // Prefer the user's customer
-        if ($user = User::find()->email($email)->one()) {
+        if ($user = User::find()->email($email)->anyStatus()->one()) {
             $customer = $this->getCustomerByUserId($user->id);
 
             if ($customer && $customer->id != $customerId) {

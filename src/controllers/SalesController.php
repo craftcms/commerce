@@ -121,7 +121,7 @@ class SalesController extends BaseCpController
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
-        
+
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             $localeData = Craft::$app->getLocale();
             $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);

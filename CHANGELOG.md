@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 3.2.16 - 2021-02-26
+
+### Fixed
+- Fixed a bug where it wasn’t possible to paginate addresses on the Edit Order page. ([#2024](https://github.com/craftcms/commerce/issues/2024))
+- Fixed a PHP error that could occur when adding purchasables to a sale from the Edit Product page. ([#1998](https://github.com/craftcms/commerce/issues/1998))
+- Fixed a bug where guest customers weren’t being consolidated to the user’s customer. ([#2019](https://github.com/craftcms/commerce/issues/2019))
+- Fixed a migration error that could occur when updating from Commerce 2. ([#2022](https://github.com/craftcms/commerce/issues/2022))
+
 ## 3.2.15.3 - 2021-02-24
 
 ### Fixed
