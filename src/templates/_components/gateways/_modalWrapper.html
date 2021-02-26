@@ -22,13 +22,13 @@
         <fieldset>
         <legend>Payment Amount</legend>
         <div id="currency-selector">
-            <input type="text"  id="paymentAmount-{{  }}" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+            <input type="text"  id="paymentAmount-{{ gateway.id }}" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
             {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
             {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
 
             {% if currencies|length > 1 %}
-                <select id="paymentCurrency" class="text" name="paymentCurrency"  style="margin: 0 5px;">
+                <select id="paymentCurrency-{{ gateway.id }}" class="text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}
                     <option value="{{currency.iso}}" {% if primaryCurrency.iso == currency.iso %}selected {% endif %}>
                         {{ currency.iso }}
@@ -36,7 +36,7 @@
                 {% endfor %}
                 </select>
             {% else %}
-                 <input type="hidden" id="paymentCurrency" name="paymentCurrency" value="{{primaryCurrency.iso}}" />
+                 <input type="hidden" id="paymentCurrency-{{ gateway.id }}" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
             {% endif %}
             <span id="baseCurrencyAmount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
             <p id="response-message"></p>
@@ -45,7 +45,7 @@
 
         <div class="footer">
             <div class="buttons right">
-                <input id="submit-payment" type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
+                <input id="submit-payment-{{ gateway.id }}" type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
 
@@ -58,17 +58,16 @@
     var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
     var outstandingBalance = '{{ order.outstandingBalance }}';
     var orderId = '{{ order.id }}';
-    var $form = $("#gateway-{{ gateway.id }}-form");
 
-   $form.on('submit', function (ev) {
-        $form = $(this);
+   $("#gateway-{{ gateway.id }}-form").on('submit', function (ev) {
+        $("#gateway-{{ gateway.id }}-form") = $(this);
 
-        if ($form.data('processing')) {
+        if ($("#gateway-{{ gateway.id }}-form").data('processing')) {
             ev.preventDefault();
             return false;
         }
 
-        $form.data('processing', true);
+        $("#gateway-{{ gateway.id }}-form").data('processing', true);
     });
 
 
@@ -81,7 +80,8 @@
     }
 
     function updatePrice() {
-        var price = $form.find("input#paymentAmount").val();
+        var price = $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").val();
+        debugger;
         $.ajax({
             type: "POST",
             dataType: 'json',
@@ -92,51 +92,51 @@
             data: {
                 'action' : 'commerce/orders/payment-amount-data',
                 'paymentAmount': price,
-                'paymentCurrency': $form.find("#paymentCurrency").val(),
+                'paymentCurrency': $("#gateway-{{ gateway.id }}-form").find("#paymentCurrency-{{ gateway.id }}").val(),
                 'orderId' : orderId
             },
             success: function(data){
                 console.log(data);
-                $form.find("#baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
+                $("#gateway-{{ gateway.id }}-form").find("#baseCurrencyAmount-{{ gateway.id }}").html(data.baseCurrencyPaymentAmountAsCurrency);
 
                 if(data.message.length) {
-                    $('#response-message').html(data.message);
+                    $('#response-message-{{ gateway.id }}').html(data.message);
                     window.dispatchEvent(new Event('resize'));
                 }
-                $('#submit-payment').prop('disabled', false);
+                $('#submit-payment-{{ gateway.id }}').prop('disabled', false);
             }
         });
     }
 
-    $form.find(".submit( function(e){
+    $("#gateway-{{ gateway.id }}-form").find(".submit", function(e){
         e.preventDefault();
         console.log('SUBMITTING PAYMENT');
     });
 
-    $form.find("input#paymentAmount").bind('keyup mouseup', debounce(() => {
-        var newVal = $("input#paymentAmount").val();
+    $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").bind('keyup mouseup', debounce(() => {
+        var newVal = $("input#paymentAmount-{{ gateway.id }}").val();
         if(!newVal) {
             newVal = outstandingBalance;
-            $("input#paymentAmount").val(newVal);
+            $("input#paymentAmount-{{ gateway.id }}").val(newVal);
         }
         updatePrice();
     }, 500));
 
     var previous;
 
-    if($("select#paymentCurrency").length){
-        $("select#paymentCurrency").on('focus', function () {
+    if($("select#paymentCurrency-{{ gateway.id }}").length){
+        $("select#paymentCurrency-{{ gateway.id }}").on('focus', function () {
             previous = this.value;
         }).on('change', function() {
-            $('#submit-payment').prop('disabled', true);
+            $('#submit-payment-{{ gateway.id }}').prop('disabled', true);
 
             if(previous != this.value){
                 console.log('changed currency from '+previous+' to '+this.value);
             }
             if(this.value != primaryBaseCurrency){
-                $("input#paymentAmount").removeAttr('max');
+                $("input#paymentAmount-{{ gateway.id }}").removeAttr('max');
             }else{
-                $("input#paymentAmount").attr('max', outstandingBalance);
+                $("input#paymentAmount-{{ gateway.id }}").attr('max', outstandingBalance);
             }
 
             updatePrice();
