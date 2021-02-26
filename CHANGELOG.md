@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a UI bug with “Order Site” and “Status” on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+
 ## 3.2.16 - 2021-02-26
 
 ### Fixed
