@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+
+- Fixed a bug when getting the totalShippingCost attribute not returning amount value.
+
 ## 2.2.25 - 2021-01-21
 
 ### Fixed
