@@ -4,7 +4,7 @@
 
 ### Fixed
 
-- Fixed a bug when getting the totalShippingCost attribute not returning amount value.
+- Fixed a bug when getting the totalShippingCost attribute not returning amount value. ([#2027](https://github.com/craftcms/commerce/pull/2027))
 
 ## 2.2.25 - 2021-01-21
 
