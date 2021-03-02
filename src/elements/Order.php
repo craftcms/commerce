@@ -1443,7 +1443,7 @@ class Order extends Element
         }
 
         foreach ($this->getAdjustments() as $adjustment) {
-            if ($adjustment->included == $included && in_array(strtolower($adjustment->type), $types, false)) {
+            if ($adjustment->included == $included && in_array($adjustment->type, $types, false)) {
                 $amount += $adjustment->amount;
             }
         }
