@@ -21,15 +21,11 @@ class m191114_115600_remove_customer_info_field extends Migration
      */
     public function safeUp()
     {
-        $customerFieldIds = (new Query())
-            ->select('id')
-            ->from('{{%fields}}')
-            ->where(['[[type]]' => 'craft\commerce\fields\Customer'])
-            ->column();
-
-        foreach ($customerFieldIds as $customerFieldId) {
-            Craft::$app->getFields()->deleteFieldById($customerFieldId);
-        }
+        /**
+         * Removed automatic deletion of customer info field. Due to potential conflicts with
+         * project config. Forcing manual removal of the field gives better control and
+         * understanding about what is happening.
+         */
     }
 
     /**

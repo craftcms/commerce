@@ -118,7 +118,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
             // Refresh the cart, if this address was being used.
             $cart = Plugin::getInstance()->getCarts()->getCart(true);
-            if ($cart->shippingAddressId == $address->id) {
+            if ($cart->shippingAddressId == $address->id || $cart->billingAddressId == $address->id) {
                 $cart->setFieldValuesFromRequest('fields');
 
                 // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.

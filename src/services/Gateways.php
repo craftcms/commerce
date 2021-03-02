@@ -34,7 +34,6 @@ use function get_class;
 /**
  * Gateway service.
  *
- * @property GatewayInterface[] $allFrontEndGateways all frontend enabled gateways
  * @property GatewayInterface[] $allGateways all gateways
  * @property GatewayInterface[] $allCustomerEnabledGateways all gateways enabled for the customer
  * @property array $allSubscriptionGateways

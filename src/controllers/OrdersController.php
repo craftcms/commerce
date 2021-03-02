@@ -17,7 +17,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
-use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
@@ -530,6 +529,19 @@ class OrdersController extends Controller
 
         // Do not return any purchasables with temp SKUs
         $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+
+        // Do not return soft deleted purchasables
+        $sqlQuery->andWhere(['elements.dateDeleted' => null]);
+
+        // Apply sorting if required
+        if ($sort && strpos($sort, '|')) {
+            list($column, $direction) = explode('|', $sort);
+            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
+            }
+        } else {
+            $sqlQuery->orderBy(['id' => 'asc']);
+        }
 
         $total = $sqlQuery->count();
 

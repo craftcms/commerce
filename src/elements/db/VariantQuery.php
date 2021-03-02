@@ -27,9 +27,11 @@ use yii\db\Schema;
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
+ * @property-write Product $product
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/variant-queries.md
+ * @doc-path products-variants.md
+ * @prefix-doc-params
  * @replace {element} variant
  * @replace {elements} variants
  * @replace {twig-method} craft.variants()
@@ -50,11 +52,6 @@ class VariantQuery extends ElementQuery
      * @var bool Whether to only return variants that the user has permission to edit.
      */
     public $editable = false;
-
-    /**
-     * @var Product
-     */
-    public $product;
 
     /**
      * @var
@@ -149,6 +146,20 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'product':
+                $this->product($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
+    }
+
+    /**
      * Narrows the query results based on the {elements}’ SKUs.
      *
      * Possible values include:
@@ -208,7 +219,11 @@ class VariantQuery extends ElementQuery
      */
     public function product($value)
     {
-        $this->product = $value;
+        if ($value instanceof Product) {
+            $this->productId = [$value->id];
+        } else {
+            $this->productId = $value;
+        }
         return $this;
     }
 
@@ -501,6 +516,13 @@ class VariantQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->_normalizeProductId();
+
+        // See if 'productId' was invalid
+        if ($this->productId === []) {
+            return false;
+        }
+
         $this->joinElementTable('commerce_variants');
 
         $this->query->select([
@@ -531,16 +553,8 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
-        if ($this->product) {
-            if ($this->product instanceof Product) {
-                $this->productId = $this->product->id;
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product));
-            }
-        }
-
         if ($this->productId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
+            $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
 
         if ($this->price) {
@@ -851,6 +865,24 @@ class VariantQuery extends ElementQuery
     }
 
     /**
+     * Normalizes the productId param to an array of IDs or null
+     */
+    private function _normalizeProductId()
+    {
+        if (empty($this->productId)) {
+            $this->productId = null;
+        } else if (is_numeric($this->productId)) {
+            $this->productId = [$this->productId];
+        } else if (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
+            $this->productId = (new Query())
+                ->select(['id'])
+                ->from([Table::PRODUCTS])
+                ->where(Db::parseParam('id', $this->productId))
+                ->column();
+        }
+    }
+
+    /**
      * Applies the hasVariant query condition
      */
     private function _applyHasProductParam()
@@ -871,5 +903,22 @@ class VariantQuery extends ElementQuery
             $productIds = array_filter($productIds);
             $this->subQuery->andWhere(['commerce_products.id' => $productIds]);
         }
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.5.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->productId) {
+            foreach ($this->productId as $productId) {
+                $tags[] = "product:$productId";
+            }
+        }
+
+        return $tags;
     }
 }
