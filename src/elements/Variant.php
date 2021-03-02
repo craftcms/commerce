@@ -1036,7 +1036,10 @@ class Variant extends Purchasable
         }
 
         // is parent product enabled?
-        if ($product->getStatus() !== Product::STATUS_LIVE) {
+        if (Craft::$app->getRequest()->isCpRequest) {
+            return $product->enabled;
+            
+        } else if ($product->getStatus() !== Product::STATUS_LIVE) {
             return false;
         }
 
