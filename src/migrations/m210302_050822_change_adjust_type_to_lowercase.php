@@ -16,25 +16,17 @@ class m210302_050822_change_adjust_type_to_lowercase extends Migration
      */
     public function safeUp()
     {
-        $adjustments =  (new Query())
-            ->select([
-                'id',
-                'type'
-            ])
-            ->from(['{{%commerce_orderadjustments}}'])->all();
-
-        $types = ['Shipping', 'Discount'];
-        foreach ($adjustments as $adjustment) {
-            $type = $adjustment['type'];
-
-            if (in_array($type, $types)) {
-                $this->update('{{%commerce_orderadjustments}}', [
-                    'type' => strtolower($adjustment['type'])
-                ], [
-                    'id' => $adjustment['id']
-                ]);
-            }
-        }
+        $this->update('{{%commerce_orderadjustments}}', [
+            'type' => 'shipping'
+        ], [
+            'type' => 'Shipping'
+        ]);        
+        
+        $this->update('{{%commerce_orderadjustments}}', [
+            'type' => 'discount'
+        ], [
+            'type' => 'Discount'
+        ]);
         
         return true;
     }
