@@ -10,6 +10,8 @@
 
 {% import "_includes/forms" as forms %}
 
+{% hook "cp.commerce.customers.edit" %}
+
 {% block actionButton %}
   {% if currentUser.can('commerce-editOrders') and craft.commerce.is('pro') %}
     <form action="" id="new-order" method="post">
@@ -22,52 +24,56 @@
 {% endblock %}
 
 {% block details %}
-<div class="meta read-only">
-  {% set customerUser = customer.getUser() ?? null %}
-  {% if customerUser %}
-    <div class="data">
-      <h5 class="heading">{{ 'User'|t('app') }}</h5>
-      <div class="value">
-        {% if currentUser.can('editUsers') %}
-          {{ tag('a', {
-            href: customerUser.getCpEditUrl(),
-            text: customerUser.__toString(),
-          }) }}
-        {% else %}
-          <span>{{ customerUser.__toString() }}</span>
-        {% endif %}
+  <div class="meta read-only">
+    {% set customerUser = customer.getUser() ?? null %}
+    {% if customerUser %}
+      <div class="data">
+        <h5 class="heading">{{ 'User'|t('app') }}</h5>
+        <div class="value">
+          {% if currentUser.can('editUsers') %}
+            {{ tag('a', {
+              href: customerUser.getCpEditUrl(),
+              text: customerUser.__toString(),
+            }) }}
+          {% else %}
+            <span>{{ customerUser.__toString() }}</span>
+          {% endif %}
+        </div>
       </div>
+    {% endif %}
+    <div class="data">
+      <h5 class="heading">{{ 'Total Orders'|t('commerce') }}</h5>
+      <div class="value">{{ craft.orders({ customerId: customer.id, isCompleted: 1, limit: null }).count() }}</div>
     </div>
-  {% endif %}
-  <div class="data">
-    <h5 class="heading">{{ 'Total Orders'|t('commerce') }}</h5>
-    <div class="value">{{ craft.orders({ customerId: customer.id, isCompleted: 1, limit: null }).count() }}</div>
+    {% set lastOrder = craft.orders({ customerId: customer.id, isCompleted: 1, limit: 1, orderBy: 'dateOrdered DESC' }).one() ?? null %}
+    {% if lastOrder %}
+      <div class="data">
+        <h5 class="heading">{{ 'Last Order'|t('commerce') }}</h5>
+        <div class="value">
+          {% if currentUser.can('commerce-manageOrders') %}
+            {{ tag('a', {
+              href: lastOrder.cpEditUrl,
+              text: lastOrder.__toString(),
+            }) }}
+          {% else %}
+            {{ lastOrder.__toString() }}
+          {% endif %}
+        </div>
+      </div>
+      <div class="data">
+        <h5 class="heading">{{ 'Last Order Date'|t('commerce') }}</h5>
+        <div class="value">
+          {{ lastOrder ? lastOrder.dateOrdered|date('D jS M Y') : '' }}
+        </div>
+      </div>
+    {% endif %}
   </div>
-  {% set lastOrder = craft.orders({ customerId: customer.id, isCompleted: 1, limit: 1, orderBy: 'dateOrdered DESC' }).one() ?? null %}
-  {% if lastOrder %}
-    <div class="data">
-      <h5 class="heading">{{ 'Last Order'|t('commerce') }}</h5>
-      <div class="value">
-        {% if currentUser.can('commerce-manageOrders') %}
-          {{ tag('a', {
-            href: lastOrder.cpEditUrl,
-            text: lastOrder.__toString(),
-          }) }}
-        {% else %}
-          {{ lastOrder.__toString() }}
-        {% endif %}
-      </div>
-    </div>
-    <div class="data">
-      <h5 class="heading">{{ 'Last Order Date'|t('commerce') }}</h5>
-      <div class="value">
-        {{ lastOrder ? lastOrder.dateOrdered|date('D jS M Y') : '' }}
-      </div>
-    </div>
-  {% endif %}
-</div>
+
+  {% hook "cp.commerce.customers.edit.details" %}
 {% endblock %}
 
 {% block content %}
   {% include 'commerce/customers/_includes/_customerTables' with { customer: customer } %}
+
+  {% hook "cp.commerce.customers.edit.content" %}
 {% endblock %}
