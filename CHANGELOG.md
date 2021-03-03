@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 2.2.26 - 2021-03-03
 
 ### Fixed
 - Fixed a bug where `craft\commerce\elements\Order::getTotalShippingCost()` wasn’t returning a value. ([#2027](https://github.com/craftcms/commerce/pull/2027))
