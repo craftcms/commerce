@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17 - 2021-03-03
 
 ### Added 
 - Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
