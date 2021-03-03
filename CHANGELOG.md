@@ -7,7 +7,7 @@
 - Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
 
 ### Fixed
-- Fixed a UI bug with “Order Site” and “Status” on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+- Fixed a UI bug with the “Order Site” and “Status” fields on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
 
 ### Security
 - Fixed an XSS vulnerability.
