@@ -5,6 +5,9 @@
 ### Fixed
 - Fixed a UI bug with “Order Site” and “Status” on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
 
+### Security
+- Fixed an XSS vulnerability.
+
 ## 3.2.16 - 2021-02-26
 
 ### Fixed
