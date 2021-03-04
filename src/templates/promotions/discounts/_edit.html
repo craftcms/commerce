@@ -215,37 +215,12 @@
                         id: 'user-condition',
                         name: 'userCondition',
                         options: discount.getUserConditions(),
-                        value: discount.userCondition,
-                        toggle: true,
-                        targetPrefix: 'to-option-'
+                        value: discount.userCondition
                     }) }}
                 </div>
-                <div id="to-option-usersIncludeAny"
-                     class="flex-grow hidden">
+                <div class="flex-grow">
                     {{ forms.multiselectField({
-                        id: 'groups-any',
-                        name: 'groups',
-                        options: groups,
-                        values: discount.getUserGroupIds(),
-                        errors: discount.getErrors('groups'),
-                        class: 'selectize fullwidth',
-                    }) }}
-                </div>                
-                <div id="to-option-usersIncludeAll"
-                     class="flex-grow hidden">
-                    {{ forms.multiselectField({
-                        id: 'groups-all',
-                        name: 'groups',
-                        options: groups,
-                        values: discount.getUserGroupIds(),
-                        errors: discount.getErrors('groups'),
-                        class: 'selectize fullwidth',
-                    }) }}
-                </div>                
-                <div id="to-option-usersExclude"
-                     class="flex-grow hidden">
-                    {{ forms.multiselectField({
-                        id: 'groups-exclude',
+                        id: 'groups',
                         name: 'groups',
                         options: groups,
                         values: discount.getUserGroupIds(),
@@ -385,8 +360,6 @@
             checked: discount.excludeOnSale,
             errors: discount.getErrors('excludeOnSale')
         }) }}
-
-
     </div>
 
     <div id="actions" class="hidden">
@@ -533,7 +506,16 @@
 
 {% js %}
         $(function() {
-            $('#groups-any, #groups-all, #groups-exclude').selectize({
+    
+            $('#user-condition').change(function () {
+                if ($(this).val() === 'usersAnyOrNone') {
+                    $('#groups-field').hide();
+                } else {
+                    $('#groups-field').show();
+                }
+            });
+    
+            $('#groups').selectize({
                 plugins: ['remove_button'],
                 dropdownParent: 'body'
             });
