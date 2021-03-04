@@ -101,6 +101,9 @@
                     </li>
                 </ul>
             {% endif %}
+            
+            {% hook "cp.commerce.product.action.button" %}
+
         </div>
     </div>
 {% endblock %}
