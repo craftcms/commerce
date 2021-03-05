@@ -218,7 +218,7 @@
                         value: discount.userCondition
                     }) }}
                 </div>
-                <div class="flex-grow">
+                <div class="flex-grow{% if discount.userCondition == 'usersAnyOrNone' %} hidden{% endif %}">
                     {{ forms.multiselectField({
                         id: 'groups',
                         name: 'groups',
@@ -509,9 +509,9 @@
     
             $('#user-condition').change(function () {
                 if ($(this).val() === 'usersAnyOrNone') {
-                    $('#groups-field').hide();
+                    $('#groups-field').parent().addClass('hidden');
                 } else {
-                    $('#groups-field').show();
+                    $('#groups-field').parent().removeClass('hidden');
                 }
             });
     
