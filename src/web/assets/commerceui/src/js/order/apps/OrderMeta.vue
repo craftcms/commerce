@@ -83,7 +83,7 @@
             </div>
         </div>
 
-        <div class="meta read-only" v-if="!editing">
+        <div class="order-meta meta read-only" v-if="!editing">
             <div class="data">
                 <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.reference}}</p>
@@ -385,6 +385,12 @@
         right: 0;
         top: 0;
         z-index: 2;
+    }
+
+    .order-meta .value {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
     }
 
     .order-number-value {
