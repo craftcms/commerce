@@ -1,9 +1,16 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17 - 2021-03-03
+
+### Added 
+- Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
+- Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
 
 ### Fixed
-- Fixed a UI bug with “Order Site” and “Status” on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+- Fixed a UI bug with the “Order Site” and “Status” fields on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+
+### Security
+- Fixed an XSS vulnerability.
 
 ## 3.2.16 - 2021-02-26
 
