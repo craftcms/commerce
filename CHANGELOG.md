@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where asset transform URLs weren’t being generated correctly in order status emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
+
 ## 3.2.17 - 2021-03-03
 
 ### Added 
