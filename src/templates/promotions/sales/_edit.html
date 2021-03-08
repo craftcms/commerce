@@ -181,7 +181,7 @@
                         }) }}
                     </td>
                     <td>
-                        <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ currencyIso }}</span>
+                        <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ currencySymbol }}</span>
                         {{ forms.text({
                             id: 'applyAmount',
                             name: 'applyAmount',
