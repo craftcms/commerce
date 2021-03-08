@@ -182,13 +182,13 @@
                     </td>
                     <td>
                         <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ currencyIso }}</span>
-                        <span id="applyAmount-percent-symbol" class="{% if sale.apply == 'byFlat' or sale.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
                         {{ forms.text({
                             id: 'applyAmount',
                             name: 'applyAmount',
                             size: 10,
                             value: sale.applyAmount,
                         }) }}
+                        <span id="applyAmount-percent-symbol" class="{% if sale.apply == 'byFlat' or sale.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
                     </td>
                 </tr>
             </table>
@@ -241,7 +241,7 @@ $(function() {
     });
 
     $('select[name=apply]').change(function() {
-       
+
         if (this.value == 'byPercent' || this.value == 'toPercent') {
             $('#applyAmount-percent-symbol').removeClass('hidden');
             $('#applyAmount-currency-symbol').addClass('hidden');
