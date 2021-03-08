@@ -106,21 +106,23 @@
             errors: sale.getErrors('categories'),
         }) }}
 
-      <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}" data-target="categoryRelationshipType-advanced">Advanced</a>
+        <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}"
+           data-target="categoryRelationshipType-advanced">Advanced</a>
 
-      <div id="categoryRelationshipType-advanced" class="{% if (sale.categoryRelationshipType == 'element') %}hidden{% endif %}">
-        {{ forms.selectField({
-            id: 'categoryRelationshipType',
-            name: 'categoryRelationshipType',
-            label: 'Categories Relationship Type'|t('commerce'),
-            instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
-                link: 'https://craftcms.com/docs/3.x/relations.html#terminology',
-            }),
-            options: categoryRelationshipType,
-            value: sale.categoryRelationshipType,
-            errors: sale.getErrors('categoryRelationshipType')
-        }) }}
-      </div>
+        <div id="categoryRelationshipType-advanced"
+             class="{% if (sale.categoryRelationshipType == 'element') %}hidden{% endif %}">
+            {{ forms.selectField({
+                id: 'categoryRelationshipType',
+                name: 'categoryRelationshipType',
+                label: 'Categories Relationship Type'|t('commerce'),
+                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
+                    link: 'https://craftcms.com/docs/3.x/relations.html#terminology',
+                }),
+                options: categoryRelationshipType,
+                value: sale.categoryRelationshipType,
+                errors: sale.getErrors('categoryRelationshipType')
+            }) }}
+        </div>
     </div>
 
     <div id="conditions" class="hidden">
@@ -160,37 +162,46 @@
 
     <div id="actions" class="hidden">
 
-        {{ forms.radioGroupField({
-            label: 'Effect'|t('commerce'),
-            instructions: "Select how the sale will be applied to the purchasable."|t('commerce'),
-            name: 'apply',
-            options: {
-                'byPercent' : 'Reduce the price by a percentage of the original price'|t('commerce'),
-                'toPercent' : 'Set the price to a percentage of the original price'|t('commerce'),
-                'byFlat' : 'Reduce the price by a flat amount'|t('commerce'),
-                'toFlat' : 'Set the price to a flat amount'|t('commerce'),
-            },
-            value: sale.apply,
-            errors: sale.getErrors('apply'),
-            required: true,
-        }) }}
+        {% set applyAmountInput %}
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.select({
+                            id: 'apply',
+                            name: 'apply',
+                            options: [
+                                {optgroup: "Reduce price"|t('commerce')},
+                                {label: "Reduce the price by a percentage of the original price"|t('commerce'), value: 'byPercent' },
+                                {label: "Reduce the price by a fixed amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'byFlat' },
+                                {optgroup: "Set price"|t('commerce')},
+                                {label: "Set the sale price to a percentage of the original price"|t('commerce'), value: 'toPercent' },
+                                {label: "Set the sale price to a flat amount"|t('commerce',{'currency': craft.commerce.paymentCurrencies.primaryPaymentCurrencyIso}), value: 'toFlat' },
+                            ],
+                            value: sale.apply
+                        }) }}
+                    </td>
+                    <td>
+                        <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ currencyIso }}</span>
+                        <span id="applyAmount-percent-symbol" class="{% if sale.apply == 'byFlat' or sale.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
+                        {{ forms.text({
+                            id: 'applyAmount',
+                            name: 'applyAmount',
+                            size: 10,
+                            value: sale.applyAmount,
+                        }) }}
+                        <span id="applyAmount-off" class="{% if sale.apply == 'toFlat' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ "off"|t('commerce') }}</span>
+                    </td>
+                </tr>
+            </table>
+        {% endset %}
 
-        {% set applyAmountValue %}{% spaceless %}
-            {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
-                {{ sale.applyAmountAsPercent }}
-            {% else %}
-                {{ sale.applyAmountAsFlat }}
-            {% endif %}
-        {% endspaceless %}{% endset %}
-        {{ forms.textField({
-            label: "Amount"|t('commerce'),
-            instructions: "A percentage value or a flat amount to be used (for example: ‘3%’ for 3% off, and ‘10’ for $10 off). Percentages are rounded to 2 decimal places."|t('commerce'),
+        {{ forms.field({
+            label: "Effect"|t('commerce'),
+            instructions: "Select how the sale will be applied to the purchasable(s)."|t('commerce'),
             id: 'applyAmount',
-            name: 'applyAmount',
-            required: true,
-            value: applyAmountValue,
             errors: sale.getErrors('applyAmount'),
-        }) }}
+            tip: 'info man'|t('commerce')
+        }, applyAmountInput) }}
 
         {% set ignoresPrevious = ['toFlat','toPercent'] %}
         {% set checked = sale.apply in ignoresPrevious %}
@@ -217,20 +228,35 @@
 {% endblock %}
 
 {% js %}
-    $(function() {
-      $('#groups, #productTypes').selectize({
+$(function() {
+    $('#groups, #productTypes').selectize({
         plugins: ['remove_button'],
         dropdownParent: 'body'
-      });
+    });
 
     $("form").submit(function() {
         $("input[name=ignorePrevious]").prop('disabled', false);
-        if ($("input[name=ignorePrevious]").prop('checked') == true){
+        if ($("input[name=ignorePrevious]").prop('checked') == true) {
             $("#ignorePrevious-field").css('opacity', 0.25);
-        };
+        }
+        ;
     });
 
-    $('input[name=apply]').change(function() {
+    $('select[name=apply]').change(function() {
+        // Toggle symbol
+        if (this.value == 'byPercent' || this.value == 'byFlat') {
+            $('#applyAmount-off').removeClass('hidden');
+        }else{
+            $('#applyAmount-off').addClass('hidden');
+        }
+        if (this.value == 'byPercent' || this.value == 'toPercent') {
+            $('#applyAmount-percent-symbol').removeClass('hidden');
+            $('#applyAmount-currency-symbol').addClass('hidden');
+        }else{
+            $('#applyAmount-percent-symbol').addClass('hidden');
+            $('#applyAmount-currency-symbol').removeClass('hidden');
+        }
+
         if (this.value == 'toFlat' || this.value == 'toPercent') {
             $('input[name=ignorePrevious]').prop('disabled', true);
             $('input[name=ignorePrevious]').prop('checked', true);
@@ -240,5 +266,5 @@
             $('input[name=ignorePrevious]').prop('checked', false);
         }
     });
-    });
+});
 {% endjs %}
