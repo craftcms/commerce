@@ -199,8 +199,7 @@
             label: "Effect"|t('commerce'),
             instructions: "Select how the sale will be applied to the purchasable(s)."|t('commerce'),
             id: 'applyAmount',
-            errors: sale.getErrors('applyAmount'),
-            tip: 'info man'|t('commerce')
+            errors: sale.getErrors('applyAmount')
         }, applyAmountInput) }}
 
         {% set ignoresPrevious = ['toFlat','toPercent'] %}
