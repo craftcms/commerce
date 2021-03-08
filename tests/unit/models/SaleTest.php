@@ -94,7 +94,7 @@ class SaleTest extends Unit
         $sale = new Sale();
         $sale->applyAmount = '-0.1000';
 
-        self::assertSame('10%', $sale->getApplyAmountAsPercent());
+        self::assertSame('10.00%', $sale->getApplyAmountAsPercent());
     }
 
     /**
