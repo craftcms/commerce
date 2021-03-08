@@ -1,5 +1,5 @@
 <template>
-    <div v-if="draft">
+    <div class="order-meta-container" :class="{'loading': recalculateLoading || saveLoading}" v-if="draft">
         <div id="settings" class="meta" v-if="editing">
             <div class="field" id="reference-field">
                 <div class="heading">
@@ -33,7 +33,7 @@
                 <date-ordered-input :date="draft.order.dateOrdered" @update="updateDateOrderedInput"></date-ordered-input>
             </field>
 
-            <field v-if="order.isCompleted" :label="$options.filters.t('Order Site', 'commerce')">
+            <field :label="$options.filters.t('Order Site', 'commerce')">
                 <order-site
                     :originalOrderSiteId="originalDraft.order.orderSiteId"
                     :order="order"
@@ -83,7 +83,7 @@
             </div>
         </div>
 
-        <div class="meta read-only" v-if="!editing">
+        <div class="order-meta meta read-only" v-if="!editing">
             <div class="data">
                 <h5 class="heading">{{"Reference"|t('commerce')}}</h5>
                 <p class="value">{{draft.order.reference}}</p>
@@ -234,6 +234,7 @@
                 draft: state => state.draft,
                 originalDraft: state => state.originalDraft,
                 recalculateLoading: state => state.recalculateLoading,
+                saveLoading: state => state.saveLoading,
                 editing: state => state.editing,
             }),
 
@@ -368,6 +369,29 @@
 
 <style lang="scss">
     @import "../../../../node_modules/craftcms-sass/src/mixins";
+
+    .order-meta-container {
+        position: relative;
+    }
+
+    .order-meta-container.loading::after {
+        background: #fff;
+        bottom: 0;
+        content: '';
+        display: block;
+        left: 0;
+        opacity: .5;
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 2;
+    }
+
+    .order-meta .value {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+    }
 
     .order-number-value {
         display: flex;

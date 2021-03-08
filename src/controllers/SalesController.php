@@ -121,20 +121,15 @@ class SalesController extends BaseCpController
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
-
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
-            $localeData = Craft::$app->getLocale();
-            $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-            if (strpos($applyAmount, $percentSign) || (float)$applyAmount >= 1) {
+            if ((float)$applyAmount >= 1) {
                 $sale->applyAmount = (float)$applyAmount / -100;
-            } else {
-                $sale->applyAmount = (float)$applyAmount * -1;
+            }else{
+                $sale->applyAmount = -(float)$applyAmount;
             }
         } else {
             $sale->applyAmount = (float)$applyAmount * -1;
         }
-
 
         $purchasables = [];
         $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
@@ -397,6 +392,19 @@ class SalesController extends BaseCpController
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
         } else {
             $variables['groups'] = [];
+        }
+
+        $localeData = Craft::$app->getLocale();
+        $variables['percentSymbol'] = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['currencyIso'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
+            if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
+                $amount = -(float)$variables['sale']->applyAmount * 100;
+                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal($amount);
+            } else {
+                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal(-(float)$variables['sale']->applyAmount);
+            }
         }
 
         $variables['categoryElementType'] = Category::class;

@@ -1,5 +1,23 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where asset transform URLs weren’t being generated correctly in order status emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
+- Fixed a bug where the sale was storing the incorrect amount when entered from locales that use periods as the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
+
+## 3.2.17 - 2021-03-03
+
+### Added 
+- Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
+- Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
+
+### Fixed
+- Fixed a UI bug with the “Order Site” and “Status” fields on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+
+### Security
+- Fixed an XSS vulnerability.
+
 ## 3.2.16 - 2021-02-26
 
 ### Fixed
