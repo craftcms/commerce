@@ -189,7 +189,6 @@
                             size: 10,
                             value: sale.applyAmount,
                         }) }}
-                        <span id="applyAmount-off" class="{% if sale.apply == 'toFlat' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ "off"|t('commerce') }}</span>
                     </td>
                 </tr>
             </table>
@@ -242,12 +241,7 @@ $(function() {
     });
 
     $('select[name=apply]').change(function() {
-        // Toggle symbol
-        if (this.value == 'byPercent' || this.value == 'byFlat') {
-            $('#applyAmount-off').removeClass('hidden');
-        }else{
-            $('#applyAmount-off').addClass('hidden');
-        }
+       
         if (this.value == 'byPercent' || this.value == 'toPercent') {
             $('#applyAmount-percent-symbol').removeClass('hidden');
             $('#applyAmount-currency-symbol').addClass('hidden');
