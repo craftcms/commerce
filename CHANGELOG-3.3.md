@@ -19,5 +19,4 @@
 ### Fixed
 - Fixed a PHP 8 bug in `\craft\commerce\models\Address::addressLines()`. ([#1987](https://github.com/craftcms/commerce/issues/1987))
 - Fixed a bug in `craft\commerce\test\fixtures\elements\ProductFixture` caused by product type memoization. ([#2003](https://github.com/craftcms/commerce/issues/2003))
-- Fixed a bug that retrieved the wrong shipping and billing address for each order on the order index page. ([1962](https://github.com/craftcms/commerce/issues/1962))
 - Fixed a PHP error that occurred when using `craft\commerce\services\PaymentCurrencies::convert()` with a payment currency that doesn’t exist.
