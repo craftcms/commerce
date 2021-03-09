@@ -4,7 +4,7 @@
 
 ### Fixed
 - Fixed a bug where asset transform URLs weren’t being generated correctly in order status emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
-- Fixed a bug where the sale was storing the incorrect amount when entered from locales that use periods as the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
+- Fixed a bug where the sales were storing the incorrect amounts when entered from locales that use periods as the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
 - Fixed a bug where the before render PDF event was not updating the render variables. ([#2039](https://github.com/craftcms/commerce/issues/2039))
 - Fixed a bug that retrieved the wrong shipping and billing address for each order on the order index page. ([1962](https://github.com/craftcms/commerce/issues/1962))
 
