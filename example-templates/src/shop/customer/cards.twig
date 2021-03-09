@@ -63,6 +63,7 @@
                       <form method="post" action="" class="form-horizontal max-w-md" id="gateway-{{ gateway.id }}">
                           {{ actionInput('commerce/payment-sources/add') }}
                           {{ hiddenInput('gatewayId', gateway.id) }}
+                          {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
                           {{ hiddenInput('cancelUrl', '/[[folderName]]/customer/cards'|hash) }}
                           {{ redirectInput('/[[folderName]]/customer/cards') }}
                           {{ csrfInput() }}

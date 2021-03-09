@@ -5,7 +5,9 @@
             <div class="relative">
                 <div>
                     <a class="block" href="{{ product.url }}">
-                      <div style="background-image: url('{{ product.defaultVariant.featureImage.one().url ?? '' }}')"
+                      {% set productImage = product.defaultVariant.featureImage.one() ?? null %}
+                      <div
+                           {% if productImage %} style="background-image: url('{{ productImage.url }}')" {% endif %} {# https://stackoverflow.com/questions/36739803/inline-css-url-function-request-page-url-again #}
                            class="bg-cover bg-center bg-gray-300 hover:bg-gray-200 h-32 rounded">
                       </div>
                     </a>
@@ -19,6 +21,7 @@
                 <form method="post" class="js-form mt-6">
                     {{ actionInput('commerce/cart/update-cart') }}
                     {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
+                    <input type="hidden" name="clearNotices" value="1"/>
                     {{ csrfInput() }}
                     <div class="inline-block relative w-full">
                         <select name="purchasableId"

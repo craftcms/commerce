@@ -65,7 +65,7 @@ class PaymentCurrencies extends Component
      * Get all payment currencies.
      *
      * @return PaymentCurrency[]
-     * @throws CurrencyException if currency does not exist with tat iso code
+     * @throws CurrencyException if currency does not exist with the given ISO code
      */
     public function getAllPaymentCurrencies(): array
     {
@@ -140,7 +140,7 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * Convert an amount in site's primary currency to a different currecny by its ISO code.
+     * Convert an amount in site's primary currency to a different currency by its ISO code.
      *
      * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
@@ -150,6 +150,10 @@ class PaymentCurrencies extends Component
     public function convert(float $amount, string $currency): float
     {
         $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
+
+        if (!$destinationCurrency) {
+            throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $currency]));
+        }
 
         return $amount * $destinationCurrency->rate;
     }

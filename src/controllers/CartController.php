@@ -86,6 +86,17 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
+        // Can clear notices when updating the cart
+        if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
+            if (is_array($clearNotices)) {
+                foreach ($clearNotices as $attribute) {
+                    $this->_cart->clearNotices($attribute);
+                }
+            } else {
+                $this->_cart->clearNotices();
+            }
+        }
+
         // Set the custom fields submitted
         $this->_cart->setFieldValuesFromRequest('fields');
 
@@ -160,7 +171,6 @@ class CartController extends BaseFrontEndController
         // Update multiple line items in the cart
         if ($lineItems = $this->request->getParam('lineItems')) {
             foreach ($lineItems as $key => $lineItem) {
-
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
                     $lineItem->qty = $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
@@ -404,7 +414,11 @@ class CartController extends BaseFrontEndController
     {
         $cart = null;
 
-        if ($orderNumber = $this->request->getBodyParam('orderNumber')) {
+        // TODO Remove `orderNumber` param in 4.0
+        $orderNumber = $this->request->getBodyParam('orderNumber');
+        $orderNumber = $this->request->getBodyParam('number', $orderNumber);
+
+        if ($orderNumber) {
             // Get the cart from the order number
             $cart = Order::find()->number($orderNumber)->isCompleted(false)->one();
 

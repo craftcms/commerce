@@ -19,7 +19,6 @@
 {% set flashNotice = craft.app.session.getFlash('notice') %}
 {% set flashError = craft.app.session.getFlash('error') %}
 
-
 <header>
     <div class="bg-gray-300">
         <div class="container mx-auto p-6">
@@ -32,7 +31,6 @@
     {% include '[[folderName]]/_includes/nav-main' %}
     {% include '[[folderName]]/_includes/nav-checkout' %}
 </header>
-
 
 {% if flashNotice %}
     <div class="bg-[[color]]-500 text-white">
@@ -47,6 +45,24 @@
     <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {{ flashError ?? 'Test flash error' }}
+        </div>
+    </div>
+{% endif %}
+
+{% if cart.hasNotices() %}
+    <div class="bg-blue-400 text-white">
+        <div class="container mx-auto px-6 py-4 relative">
+            <span>⚠️ Cart Notifications</span>
+            {%  for notice in cart.getNoticeSummary(true) %}
+                <li class="list-disc">{{ notice }}</li>
+            {%  endfor  %}
+            <form method="post" class="js-form">
+                {{ actionInput('commerce/cart/update-cart') }}
+                {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
+                {{ hiddenInput('clearNotices') }}
+                {{ csrfInput() }}
+                <input class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0" type="submit" value="Dismiss"/>
+            </form>
         </div>
     </div>
 {% endif %}
@@ -78,5 +94,6 @@
 {% if devMode %}
     <script>console.log('Cart on page load: ', {{ cart.toArray()|json_encode|raw }});</script>
 {% endif %}
+
 </body>
 </html>

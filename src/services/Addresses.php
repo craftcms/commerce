@@ -233,7 +233,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new InvalidArgumentException('No address exists with the ID “{id}”', ['id' => $addressModel->id]);
+                throw new InvalidArgumentException(Craft::t('commerce', 'No address exists with the ID “{id}”', ['id' => $addressModel->id]));
             }
         } else {
             $addressRecord = new AddressRecord();
@@ -479,11 +479,13 @@ class Addresses extends Component
         $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
-        $addresses = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
 
-        foreach ($addresses as $result) {
+        $addressesData = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
+
+        $addresses = [];
+        foreach ($addressesData as $result) {
             $address = new Address($result);
-            $addresses[$address->id] = $addresses[$address->id] ?? $address ?? null;
+            $addresses[$address->id] = $address;
         }
 
         foreach ($orders as $key => $order) {

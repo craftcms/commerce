@@ -17,7 +17,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
-use craft\commerce\events\OrderTabsEvent;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
@@ -413,6 +412,7 @@ class OrdersController extends Controller
             'billingAddress',
             'shippingAddress',
             'orderSite',
+            'notices'
         ];
 
         $orderArray = $order->toArray($orderFields, $extraFields);
@@ -530,6 +530,19 @@ class OrdersController extends Controller
 
         // Do not return any purchasables with temp SKUs
         $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+
+        // Do not return soft deleted purchasables
+        $sqlQuery->andWhere(['elements.dateDeleted' => null]);
+
+        // Apply sorting if required
+        if ($sort && strpos($sort, '|')) {
+            list($column, $direction) = explode('|', $sort);
+            if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
+                $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
+            }
+        } else {
+            $sqlQuery->orderBy(['id' => 'asc']);
+        }
 
         $total = $sqlQuery->count();
 
@@ -872,6 +885,35 @@ class OrdersController extends Controller
     }
 
     /**
+     * @return Response
+     */
+    public function clearNotice()
+    {
+        $this->requireAcceptsJson();
+
+        $orderId = $this->request->getRequiredParam('orderId');
+        $clearNotices = $this->request->getRequiredParam('clearNotices');
+
+        if ($order = Order::find()->id($orderId)->one()) {
+            return $this->asErrorJson(Craft::t('commerce', 'Order not found.'));
+        }
+
+        if (empty($clearNotices)) {
+            return $this->asErrorJson(Craft::t('commerce', 'Please specify notices to clear.'));
+        }
+
+        if (is_array($clearNotices)) {
+            foreach ($clearNotices as $attribute) {
+                $order->clearNotices($attribute);
+            }
+        } else {
+            $order->clearNotices();
+        }
+
+        return $this->asJson(['success' => true]);
+    }
+
+    /**
      * Modifies the variables of the request.
      *
      * @param $variables
@@ -1008,7 +1050,7 @@ class OrdersController extends Controller
                 $customer = ArrayHelper::firstValue($customers);
             }
         }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer), View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1051,7 +1093,7 @@ class OrdersController extends Controller
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 
-        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', View::POS_BEGIN);
 
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
@@ -1081,6 +1123,9 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        $order->clearNotices();
+        $order->addNotices($orderRequestData['order']['notices']);
 
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
@@ -1134,7 +1179,7 @@ class OrdersController extends Controller
         $shippingAddress = null;
 
         // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' &&  $order->isCompleted) {
+        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $billingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
@@ -1145,7 +1190,7 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId && $shippingAddressId != 'new' &&  $order->isCompleted) {
+        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $shippingAddressId])
                 ->andWhere(['not', ['customerId' => null]])

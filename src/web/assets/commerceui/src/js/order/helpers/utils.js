@@ -23,6 +23,7 @@ export default {
                 lineItems: [],
                 orderAdjustments: [],
                 orderSiteId: draft.order.orderSiteId,
+                notices: draft.order.notices
             }
         }
 

@@ -67,9 +67,7 @@
     {#
       If the order requires a shipping method be selected, you could redirect back to the shipping page until one is applied to the order.
       {% redirect "[[folderName]]/checkout/shipping" %}
-      You might also want to add a php plugin hook to require
     #}
-
     <div class="border-b border-gray-300 pb-3">
       <strong>Shipping</strong> None selected. <a href="{{ url('/[[folderName]]/checkout/shipping') }}" class="[[classes.a]]">Choose a shipping method.</a>
     </div>

@@ -101,6 +101,8 @@ class PaymentSourcesController extends BaseFrontEndController
             ]);
         }
 
+        $this->setSuccessFlash('Payment source created.');
+
         return $this->redirectToPostedUrl();
     }
 

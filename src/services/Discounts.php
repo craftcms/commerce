@@ -384,7 +384,7 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
             return false;
         }
 

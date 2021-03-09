@@ -1,21 +1,11 @@
 {% extends '[[folderName]]/_layouts/main' %}
 
 {% set extraHead %}
-{# We don't want the order info indexed by search engines. #}
+{# We don't want the order info to get indexed by search engines #}
 <meta name="robots" content="noindex">
 {% endset %}
 
-{#
-    ╔══════════════════════════════════════════════════╗
-    ║  ┌───────────────────────────────────────────┐   ║
-    ║  │   Using the `withLineItems` parameter to  │   ║
-    ║  │   eagerload the line items. This helps    │   ║
-    ║  │   avoid n+1 queries when looping over     │   ║
-    ║  │   a large number of orders.               │   ║
-    ║  └───────────────────────────────────────────┘   ║
-    ╚══════════════════════════════════════════════════╝
-#}
-
+{# The `withLineItems()` parameter avoids n+1 queries when looping over a large number of orders #}
 {% set orders = craft.orders
   .customer(craft.commerce.customers.customer)
   .isCompleted(true)
@@ -40,7 +30,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                {# Get completed orders for the current customer.#}
+                {# Get completed orders for the current customer #}
                 {% for order in orders %}
                     {% set rowClass = cycle(['bg-gray-100', ''], loop.index0) %}
                     <tr class="{{ rowClass }}">

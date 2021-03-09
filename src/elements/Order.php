@@ -17,6 +17,7 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
+use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
@@ -40,6 +41,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\commerce\records\OrderNotice;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
 use craft\elements\exporters\Raw as CraftRaw;
@@ -81,7 +83,7 @@ use yii\log\Logger;
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
  * @property-read ShippingMethodInterface $shippingMethod
- * @property-read ShippingMethodInterface $shippingMethodId
+ * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
  * @property-read string $pdfUrl the URL to the order’s PDF invoice
@@ -147,6 +149,7 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
+    use OrderNoticesTrait;
 
     /**
      * Payments exceed order total.
@@ -204,19 +207,17 @@ class Order extends Element
      * ```php
      * use craft\commerce\elements\Order;
      * use craft\commerce\models\LineItem;
-     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\events\AddLineItemEvent;
      * use yii\base\Event;
      *
      * Event::on(
      *     Order::class,
      *     Order::EVENT_BEFORE_ADD_LINE_ITEM,
-     *     function(LineItemEvent $event) {
+     *     function(AddLineItemEvent $event) {
      *         // @var LineItem $lineItem
      *         $lineItem = $event->lineItem;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     *         // @var bool $isValid
-     *         $isValid = $event->isValid;
      *         // ...
      *     }
      * );
@@ -1363,6 +1364,7 @@ class Order extends Element
         $names[] = 'gateway';
         $names[] = 'histories';
         $names[] = 'nestedTransactions';
+        $names[] = 'notices';
         $names[] = 'orderStatus';
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
@@ -1715,8 +1717,28 @@ class Order extends Element
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
             $lineItemRemoved = false;
-            foreach ($this->getLineItems() as $item) {
-                if (!$item->refreshFromPurchasable()) {
+            foreach ($this->getLineItems() as $key => $item) {
+                $originalSalePrice = $item->getSalePrice();
+                $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
+                if ($item->refreshFromPurchasable()) {
+
+                    if ($originalSalePrice > $item->salePrice) {
+                        $this->addNotice(
+                            'lineItems',
+                            Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
+                        );
+                    }
+
+                    if ($originalSalePrice < $item->salePrice) {
+                        $this->addNotice(
+                            'lineItems',
+                            Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()])
+                        );
+                    }
+                } else {
+                    $this->addNotice(
+                        'lineItems',
+                        Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]));
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
@@ -1752,8 +1774,8 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
+                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Previously selected shipping method is longer available.'));
                 $this->recalculate();
-
                 return;
             }
         }
@@ -1963,6 +1985,7 @@ class Order extends Element
         $this->_saveAdjustments();
 
         $this->_saveLineItems();
+        $this->_saveNotices();
 
         if ($this->isCompleted) {
             //creating order history record
@@ -2834,6 +2857,7 @@ class Order extends Element
 
     /**
      * @return int|null
+     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
      */
     public function getShippingMethodId()
     {
@@ -2856,14 +2880,17 @@ class Order extends Element
             return $shippingMethod;
         }
 
-        $handles = [];
-        foreach ($shippingMethods as $method) {
-            $handles[] = $method->getHandle();
-        }
+        $handles = ArrayHelper::getColumn($shippingMethods, 'handle');
 
         if (!empty($handles)) {
             /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = array_values($shippingMethods)[0];
+            $firstAvailable = ArrayHelper::firstValue($shippingMethods);
+
+            if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
+                $this->addNotice('shippingMethodHandle', Craft::t('commerce', 'Previously selected shipping method is longer available.'));
+                $this->shippingMethodHandle = null;
+            }
+
             if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
                 $this->shippingMethodHandle = $firstAvailable->getHandle();
             }
@@ -3114,6 +3141,30 @@ class Order extends Element
         }
 
         return null;
+    }
+
+
+    /**
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    private function _saveNotices()
+    {
+        // Line items that are currently in the DB
+        $previousNotices = OrderNotice::find()
+            ->where(['orderId' => $this->id])
+            ->all();
+
+        foreach ($previousNotices as $notice) {
+            $notice->delete();
+        }
+
+        foreach ($this->getNotices() as $attribute => $messages) {
+            foreach ($messages as $message) {
+                $notice = new OrderNotice(['orderId' => $this->id, 'attribute' => $attribute, 'message' => $message]);
+                $notice->save(false);
+            }
+        }
     }
 
     /**

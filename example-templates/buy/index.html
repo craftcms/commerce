@@ -9,7 +9,8 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
 {% redirect 'buy/add' %}
 {% endif %}
 
-{# Do we have have more than 1 line item? If so, we are likely on Pro, let's use the main cart checkout example template #}
+{# Do we have have more than 1 line item? If so, we are likely on Pro, let's use the main cart checkout
+   example template. #}
 {% if cart.lineItems|length > 1 %}
     {% redirect '/shop/cart' %}
 {% endif %}
@@ -154,7 +155,8 @@ Buy your hand-crafted free-range coastal artisan t-shirt.
 
     <form method="POST" class="add-to-cart-form">
         <input type="hidden" name="action" value="commerce/payments/pay">
-        <input type="hidden" name="gatewayId" value="1"> {# the dummy gateway ID #}
+        {# 1 = the dummy gateway ID #}
+        <input type="hidden" name="gatewayId" value="1">
         {{ redirectInput('buy/confirm?number={number}') }}
         {{ csrfInput() }}
     <div class="p-10 pt-8">
