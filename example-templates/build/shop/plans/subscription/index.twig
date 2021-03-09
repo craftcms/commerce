@@ -13,118 +13,121 @@
 
     {% set information = subscription.plan.getInformation() ?? null %}
     <dl class="flex flex-wrap max-w-md mt-3">
-      <dt class="w-1/2 pr-2"><strong>Subscription Information</strong></dt>
-      <dd class="w-1/2">&nbsp;</dd>
-      {% if information %}
-        <dt class="w-1/2 pr-2">Plan Information Entry</dt>
-        <dd class="w-1/2">
-          <ul class="list-disc list-inside">
-            <li>{{ 'ID' }}: {{ information.id }}</li>
-            <li>{{ 'Title' }}: {{ information.title }}</li>
-          </ul>
-        </dd>
-      {% endif %}
-      {% if subscription.isExpired %}
-        <dt class="w-1/2 pr-2">Expired on</dt>
-        <dd class="w-1/2">{{ subscription.dateExpired|date('Y-m-d') }}</dd>
-      {% else %}
-        {% if subscription.isCanceled %}
-          <dt class="w-1/2 pr-2">Cancelled on</dt>
-          <dd class="w-1/2">{{ subscription.dateCanceled|date('Y-m-d') }}</dd>
-          <dt class="w-1/2 pr-2">Expires on</dt>
-          <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
-          {% if subscription.canReactivate() %}
-            <dt class="w-1/2 pr-2"></dt>
+        <dt class="w-1/2 pr-2"><strong>Subscription Information</strong></dt>
+        <dd class="w-1/2">&nbsp;</dd>
+        {% if information %}
+            <dt class="w-1/2 pr-2">Plan Information Entry</dt>
             <dd class="w-1/2">
-              <form method="post" action="">
-                {{ actionInput('commerce/subscriptions/reactivate') }}
-                {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
-                {{ redirectInput('shop/plans') }}
-                {{ csrfInput() }}
-
-                <button type="submit" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Reactivate" }}</button>
-              </form>
+                <ul class="list-disc list-inside">
+                    <li>{{ 'ID' }}: {{ information.id }}</li>
+                    <li>{{ 'Title' }}: {{ information.title }}</li>
+                </ul>
             </dd>
-          {% endif %}
-        {% else %}
-          <dt class="w-1/2 pr-2">Payment Amount</dt>
-          <dd class="w-1/2">{{ subscription.getNextPaymentAmount() }}</dd>
-          <dt class="w-1/2 pr-2">Next Payment</dt>
-          <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
-          <dt class="w-1/2 pr-2">&nbsp;</dt>
-          <dd class="pt-2">
-            <form method="post" action="">
-              {{ actionInput('commerce/subscriptions/cancel') }}
-              {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
-              {{ redirectInput('shop/plans') }}
-              {{ csrfInput() }}
-
-              {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
-
-              <button class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white" type="submit">{{ "Unsubscribe" }}</button>
-            </form>
-          </dd>
         {% endif %}
-      {% endif %}
+        {% if subscription.isExpired %}
+            <dt class="w-1/2 pr-2">Expired on</dt>
+            <dd class="w-1/2">{{ subscription.dateExpired|date('Y-m-d') }}</dd>
+        {% else %}
+            {% if subscription.isCanceled %}
+                <dt class="w-1/2 pr-2">Cancelled on</dt>
+                <dd class="w-1/2">{{ subscription.dateCanceled|date('Y-m-d') }}</dd>
+                <dt class="w-1/2 pr-2">Expires on</dt>
+                <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
+                {% if subscription.canReactivate() %}
+                    <dt class="w-1/2 pr-2"></dt>
+                    <dd class="w-1/2">
+                        <form method="post" action="">
+                            {{ actionInput('commerce/subscriptions/reactivate') }}
+                            {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
+                            {{ redirectInput('shop/plans') }}
+                            {{ csrfInput() }}
+
+                            <button type="submit"
+                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Reactivate" }}</button>
+                        </form>
+                    </dd>
+                {% endif %}
+            {% else %}
+                <dt class="w-1/2 pr-2">Payment Amount</dt>
+                <dd class="w-1/2">{{ subscription.getNextPaymentAmount() }}</dd>
+                <dt class="w-1/2 pr-2">Next Payment</dt>
+                <dd class="w-1/2">{{ subscription.nextPaymentDate|date('Y-m-d') }}</dd>
+                <dt class="w-1/2 pr-2">&nbsp;</dt>
+                <dd class="pt-2">
+                    <form method="post" action="">
+                        {{ actionInput('commerce/subscriptions/cancel') }}
+                        {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
+                        {{ redirectInput('shop/plans') }}
+                        {{ csrfInput() }}
+
+                        {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
+
+                        <button class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
+                                type="submit">{{ "Unsubscribe" }}</button>
+                    </form>
+                </dd>
+            {% endif %}
+        {% endif %}
     </dl>
 
-  {% if not subscription.isCanceled and not subscription.isExpired and subscription.alternativePlans|length %}
-    <div class="border-t border-gray-300 mt-3 pt-3">
-      <h2 class="text-lg font-semibold">Alternative Plans</h2>
-      <table>
-        <thead>
-          <tr class="bg-gray-300 text-left">
-            <th class="p-2">Plan</th>
-            <th>&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for plan in subscription.alternativePlans %}
-            <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
-              <td class="p-2">{{ plan.name }}</td>
-              <td class="p-2">
-                <form method="post" action="">
-                  {{ actionInput('commerce/subscriptions/switch') }}
-                  {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
-                  {{ hiddenInput('planUid', plan.uid|hash) }}
-                  {{ redirectInput('shop/plans') }}
-                  {{ csrfInput() }}
+    {% if not subscription.isCanceled and not subscription.isExpired and subscription.alternativePlans|length %}
+        <div class="border-t border-gray-300 mt-3 pt-3">
+            <h2 class="text-lg font-semibold">Alternative Plans</h2>
+            <table>
+                <thead>
+                <tr class="bg-gray-300 text-left">
+                    <th class="p-2">Plan</th>
+                    <th>&nbsp;</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for plan in subscription.alternativePlans %}
+                    <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+                        <td class="p-2">{{ plan.name }}</td>
+                        <td class="p-2">
+                            <form method="post" action="">
+                                {{ actionInput('commerce/subscriptions/switch') }}
+                                {{ hiddenInput('subscriptionUid', subscription.uid|hash) }}
+                                {{ hiddenInput('planUid', plan.uid|hash) }}
+                                {{ redirectInput('shop/plans') }}
+                                {{ csrfInput() }}
 
-                  {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
-                  <button type="submit" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Switch" }}</button>
-                </form>
-              </td>
+                                {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
+                                <button type="submit"
+                                        class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Switch" }}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+
+
+    {% set payments = subscription.getAllPayments() %}
+    {% if payments|length %}
+        <h2 class="text-lg font-semibold mt-3">Payment history</h2>
+
+        <table>
+            <thead>
+            <tr class="bg-gray-300 text-left">
+                <th class="p-2">Date</th>
+                <th>Amount</th>
             </tr>
-          {% endfor %}
+            </thead>
+        </table>
+        <tbody>
+        {% for payment in payments %}
+            <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+                <td class="p-2">
+                    {{ payment.paymentDate|date("Y-m-d H:i") }}
+                </td>
+                <td class="p-2">
+                    {{ payment.paymentCurrency }} {{ payment.paymentAmount }}
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
-      </table>
-    </div>
-  {% endif %}
-
-
-  {% set payments = subscription.getAllPayments() %}
-  {% if payments|length  %}
-    <h2 class="text-lg font-semibold mt-3">Payment history</h2>
-
-    <table>
-      <thead>
-        <tr class="bg-gray-300 text-left">
-          <th class="p-2">Date</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-    </table>
-    <tbody>
-      {% for payment in payments %}
-        <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
-          <td class="p-2">
-            {{ payment.paymentDate|date("Y-m-d H:i") }}
-          </td>
-          <td class="p-2">
-            {{ payment.paymentCurrency }} {{ payment.paymentAmount }}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  {% endif %}
+    {% endif %}
 {% endblock %}

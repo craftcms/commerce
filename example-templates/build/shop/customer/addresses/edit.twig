@@ -1,7 +1,7 @@
 {% extends 'shop/_layouts/main' %}
 
 {% block main %}
-<!-- Template: {{ _self }}.twig -->
+    <!-- Template: {{ _self }}.twig -->
     {% set addressId = craft.app.request.param('addressId') %}
     {% set redirect = craft.app.request.param('redirect') %}
 
@@ -34,27 +34,35 @@
         {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
         {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
 
-        <hr class="my-3" />
+        <hr class="my-3"/>
 
         <div>
-            <label for="makePrimaryShippingAddress" class="flex items-center"><input id="makePrimaryShippingAddress" class="mr-2" name="makePrimaryShippingAddress" type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span class="label-body">Make this the primary shipping address</span></label>
+            <label for="makePrimaryShippingAddress" class="flex items-center"><input id="makePrimaryShippingAddress"
+                                                                                     class="mr-2"
+                                                                                     name="makePrimaryShippingAddress"
+                                                                                     type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span
+                        class="label-body">Make this the primary shipping address</span></label>
         </div>
 
         <div>
-            <label for="makePrimaryBillingAddress" class="flex items-center"><input id="makePrimaryBillingAddress" class="mr-2" name="makePrimaryBillingAddress" type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span class="label-body">Make this the primary billing address</span></label>
+            <label for="makePrimaryBillingAddress" class="flex items-center"><input id="makePrimaryBillingAddress"
+                                                                                    class="mr-2"
+                                                                                    name="makePrimaryBillingAddress"
+                                                                                    type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span
+                        class="label-body">Make this the primary billing address</span></label>
         </div>
 
         <div class="mt-6 flex justify-between">
-          <div>
-            {% if redirect %}
-              <a href="/{{ redirect }}" class="text-blue-500 hover:text-blue-600">Cancel</a>
-            {% else %}
-              <a href="{{ url('/shop/customer/addresses') }}" class="text-blue-500 hover:text-blue-600">Cancel</a>
-            {% endif %}
-          </div>
-          <div>
-            <input class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white" type="submit" value="Save Address">
-          </div>
+            <div>
+                {% if redirect %}
+                    <a href="/{{ redirect }}" class="text-blue-500 hover:text-blue-600">Cancel</a>
+                {% else %}
+                    <a href="{{ url('/shop/customer/addresses') }}" class="text-blue-500 hover:text-blue-600">Cancel</a>
+                {% endif %}
+            </div>
+            <div>
+                <input class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white" type="submit" value="Save Address">
+            </div>
         </div>
     </form>
 {% endblock %}
