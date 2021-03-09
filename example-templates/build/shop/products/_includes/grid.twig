@@ -5,12 +5,12 @@
             <div class="relative">
                 <div>
                     <a class="block" href="{{ product.url }}">
-                      <div style='background-image: url("{{ dataUrl('@templates/[[folderName]]/_images/bg.svg') }}")' class="hover:bg-[[color]]-300 bg-[[color]]-200 h-32 rounded"></div>
+                      <div style='background-image: url("{{ dataUrl('@templates/shop/_images/bg.svg') }}")' class="hover:bg-blue-300 bg-blue-200 h-32 rounded"></div>
                     </a>
                 </div>
                 <div class="mt-6">
                     <p class="text-lg text-bold tracking-wide mb-2">
-                        <a class="text-[[color]]-500 hover:text-[[color]]-400" href="{{ product.url }}">{{ product.title }}</a>
+                        <a class="text-blue-500 hover:text-blue-400" href="{{ product.url }}">{{ product.title }}</a>
                     </p>
                     <p>Description of the item here.</p>
                 </div>
@@ -38,11 +38,11 @@
                                name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
                       {% if product.availableForPurchase %}
                         <button type="submit"
-                                class="m-0 [[classes.btn.base]] [[classes.btn.mainColor]] text-center">Add to cart
+                                class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white text-center">Add to cart
                         </button>
                       {% else %}
                         <div type="submit"
-                                class="m-0 [[classes.btn.base]] [[classes.btn.grayColor]] text-center">Unavailable
+                                class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white text-center">Unavailable
                         </div>
                       {% endif %}
                     </div>

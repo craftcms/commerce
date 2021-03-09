@@ -46,7 +46,7 @@ class ExampleTemplatesController extends Controller
      * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
      * Possible values are: blue, red
      */
-    public $baseTailwindColor;
+    public $baseColor;
 
     /**
      * @var array
@@ -66,7 +66,7 @@ class ExampleTemplatesController extends Controller
         $options = parent::options($actionID);
         $options[] = 'folderName';
         $options[] = 'overwrite';
-        $options[] = 'baseTailwindColor';
+        $options[] = 'baseColor';
         return $options;
     }
 
@@ -90,7 +90,7 @@ class ExampleTemplatesController extends Controller
             return $this->_returnErrors($errors);
         }
 
-        $mainColor = $this->baseTailwindColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
+        $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
         $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
         $this->_replacementData = [
             '[[folderName]]' => $sourceFolderName,
