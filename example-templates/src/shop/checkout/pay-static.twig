@@ -22,7 +22,7 @@
             {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
                 {# Display errors if cart cannot be retrieved or if there is no outstanding balance to be paid #}
                 {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}
-                    <div class="bg-red-500 text-white mb-4">
+                    <div class="bg-[[dangerColor]]-500 text-white mb-4">
                         <div class="flash container mx-auto px-6 py-4">
                             {% if cart and not cart.hasOutstandingBalance %}
                                 No outstanding balance on this order.
@@ -110,7 +110,7 @@
 
                                   {% if not gateway %}
                                       {% set canPay = false %}
-                                      <div class="bg-red-500 text-white mb-4">
+                                      <div class="bg-[[dangerColor]]-500 text-white mb-4">
                                           <div class="flash container mx-auto px-6 py-4">
                                               Unable to retrieve gateway.
                                           </div>
@@ -137,7 +137,7 @@
                                   {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentSourceId) ?? null %}
                                   {% if not paymentSource or not currentUser or (currentUser and currentUser.id != customer.userId) %}
                                       {% set canPay = false %}
-                                      <div class="bg-red-500 text-white mb-4">
+                                      <div class="bg-[[dangerColor]]-500 text-white mb-4">
                                           <div class="flash container mx-auto px-6 py-4">
                                               Payment source not applicable for current user.
                                           </div>
