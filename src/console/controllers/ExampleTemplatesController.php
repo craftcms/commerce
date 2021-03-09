@@ -21,7 +21,7 @@ use yii\console\ExitCode;
  * Allows you to create a new database backup.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.1.21
+ * @since 3.3
  */
 class ExampleTemplatesController extends Controller
 {
@@ -32,19 +32,19 @@ class ExampleTemplatesController extends Controller
 
     /**
      * @var string Name of the folder the templates will copy into
-     * @since 3.x
+     * @since 3.3
      */
     public $folderName;
 
     /**
      * @var bool Whether to overwrite an existing folder. Must be passed if a folder with that name already exists.
-     * @since 3.x
+     * @since 3.3
      */
     public $overwrite = false;
 
     /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
-     * @since 3.x
+     * @since 3.3
      */
     public $devBuild = false;
 
