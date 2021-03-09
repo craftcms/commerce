@@ -8,11 +8,11 @@
 {% set url = '[[folderName]]/checkout/pay-static' %}
 
 {% block main %}
-<!-- Template: {{ _self }}.twig -->
-{% set cart = null %}
-{% if number and email %}
-    {% set cart = craft.orders.number(number).email(email).one() ?? null %}
-{% endif %}
+    <!-- Template: {{ _self }}.twig -->
+    {% set cart = null %}
+    {% if number and email %}
+        {% set cart = craft.orders.number(number).email(email).one() ?? null %}
+    {% endif %}
 
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
@@ -39,13 +39,15 @@
                     <div class="mt-3">
                         <label for="orderNumber">Cart/Order Number</label>
                         <div>
-                          <input type="text" id="orderNumber" class="[[classes.input]] w-full" name="orderNumber" value="{{ number }}">
+                            <input type="text" id="orderNumber" class="[[classes.input]] w-full" name="orderNumber"
+                                   value="{{ number }}">
                         </div>
                     </div>
                     <div class="mt-3">
                         <label for="email">Email Address</label>
                         <div>
-                          <input class="[[classes.input]] w-2/3" type="text" id="email" name="email" value="{{ email }}">
+                            <input class="[[classes.input]] w-2/3" type="text" id="email" name="email"
+                                   value="{{ email }}">
                         </div>
                     </div>
                     <div class="mt-3 text-right">
@@ -71,17 +73,18 @@
                             {{ hiddenInput('email', email) }}
 
                             <div class="mt-3">
-                              {% include '[[folderName]]/checkout/_includes/gateways' with { availableGateways: availableGateways, paymentSources: paymentSources } %}
+                                {% include '[[folderName]]/checkout/_includes/gateways' with { availableGateways: availableGateways, paymentSources: paymentSources } %}
                             </div>
 
                             <div class="mt-3">
-                              {% include '[[folderName]]/checkout/_includes/currencies' %}
+                                {% include '[[folderName]]/checkout/_includes/currencies' %}
                             </div>
 
                             <div class="mt-4">
                                 <div class="flex w-full">
                                     <div class="w-1/2">
-                                        <a href="{{ siteUrl(url) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
+                                        <a href="{{ siteUrl(url) }}"
+                                           class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
                                     </div>
                                     <div class="w-1/2 text-right">
                                         <input class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">
@@ -94,78 +97,82 @@
                     {% do cart.setPaymentCurrency(paymentCurrency) %}
                     {% set canPay = true %}
                     <div class="mt-3 max-w-md [[classes.box.base]]">
-                      <form id="paymentForm" method="post" action="" class="form-horizontal paymentSource-form max-w-md">
-                          {{ hiddenInput('action', '/payments/pay') }}
-                          {{ redirectInput('/[[folderName]]/customer/order?number=' ~ cart.number ~ '&success=true') }}
-                          {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
-                          {{ hiddenInput('email', email) }}
-                          {{ hiddenInput('number', cart.number) }}
-                          {{ hiddenInput('paymentCurrency', paymentCurrency) }}
+                        <form id="paymentForm" method="post" action=""
+                              class="form-horizontal paymentSource-form max-w-md">
+                            {{ hiddenInput('action', '/payments/pay') }}
+                            {{ redirectInput('/[[folderName]]/customer/order?number=' ~ cart.number ~ '&success=true') }}
+                            {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
+                            {{ hiddenInput('email', email) }}
+                            {{ hiddenInput('number', cart.number) }}
+                            {{ hiddenInput('paymentCurrency', paymentCurrency) }}
 
-                          {{ csrfInput() }}
+                            {{ csrfInput() }}
 
-                          <fieldset>
-                              {% if gatewayId %}
-                                  {% set gateway = craft.commerce.gateways.getGatewayById(gatewayId) ?? null %}
+                            <fieldset>
+                                {% if gatewayId %}
+                                    {% set gateway = craft.commerce.gateways.getGatewayById(gatewayId) ?? null %}
 
-                                  {% if not gateway %}
-                                      {% set canPay = false %}
-                                      <div class="bg-[[dangerColor]]-500 text-white mb-4">
-                                          <div class="flash container mx-auto px-6 py-4">
-                                              Unable to retrieve gateway.
-                                          </div>
-                                      </div>
-                                  {% else %}
-                                      {{ hiddenInput('gatewayId', gateway.id) }}
+                                    {% if not gateway %}
+                                        {% set canPay = false %}
+                                        <div class="bg-[[dangerColor]]-500 text-white mb-4">
+                                            <div class="flash container mx-auto px-6 py-4">
+                                                Unable to retrieve gateway.
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        {{ hiddenInput('gatewayId', gateway.id) }}
 
-                                      {% set params = {} %}
-                                      {# Set gateway-specific parameters #}
-                                      {% if className(gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
-                                          {% set params = { currency: cart.paymentCurrency } %}
-                                      {% endif %}
+                                        {% set params = {} %}
+                                        {# Set gateway-specific parameters #}
+                                        {% if className(gateway) == 'craft\\commerce\\paypalcheckout\\gateways\\Gateway' %}
+                                            {% set params = { currency: cart.paymentCurrency } %}
+                                        {% endif %}
 
-                                      {{ gateway.getPaymentFormHtml(params)|raw }}
+                                        {{ gateway.getPaymentFormHtml(params)|raw }}
 
-                                      {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id  %}
-                                          <div class="checkbox">
-                                              <label><input type="checkbox" name="savePaymentSource" value="1" /> {{ "Save card for future purchases" }}</label>
-                                          </div><br />
-                                      {% endif %}
-                                  {% endif %}
+                                        {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" name="savePaymentSource"
+                                                              value="1"/> {{ "Save card for future purchases" }}</label>
+                                            </div><br/>
+                                        {% endif %}
+                                    {% endif %}
 
-                              {% elseif paymentSourceId %}
-                                  {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentSourceId) ?? null %}
-                                  {% if not paymentSource or not currentUser or (currentUser and currentUser.id != customer.userId) %}
-                                      {% set canPay = false %}
-                                      <div class="bg-[[dangerColor]]-500 text-white mb-4">
-                                          <div class="flash container mx-auto px-6 py-4">
-                                              Payment source not applicable for current user.
-                                          </div>
-                                      </div>
-                                  {% else %}
-                                      <p>Pay with: {{ paymentSource.description }}</p>
-                                      {{ hiddenInput('paymentSourceId', paymentMethodParts[1]) }}
-                                  {% endif %}
-                              {% endif %}
+                                {% elseif paymentSourceId %}
+                                    {% set paymentSource = craft.commerce.paymentSources.getPaymentSourceById(paymentSourceId) ?? null %}
+                                    {% if not paymentSource or not currentUser or (currentUser and currentUser.id != customer.userId) %}
+                                        {% set canPay = false %}
+                                        <div class="bg-[[dangerColor]]-500 text-white mb-4">
+                                            <div class="flash container mx-auto px-6 py-4">
+                                                Payment source not applicable for current user.
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <p>Pay with: {{ paymentSource.description }}</p>
+                                        {{ hiddenInput('paymentSourceId', paymentMethodParts[1]) }}
+                                    {% endif %}
+                                {% endif %}
 
-                              <div class="mt-4">
-                                  <div class="flex w-full">
-                                      <div class="w-1/2">
-                                          <a href="{{ siteUrl(url, {
-                                              orderNumber: number,
-                                              email: email,
-                                          }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
-                                      </div>
-                                      <div class="w-1/2 text-right">
-                                          {% if canPay %}
-                                              <button class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency,convert=true) }}</button>
-                                          {% endif %}
-                                      </div>
-                                  </div>
-                              </div>
+                                <div class="mt-4">
+                                    <div class="flex w-full">
+                                        <div class="w-1/2">
+                                            <a href="{{ siteUrl(url, {
+                                                orderNumber: number,
+                                                email: email,
+                                            }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
+                                        </div>
+                                        <div class="w-1/2 text-right">
+                                            {% if canPay %}
+                                                <button class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+                                                        type="submit">
+                                                    Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency,convert=true) }}</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
 
-                          </fieldset>
-                      </form>
+                            </fieldset>
+                        </form>
                     </div>
                 {% endif %}
             {% endif %}
@@ -181,16 +188,16 @@
 
 
     {% js %}
-        $('#paymentForm').on('submit', function (ev) {
-            $form = $(this);
+    $('#paymentForm').on('submit', function(ev) {
+        $form = $(this);
 
-            if ($form.data('processing')) {
-                ev.preventDefault();
+        if ($form.data('processing')) {
+            ev.preventDefault();
 
-                return false;
-            }
+            return false;
+        }
 
-            $form.data('processing', true);
-        });
+        $form.data('processing', true);
+    });
     {% endjs %}
 {% endblock %}

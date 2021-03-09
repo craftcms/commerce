@@ -4,35 +4,37 @@
 
 <label class="font-semibold">Choose a payment gateway or payment source:</label>
 {% if paymentSources|length %}
-  {% for source in paymentSources %}
-    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-      <div class="flex justify-start items-center">
-        <div class="pr-2">
-          <input type="radio" name="paymentSourceId" value="{{ source.id }}" {% if source.id == cart.paymentSourceId %}checked{% endif %} />
-        </div>
-        <div>
-          <strong>{{ source.description }}</strong>
-          <br><span class="text-gray-600">Stored source</span>
-        </div>
-      </div>
-    </label>
-  {% endfor %}
+    {% for source in paymentSources %}
+        <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+            <div class="flex justify-start items-center">
+                <div class="pr-2">
+                    <input type="radio" name="paymentSourceId" value="{{ source.id }}"
+                           {% if source.id == cart.paymentSourceId %}checked{% endif %} />
+                </div>
+                <div>
+                    <strong>{{ source.description }}</strong>
+                    <br><span class="text-gray-600">Stored source</span>
+                </div>
+            </div>
+        </label>
+    {% endfor %}
 {% endif %}
 
 {% if availableGateways|length %}
-  {% for id,name in availableGateways %}
-    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-      <div class="flex justify-start items-center">
-        <div class="pr-2">
-          <input type="radio" name="gatewayId" value="{{ id }}" {% if id == cart.gatewayId %}checked{% endif %} />
-        </div>
-        <div>
-          <strong>{{ name }}</strong>
-          <br><span class="text-gray-600">Payment gateway</span>
-        </div>
-      </div>
-    </label>
-  {% endfor %}
+    {% for id,name in availableGateways %}
+        <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+            <div class="flex justify-start items-center">
+                <div class="pr-2">
+                    <input type="radio" name="gatewayId" value="{{ id }}"
+                           {% if id == cart.gatewayId %}checked{% endif %} />
+                </div>
+                <div>
+                    <strong>{{ name }}</strong>
+                    <br><span class="text-gray-600">Payment gateway</span>
+                </div>
+            </div>
+        </label>
+    {% endfor %}
 {% endif %}
 
 {% js %}

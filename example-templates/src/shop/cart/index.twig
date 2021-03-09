@@ -5,26 +5,27 @@
     <h1 class="text-3xl block sm:inline">Cart</h1>
 
     {% if cart.lineItems|length %}
-      <form method="post" action="">
-        {{ actionInput('commerce/cart/update-cart') }}
-        {{ hiddenInput('successMessage', 'The cart was updated.'|hash) }}
-        {{ csrfInput() }}
-        <table class="w-full mt-4 rounded-lg">
-            <thead>
-            <tr class="text-gray-600 bg-gray-200">
-                <th class="py-2 pl-3 text-left w-1/3 rounded-l">Product</th>
-                <th class="py-2 text-left">Qty</th>
-                <th class="py-2 pr-3 text-right rounded-r">Price</th>
-            </tr>
-            </thead>
+        <form method="post" action="">
+            {{ actionInput('commerce/cart/update-cart') }}
+            {{ hiddenInput('successMessage', 'The cart was updated.'|hash) }}
+            {{ csrfInput() }}
+            <table class="w-full mt-4 rounded-lg">
+                <thead>
+                <tr class="text-gray-600 bg-gray-200">
+                    <th class="py-2 pl-3 text-left w-1/3 rounded-l">Product</th>
+                    <th class="py-2 text-left">Qty</th>
+                    <th class="py-2 pr-3 text-right rounded-r">Price</th>
+                </tr>
+                </thead>
                 <tbody>
                 {% for item in cart.lineItems %}
                     <tr class="align-top">
-                        <td class="py-3 pl-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} overflow-hidden" rowspan="2">
+                        <td class="py-3 pl-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} overflow-hidden"
+                            rowspan="2">
                             <div class="w-full overflow-hidden max-w-md">
-                              <div class="truncate">
-                                <strong class="text-lg {% if item.hasErrors() %}text-red-500{% endif %}">{{ item.description }}</strong>
-                              </div>
+                                <div class="truncate">
+                                    <strong class="text-lg {% if item.hasErrors() %}text-red-500{% endif %}">{{ item.description }}</strong>
+                                </div>
                             </div>
                             <span class="text-gray-500 tracking-widest font-mono text-xs">{{ item.sku }}</span>
                             <div class="mt-2 relative">
@@ -54,19 +55,26 @@
                             {% endif %}
 
                             {% if item.options.donationAmount is defined %}
-                                <label for="lineitem-note-{{ item.id }}" class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</label>
+                                <label for="lineitem-note-{{ item.id }}"
+                                       class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation
+                                    Amount</label>
                                 <input class="[[classes.input]] w-24"
-                                       type="text" name="lineItems[{{ item.id }}][options][donationAmount]" placeholder="Donation" value="{{item.options.donationAmount}}">
+                                       type="text" name="lineItems[{{ item.id }}][options][donationAmount]"
+                                       placeholder="Donation" value="{{ item.options.donationAmount }}">
                             {% endif %}
 
                             <span class=" {{ item.options.donationAmount is defined ? 'hidden' : '' }}">
                                 <input class="[[classes.input]] w-24 {% if item.getFirstError('qty') %}border-red-500 border{% endif %}"
-                                       type="{% if item.options.donationAmount is defined %}hidden{%else%}number{%endif%}" name="lineItems[{{ item.id }}][qty]" min="0" value="{{ item.qty }}">
+                                       type="{% if item.options.donationAmount is defined %}hidden{% else %}number{% endif %}"
+                                       name="lineItems[{{ item.id }}][qty]" min="0" value="{{ item.qty }}">
                             </span>
 
                             <div class="mt-3">
-                                <label for="lineitem-note-{{ item.id }}" class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Item Note</label>
-                                <input id="lineitem-note-{{ item.id }}" class="[[classes.input]]" type="text" placeholder="My Note"
+                                <label for="lineitem-note-{{ item.id }}"
+                                       class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Item
+                                    Note</label>
+                                <input id="lineitem-note-{{ item.id }}" class="[[classes.input]]" type="text"
+                                       placeholder="My Note"
                                        size="20"
                                        name="lineItems[{{ item.id }}][note]"
                                        value="{{ item.note }}">
@@ -77,7 +85,9 @@
                             {% if not cart.hasErrors() %}
                                 <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                                     <div class="text-xs pr-2">Price:</div>
-                                    <div class="text-sm">{% if item.onSale %}<del>{% endif %}{{ item.price|commerceCurrency(cart.currency) }}{% if item.onSale %}</del>{% endif %}</div>
+                                    <div class="text-sm">{% if item.onSale %}
+                                        <del>{% endif %}{{ item.price|commerceCurrency(cart.currency) }}{% if item.onSale %}</del>{% endif %}
+                                    </div>
                                 </div>
                                 {% if item.onSale %}
                                     <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
@@ -118,11 +128,13 @@
                                             <div class="text-left">
                                                 <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong><br>
                                                 {{ adjustment.name }}
-                                                {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                                {% if adjustment.isEstimated %}<i
+                                                        class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
                                                 <span class="text-gray-600 text-xs">{{ adjustment.description }}</span>
                                             </div>
                                             <div class="ml-auto">
-                                                <span class="text-gray-500" title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                                                <span class="text-gray-500"
+                                                      title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -130,32 +142,34 @@
                             {% endif %}
 
                             {% if not cart.hasErrors() %}
-                            <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
-                                <div class="text-sm text-gray-600 pr-2">Total:</div>
-                                <div class="font-bold">{{ item.total|commerceCurrency(cart.currency) }}</div>
-                            </div>
+                                <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
+                                    <div class="text-sm text-gray-600 pr-2">Total:</div>
+                                    <div class="font-bold">{{ item.total|commerceCurrency(cart.currency) }}</div>
+                                </div>
                             {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
 
                 {% if not cart.hasErrors() %}
-                <tr>
-                    <td></td>
-                    <td colspan="2" class="text-right pr-3 pb-3">
-                        <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3" title="{{ cart.itemSubTotal }}">
-                            <div class="text-sm text-gray-600 pr-2">Items Total:</div>
-                            <div class="font-bold">{{ cart.itemTotalAsCurrency }}</div>
-                        </div>
-                    </td>
-                </tr>
+                    <tr>
+                        <td></td>
+                        <td colspan="2" class="text-right pr-3 pb-3">
+                            <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
+                                 title="{{ cart.itemSubTotal }}">
+                                <div class="text-sm text-gray-600 pr-2">Items Total:</div>
+                                <div class="font-bold">{{ cart.itemTotalAsCurrency }}</div>
+                            </div>
+                        </td>
+                    </tr>
                 {% endif %}
 
                 {% if not cart.hasErrors() and cart.orderAdjustments|length %}
                     <tr class="border-t-2 border-gray-300">
                         <td class="py-3"></td>
                         <td colspan="2" class="py-3 pr-3">
-                            <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Order Adjustments</div>
+                            <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Order Adjustments
+                            </div>
                             <div class="border-t border-gray-300 border-dotted mt-1">
                                 {% for adjustment in cart.orderAdjustments %}
                                     <div class="flex w-full items-center mt-2 text-sm">
@@ -164,11 +178,13 @@
                                         </div>
                                         <div class="">
                                             {{ adjustment.name }}
-                                            {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                            {% if adjustment.isEstimated %}<i
+                                                    class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
                                             {{ adjustment.description }}
                                         </div>
                                         <div class="ml-auto">
-                                            <span class="text-gray-500" title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                                            <span class="text-gray-500"
+                                                  title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -234,23 +250,26 @@
                             <div class="flex w-full justify-end">
                                 <div class="pr-2">
                                     {{ redirectInput('[[folderName]]/cart') }}
-                                    <input class="[[classes.btn.small]] [[classes.btn.grayColor]]" type="submit" value="Update Cart"/>
+                                    <input class="[[classes.btn.small]] [[classes.btn.grayColor]]" type="submit"
+                                           value="Update Cart"/>
                                 </div>
                                 <div>
                                     {% if not cart.hasErrors() %}
-                                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]" href="{{ url('/[[folderName]]/checkout') }}">Checkout</a>
+                                        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]"
+                                           href="{{ url('/[[folderName]]/checkout') }}">Checkout</a>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
                     </td>
                 </tr>
-              </tbody>
-          </table>
+                </tbody>
+            </table>
         </form>
     {% endif %}
 
     {% if not cart.lineItems|length %}
-        <p>You have no items in your cart, add some on the <a href="{{ url('/[[folderName]]/products') }}">products page</a>.</p>
+        <p>You have no items in your cart, add some on the <a href="{{ url('/[[folderName]]/products') }}">products
+                page</a>.</p>
     {% endif %}
 {% endblock %}

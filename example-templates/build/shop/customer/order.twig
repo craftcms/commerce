@@ -6,7 +6,6 @@
 {% endset %}
 
 {% set number = craft.app.request.getRequiredParam('number') %}
-
 {% set order = craft.orders.number(number).one() %}
 
 {% if not order or order.isCompleted == false %}
@@ -17,7 +16,7 @@
     <!-- Template: {{ _self }}.twig -->
     {% if currentUser %}
         <div class="mt-3">
-            <p><a href="{{ url('/shop/customer') }}" class="text-blue-500 hover:text-blue-600">View My Orders</a></p>
+            <p><a href="{{ url('/shop/customer') }}" class="text-blue-500 hover:text-blue-600">&larr; View My Orders</a></p>
         </div>
     {% endif %}
     <h1 class="text-xl font-semibold mt-3">Order {{ order.reference }}</h1>

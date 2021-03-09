@@ -22,11 +22,10 @@ Other than tailwind classes, we have utility classes and IDs prepended with `js-
 
 ## Development of the example templates
 
-A copy of the fully generated example templates should be made and copied to the `exmaple-templates/build` folder if any changes are made.
+After changing the example templates, you need to build them:
 
 ```bash
-php craft commerce/example-templates --overwrite=true --baseColor=blue --folderName=shop
-cp -r templates/shop vendor/craftcms/commerce/example-templates/
+php craft commerce/example-templates --devBuild=true
 ```
 
 

@@ -1,8 +1,7 @@
-
 {% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
-<!-- Template: {{ _self }}.twig -->
+    <!-- Template: {{ _self }}.twig -->
     <h1 class="text-3xl block sm:inline">Products</h1>
 
     {% paginate craft.products.limit(100) as pageInfo, pageProducts %}
@@ -11,8 +10,7 @@
 
     {% include '[[folderName]]/products/_includes/pagination' with { products: pageProducts, pageInfo: pageInfo } %}
 
-    {# If the following JavaScript code is uncommented, it will submit forms on this page over HTTP and
-       receive a JSON response #}
+    {# If the following JavaScript code is uncommented, it will submit forms on this page over HTTP and receive a JSON response #}
 
     {# --- delete this line to uncomment JS ---
     {% js %}

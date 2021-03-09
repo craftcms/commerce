@@ -7,6 +7,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Craft Commerce</title>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://unpkg.com/htmx.org@1.3.1"></script>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
@@ -27,7 +28,6 @@
     </div>
 
     {% include 'shop/_includes/floating-cart' %}
-
     {% include 'shop/_includes/nav-main' %}
     {% include 'shop/_includes/nav-checkout' %}
 </header>
@@ -90,10 +90,6 @@
 <footer>
     {% include 'shop/_includes/footer' %}
 </footer>
-
-{% if devMode %}
-    <script>console.log('Cart on page load: ', {{ cart.toArray()|json_encode|raw }});</script>
-{% endif %}
 
 </body>
 </html>

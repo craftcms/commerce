@@ -12,55 +12,56 @@
         <div class="mt-4">
             {% set subscriptions = craft.subscriptions.userId(currentUser.id).all() %}
 
-          {% if subscriptions|length %}
-              <table class="w-full">
-                  <thead>
-                      <tr class="bg-gray-300 text-left">
-                          <th class="p-2">Plan</th>
-                          <th class="p-2">Next Payment</th>
-                          <th class="p-2">&nbsp;</th>
-                      </tr>
-                  </thead>
-                  {% for subscription in subscriptions %}
-                      <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
-                          <td class="p-2">
-                            {% set plan = subscription.plan ?? null %}
-                            {% if plan %}
-                                <div>
-                                    {{ plan.name }}
+            {% if subscriptions|length %}
+                <table class="w-full">
+                    <thead>
+                    <tr class="bg-gray-300 text-left">
+                        <th class="p-2">Plan</th>
+                        <th class="p-2">Next Payment</th>
+                        <th class="p-2">&nbsp;</th>
+                    </tr>
+                    </thead>
+                    {% for subscription in subscriptions %}
+                        <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+                            <td class="p-2">
+                                {% set plan = subscription.plan ?? null %}
+                                {% if plan %}
+                                    <div>
+                                        {{ plan.name }}
 
-                                    {% set information = plan.getInformation() ?? null %}
-                                    {% if information %}
-                                        <div>
-                                            <h4 class="font-semibold">{{ 'Plan Information Entry' }}</h4>
-                                            <ul>
-                                                <li>{{ 'ID' }}: {{ information.id }}</li>
-                                                <li>{{ 'Title' }}: {{ information.title }}</li>
-                                            </ul>
-                                            <br>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
+                                        {% set information = plan.getInformation() ?? null %}
+                                        {% if information %}
+                                            <div>
+                                                <h4 class="font-semibold">{{ 'Plan Information Entry' }}</h4>
+                                                <ul>
+                                                    <li>{{ 'ID' }}: {{ information.id }}</li>
+                                                    <li>{{ 'Title' }}: {{ information.title }}</li>
+                                                </ul>
+                                                <br>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
 
-                            {% if subscription.isCanceled %}
-                                <div>
-                                    <span class="text-sm text-gray-600">Canceled on: {{ subscription.dateCanceled|date('Y-m-d') }}</span>
-                                </div>
-                            {% endif %}
-                          </td>
-                          <td class="p-2">
-                            {{ subscription.isCanceled ? 'expires on ' : '' }}{{ subscription.nextPaymentDate|date('Y-m-d') }}
-                          </td>
-                          <td class="p-2 text-right">
-                            <a class="[[classes.btn.base]] [[classes.btn.grayColor]]" href="{{ url('/[[folderName]]/plans/subscription', {subscription: subscription.id}) }}">Manage</a>
-                          </td>
-                      </tr>
-                  {% endfor %}
-              </table>
-          {% else %}
-              <h2 class="text-lg font-semibold text-gray-600">You do not have any active subscriptions.</h2>
-          {% endif %}
+                                {% if subscription.isCanceled %}
+                                    <div>
+                                        <span class="text-sm text-gray-600">Canceled on: {{ subscription.dateCanceled|date('Y-m-d') }}</span>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td class="p-2">
+                                {{ subscription.isCanceled ? 'expires on ' : '' }}{{ subscription.nextPaymentDate|date('Y-m-d') }}
+                            </td>
+                            <td class="p-2 text-right">
+                                <a class="[[classes.btn.base]] [[classes.btn.grayColor]]"
+                                   href="{{ url('/[[folderName]]/plans/subscription', {subscription: subscription.id}) }}">Manage</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <h2 class="text-lg font-semibold text-gray-600">You do not have any active subscriptions.</h2>
+            {% endif %}
         </div>
     {% endif %}
 
@@ -86,21 +87,23 @@
                                             {% if i == 0 %}
                                                 <option value="{{ (plan.uid~':0')|hash }}">No trial period.</option>
                                             {% else %}
-                                                <option value="{{ (plan.uid~':'~i)|hash }}">Trial for {{ i }} days</option>
+                                                <option value="{{ (plan.uid~':'~i)|hash }}">Trial for {{ i }}days
+                                                </option>
                                             {% endif %}
-                                          {% endfor %}
+                                        {% endfor %}
                                     </select>
 
                                     {% set paymentSources = craft.commerce.getPaymentSources().getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
 
                                     {% if not paymentSources|length %}
                                         <div class="paymentForm mt-3">
-                                          {{ plan.gateway.getPaymentFormHtml({})|raw }}
+                                            {{ plan.gateway.getPaymentFormHtml({})|raw }}
                                         </div>
                                     {% endif %}
 
                                     <div class="mt-3 text-right">
-                                      <button class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">{{ "Subscribe" }}</button>
+                                        <button class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+                                                type="submit">{{ "Subscribe" }}</button>
                                     </div>
                                 </div>
                             </form>

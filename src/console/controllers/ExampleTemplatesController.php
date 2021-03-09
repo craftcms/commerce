@@ -43,6 +43,12 @@ class ExampleTemplatesController extends Controller
     public $overwrite = false;
 
     /**
+     * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
+     * @since 3.x
+     */
+    public $devBuild = false;
+
+    /**
      * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
      * Possible values are: blue, red
      */
@@ -67,25 +73,31 @@ class ExampleTemplatesController extends Controller
         $options[] = 'folderName';
         $options[] = 'overwrite';
         $options[] = 'baseColor';
+        $options[] = 'devBuild';
         return $options;
     }
 
     /**
-     * Copy the example templates into the templates folder
+     * Generate and copy the example templates.
      *
      * @return int
      */
     public function actionGenerate(): int
     {
+        if ($this->devBuild) {
+            $this->overwrite = true;
+            $this->baseColor = 'blue';
+            $this->folderName = 'shop';
+        }
+
         $slash = DIRECTORY_SEPARATOR;
         $pathService = Craft::$app->getPath();
+        $templatesPath = $this->_getTemplatesPath();
 
-        $exampleTemplates = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src');
-        $sourceFolderName = 'shop';
-        $source = $exampleTemplates . $slash . $sourceFolderName;
-        $sourceFolderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => $sourceFolderName]);
+        $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
+        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);;
 
-        if (!$sourceFolderName) {
+        if (!$folderName) {
             $errors[] = 'No destination folder name provided.';
             return $this->_returnErrors($errors);
         }
@@ -93,7 +105,7 @@ class ExampleTemplatesController extends Controller
         $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
         $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
         $this->_replacementData = [
-            '[[folderName]]' => $sourceFolderName,
+            '[[folderName]]' => $folderName,
             '[[color]]' => $mainColor,
             '[[dangerColor]]' => $dangerColor,
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
@@ -104,7 +116,7 @@ class ExampleTemplatesController extends Controller
             '[[classes.btn.small]]' => "cursor-pointer rounded px-2 py-1 text-sm inline-block",
             '[[classes.btn.mainColor]]' => "bg-$mainColor-500 hover:bg-$mainColor-600 text-white hover:text-white",
             '[[classes.btn.grayColor]]' => "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
-            '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white"
+            '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white",
         ];
 
         $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
@@ -113,7 +125,7 @@ class ExampleTemplatesController extends Controller
             // Create a temporary directory to hold the copy of the templates before we replace variables.
             $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
             // Copy the templates to the temporary directory
-            FileHelper::copyDirectory($source, $tempDestination, ['recursive' => true, 'copyEmptyDirectories' => true]);
+            FileHelper::copyDirectory($exampleTemplatesSource, $tempDestination, ['recursive' => true, 'copyEmptyDirectories' => true]);
 
             // Find all text files we want to replace [[ ]] notation in.
             $files = FileHelper::findFiles($tempDestination, [
@@ -136,24 +148,33 @@ class ExampleTemplatesController extends Controller
 
         // New source is our temp directory ready for copying to site templates
         $source = $tempDestination;
-        $templatesPath = $this->_getTemplatesPath();
 
-        if (!$templatesPath) {
-            $errors[] = 'Can not determine the site template path.';
+        // If this is a dev build, copy them to the build folder
+        if ($this->devBuild) {
+            $destination = FileHelper::normalizePath(Craft::getAlias('@vendor') . '/craftcms/commerce/example-templates/build/' . $this->folderName);
         }
 
-        if ($templatesPath && !FileHelper::isWritable($templatesPath)) {
-            $errors[] = 'Site template path is not writable.';
+        // If this is not a dev build, copy them to the templates folder
+        if (!$this->devBuild) {
+
+            if (!$templatesPath) {
+                $errors[] = 'Can not determine the site template path.';
+            }
+
+            if ($templatesPath && !FileHelper::isWritable($templatesPath)) {
+                $errors[] = 'Site template path is not writable.';
+            }
+
+            if (!empty($errors)) {
+                return $this->_returnErrors($errors);
+            }
+
+            $destination = $templatesPath . $slash . $folderName;
         }
 
-        if (!empty($errors)) {
-            return $this->_returnErrors($errors);
-        }
-
-        $destination = $templatesPath . $slash . $sourceFolderName;
         $alreadyExists = is_dir($destination);
         if ($alreadyExists && !$this->overwrite) {
-            $errors[] = 'Folder with name "' . $sourceFolderName . '" already exists in the templates folder, and the `overwrite` param was not set to true, which would replace.';
+            $errors[] = 'Folder with name "' . $folderName . '" already exists in the templates folder, and the `overwrite` param was not set to true, which would replace.';
             return $this->_returnErrors($errors);
         }
 

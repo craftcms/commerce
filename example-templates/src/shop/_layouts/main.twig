@@ -2,18 +2,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Craft Commerce</title>
     <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://unpkg.com/htmx.org@1.3.1"></script>
     <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
     {% if extraHead is defined %}{{ extraHead }}{% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen">
 
-{% if cart is not defined %}
-    {% set cart = craft.commerce.carts.cart %}
+{% if cart {is
+} not defined %}
+{% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
 {% set flashNotice = craft.app.session.getFlash('notice') %}
@@ -22,78 +24,77 @@
 <header>
     <div class="bg-gray-300">
         <div class="container mx-auto p-6">
-            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}" class="[[classes.a]]">{{ '[[folderName]]'|title }}</a></h1>
+            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}"
+                                    class="[[classes.a]]">{{ '[[folderName]]'|title }}</a></h1>
         </div>
     </div>
 
     {% include '[[folderName]]/_includes/floating-cart' %}
-
     {% include '[[folderName]]/_includes/nav-main' %}
     {% include '[[folderName]]/_includes/nav-checkout' %}
 </header>
 
 {% if flashNotice %}
     <div class="bg-[[color]]-500 text-white">
-        <div class="container mx-auto px-6 py-4">
-            {{ flashNotice ?? 'Test flash notice' }}
-        </div>
+    <div class="container mx-auto px-6 py-4">
+        {{ flashNotice ?? 'Test flash notice' }}
     </div>
+</div>
 {% endif %}
 
 
 {% if flashError %}
     <div class="bg-[[dangerColor]]-500 text-white">
-        <div class="container mx-auto px-6 py-4">
-            {{ flashError ?? 'Test flash error' }}
-        </div>
+    <div class="container mx-auto px-6 py-4">
+        {{ flashError ?? 'Test flash error' }}
     </div>
+</div>
 {% endif %}
 
 {% if cart.hasNotices() %}
     <div class="bg-blue-400 text-white">
-        <div class="container mx-auto px-6 py-4 relative">
-            <span>⚠️ Cart Notifications</span>
-            {%  for notice in cart.getNoticeSummary(true) %}
-                <li class="list-disc">{{ notice }}</li>
-            {%  endfor  %}
-            <form method="post" class="js-form">
-                {{ actionInput('commerce/cart/update-cart') }}
-                {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
-                {{ hiddenInput('clearNotices') }}
-                {{ csrfInput() }}
-                <input class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0" type="submit" value="Dismiss"/>
-            </form>
-        </div>
+    <div class="container mx-auto px-6 py-4 relative">
+        <span>⚠️ Cart Notifications</span>
+        {% for notice in cart.getNoticeSummary(true) %}
+        <li class="list-disc">{{ notice }}</li>
+        {% endfor %}
+        <form method="post" class="js-form">
+            {{ actionInput('commerce/cart/update-cart') }}
+            {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
+            {{ hiddenInput('clearNotices') }}
+            {{ csrfInput() }}
+            <input class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0"
+                   type="submit" value="Dismiss"/>
+        </form>
     </div>
+</div>
 {% endif %}
 
 {% if cart.errors|length %}
     <div class="bg-[[dangerColor]]-500 text-white">
-        <div class="container mx-auto px-6 py-4">
-            {% for attribute, errors in cart.errors %}
-                {% if loop.first %}<ul>{% endif %}
-                {% for key, error in errors %}
-                    <li>{{ attribute }}: {{ error }}</li>
-                {% endfor %}
-                {% if loop.last %}</ul>{% endif %}
+    <div class="container mx-auto px-6 py-4">
+        {% for attribute, errors in cart.errors %}
+        {% if loop.first %}
+        <ul>{% endif %}
+            {% for key, error in errors %}
+            <li>{{ attribute }}: {{ error }}</li>
             {% endfor %}
-        </div>
+            {% if loop.last %}</ul>
+        {% endif %}
+        {% endfor %}
     </div>
+</div>
 {% endif %}
 
 {% block body %}
     <div class="container mx-auto p-6 flex-grow">
-        {% block main %}{% endblock %}
-    </div>
+    {% block main %}{% endblock %}
+</div>
 {% endblock %}
 
 <footer>
     {% include '[[folderName]]/_includes/footer' %}
 </footer>
-
-{% if devMode %}
-    <script>console.log('Cart on page load: ', {{ cart.toArray()|json_encode|raw }});</script>
-{% endif %}
 
 </body>
 </html>

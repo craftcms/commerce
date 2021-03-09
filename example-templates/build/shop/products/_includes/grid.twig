@@ -2,7 +2,7 @@
 <div class="my-6">
     <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {% for product in products %}
-            <div class="relative">
+            <div class="relative p-2 bg-gray-50 rounded">
                 <div>
                     <a class="block" href="{{ product.url }}">
                       <div style='background-image: url("{{ dataUrl('@templates/shop/_images/bg.svg') }}")' class="hover:bg-blue-300 bg-blue-200 h-32 rounded"></div>
@@ -14,7 +14,7 @@
                     </p>
                     <p>Description of the item here.</p>
                 </div>
-                <form method="post" class="js-form mt-6">
+                <form method="post" class="js-form mt-6" hx-boost="true">
                     {{ actionInput('commerce/cart/update-cart') }}
                     {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
                     <input type="hidden" name="clearNotices" value="1"/>

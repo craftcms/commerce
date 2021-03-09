@@ -1,7 +1,7 @@
 {% extends '[[folderName]]/_layouts/main' %}
 
 {% block main %}
-<!-- Template: {{ _self }}.twig -->
+    <!-- Template: {{ _self }}.twig -->
     {% set customer = craft.commerce.customers.customer %}
     {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
     {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
@@ -9,7 +9,8 @@
     {% if customer.addresses|length %}
         <div class="flex justify-between items-center">
             <h1>Manage your addresses</h1>
-            <a class="button button-primary right" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add New Address</a>
+            <a class="button button-primary right" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add New
+                Address</a>
         </div>
 
         <div class="grid-addresses mt-6">
@@ -18,7 +19,8 @@
                     {% include '[[folderName]]/_includes/addresses/address' with {'address': address} %}
 
                     <div class="buttons mt-4">
-                        <a class="button button-primary" href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
+                        <a class="button button-primary"
+                           href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
                         <form method="post" action="">
                             {{ actionInput('commerce/customer-addresses/delete') }}
                             {{ hiddenInput('id', address.id) }}
@@ -28,10 +30,12 @@
                     </div>
 
                     <div>
-                        <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}<i class="fa fa-check text-green"></i> Primary Billing{% endif %}</strong>
+                        <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}<i
+                                    class="fa fa-check text-green"></i> Primary Billing{% endif %}</strong>
                     </div>
                     <div>
-                        <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}<i class="fa fa-check text-green"></i> Primary Shipping{% endif %}</strong>
+                        <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}<i
+                                    class="fa fa-check text-green"></i> Primary Shipping{% endif %}</strong>
                     </div>
                 </div>
             {% endfor %}
@@ -46,7 +50,8 @@
             <div>
                 You don’t have any addresses yet.
                 <div class="mt-6">
-                    <a class="button button-primary" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add a new address</a>
+                    <a class="button button-primary" href="{{ url('/[[folderName]]/customer/addresses/edit') }}">Add a
+                        new address</a>
                 </div>
             </div>
         </div>
