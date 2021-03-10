@@ -2042,13 +2042,35 @@ class Order extends Element
      */
     public function getPdfUrl($option = null, $pdfHandle = null)
     {
-        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+        $path = "commerce/downloads/pdf";
+        $params = [];
+        $params['number'] = $this->number;
 
-        if ($pdfHandle !== null) {
-            $path .= '&pdfHandle=' . $pdfHandle;
+        if ($option) {
+            $params['option'] = $option;
         }
 
-        $url = UrlHelper::actionUrl(trim($path, '/'));
+        if ($pdfHandle !== null) {
+            $params['pdfHandle'] = $pdfHandle;
+        }
+
+        return UrlHelper::actionUrl($path, $params);
+    }
+
+    /**
+     * Returns the URL to the cart’s load action url
+     *
+     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @throws Exception
+     */
+    public function getLoadCartUrl()
+    {
+        $path = "commerce/cart/load-cart";
+
+        $params = [];
+        $params['number'] = $this->number;
+
+        return UrlHelper::actionUrl($path, $params);
 
         return $url;
     }

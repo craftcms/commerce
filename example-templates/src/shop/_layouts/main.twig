@@ -13,8 +13,7 @@
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen">
 
-{% if cart {is
-} not defined %}
+{% if cart is not defined %}
 {% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
