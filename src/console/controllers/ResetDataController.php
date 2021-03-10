@@ -41,7 +41,8 @@ class ResetDataController extends Controller
                 }
 
                 return true;
-        }]);
+            }
+        ]);
 
         if ($reset == 'yes') {
             $transaction = Craft::$app->getDb()->beginTransaction();
@@ -50,26 +51,32 @@ class ResetDataController extends Controller
                 $this->stdout('Resetting Commerce data ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Orders
-                $this->stdout('Deleting orders ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+                $this->stdout('Deleting orders ...' . PHP_EOL, Console::FG_GREEN);
                 $ids = (new Query())
                     ->select(['orders.id'])
                     ->from(['orders' => Table::ORDERS])
                     ->column();
 
-                Craft::$app->getDb()->createCommand()
+                $count = Craft::$app->getDb()->createCommand()
                     ->delete(CraftTable::ELEMENTS, ['id' => $ids])
                     ->execute();
 
+                sleep(1);
+                $this->stdout($count . ' orders deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+
                 // Subscriptions
-                $this->stdout('Deleting subscriptions ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+                $this->stdout('Deleting subscriptions ...' . PHP_EOL, Console::FG_GREEN);
                 $subscriptionIds = (new Query())
                     ->select(['subscriptions.id'])
                     ->from(['subscriptions' => Table::SUBSCRIPTIONS])
                     ->column();
 
-                Craft::$app->getDb()->createCommand()
+                $count = Craft::$app->getDb()->createCommand()
                     ->delete(CraftTable::ELEMENTS, ['id' => $subscriptionIds])
                     ->execute();
+
+                sleep(1);
+                $this->stdout($count . ' subscriptions deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // These should really be deleted with a cascade
                 Craft::$app->getDb()->createCommand()
@@ -77,25 +84,34 @@ class ResetDataController extends Controller
                     ->execute();
 
                 // Payment Sources
-                $this->stdout('Deleting payment sources ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-                Craft::$app->getDb()->createCommand()
+                $this->stdout('Deleting payment sources ...' . PHP_EOL, Console::FG_GREEN);
+                $count = Craft::$app->getDb()->createCommand()
                     ->delete(Table::PAYMENTSOURCES)
                     ->execute();
 
+                sleep(1);
+                $this->stdout($count . ' payment sources deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+
                 // Customers
-                $this->stdout('Deleting customers ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-                Craft::$app->getDb()->createCommand()
+                $this->stdout('Deleting customers ...' . PHP_EOL, Console::FG_GREEN);
+                $count = Craft::$app->getDb()->createCommand()
                     ->delete(Table::CUSTOMERS, ['userId' => null])
                     ->execute();
 
+                sleep(1);
+                $this->stdout($count . ' customers deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+
                 // Address
-                $this->stdout('Deleting addresses ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-                Craft::$app->getDb()->createCommand()
+                $this->stdout('Deleting addresses ...' . PHP_EOL, Console::FG_GREEN);
+                $count = Craft::$app->getDb()->createCommand()
                     ->delete(Table::ADDRESSES, ['isStoreLocation' => null])
                     ->execute();
 
+                sleep(1);
+                $this->stdout($count . ' addresses deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+
                 // Discount usage
-                $this->stdout('Resetting discount usage data ...' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
+                $this->stdout('Resetting discount usage data ...' . PHP_EOL, Console::FG_GREEN);
                 Craft::$app->getDb()->createCommand()
                     ->delete(Table::CUSTOMER_DISCOUNTUSES)
                     ->execute();
@@ -105,6 +121,13 @@ class ResetDataController extends Controller
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], '', [], false)
                     ->execute();
+
+                sleep(1);
+                $this->stdout('  - per customer discount counter cleared.' . PHP_EOL, Console::FG_GREEN);
+                sleep(1);
+                $this->stdout('  - per email discount counter cleared.' . PHP_EOL, Console::FG_GREEN);
+                sleep(1);
+                $this->stdout('  - total discount uses counter cleared.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 $this->stdout('Finished.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
