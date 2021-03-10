@@ -100,7 +100,7 @@ class ResetDataController extends Controller
                 // Address
                 $this->stdout('Deleting addresses ...' . PHP_EOL, Console::FG_GREEN);
                 $count = Craft::$app->getDb()->createCommand()
-                    ->delete(Table::ADDRESSES, ['isStoreLocation' => null])
+                    ->delete(Table::ADDRESSES, ['not', ['isStoreLocation' => true]])
                     ->execute();
 
                 $this->stdout($count . ' addresses deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
@@ -125,6 +125,7 @@ class ResetDataController extends Controller
 
                 $transaction->commit();
             } catch (\Exception $e) {
+                $this->stdout($e->getmessage() . PHP_EOL, Console::FG_RED);
                 $transaction->rollBack();
             }
         } else {
