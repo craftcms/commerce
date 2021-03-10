@@ -29,7 +29,7 @@ class CopyLoadCartUrl extends ElementAction
      */
     public function getTriggerLabel(): string
     {
-        return Craft::t('app', 'Copy load cart URL');
+        return Craft::t('commerce', 'Copy load cart URL');
     }
 
     /**
@@ -53,7 +53,7 @@ class CopyLoadCartUrl extends ElementAction
         activate: function(\$selectedItems)
         {
             Craft.ui.createCopyTextPrompt({
-                label: Craft.t('app', 'Copy the URL'),
+                label: Craft.t('commerce', 'Copy load cart URL'),
                 value: url.replace("{number}", \$selectedItems.find('.element').data('number')),
             });
         }
