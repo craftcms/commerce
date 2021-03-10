@@ -61,7 +61,6 @@ class ResetDataController extends Controller
                     ->delete(CraftTable::ELEMENTS, ['id' => $ids])
                     ->execute();
 
-                sleep(1);
                 $this->stdout($count . ' orders deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Subscriptions
@@ -75,7 +74,6 @@ class ResetDataController extends Controller
                     ->delete(CraftTable::ELEMENTS, ['id' => $subscriptionIds])
                     ->execute();
 
-                sleep(1);
                 $this->stdout($count . ' subscriptions deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // These should really be deleted with a cascade
@@ -89,7 +87,6 @@ class ResetDataController extends Controller
                     ->delete(Table::PAYMENTSOURCES)
                     ->execute();
 
-                sleep(1);
                 $this->stdout($count . ' payment sources deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Customers
@@ -98,7 +95,6 @@ class ResetDataController extends Controller
                     ->delete(Table::CUSTOMERS, ['userId' => null])
                     ->execute();
 
-                sleep(1);
                 $this->stdout($count . ' customers deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Address
@@ -107,7 +103,6 @@ class ResetDataController extends Controller
                     ->delete(Table::ADDRESSES, ['isStoreLocation' => null])
                     ->execute();
 
-                sleep(1);
                 $this->stdout($count . ' addresses deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 // Discount usage
@@ -122,11 +117,8 @@ class ResetDataController extends Controller
                     ->update(Table::DISCOUNTS, ['totalDiscountUses' => 0], '', [], false)
                     ->execute();
 
-                sleep(1);
                 $this->stdout('  - per customer discount counter cleared.' . PHP_EOL, Console::FG_GREEN);
-                sleep(1);
                 $this->stdout('  - per email discount counter cleared.' . PHP_EOL, Console::FG_GREEN);
-                sleep(1);
                 $this->stdout('  - total discount uses counter cleared.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
                 $this->stdout('Finished.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
