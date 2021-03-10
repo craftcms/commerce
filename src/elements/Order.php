@@ -2060,11 +2060,15 @@ class Order extends Element
     /**
      * Returns the URL to the cart’s load action url
      *
-     * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
+     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
      * @throws Exception
      */
     public function getLoadCartUrl()
     {
+        if ($this->isCompleted) {
+            return null;
+        }
+
         $path = "commerce/cart/load-cart";
 
         $params = [];
