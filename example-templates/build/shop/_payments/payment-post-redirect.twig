@@ -1,0 +1,22 @@
+{# This is an example of a gateway POST redirect template. If your gateway uses a GET redirect or is not an
+   offsite gateway, you can delete this template.
+
+   To use this template, point the `gatewayPostRedirectTemplate` config setting to this template.
+
+   Be sure to keep all CSS inlined, to keep the page size to a minimum. #}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Redirecting...</title>
+</head>
+<body onload="document.forms[0].submit();">
+<form action="{{ actionUrl|raw }}" method="post">
+    <p style="color:green">Redirecting to payment page...</p>
+    <p>
+        {{ inputs|raw }}
+        <input type="submit" value="Continue"/>
+    </p>
+</form>
+</body>
+</html>

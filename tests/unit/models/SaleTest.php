@@ -29,7 +29,7 @@ class SaleTest extends Unit
         $sale = new Sale();
 
         $mockSalesService = $this->make(Sales::class, [
-            'populateSaleRelations' => function () use (&$populateSaleRelationsRunCount, &$sale) {
+            'populateSaleRelations' => function() use (&$populateSaleRelationsRunCount, &$sale) {
                 $populateSaleRelationsRunCount++;
                 $sale->setPurchasableIds([]);
                 $sale->setCategoryIds([]);
@@ -49,12 +49,12 @@ class SaleTest extends Unit
      */
     public function testSetCategoryIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
         self::assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
 
-       $sale->setCategoryIds($ids);
+        $sale->setCategoryIds($ids);
         self::assertSame([1, 2, 3, 4], $sale->getCategoryIds());
     }
 
@@ -63,12 +63,12 @@ class SaleTest extends Unit
      */
     public function testSetPurchasableIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
         self::assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
 
-       $sale->setPurchasableIds($ids);
+        $sale->setPurchasableIds($ids);
         self::assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
     }
 
@@ -77,12 +77,12 @@ class SaleTest extends Unit
      */
     public function testSetUserGroupIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
         self::assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
 
-       $sale->setUserGroupIds($ids);
+        $sale->setUserGroupIds($ids);
         self::assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
     }
 
@@ -94,7 +94,7 @@ class SaleTest extends Unit
         $sale = new Sale();
         $sale->applyAmount = '-0.1000';
 
-        self::assertSame('10%', $sale->getApplyAmountAsPercent());
+        self::assertSame('10.00%', $sale->getApplyAmountAsPercent());
     }
 
     /**

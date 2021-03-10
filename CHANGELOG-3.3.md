@@ -5,8 +5,10 @@
 ### Added
 - Carts now have customer notifications when something has changed on an order, like an item removed automatically due to out of stock, or a price changed since last viewing the order. ([#2000](https://github.com/craftcms/commerce/pull/2000))
 - It’s now possible to set dynamic condition formulas on shipping rules. ([#1959](https://github.com/craftcms/commerce/issues/1959))
+  Added a “Copy load cart URL” action to the Orders index page. ([#1386](https://github.com/craftcms/commerce/issues/1386))
 - It’s now possible to include the discounted order value when calculating the order total conditions in a shipping rule. ([#1948](https://github.com/craftcms/commerce/pull/1948))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
+- Added `craft\commerce\elements\Order::getLoadCartUrl()`.
 
 ### Changed
 - All front end controllers now use the `number` param for passing the order number. ([#1970](https://github.com/craftcms/commerce/issues/1970))
@@ -19,5 +21,4 @@
 ### Fixed
 - Fixed a PHP 8 bug in `\craft\commerce\models\Address::addressLines()`. ([#1987](https://github.com/craftcms/commerce/issues/1987))
 - Fixed a bug in `craft\commerce\test\fixtures\elements\ProductFixture` caused by product type memoization. ([#2003](https://github.com/craftcms/commerce/issues/2003))
-- Fixed a bug that retrieved the wrong shipping and billing address for each order on the order index page. ([1962](https://github.com/craftcms/commerce/issues/1962))
 - Fixed a PHP error that occurred when using `craft\commerce\services\PaymentCurrencies::convert()` with a payment currency that doesn’t exist.

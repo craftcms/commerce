@@ -279,27 +279,10 @@ class CartController extends BaseFrontEndController
 
         $cartCustomer = $cart->getCustomer();
 
-        if ($cartCustomer && $cartCustomer->userId && (!$this->_currentUser || $this->_currentUser->id != $cartCustomer->userId)) {
-            $error = Craft::t('commerce', 'You must be logged in to load this cart.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-            return $this->request->getIsGet() ? $this->redirect($redirect) : null;
-        }
-
         $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
         $carts->forgetCart();
         $session->set($carts->getCartName(), $number);
-
-        $customers = Plugin::getInstance()->getCustomers();
-        $customers->forgetCustomer();
-        if ($cartCustomer) {
-            $session->set($customers::SESSION_CUSTOMER, $cartCustomer->id);
-        }
 
         if ($this->request->getAcceptsJson()) {
             return $this->asJson(['success' => true]);

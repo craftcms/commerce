@@ -1,0 +1,66 @@
+<!-- Template: {{ _self }}.twig -->
+{% if 'checkout' not in craft.app.request.pathInfo %}
+    <div x-data="{ expanded: {{ flashNotice and 'shop/cart' not in craft.app.request.pathInfo and 'shop/checkout' not in craft.app.request.pathInfo ? "true" : "false" }} }">
+        <div class="absolute right-0 top-0 transition duration-500 ease-in-out transform hover:scale-110 ">
+            <div @click="expanded = true"
+                 class="cursor-pointer m-6 p-3 bg-white rounded-lg relative shadow-lg hover:shadow-xl">
+                {% if cart.totalQty %}<span x-show="!expanded"
+                                            class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
+                {% include 'shop/_images/cart.svg' %}
+            </div>
+        </div>
+
+        <div @click.away="expanded = false" x-show="expanded" class="absolute w-full md:w-1/2 xl:w-1/3 right-0 top-0">
+            <div class="m-6 p-4 bg-white rounded-lg shadow-xl relative">
+                <div class="absolute right-0 top-0 mr-4 mt-4">
+                    <span @click="expanded = false" class="cursor-pointer uppercase text-gray-400 hover:text-gray-800">&times;</span>
+                </div>
+                <div class="mt-6">
+                    <div class="text-sm">
+                        {% for item in cart.lineItems %}
+                            <div class="flex w-full justify-between">
+                                <div class="flex justify-between mr-3 overflow-hidden items-center">
+                                    <div class="truncate">
+                                        {{ item.description }}
+                                    </div>
+                                    <div class="text-gray-500 text-xs uppercase">
+                                        {% if item.qty %}&times;{{ item.qty }}{% endif %}</div>
+                                </div>
+                                <div>
+                                    {{ item.subtotal|currency(cart.currency) }}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <p>Nothing in your cart yet, <a class="underline text-blue-500"
+                                                                href="{{ url('/shop/products') }}">add
+                                        something</a>.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {% if cart.lineItems|length %}
+                        <div class="mt-2 border-t-2 border-gray-200 text-right">
+                            <div class="pt-2">
+                                <span class="text-gray-600 text-sm">Subtotal:</span>
+                                <strong class="text-lg">{{ cart.itemSubtotal|currency(cart.currency) }}</strong>
+                            </div>
+                            <div class="pt-2">
+                                <div class="flex w-full justify-between">
+                                    <div>
+                                        <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
+                                           href=" {{ url('/shop/cart') }}">View Cart</a>
+                                    </div>
+                                    <div>
+                                        <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+                                           href="{{ url('/shop/checkout') }}">Checkout</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

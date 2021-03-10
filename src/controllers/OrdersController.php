@@ -1085,7 +1085,7 @@ class OrdersController extends Controller
                 $customer = ArrayHelper::firstValue($customers);
             }
         }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer), View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1128,7 +1128,7 @@ class OrdersController extends Controller
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 
-        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', View::POS_BEGIN);
 
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
