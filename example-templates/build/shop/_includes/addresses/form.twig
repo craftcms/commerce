@@ -246,66 +246,66 @@
 </div>
 
 {% js %}
-var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+window.states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+{% endjs %}
 
-  var $countrySelects = document.querySelectorAll('select.js-address-country');
+{% js %}
+var $countrySelects = document.querySelectorAll('select.js-address-country');
 
-  if ($countrySelects && $countrySelects.length) {
+if ($countrySelects && $countrySelects.length) {
     $countrySelects.forEach(function(el) {
-      el.addEventListener('change', function(ev) {
-        var $this = ev.target;
+        el.addEventListener('change', function(ev) {
+            var $this = ev.target;
 
-        // get the value of the selected country.
-        var cid = $this.value;
-        var $closestAddressBox = $this.closest('.js-addressBox');
+            // get the value of the selected country.
+            var cid = $this.value;
+            var $closestAddressBox = $this.closest('.js-addressBox');
 
-        if ($closestAddressBox) {
+            if ($closestAddressBox) {
 
-          var $states = $closestAddressBox.querySelector('select.js-address-stateId');
-          var $stateName = $closestAddressBox.querySelector('input.js-address-stateName');
+                var $states = $closestAddressBox.querySelector('select.js-address-stateId');
+                var $stateName = $closestAddressBox.querySelector('input.js-address-stateName');
 
-          if ($states && $stateName) {
-            var $options = $states.querySelectorAll('option');
+                if ($states && $stateName) {
+                    var $options = $states.querySelectorAll('option');
 
-            if ($options && $options.length) {
-              $options.forEach(function(el) {
-                el.remove();
-              });
-            }
+                    if ($options && $options.length) {
+                        $options.forEach(function(el) {
+                            el.remove();
+                        });
+                    }
 
-            if (states.hasOwnProperty(cid))
-            {
-                // We have states for this country, show the states drop down.
-                $states.classList.remove('hidden');
-                $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
+                    if (window.states.hasOwnProperty(cid)) {
+                        // We have states for this country, show the states drop down.
+                        $states.classList.remove('hidden');
+                        $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
 
-                // We have states for this country, hide the stateName input.
-                $stateName.removeAttribute('name');
-                $stateName.classList.add('hidden');
-                $stateName.value = '';
+                        // We have states for this country, hide the stateName input.
+                        $stateName.removeAttribute('name');
+                        $stateName.classList.add('hidden');
+                        $stateName.value = '';
 
-                // Add all states as options to drop down.
-                for (var id in states[cid])
-                {
-                    var state = states[cid][id];
-                    var $option = document.createElement('OPTION');
-                    $option.text = state;
-                    $option.value = id;
-                    $states.appendChild($option);
+                        // Add all states as options to drop down.
+                        for (var id in window.states[cid]) {
+                            var state = window.states[cid][id];
+                            var $option = document.createElement('OPTION');
+                            $option.text = state;
+                            $option.value = id;
+                            $states.appendChild($option);
+                        }
+
+                    } else {
+                        // hide the states dropdown, since this country has none.
+                        $states.classList.add('hidden');
+                        $states.removeAttribute('name');
+
+                        // show the stateName
+                        $stateName.classList.remove('hidden');
+                        $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
+                    }
                 }
-
-            } else {
-                // hide the states dropdown, since this country has none.
-                $states.classList.add('hidden');
-                $states.removeAttribute('name');
-
-                // show the stateName
-                $stateName.classList.remove('hidden');
-                $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
             }
-          }
-        }
-      });
+        });
     });
-  }
+}
 {% endjs %}

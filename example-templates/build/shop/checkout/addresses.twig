@@ -123,11 +123,13 @@
             var $billingFieldSet = document.querySelector('.js-address-fieldset.BillingAddress');
             $billingFieldSet.classList.toggle('hidden');
         });
+    }
+{% endjs %}
 
+{% js %}
     {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
-    $billingSameAs.click();
+        $billingSameAs.click();
     {% endif %}
-}
 {% endjs %}
 
 {% endblock %}
