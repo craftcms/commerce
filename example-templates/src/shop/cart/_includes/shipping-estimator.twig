@@ -103,9 +103,11 @@
             {% endif %}
         </div>
     </div>
+
     {% js %}
-    var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
-  {% endjs %}
+    window.states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+    {% endjs %}
+
     {% js %}
     var $estimateShippingMethodsContainer = document.querySelector('.js-estimate-shipping-methods');
     var $estimateFieldsContainer = document.querySelector('.js-estimate-fields');
@@ -188,7 +190,7 @@
             });
         }
 
-        if (states.hasOwnProperty(cid)) {
+        if (window.states.hasOwnProperty(cid)) {
             // We have states for this country, show the states drop down.
             $states.classList.remove('hidden');
             $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
@@ -199,14 +201,13 @@
             $stateName.value = '';
 
             // Add all states as options to drop down.
-            for (var id in states[cid]) {
-                var state = states[cid][id];
+            for (var id in window.states[cid]) {
+                var state = window.states[cid][id];
                 var $option = document.createElement('OPTION');
                 $option.text = state;
                 $option.value = id;
                 $states.appendChild($option);
             }
-
         } else {
             // hide the states dropdown, since this country has none.
             $states.classList.add('hidden');
@@ -216,7 +217,6 @@
             $stateName.classList.remove('hidden');
             $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
         }
-
     });
     {% endjs %}
 {% endif %}

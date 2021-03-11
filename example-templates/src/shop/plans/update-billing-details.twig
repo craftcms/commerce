@@ -1,4 +1,5 @@
-{% extends '[[folderName]]/_layouts/main' %}
+<!-- Template: {{ _self }}.twig -->
+{% extends '[[folderName]]/_private/layouts' %}
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
     {% set subscriptionUid = craft.app.request.getParam('subscription') %}

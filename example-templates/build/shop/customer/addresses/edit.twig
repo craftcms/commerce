@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends 'shop/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -30,7 +30,7 @@
             {{ hiddenInput('address[id]', addressId) }}
         {% endif %}
 
-        {% include 'shop/_includes/addresses/form' %}
+        {{ include('shop/_private/address/form') }}
         {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
         {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
 

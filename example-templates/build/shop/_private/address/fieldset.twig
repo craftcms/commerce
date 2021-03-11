@@ -1,0 +1,58 @@
+<!-- Template: {{ _self }}.twig -->
+<div class="js-address-fieldset {{ class }}">
+    <h2 class="text-lg font-bold">{{ title }}</h2>
+    {% if addresses and currentUser %}
+        <div class="flex flex-wrap -mx-4 pb-4">
+            {% for address in addresses %}
+                <div class="px-2 w-1/2 pb-2">
+                    <label class="block address-select js-address-select bg-gray-100 border-blue-300 border-b-2 p-6"
+                           data-address-id="{{ address.id }}">
+                        <div class="js-radio">
+                            <input type="radio" name="{{ name }}Id"
+                                   data-model-name="{{ name }}"
+                                   {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %}
+                                   value="{{ address.id }}"/>
+                            {{ include('shop/_private/address/address') }}
+                        </div>
+                        <div class="actions">
+                            <ul>
+                                <li>
+                                    <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
+                                       href="{{ url('/shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </label>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="address-select js-address-select js-address-select-new" data-model-name="{{ name }}">
+        {% if attribute(cart, name~'Id') %}
+            {% set addressHasErrors = attribute(cart, name).hasErrors() %}
+        {% else %}
+            {% set addressHasErrors = false %}
+        {% endif %}
+
+        {% if currentUser %}
+            <div class="js-radio">
+                {# If we have no addresses expand the 'New Address" fields by default it to being checked.
+                   If we have errors on the address also check and expand. #}
+                <label>
+                    <input type="radio" name="{{ name }}Id"
+                           {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
+                    <strong>{{ "New" }} {{ title }}</strong>
+                </label>
+            </div>
+        {% endif %}
+
+        <div class="js-body {% if currentUser %}hidden{% endif %}">
+            {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
+            {{ include('shop/_private/address/form', {
+                'modelName': name,
+                'address': attribute(cart, name)
+            }) }}
+        </div>
+    </div>
+</div>

@@ -1,43 +1,12 @@
-{% extends '[[folderName]]/_layouts/main' %}
+{% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
     <h1 class="text-3xl block sm:inline">Products</h1>
 
-    {% paginate craft.products.limit(100) as pageInfo, pageProducts %}
+    {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
 
-    {% include '[[folderName]]/products/_includes/grid' with { products: pageProducts } %}
-
-    {% include '[[folderName]]/products/_includes/pagination' with { products: pageProducts, pageInfo: pageInfo } %}
-
-    {# If the following JavaScript code is uncommented, it will submit forms on this page over HTTP and receive a JSON response #}
-
-    {# --- delete this line to uncomment JS ---
-    {% js %}
-        document.querySelectorAll('form.js-form').forEach(form => {
-            form.addEventListener("submit", function(e) {
-                console.log('subsmitting');
-                e.preventDefault();
-                var data = new FormData(this);
-                fetch('/', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json'
-                    },
-                    body: data,
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        alert(result.message);
-                        console.log('Success:', result);
-                    })
-                    .catch(error => {
-                        alert(result.message);
-                        console.error('Error:', error);
-                    });
-            });
-        });
-    {% endjs %}
-    {# --- #}
+    {{ include('[[folderName]]/products/_includes/grid', { products: pageProducts }) }}
+    {{ include('[[folderName]]/products/_includes/pagination', { products: pageProducts, pageInfo: pageInfo }) }}
 
 {% endblock %}

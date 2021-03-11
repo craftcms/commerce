@@ -62,7 +62,7 @@ class ExampleTemplatesController extends Controller
     /**
      * @var string[]
      */
-    private $_colors = ['gray', 'red', 'blue', 'yellow', 'green', 'indigo', 'purple', 'pink'];
+    private $_colors = ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
 
     /**
      * @inheritdoc

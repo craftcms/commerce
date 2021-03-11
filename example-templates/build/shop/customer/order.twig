@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends 'shop/_private/layouts' %}
 
 {% set extraHead %}
     {# We don't want the order info indexed by search engines #}
@@ -57,7 +57,7 @@
             <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
                 <h3 class="font-semibold">Shipping Address</h3>
                 {% if order.shippingAddress %}
-                    {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                    {{ include('shop/_private/address/address', { address: order.shippingAddress }) }}
                     {% if order.shippingAddress.sameAs(order.billingAddress) %}
                         <p>Addresses are the same</p>
                     {% endif %}
@@ -70,7 +70,7 @@
             <div class="bg-gray-100 border-blue-300 border-b-2 p-6">
                 <h3 class="font-semibold">Billing Address</h3>
                 {% if order.billingAddress %}
-                    {% include 'shop/_includes/addresses/address' with { address: order.billingAddress } %}
+                    {{ include('shop/_private/address/address', { address: order.billingAddress }) }}
                     {% if order.billingAddress.sameAs(order.shippingAddress) %}
                         <p>Addresses are the same</p>
                     {% endif %}

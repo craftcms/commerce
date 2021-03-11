@@ -1,9 +1,8 @@
-{% extends '[[folderName]]/_layouts/main' %}
-
 {% if not currentUser %}
     {% exit 404 %}
 {% endif %}
 
+{% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->

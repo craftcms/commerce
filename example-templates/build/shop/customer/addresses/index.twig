@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends 'shop/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -16,7 +16,7 @@
         <div class="grid-addresses mt-6">
             {% for address in customer.addresses %}
                 <div class="address-card">
-                    {% include 'shop/_includes/addresses/address' with {'address': address} %}
+                    {{ include('shop/_private/address/address', {address: address}) }}
 
                     <div class="buttons mt-4">
                         <a class="button button-primary"
