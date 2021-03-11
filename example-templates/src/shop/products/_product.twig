@@ -18,7 +18,7 @@
                     culpa qui officia deserunt mollit anim id est laborum.
                 </p>
                 <h4 class="text-gray-500 mt-3">Variants</h4>
-                <form method="post" class="js-form">
+                <form method="post">
                     {{ actionInput('commerce/cart/update-cart') }}
                     {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
                     {{ csrfInput() }}
@@ -30,8 +30,10 @@
                                     <span class="italic">{{ variant.title }}</span>
                                 </div>
                                 <div class="pl-2 w-1/4">
-                                    <input class="[[classes.input]] w-full" type="text"
-                                           name="purchasables[{{ loop.index }}][qty]" value="0">
+                                    <input type="text"
+                                           name="purchasables[{{ loop.index }}][qty]"
+                                           value="0"
+                                           class="[[classes.input]] w-full"/>
                                 </div>
                                 <div class="pl-2 text-right w-1/4">
                                     {% if variant.onSale %}

@@ -25,7 +25,10 @@
                             {{ actionInput('commerce/customer-addresses/delete') }}
                             {{ hiddenInput('id', address.id) }}
                             {{ csrfInput() }}
-                            <input type="submit" value="Delete"/>
+                            <button type="submit"
+                                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                Delete
+                            </button>
                         </form>
                     </div>
 

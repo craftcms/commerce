@@ -1,6 +1,5 @@
 <!-- Template: {{ _self }}.twig -->
 {% if not cart.getShippingAddress() %}
-    <!-- Template: {{ _self }}.twig -->
     <div class="[[classes.box.base]] max-w-sm">
         <h5 class="mt-0 font-bold">{{ 'Shipping Estimate' }}</h5>
 
@@ -19,29 +18,38 @@
             <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
                 <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">{{ 'State' }}</label>
                 {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
-                <select id="estimatedShippingAddress-stateId" data-modelname="estimatedShippingAddress"
+                <select id="estimatedShippingAddress-stateId"
+                        name="estimatedShippingAddress[stateValue]"
                         class="js-address-stateId [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
-                        name="estimatedShippingAddress[stateValue]">
+                        data-modelname="estimatedShippingAddress">
                     {% for key, option in options %}
                         {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
                         <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
                     {% endfor %}
                 </select>
-                <input type="text" data-modelname="estimatedShippingAddress" id="estimatedShippingAddress-stateName"
-                       class="js-address-stateName [[classes.input]] {% if options|length > 0 %}hidden{% endif %} w-full"
+
+                <input type="text"
+                       id="estimatedShippingAddress-stateName"
                        {% if options|length == 0 %}name="estimatedShippingAddress[stateValue]"{% endif %}
-                       value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}">
+                       data-modelname="estimatedShippingAddress"
+                       class="js-address-stateName [[classes.input]] {% if options|length > 0 %}hidden{% endif %} w-full"
+                       value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"/>
             </div>
 
             <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">{{ 'Zip Code' }}</label>
-            <input type="text" id="estimatedShippingAddress-zipCode" class="w-full [[classes.input]]"
+            <input type="text"
+                   id="estimatedShippingAddress-zipCode"
                    name="estimatedShippingAddress[zipCode]"
+                   class="w-full [[classes.input]]"
                    value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}">
 
             <div class="mt-6">
                 <label class="m-0">
-                    <input type="checkbox" name="estimatedBillingAddressSameAsShipping" value="1"
-                           {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}> {{ 'Billing Same as Shipping' }}
+                    <input type="checkbox"
+                           {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}
+                           name="estimatedBillingAddressSameAsShipping"
+                           value="1"/>
+                    Billing Same as Shipping
                 </label>
             </div>
 
@@ -59,24 +67,30 @@
                 <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
                     <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">{{ 'State' }}</label>
                     {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
-                    <select id="estimatedBillingAddress-stateId" data-modelname="estimatedBillingAddress"
+                    <select id="estimatedBillingAddress-stateId"
+                            name="estimatedBillingAddress[stateValue]"
                             class="js-address-stateId w-full [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
-                            name="estimatedBillingAddress[stateValue]">
+                            data-modelname="estimatedBillingAddress">
                         {% for key, option in options %}
                             {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateId : '') %}
                             <option value="{{ key }}"
-                                    {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
+                                    {% if key == optionValue %}selected{% endif %}>{{ option }}
+                            </option>
                         {% endfor %}
                     </select>
-                    <input type="text" data-modelname="estimatedBillingAddress" id="estimatedBillingAddress-stateName"
+                    <input type="text"
+                           id="estimatedBillingAddress-stateName"
                            class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full [[classes.input]]"
                            {% if options|length == 0 %}name="estimatedBillingAddress[stateValue]"{% endif %}
+                           data-modelname="estimatedBillingAddress"
                            value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
                 </div>
 
                 <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">{{ 'Zip Code' }}</label>
-                <input type="text" id="estimatedBillingAddress-zipCode" class="w-full [[classes.input]]"
+                <input type="text"
+                       id="estimatedBillingAddress-zipCode"
                        name="estimatedBillingAddress[zipCode]"
+                       class="w-full [[classes.input]]"
                        value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}">
             </div>
         </div>
@@ -87,11 +101,12 @@
                     {% for handle, method in cart.availableShippingMethodOptions %}
                         <div class="js-shipping-select">
                             <label>
-                                <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
+                                <input type="radio"
+                                       name="shippingMethodHandle"
+                                       value="{{ handle }}"
                                        {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-                                <strong>{{ method.name }}</strong>
-                                <span class="price"><span
-                                            title="{{ method.priceForOrder(cart) }}"></span> {{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
+                                {{ method.name }}
+                                <span title="{{ method.priceForOrder(cart) }}">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
                             </label>
                         </div>
                     {% endfor %}

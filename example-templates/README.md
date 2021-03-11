@@ -28,5 +28,10 @@ After changing the example templates, you need to build them:
 php craft commerce/example-templates --devBuild=true
 ```
 
+### Coding Standards:
 
- 
+- Do not add javascript if you can accomplish something without it.
+- HTML tag attributes should be in the following order: `type`, `id/for`, `name`, `value`, `class` then others.
+- All classes must be standard Tailwind CSS classes.
+- All includes must use the function format. Use `{{ include('file') }}`, and not `{% include 'file' %}`.
+- 

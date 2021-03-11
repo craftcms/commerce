@@ -8,7 +8,9 @@
         <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
             <div class="flex justify-start items-center">
                 <div class="pr-2">
-                    <input type="radio" name="paymentSourceId" value="{{ source.id }}"
+                    <input type="radio"
+                           name="paymentSourceId"
+                           value="{{ source.id }}"
                            {% if source.id == cart.paymentSourceId %}checked{% endif %} />
                 </div>
                 <div>
@@ -25,7 +27,9 @@
         <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
             <div class="flex justify-start items-center">
                 <div class="pr-2">
-                    <input type="radio" name="gatewayId" value="{{ id }}"
+                    <input type="radio"
+                           name="gatewayId"
+                           value="{{ id }}"
                            {% if id == cart.gatewayId %}checked{% endif %} />
                 </div>
                 <div>

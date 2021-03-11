@@ -16,10 +16,10 @@
                     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sollicitudin purus ut ante
                         hendrerit facilisis. Aenean eu interdum leo, nec molestie nisi.</p>
 
-                    <form method="post" class="js-form mt-6" hx-boost="true">
+                    <form method="post" class="mt-6">
                         {{ actionInput('commerce/cart/update-cart') }}
                         {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
-                        <input type="hidden" name="clearNotices" value="1"/>
+                        {{ hiddenInput('clearNotices', true) }}
                         {{ csrfInput() }}
                         <div class="inline-block relative w-full">
                             <select name="purchasableId"
@@ -36,22 +36,33 @@
                             </div>
                         </div>
                         <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-                            <input class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring"
-                                   name="qty" type="number" step="1" min="1" placeholder="Quantity" value="1">
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring"
+                                   step="1"
+                                   min="1"
+                                   placeholder="Quantity"/>
                             {% if product.availableForPurchase %}
                                 <button type="submit"
-                                        class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white text-center">Add to
-                                    cart
+                                        class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white text-center">
+                                    Add to cart
                                 </button>
                             {% else %}
-                                <div type="submit"
-                                     class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white text-center">Unavailable
-                                </div>
+                                <button type="submit"
+                                        class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white text-center">
+                                    Unavailable
+                                </button>
                             {% endif %}
                         </div>
-                        <div class="mt-1"><label><input type="checkbox" name="options[giftWrapped]" value="yes"> Gift
-                                wrap
-                                item</label></div>
+                        <div class="mt-1">
+                            <label>
+                                <input type="checkbox"
+                                       name="options[giftWrapped]"
+                                       value="yes"/>
+                                Gift wrap item
+                            </label>
+                        </div>
                     </form>
                 </div>
             </div>

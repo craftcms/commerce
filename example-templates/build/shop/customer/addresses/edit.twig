@@ -37,19 +37,23 @@
         <hr class="my-3"/>
 
         <div>
-            <label for="makePrimaryShippingAddress" class="flex items-center"><input id="makePrimaryShippingAddress"
-                                                                                     class="mr-2"
-                                                                                     name="makePrimaryShippingAddress"
-                                                                                     type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}/><span
-                        class="label-body">Make this the primary shipping address</span></label>
+            <label for="makePrimaryShippingAddress" class="flex items-center">
+                <input type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}
+                       id="makePrimaryShippingAddress"
+                       name="makePrimaryShippingAddress"
+                       class="mr-2"/>
+                Make this the primary shipping address
+            </label>
         </div>
 
         <div>
-            <label for="makePrimaryBillingAddress" class="flex items-center"><input id="makePrimaryBillingAddress"
-                                                                                    class="mr-2"
-                                                                                    name="makePrimaryBillingAddress"
-                                                                                    type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}/><span
-                        class="label-body">Make this the primary billing address</span></label>
+            <label class="flex items-center">
+                <input type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}
+                       id="makePrimaryBillingAddress"
+                       name="makePrimaryBillingAddress"
+                       class="mr-2"/>
+                Make this the primary billing address
+            </label>
         </div>
 
         <div class="mt-6 flex justify-between">
@@ -61,7 +65,10 @@
                 {% endif %}
             </div>
             <div>
-                <input class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white" type="submit" value="Save Address">
+                <button type="submit"
+                        class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                    Save Address
+                </button>
             </div>
         </div>
     </form>

@@ -17,13 +17,19 @@
 
                 <div class="field">
                     <label for="email">Email</label>
-                    <input id="email" class="w-full [[classes.input]]" type="text" value="{{ cart.email }}"
+                    <input type="text"
+                           id="email"
                            name="email"
+                           class="w-full [[classes.input]]"
+                           value="{{ cart.email }}"
                            placeholder="email@site.com"/>
                 </div>
 
                 <div class="mt-3">
-                    <input type="submit" value="Continue" class="[[classes.btn.base]] [[classes.btn.mainColor]]"/>
+                    <button type="submit"
+                            class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                        Continue
+                    </button>
                 </div>
             </form>
         </div>

@@ -8,10 +8,11 @@
                     <label class="block address-select js-address-select [[classes.box.base]]"
                            data-address-id="{{ address.id }}">
                         <div class="js-radio">
-                            <input type="radio" name="{{ name }}Id"
-                                   data-model-name="{{ name }}"
+                            <input type="radio"
+                                   name="{{ name }}Id"
+                                   value="{{ address.id }}"
                                    {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %}
-                                   value="{{ address.id }}"/>
+                                   data-model-name="{{ name }}"/>
                             {{ include('[[folderName]]/_private/address/address') }}
                         </div>
                         <div class="actions">
@@ -28,7 +29,7 @@
         </div>
     {% endif %}
 
-    <div class="address-select js-address-select js-address-select-new" data-model-name="{{ name }}">
+    <div class="js-address-select" data-model-name="{{ name }}">
         {% if attribute(cart, name~'Id') %}
             {% set addressHasErrors = attribute(cart, name).hasErrors() %}
         {% else %}
@@ -38,9 +39,10 @@
         {% if currentUser %}
             <div class="js-radio">
                 <label>
-                    <input type="radio" name="{{ name }}Id"
+                    <input type="radio"
+                           name="{{ name }}Id"
                            {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
-                    <strong>{{ "New" }} {{ title }}</strong>
+                    New {{ title }}
                 </label>
             </div>
         {% endif %}

@@ -30,8 +30,10 @@
                                 <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer">
                                     <div class="flex justify-start items-center">
                                         <div class="pr-2">
-                                            <input type="radio" name="shippingMethodHandle" value="{{ handle }}"
-                                                   {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+                                            <input type="radio"
+                                                   name="shippingMethodHandle"
+                                                   value="{{ handle }}"
+                                                   {% if handle == cart.shippingMethodHandle %}checked{% endif %}/>
                                         </div>
                                         <div>
                                             <strong>{{ method.name }}</strong><br>
@@ -44,8 +46,10 @@
                         <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
 
                         <div class="mt-3">
-                            <input type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]"
-                                   value="Select Shipping Method"/>
+                            <button type="submit"
+                                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                Select Shipping Method
+                            </button>
                         </div>
                     </form>
                 </div>

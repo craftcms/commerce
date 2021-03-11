@@ -14,14 +14,17 @@
             <div>
                 <label for="number">Cart Number</label>
                 <div>
-                    <input class="[[classes.input]] w-full"
-                           type="text" id="number" name="number" placeholder="aaabbbccc…" value="">
+                    <input type="text"
+                           id="number"
+                           name="number"
+                           value=""
+                           class="[[classes.input]] w-full"
+                           placeholder="7e89fh0ew8034…"/>
                 </div>
             </div>
             <div class="mt-3 text-right">
-                <button class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">Load cart</button>
+                <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Load cart</button>
             </div>
-
         </fieldset>
     </form>
 {% endblock %}

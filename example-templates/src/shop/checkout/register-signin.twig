@@ -37,21 +37,27 @@
                                 Email
                             </label>
                             <div class="mt-1">
-                                <input id="loginName" placeholder="email@site.com" type="text"
+                                <input type="text"
+                                       id="loginName"
+                                       class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[[color]]-500 focus:border-[[color]]-500 sm:text-sm"
                                        value="{{ craft.app.user.getRememberedUsername() }}" required
-                                       class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[[color]]-500 focus:border-[[color]]-500 sm:text-sm">
+                                       placeholder="email@site.com"/>
                             </div>
                         </div>
 
                         <div class="field mt-3">
                             <label for="loginPassword">Password</label>
-                            <input id="loginPassword" class="[[classes.input]] mt-1 w-full" type="password"
-                                   name="password">
+                            <input type="password"
+                                   id="loginPassword"
+                                   name="password"
+                                   class="[[classes.input]] mt-1 w-full"/>
                         </div>
 
                         <div class="field mt-3">
                             <label>
-                                <input type="checkbox" name="rememberMe" value="1">
+                                <input type="checkbox"
+                                       name="rememberMe"
+                                       value="1">
                                 Remember me
                             </label>
                         </div>
@@ -62,8 +68,10 @@
                                     your password?</a>
                             </div>
                             <div>
-                                <input type="submit" value="Login"
-                                       class="[[classes.btn.base]] [[classes.btn.mainColor]]"/>
+                                <button type="submit"
+                                        class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                    Login
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -89,8 +97,11 @@
 
                         <div class="field mt-3">
                             <label for="username">Username</label>
-                            <input id="username" class="[[classes.input]]" type="text" name="username"
-                                    {%- if user is defined %} value="{{ user.username }}"{% endif -%}>
+                            <input type="text"
+                                   id="username"
+                                   name="username"
+                                   value="{{ user is defined ? user.username : '' }}"
+                                   class="[[classes.input]]"/>
 
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('username')) }}
@@ -99,9 +110,12 @@
 
                         <div class="field mt-3">
                             <label for="email">Email</label>
-                            <input id="email" class="[[classes.input]]" type="text" name="email"
-                                    {%- if user is defined %} value="{{ user.email }}"{% endif %}
-                                    {%- if user is not defined and cart.email %} value="{{ cart.email }}"{% endif %}>
+                            <input type="text"
+                                   id="email"
+                                   name="email"
+                                   class="[[classes.input]]"
+                                    {%- if user is defined %} value="{{ user is defined ? user.email : '' }}"{% endif %}
+                                    {%- if user is not defined and cart.email %} value="{{ cart.email }}"{% endif %}/>
 
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('email')) }}
@@ -110,7 +124,10 @@
 
                         <div class="field mt-3">
                             <label for="savePassword">Password</label>
-                            <input id="savePassword" class="[[classes.input]]" type="password" name="password">
+                            <input type="password"
+                                   id="savePassword"
+                                   class="[[classes.input]]"
+                                   name="password"/>
 
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('password')) }}
@@ -118,8 +135,10 @@
                         </div>
 
                         <div class="mt-3">
-                            <input type="submit" value="Register"
-                                   class="[[classes.btn.base]] [[classes.btn.mainColor]]"/>
+                            <button type="submit"
+                                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                Register
+                            </button>
                         </div>
                     </form>
                 {% endif %}
@@ -128,8 +147,9 @@
         <div class="w-1/2 px-8">
             <h2 class="mt-6 text-lg font-bold">Checkout</h2>
             <div class="mt-3">
-                <a href="{{ url('/[[folderName]]/checkout/addresses') }}" class="[[classes.a]]">Or, just continue as
-                    guest &rarr;</a>
+                <a href="{{ url('/[[folderName]]/checkout/addresses') }}" class="[[classes.a]]">
+                    Or, just continue as guest &rarr;
+                </a>
             </div>
         </div>
     </div>
