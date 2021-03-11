@@ -19,7 +19,7 @@
             <h4 class="font-semibold mt-3">Shipping to</h4>
             {% if cart.shippingAddress %}
                 <div class="address-select js-address-select border-0">
-                    {% include 'shop/_includes/addresses/address' with {'address': cart.shippingAddress} %}
+                    {{ include('shop/_private/address/address', {'address': cart.shippingAddress}) }}
                 </div>
             {% else %}
                 <p>No shipping address selected.</p>

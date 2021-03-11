@@ -1,6 +1,6 @@
 <!-- Template: {{ _self }}.twig -->
 {% if craft.commerce.edition == 'lite' %}
-    <div class="bg-red-800 text-white">
+    <div class="bg-[[dangerColor]]-800 text-white">
         <div class="container mx-auto p-6">
             Because you are running Craft Commerce <span
                     class="bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded"> {{ craft.commerce.edition|upper }}</span>
@@ -18,18 +18,18 @@
             extracting portions and customizing them as appropriate.</p>
         <p class="pb-3">Here are some other resources to get you started:</p>
         <ul class="list-disc list-inside pb-2">
-            <li><a href="https://craftcms.com/docs/commerce/3.x/" class="text-blue-500 hover:text-blue-600 underline">Craft Commerce
+            <li><a href="https://craftcms.com/docs/commerce/3.x/" class="[[classes.a]] underline">Craft Commerce
                     Documentation</a>.
             </li>
-            <li><a href="https://craftcms.com/docs/3.x/" class="text-blue-500 hover:text-blue-600 underline">Craft CMS Documentation</a>.
+            <li><a href="https://craftcms.com/docs/3.x/" class="[[classes.a]] underline">Craft CMS Documentation</a>.
             </li>
-            <li><a href="http://craftcms.stackexchange.com" class="text-blue-500 hover:text-blue-600 underline">Craft CMS Stack Exchange</a>.
+            <li><a href="http://craftcms.stackexchange.com" class="[[classes.a]] underline">Craft CMS Stack Exchange</a>.
                 Use the
                 <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
             </li>
-            <li><a href="https://craftcms.com/discord" class="text-blue-500 hover:text-blue-600 underline">Craft Discord Community</a>. Use
+            <li><a href="https://craftcms.com/discord" class="[[classes.a]] underline">Craft Discord Community</a>. Use
                 the <code
-                        class="rounded p-1 bg-gray-700 text-xs">#commerce3-help</code> channel.
+                        class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
             </li>
         </ul>
         <p class="pb-2 pt-2 text-xs text-gray-700">These templates use pure

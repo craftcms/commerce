@@ -1,4 +1,4 @@
-{% extends '[[folderName]]/_layouts/main' %}
+{% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -16,7 +16,7 @@
         <div class="grid-addresses mt-6">
             {% for address in customer.addresses %}
                 <div class="address-card">
-                    {% include '[[folderName]]/_includes/addresses/address' with {'address': address} %}
+                    {{ include('[[folderName]]/_private/address/address', {address: address}) }}
 
                     <div class="buttons mt-4">
                         <a class="button button-primary"

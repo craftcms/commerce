@@ -1,20 +1,14 @@
-{% extends 'shop/_layouts/main' %}
+{% extends 'shop/_private/layouts' %}
 
 {% set extraHead %}
     {# We don't want the order info to get indexed by search engines #}
     <meta name="robots" content="noindex">
 {% endset %}
 
-{# The `withLineItems()` parameter avoids n+1 queries when looping over a large number of orders #}
-{% set orders = craft.orders
-    .customer(craft.commerce.customers.customer)
-    .isCompleted(true)
-    .withLineItems()
-    .all() %}
-
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
     {% if currentUser %}
+
         {% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
 
         <h1 class="text-3xl block sm:inline">My Orders</h1>

@@ -10,7 +10,7 @@
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen">
 
-{% if cart is not defined %}
+{% if cart is not defined or not cart %}
     {% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
@@ -20,18 +20,18 @@
 <header>
     <div class="bg-gray-900">
         <div class="container mx-auto p-6">
-            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}" class="text-white">{{ '[[folderName]]'|title }}</a></h1>
+            <h1 class="text-3xl"><a href="{{ url('/shop') }}" class="text-white">{{ 'shop'|title }}</a></h1>
         </div>
     </div>
 
-    {% include '[[folderName]]/_layouts/_includes/nav-main' %}
-    {% include '[[folderName]]/_layouts/_includes/nav-checkout' %}
+    {{ include('shop/_private/layouts/includes/nav-main') }}
+    {{ include('shop/_private/layouts/includes/nav-checkout') }}
 </header>
 
 <div id="main">
 
     {% if flashNotice %}
-    <div class="bg-[[color]]-500 text-white">
+    <div class="bg-blue-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {{ flashNotice ?? 'Test flash notice' }}
         </div>
@@ -40,7 +40,7 @@
 
 
     {% if flashError %}
-    <div class="bg-[[dangerColor]]-500 text-white">
+    <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {{ flashError ?? 'Test flash error' }}
         </div>
@@ -67,7 +67,7 @@
     {% endif %}
 
     {% if cart.errors|length %}
-    <div class="bg-[[dangerColor]]-500 text-white">
+    <div class="bg-red-500 text-white">
         <div class="container mx-auto px-6 py-4">
             {% for attribute, errors in cart.errors %}
             {% if loop.first %}
@@ -90,7 +90,7 @@
 
 </div>
 <footer>
-    {% include '[[folderName]]/_layouts/_includes/footer' %}
+    {{ include('shop/_private/layouts/includes/footer') }}
 </footer>
 </body>
 </html>

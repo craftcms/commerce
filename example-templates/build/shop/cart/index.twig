@@ -1,4 +1,4 @@
-{% extends "shop/_layouts/main" %}
+{% extends "shop/_private/layouts" %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -195,7 +195,7 @@
                 <tr>
                     <td colspan="2" class="border-t-2 border-gray-300">
                         <div class="pt-3">
-                            {% include 'shop/cart/_includes/shipping-estimator' %}
+                            {{ include('shop/cart/_includes/shipping-estimator') }}
                         </div>
                     </td>
                     <td class="text-right align-text-top border-t-2 border-gray-300 pt-3 pr-3">

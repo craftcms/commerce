@@ -34,7 +34,7 @@
             <td align="right">
                 <h3 class="font-semibold">{{ craft.app.systemName }}</h3>
                 {% if order.shippingAddress %}
-                    {% include 'shop/_includes/addresses/address' with { address: order.shippingAddress } %}
+                    {{ include('[[folderName]]/_private/address/address', { address: order.shippingAddress }) }}
                 {% endif %}
             </td>
         </tr>

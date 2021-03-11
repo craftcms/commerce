@@ -1,9 +1,8 @@
-{% extends 'shop/_layouts/main' %}
-
 {% if not currentUser %}
     {% exit 404 %}
 {% endif %}
 
+{% extends 'shop/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->

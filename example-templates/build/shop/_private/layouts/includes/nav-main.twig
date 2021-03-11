@@ -2,22 +2,22 @@
 {% set pages = [
     {
         label: "Products",
-        url: '[[folderName]]/products'
+        url: 'shop/products'
     },
     {
         label: "Plans",
-        url: '[[folderName]]/plans'
+        url: 'shop/plans'
     },
     {
         label: "Donations",
-        url: '[[folderName]]/donations'
+        url: 'shop/donations'
     }
 ] %}
 
 {% if currentUser %}
     {% set pages = pages|merge([{
         label: "My Account",
-        url: '[[folderName]]/customer'
+        url: 'shop/customer'
     }]) %}
 {% endif %}
 
@@ -30,9 +30,9 @@
                        class="mr-3 rounded px-4 py-2 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">{{ page.label }}</a>
                 {% endfor %}
             </nav>
-            <a href="/[[folderName]]/cart" hx-boost="true" class="absolute right-0 top-0 cursor-pointer m-6 p-3 bg-white rounded-lg shadow-lg hover:shadow-xl">
-                {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[dangerColor]]-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
-                {% include '[[folderName]]/_images/cart.svg' %}
+            <a href="/shop/cart" hx-boost="true" class="absolute right-0 top-0 cursor-pointer m-6 p-2 bg-white rounded-lg hover:shadow">
+                {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
+                {{ include('shop/_private/images/shopping-cart.svg') }}
             </a>
         </div>
     </div>

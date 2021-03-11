@@ -1,4 +1,4 @@
-{% extends 'shop/_layouts/main' %}
+{% extends 'shop/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
@@ -54,7 +54,7 @@
             {% endif %}
         </div>
         <div class="w-1/3 pr-8">
-            {% include "shop/checkout/_includes/order-summary" with { showShippingAddress: true } %}
+            {{ include('shop/checkout/_includes/order-summary', { showShippingAddress: true }) }}
         </div>
     </div>
 
