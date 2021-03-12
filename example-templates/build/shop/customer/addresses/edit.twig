@@ -31,13 +31,14 @@
         {% endif %}
 
         {{ include('shop/_private/address/form') }}
-        {% set isPrimaryBilling = cart.customer.primaryBillingAddressId == addressId %}
-        {% set isPrimaryShipping = cart.customer.primaryShippingAddressId == addressId %}
+
+        {% set isPrimaryBilling = (cart.customer.primaryBillingAddressId == addressId) %}
+        {% set isPrimaryShipping = (cart.customer.primaryShippingAddressId == addressId) %}
 
         <hr class="my-3"/>
 
         <div>
-            <label for="makePrimaryShippingAddress" class="flex items-center">
+            <label class="flex items-center">
                 <input type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}
                        id="makePrimaryShippingAddress"
                        name="makePrimaryShippingAddress"

@@ -13,6 +13,7 @@
             <form method="post" action="">
                 {{ actionInput('commerce/cart/update-cart') }}
                 {{ redirectInput('shop/checkout/register-signin') }}
+                {{ hiddenInput('successMessage', ('Email address updated.')|hash) }}
                 {{ csrfInput() }}
 
                 <div class="field">
