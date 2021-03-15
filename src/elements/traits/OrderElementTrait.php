@@ -557,7 +557,7 @@ trait OrderElementTrait
         $output = '';
         $output .= '<table style="padding: 0; width: 100%">';
         foreach ($values as $row) {
-            if ($row[1] != 0) {
+            if ($row[1] != '') {
                 $output .= '<tr style="padding: 0">';
                 $count = 1;
                 foreach ($row as $cell) {
