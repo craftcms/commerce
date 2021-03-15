@@ -4,12 +4,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Craft Commerce</title>
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+    [[tailwindCssTag]]
+
     {% if extraHead is defined %}
         {{ extraHead }}
     {% endif %}
 </head>
-<body class="relative text-gray-800 flex flex-col min-h-screen">
+<body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
 
 {% if cart is not defined %}
 {% set cart = craft.commerce.carts.cart %}

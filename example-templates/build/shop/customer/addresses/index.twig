@@ -6,57 +6,60 @@
     {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
     {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
 
-    {% if customer.addresses|length %}
-        <div class="flex justify-between items-center">
-            <h1>Manage your addresses</h1>
-            <a class="button button-primary right" href="{{ url('/shop/customer/addresses/edit') }}">Add New
-                Address</a>
-        </div>
+    {% if not currentUser %}
+        {% exit 404 %}
+    {% endif %}
 
-        <div class="grid-addresses mt-6">
+    <div class="flex justify-between items-center">
+        <h1 class="text-3xl block sm:inline">Addresses</h1>
+        <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+           href="{{ url('/shop/customer/addresses/edit') }}">
+            Add New Address
+        </a>
+    </div>
+
+    {% if customer.addresses|length %}
+        <div class="grid mt-10 gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {% for address in customer.addresses %}
-                <div class="address-card">
+                <div class="relative bg-gray-50 rounded p-2">
                     {{ include('shop/_private/address/address', {address: address}) }}
 
-                    <div class="buttons mt-4">
-                        <a class="button button-primary"
-                           href="{{ url('/shop/customer/addresses/edit') }}?addressId={{ address.id }}">Edit</a>
-                        <form method="post" action="">
-                            {{ actionInput('commerce/customer-addresses/delete') }}
-                            {{ hiddenInput('id', address.id) }}
-                            {{ csrfInput() }}
-                            <button type="submit"
-                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
-                                Delete
-                            </button>
-                        </form>
-                    </div>
 
                     <div>
-                        <strong>{% if primaryBillingAddress and primaryBillingAddress.id == address.id %}<i
-                                    class="fa fa-check text-green"></i> Primary Billing{% endif %}</strong>
+                        {% if primaryBillingAddress and primaryBillingAddress.id == address.id %}
+                            <span role="img" aria-label="Check Mark">✅</span> Primary Billing
+                        {% endif %}
                     </div>
                     <div>
-                        <strong>{% if primaryShippingAddress and primaryShippingAddress.id == address.id %}<i
-                                    class="fa fa-check text-green"></i> Primary Shipping{% endif %}</strong>
+                        {% if primaryShippingAddress and primaryShippingAddress.id == address.id %}
+                            <span role="img" aria-label="Check Mark">✅</span> Primary Shipping
+                        {% endif %}
+                    </div>
+
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <a href="{{ url('/shop/customer/addresses/edit') }}?addressId={{ address.id }}"
+                               class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                                Edit
+                            </a>
+                        </div>
+                        <div>
+                            <form method="post" action="">
+                                {{ actionInput('commerce/customer-addresses/delete') }}
+                                {{ hiddenInput('id', address.id) }}
+                                {{ csrfInput() }}
+                                <button type="submit" class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
     {% else %}
-        <h1 class="text-center">Manage your addresses</h1>
-
-        <hr>
-
-        <div class="empty-index">
-            <i class="fas fa-address-book"></i>
-            <div>
-                You don’t have any addresses yet.
-                <div class="mt-6">
-                    <a class="button button-primary" href="{{ url('/shop/customer/addresses/edit') }}">Add a
-                        new address</a>
-                </div>
-            </div>
+        <div class="mt-10">
+            <span>You don’t have any addresses yet.</span>
         </div>
     {% endif %}
 {% endblock %}

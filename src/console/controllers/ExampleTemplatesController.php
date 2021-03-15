@@ -44,6 +44,12 @@ class ExampleTemplatesController extends Controller
     public $overwrite = false;
 
     /**
+     * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
+     * @since 3.3
+     */
+    public $cdnAssets;
+
+    /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
      * @since 3.3
      */
@@ -75,6 +81,7 @@ class ExampleTemplatesController extends Controller
         $options[] = 'overwrite';
         $options[] = 'baseColor';
         $options[] = 'devBuild';
+        $options[] = 'cdnAssets';
         return $options;
     }
 
@@ -89,6 +96,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
+            $this->cdnAssets = true;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -96,7 +104,12 @@ class ExampleTemplatesController extends Controller
         $templatesPath = $this->_getTemplatesPath();
 
         $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
-        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);;
+        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);
+
+        if($this->cdnAssets === null)
+        {
+            $this->cdnAssets = $this->confirm('Use CDN links to assets (tailwind)?', true);
+        }
 
         // Folder name is required
         if (!$folderName) {
@@ -110,6 +123,7 @@ class ExampleTemplatesController extends Controller
         ]);
         $this->_addCssClassesToReplacementData();
         $this->_addTranslationsToReplacementData();
+        $this->_addTailwindCss();
 
         // Let’s go!
         $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
@@ -122,7 +136,7 @@ class ExampleTemplatesController extends Controller
 
             // Find all text files we want to replace [[ ]] notation in.
             $files = FileHelper::findFiles($tempDestination, [
-                'only' => ['*.twig', '*.html', '*.svg']
+                'only' => ['*.twig', '*.html', '*.svg', '*.css']
             ]);
             // Set the [[ ]] notion variables and write our the files.
             foreach ($files as $file) {
@@ -130,6 +144,7 @@ class ExampleTemplatesController extends Controller
                 $fileContents = str_replace(array_keys($this->_replacementData), array_values($this->_replacementData), $fileContents);
                 file_put_contents($file, $fileContents);
             }
+
         } catch (\Exception $e) {
             $errors[] = 'Could not generate templates. Exception raised:';
             $errors[] = $e->getCode() . ' ' . $e->getMessage();
@@ -241,6 +256,29 @@ class ExampleTemplatesController extends Controller
             '[[classes.btn.mainColor]]' => "bg-$mainColor-500 hover:bg-$mainColor-600 text-white hover:text-white",
             '[[classes.btn.grayColor]]' => "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
             '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white",
+        ]);
+    }
+
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function _addTailwindCss()
+    {
+        if($this->cdnAssets)
+        {
+            $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+        }else{
+            $response = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
+            if ($response->getStatusCode() == '200') {
+                $css = $response->getBody();
+                $tag = "<style>$css</style>";
+            } else {
+                $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+            }
+        }
+
+        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
+            '[[tailwindCssTag]]' => $tag
         ]);
     }
 

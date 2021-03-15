@@ -15,15 +15,18 @@
 
             <h4 class="font-semibold mt-3">Shipping to</h4>
             {% if cart.shippingAddress %}
-                <div class="address-select js-address-select border-0">
-                    {{ include('shop/_private/address/address', {'address': cart.shippingAddress}) }}
+                <div class="js-address-select border-0">
+                    {{ include('shop/_private/address/address',
+                        {'address': cart.shippingAddress}
+                    ) }}
                 </div>
             {% else %}
                 <p>No shipping address selected.</p>
             {% endif %}
 
-            {% if currentUser %}<a class="edit" href="{{ url('/shop/checkout/addresses') }}">
-                    Edit</a>{% endif %}
+            <a class="text-blue-500 hover:text-blue-600" href="{{ url('/shop/checkout/addresses') }}">
+                Change
+            </a>
         </div>
     {% endif %}
 
@@ -56,7 +59,7 @@
         </div>
     {% else %}
         <div class="mb-3">
-            <p>Nothing in your cart yet, <a class="underline text-blue-500"
+            <p>Nothing in your cart yet, <a class="text-blue-500 hover:text-blue-600"
                                             href="{{ url('/shop/products') }}">add something</a>.</p>
         </div>
     {% endfor %}
