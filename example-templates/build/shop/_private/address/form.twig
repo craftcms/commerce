@@ -5,7 +5,7 @@
 {% set modelName = modelName is defined ? modelName : 'address' %}
 {% set model = address is defined ? address : null %}
 
-<div class="js-addressBox {{ modelName }}">
+<div class="js-address-box {{ modelName }}">
 
     <div class="flex -mx-4">
         <div class="flex-1 mx-4">
@@ -218,14 +218,18 @@
                             name="{{ modelName }}[stateValue]">
                         {% for key, option in options %}
                             {% set optionValue = (model ? model.stateId : '') %}
-                            <option value="{{ key }}"
-                                    {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
+                            <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>
+                                {{ option }}
+                            </option>
                         {% endfor %}
                     </select>
-                    <input type="text" data-modelname="{{ modelName }}" id="{{ modelName }}-stateName"
+                    <input type="text"
+                           id="{{ modelName }}-stateName"
+                           data-modelname="{{ modelName }}"
                            class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %}
-                           value="{{ model ? model.stateName : '' }}">
+                           value="{{ model ? model.stateName : '' }}"
+                    >
                     {% if model and model.getErrors('stateValue') %}
                         <div class="text-red-700">{{ model.getErrors('stateValue')|join }}</div>
                     {% endif %}
@@ -234,7 +238,7 @@
 
             <div class="mt-3">
                 <label for="{{ modelName }}-notes">Notes</label>
-                <textarea class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded" name="{{ modelName }}[notes]" id="{{ modelName }}-notes"
+                <textarea id="{{ modelName }}-notes" class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded" name="{{ modelName }}[notes]"
                           cols="30" rows="10">{{ model ? model.notes : '' }}</textarea>
                 {% if model and model.getErrors('notes') %}
                     <div class="text-red-700">{{ model.getErrors('notes')|join }}</div>
@@ -259,7 +263,7 @@ if ($countrySelects && $countrySelects.length) {
 
             // get the value of the selected country.
             var cid = $this.value;
-            var $closestAddressBox = $this.closest('.js-addressBox');
+            var $closestAddressBox = $this.closest('.js-address-box');
 
             if ($closestAddressBox) {
 

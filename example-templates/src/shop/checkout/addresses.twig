@@ -16,7 +16,11 @@
 
                     {% if not cart.email %}
                         <label for="email">Email</label>
-                        <input id="email" class="w-full" type="email" value="{{ cart.email }}" name="email"
+                        <input type="email"
+                               id="email"
+                               name="email"
+                               class="w-full"
+                               value="{{ cart.email }}"
                                placeholder="email@site.com"/>
 
                         <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
@@ -24,45 +28,53 @@
 
                     {{ include('[[folderName]]/_private/address/fieldset', {
                         title: "Shipping Address",
-                        class: 'ShippingAddress',
+                        classes: 'ShippingAddress',
                         name: 'shippingAddress'
                     }) }}
 
                     {{ hiddenInput('billingAddressSameAsShipping', 0) }}
 
                     <div class="mt-3">
-                        <label for="billingAddressSameAsShipping">
-                            <input id="billingAddressSameAsShipping" name="billingAddressSameAsShipping" type="checkbox"
+                        <label>
+                            <input type="checkbox"
+                                   id="billingAddressSameAsShipping"
+                                   name="billingAddressSameAsShipping"
                                    checked="checked"/>
-                            <span class="label-body">Use same address for billing</span>
+                            Use same address for billing
                         </label>
                     </div>
 
                     <div class="mt-3">
-                        <label for="makePrimaryShippingAddress">
-                            <input id="makePrimaryShippingAddress" name="makePrimaryShippingAddress" type="checkbox"/>
-                            <span class="label-body">Make this the primary shipping address</span>
+                        <label>
+                            <input type="checkbox"
+                                   id="makePrimaryShippingAddress"
+                                   name="makePrimaryShippingAddress"/>
+                            Make this the primary shipping address
                         </label>
                     </div>
 
                     <div class="mt-3">
                         {{ include('[[folderName]]/_private/address/fieldset', {
                             title: "Billing Address",
-                            class: 'BillingAddress hidden',
+                            classes: 'BillingAddress hidden',
                             name: 'billingAddress'
                         }) }}
                     </div>
 
                     <div class="mt-3">
-                        <label for="makePrimaryBillingAddress">
-                            <input id="makePrimaryBillingAddress" name="makePrimaryBillingAddress" type="checkbox"/>
-                            <span class="label-body">Make this the primary billing address</span>
+                        <label>
+                            <input type="checkbox"
+                                   id="makePrimaryBillingAddress"
+                                   name="makePrimaryBillingAddress"/>
+                            Make this the primary billing address
                         </label>
                     </div>
 
                     <div class="mt-3 flex justify-end">
-                        <input type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]"
-                               value="Confirm addresses">
+                        <button type="submit"
+                                class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                            Confirm addresses
+                        </button>
                     </div>
                 </form>
             </div>
@@ -123,9 +135,9 @@
             $billingFieldSet.classList.toggle('hidden');
         });
     }
-{% endjs %}
+    {% endjs %}
 
-{% js %}
+    {% js %}
     {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
         $billingSameAs.click();
     {% endif %}

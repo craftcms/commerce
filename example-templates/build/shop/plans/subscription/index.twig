@@ -20,8 +20,8 @@
             <dt class="w-1/2 pr-2">Plan Information Entry</dt>
             <dd class="w-1/2">
                 <ul class="list-disc list-inside">
-                    <li>{{ 'ID' }}: {{ information.id }}</li>
-                    <li>{{ 'Title' }}: {{ information.title }}</li>
+                    <li>ID: {{ information.id }}</li>
+                    <li>Title: {{ information.title }}</li>
                 </ul>
             </dd>
         {% endif %}
@@ -44,7 +44,9 @@
                             {{ csrfInput() }}
 
                             <button type="submit"
-                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Reactivate" }}</button>
+                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                                Reactivate
+                            </button>
                         </form>
                     </dd>
                 {% endif %}
@@ -63,8 +65,10 @@
 
                         {{ subscription.plan.getGateway().getCancelSubscriptionFormHtml(subscription)|raw }}
 
-                        <button class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
-                                type="submit">{{ "Unsubscribe" }}</button>
+                        <button type="submit"
+                                class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+                            Unsubscribe
+                        </button>
                     </form>
                 </dd>
             {% endif %}
@@ -94,8 +98,9 @@
                                 {{ csrfInput() }}
 
                                 {{ plan.gateway.getSwitchPlansFormHtml(subscription.plan, plan)|raw }}
-                                <button type="submit"
-                                        class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">{{ "Switch" }}</button>
+                                <button type="submit" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                                    Switch
+                                </button>
                             </form>
                         </td>
                     </tr>

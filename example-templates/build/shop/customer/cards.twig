@@ -26,8 +26,10 @@
                                 {{ redirectInput('/shop/customer/cards') }}
                                 {{ actionInput('commerce/payment-sources/delete') }}
                                 {{ hiddenInput('id', paymentSource.id) }}
-                                <input class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white" type="submit"
-                                       value="Delete"/>
+                                <button type="submit"
+                                        class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+                                    Delete Card
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -61,7 +63,10 @@
             {% for gateway in gateways if gateway.supportsPaymentSources() %}
                 <div id="fields-{{ gateway.id }}"
                      class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed">
-                    <form method="post" action="" class="form-horizontal max-w-md" id="gateway-{{ gateway.id }}">
+                    <form id="gateway-{{ gateway.id }}"
+                          method="post"
+                          action=""
+                          class="form-horizontal max-w-md">
                         {{ actionInput('commerce/payment-sources/add') }}
                         {{ hiddenInput('gatewayId', gateway.id) }}
                         {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
@@ -72,13 +77,19 @@
                         {{ gateway.getPaymentFormHtml({})|raw }}
 
                         <div class="mt-2" data-colspan="1">
-                            <input class="[[input-classes]] w-full" type="text" name="description" value=""
-                                   maxlength="70" autocomplete="off" placeholder="Card description">
+                            <input type="text"
+                                   name="description"
+                                   value=""
+                                   class="[[input-classes]] w-full"
+                                   maxlength="70"
+                                   autocomplete="off"
+                                   placeholder="Card description">
                         </div>
 
                         <div class="mt-2 text-right">
-                            <button class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white" type="submit">Add card
-                            </button>
+                            <button type="submit"
+                                    value="Add card"
+                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white"/>
                         </div>
                     </form>
                 </div>

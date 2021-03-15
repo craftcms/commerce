@@ -18,9 +18,7 @@
         <div class="w-2/3 px-8">
             <h1 class="text-xl font-bold mb-3">Cart/Order Payment</h1>
 
-            {# Show form to be filled out allowing access to the payment form #}
             {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
-                {# Display errors if cart cannot be retrieved or if there is no outstanding balance to be paid #}
                 {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}
                     <div class="bg-[[dangerColor]]-500 text-white mb-4">
                         <div class="flash container mx-auto px-6 py-4">
@@ -39,32 +37,38 @@
                     <div class="mt-3">
                         <label for="orderNumber">Cart/Order Number</label>
                         <div>
-                            <input type="text" id="orderNumber" class="[[classes.input]] w-full" name="orderNumber"
-                                   value="{{ number }}">
+                            <input type="text"
+                                   id="orderNumber"
+                                   name="orderNumber"
+                                   class="[[classes.input]] w-full"
+                                   value="{{ number }}"/>
                         </div>
                     </div>
                     <div class="mt-3">
                         <label for="email">Email Address</label>
                         <div>
-                            <input class="[[classes.input]] w-2/3" type="text" id="email" name="email"
-                                   value="{{ email }}">
+                            <input type="text"
+                                   id="email"
+                                   name="email"
+                                   class="[[classes.input]] w-2/3"
+                                   value="{{ email }}"/>
                         </div>
                     </div>
                     <div class="mt-3 text-right">
-                        <input class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">
+                        <button type="submit"
+                                class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                            Submit
+                        </button>
                     </div>
                 </form>
             {% else %}
                 {% set customer = cart.customer ?? null %}
-                {# Display the payment form #}
                 {% if not gatewayId and not paymentSourceId %}
-                    {# Get the available payment sources the user has to be used later in this page #}
                     {% set paymentSources = [] %}
                     {% if customer and customer.userId and currentUser and currentUser.id == customer.userId %}
                         {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id) %}
                     {% endif %}
 
-                    {# Get the available gateways to be used later in this page #}
                     {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
                     {% if availableGateways|length %}
@@ -87,7 +91,10 @@
                                            class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
                                     </div>
                                     <div class="w-1/2 text-right">
-                                        <input class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit">
+                                        <button type="submit"
+                                                class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                            Submit
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -97,8 +104,10 @@
                     {% do cart.setPaymentCurrency(paymentCurrency) %}
                     {% set canPay = true %}
                     <div class="mt-3 max-w-md [[classes.box.base]]">
-                        <form id="paymentForm" method="post" action=""
-                              class="form-horizontal paymentSource-form max-w-md">
+                        <form id="paymentForm"
+                              method="post"
+                              action=""
+                              class="form-horizontal max-w-md">
                             {{ hiddenInput('action', '/payments/pay') }}
                             {{ redirectInput('/[[folderName]]/customer/order?number=' ~ cart.number ~ '&success=true') }}
                             {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
@@ -132,8 +141,12 @@
 
                                         {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
                                             <div class="checkbox">
-                                                <label><input type="checkbox" name="savePaymentSource"
-                                                              value="1"/> {{ "Save card for future purchases" }}</label>
+                                                <label>
+                                                    <input type="checkbox"
+                                                           name="savePaymentSource"
+                                                           value="1"/>
+                                                    Save card for future purchases
+                                                </label>
                                             </div><br/>
                                         {% endif %}
                                     {% endif %}
@@ -163,9 +176,10 @@
                                         </div>
                                         <div class="w-1/2 text-right">
                                             {% if canPay %}
-                                                <button class="[[classes.btn.base]] [[classes.btn.mainColor]]"
-                                                        type="submit">
-                                                    Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency,convert=true) }}</button>
+                                                <button type="submit"
+                                                        class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                                                    Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency, convert=true) }}
+                                                </button>
                                             {% endif %}
                                         </div>
                                     </div>

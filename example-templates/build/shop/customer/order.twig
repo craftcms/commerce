@@ -1,7 +1,6 @@
 {% extends 'shop/_private/layouts' %}
 
 {% set extraHead %}
-    {# We don't want the order info indexed by search engines #}
     <meta name="robots" content="noindex">
 {% endset %}
 
@@ -156,7 +155,7 @@
                                     <div class="">
                                         {{ adjustment.name }}
                                         {% if adjustment.isEstimated %}<i
-                                                class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                                class="text-grey-dark">Estimated</i>{% endif %}<br>
                                         {{ adjustment.description }}
                                     </div>
                                     <div class="ml-auto">
@@ -201,7 +200,7 @@
                                 <div class="">
                                     {{ adjustment.name }}
                                     {% if adjustment.isEstimated %}<i
-                                            class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                            class="text-grey-dark">Estimated</i>{% endif %}<br>
                                     {{ adjustment.description }}
                                 </div>
                                 <div class="ml-auto">

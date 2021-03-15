@@ -1,7 +1,6 @@
 {% extends 'shop/_private/layouts' %}
 
 {% set extraHead %}
-    {# We don't want the order info to get indexed by search engines #}
     <meta name="robots" content="noindex">
 {% endset %}
 
@@ -24,7 +23,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                {# Get completed orders for the current customer #}
                 {% for order in orders %}
                     {% set rowClass = cycle(['bg-gray-100', ''], loop.index0) %}
                     <tr class="{{ rowClass }}">

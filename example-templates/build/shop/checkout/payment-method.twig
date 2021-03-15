@@ -6,13 +6,9 @@
         <div class="w-2/3 px-8">
             <h1 class="font-bold text-xl">How would you like to pay?</h1>
 
-            {# Get the available payment sources the user has to be used later in this page #}
             {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id ?? null) %}
-
-            {# Get the available gateways to be used later in this page #}
             {% set availableGateways = craft.commerce.gateways.allCustomerEnabledGateways %}
 
-            {# If there is no gateway, then payment sources won't work either #}
             {% if availableGateways is empty %}
                 <p>No payment methods available.</p>
             {% endif %}
@@ -33,8 +29,11 @@
                         </div>
 
                         <div class="mt-6 flex justify-end">
-                            <input class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white" type="submit" name="submit"
-                                   value="Next"/>
+                            <button type="submit"
+                                    name="submit"
+                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                                Next
+                            </button>
                         </div>
                     </form>
                 </div>

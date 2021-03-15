@@ -26,13 +26,15 @@
         <div class="container mx-auto justify-between items-center p-6 relative">
             <nav class="-ml-4">
                 {% for page in pages %}
-                    <a href="{{ url(page.url) }}" hx-boost="true"
-                       class="mr-3 rounded px-4 py-2 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">{{ page.label }}</a>
+                    <a href="{{ url(page.url) }}"
+                       class="mr-3 rounded px-4 py-2 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">
+                        {{ page.label }}
+                    </a>
                 {% endfor %}
             </nav>
-            <a href="/shop/cart" hx-boost="true" class="absolute right-0 top-0 cursor-pointer m-6 p-2 bg-white rounded-lg hover:shadow">
+            <a href="/shop/cart" class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow">
                 {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-red-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
-                {{ include('shop/_private/images/shopping-cart.svg') }}
+                <p role="img" aria-label="Shopping Cart">🛒</p>
             </a>
         </div>
     </div>

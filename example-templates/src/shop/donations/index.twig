@@ -17,11 +17,17 @@
                 <label for="donation-amount">Enter a donation amount e.g. 10, 15, 20</label>
             </div>
             <div>
-                <input id="donation-amount" class="[[classes.input]]" type="text" name="options[donationAmount]"
-                       value="" placeholder="10">
+                <input type="text"
+                       id="donation-amount"
+                       name="options[donationAmount]"
+                       value="" placeholder="10"
+                       class="[[classes.input]]"/>
             </div>
             <div class="mt-3">
-                <input class="[[classes.btn.base]] [[classes.btn.mainColor]]" type="submit" value="Add Donation"/>
+                <button type="submit"
+                        class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                    Add Donation
+                </button>
             </div>
         </form>
     {% else %}

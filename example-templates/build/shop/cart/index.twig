@@ -36,7 +36,8 @@
                                 <label>
                                     <input type="checkbox"
                                            name="lineItems[{{ item.id }}][remove]"
-                                           value="1"> Remove Line
+                                           value="1">
+                                    <span>Remove Line</span>
                                 </label>
                             </div>
                         </td>
@@ -55,29 +56,36 @@
                             {% endif %}
 
                             {% if item.options.donationAmount is defined %}
-                                <label for="lineitem-note-{{ item.id }}"
-                                       class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation
-                                    Amount</label>
-                                <input class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-24"
-                                       type="text" name="lineItems[{{ item.id }}][options][donationAmount]"
-                                       placeholder="Donation" value="{{ item.options.donationAmount }}">
+                                <label for="lineitem-donationAmount-{{ item.id }}">
+                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
+                                </label>
+                                <input type="text"
+                                       id="lineitem-donationAmount-{{ item.id }}"
+                                       name="lineItems[{{ item.id }}][options][donationAmount]"
+                                       value="{{ item.options.donationAmount }}"
+                                       class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-24"
+                                       placeholder="Donation"/>
                             {% endif %}
 
-                            <span class=" {{ item.options.donationAmount is defined ? 'hidden' : '' }}">
-                                <input class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-24 {% if item.getFirstError('qty') %}border-red-500 border{% endif %}"
-                                       type="{% if item.options.donationAmount is defined %}hidden{% else %}number{% endif %}"
-                                       name="lineItems[{{ item.id }}][qty]" min="0" value="{{ item.qty }}">
+                            <span class="{{ item.options.donationAmount is defined ? 'hidden' : '' }}">
+                                <input type="{% if item.options.donationAmount is defined %}hidden{% else %}number{% endif %}"
+                                       class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-24 {% if item.getFirstError('qty') %}border-red-500 border{% endif %}"
+                                       name="lineItems[{{ item.id }}][qty]"
+                                       min="0"
+                                       value="{{ item.qty }}"/>
                             </span>
 
                             <div class="mt-3">
-                                <label for="lineitem-note-{{ item.id }}"
-                                       class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Item
-                                    Note</label>
-                                <input id="lineitem-note-{{ item.id }}" class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded" type="text"
-                                       placeholder="My Note"
-                                       size="20"
+                                <label for="lineitem-note-{{ item.id }}">
+                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
+                                </label>
+                                <input type="text"
+                                       id="lineitem-note-{{ item.id }}"
                                        name="lineItems[{{ item.id }}][note]"
-                                       value="{{ item.note }}">
+                                       value="{{ item.note }}"
+                                       class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                                       size="20"
+                                       placeholder="My Note"/>
                             </div>
                         </td>
 
@@ -129,7 +137,7 @@
                                                 <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong><br>
                                                 {{ adjustment.name }}
                                                 {% if adjustment.isEstimated %}<i
-                                                        class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                                        class="text-grey-dark">Estimated</i>{% endif %}<br>
                                                 <span class="text-gray-600 text-xs">{{ adjustment.description }}</span>
                                             </div>
                                             <div class="ml-auto">
@@ -179,7 +187,7 @@
                                         <div class="">
                                             {{ adjustment.name }}
                                             {% if adjustment.isEstimated %}<i
-                                                    class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                                                    class="text-grey-dark">Estimated</i>{% endif %}<br>
                                             {{ adjustment.description }}
                                         </div>
                                         <div class="ml-auto">
@@ -232,17 +240,18 @@
                     <td class="pt-3 text-right" colspan="3">
                         <div class="flex w-full justify-end">
                             <div class="{% if cart.getFirstError('couponCode') %}bg-red-100 border-red-500 border-b-2 p-6{% else %}bg-gray-100 border-blue-300 border-b-2 p-6{% endif %} text-left max-w-sm w-full">
-                                {# The update Coupon form uses the single update controller action #}
                                 <h5 class="font-bold">Coupon Code</h5>
                                 {% if cart.getFirstError('couponCode') %}
                                     <div class="text-red-500">{{ cart.getFirstError('couponCode') }}</div>
                                 {% endif %}
 
                                 <div class="pt-3">
-                                    <input type="text" name="couponCode" width="11"
-                                           class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-full {% if cart.getFirstError('couponCode') %}text-red-500{% endif %}"
+                                    <input type="text"
+                                           name="couponCode"
                                            value="{{ cart.couponCode }}"
-                                           placeholder="{{ "Coupon Code" }}">
+                                           class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-full {% if cart.getFirstError('couponCode') %}text-red-500{% endif %}"
+                                           width="11"
+                                           placeholder="{{ "Coupon Code" }}"/>
                                 </div>
                             </div>
                         </div>
@@ -250,8 +259,10 @@
                             <div class="flex w-full justify-end">
                                 <div class="pr-2">
                                     {{ redirectInput('shop/cart') }}
-                                    <input class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white" type="submit"
-                                           value="Update Cart"/>
+                                    <button type="submit"
+                                            class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+                                        Update Cart
+                                    </button>
                                 </div>
                                 <div>
                                     {% if not cart.hasErrors() %}

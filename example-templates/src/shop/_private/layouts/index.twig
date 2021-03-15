@@ -4,14 +4,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Craft Commerce</title>
-    <script src="https://unpkg.com/htmx.org@1.3.1"></script>
-    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-    {% if extraHead is defined %}{{ extraHead }}{% endif %}
-</head>
-<body class="relative text-gray-800 flex flex-col min-h-screen">
 
-{% if cart is not defined or not cart %}
-    {% set cart = craft.commerce.carts.cart %}
+    [[tailwindCssTag]]
+
+    {% if extraHead is defined %}
+        {{ extraHead }}
+    {% endif %}
+</head>
+<body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
+
+{% if cart is not defined %}
+{% set cart = craft.commerce.carts.cart %}
 {% endif %}
 
 {% set flashNotice = craft.app.session.getFlash('notice') %}
@@ -20,12 +23,14 @@
 <header>
     <div class="bg-gray-900">
         <div class="container mx-auto p-6">
-            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}" class="text-white">{{ '[[folderName]]'|title }}</a></h1>
+            <h1 class="text-3xl"><a href="{{ url('/[[folderName]]') }}"
+                                    class="text-white">{{ '[[folderName]]'|title }}</a></h1>
         </div>
     </div>
 
     {{ include('[[folderName]]/_private/layouts/includes/nav-main') }}
     {{ include('[[folderName]]/_private/layouts/includes/nav-checkout') }}
+    {{ include('[[folderName]]/_private/guide/sidebar') }}
 </header>
 
 <div id="main">
@@ -37,7 +42,6 @@
         </div>
     </div>
     {% endif %}
-
 
     {% if flashError %}
     <div class="bg-[[dangerColor]]-500 text-white">
@@ -54,13 +58,15 @@
             {% for notice in cart.getNoticeSummary(true) %}
             <li class="list-disc">{{ notice }}</li>
             {% endfor %}
-            <form method="post" class="js-form">
+            <form method="post">
                 {{ actionInput('commerce/cart/update-cart') }}
                 {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
                 {{ hiddenInput('clearNotices') }}
                 {{ csrfInput() }}
-                <input class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0"
-                       type="submit" value="Dismiss"/>
+                <submit type="submit"
+                        class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0">
+                    Dismiss
+                </submit>
             </form>
         </div>
     </div>
@@ -87,10 +93,11 @@
         {% block main %}{% endblock %}
     </div>
     {% endblock %}
-
 </div>
+
 <footer>
     {{ include('[[folderName]]/_private/layouts/includes/footer') }}
 </footer>
+
 </body>
 </html>

@@ -10,6 +10,7 @@ namespace craft\commerce\console\controllers;
 use Craft;
 use craft\commerce\console\Controller;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
 use craft\helpers\Install as InstallHelper;
@@ -43,6 +44,12 @@ class ExampleTemplatesController extends Controller
     public $overwrite = false;
 
     /**
+     * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
+     * @since 3.3
+     */
+    public $cdnAssets;
+
+    /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
      * @since 3.3
      */
@@ -74,6 +81,7 @@ class ExampleTemplatesController extends Controller
         $options[] = 'overwrite';
         $options[] = 'baseColor';
         $options[] = 'devBuild';
+        $options[] = 'cdnAssets';
         return $options;
     }
 
@@ -88,6 +96,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
+            $this->cdnAssets = true;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -95,30 +104,28 @@ class ExampleTemplatesController extends Controller
         $templatesPath = $this->_getTemplatesPath();
 
         $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
-        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);;
+        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);
 
+        if($this->cdnAssets === null)
+        {
+            $this->cdnAssets = $this->confirm('Use CDN links to assets (tailwind)?', true);
+        }
+
+        // Folder name is required
         if (!$folderName) {
             $errors[] = 'No destination folder name provided.';
             return $this->_returnErrors($errors);
         }
 
-        $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
-        $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
-        $this->_replacementData = [
-            '[[folderName]]' => $folderName,
-            '[[color]]' => $mainColor,
-            '[[dangerColor]]' => $dangerColor,
-            '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
-            '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
-            '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
-            '[[classes.box.error]]' => "bg-$dangerColor-100 border-$dangerColor-500 border-b-2 p-6",
-            '[[classes.btn.base]]' => "cursor-pointer rounded px-4 py-2 inline-block",
-            '[[classes.btn.small]]' => "cursor-pointer rounded px-2 py-1 text-sm inline-block",
-            '[[classes.btn.mainColor]]' => "bg-$mainColor-500 hover:bg-$mainColor-600 text-white hover:text-white",
-            '[[classes.btn.grayColor]]' => "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
-            '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white",
-        ];
+        // Add the string replacement data to be swapped out in templates
+        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
+            '[[folderName]]' => $folderName
+        ]);
+        $this->_addCssClassesToReplacementData();
+        $this->_addTranslationsToReplacementData();
+        $this->_addTailwindCss();
 
+        // Let’s go!
         $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
 
         try {
@@ -129,7 +136,7 @@ class ExampleTemplatesController extends Controller
 
             // Find all text files we want to replace [[ ]] notation in.
             $files = FileHelper::findFiles($tempDestination, [
-                'only' => ['*.twig', '*.html', '*.svg']
+                'only' => ['*.twig', '*.html', '*.svg', '*.css']
             ]);
             // Set the [[ ]] notion variables and write our the files.
             foreach ($files as $file) {
@@ -137,6 +144,7 @@ class ExampleTemplatesController extends Controller
                 $fileContents = str_replace(array_keys($this->_replacementData), array_values($this->_replacementData), $fileContents);
                 file_put_contents($file, $fileContents);
             }
+
         } catch (\Exception $e) {
             $errors[] = 'Could not generate templates. Exception raised:';
             $errors[] = $e->getCode() . ' ' . $e->getMessage();
@@ -203,6 +211,75 @@ class ExampleTemplatesController extends Controller
         $this->stdout('Done!' . PHP_EOL, Console::FG_GREEN);
 
         return ExitCode::OK;
+    }
+
+    /**
+     *
+     */
+    private function _addTranslationsToReplacementData()
+    {
+        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
+            "{{ 'Adjustments' }}" => Craft::t('commerce', 'Adjustments'),
+            "{{ 'Estimated' }}" => Craft::t('commerce', 'Estimated'),
+            "{{ 'Shipping Estimate' }}" => Craft::t('commerce', 'Shipping Estimate'),
+            "{{ 'Country' }}" => Craft::t('commerce', 'Country'),
+            "{{ 'State' }}" => Craft::t('commerce', 'State'),
+            "{{ 'Zip Code' }}" => Craft::t('commerce', 'Zip Code'),
+            "{{ 'Tax Estimate' }}" => Craft::t('commerce', 'Tax Estimate'),
+            "{{ 'Show Estimate Fields' }}" => Craft::t('commerce', 'Show Estimate Fields'),
+            "{{ 'Plan Information Entry' }}" => Craft::t('commerce', 'Plan Information Entry'),
+            "{{ 'ID' }}" => Craft::t('commerce', 'ID'),
+            "{{ 'Title' }}" => Craft::t('app', 'Title'),
+            "{{ 'First' }}" => Craft::t('app', 'First'),
+            "{{ 'Previous' }}" => Craft::t('app', 'Previous'),
+            "{{ 'Last' }}" => Craft::t('app', 'Last'),
+            "{{ 'Next' }}" => Craft::t('app', 'Next'),
+        ]);
+    }
+
+    /**
+     *
+     */
+    private function _addCssClassesToReplacementData()
+    {
+        $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
+        $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
+        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
+            '[[color]]' => $mainColor,
+            '[[dangerColor]]' => $dangerColor,
+            '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
+            '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
+            '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
+            '[[classes.box.error]]' => "bg-$dangerColor-100 border-$dangerColor-500 border-b-2 p-6",
+            '[[classes.btn.base]]' => "cursor-pointer rounded px-4 py-2 inline-block",
+            '[[classes.btn.small]]' => "cursor-pointer rounded px-2 py-1 text-sm inline-block",
+            '[[classes.btn.mainColor]]' => "bg-$mainColor-500 hover:bg-$mainColor-600 text-white hover:text-white",
+            '[[classes.btn.grayColor]]' => "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
+            '[[classes.btn.grayLightColor]]' => "bg-gray-300 hover:bg-gray-400 text-gray-600 hover:text-white",
+        ]);
+    }
+
+    /**
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
+    private function _addTailwindCss()
+    {
+        if($this->cdnAssets)
+        {
+            $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+        }else{
+            $response = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
+            if ($response->getStatusCode() == '200') {
+                $css = $response->getBody();
+                $tag = "<style>$css</style>";
+            } else {
+                $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+            }
+        }
+
+        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
+            '[[tailwindCssTag]]' => $tag
+        ]);
     }
 
     /**

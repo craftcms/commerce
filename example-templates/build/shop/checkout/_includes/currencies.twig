@@ -8,7 +8,9 @@
         <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
             <div class="flex justify-start items-center">
                 <div class="pr-2">
-                    <input type="radio" name="paymentCurrency" value="{{ currency.iso }}"
+                    <input type="radio"
+                           name="paymentCurrency"
+                           value="{{ currency.iso }}"
                            {% if currency.iso == cart.paymentCurrency %}checked{% endif %} />
                 </div>
                 <div>
