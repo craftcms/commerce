@@ -1029,9 +1029,39 @@ class Discounts extends Component
      */
     private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
     {
+        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+
         if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
-            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+
             if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+    public function isDiscountUserGroupValid(Discount $discount, $user):bool
+    {        
+        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+
+        if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
+            
+            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ANY && 
+                (count(array_intersect($groupIds, $discount->getUserGroupIds())) === 0)
+            ) {
+                return false;
+            }
+
+            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ALL &&
+                count(array_diff($groupIds, $discount->getUserGroupIds())) > 0
+            ) {
+                return false;
+            }            
+            
+            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_EXCLUDE &&
+                count(array_intersect($groupIds, $discount->getUserGroupIds())) > 0
+            ) {
                 return false;
             }
         }
