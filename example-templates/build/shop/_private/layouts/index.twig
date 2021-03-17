@@ -63,10 +63,10 @@
                 {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
                 {{ hiddenInput('clearNotices') }}
                 {{ csrfInput() }}
-                <submit type="submit"
-                        class="{{ classes.btn.small ~ ' ' ~ classes.btn.blue }} absolute mt-4 mr-4 top-0 right-0">
+                <button type="submit"
+                        class="cursor-pointer rounded px-2 py-1 text-sm inline-block [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0">
                     Dismiss
-                </submit>
+                </button>
             </form>
         </div>
     </div>
