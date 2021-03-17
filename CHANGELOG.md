@@ -3,6 +3,11 @@
 ## Unreleased
 
 ### Fixed
+- Fixed an issue where the “All Totals” column on the Order index was showing blank values. ([#2047](https://github.com/craftcms/commerce/pull/2047))
+
+## 3.2.17.2 - 2021-03-17
+
+### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
 - Fixed a bug where `success` and `error` keys were missing from JSON response on requests to `commerce/payments/complete-payment`. ([#2043](https://github.com/craftcms/commerce/issues/2043))
 
