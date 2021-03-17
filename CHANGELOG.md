@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where included taxes may not have shown up in order totals.
+
 ## 2.2.26 - 2021-03-03
 
 ### Fixed
