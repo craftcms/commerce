@@ -19,6 +19,7 @@ class m201111_064232_order_notices extends Migration
             $this->createTable('{{%commerce_ordernotices}}', [
                 'id' => $this->primaryKey(),
                 'orderId' => $this->integer()->notNull(),
+                'type' => $this->string(),
                 'attribute' => $this->string(),
                 'message' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),

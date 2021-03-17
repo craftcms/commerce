@@ -8,7 +8,9 @@
 namespace craft\commerce\elements\traits;
 
 use craft\commerce\elements\Order;
-
+use craft\commerce\models\OrderNotice;
+use craft\commerce\models\PaymentCurrency;
+use craft\helpers\ArrayHelper;
 
 /**
  * @property Order $this
@@ -18,149 +20,108 @@ trait OrderNoticesTrait
     private $_notices;
 
     /**
-     * Returns the notices for all attributes or a single attribute.
+     * Returns the notices for all types/attributes or a single type/attributes.
      *
+     * @param string $type type name. Use null to retrieve notices for all types.
      * @param string $attribute attribute name. Use null to retrieve notices for all attributes.
-     * @return array notices for all attributes or the specified attribute. Empty array is returned if no notice.
-     * Note that when returning notices for all attributes, the result is a two-dimensional array, like the following:
+     * @return OrderNotice[] notices for all types or the specified type / attribute. Empty array is returned if no notice.
      *
-     * ```php
-     * [
-     *     'customerId' => [
-     *         'Customer changed.',
-     *     ],
-     *     'shippingMethodHandle' => [
-     *         'Shipping method has been removed since it is not longer available.',
-     *     ]
-     * ]
-     * ```
-     *
-     * @property array An array of notices for all attributes. Empty array is returned if no notice.
-     * The result is a two-dimensional array. See [[getNotices()]] for detailed description.
-     * @see getFirstNotices()
-     * @see getFirstNotice()
      */
-    public function getNotices($attribute = null)
+    public function getNotices($type = null, $attribute = null)
     {
-        if ($attribute === null) {
+        // We want all
+        if ($type === null && $attribute === null) {
             return $this->_notices ?? [];
         }
 
-        return $this->_notices[$attribute] ?? [];
-    }
-
-    /**
-     * Adds a new notice to the specified attribute.
-     *
-     * @param string $attribute attribute name
-     * @param string $notice new notice message
-     */
-    public function addNotice($attribute, $notice = '')
-    {
-        $this->_notices[$attribute][] = $notice;
-    }
-
-    /**
-     * Returns the first error of the specified attribute.
-     *
-     * @param string $attribute attribute name.
-     * @return string the error message. Null is returned if no error.
-     * @see getErrors()
-     * @see getFirstErrors()
-     */
-    public function getFirstNotice($attribute)
-    {
-        return isset($this->_notices[$attribute]) ? reset($this->_notices[$attribute]) : null;
-    }
-
-    /**
-     * Returns the notices for all attributes as a one-dimensional array.
-     *
-     * @param bool $showAllNotices boolean, if set to true every notice message for each attribute will be shown otherwise
-     * only the first notice message for each attribute will be shown.
-     * @return array notices for all attributes as a one-dimensional array. Empty array is returned if no notice.
-     * @see getNotices()
-     * @see getFirstNotices()
-     * @since 3.x
-     */
-    public function getNoticeSummary($showAllNotices)
-    {
-        $lines = [];
-        $notices = $showAllNotices ? $this->getNotices() : $this->getFirstNotice();
-        foreach ($notices as $es) {
-            $lines = array_merge((array)$es, $lines);
+        // Filter by type
+        if ($type !== null && $attribute === null) {
+            return ArrayHelper::where($this->_notices, 'type', $type);
         }
-        return $lines;
+
+        // Filter by attribute
+        if ($type === null && $attribute !== null) {
+            return ArrayHelper::where($this->_notices, 'attribute', $attribute);
+        }
+
+        // Filter by both
+        if ($type !== null && $attribute !== null) {
+            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) {
+                return $notice->attribute == $attribute && $notice->type == $type;
+            }, true, true, true);
+        }
+
+        return [];
+    }
+
+    /**
+     * Adds a new notice
+     *
+     * @param OrderNotice $notice
+     */
+    public function addNotice(OrderNotice $notice)
+    {
+        $notice->setOrder($this);
+        $this->_notices[] = $notice;
+    }
+
+    /**
+     * Returns the first error of the specified type or attribute
+     *
+     * @return OrderNotice|null
+     */
+    public function getFirstNotice($type = null, $attribute = null)
+    {
+        return ArrayHelper::firstValue($this->getNotices($type, $attribute));
     }
 
     /**
      * Adds a list of notices.
      *
-     * @param array $items a list of notices. The array keys must be attribute names.
-     * The array values should be notice messages. If an attribute has multiple notices,
-     * these notices must be given in terms of an array.
-     * You may use the result of [[getNotices()]] as the value for this parameter.
+     * @param OrderNotice[] $notice an array of notices.
      * @since 3.x
      */
-    public function addNotices(array $items)
+    public function addNotices(array $notices)
     {
-        foreach ($items as $attribute => $notices) {
-            if (is_array($notices)) {
-                foreach ($notices as $notice) {
-                    $this->addNotice($attribute, $notice);
-                }
-            } else {
-                $this->addNotice($attribute, $notices);
-            }
+        foreach ($notices as $notice) {
+            $this->addNotice($notice);
         }
     }
 
     /**
-     * Removes notices for all attributes or a single attribute.
+     * Removes notices for all types or a single type.
      *
-     * @param string $attribute attribute name. Use null to remove notices for all attributes.
+     * @param string $type type name. Use null to remove notices for all types.
      */
-    public function clearNotices($attribute = null)
+    public function clearNotices($type = null, $attribute = null)
     {
-        if ($attribute === null) {
+        if ($type === null && $attribute === null) {
             $this->_notices = [];
-        } else {
-            unset($this->_notices[$attribute]);
+        } elseif ($type !== null && $attribute === null) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+                return $notice->type != $type;
+            }, true, true, true);
+        } elseif ($type === null && $attribute !== null) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+                return $notice->attribute != $attribute;
+            }, true, true, true);
+        } elseif ($type !== null && $attribute !== null) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+                return $notice->type == $type && $notice->attribute == $attribute;
+            }, false, true, true);
         }
     }
 
     /**
-     * Returns the first notice of every attribute in the model.
+     * Returns a value indicating whether there is any notices.
      *
-     * @return array the first notices. The array keys are the attribute names, and the array
-     * values are the corresponding notice messages. An empty array will be returned if there is no notice.
-     * @see getNotices()
-     * @see getFirstNotice()
+     * @param string|null $type type name. Use null to check all types.
+     * @param string|null $attribute atrtribute name. Use null to check all attributes.
+     * @return bool whether there is any notices.
      */
-    public function getFirstNotices(): array
+    public function hasNotices($type = null, $attribute = null): bool
     {
-        if (empty($this->_notices)) {
-            return [];
-        }
-
-        $notices = [];
-        foreach ($this->_notices as $name => $es) {
-            if (!empty($es)) {
-                $notices[$name] = reset($es);
-            }
-        }
-
-        return $notices;
-    }
-
-    /**
-     * Returns a value indicating whether there is any notice.
-     *
-     * @param string|null $attribute attribute name. Use null to check all attributes.
-     * @return bool whether there is any notice.
-     */
-    public function hasNotices($attribute = null): bool
-    {
-        return $attribute === null ? !empty($this->_notices) : isset($this->_notices[$attribute]);
+        $hasNotices = !empty($this->getNotices($type, $attribute));
+        return $hasNotices;
     }
 }

@@ -14,6 +14,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -1189,20 +1190,25 @@ class OrderQuery extends ElementQuery
             $orderIds = ArrayHelper::getColumn($orders, 'id');
 
             $notices = (new Query())
-                ->select(['orderId', 'attribute', 'message'])
+                ->select(['id', 'orderId', 'type', 'attribute', 'message'])
                 ->from([Table::ORDERNOTICES])
                 ->where(['orderId' => $orderIds])
                 ->all();
 
             $noticesByOrderId = [];
             foreach ($notices as $notice) {
-                $orderId = $notice['orderId'];
-                $attribute = $notice['attribute'];
-                $noticesByOrderId[$orderId][$attribute][] = $notice['message'];
+                $noticeModel = new OrderNotice();
+                $noticeModel->id = $notice['id'];
+                $noticeModel->orderId = $notice['orderId'];
+                $noticeModel->type = $notice['type'];
+                $noticeModel->attribute = $notice['attribute'];
+                $noticeModel->message = $notice['message'];
+                $noticesByOrderId[$noticeModel->orderId][] = $noticeModel;
             }
 
             foreach ($orders as $key => $order) {
                 if (isset($noticesByOrderId[$order->id])) {
+                    $notices = $noticesByOrderId[$order->id];
                     $order->addNotices($noticesByOrderId[$order->id]);
                     $orders[$key] = $order;
                 }
