@@ -590,6 +590,11 @@ trait OrderElementTrait
         ];
     }
 
+    /**
+     * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
+     * 
+     * @return string
+     */
     private function _miniTable($miniTable)
     {
         $output = '';
