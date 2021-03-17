@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\elements\Order;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
@@ -142,15 +143,52 @@ trait OrderElementTrait
             }
             case 'totals':
             {
-                $values = [
-                    [Craft::t('commerce', 'Items'), $this->itemSubtotalAsCurrency],
-                    [Craft::t('commerce', 'Discounts'), $this->storedTotalDiscountAsCurrency],
-                    [Craft::t('commerce', 'Shipping'), $this->storedTotalShippingCostAsCurrency],
-                    [Craft::t('commerce', 'Tax (inc)'), $this->storedTotalTaxIncludedAsCurrency],
-                    [Craft::t('commerce', 'Tax'), $this->storedTotalTaxAsCurrency],
-                    [Craft::t('commerce', 'Price'), $this->storedTotalPriceAsCurrency],
-                ];
-                return $this->_miniTable($values);
+                $miniTable = [];
+
+                /** @var Order $this */
+                if ($this->itemSubtotal > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Items'),
+                        'value' => $this->itemSubtotalAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalDiscount > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Discounts'),
+                        'value' => $this->storedTotalDiscountAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalShippingCost > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Shipping'),
+                        'value' => $this->storedTotalShippingCostAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalTaxIncluded > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Tax (inc)'),
+                        'value' => $this->storedTotalTaxIncludedAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalTax > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Tax'),
+                        'value' => $this->storedTotalTaxAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalPrice > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Price'),
+                        'value' => $this->storedTotalPriceAsCurrency
+                    ];
+                }
+
+                return $this->_miniTable($miniTable);
             }
             case 'orderSite':
             {
@@ -552,24 +590,15 @@ trait OrderElementTrait
         ];
     }
 
-    private function _miniTable($values)
+    private function _miniTable($miniTable)
     {
         $output = '';
         $output .= '<table style="padding: 0; width: 100%">';
-        foreach ($values as $row) {
-            if ($row[1] != 0) {
-                $output .= '<tr style="padding: 0">';
-                $count = 1;
-                foreach ($row as $cell) {
-                    if ($count == 1) {
-                        $output .= '<td style="text-align: left; padding: 0px">' . $cell . '</td>';
-                    } else {
-                        $output .= '<td style="text-align: right; padding: 0px">' . $cell . '</td>';
-                    }
-                    $count++;
-                }
-                $output .= '</tr>';
-            }
+        foreach ($miniTable as $row) {
+            $output .= '<tr style="padding: 0">';
+            $output .= '<td style="text-align: left; padding: 0px">' . $row['label'] . '</td>';
+            $output .= '<td style="text-align: right; padding: 0px">' . $row['value'] . '</td>';
+            $output .= '</tr>';
         }
         $output .= '</table>';
 
