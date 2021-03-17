@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
+- Fixed a mising migration of included taxes that could occur when updating from Commerce 1.
 
 ## 3.2.17.1 - 2021-03-08
 
