@@ -359,6 +359,16 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::ORDERNOTICES, [
+            'id' =>  $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'attribute' => $this->string(),
+            'message' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -659,10 +669,12 @@ class Install extends Migration
             'description' => $this->string(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean(),
+            'orderConditionFormula' => $this->text(),
             'minQty' => $this->integer()->notNull()->defaultValue(0),
             'maxQty' => $this->integer()->notNull()->defaultValue(0),
             'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'minMaxTotalType' => $this->enum('minMaxTotalType', ['salePrice', 'salePriceWithDiscounts'])->notNull()->defaultValue('salePrice'),
             'minWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -869,6 +881,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::ORDERADJUSTMENTS);
         $this->dropTableIfExists(Table::ORDERHISTORIES);
         $this->dropTableIfExists(Table::ORDERS);
+        $this->dropTableIfExists(Table::ORDERNOTICES);
         $this->dropTableIfExists(Table::ORDERSTATUS_EMAILS);
         $this->dropTableIfExists(Table::ORDERSTATUSES);
         $this->dropTableIfExists(Table::PAYMENTCURRENCIES);
@@ -945,6 +958,7 @@ class Install extends Migration
         $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
         $this->createIndex(null, Table::LINEITEMS, 'shippingCategoryId', false);
         $this->createIndex(null, Table::ORDERADJUSTMENTS, 'orderId', false);
+        $this->createIndex(null, Table::ORDERNOTICES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'prevStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
@@ -1055,6 +1069,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
@@ -1139,6 +1154,7 @@ class Install extends Migration
             Table::EMAILS,
             Table::LINEITEMS,
             Table::ORDERADJUSTMENTS,
+            Table::ORDERNOTICES,
             Table::ORDERHISTORIES,
             Table::ORDERS,
             Table::ORDERSTATUS_EMAILS,

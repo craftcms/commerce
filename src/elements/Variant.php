@@ -365,7 +365,7 @@ class Variant extends Purchasable
 
         $rules[] = [['sku'], 'string', 'max' => 255];
         $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price'], 'number'];
+        $rules[] = [['price', 'weight', 'width', 'height', 'length'], 'number'];
         $rules[] = [
             ['stock'],
             'required',
@@ -396,7 +396,7 @@ class Variant extends Purchasable
     public function getFieldLayout()
     {
         $fieldLayout = parent::getFieldLayout();
-        
+
         // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
         if (!$fieldLayout && $this->productId) {
             $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
@@ -533,6 +533,16 @@ class Variant extends Purchasable
         $labels = parent::attributeLabels();
 
         return array_merge($labels, ['sku' => 'SKU']);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCacheTags(): array
+    {
+        return [
+            "product:$this->productId",
+        ];
     }
 
     /**
@@ -865,6 +875,9 @@ class Variant extends Purchasable
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
         if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+            if ($order = $lineItem->getOrder()) {
+                $order->addNotice('lineItems', Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]));
+            }
             $lineItem->qty = $this->stock;
         }
 

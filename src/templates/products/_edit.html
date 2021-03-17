@@ -14,6 +14,29 @@
 {% set saveShortcutRedirect = continueEditingUrl %}
 {% do view.setIsDeltaRegistrationActive(true) %}
 
+{% set formActions = [
+  {
+    label: 'Save and continue editing'|t('commerce'),
+    redirect: continueEditingUrl|hash,
+    shortcut: true,
+    retainScroll: true,
+  }
+] %}
+{% if product.id %}
+  {% set formActions = formActions|push({
+    label: 'Save as a new {type}'|t('app', { type: product.lowerDisplayName() }),
+    redirect: '{cpEditUrl}'|hash,
+    action: 'commerce/products/duplicate-product'
+  }) %}
+  {% set formActions = formActions|push({
+    action: 'commerce/products/delete-product',
+    confirm: 'Are you sure you want to delete this product?'|t('commerce'),
+    redirect: 'commerce/products'|hash,
+    label: 'Delete'|t('commerce'),
+    destructive: true,
+  }) %}
+{% endif %}
+
 {% import "_includes/forms" as forms %}
 {% import "commerce/products/_fields" as productFields %}
 
@@ -67,41 +90,12 @@
 
 
 {% block actionButton %}
-    <div class="btngroup">
-        <input type="submit" class="btn submit"
-               value="{{ 'Save'|t('commerce') }}">
-        <div class="btn submit menubtn"></div>
-        <div class="menu">
-            <ul>
-                <li>
-                    <a class="formsubmit"
-                       data-redirect="{{ continueEditingUrl|hash }}">
-                        {{ "Save and continue editing"|t('commerce') }}
-                        {{ forms.optionShortcutLabel('S') }}
-                    </a>
-                </li>
-                {% if product.id %}
-                    <li>
-                        <a class="formsubmit" data-action="commerce/products/duplicate-product" data-redirect="{{ '{cpEditUrl}'|hash }}">
-                            {{ "Save as a new {type}"|t('app', { type: product.lowerDisplayName() }) }}
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-            {% if product.id %}
-                <hr>
-                <ul>
-                    <li>
-                        <a class="formsubmit error"
-                           data-action="commerce/products/delete-product"
-                           data-confirm="{{ 'Are you sure you want to delete this product?'|t('commerce') }}"
-                           data-redirect="{{ 'commerce/products'|hash }}">
-                            {{ 'Delete'|t('commerce') }}
-                        </a>
-                    </li>
-                </ul>
-            {% endif %}
-        </div>
+    <div id="save-btn-container" class="btngroup submit">
+      <button type="submit" class="btn submit">{{ 'Save'|t('commerce') }}</button>
+      {% if formActions|length %}
+        <button type="button" class="btn submit menubtn" aria-lable="{{ 'Actions'|t('commerce') }}"></button>
+        {% include '_layouts/components/form-action-menu' %}
+      {% endif %}
     </div>
 {% endblock %}
 

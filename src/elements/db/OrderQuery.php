@@ -19,6 +19,7 @@ use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -32,7 +33,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/order-queries.md
+ * @doc-path orders-carts.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -1180,6 +1181,31 @@ class OrderQuery extends ElementQuery
             // Eager-load addresses?
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+            }
+        }
+
+        if (!$this->asArray) {
+
+            $orderIds = ArrayHelper::getColumn($orders, 'id');
+
+            $notices = (new Query())
+                ->select(['orderId', 'attribute', 'message'])
+                ->from([Table::ORDERNOTICES])
+                ->where(['orderId' => $orderIds])
+                ->all();
+
+            $noticesByOrderId = [];
+            foreach ($notices as $notice) {
+                $orderId = $notice['orderId'];
+                $attribute = $notice['attribute'];
+                $noticesByOrderId[$orderId][$attribute][] = $notice['message'];
+            }
+
+            foreach ($orders as $key => $order) {
+                if (isset($noticesByOrderId[$order->id])) {
+                    $order->addNotices($noticesByOrderId[$order->id]);
+                    $orders[$key] = $order;
+                }
             }
         }
 

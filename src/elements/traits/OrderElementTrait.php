@@ -8,6 +8,7 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
+use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdf;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
@@ -44,6 +45,16 @@ trait OrderElementTrait
     public function getFieldLayout()
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function htmlAttributes(string $context): array
+    {
+        $attributes = parent::htmlAttributes($context);
+        $attributes['data-number'] = $this->number;
+        return $attributes;
     }
 
     /**
@@ -336,11 +347,17 @@ trait OrderElementTrait
             if (Craft::$app->getUser()->checkPermission('commerce-editOrders')) {
                 // Only allow mass updating order status when all selected are of the same status, and not carts.
                 $isStatus = strpos($source, 'orderStatus:');
-
-
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
                         'type' => UpdateOrderStatus::class
+                    ]);
+                    $actions[] = $updateOrderStatusAction;
+                }
+
+                $isStatus = strpos($source, 'carts:');
+                if ($isStatus === 0) {
+                    $updateOrderStatusAction = $elementService->createAction([
+                        'type' => CopyLoadCartUrl::class
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }
