@@ -383,7 +383,7 @@ class Discounts extends Component
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+        if (!$this->isDiscountUserGroupValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
             return false;
         }
@@ -533,7 +533,7 @@ class Discounts extends Component
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+        if (!$this->isDiscountUserGroupValid($discount, $user)) {
             return false;
         }
 
@@ -1022,45 +1022,33 @@ class Discounts extends Component
     }
 
     /**
-     * @param Order $order
      * @param Discount $discount
      * @param $user
      * @return bool
      */
-    private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
-    {
-        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-
-        if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
-
-            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-    
-    public function isDiscountUserGroupValid(Discount $discount, $user):bool
+    public function isDiscountUserGroupValid(Discount $discount, $user): bool
     {        
         $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-
+        
+        $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
             
             if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ANY && 
-                (count(array_intersect($groupIds, $discount->getUserGroupIds())) === 0)
+                (count(array_intersect($groupIds, $discountGroupIds)) === 0)
             ) {
                 return false;
             }
-
-            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ALL &&
-                count(array_diff($groupIds, $discount->getUserGroupIds())) > 0
+            
+            sort($groupIds); 
+            sort($discountGroupIds);
+            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ALL 
+               && $groupIds !== $discountGroupIds
             ) {
                 return false;
             }            
             
             if ($discount->userCondition === DiscountRecord::CONDITION_USERS_EXCLUDE &&
-                count(array_intersect($groupIds, $discount->getUserGroupIds())) > 0
+                count(array_intersect($groupIds, $discountGroupIds)) > 0
             ) {
                 return false;
             }

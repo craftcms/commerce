@@ -31,7 +31,7 @@ class UserConditionDiscountTest extends Unit
      * @var UnitTester
      */
     protected $tester;
-    
+
     /**
      *
      */
@@ -40,63 +40,98 @@ class UserConditionDiscountTest extends Unit
         parent::_before();
         $this->discounts = Plugin::getInstance()->getDiscounts();
     }
-    
-    public function testIsUserConditionValid()
+
+    public function testIsUserConditionAnyOrNoneValid()
     {
-        $mockCustomers = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => [1, 2]
-        ]);
-        
-        Plugin::getInstance()->set('customers', $mockCustomers);
-        
-        /** @var Discount $mockDiscount */
-        $mockDiscount = $this->make(Discount::class, [
-            'getUserGroupIds' => [3, 4]
-        ]);
-        
+        $this->_mockCustomers();
+
+        $mockDiscount = $this->_getMockDiscount([3, 4]);
+
         $discountAdjuster = new Discounts();
-        
+
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_ANY_OR_NONE;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertTrue($isValid);
-        
+    }
+
+    public function testIsUserConditionIncludeAllValid()
+    {
+        $discountAdjuster = new Discounts();
+        $this->_mockCustomers();
+
+        $mockDiscount = $this->_getMockDiscount([3, 4]);
+
+
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_INCLUDE_ALL;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertFalse($isValid);
 
-        /** @var Discount $mockDiscount */
-        $mockDiscount = $this->make(Discount::class, [
-            'getUserGroupIds' => [2, 3]
-        ]);
-        
+        $mockDiscount = $this->_getMockDiscount([2, 3]);
+
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_INCLUDE_ALL;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
-        self::assertFalse($isValid);        
-        
+        self::assertFalse($isValid);
+
+        $this->_mockCustomers([2]);
+        $mockDiscount = $this->_getMockDiscount([2, 1]);
+
+        $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_INCLUDE_ALL;
+        $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
+        self::assertFalse($isValid);
+    }
+
+    public function testIsUserConditionIncludeAnyValid()
+    {
+        $this->_mockCustomers();
+
+        $mockDiscount = $this->_getMockDiscount([2, 3]);
+
+        $discountAdjuster = new Discounts();
+
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_INCLUDE_ANY;
 
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertTrue($isValid);
 
-        /** @var Discount $mockDiscount */
-        $mockDiscount = $this->make(Discount::class, [
-            'getUserGroupIds' => [3, 4]
-        ]);
+        $mockDiscount = $this->_getMockDiscount([3, 4]);
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_INCLUDE_ANY;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertFalse($isValid);
+    }
 
+    public function testIsUserConditionExcludeValid()
+    {
+        $discountAdjuster = new Discounts();
+        $this->_mockCustomers();
+
+        $mockDiscount = $this->_getMockDiscount([3, 4]);
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_EXCLUDE;
+
 
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertTrue($isValid);
-        
-        /** @var Discount $mockDiscount */
-        $mockDiscount = $this->make(Discount::class, [
-            'getUserGroupIds' => [2, 4]
-        ]);
+
+        $mockDiscount = $this->_getMockDiscount([2, 4]);
         $mockDiscount->userCondition = DiscountRecord::CONDITION_USERS_EXCLUDE;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertFalse($isValid);
+
+    }
+
+    public function _mockCustomers(array $ids = [1, 2])
+    {
+        $mockCustomers = $this->make(Customers::class, [
+            'getUserGroupIdsForUser' => $ids
+        ]);
+
+        Plugin::getInstance()->set('customers', $mockCustomers);
+    }
+
+    public function _getMockDiscount(array $ids)
+    {
+        /** @var Discount $mockDiscount */
+        return $this->make(Discount::class, [
+            'getUserGroupIds' => $ids
+        ]);
     }
 }
