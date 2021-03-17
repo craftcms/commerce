@@ -488,7 +488,10 @@ class PaymentsController extends BaseFrontEndController
 
         if ($success) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $response = ['url' => $transaction->order->returnUrl];
+                $response = [
+                    'success' => true,
+                    'url' => $transaction->order->returnUrl,
+                ];
 
                 return $this->asJson($response);
             }
@@ -496,10 +499,14 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
-        $this->setFailFlash(Craft::t('commerce', 'Payment error: {message}', ['message' => $error]));
+        $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
+        $this->setFailFlash($errorMessage);
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $response = ['url' => $transaction->order->cancelUrl];
+            $response = [
+                'error' => $errorMessage,
+                'url' => $transaction->order->cancelUrl,
+            ];
 
             return $this->asJson($response);
         }

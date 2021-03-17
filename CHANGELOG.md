@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
 - Fixed a mising migration of included taxes that could occur when updating from Commerce 1.
+- Fixed a bug where `success` and `error` keys were missing from JSON response on requests to `commerce/payments/complete-payment`. ([#2043](https://github.com/craftcms/commerce/issues/2043))
 
 ## 3.2.17.1 - 2021-03-08
 
