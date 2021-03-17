@@ -54,7 +54,7 @@
     {% if cart.hasNotices() %}
     <div class="bg-blue-400 text-white">
         <div class="container mx-auto px-6 py-4 relative">
-            <span>⚠️ Cart Notifications</span>
+            <span>Cart Notices</span>
             {% for notice in cart.getNotices() %}
             <li class="list-disc">{{ notice }}</li>
             {% endfor %}
