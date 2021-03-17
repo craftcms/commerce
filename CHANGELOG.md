@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17.2 - 2021-03-17
 
 ### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
