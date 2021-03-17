@@ -1,9 +1,11 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17.2 - 2021-03-17
 
 ### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
+- Fixed a bug where included tax totals may be incorrect after updating from Commerce 1.
+- Fixed a bug where `success` and `error` keys were missing from JSON response on requests to `commerce/payments/complete-payment`. ([#2043](https://github.com/craftcms/commerce/issues/2043))
 
 ## 3.2.17.1 - 2021-03-08
 
@@ -1036,6 +1038,22 @@
 - Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
+
+## 2.2.27 - 2021-03-17
+
+### Fixed
+- Fixed a bug where included taxes may not have shown up in order totals.
+
+## 2.2.26 - 2021-03-03
+
+### Fixed
+- Fixed a bug where `craft\commerce\elements\Order::getTotalShippingCost()` wasn’t returning a value. ([#2027](https://github.com/craftcms/commerce/pull/2027))
+
+## 2.2.25 - 2021-01-21
+
+### Fixed
+- Fixed a bug where comparing getTotalPaid and getTotal methods in `craft\commerce\elements\Order::getPaidStatus` returns invalid boolean value. ([#1836](https://github.com/craftcms/commerce/issues/1836))
+- Fixed a bug that prevented a customer from unsubscribing from a subscription and deleting payment sources.
 
 ## 2.2.24 - 2020-11-16
 
