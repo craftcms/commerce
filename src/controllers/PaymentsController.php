@@ -68,9 +68,8 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        // TODO Remove `orderNumber` param in 4.0
+        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
         $number = $this->request->getBodyParam('orderNumber');
-        $number = $this->request->getBodyParam('number', $number);
 
         if ($number !== null) {
             /** @var Order $order */
@@ -409,7 +408,7 @@ class PaymentsController extends BaseFrontEndController
         // When the order is marked as complete from a payment later, the order will be set to 'recalculate none' mode permanently.
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
-        // set a partial payment amount on the order
+        // set a partial payment amount on the order in the orders currency (not payment currency)
         $patialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowFrontEndPartialPayments) || $this->request->isCpRequest);
         if ($patialAllowed && ($paymentAmount = $this->request->getParam('paymentAmount'))) {
             $order->setPaymentAmount($paymentAmount);

@@ -21,8 +21,8 @@
 
         <fieldset>
         <legend>Payment Amount</legend>
-        <div id="currency-selector">
-            <input type="text"  id="paymentAmount-{{ gateway.id }}" class="text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+        <div id="currency-selector-{{ gateway.id }}">
+            <input type="text"  id="paymentAmount-{{ gateway.id }}" name="paymentAmount" class="text" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
             {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
             {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
@@ -38,8 +38,8 @@
             {% else %}
                  <input type="hidden" id="paymentCurrency-{{ gateway.id }}" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
             {% endif %}
-            <span id="baseCurrencyAmount">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
-            <p id="response-message"></p>
+            <span id="baseCurrencyAmount-{{ gateway.id }}">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+            <p id="response-message-{{ gateway.id }}"></p>
         </div>
         </fieldset>
 
@@ -53,7 +53,6 @@
 </div>
 
 {% js %}
-
 
     var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
     var outstandingBalance = '{{ order.outstandingBalance }}';
@@ -81,7 +80,7 @@
 
     function updatePrice() {
         var price = $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").val();
-        debugger;
+
         $.ajax({
             type: "POST",
             dataType: 'json',
@@ -96,22 +95,19 @@
                 'orderId' : orderId
             },
             success: function(data){
-                console.log(data);
                 $("#gateway-{{ gateway.id }}-form").find("#baseCurrencyAmount-{{ gateway.id }}").html(data.baseCurrencyPaymentAmountAsCurrency);
-
-                if(data.message.length) {
-                    $('#response-message-{{ gateway.id }}').html(data.message);
-                    window.dispatchEvent(new Event('resize'));
-                }
+                $("#real-paymentAmount-{{ gateway.id }}").val(data.baseCurrencyPaymentAmount);
+                $('#response-message-{{ gateway.id }}').html(data.message);
+                window.dispatchEvent(new Event('resize'));
                 $('#submit-payment-{{ gateway.id }}').prop('disabled', false);
             }
         });
     }
 
-    $("#gateway-{{ gateway.id }}-form").find(".submit", function(e){
-        e.preventDefault();
-        console.log('SUBMITTING PAYMENT');
-    });
+{#    $("#gateway-{{ gateway.id }}-form").find(".submit", function(e){#}
+{#        e.preventDefault();#}
+
+{#    });#}
 
     $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").bind('keyup mouseup', debounce(() => {
         var newVal = $("input#paymentAmount-{{ gateway.id }}").val();
@@ -130,9 +126,6 @@
         }).on('change', function() {
             $('#submit-payment-{{ gateway.id }}').prop('disabled', true);
 
-            if(previous != this.value){
-                console.log('changed currency from '+previous+' to '+this.value);
-            }
             if(this.value != primaryBaseCurrency){
                 $("input#paymentAmount-{{ gateway.id }}").removeAttr('max');
             }else{

@@ -132,7 +132,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEditOrder($orderId, Order $order = null): Response
+    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -148,6 +148,7 @@ class OrdersController extends Controller
         }
 
         $variables['order'] = $order;
+        $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
         $transactions = $order->getTransactions();
@@ -892,15 +893,15 @@ class OrdersController extends Controller
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
-
+        $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
-        $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $baseCurrency = $paymentCurrencies->getPrimaryPaymentCurrencyIso();
         $order = Order::find()->id($orderId)->one();
 
-        $baseCurrencyPaymentAmount = Plugin::getInstance()->getPaymentCurrencies()->convert($paymentAmount, $paymentCurrency);
-        $baseCurrencyPaymentAmountAsCurrency = $order->currency . ' ' . Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
+        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
 
         $outstandingBalance = $order->outstandingBalance;
         $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
@@ -918,6 +919,7 @@ class OrdersController extends Controller
             'outstandingBalance' => $outstandingBalance,
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
+            'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
             'message' => $message
         ]);
     }

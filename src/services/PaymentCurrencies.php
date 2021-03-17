@@ -15,9 +15,14 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use Money\Converter;
+use Money\Currency;
+use Money\Exchange\FixedExchange;
+use Money\Exchange\ReversedCurrenciesExchange;
 
 /**
  * Payment currency service.
@@ -40,6 +45,20 @@ class PaymentCurrencies extends Component
      */
     private $_allCurrenciesById;
 
+    /**
+     * @var
+     */
+    private $_exchange;
+
+    /**
+     *
+     */
+    public function init()
+    {
+        $this->_exchange = new ReversedCurrenciesExchange(new FixedExchange([
+            $this->getPrimaryPaymentCurrencyIso() => ArrayHelper::map($this->getNonPrimaryPaymentCurrencies(), 'iso', 'rate')
+        ]));
+    }
 
     /**
      * Get payment currency by its ID.
@@ -137,6 +156,18 @@ class PaymentCurrencies extends Component
         }
 
         return null;
+    }
+
+    /**
+     * Returns the non primary payment currencies
+     *
+     * @return PaymentCurrency[]
+     */
+    public function getNonPrimaryPaymentCurrencies()
+    {
+        return ArrayHelper::where($this->getAllPaymentCurrencies(), function(PaymentCurrency $paymentCurrency) {
+            return !$paymentCurrency->primary;
+        }, true, true, true);
     }
 
     /**

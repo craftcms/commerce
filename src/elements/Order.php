@@ -55,6 +55,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Money\Money;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -1060,7 +1061,7 @@ class Order extends Element
     private $_customer;
     
     /**
-     * @var float
+     * @var Money
      * @see Order::setPaymentAmount() To set the order payment amount
      * @see Order::getPaymentAmount() To get the order payment amount
      * ---
@@ -2205,11 +2206,11 @@ class Order extends Element
     /**
      * Returns the paymentAmount for this order.
      *
-     * @return float
+     * @return Money
      */
     public function getPaymentAmount(): float
     {
-        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
+        if ($this->_paymentAmount && $this->_paymentAmount->getAmount() >= 0 && $this->_paymentAmount->getAmount() <= $this->getOutstandingBalance()) {
             return $this->_paymentAmount;
         }
 
@@ -2217,13 +2218,13 @@ class Order extends Element
     }
 
     /**
-     * Sets the orders payment amount. This amount is not persisted.
+     * Sets the orders payment amount in the order's currency. This amount is not persisted.
      *
-     * @param float|null $amount
+     * @param Money $amount
      */
-    public function setPaymentAmount($amount)
+    public function setPaymentAmount(Money $amount)
     {
-        $this->_paymentAmount = (float) $amount;
+        $this->_paymentAmount = $amount;
     }
 
     /**
