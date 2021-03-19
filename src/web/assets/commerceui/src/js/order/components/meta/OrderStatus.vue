@@ -1,7 +1,7 @@
 <template>
     <div>
         <div>
-            <a class="btn menubtn" ref="orderStatus">
+            <a class="btn menubtn order-status-btn" ref="orderStatus">
                 <template v-if="orderStatus.color">
                     <span class="status" :class="{[orderStatus.color]: true}"></span>
                 </template>
@@ -9,7 +9,7 @@
                     <span class="status"></span>
                 </template>
 
-                {{orderStatus.name}}
+                <span class="order-status-btn-name">{{orderStatus.name}}</span>
             </a>
 
             <div class="menu">
@@ -21,7 +21,7 @@
                                 :data-name="status.name"
                                 :class="{sel: orderStatus.id === status.value}">
                             <span class="status" :class="{[status.color]: true}"></span>
-                            {{status.name}}
+                            <span>{{status.name}}</span>
                         </a>
                     </li>
                 </ul>
@@ -134,7 +134,18 @@
 </script>
 
 <style lang="scss">
+    .order-status-btn {
+        max-width: 100%;
+    }
+
+    .order-status-btn-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: calc(100% - 31px);
+    }
+
     .order-status-message {
         margin-top: 10px;
+        width: 100%;
     }
 </style>

@@ -46,6 +46,13 @@ class Carts extends Component
     private $_cart;
 
     /**
+     * Useful for debugging how many times the cart is being requested during a request.
+     *
+     * @var int
+     */
+    private $_getCartCount = 0;
+
+    /**
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart to save when requesting it.
@@ -56,6 +63,7 @@ class Carts extends Component
      */
     public function getCart($forceSave = false): Order
     {
+        $this->_getCartCount++; //useful when debugging
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
@@ -105,7 +113,8 @@ class Carts extends Component
         $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        if (($this->_cart->id && $somethingChangedOnTheCart) || $forceSave) {
+        // Manual force save only works when the order has not ID
+        if (($this->_cart->id && $somethingChangedOnTheCart) || ($forceSave && !$this->_cart->id)) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
