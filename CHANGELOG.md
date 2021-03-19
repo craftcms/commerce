@@ -1,19 +1,26 @@
 # Release Notes for Craft Commerce
 
+## 3.2.17.3 - 2021-03-18
+
+### Fixed
+- Fixed a bug where the “All Totals” column on the Orders index page was showing blank values. ([#2047](https://github.com/craftcms/commerce/pull/2047))
+
 ## 3.2.17.2 - 2021-03-17
 
 ### Fixed
 - Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
 - Fixed a bug where included tax totals may be incorrect after updating from Commerce 1.
-- Fixed a bug where `success` and `error` keys were missing from JSON response on requests to `commerce/payments/complete-payment`. ([#2043](https://github.com/craftcms/commerce/issues/2043))
+- Fixed a bug where the `success` and `error` keys were missing from `commerce/payments/complete-payment` JSON responses. ([#2043](https://github.com/craftcms/commerce/issues/2043))
 
 ## 3.2.17.1 - 2021-03-08
 
+### Changed
+- The `generateTransformsBeforePageLoad` config setting is now automatically enabled when rendering emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` event handlers can now modify the variables the PDF will be rendered with. ([#2039](https://github.com/craftcms/commerce/issues/2039))
+
 ### Fixed
-- Fixed a bug where the wrong shipping and billing address for each order was shown order index page. ([#1962](https://github.com/craftcms/commerce/issues/1962))
-- Fixed a bug where the sales were storing the incorrect amounts when entered from locales that use periods as the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
-- Fixed a bug where asset transform URLs weren’t being generated correctly in order status emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
-- Fixed a bug where the before render PDF event was not updating the render variables. ([#2039](https://github.com/craftcms/commerce/issues/2039))
+- Fixed a bug where the Orders index page was showing the wrong shipping and billing addresses. ([#1962](https://github.com/craftcms/commerce/issues/1962))
+- Fixed a bug where sales were storing incorrect amounts for locales that use a period for the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
 
 ## 3.2.17 - 2021-03-03
 
