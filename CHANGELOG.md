@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17.3 - 2021-03-18
 
 ### Fixed
 - Fixed a bug where the “All Totals” column on the Orders index page was showing blank values. ([#2047](https://github.com/craftcms/commerce/pull/2047))
