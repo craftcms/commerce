@@ -144,7 +144,7 @@ class Discount extends Model
     public $hasFreeShippingForOrder;
     
     /**
-     * @var string User restriction type.
+     * @var string User condition type.
      */
     public $userCondition;
 
