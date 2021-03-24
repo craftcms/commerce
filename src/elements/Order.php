@@ -2716,7 +2716,7 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setShippingAddress($address)
     {
