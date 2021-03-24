@@ -24,6 +24,7 @@ use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
@@ -899,34 +900,6 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    /**
-     * @return Response
-     */
-    public function clearNotice()
-    {
-        $this->requireAcceptsJson();
-
-        $orderId = $this->request->getRequiredParam('orderId');
-        $clearNotices = $this->request->getRequiredParam('clearNotices');
-
-        if ($order = Order::find()->id($orderId)->one()) {
-            return $this->asErrorJson(Craft::t('commerce', 'Order not found.'));
-        }
-
-        if (empty($clearNotices)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Please specify notices to clear.'));
-        }
-
-        if (is_array($clearNotices)) {
-            foreach ($clearNotices as $attribute) {
-                $order->clearNotices($attribute);
-            }
-        } else {
-            $order->clearNotices();
-        }
-
-        return $this->asJson(['success' => true]);
-    }
 
     /**
      * Modifies the variables of the request.
@@ -1140,7 +1113,15 @@ class OrdersController extends Controller
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
 
         $order->clearNotices();
-        $order->addNotices($orderRequestData['order']['notices']);
+
+        // CreateObject
+        $notices = [];
+        foreach ($orderRequestData['order']['notices'] as $notice) {
+            $notices[] = Craft::createObject(OrderNotice::class, [
+                'attrbutes' => $notice
+            ]);
+        }
+        $order->addNotices($notices);
 
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {

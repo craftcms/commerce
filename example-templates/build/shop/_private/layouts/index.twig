@@ -54,19 +54,22 @@
     {% if cart.hasNotices() %}
     <div class="bg-blue-400 text-white">
         <div class="container mx-auto px-6 py-4 relative">
-            <span>⚠️ Cart Notifications</span>
-            {% for notice in cart.getNoticeSummary(true) %}
-            <li class="list-disc">{{ notice }}</li>
+            <span>Cart Notices</span>
+            {% set entriesByType = cart.getNotices()|group('type') %}
+            {% for type, notices in entriesByType %}
+                {% for notice in notices %}
+                <li class="list-disc" data-type="{{ notice.type }}" data-attribute="{{ notice.attribute }}" data-message="{{ notice.message }}">{{ notice }}</li>
+                {% endfor %}
             {% endfor %}
             <form method="post">
                 {{ actionInput('commerce/cart/update-cart') }}
                 {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
                 {{ hiddenInput('clearNotices') }}
                 {{ csrfInput() }}
-                <submit type="submit"
-                        class="cursor-pointer rounded px-2 py-1 text-sm inline-block  [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0">
+                <button type="submit"
+                        class="cursor-pointer rounded px-2 py-1 text-sm inline-block [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0">
                     Dismiss
-                </submit>
+                </button>
             </form>
         </div>
     </div>

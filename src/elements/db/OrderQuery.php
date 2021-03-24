@@ -14,6 +14,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -1182,31 +1183,8 @@ class OrderQuery extends ElementQuery
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
             }
-        }
 
-        if (!$this->asArray) {
-
-            $orderIds = ArrayHelper::getColumn($orders, 'id');
-
-            $notices = (new Query())
-                ->select(['orderId', 'attribute', 'message'])
-                ->from([Table::ORDERNOTICES])
-                ->where(['orderId' => $orderIds])
-                ->all();
-
-            $noticesByOrderId = [];
-            foreach ($notices as $notice) {
-                $orderId = $notice['orderId'];
-                $attribute = $notice['attribute'];
-                $noticesByOrderId[$orderId][$attribute][] = $notice['message'];
-            }
-
-            foreach ($orders as $key => $order) {
-                if (isset($noticesByOrderId[$order->id])) {
-                    $order->addNotices($noticesByOrderId[$order->id]);
-                    $orders[$key] = $order;
-                }
-            }
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
         }
 
         return $orders;
