@@ -46,7 +46,7 @@ class Settings extends Model
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     /**
-     * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
+     * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *

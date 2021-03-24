@@ -5,8 +5,9 @@
 ### Added
 - Carts now have customer notifications when something has changed on an order, like an item removed automatically due to out of stock, or a price changed since last viewing the order. ([#2000](https://github.com/craftcms/commerce/pull/2000))
 - It’s now possible to set dynamic condition formulas on shipping rules. ([#1959](https://github.com/craftcms/commerce/issues/1959))
-  Added a “Copy load cart URL” action to the Orders index page. ([#1386](https://github.com/craftcms/commerce/issues/1386))
+- Added a “Copy load cart URL” action to the Orders index page. ([#1386](https://github.com/craftcms/commerce/issues/1386))
 - It’s now possible to include the discounted order value when calculating the order total conditions in a shipping rule. ([#1948](https://github.com/craftcms/commerce/pull/1948))
+- It's now possible to click the line item description on the Order Edit page to navigate to the purchasable’s CP edit page. ([#2048](https://github.com/craftcms/commerce/issues/2048))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
 - Added `craft\commerce\elements\Order::getLoadCartUrl()`.
 
