@@ -88,13 +88,7 @@ class CartController extends BaseFrontEndController
 
         // Can clear notices when updating the cart
         if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
-            if (is_array($clearNotices)) {
-                foreach ($clearNotices as $attribute) {
-                    $this->_cart->clearNotices($attribute);
-                }
-            } else {
-                $this->_cart->clearNotices();
-            }
+            $this->_cart->clearNotices();
         }
 
         // Set the custom fields submitted

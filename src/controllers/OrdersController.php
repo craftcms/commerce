@@ -884,34 +884,7 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    /**
-     * @return Response
-     */
-    public function clearNotice()
-    {
-        $this->requireAcceptsJson();
 
-        $orderId = $this->request->getRequiredParam('orderId');
-        $clearNotices = $this->request->getRequiredParam('clearNotices');
-
-        if ($order = Order::find()->id($orderId)->one()) {
-            return $this->asErrorJson(Craft::t('commerce', 'Order not found.'));
-        }
-
-        if (empty($clearNotices)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Please specify notices to clear.'));
-        }
-
-        if (is_array($clearNotices)) {
-            foreach ($clearNotices as $attribute) {
-                $order->clearNotices($attribute);
-            }
-        } else {
-            $order->clearNotices();
-        }
-
-        return $this->asJson(['success' => true]);
-    }
 
     /**
      * Modifies the variables of the request.
