@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
@@ -416,11 +417,25 @@ class OrdersController extends Controller
             'notices'
         ];
 
+        $lineItems = $order->getLineItems();
+        $purchasableCpEditUrlByPurchasableId = [];
+        foreach ($lineItems as $lineItem) {
+            /** @var PurchasableElement $purchasable */
+            $purchasable = $lineItem->getPurchasable();
+            if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
+                continue;
+            }
+
+            $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+        }
+
         $orderArray = $order->toArray($orderFields, $extraFields);
 
+        // TODO merge this and the above line items loop into one.
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+                $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
             unset($lineItem);
         }
