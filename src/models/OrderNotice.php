@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
@@ -66,10 +67,12 @@ class OrderNotice extends Model
 
     public static function create(string $type, string $attribute, string $message, Order $order = null)
     {
-        $new = new static();
-        $new->type = $type;
-        $new->attribute = $attribute;
-        $new->message = $message;
+        $new = Craft::createObject([
+            'class' => static::class,
+            'type' => $type,
+            'attribute' => $attribute,
+            'message' => $message
+        ]);
 
         if ($order) {
             $new->setOrder($order);

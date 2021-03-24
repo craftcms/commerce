@@ -1183,36 +1183,8 @@ class OrderQuery extends ElementQuery
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
             }
-        }
 
-        if (!$this->asArray) {
-
-            $orderIds = ArrayHelper::getColumn($orders, 'id');
-
-            $notices = (new Query())
-                ->select(['id', 'orderId', 'type', 'attribute', 'message'])
-                ->from([Table::ORDERNOTICES])
-                ->where(['orderId' => $orderIds])
-                ->all();
-
-            $noticesByOrderId = [];
-            foreach ($notices as $notice) {
-                $noticeModel = new OrderNotice();
-                $noticeModel->id = $notice['id'];
-                $noticeModel->orderId = $notice['orderId'];
-                $noticeModel->type = $notice['type'];
-                $noticeModel->attribute = $notice['attribute'];
-                $noticeModel->message = $notice['message'];
-                $noticesByOrderId[$noticeModel->orderId][] = $noticeModel;
-            }
-
-            foreach ($orders as $key => $order) {
-                if (isset($noticesByOrderId[$order->id])) {
-                    $notices = $noticesByOrderId[$order->id];
-                    $order->addNotices($noticesByOrderId[$order->id]);
-                    $orders[$key] = $order;
-                }
-            }
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
         }
 
         return $orders;
