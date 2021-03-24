@@ -49,10 +49,14 @@ class OrderNoticesTest extends Unit
      */
     public function testOrderNotices()
     {
-        $firstNotice = new OrderNotice();
-        $firstNotice->type = 'priceChange';
-        $firstNotice->attribute = 'lineItems';
-        $firstNotice->message = 'The Price of the product changed.';
+        $firstNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'The Price of the product changed.',
+            ]
+        ]);
         $this->order->addNotice($firstNotice);
 
         $notices = $this->order->getNotices();
@@ -62,10 +66,15 @@ class OrderNoticesTest extends Unit
         self::assertEquals($firstNotice->message, $firstNotice->message);
         self::assertCount(1, $notices);
 
-        $secondNotice = new OrderNotice();
-        $secondNotice->type = 'lineItemRemoved';
-        $secondNotice->attribute = 'lineItems';
-        $secondNotice->message = 'The x Product is no longer available and has been removed.';
+        $secondNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
+                'type' => 'lineItemRemoved',
+                'attribute' => 'lineItems',
+                'message' => 'The x Product is no longer available and has been removed.'
+            ]
+        ]);
+
         $this->order->addNotice($secondNotice);
 
         self::assertCount(1, $notices);
@@ -80,15 +89,21 @@ class OrderNoticesTest extends Unit
      */
     public function testClearOrderNotices()
     {
-        $firstNotice = new OrderNotice();
-        $firstNotice->type = 'priceChange';
-        $firstNotice->attribute = 'lineItems';
-        $firstNotice->message = 'The Price of the product changed.';
+        $firstNotice = Craft::createObject(OrderNotice::class, [
+            'attrbutes' => [
+                'type' => 'priceChange',
+                'attribute' => 'lineItems',
+                'message' => 'The Price of the product changed.'
+            ]
+        ]);
 
-        $secondNotice = new OrderNotice();
-        $secondNotice->type = 'lineItemRemoved';
-        $secondNotice->attribute = 'lineItems';
-        $secondNotice->message = 'The x Product is no longer available and has been removed.';
+        $secondNotice = Craft::createObject(OrderNotice::class, [
+            'attrbutes' => [
+                'type' => 'lineItemRemoved',
+                'attribute' => 'lineItems',
+                'message' => 'The x Product is no longer available and has been removed.'
+            ]
+        ]);
 
         $this->order->addNotices([$firstNotice, $secondNotice, $firstNotice, $secondNotice]);
         self::assertCount(4, $this->order->getNotices());
@@ -100,10 +115,13 @@ class OrderNoticesTest extends Unit
         self::assertCount(0, $this->order->getNotices());
 
         // use a third notice
-        $thirdNotice = new OrderNotice();
-        $thirdNotice->type = 'couponNotValid';
-        $thirdNotice->attribute = 'couponCode';
-        $thirdNotice->message = 'The x Product is no longer available and has been removed.';
+        $thirdNotice = Craft::createObject(OrderNotice::class, [
+            'attrbutes' => [
+                'type' => 'couponNotValid',
+                'attribute' => 'couponCode',
+                'message' => 'The x Product is no longer available and has been removed.'
+            ]
+        ]);
 
         // Test clearing by attribute
         $this->order->addNotices([$firstNotice, $secondNotice, $firstNotice, $secondNotice, $thirdNotice]);

@@ -1725,20 +1725,41 @@ class Order extends Element
                     if ($originalSalePrice > $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         $this->addNotice(
-                            OrderNotice::create('lineItemSalePriceChange', "lineItems.{$item->id}.salePrice", $message)
+                            Craft::createObject([
+                                'class' => OrderNotice::class,
+                                'attributes' => [
+                                    'type' => 'lineItemSalePriceChange',
+                                    'attribute' => "lineItems.{$item->id}.salePrice",
+                                    'message' => $message,
+                                ]
+                            ])
                         );
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         $this->addNotice(
-                            OrderNotice::create('lineItemSalePriceChange', "lineItems.{$item->id}.salePrice", $message)
+                            Craft::createObject([
+                                'class' => OrderNotice::class,
+                                'attributes' => [
+                                    'type' => 'lineItemSalePriceChange',
+                                    'attribute' => "lineItems.{$item->id}.salePrice",
+                                    'message' => $message,
+                                ]
+                            ])
                         );
                     }
                 } else {
                     $message = Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]);
                     $this->addNotice(
-                        OrderNotice::create('lineItemRemoved', 'lineItems', $message)
+                        Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'message' => $message,
+                                'type' => $type,
+                                'attribute' => $attribute
+                            ]
+                        ])
                     );
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
@@ -1777,7 +1798,14 @@ class Order extends Element
                 $this->shippingMethodHandle = null;
                 $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
                 $this->addNotice(
-                    OrderNotice::create('shippingMethodChanged', 'shippingMethodHandle', $message)
+                    Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'shippingMethodChanged',
+                            'attribute' => 'shippingMethodHandle',
+                            'message' => $message,
+                        ]
+                    ])
                 );
                 $this->recalculate();
                 return;
@@ -2918,7 +2946,14 @@ class Order extends Element
             if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
                 $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
                 $this->addNotice(
-                    OrderNotice::create('shippingMethodChanged', 'shippingMethodHandle', $message)
+                    Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'shippingMethodChanged',
+                            'attribute' => 'shippingMethodHandle',
+                            'message' => $message,
+                        ]
+                    ])
                 );
                 $this->shippingMethodHandle = null;
             }
@@ -3190,6 +3225,7 @@ class Order extends Element
         foreach ($previousNotices as $notice) {
             $notice->delete();
         }
+
 
         foreach ($this->getNotices() as $notice) {
             $noticeRecord = new OrderNoticeRecord();

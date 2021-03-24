@@ -53,7 +53,7 @@ class OrderNotice extends Model
     public $orderId;
 
     /**
-     * @var Order|null The order this adjustment belongs to
+     * @var Order|null The order this notice belongs to
      */
     private $_order;
 
@@ -63,22 +63,6 @@ class OrderNotice extends Model
     public function __toString()
     {
         return $this->message ?: '';
-    }
-
-    public static function create(string $type, string $attribute, string $message, Order $order = null)
-    {
-        $new = Craft::createObject([
-            'class' => static::class,
-            'type' => $type,
-            'attribute' => $attribute,
-            'message' => $message
-        ]);
-
-        if ($order) {
-            $new->setOrder($order);
-        }
-
-        return $new;
     }
 
     public function behaviors(): array
@@ -119,6 +103,16 @@ class OrderNotice extends Model
     }
 
     /**
+     * @param Order $order
+     * @return void
+     */
+    public function setOrder(Order $order)
+    {
+        $this->_order = $order;
+        $this->orderId = $order->id;
+    }
+
+    /**
      * @return Order|null
      */
     public function getOrder()
@@ -128,15 +122,5 @@ class OrderNotice extends Model
         }
 
         return $this->_order;
-    }
-
-    /**
-     * @param Order $order
-     * @return void
-     */
-    public function setOrder(Order $order)
-    {
-        $this->_order = $order;
-        $this->orderId = $order->id;
     }
 }

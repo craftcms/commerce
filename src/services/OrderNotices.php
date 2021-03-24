@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Component;
 use craft\commerce\db\Table;
+use craft\commerce\elements\Order;
 use craft\commerce\models\OrderNotice;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
@@ -35,19 +36,19 @@ class OrderNotices extends Component
         $orderNotices = [];
 
         foreach ($orderNoticesResults as $result) {
-            $notice = Craft::createObject(
-                [
-                    'class' => OrderNotice::class,
-                    'attributes' => $result
-                ]
-            );
 
-            $notice->typecastAttributes();
+            /** @var OrderNotice $notice */
+            $notice = Craft::createObject([
+                'class' => OrderNotice::class,
+                'attributes' => $result
+            ]);
+
             $orderNotices[$notice->orderId] = $orderNotices[$notice->orderId] ?? [];
             $orderNotices[$notice->orderId][] = $notice;
         }
 
         foreach ($orders as $key => $order) {
+            /** @var Order $order */
             if (isset($orderNotices[$order->id])) {
                 $order->addNotices($orderNotices[$order->id]);
                 $orders[$key] = $order;
