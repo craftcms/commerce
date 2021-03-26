@@ -75,9 +75,9 @@ class Sale extends Model
     public $stopProcessing;
 
     /**
-     * @var string User condition type.
+     * @var bool Match all groups
      */
-    public $userCondition;
+    public $allGroups = false;
 
     /**
      * @var bool Match all purchasables

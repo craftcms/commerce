@@ -198,6 +198,7 @@ class Sales extends Component
                 'sales.applyAmount',
                 'sales.stopProcessing',
                 'sales.ignorePrevious',
+                'sales.allGroups',
                 'sales.userCondition',
                 'sales.allPurchasables',
                 'sales.allCategories',

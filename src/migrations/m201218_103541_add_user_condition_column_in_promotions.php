@@ -35,27 +35,6 @@ class m201218_103541_add_user_condition_column_in_promotions extends Migration
         }
 
         $this->dropColumn('{{%commerce_discounts}}', 'allGroups');
-
-        if (!$this->db->columnExists('{{commerce_sales}}', 'userCondition')) {
-            $this->addColumn('{{%commerce_sales}}', 'userCondition', $this->string()->defaultValue('usersAnyOrNone'));
-        }
-
-        $saleAllGroups = (new Query())
-            ->select(['id', 'allGroups'])
-            ->from('{{%commerce_sales}}')
-            ->all();
-        
-        foreach ($saleAllGroups as $saleAllGroup) {
-            $allGroups = $saleAllGroup['allGroups'];
-            $userCondition = 'usersAnyOrNone';
-            if ($allGroups === '0') {
-                $userCondition = 'usersIncludeAny';
-            }
-
-            $this->update('{{%commerce_sales}}', ['userCondition' => $userCondition], ['id' => $saleAllGroup['id']]);
-        }
-        
-        $this->dropColumn('{{%commerce_sales}}', 'allGroups');
     }
 
     /**
