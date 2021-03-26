@@ -185,29 +185,7 @@
                 </div>
             {% endblock %}
         {% endembed %}
-
-{#        {% if groups|length %}#}
-{#            {{ forms.multiselectField({#}
-{#                label: 'User Groups'|t('commerce'),#}
-{#                instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t('commerce'),#}
-{#                id: 'groups',#}
-{#                name: 'groups',#}
-{#                options: groups,#}
-{#                values: discount.getUserGroupIds(),#}
-{#                errors: discount.getErrors('groups'),#}
-{#                class: 'selectize fullwidth',#}
-{#            }) }}#}
-{#        {% endif %}#}
-{#        {{ forms.multiselectField({#}
-{#            label: 'User Groups'|t('commerce'),#}
-{#            instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t('commerce'),#}
-{#            id: 'groups',#}
-{#            name: 'groups',#}
-{#            options: groups,#}
-{#            values: discount.getUserGroupIds(),#}
-{#            errors: discount.getErrors('groups'),#}
-{#            class: 'selectize fullwidth',#}
-{#        }) }}#}
+        
         {% set usersInput %}
             <div class="flex">
                 <div>
