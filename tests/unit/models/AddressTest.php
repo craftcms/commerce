@@ -269,6 +269,78 @@ class AddressTest extends Unit
     }
 
     /**
+     * @dataProvider addressLinesDataProvider
+     * @param $address array
+     * @param bool $sanitize
+     * @param array $expected
+     */
+    public function testGetAddressLines(array $address, bool $sanitize, array $expected)
+    {
+        $addressModel = new Address($address);
+
+        $addressLines = $addressModel->getAddressLines($sanitize);
+
+        self::assertEquals($expected, $addressLines);
+    }
+
+    /**
+     * @return array
+     */
+    public function addressLinesDataProvider(): array
+    {
+        return [
+            [['address1' => 'This is address 1'], false, ['address1' => 'This is address 1']],
+            [
+                [
+                    'isStoreLocation' => false,
+                    'attention' => '',
+                    'title' => 'Dr',
+                    'firstName' => 'Emmett',
+                    'lastName' => 'Brown',
+                    'fullName' => 'Doc Brown',
+                    'address1' => '1640 Riverside Drive',
+                    'address2' => '',
+                    'address3' => '',
+                    'city' => 'Hill Valley',
+                    'zipCode' => '88',
+                    'phone' => '555-555-5555',
+                    'alternativePhone' => '',
+                    'label' => 'Movies',
+                    'businessName' => '',
+                    'businessTaxId' => '',
+                    'businessId' => '',
+                    'countryId' => '236',
+                    'stateId' => '26',
+                    'notes' => '1.21 gigawatts',
+                    'custom1' => 'Einstein',
+                    'custom2' => 'Marty',
+                    'custom3' => 'George',
+                    'custom4' => 'Biff',
+                    'isEstimated' => false,
+                ],
+                false,
+                [
+                    'name' => 'Dr Emmett Brown',
+                    'fullName' => 'Doc Brown',
+                    'address1' => '1640 Riverside Drive',
+                    'city' => 'Hill Valley',
+                    'zipCode' => '88',
+                    'phone' => '555-555-5555',
+                    'label' => 'Movies',
+                    'countryText' => 'United States',
+                    'stateText' => 'California',
+                    'notes' => '1.21 gigawatts',
+                    'custom1' => 'Einstein',
+                    'custom2' => 'Marty',
+                    'custom3' => 'George',
+                    'custom4' => 'Biff',
+                ]
+            ],
+            [['address1' => 'Sanitize <br> this'], true, ['address1' => 'Sanitize &lt;br&gt; this']],
+        ];
+    }
+
+    /**
      * @return array[]
      */
     public function validateStateDataProvider(): array

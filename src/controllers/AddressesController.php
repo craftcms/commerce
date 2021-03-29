@@ -245,7 +245,7 @@ class AddressesController extends BaseCpController
 
         $rows = [];
 
-        foreach (array_slice($addresses, 0, $limit) as $row) {
+        foreach (array_slice($addresses, $offset, $limit) as $row) {
             /** @var AddressModel $row */
             $rows[] = [
                 'id' => $row->id,

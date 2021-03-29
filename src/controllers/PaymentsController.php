@@ -68,7 +68,11 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        if (($number = $this->request->getBodyParam('orderNumber')) !== null) {
+        // TODO Remove `orderNumber` param in 4.0
+        $number = $this->request->getBodyParam('orderNumber');
+        $number = $this->request->getBodyParam('number', $number);
+
+        if ($number !== null) {
             /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
@@ -488,7 +492,10 @@ class PaymentsController extends BaseFrontEndController
 
         if ($success) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $response = ['url' => $transaction->order->returnUrl];
+                $response = [
+                    'success' => true,
+                    'url' => $transaction->order->returnUrl,
+                ];
 
                 return $this->asJson($response);
             }
@@ -496,10 +503,14 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
-        $this->setFailFlash(Craft::t('commerce', 'Payment error: {message}', ['message' => $error]));
+        $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
+        $this->setFailFlash($errorMessage);
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $response = ['url' => $transaction->order->cancelUrl];
+            $response = [
+                'error' => $errorMessage,
+                'url' => $transaction->order->cancelUrl,
+            ];
 
             return $this->asJson($response);
         }

@@ -6,7 +6,14 @@
             <order-block class="order-flex order-box-sizing">
                 <div class="w-1/4">
                     <!-- Description -->
-                    <order-title>{{ lineItem.description }}</order-title>
+                    <order-title>
+                        <a :href="lineItem.purchasableCpEditUrl" v-if="lineItem.purchasableCpEditUrl">
+                            {{ lineItem.description }}
+                        </a>
+                        <span v-else>
+                            {{ lineItem.description }}
+                        </span>
+                    </order-title>
                     <!-- SKU -->
                     <div><code class="extralight">{{ lineItem.sku }}</code></div>
 

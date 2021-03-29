@@ -1,8 +1,8 @@
 <template>
     <div>
         <div>
-            <a class="btn menubtn" ref="orderSite">
-                {{orderSite.name}} ({{orderSite.language}})
+            <a class="btn menubtn order-site-btn" ref="orderSite">
+                <span>{{orderSite.name}} ({{orderSite.language}})</span>
             </a>
 
             <div class="menu">
@@ -99,4 +99,14 @@
     }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+    .order-site-btn {
+        max-width: 100%;
+    }
+
+    .order-site-btn span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: calc(100% - 10px);
+    }
+</style>

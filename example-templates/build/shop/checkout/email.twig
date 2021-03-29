@@ -1,0 +1,38 @@
+{% if currentUser %}
+    {% redirect 'shop/checkout/addresses' %}
+{% endif %}
+
+{% extends 'shop/_private/layouts' %}
+
+{% block main %}
+    <!-- Template: {{ _self }}.twig -->
+    <h1 class="text-xl font-bold">Let’s grab your email to get started</h1>
+
+    <div class="flex -mx-8 mt-6">
+        <div class="w-full max-w-xl px-8">
+            <form method="post" action="">
+                {{ actionInput('commerce/cart/update-cart') }}
+                {{ redirectInput('shop/checkout/register-signin') }}
+                {{ hiddenInput('successMessage', ('Email address updated.')|hash) }}
+                {{ csrfInput() }}
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input type="text"
+                           id="email"
+                           name="email"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                           value="{{ cart.email }}"
+                           placeholder="email@site.com"/>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit"
+                            class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
+                        Continue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

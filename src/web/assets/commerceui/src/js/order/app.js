@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './apps/OrderDetails'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './apps/OrderMeta'
+import OrderNotices from './apps/OrderNotices'
 import OrderActions from './apps/OrderActions'
 import OrderCustomer from './apps/OrderCustomer'
 import OrderErrors from './apps/OrderErrors'
@@ -74,7 +75,6 @@ window.OrderDetailsApp = new Vue({
     }
 }).$mount('#order-details-app')
 
-
 // Order meta
 // =========================================================================
 
@@ -83,6 +83,13 @@ window.OrderMetaApp = new Vue({
     store,
 }).$mount('#order-meta-app')
 
+// Order meta
+// =========================================================================
+
+window.OrderNotices = new Vue({
+    render: h => h(OrderNotices),
+    store,
+}).$mount('#order-notices-app')
 
 // Order secondary actions
 // =========================================================================

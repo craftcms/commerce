@@ -170,16 +170,15 @@ class ShippingCategories extends Component
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this shipping category available to them
-                Craft::$app->getQueue()->push(new ResaveElements([
-                    'elementType' => Product::class,
-                    'criteria' => [
-                        'typeId' => $oldProductTypeId,
-                        'siteId' => '*',
-                        'unique' => true,
-                        'status' => null,
-                        'enabledForSite' => false,
-                    ]
-                ]));
+                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+            }
+        }
+
+        foreach ($newProductTypeIds as $newProductTypeId) {
+            // If we are adding a product type for this shipping category the products of that type should be re-saved
+            if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
+                // Re-save all products when assigning this shipping category available to them
+                $this->_resaveProductsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -196,6 +195,25 @@ class ShippingCategories extends Component
         $this->_allShippingCategories = null;
 
         return true;
+    }
+
+    /**
+     * Re-save products by product type id
+     * 
+     * @param int $productTypeId
+     */
+    private function _resaveProductsByProductTypeId(int $productTypeId)
+    {
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class,
+            'criteria' => [
+                'typeId' => $productTypeId,
+                'siteId' => '*',
+                'unique' => true,
+                'status' => null,
+                'enabledForSite' => false,
+            ]
+        ]));
     }
 
     /**

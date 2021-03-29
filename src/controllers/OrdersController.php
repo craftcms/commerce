@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Element;
 use craft\base\Field;
 use craft\commerce\base\Gateway;
+use craft\commerce\base\Purchasable as PurchasableElement;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
@@ -23,6 +24,7 @@ use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
 use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
@@ -412,13 +414,28 @@ class OrdersController extends Controller
             'billingAddress',
             'shippingAddress',
             'orderSite',
+            'notices'
         ];
+
+        $lineItems = $order->getLineItems();
+        $purchasableCpEditUrlByPurchasableId = [];
+        foreach ($lineItems as $lineItem) {
+            /** @var PurchasableElement $purchasable */
+            $purchasable = $lineItem->getPurchasable();
+            if (!$purchasable || isset($purchasableCpEditUrlByPurchasableId[$purchasable->id])) {
+                continue;
+            }
+
+            $purchasableCpEditUrlByPurchasableId[$purchasable->id] = $purchasable->getCpEditUrl();
+        }
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
+        // TODO merge this and the above line items loop into one.
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
+                $lineItem['purchasableCpEditUrl'] = $purchasableCpEditUrlByPurchasableId[$lineItem['purchasableId']] ?? null;
             }
             unset($lineItem);
         }
@@ -883,6 +900,7 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
+
     /**
      * Modifies the variables of the request.
      *
@@ -1020,7 +1038,7 @@ class OrdersController extends Controller
                 $customer = ArrayHelper::firstValue($customers);
             }
         }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer), View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1063,7 +1081,7 @@ class OrdersController extends Controller
             $response['error'] = Craft::t('commerce', 'The order is not valid.');
         }
 
-        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response) . ';', View::POS_BEGIN);
+        Craft::$app->getView()->registerJs('window.orderEdit.data = ' . Json::encode($response, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT) . ';', View::POS_BEGIN);
 
         $forceEdit = ($variables['order']->hasErrors() || !$variables['order']->isCompleted);
 
@@ -1093,6 +1111,17 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        $order->clearNotices();
+
+        // CreateObject
+        $notices = [];
+        foreach ($orderRequestData['order']['notices'] as $notice) {
+            $notices[] = Craft::createObject(OrderNotice::class, [
+                'attrbutes' => $notice
+            ]);
+        }
+        $order->addNotices($notices);
 
         $dateOrdered = $orderRequestData['order']['dateOrdered'];
         if ($dateOrdered !== null) {
@@ -1146,7 +1175,7 @@ class OrdersController extends Controller
         $shippingAddress = null;
 
         // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' &&  $order->isCompleted) {
+        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $billingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
@@ -1157,7 +1186,7 @@ class OrdersController extends Controller
             }
         }
 
-        if ($shippingAddressId && $shippingAddressId != 'new' &&  $order->isCompleted) {
+        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
             $belongsToCustomer = CustomerAddress::find()
                 ->where(['addressId' => $shippingAddressId])
                 ->andWhere(['not', ['customerId' => null]])
