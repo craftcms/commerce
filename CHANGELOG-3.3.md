@@ -10,6 +10,7 @@
 - It's now possible to click the line item description on the Order Edit page to navigate to the purchasable’s CP edit page. ([#2048](https://github.com/craftcms/commerce/issues/2048))
 - Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
 - Added `craft\commerce\elements\Order::getLoadCartUrl()`.
+- Added `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES`. ([#1627](https://github.com/craftcms/commerce/issues/1627))
 
 ### Changed
 - All front end controllers now use the `number` param for passing the order number. ([#1970](https://github.com/craftcms/commerce/issues/1970))

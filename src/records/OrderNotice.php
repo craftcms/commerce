@@ -16,6 +16,7 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property int $orderId
+ * @property string $type
  * @property string $attribute
  * @property string $message
  * @property Order $order

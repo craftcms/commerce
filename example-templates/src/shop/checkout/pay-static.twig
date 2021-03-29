@@ -33,7 +33,7 @@
 
                 <p>Enter cart/order number and corresponding email address to be able to pay.</p>
 
-                <form action="{{ siteUrl(url) }}" method="get">
+                <form method="get">
                     <div class="mt-3">
                         <label for="orderNumber">Cart/Order Number</label>
                         <div>
@@ -108,9 +108,9 @@
                               method="post"
                               action=""
                               class="form-horizontal max-w-md">
-                            {{ hiddenInput('action', '/payments/pay') }}
+                            {{ hiddenInput('action', 'commerce/payments/pay') }}
                             {{ redirectInput('/[[folderName]]/customer/order?number=' ~ cart.number ~ '&success=true') }}
-                            {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
+                            {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
                             {{ hiddenInput('email', email) }}
                             {{ hiddenInput('number', cart.number) }}
                             {{ hiddenInput('paymentCurrency', paymentCurrency) }}

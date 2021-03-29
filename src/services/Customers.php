@@ -622,21 +622,7 @@ class Customers extends Component
                 'shipping.address1',
                 'users.email',
             ])
-
-            // Exclude customer records without a user or where there isn't any data
-            ->where([
-                'or',
-                ['not', ['userId' => null]],
-                [
-                    'and',
-                    ['userId' => null],
-                    [
-                        'or',
-                        ['not', ['primaryBillingAddressId' => null]],
-                        ['not', ['primaryShippingAddressId' => null]],
-                    ]
-                ]
-            ])->andWhere([
+            ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
                 ['not', ['customers.userId' => null]]
