@@ -117,7 +117,7 @@
 
             copy() {
                 if (!this.draft || !this.draft.order || !this.draft.order.loadCartUrl) {
-                    alert(this.$options.filters.t('Unable to retrieve load cart URL', 'commerce'))
+                    this.$store.dispatch('displayError', this.$options.filters.t('Unable to retrieve load cart URL', 'commerce'));
                 } else {
                     Craft.ui.createCopyTextPrompt({
                         label: this.$options.filters.t('Copy load cart URL', 'commerce'),
