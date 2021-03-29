@@ -2237,7 +2237,7 @@ class Order extends Element
     /**
      * Returns the paymentAmount for this order.
      *
-     * @return Money
+     * @return float
      */
     public function getPaymentAmount(): float
     {
@@ -2251,11 +2251,11 @@ class Order extends Element
     /**
      * Sets the orders payment amount in the order's currency. This amount is not persisted.
      *
-     * @param Money $amount
+     * @param float $amount
      */
-    public function setPaymentAmount(Money $amount)
+    public function setPaymentAmount($amount)
     {
-        $this->_paymentAmount = $amount;
+        $this->_paymentAmount = (float) $amount;
     }
 
     /**
