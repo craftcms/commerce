@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\unit\elements;
 
+use Craft;
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\elements\Order;
