@@ -239,7 +239,6 @@ class CartController extends BaseFrontEndController
 
     /**
      * @return Response|null
-     * @throws \craft\errors\MissingComponentException
      * @since 3.1
      */
     public function actionLoadCart()
@@ -283,6 +282,37 @@ class CartController extends BaseFrontEndController
         }
 
         return $this->request->getIsGet() ? $this->redirect($redirect) : $this->redirectToPostedUrl();
+    }
+
+    /**
+     * @return Response
+     * @since 3.3
+     */
+    public function actionComplete()
+    {
+        $this->requirePostRequest();
+        $this->_cart = $this->_getCart();
+
+        try {
+            $success = $this->_cart->markAsComplete();
+        } catch (\Exception $exception) {
+            $success = false;
+        }
+
+        if (!$success) {
+            if ($this->request->getAcceptsJson()) {
+                return $this->asJson(['success' => false]);
+            }
+
+
+        }
+
+        if ($this->request->getAcceptsJson()) {
+
+            return $this->asJson(['success' => true]);
+        }
+
+        return $this->redirectToPostedUrl();
     }
 
     /**
