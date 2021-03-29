@@ -414,7 +414,8 @@ class OrdersController extends Controller
             'billingAddress',
             'shippingAddress',
             'orderSite',
-            'notices'
+            'notices',
+            'loadCartUrl',
         ];
 
         $lineItems = $order->getLineItems();
