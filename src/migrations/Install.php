@@ -362,6 +362,7 @@ class Install extends Migration
         $this->createTable(Table::ORDERNOTICES, [
             'id' =>  $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
+            'type' => $this->string(),
             'attribute' => $this->string(),
             'message' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),

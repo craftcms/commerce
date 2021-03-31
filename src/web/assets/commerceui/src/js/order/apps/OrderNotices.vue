@@ -10,12 +10,10 @@
                 </div>
             </div>
             <div class="order-notices-items">
-                <div v-for="(notice, key) in draft.order.notices" :key="key">
-                    <div v-for="(item, index) in notice" :key="index">
-                        <hr>
-                        <div class="order-notices-item">
-                            {{ item }}
-                        </div>
+                <div v-for="notice in draft.order.notices" :key="notice.id">
+                    <hr>
+                    <div class="order-notices-item">
+                        {{ notice.message }}
                     </div>
                 </div>
             </div>
@@ -48,7 +46,7 @@
         methods: {
             clearNotices() {
                 let draft = this.draft;
-                draft.order.notices = {};
+                draft.order.notices = [];
                 this.draft = draft;
             }
         }
