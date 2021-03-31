@@ -1379,6 +1379,7 @@ class Order extends Element
         $names[] = 'customer';
         $names[] = 'gateway';
         $names[] = 'histories';
+        $names[] = 'loadCartUrl';
         $names[] = 'nestedTransactions';
         $names[] = 'notices';
         $names[] = 'orderStatus';
@@ -2115,14 +2116,12 @@ class Order extends Element
             return null;
         }
 
-        $path = "commerce/cart/load-cart";
+        $path = 'commerce/cart/load-cart';
 
         $params = [];
         $params['number'] = $this->number;
 
         return UrlHelper::actionUrl($path, $params);
-
-        return $url;
     }
 
     /**
