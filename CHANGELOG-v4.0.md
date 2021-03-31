@@ -6,7 +6,7 @@
 - Added Edit, Create, and Delete product type permissions. ([#174](https://github.com/craftcms/commerce/issues/174))
 
 ### Changed
-
+- Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 ### Deprecated
 
 ### Removed

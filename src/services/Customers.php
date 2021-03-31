@@ -376,10 +376,15 @@ class Customers extends Component
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
             ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null]);
-        
+
+        // Wrap subquery in another subquery to just select the ID. This is for MySQL compatibility.
+        $customersIds = (new Query())
+            ->select('custs.id')
+            ->from(['custs' => $customers]);
+
         // This will also remove all addresses related to the customer.
         Craft::$app->getDb()->createCommand()
-            ->delete(Table::CUSTOMERS, ['id' => $customers])
+            ->delete(Table::CUSTOMERS, ['id' => $customersIds])
             ->execute();
     }
 
@@ -617,21 +622,7 @@ class Customers extends Component
                 'shipping.address1',
                 'users.email',
             ])
-
-            // Exclude customer records without a user or where there isn't any data
-            ->where([
-                'or',
-                ['not', ['userId' => null]],
-                [
-                    'and',
-                    ['userId' => null],
-                    [
-                        'or',
-                        ['not', ['primaryBillingAddressId' => null]],
-                        ['not', ['primaryShippingAddressId' => null]],
-                    ]
-                ]
-            ])->andWhere([
+            ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
                 ['not', ['customers.userId' => null]]
@@ -681,6 +672,15 @@ class Customers extends Component
             // we want the customers related to a userId to be listed first, then by their latest order
             ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
             ->scalar(); // get the first customerId in the result
+
+        // Prefer the user's customer
+        if ($user = User::find()->email($email)->anyStatus()->one()) {
+            $customer = $this->getCustomerByUserId($user->id);
+
+            if ($customer && $customer->id != $customerId) {
+                $customerId = $customer->id;
+            }
+        }
 
         if (!$customerId) {
             return;

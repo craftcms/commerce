@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use yii\base\InvalidConfigException;
@@ -162,7 +163,18 @@ trait OrderValidatorsTrait
         $recalculateAll = $this->recalculationMode == Order::RECALCULATION_MODE_ALL;
         $recalculateAll = $recalculateAll || $this->recalculationMode == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY;
         if ($recalculateAll && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
-            $this->addError($attribute, $explanation);
+            $message = Craft::t('commerce', '{explanation} Coupon removed.', ['explanation' => $explanation]);
+            $this->addNotice(
+                Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'couponNotValid',
+                        'attribute' => $attribute,
+                        'message' => $message,
+                    ]
+                ])
+            );
+            $this->$attribute = null;
         }
     }
 }

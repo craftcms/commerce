@@ -29,6 +29,15 @@
                         </li>
                     </ul>
                 </template>
+                <template v-if="draft && !draft.order.isCompleted">
+                    <ul>
+                        <li>
+                            <a href="#" @click.prevent="copy()">
+                                {{ 'Copy load cart URL'|t('commerce') }}
+                            </a>
+                        </li>
+                    </ul>
+                </template>
 
                 <template v-if="canDelete">
                     <template v-if="editing && hasCustomer && hasAddresses">
@@ -45,7 +54,7 @@
 </template>
 
 <script>
-    /* global Garnish, $ */
+    /* global Garnish, $, Craft */
 
     import {mapGetters, mapState} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
@@ -104,6 +113,18 @@
                                 this.returnToOrders()
                             })
                 }
+            },
+
+            copy() {
+                if (!this.draft || !this.draft.order || !this.draft.order.loadCartUrl) {
+                    this.$store.dispatch('displayError', this.$options.filters.t('Unable to retrieve load cart URL', 'commerce'));
+                } else {
+                    Craft.ui.createCopyTextPrompt({
+                        label: this.$options.filters.t('Copy load cart URL', 'commerce'),
+                        value: this.draft.order.loadCartUrl,
+                    });
+                }
+
             },
 
             returnToOrders() {

@@ -1,0 +1,77 @@
+<!-- Template: {{ _self }}.twig -->
+<div class="my-6">
+    <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {% for product in products %}
+            <div class="relative bg-gray-50 rounded">
+                <div>
+                    <a class="block" href="{{ product.url }}">
+                        <div class="hover:bg-blue-400 bg-blue-500 h-32 rounded rounded-b-none"></div>
+                    </a>
+                </div>
+                <div class="m-4">
+                    <div class="relative text-lg text-bold mb-2">
+                    <div class="w-2/3">
+                        <a class="text-blue-500 hover:text-blue-600" href="{{ product.url }}">
+                            {{ product.title|title }}
+                        </a>
+                    </div>
+                    <div>
+                        <span class="absolute top-0 right-0">{{ product.defaultPriceAsCurrency }}</span>
+                    </div>
+                    </div>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sollicitudin purus ut ante
+                        hendrerit facilisis. Aenean eu interdum leo, nec molestie nisi.</p>
+
+                    <form method="post" class="mt-6">
+                        {{ actionInput('commerce/cart/update-cart') }}
+                        {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
+                        {# {{ hiddenInput('clearNotices', true) }} #}
+                        {{ csrfInput() }}
+                        <div class="inline-block relative w-full">
+                            <select name="purchasableId"
+                                    class="js-purchasableId block appearance-none w-full border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring">
+                                {% for variant in product.getVariants() %}
+                                    <option value="{{ variant.id }}">{{ variant.title }} {{ variant.sku }} {{ variant.salePrice|currency(cart.currency) }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 20 20">
+                                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
+                            <input type="number"
+                                   name="qty"
+                                   value="1"
+                                   class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring"
+                                   step="1"
+                                   min="1"
+                                   placeholder="Quantity"/>
+                            {% if product.availableForPurchase %}
+                                <button type="submit"
+                                        class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white text-center">
+                                    Add to cart
+                                </button>
+                            {% else %}
+                                <button type="submit"
+                                        class="m-0 cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white text-center">
+                                    Unavailable
+                                </button>
+                            {% endif %}
+                        </div>
+                        <div class="mt-1">
+                            <label>
+                                <input type="checkbox"
+                                       name="options[giftWrapped]"
+                                       value="yes"/>
+                                Gift wrap item
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

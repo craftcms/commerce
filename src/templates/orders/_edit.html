@@ -36,10 +36,12 @@
     "Business Tax ID",
     "Cancel",
     "City",
+    "Clear notices",
     "Close",
     "Completed",
     "Copied!",
     "Copy",
+    "Copy load cart URL",
     "Copy to {location}",
     "Couldn’t get order.",
     "Couldn’t recalculate order.",
@@ -51,6 +53,7 @@
     "Custom 2",
     "Custom 3",
     "Custom 4",
+    "Customer Notices",
     "Customer Note",
     "Customer",
     "Date Authorized",
@@ -63,6 +66,7 @@
     "Download PDF",
     "Duplicate options exist",
     "Edit address",
+    "Edit adjustments",
     "Edit",
     "Edit options",
     "Email sent",
@@ -137,6 +141,7 @@
     "Total Price",
     "Total",
     "Type",
+    "Unable to retrieve load cart URL",
     "Unit Price",
     "Update order",
     "You are not allowed to add a line item.",
@@ -168,6 +173,7 @@
 {% endblock %}
 
 {% block details %}
+    <div id="order-notices-app"></div>
     <div id="order-meta-app"></div>
     {# Give plugins a chance to add other things here #}
     {% hook "cp.commerce.order.edit.details" %}
