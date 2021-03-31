@@ -5,7 +5,7 @@
 ### Added
 
 ### Changed
-
+- Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 ### Deprecated
 
 ### Removed

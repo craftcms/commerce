@@ -20,7 +20,7 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "^3.6.0",
+    "craftcms/cms": "^4.0.0-alpha.1",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.2.1",
     "ibericode/vat": "^1.1.2"
