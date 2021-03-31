@@ -90,16 +90,18 @@ class OrderNoticesTest extends Unit
      */
     public function testClearOrderNotices()
     {
-        $firstNotice = Craft::createObject(OrderNotice::class, [
-            'attrbutes' => [
+        $firstNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
                 'type' => 'priceChange',
                 'attribute' => 'lineItems',
                 'message' => 'The Price of the product changed.'
             ]
         ]);
 
-        $secondNotice = Craft::createObject(OrderNotice::class, [
-            'attrbutes' => [
+        $secondNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
                 'type' => 'lineItemRemoved',
                 'attribute' => 'lineItems',
                 'message' => 'The x Product is no longer available and has been removed.'
@@ -116,8 +118,9 @@ class OrderNoticesTest extends Unit
         self::assertCount(0, $this->order->getNotices());
 
         // use a third notice
-        $thirdNotice = Craft::createObject(OrderNotice::class, [
-            'attrbutes' => [
+        $thirdNotice = Craft::createObject([
+            'class' => OrderNotice::class,
+            'attributes' => [
                 'type' => 'couponNotValid',
                 'attribute' => 'couponCode',
                 'message' => 'The x Product is no longer available and has been removed.'
