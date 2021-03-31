@@ -93,6 +93,15 @@
 
     {% block body %}
     <div class="container mx-auto p-6 flex-grow">
+        <form id="completeForm"
+              method="post"
+              action="">
+            {{ actionInput('commerce/cart/complete') }}
+            {{ redirectInput(siteUrl('/shop/customer/order', { number: cart.number, success: 'true' })) }}
+            {{ csrfInput() }}
+            <button type="submit">Commit to buy {{ cart.number }} for {{  cart.email }}</button>
+        </form>
+
         {% block main %}{% endblock %}
     </div>
     {% endblock %}

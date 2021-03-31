@@ -16,11 +16,13 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\Html;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -189,7 +191,7 @@ class CartController extends BaseFrontEndController
         }
 
         // Set if the customer should be registered on order completion
-        if ($registerUserOnOrderComplete = $this->request->getBodyParam('registerUserOnOrderComplete')) {
+        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
             $this->_cart->registerUserOnOrderComplete = true;
         }
 
@@ -290,29 +292,68 @@ class CartController extends BaseFrontEndController
      */
     public function actionComplete()
     {
+        /** @var Plugin $plugin */
+        $plugin = Plugin::getInstance();
         $this->requirePostRequest();
-        $this->_cart = $this->_getCart();
 
-        try {
-            $success = $this->_cart->markAsComplete();
-        } catch (\Exception $exception) {
-            $success = false;
+        if (!$plugin->getSettings()->allowCheckoutWithoutPayment) {
+            throw new HttpException(401, Craft::t('commerce', 'You must make a payment to complete the order.'));
         }
 
-        if (!$success) {
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => false]);
+        $this->_cart = $this->_getCart();
+        $errors = [];
+
+        // Check email address exists on order.
+        if (empty($this->_cart->email)) {
+            $errors['email'] = Craft::t('commerce', 'No customer email address exists on this cart.');
+        }
+
+        if ($plugin->getSettings()->allowEmptyCartOnCheckout && $this->_cart->getIsEmpty()) {
+            $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
+        }
+
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->getShippingMethod()) {
+            $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
+        }
+
+        if ($plugin->getSettings()->requireBillingAddressAtCheckout && !$this->_cart->billingAddressId) {
+            $errors['billingAddressId'] = Craft::t('commerce', 'Billing address required.');
+        }
+
+        if ($plugin->getSettings()->requireShippingAddressAtCheckout && !$this->_cart->shippingAddressId) {
+            $errors['shippingAddressId'] = Craft::t('commerce', 'Shipping address required.');
+        }
+
+        // Set if the customer should be registered on order completion
+        if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
+            $order->registerUserOnOrderComplete = true;
+        }
+
+        if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
+            $order->registerUserOnOrderComplete = false;
+        }
+
+        if (!empty($errors)) {
+            $this->_cart->addErrors($errors);
+        }
+
+
+        if (empty($errors)) {
+
+            $completedSuccess = false;
+
+            try {
+                $completedSuccess = $this->_cart->markAsComplete();
+            } catch (\Exception $exception) {
+                $completedSuccess = false;
             }
 
-
+            if (!$completedSuccess) {
+                $this->_cart->addError('isComplete', Craft::t('commerce', 'Completing order failed.'));
+            }
         }
 
-        if ($this->request->getAcceptsJson()) {
-
-            return $this->asJson(['success' => true]);
-        }
-
-        return $this->redirectToPostedUrl();
+        return $this->_returnCart();
     }
 
     /**
@@ -359,7 +400,8 @@ class CartController extends BaseFrontEndController
 
         $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
 
-        if (!$this->_cart->validate($attributes) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
+        // Do not clear errors, as errors could be added to the cart before _returnCart is called.
+        if (!$this->_cart->validate($attributes, false) || !Craft::$app->getElements()->saveElement($this->_cart, false, false, $updateCartSearchIndexes)) {
             $error = Craft::t('commerce', 'Unable to update cart.');
             $message = $this->request->getValidatedBodyParam('failMessage') ?? $error;
 

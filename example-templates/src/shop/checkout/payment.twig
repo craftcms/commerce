@@ -30,8 +30,8 @@
                         {{ redirectInput(siteUrl('/[[folderName]]/customer/order', { number: cart.number, success: 'true' })) }}
                         {{ hiddenInput('cancelUrl', siteUrl('/[[folderName]]/checkout/payment')|hash) }}
                         {{ hiddenInput('orderEmail', cart.email) }}
-
                         {{ csrfInput() }}
+
                         {% if cart.gatewayId %}
 
                             {{ hiddenInput('gatewayId', cart.gatewayId) }}

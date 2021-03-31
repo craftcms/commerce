@@ -8,7 +8,9 @@
 - Added a “Copy load cart URL” action to the Orders index page. ([#1386](https://github.com/craftcms/commerce/issues/1386))
 - It’s now possible to include the discounted order value when calculating the order total conditions in a shipping rule. ([#1948](https://github.com/craftcms/commerce/pull/1948))
 - It's now possible to click the line item description on the Order Edit page to navigate to the purchasable’s CP edit page. ([#2048](https://github.com/craftcms/commerce/issues/2048))
+- Added the `allowCheckoutWithoutPayment` config setting.  
 - Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
+  
 - Added `craft\commerce\elements\Order::getLoadCartUrl()`.
 - Added `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES`. ([#1627](https://github.com/craftcms/commerce/issues/1627))
 

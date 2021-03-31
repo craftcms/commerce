@@ -70,6 +70,13 @@ class Settings extends Model
     public $allowEmptyCartOnCheckout = false;
 
     /**
+     * @var bool Whether carts are can be marked as completed without a payment.
+     * @group Cart
+     * @since 3.3
+     */
+    public $allowCheckoutWithoutPayment = true;
+
+    /**
      * @var string Key to be used when returning cart information in a response.
      * @group Cart
      */
