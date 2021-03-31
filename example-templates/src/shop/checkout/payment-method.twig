@@ -18,6 +18,7 @@
                     <form method="post" action="" class="relative border-b-1 mb-4">
                         {{ actionInput('commerce/cart/update-cart') }}
                         {{ redirectInput('[[folderName]]/checkout/payment') }}
+                        {{ successMessageInput('Payment options selected.') }}
                         {{ csrfInput() }}
 
                         <div class="mt-3">

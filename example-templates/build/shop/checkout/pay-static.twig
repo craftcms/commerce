@@ -16,7 +16,7 @@
 
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
-            <h1 class="text-xl font-bold mb-3">Cart/Order Payment</h1>
+            <h1 class="text-xl font-bold">Payment</h1>
 
             {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
                 {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}

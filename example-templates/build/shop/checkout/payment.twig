@@ -8,6 +8,25 @@
 
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
+
+            {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
+                <div class="border-b border-gray-300 pb-10 mb-10">
+                    <h1 class="font-bold text-xl">Pay later</h1>
+                    <p>Commit to buy now, and make payment later...</p>
+                    <div class="mt-1">
+                        <form id="completeForm"
+                              method="post"
+                              action="">
+                            {{ actionInput('commerce/cart/complete') }}
+                            {{ redirectInput(siteUrl('/shop/customer/order', { number: cart.number, success: 'true' })) }}
+                            {{ successMessageInput('Thank you for your order. We have received it and now await payment.') }}
+                            {{ csrfInput() }}
+                            <button type="submit" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">Commit</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+
             <h1 class="font-bold text-xl">Payment</h1>
 
             {% if cart.gatewayId or cart.paymentSourceId %}

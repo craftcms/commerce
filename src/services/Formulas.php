@@ -97,9 +97,11 @@ class Formulas extends Component
         $twigCode .= $formula;
         $twigCode .= ' %}TRUE{% else %}FALSE{% endif %}';
 
-        $template = $this->_twigEnv->createTemplate((string)$twigCode, $name);
+        $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        return $output == 'TRUE';
+        $success = $output == 'TRUE';
+
+        return $success;
     }
 
     /**
