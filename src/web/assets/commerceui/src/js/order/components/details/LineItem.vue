@@ -194,9 +194,11 @@
                     return this.lineItem.qty
                 },
                 set: debounce(function(val) {
-                    const lineItem = this.lineItem
-                    lineItem.qty = val
-                    this.$emit('updateLineItem', lineItem)
+                    if (val !== '') {
+                        const lineItem = this.lineItem
+                        lineItem.qty = val
+                        this.$emit('updateLineItem', lineItem)
+                    }
                 }, 1000)
             },
 
