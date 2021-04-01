@@ -116,7 +116,7 @@ trait OrderNoticesTrait
      * Returns a value indicating whether there is any notices.
      *
      * @param string|null $type type name. Use null to check all types.
-     * @param string|null $attribute atrtribute name. Use null to check all attributes.
+     * @param string|null $attribute attribute name. Use null to check all attributes.
      * @return bool whether there is any notices.
      */
     public function hasNotices($type = null, $attribute = null): bool

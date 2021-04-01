@@ -1744,7 +1744,7 @@ class Order extends Element
                             Craft::createObject([
                                 'class' => OrderNotice::class,
                                 'attributes' => [
-                                    'type' => 'lineItemSalePriceChange',
+                                    'type' => 'lineItemSalePriceChanged',
                                     'attribute' => "lineItems.{$item->id}.salePrice",
                                     'message' => $message,
                                 ]
@@ -1758,7 +1758,7 @@ class Order extends Element
                             Craft::createObject([
                                 'class' => OrderNotice::class,
                                 'attributes' => [
-                                    'type' => 'lineItemSalePriceChange',
+                                    'type' => 'lineItemSalePriceChanged',
                                     'attribute' => "lineItems.{$item->id}.salePrice",
                                     'message' => $message,
                                 ]
@@ -1772,7 +1772,7 @@ class Order extends Element
                             'class' => OrderNotice::class,
                             'attributes' => [
                                 'message' => $message,
-                                'type' => $type,
+                                'type' => 'lineItemRemoved',
                                 'attribute' => $attribute
                             ]
                         ])
