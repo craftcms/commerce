@@ -168,7 +168,7 @@ trait OrderValidatorsTrait
                 Craft::createObject([
                     'class' => OrderNotice::class,
                     'attributes' => [
-                        'type' => 'couponNotValid',
+                        'type' => 'invalidCouponRemoved',
                         'attribute' => $attribute,
                         'message' => $message,
                     ]
