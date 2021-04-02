@@ -2240,7 +2240,7 @@ class Order extends Element
      */
     public function getPaymentAmount(): float
     {
-        if ($this->_paymentAmount && $this->_paymentAmount->getAmount() >= 0 && $this->_paymentAmount->getAmount() <= $this->getOutstandingBalance()) {
+        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
             return $this->_paymentAmount;
         }
 
