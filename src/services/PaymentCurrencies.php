@@ -186,7 +186,7 @@ class PaymentCurrencies extends Component
             throw new CurrencyException('No payment currency found with ISO code: ' . $currency);
         }
 
-        return $amount * $destinationCurrency->rate;
+        return $this->convertCurrency($amount, $this->getPrimaryPaymentCurrencyIso(), $currency);
     }
 
     /**

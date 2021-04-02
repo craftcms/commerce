@@ -69,7 +69,7 @@ class PaymentsController extends BaseFrontEndController
         $userSession = Craft::$app->getUser();
 
         // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
-        $number = $this->request->getBodyParam('orderNumber');
+        $number = $this->request->getParam('orderNumber');
 
         if ($number !== null) {
             /** @var Order $order */
@@ -227,7 +227,7 @@ class PaymentsController extends BaseFrontEndController
         $gateway = $order->getGateway();
 
         if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
-            $error = Craft::t('commerce', 'There is no gateway or payment source available for this order.');
+            $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
@@ -409,9 +409,24 @@ class PaymentsController extends BaseFrontEndController
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
         // set a partial payment amount on the order in the orders currency (not payment currency)
-        $patialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowFrontEndPartialPayments) || $this->request->isCpRequest);
-        if ($patialAllowed && ($paymentAmount = $this->request->getParam('paymentAmount'))) {
+        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+
+        if ($partialAllowed) {
+            if ($isCpAndAllowed) {
+                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+            } else {
+                $paymentAmount = $this->request->getBodyParam('paymentAmount');
+            }
+
             $order->setPaymentAmount($paymentAmount);
+        }
+
+        if (!$partialAllowed && $order->getPaymentAmount() < $order->getOutstandingBalance()) {
+            $error = Craft::t('commerce', 'Partial payment not allowed.');
+            $this->setFailFlash($error);
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+            return null;
         }
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {

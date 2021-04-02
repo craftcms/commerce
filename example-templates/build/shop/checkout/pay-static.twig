@@ -137,6 +137,11 @@
                                             {% set params = { currency: cart.paymentCurrency } %}
                                         {% endif %}
 
+                                        <a href="{{ siteUrl(url, {
+                                            orderNumber: number,
+                                            email: email,
+                                        }) }}" class="text-blue-500 hover:text-blue-600">&larr; Back</a>
+
                                         {{ gateway.getPaymentFormHtml(params)|raw }}
 
                                         {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
@@ -167,21 +172,15 @@
                                 {% endif %}
 
                                 <div class="mt-4">
-                                    <div class="flex w-full">
-                                        <div class="w-1/2">
-                                            <a href="{{ siteUrl(url, {
-                                                orderNumber: number,
-                                                email: email,
-                                            }) }}" class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">Back</a>
-                                        </div>
-                                        <div class="w-1/2 text-right">
-                                            {% if canPay %}
-                                                <button type="submit"
-                                                        class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">
-                                                    Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency, convert=true) }}
-                                                </button>
-                                            {% endif %}
-                                        </div>
+                                    <div class="w-full">
+                                        {% if canPay %}
+
+                                            {{ include('shop/checkout/_includes/partial-payment') }}
+
+                                            <button type="submit"
+                                                    class="cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white">Pay
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </div>
 

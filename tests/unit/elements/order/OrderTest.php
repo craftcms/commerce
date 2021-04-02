@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit\elements;
+namespace craftcommercetests\unit\elements\order;
 
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Discount;
@@ -95,57 +95,6 @@ class OrderTest extends Unit
 
         $this->order->setAdjustments([$adjustment1, $adjustment2, $adjustment3]);
         self::assertEquals(65, $this->order->getTotalPrice());
-    }
-
-    /**
-     *
-     */
-    public function testOrderPaymentAmounts()
-    {
-        $this->order = new Order();
-        $this->order->id = 1000;
-
-        $lineItem = new LineItem();
-        $lineItem->salePrice = 10;
-        $lineItem->qty = 2;
-        $this->order->setLineItems([$lineItem]);
-
-        // We have an amount to owe on this order
-        self::assertTrue($this->order->hasOutstandingBalance());
-
-        // Amount owed is the payment amount
-        self::assertEquals($this->order->getPaymentAmount(), $this->order->getOutstandingBalance());
-
-        // Check setter/getter is working
-        $amountToPay = 10;
-        $this->order->setPaymentAmount($amountToPay);
-        self::assertEquals($this->order->getPaymentAmount(), $amountToPay);
-
-        // Add a $12 successful transaction to the order
-        $transaction1 = new Transaction();
-        $transaction1->amount = 12;
-        $transaction1->type = \craft\commerce\records\Transaction::TYPE_PURCHASE;
-        $transaction1->status = \craft\commerce\records\Transaction::STATUS_SUCCESS;
-        $this->order->setTransactions([$transaction1]);
-
-        self::assertEquals($this->order->getOutstandingBalance(), 8);
-
-        // Add a $2 successful refund transaction to the order
-        $transaction2 = new Transaction();
-        $transaction2->amount = 2;
-        $transaction2->type = \craft\commerce\records\Transaction::TYPE_REFUND;
-        $transaction2->status = \craft\commerce\records\Transaction::STATUS_SUCCESS;
-        $this->order->setTransactions([$transaction1, $transaction2]);
-
-        // Paid $12 and refunded $2, order price was $20, but outstanding amount now $10
-        self::assertEquals($this->order->getOutstandingBalance(), 10);
-
-        // Payment amount is still 10
-        self::assertEquals($this->order->getPaymentAmount(), 10);
-
-        // Setting a payment amount in excess of the outstanding balance is ignore and just set to the outstanding balance
-        $this->order->setPaymentAmount(1000);
-        self::assertEquals($this->order->getPaymentAmount(), $this->order->getOutstandingBalance());
     }
 
     /**

@@ -74,7 +74,16 @@ class Settings extends Model
      * @group Cart
      * @since 3.3
      */
-    public $allowCheckoutWithoutPayment = true;
+    public $allowCheckoutWithoutPayment = false;
+
+    /**
+     * @var bool Whether partial payment can be made from the front-end. Gateway must also allow them.
+     *
+     * The default `false` does not allow partial payments on the front end.
+     *
+     * @group Payments
+     */
+    public $allowPartialPaymentOnCheckout = false;
 
     /**
      * @var string Key to be used when returning cart information in a response.
@@ -151,15 +160,6 @@ class Settings extends Model
      * @group Orders
      */
     public $freeOrderPaymentStrategy = 'complete';
-
-    /**
-     * @var bool Whether partial payment can be made from the front-end. Gateway must also allow them.
-     *
-     * The default `false` does not allow partial payments on the front end.
-     *
-     * @group Payments
-     */
-    public $allowFrontEndPartialPayments = false;
 
     /**
      * @var string The path to the template that should be used to perform POST requests to offsite payment gateways.

@@ -1449,6 +1449,8 @@ class Order extends Element
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
+        $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
+
         // If it is no longer paid in full, set datePaid to null
         if (!$paidInFull) {
             $this->datePaid = null;
@@ -1479,7 +1481,7 @@ class Order extends Element
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalAuthorized = $this->getTotalAuthorized();
-            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
+            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull || $canComplete) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
                 // Payment information is still stored in the transactions.
@@ -2254,7 +2256,9 @@ class Order extends Element
      */
     public function setPaymentAmount($amount)
     {
-        $this->_paymentAmount = (float) $amount;
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
+        $amount = Currency::round($amount, $paymentCurrency);
+        $this->_paymentAmount = $amount;
     }
 
     /**
@@ -2272,7 +2276,7 @@ class Order extends Element
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->totalPaid > 0) {
+        if ($this->getTotalPaid() > 0) {
             return self::PAID_STATUS_PARTIAL;
         }
 
