@@ -118,6 +118,16 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     }
 
     /**
+     * Returns true if gateway supports partial refund requests.
+     *
+     * @return bool
+     */
+    public function supportsPartialPayment(): bool
+    {
+        return true;
+    }
+
+    /**
      * Returns payment Form HTML
      *
      * @param array $params

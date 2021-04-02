@@ -208,7 +208,7 @@
     $(document).ready(function () {
         {% if paymentForm is defined and paymentForm %}
             new Craft.Commerce.OrderEdit({
-                orderId: {{ orderId|e('js') }},
+                orderId: window.orderEdit.orderId,
                 paymentForm: {
                     errors: {{ paymentForm.errors|json_encode|raw }},
                     attributes: {{ paymentForm.attributes|json_encode|raw }}

@@ -68,9 +68,8 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        // TODO Remove `orderNumber` param in 4.0
-        $number = $this->request->getBodyParam('orderNumber');
-        $number = $this->request->getBodyParam('number', $number);
+        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
+        $number = $this->request->getParam('orderNumber');
 
         if ($number !== null) {
             /** @var Order $order */
@@ -228,7 +227,7 @@ class PaymentsController extends BaseFrontEndController
         $gateway = $order->getGateway();
 
         if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
-            $error = Craft::t('commerce', 'There is no gateway or payment source available for this order.');
+            $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
@@ -408,6 +407,27 @@ class PaymentsController extends BaseFrontEndController
         // We don't want to save the order in this mode in case the payment fails. The customer should still be able to edit and recalculate the cart.
         // When the order is marked as complete from a payment later, the order will be set to 'recalculate none' mode permanently.
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
+
+        // set a partial payment amount on the order in the orders currency (not payment currency)
+        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+
+        if ($partialAllowed) {
+            if ($isCpAndAllowed) {
+                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+            } else {
+                $paymentAmount = $this->request->getBodyParam('paymentAmount');
+            }
+
+            $order->setPaymentAmount($paymentAmount);
+        }
+
+        if (!$partialAllowed && $order->getPaymentAmount() < $order->getOutstandingBalance()) {
+            $error = Craft::t('commerce', 'Partial payment not allowed.');
+            $this->setFailFlash($error);
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+            return null;
+        }
 
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {

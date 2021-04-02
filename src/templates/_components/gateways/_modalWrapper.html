@@ -19,25 +19,121 @@
 
         {{ formHtml|raw }}
 
+        <fieldset>
+        <legend>Payment Amount</legend>
+        <div id="currency-selector-{{ gateway.id }}">
+            <input type="text"  id="paymentAmount-{{ gateway.id }}" name="paymentAmount" class="text" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+
+            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
+            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+
+            {% if currencies|length > 1 %}
+                <select id="paymentCurrency-{{ gateway.id }}" class="text" name="paymentCurrency"  style="margin: 0 5px;">
+                {% for currency in currencies %}
+                    <option value="{{currency.iso}}" {% if primaryCurrency.iso == currency.iso %}selected {% endif %}>
+                        {{ currency.iso }}
+                    </option>
+                {% endfor %}
+                </select>
+            {% else %}
+                 <input type="hidden" id="paymentCurrency-{{ gateway.id }}" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
+            {% endif %}
+            <span id="baseCurrencyAmount-{{ gateway.id }}">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+            <p id="response-message-{{ gateway.id }}"></p>
+        </div>
+        </fieldset>
+
         <div class="footer">
             <div class="buttons right">
-                <input type="submit" class="btn submit"
-                       value="Pay {{ order.outstandingBalance|commerceCurrency(order.currency,convert=true) }} Now">
+                <input id="submit-payment-{{ gateway.id }}" type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
 
     </form>
 </div>
+
 {% js %}
-    $('#gateway-{{ gateway.id }}-form').on('submit', function (ev) {
-    $form = $(this);
 
-    if ($form.data('processing')) {
-    ev.preventDefault();
+    var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
+    var outstandingBalance = '{{ order.outstandingBalance }}';
+    var orderId = '{{ order.id }}';
 
-    return false;
+   $("#gateway-{{ gateway.id }}-form").on('submit', function (ev) {
+        $("#gateway-{{ gateway.id }}-form") = $(this);
+
+        if ($("#gateway-{{ gateway.id }}-form").data('processing')) {
+            ev.preventDefault();
+            return false;
+        }
+
+        $("#gateway-{{ gateway.id }}-form").data('processing', true);
+    });
+
+
+    function debounce(callback, wait) {
+      let timeout;
+      return (...args) => {
+          clearTimeout(timeout);
+          timeout = setTimeout(function () { callback.apply(this, args); }, wait);
+      };
     }
 
-    $form.data('processing', true);
-    });
+    function updatePrice() {
+        var price = $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").val();
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            headers: {
+                "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+            },
+            url: '',
+            data: {
+                'action' : 'commerce/orders/payment-amount-data',
+                'paymentAmount': price,
+                'paymentCurrency': $("#gateway-{{ gateway.id }}-form").find("#paymentCurrency-{{ gateway.id }}").val(),
+                'orderId' : orderId
+            },
+            success: function(data){
+                $("#gateway-{{ gateway.id }}-form").find("#baseCurrencyAmount-{{ gateway.id }}").html(data.baseCurrencyPaymentAmountAsCurrency);
+                $("#real-paymentAmount-{{ gateway.id }}").val(data.baseCurrencyPaymentAmount);
+                $('#response-message-{{ gateway.id }}').html(data.message);
+                window.dispatchEvent(new Event('resize'));
+                $('#submit-payment-{{ gateway.id }}').prop('disabled', false);
+            }
+        });
+    }
+
+{#    $("#gateway-{{ gateway.id }}-form").find(".submit", function(e){#}
+{#        e.preventDefault();#}
+
+{#    });#}
+
+    $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").bind('keyup mouseup', debounce(() => {
+        var newVal = $("input#paymentAmount-{{ gateway.id }}").val();
+        if(!newVal) {
+            newVal = outstandingBalance;
+            $("input#paymentAmount-{{ gateway.id }}").val(newVal);
+        }
+        updatePrice();
+    }, 500));
+
+    var previous;
+
+    if($("select#paymentCurrency-{{ gateway.id }}").length){
+        $("select#paymentCurrency-{{ gateway.id }}").on('focus', function () {
+            previous = this.value;
+        }).on('change', function() {
+            $('#submit-payment-{{ gateway.id }}').prop('disabled', true);
+
+            if(this.value != primaryBaseCurrency){
+                $("input#paymentAmount-{{ gateway.id }}").removeAttr('max');
+            }else{
+                $("input#paymentAmount-{{ gateway.id }}").attr('max', outstandingBalance);
+            }
+
+            updatePrice();
+        });
+    }
+
 {% endjs %}

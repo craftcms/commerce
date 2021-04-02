@@ -19,6 +19,7 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
@@ -133,7 +134,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEditOrder($orderId, Order $order = null): Response
+    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -149,6 +150,7 @@ class OrdersController extends Controller
         }
 
         $variables['order'] = $order;
+        $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
         $transactions = $order->getTransactions();
@@ -900,7 +902,44 @@ class OrdersController extends Controller
 
         return $this->redirectToPostedUrl();
     }
+    
+    /**
+     * @throws BadRequestHttpException
+     */
+    public function actionPaymentAmountData()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+        $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
+        $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
+        $paymentAmount = $this->request->getRequiredParam('paymentAmount');
+        $orderId = $this->request->getRequiredParam('orderId');
+        $baseCurrency = $paymentCurrencies->getPrimaryPaymentCurrencyIso();
+        $order = Order::find()->id($orderId)->one();
 
+        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
+
+        $outstandingBalance = $order->outstandingBalance;
+        $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
+
+        $message = '';
+        if ($baseCurrencyPaymentAmount > $outstandingBalance) {
+            $baseCurrencyPaymentAmount = $outstandingBalance;
+            $baseCurrencyPaymentAmountAsCurrency = $outstandingBalanceAsCurrency;
+            $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
+        }
+
+        return $this->asJson([
+            'paymentCurrency' => $paymentCurrency,
+            'paymentAmount' => $paymentAmount,
+            'outstandingBalance' => $outstandingBalance,
+            'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
+            'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
+            'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
+            'message' => $message
+        ]);
+    }
 
     /**
      * Modifies the variables of the request.

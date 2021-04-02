@@ -97,6 +97,7 @@
 
                         <div class="field mt-3">
                             <label for="username">Username</label>
+                            <div class="mt-1">
                             <input type="text"
                                    id="username"
                                    name="username"
@@ -106,10 +107,12 @@
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('username')) }}
                             {% endif %}
+                            </div>
                         </div>
 
                         <div class="field mt-3">
                             <label for="email">Email</label>
+                            <div class="mt-1">
                             <input type="text"
                                    id="email"
                                    name="email"
@@ -120,10 +123,12 @@
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('email')) }}
                             {% endif %}
+                            </div>
                         </div>
 
                         <div class="field mt-3">
                             <label for="savePassword">Password</label>
+                            <div class="mt-1">
                             <input type="password"
                                    id="savePassword"
                                    class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
@@ -132,6 +137,7 @@
                             {% if user is defined %}
                                 {{ errorList(user.getErrors('password')) }}
                             {% endif %}
+                            </div>
                         </div>
 
                         <div class="mt-3">

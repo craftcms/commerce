@@ -23,6 +23,7 @@
                     <form method="post">
                         {{ actionInput('commerce/cart/update-cart') }}
                         {{ redirectInput('shop/checkout/payment-method') }}
+                        {{ successMessageInput('Shipping option updated.') }}
                         {{ csrfInput() }}
 
                         {% for handle, method in cart.availableShippingMethodOptions %}

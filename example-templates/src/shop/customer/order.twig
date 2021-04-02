@@ -19,6 +19,7 @@
         </div>
     {% endif %}
     <h1 class="text-xl font-semibold mt-3">Order {{ order.reference }}</h1>
+
     <div class="flex -mx-6 mt-3">
         <div class="w-1/3 mx-6">
             <h3 class="font-semibold">Details</h3>
@@ -29,11 +30,15 @@
             </div>
             <div class="flex items-center w-full">
                 <div class="text-sm text-gray-600 pr-2">Total:</div>
-                <div class="font-bold">{{ order.totalPrice|commerceCurrency(order.currency) }}</div>
+                <div class="font-bold">{{ order.totalPriceAsCurrency }}</div>
+            </div>
+            <div class="flex items-center w-full">
+                <div class="text-sm text-gray-600 pr-2">Payment Status:</div>
+                <div class="font-bold">{{ order.paidStatushtml|raw }}</div>
             </div>
             <div class="flex items-center w-full">
                 <div class="text-sm text-gray-600 pr-2">Amount Paid:</div>
-                <div class="font-bold">{{ order.totalPaid|commerceCurrency(order.currency) }}</div>
+                <div class="font-bold">{{ order.totalPaidAsCurrency }}</div>
             </div>
             <div class="flex items-center w-full">
                 <div class="text-sm text-gray-600 pr-2">Date:</div>
@@ -123,22 +128,22 @@
                     <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                         <div class="text-xs pr-2">Price:</div>
                         <div class="text-sm">{% if item.onSale %}
-                            <del>{% endif %}{{ item.price|commerceCurrency(order.currency) }}{% if item.onSale %}</del>{% endif %}
+                            <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onSale %}</del>{% endif %}
                         </div>
                     </div>
                     {% if item.onSale %}
                         <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
                             <div class="text-xs pr-2">Sale Price:</div>
-                            <div class="text-sm">{{ item.salePrice|commerceCurrency(order.currency) }}</div>
+                            <div class="text-sm">{{ item.salePriceAsCurrency }}</div>
                         </div>
                         <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
                             <div class="text-xs pr-2">Sale Amount:</div>
-                            <div class="text-sm">{{ item.saleAmount|commerceCurrency(order.currency) }}</div>
+                            <div class="text-sm">{{ item.saleAmountAsCurrency }}</div>
                         </div>
                     {% endif %}
                     <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
                         <div class="text-xs pr-2">Subtotal:</div>
-                        <div class="text-sm">{{ item.subtotal|commerceCurrency(order.currency) }}</div>
+                        <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
                     </div>
                 </td>
             </tr>
@@ -160,7 +165,7 @@
                                     </div>
                                     <div class="ml-auto">
                                         <span class="text-gray-500"
-                                              title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(order.currency) }}</span>
+                                              title="{{ adjustment.amount }}"> {{ adjustment.amountAsCurrency }}</span>
                                     </div>
                                 </div>
                             {% endfor %}
@@ -169,7 +174,7 @@
 
                     <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
                         <div class="text-sm text-gray-600 pr-2">Total:</div>
-                        <div class="font-bold">{{ item.total|commerceCurrency(order.currency) }}</div>
+                        <div class="font-bold">{{ item.totalAsCurrency }}</div>
                     </div>
                 </td>
             </tr>
@@ -181,7 +186,7 @@
                 <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
                      title="{{ order.itemSubTotal }}">
                     <div class="text-sm text-gray-600 pr-2">Item Subtotal:</div>
-                    <div class="font-bold">{{ order.itemSubTotal|commerceCurrency(order.currency) }}</div>
+                    <div class="font-bold">{{ order.itemSubtotalAsCurrency }}</div>
                 </div>
             </td>
         </tr>
@@ -205,7 +210,7 @@
                                 </div>
                                 <div class="ml-auto">
                                     <span class="text-gray-500"
-                                          title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(order.currency) }}</span>
+                                          title="{{ adjustment.amount }}"> {{ adjustment.amountAsCurrency }}</span>
                                 </div>
                             </div>
                         {% endfor %}
@@ -220,29 +225,71 @@
                     <strong class="text-sm text-gray-600">Adjustment Totals</strong>
                 </div>
 
-                <div class="flex items-center w-full justify-end" title="{{ order.getTotalShippingCost() }}">
+                <div class="flex items-center w-full justify-end" title="{{ order.totalShippingCost }}">
                     <div class="text-xs text-gray-500 pr-2">Total Shipping:</div>
-                    <div class="text-sm text-gray-500">{{ order.getTotalShippingCost()|commerceCurrency(order.currency) }}</div>
+                    <div class="text-sm text-gray-500">{{ order.totalShippingCostAsCurrency }}</div>
                 </div>
-                <div class="flex items-center w-full justify-end" title="{{ order.getTotalTax() }}">
+                <div class="flex items-center w-full justify-end" title="{{ order.totalTax }}">
                     <div class="text-xs text-gray-500 pr-2">Total Tax:</div>
-                    <div class="text-sm text-gray-500">{{ order.getTotalTax()|commerceCurrency(order.currency) }}</div>
+                    <div class="text-sm text-gray-500">{{ order.totalTaxAsCurrency }}</div>
                 </div>
-                <div class="flex items-center w-full justify-end" title="{{ order.getTotalTaxIncluded() }}">
+                <div class="flex items-center w-full justify-end" title="{{ order.totalTaxIncluded }}">
                     <div class="text-xs text-gray-500 pr-2">Total Tax (inc):</div>
-                    <div class="text-sm text-gray-500">{{ order.getTotalTaxIncluded()|commerceCurrency(order.currency) }}</div>
+                    <div class="text-sm text-gray-500">{{ order.totalTaxIncludedAsCurrency }}</div>
                 </div>
-                <div class="flex items-center w-full justify-end" title="{{ order.getTotalDiscount() }}">
+                <div class="flex items-center w-full justify-end" title="{{ order.totalDiscount }}">
                     <div class="text-xs text-gray-500 pr-2">Total Discount:</div>
-                    <div class="text-sm text-gray-500">{{ order.getTotalDiscount()|commerceCurrency(order.currency) }}</div>
+                    <div class="text-sm text-gray-500">{{ order.totalDiscountAsCurrency }}</div>
                 </div>
 
                 <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPrice }}">
                     <div class="text-gray-600 pr-2">Total Price:</div>
-                    <div class="text-xl font-bold">{{ order.totalPrice|commerceCurrency(order.currency) }}</div>
+                    <div class="text-xl font-bold">{{ order.totalPriceAsCurrency }}</div>
                 </div>
+
+                <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPaid }}">
+                    <div class="text-gray-600 pr-2">Total Paid:</div>
+                    <div class="text-xl font-bold">{{ order.totalPaidAsCurrency }}</div>
+                </div>
+
+                <div class="flex items-center w-full justify-end mt-3" title="{{ order.outstandingBalance }}">
+                    <div class="text-gray-600 pr-2">Outstanding Balance:</div>
+                    <div class="text-xl font-bold">{{ order.outstandingBalanceAsCurrency }}</div>
+                </div>
+
+                {% if order.hasOutstandingBalance() - order.getTotalAuthorized() > 0 %}
+                    <a href="siteUrl('[[folderName]]/checkout/pay-static',{orderNumber: order.number, email: order.email })" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Make Payment</a>
+                {% endif %}
+
             </td>
         </tr>
+        </tbody>
+    </table>
+
+    <h1 class="text-xl font-semibold mt-3">Transactions</h1>
+
+    <table class="w-full mt-3">
+        <thead>
+        <tr class="text-gray-600 bg-gray-200">
+            <th class="py-2 pl-3 text-left">Type</th>
+            <th class="py-2 pl-3 text-left">Status</th>
+            <th class="py-2 text-left">Currency</th>
+            <th class="py-2 pr-3 text-right">Amount</th>
+            <th class="py-2 text-left">Payment Currency</th>
+            <th class="py-2 pr-3 text-right">Payment Amount</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for transaction in order.transactions %}
+            <tr>
+                <td class="text-left align-text-top pt-3 pr-3 {% if transaction.getParent() %}pl-5{% endif %}">{{ transaction.type|title }}</td>
+                <td class="text-left align-text-top pt-3 pr-3">{{ transaction.status|title }}</td>
+                <td class="text-left align-text-top pt-3 pr-3">{{ transaction.currency }}</td>
+                <td class="text-right align-text-top pt-3 pr-3">{{ transaction.amountAsCurrency }}</td>
+                <td class="text-left align-text-top pt-3 pr-3">{{ transaction.paymentCurrency }}</td>
+                <td class="text-right align-text-top pt-3 pr-3">{{ transaction.paymentAmountAsCurrency }}</td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 {% endblock %}
