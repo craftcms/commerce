@@ -16,6 +16,7 @@
 - Added `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES`. ([#1627](https://github.com/craftcms/commerce/issues/1627))
 - Added `\craft\commerce\base\GatewayInterface::supportsPartialPayment()`.
 - Added `craft\commerce\base\Gateway::supportsPartialPayment()`.
+- Added `craft\commerce\services\PaymentCurrencies::convertCurrency()`.
 
 ### Changed
 - All front end controllers now use the `number` param for passing the order number. ([#1970](https://github.com/craftcms/commerce/issues/1970))
