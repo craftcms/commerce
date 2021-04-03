@@ -486,6 +486,7 @@ trait OrderElementTrait
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
             $attributes[] = 'totalPaid';
+            $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
         } else {
             $attributes[] = 'shortNumber';
