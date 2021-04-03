@@ -21,7 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $message
  * @property Order $order
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3
  */
 class OrderNotice extends ActiveRecord
 {

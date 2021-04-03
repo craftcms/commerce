@@ -23,7 +23,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3
  */
 class OrderNotice extends Model
 {

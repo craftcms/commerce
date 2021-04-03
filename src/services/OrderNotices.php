@@ -20,14 +20,14 @@ use craft\helpers\ArrayHelper;
  *
  * @property AdjusterInterface[] $adjusters
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3
  */
 class OrderNotices extends Component
 {
     /**
      * @param array|Order[] $orders
      * @return Order[]
-     * @since 3.x
+     * @since 3.3
      */
     public function eagerLoadOrderNoticesForOrders(array $orders): array
     {

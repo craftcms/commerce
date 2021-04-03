@@ -21,7 +21,7 @@ use UnitTester;
  * OrderTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3
  */
 class OrderNoticesTest extends Unit
 {

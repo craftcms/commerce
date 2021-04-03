@@ -13,7 +13,10 @@ use craft\commerce\models\PaymentCurrency;
 use craft\helpers\ArrayHelper;
 
 /**
+ * Adds order notice getters and setters.
+ *
  * @property Order $this
+ * @since 3.3
  */
 trait OrderNoticesTrait
 {
@@ -25,7 +28,7 @@ trait OrderNoticesTrait
      * @param string $type type name. Use null to retrieve notices for all types.
      * @param string $attribute attribute name. Use null to retrieve notices for all attributes.
      * @return OrderNotice[] notices for all types or the specified type / attribute. Empty array is returned if no notice.
-     *
+     * @since 3.3
      */
     public function getNotices($type = null, $attribute = null)
     {
@@ -58,6 +61,7 @@ trait OrderNoticesTrait
      * Adds a new notice
      *
      * @param OrderNotice $notice
+     * @since 3.3
      */
     public function addNotice(OrderNotice $notice)
     {
@@ -69,6 +73,7 @@ trait OrderNoticesTrait
      * Returns the first error of the specified type or attribute
      *
      * @return OrderNotice|null
+     * @since 3.3
      */
     public function getFirstNotice($type = null, $attribute = null)
     {
@@ -79,7 +84,7 @@ trait OrderNoticesTrait
      * Adds a list of notices.
      *
      * @param OrderNotice[] $notice an array of notices.
-     * @since 3.x
+     * @since 3.3
      */
     public function addNotices(array $notices)
     {
@@ -92,6 +97,7 @@ trait OrderNoticesTrait
      * Removes notices for all types or a single type.
      *
      * @param string $type type name. Use null to remove notices for all types.
+     * @since 3.3
      */
     public function clearNotices($type = null, $attribute = null)
     {
@@ -118,6 +124,7 @@ trait OrderNoticesTrait
      * @param string|null $type type name. Use null to check all types.
      * @param string|null $attribute attribute name. Use null to check all attributes.
      * @return bool whether there is any notices.
+     * @since 3.3
      */
     public function hasNotices($type = null, $attribute = null): bool
     {
