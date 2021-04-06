@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where emptying a line item quantity in the order edit screen triggers update line item action making the line item to be removed. ([#2058](https://github.com/craftcms/commerce/issues/2058))
-- Fixed a bug where customers without primary billing and shipping addresses weren’t being returned. ([#2052](https://github.com/craftcms/commerce/issues/2052))
+- Fixed a bug where line items would disappear from the Edit Order page when their quantity value was cleared. ([#2058](https://github.com/craftcms/commerce/issues/2058))
+- Fixed a bug where customers without primary billing and shipping addresses weren’t being shown in the Customers list. ([#2052](https://github.com/craftcms/commerce/issues/2052))
 
 ## 3.2.17.3 - 2021-03-18
 
