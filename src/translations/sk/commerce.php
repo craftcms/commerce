@@ -14,7 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) z celkovej pôvodnej ceny (zastarané)',
     '(%) off total original price and shipping total (Deprecated)' => 'Zľava (%) z pôvodnej ceny a celková cena za dopravu (zastarané)',
     '(Purchasable)' => '(Na predaj)',
-    '(Trashed)' => '(Trashed)',
+    '(Trashed)' => '(Zahodené do koša)',
     '(new price)' => '(nová cena)',
     'A cart number must be specified.' => 'Musíte uviesť číslo košíka.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Po naplnení košíka a jeho premene na objednávku sa na základe tohto formátu vytvorí zrozumiteľné referenčné číslo. Napríklad {ex1} alebo<br/> {ex2}. Výsledok tohto formátovania musí byť jedinečný.',
