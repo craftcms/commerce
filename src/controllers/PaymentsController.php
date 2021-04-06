@@ -413,9 +413,9 @@ class PaymentsController extends BaseFrontEndController
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
-            } else {
                 $paymentAmount = $this->request->getBodyParam('paymentAmount');
+            } else {
+                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
             }
 
             $order->setPaymentAmount($paymentAmount);
