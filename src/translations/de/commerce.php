@@ -14,7 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) Rabatt auf den Originalpreis (veraltet)',
     '(%) off total original price and shipping total (Deprecated)' => '(%) Rabatt auf den Originalpreis und die Gesamtversandkosten (Veraltet)',
     '(Purchasable)' => '(Kaufoption)',
-    '(Trashed)' => '(Trashed)',
+    '(Trashed)' => '(Verworfen)',
     '(new price)' => '(neuer Preis)',
     'A cart number must be specified.' => 'Es muss eine Warenkorbnummer angegeben werden.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Eine benutzerfreundliche Referenznummer auf Grundlage dieses Formats wird erstellt, sobald der Warenkorb abgeschlossen und die Artikel darin bestellt wurden. Beispielsweise {ex1} oder<br/> {ex2}. Das Ergebnis dieses Formats muss einmalig sein.',
