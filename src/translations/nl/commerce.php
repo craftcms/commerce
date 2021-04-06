@@ -14,7 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) korting op de oorspronkelijke prijs (Afgeschaft)',
     '(%) off total original price and shipping total (Deprecated)' => '(%) korting op het totaal van de oorspronkelijke prijs en het totaal voor verzending (Afgeschaft)',
     '(Purchasable)' => '(Koopbaar)',
-    '(Trashed)' => '(Trashed)',
+    '(Trashed)' => '(Verwijderd)',
     '(new price)' => '(nieuwe prijs)',
     'A cart number must be specified.' => 'Gelieve een winkelwagennummer op te geven.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Er wordt een gebruiksvriendelijk referentienummer met dit formaat gegenereerd wanneer een winkelwagen is voltooid en in een bestelling wordt omgezet. Bijvoorbeeld {ex1} of<br/> {ex2}. Het resultaat van dit formaat moet uniek zijn.',
