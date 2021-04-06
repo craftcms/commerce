@@ -14,7 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '元の合計価格の (%) 割引（使用廃止）',
     '(%) off total original price and shipping total (Deprecated)' => '元の価格の合計および合計配送料の (%) 割引（使用廃止）',
     '(Purchasable)' => '(パーチャサブル)',
-    '(Trashed)' => '(Trashed)',
+    '(Trashed)' => '(破棄済み)',
     '(new price)' => '(新しい価格)',
     'A cart number must be specified.' => 'カート番号を指定してください。',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'カートが注文に変わると、このフォーマットに基づいて管理しやすい参照番号が生成されます。たとえば、{ex1}、または<br/> {ex2}。このフォーマットの結果は一意でなければなりません。',
