@@ -6,7 +6,6 @@
  */
 
 return [
-    ' (Trashed)' => ' (détruit)',
     '"{description}" is currently out of stock.' => '« {description} » est actuellement épuisé.',
     '(%) off the discounted item price' => '(%) sur le prix de l\'article incluant le rabais',
     '(%) off the original item price' => '(%) sur le prix original de l\'article',
@@ -15,6 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) de rabais sur le prix original total (obsolète)',
     '(%) off total original price and shipping total (Deprecated)' => '(%) de rabais sur le prix original et le total de la livraison (obsolète)',
     '(Purchasable)' => '(disponible à la vente)',
+    '(Trashed)' => '(Trashed)',
     '(new price)' => '(nouveau prix)',
     'A cart number must be specified.' => 'Un numéro de panier doit être indiqué.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Un numéro de référence simple sera généré sur la base de ce format lors de la finalisation d’un panier et de sa conversion en commande. Par exemple {ex1}, ou<br/> {ex2}. Le résultat de ce format doit être unique.',
