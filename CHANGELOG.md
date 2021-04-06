@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## 3.2.17.4 - 2021-04-06
+
+### Fixed
+- Fixed a bug where line items would disappear from the Edit Order page when their quantity value was cleared. ([#2058](https://github.com/craftcms/commerce/issues/2058))
+- Fixed a bug where customers without primary billing and shipping addresses weren’t being shown in the Customers list. ([#2052](https://github.com/craftcms/commerce/issues/2052))
+
 ## 3.2.17.3 - 2021-03-18
 
 ### Fixed
