@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.2.17.4 - 2021-04-06
 
 ### Fixed
 - Fixed a bug where line items would disappear from the Edit Order page when their quantity value was cleared. ([#2058](https://github.com/craftcms/commerce/issues/2058))
