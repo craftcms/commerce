@@ -6,7 +6,6 @@
  */
 
 return [
-    ' (Trashed)' => ' (Trashed)',
     '"{description}" is currently out of stock.' => '"{description}" is currently out of stock.',
     '(%) off the discounted item price' => '(%) off the discounted item price',
     '(%) off the original item price' => '(%) off the original item price',
@@ -15,6 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) off total original price (Deprecated)',
     '(%) off total original price and shipping total (Deprecated)' => '(%) off total original price and shipping total (Deprecated)',
     '(Purchasable)' => '(Purchasable)',
+    '(Trashed)' => '(Trashed)',
     '(new price)' => '(new price)',
     'A cart number must be specified.' => 'A cart number must be specified.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br/> {ex2}. The result of this format must be unique.',
