@@ -6,7 +6,6 @@
  */
 
 return [
-    ' (Trashed)' => ' (Slettet)',
     '"{description}" is currently out of stock.' => 'Det er for øyeblikket tomt på lageret for «{description}».',
     '(%) off the discounted item price' => '(%) avslag på rabattert pris',
     '(%) off the original item price' => '(%) avslag på opprinnelig pris',
@@ -15,6 +14,7 @@ return [
     '(%) off total original price (Deprecated)' => '(%) avslag på samlet opprinnelig pris (utfasing)',
     '(%) off total original price and shipping total (Deprecated)' => '(%) rabatt på total opprinnelig pris og frakttotal (utfasing)',
     '(Purchasable)' => '(Kan kjøpes)',
+    '(Trashed)' => '(Trashed)',
     '(new price)' => '(ny pris)',
     'A cart number must be specified.' => 'Et handlekurvnummer må spesifiseres.',
     'A friendly reference number will be generated based on this format when a cart is completed and becomes an order. For example {ex1}, or<br> {ex2}. The result of this format must be unique.' => 'Et vennlig referansenummer blir generert basert på dette formatet når en handlekurv er fullført og blir til en bestilling. F.eks. {ex1}, eller<br/> {ex2}. Resultatet av dette formatet må være unikt.',
