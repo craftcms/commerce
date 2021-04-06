@@ -1274,6 +1274,7 @@ class Order extends Element
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'paymentCurrency';
+        $names[] = 'paymentAmount';
         $names[] = 'email';
         $names[] = 'isPaid';
         $names[] = 'itemSubtotal';
@@ -1307,6 +1308,7 @@ class Order extends Element
         $attributes[] = 'itemSubtotal';
         $attributes[] = 'itemTotal';
         $attributes[] = 'outstandingBalance';
+        $attributes[] = 'paymentAmount';
         $attributes[] = 'totalPaid';
         $attributes[] = 'total';
         $attributes[] = 'totalPrice';
@@ -2245,8 +2247,8 @@ class Order extends Element
         if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
             return $this->_paymentAmount;
         }
-
-        return $this->getOutstandingBalance();
+        $amount = $this->getOutstandingBalance();
+        return $amount;
     }
 
     /**

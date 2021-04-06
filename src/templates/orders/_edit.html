@@ -212,10 +212,11 @@
                 paymentForm: {
                     errors: {{ paymentForm.errors|json_encode|raw }},
                     attributes: {{ paymentForm.attributes|json_encode|raw }}
-                }
+                },
+                paymentAmount: {{ order.getPaymentAmount()|json_encode|raw }},
+                paymentCurrency: {{ order.getPaymentCurrency()|json_encode|raw }}
             });
         {% endif %}
-
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });

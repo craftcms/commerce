@@ -430,7 +430,6 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'custom4': this.$form.find('input[name=' + this.id + 'custom4]').val()
             };
 
-            console.log(this.address);
             var self = this;
             this.settings.onSubmit({'address': this.address}, $.proxy(function(errors) {
                 self.errors = errors;
@@ -468,6 +467,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         orderId: null,
         paymentForm: null,
+        paymentAmount: null,
+        paymentCurrency: null,
 
         $status: null,
         $completion: null,
@@ -479,6 +480,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.setSettings(settings);
             this.orderId = this.settings.orderId;
             this.paymentForm = this.settings.paymentForm;
+            this.paymentAmount = this.settings.paymentAmount;
+            this.paymentCurrency = this.settings.paymentCurrency;
 
             this.$makePayment = $('#make-payment');
 
@@ -493,6 +496,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 this.paymentModal = new Craft.Commerce.PaymentModal({
                     orderId: this.orderId,
                     paymentForm: this.paymentForm,
+                    paymentAmount: this.paymentAmount,
+                    paymentCurrency: this.paymentCurrency
                 });
 
             } else {
@@ -512,7 +517,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         defaults: {
             orderId: null,
-            paymentForm: null
+            paymentForm: null,
+            paymentAmount: null,
+            paymentCurrency: null,
         }
     });
 
@@ -653,7 +660,9 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 
             var data = {
                 orderId: settings.orderId,
-                paymentForm: settings.paymentForm
+                paymentForm: settings.paymentForm,
+                paymentAmount: settings.paymentAmount,
+                paymentCurrency: settings.paymentCurrency
             };
 
             Craft.postActionRequest('commerce/orders/get-payment-modal', data, $.proxy(function(response, textStatus) {
@@ -1086,7 +1095,6 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     updateTarget: function() {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
-        console.log(sourceVal);
         this.$target.prop('checked', true);
     },
     onFormSubmit: function() {

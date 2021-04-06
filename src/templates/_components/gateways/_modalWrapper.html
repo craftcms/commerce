@@ -22,7 +22,7 @@
         <fieldset>
         <legend>Payment Amount</legend>
         <div id="currency-selector-{{ gateway.id }}">
-            <input type="text"  id="paymentAmount-{{ gateway.id }}" name="paymentAmount" class="text" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.outstandingBalance }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+            <input type="text"  id="paymentAmount-{{ gateway.id }}" name="paymentAmount" class="text" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
             {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
             {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
@@ -30,7 +30,7 @@
             {% if currencies|length > 1 %}
                 <select id="paymentCurrency-{{ gateway.id }}" class="text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}
-                    <option value="{{currency.iso}}" {% if primaryCurrency.iso == currency.iso %}selected {% endif %}>
+                    <option value="{{currency.iso}}" {% if order.paymentCurrency == currency.iso %}selected {% endif %}>
                         {{ currency.iso }}
                     </option>
                 {% endfor %}
@@ -38,7 +38,7 @@
             {% else %}
                  <input type="hidden" id="paymentCurrency-{{ gateway.id }}" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
             {% endif %}
-            <span id="baseCurrencyAmount-{{ gateway.id }}">{{ order.currency }} {{ order.outstandingBalanceAsCurrency }}</span>
+            <span id="baseCurrencyAmount-{{ gateway.id }}">{{ order.currency }} {{ order.paymentAmountAsCurrency }}</span>
             <p id="response-message-{{ gateway.id }}"></p>
         </div>
         </fieldset>
@@ -103,11 +103,6 @@
             }
         });
     }
-
-{#    $("#gateway-{{ gateway.id }}-form").find(".submit", function(e){#}
-{#        e.preventDefault();#}
-
-{#    });#}
 
     $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").bind('keyup mouseup', debounce(() => {
         var newVal = $("input#paymentAmount-{{ gateway.id }}").val();

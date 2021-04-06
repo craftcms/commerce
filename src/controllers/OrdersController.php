@@ -738,6 +738,13 @@ class OrdersController extends Controller
         $order = $plugin->getOrders()->getOrderById($orderId);
         $gateways = $plugin->getGateways()->getAllGateways();
 
+        if ($paymentAmount = $request->getParam('paymentAmount')) {
+            $order->setPaymentAmount($paymentAmount);
+        }
+        if ($paymentCurrency = $request->getParam('paymentCurrency')) {
+            $order->setPaymentCurrency($paymentCurrency);
+        }
+
         $formHtml = '';
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
@@ -902,8 +909,8 @@ class OrdersController extends Controller
 
         return $this->redirectToPostedUrl();
     }
-    
-    /**
+
+    /*
      * @throws BadRequestHttpException
      */
     public function actionPaymentAmountData()
@@ -914,19 +921,19 @@ class OrdersController extends Controller
         $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
         $paymentAmount = $this->request->getRequiredParam('paymentAmount');
         $orderId = $this->request->getRequiredParam('orderId');
-        $baseCurrency = $paymentCurrencies->getPrimaryPaymentCurrencyIso();
         $order = Order::find()->id($orderId)->one();
+        $baseCurrency = $order->currency;
 
         $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
-        $baseCurrencyPaymentAmountAsCurrency = Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency]);
 
         $outstandingBalance = $order->outstandingBalance;
         $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
 
         $message = '';
-        if ($baseCurrencyPaymentAmount > $outstandingBalance) {
+        if (Currency::round($baseCurrencyPaymentAmount) > Currency::round($outstandingBalance)) {
             $baseCurrencyPaymentAmount = $outstandingBalance;
-            $baseCurrencyPaymentAmountAsCurrency = $outstandingBalanceAsCurrency;
+            $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => $outstandingBalanceAsCurrency, 'currency' => $baseCurrency]);
             $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
         }
 
