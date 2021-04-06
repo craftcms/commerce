@@ -33,7 +33,7 @@
                     <ul>
                         <li>
                             <a href="#" @click.prevent="copy()">
-                                {{ 'Copy load cart URL'|t('commerce') }}
+                                {{ 'Share Cart…'|t('commerce') }}
                             </a>
                         </li>
                     </ul>
@@ -120,7 +120,7 @@
                     this.$store.dispatch('displayError', this.$options.filters.t('Unable to retrieve load cart URL', 'commerce'));
                 } else {
                     Craft.ui.createCopyTextPrompt({
-                        label: this.$options.filters.t('Copy load cart URL', 'commerce'),
+                        label: this.$options.filters.t('Copy the URL. This URL will load the cart into the user’s session, making it the active cart.', 'commerce'),
                         value: this.draft.order.loadCartUrl,
                     });
                 }
