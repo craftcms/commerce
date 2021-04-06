@@ -26,10 +26,10 @@
   {% set effect %}
       {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
           {{ sale.applyAmountAsPercent }}
-          ({% if sale.apply == 'byPercent' %}{{ 'off original price'|t('commerce')|e }}{% else %}{{ 'of original price'|t('commerce')|e }}{% endif %})
+          {{ sale.apply == 'byPercent' ? '(off original price)'|t('commerce') : '(of original price)'|t('commerce') }}
       {% else %}
           {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }}
-          {% if sale.apply == 'byFlat' %} {{ 'off original price'|t('commerce')|e }} {% else %} {{ '(new price)'|t('commerce')|e }}{% endif %}
+          {{ sale.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}{% endif %}
       {% endif %}
 {% endset %}
 
