@@ -257,8 +257,8 @@
                     <div class="text-xl font-bold">{{ order.outstandingBalanceAsCurrency }}</div>
                 </div>
 
-                {% if order.hasOutstandingBalance() - order.getTotalAuthorized() > 0 %}
-                    <a href="siteUrl('[[folderName]]/checkout/pay-static',{orderNumber: order.number, email: order.email })" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Make Payment</a>
+                {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}
+                    <a href="{{ siteUrl('[[folderName]]/checkout/pay-static', {orderNumber: order.number, email: order.email }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Make Payment</a>
                 {% endif %}
 
             </td>

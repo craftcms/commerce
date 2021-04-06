@@ -55,7 +55,7 @@
 {% js %}
 
     var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
-    var outstandingBalance = '{{ order.outstandingBalance }}';
+    var outstandingBalance = '{{ order.getpaymentAmount() }}';
     var orderId = '{{ order.id }}';
 
    $("#gateway-{{ gateway.id }}-form").on('submit', function (ev) {
