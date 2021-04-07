@@ -1744,43 +1744,43 @@ class Order extends Element
                 if ($item->refreshFromPurchasable()) {
                     if ($originalSalePrice > $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
-                        $this->addNotice(
-                            Craft::createObject([
-                                'class' => OrderNotice::class,
-                                'attributes' => [
-                                    'type' => 'lineItemSalePriceChanged',
-                                    'attribute' => "lineItems.{$item->id}.salePrice",
-                                    'message' => $message,
-                                ]
-                            ])
-                        );
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
-                        $this->addNotice(
-                            Craft::createObject([
-                                'class' => OrderNotice::class,
-                                'attributes' => [
-                                    'type' => 'lineItemSalePriceChanged',
-                                    'attribute' => "lineItems.{$item->id}.salePrice",
-                                    'message' => $message,
-                                ]
-                            ])
-                        );
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
                     }
                 } else {
                     $message = Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]);
-                    $this->addNotice(
-                        Craft::createObject([
-                            'class' => OrderNotice::class,
-                            'attributes' => [
-                                'message' => $message,
-                                'type' => 'lineItemRemoved',
-                                'attribute' => 'lineItems'
-                            ]
-                        ])
-                    );
+                    /** @var OrderNotice $notice */
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'message' => $message,
+                            'type' => 'lineItemRemoved',
+                            'attribute' => 'lineItems'
+                        ]
+                    ]);
+                    $this->addNotice($notice);
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
