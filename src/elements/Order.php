@@ -1060,7 +1060,7 @@ class Order extends Element
      * ```
      */
     private $_customer;
-    
+
     /**
      * @var Money
      * @see Order::setPaymentAmount() To set the order payment amount
@@ -1777,7 +1777,7 @@ class Order extends Element
                             'attributes' => [
                                 'message' => $message,
                                 'type' => 'lineItemRemoved',
-                                'attribute' => $attribute
+                                'attribute' => 'lineItems'
                             ]
                         ])
                     );
@@ -2236,7 +2236,7 @@ class Order extends Element
     {
         return $this->hasOutstandingBalance();
     }
-    
+
     /**
      * Returns the paymentAmount for this order.
      *

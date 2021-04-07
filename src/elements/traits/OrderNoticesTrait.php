@@ -49,7 +49,7 @@ trait OrderNoticesTrait
 
         // Filter by both
         if ($type !== null && $attribute !== null) {
-            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) {
+            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute, $type) {
                 return $notice->attribute == $attribute && $notice->type == $type;
             }, true, true, true);
         }
