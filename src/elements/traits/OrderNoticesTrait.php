@@ -9,7 +9,6 @@ namespace craft\commerce\elements\traits;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderNotice;
-use craft\commerce\models\PaymentCurrency;
 use craft\helpers\ArrayHelper;
 
 /**
