@@ -104,11 +104,11 @@ trait OrderNoticesTrait
         if ($type === null && $attribute === null) {
             $this->_notices = [];
         } elseif ($type !== null && $attribute === null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type) {
                 return $notice->type != $type;
             }, true, true, true);
         } elseif ($type === null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute) {
                 return $notice->attribute != $attribute;
             }, true, true, true);
         } elseif ($type !== null && $attribute !== null) {
@@ -128,7 +128,6 @@ trait OrderNoticesTrait
      */
     public function hasNotices($type = null, $attribute = null): bool
     {
-        $hasNotices = !empty($this->getNotices($type, $attribute));
-        return $hasNotices;
+        return !empty($this->getNotices($type, $attribute));
     }
 }
