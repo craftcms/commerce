@@ -29,7 +29,7 @@
           {{ sale.apply == 'byPercent' ? '(off original price)'|t('commerce') : '(of original price)'|t('commerce') }}
       {% else %}
           {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }}
-          {{ sale.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}{% endif %}
+          {{ sale.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}
       {% endif %}
 {% endset %}
 
