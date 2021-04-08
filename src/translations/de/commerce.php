@@ -1002,7 +1002,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B „4%“ für 4% Nachlass.
 Prozentwerte sind auf zwei Dezimalstellen gerundet.',
     'The primary currency cannot be changed after orders are placed.' => 'Die primäre Währung kann nicht geändert werden, nachdem Bestellungen aufgegeben wurden.',
-    'The primary currency should only be changed in development; changing now will delete all existing carts.' => 'The primary currency should only be changed in development; changing now will delete all existing carts.',
+    'The primary currency should only be changed in development; changing now will delete all existing carts.' => 'Die primäre Währung sollte nur in der Entwicklung geändert werden; sie jetzt zu ändern löscht alle vorhandenen Warenkörbe.',
     'The recipient of the email. Twig code can be used here.' => 'The recipient of the email. Twig code can be used here.',
     'The recipient of the email.' => 'Der Empfänger der E-Mail.',
     'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.' => 'Die E-Mail-Adresse, an die Antworten gesendet werden sollen. Für die normale Antwort-E-Mail-Adresse des Senders frei lassen. Twig-Code kann hier verwendet werden.',
