@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => '商品の寸法を示すために使用する単位。',
     'The unit of measurement that should be used when specifying product weights.' => '商品の重量を示すために使用する単位。',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => '定期支払いの請求先情報を更新するためのページを含み、3DS 認証を処理するページへの URL です。',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
     'The {engine} is controlling taxes' => '税は {engine} によって管理されています',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => '注文ステータスのメールを送信するときに使用される「差出人」の名前。 Craftの一般設定で定義された送信者名を使用するには、空白のままにします。',
     'There are errors on the order' => '注文にエラーがあります',
