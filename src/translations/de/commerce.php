@@ -394,7 +394,7 @@ return [
     'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.' => 'Die E-Mail PDF-Vorlage unter "{templatePath}" ist nicht für die E-Mail "{email}" vorhanden. Bestellung: "{order}".',
     'Email Subject' => 'E-Mail-Betreff',
     'Email error. No email address found for order. Order: “{order}”' => 'E-Mail-Fehler. Für die folgende Bestellung wurde keine E-Mail-Adresse gefunden. Bestellung: "{order}"',
-    'Email is not enabled.' => 'Email is not enabled.',
+    'Email is not enabled.' => 'Die E-Mail-Adresse ist nicht aktiviert.',
     'Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.' => 'Die Klartext-E-Mail-Vorlage unter "{templatePath}", die zu "{templateParsedPath}" für die E-Mail "{email}" führte ist nicht vorhanden. Bestellung: "{order}".',
     'Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Parsingfehler der Klartext E-Mail Vorlage für E-Mail "{email}" Bestellung "{order}". Vorlagenfehler: "{message}" {file}:{line}',
     'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Pfad-Parsingfehler der E-Mail Klartext-Vorlage für E-Mail "{email}" in "Vorlagenpfad". Bestellung "{order}". Vorlagenfehler: "{message}" {file}:{line}',
