@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => 'Merná jednotka, ktorá má byť použitá pri určovaní rozmerov produktu.',
     'The unit of measurement that should be used when specifying product weights.' => 'Merná jednotka, ktorá má byť použitá pri určovaní váhy produktu.',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'Odkaz URL na stránku, ktorá bude obsahovať stránku pre aktualizácie platobných údajov pre predplatné a tiež pre spracovanie overenia 3DS.',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'Hmotnosť nákupného košíka na použitie tohto pravidla. Nulová hodnota zakáže limity pre všetky podmienky.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
     'The {engine} is controlling taxes' => '{engine} reguluje dane',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => 'Meno „Od“, ktoré bude použité pri odosielaní emailov o stave objednávky. Prázdne, ak sa má použiť meno odosielateľa definované vo všeobecných nastaveniach Craft-u.',
     'There are errors on the order' => 'Objednávka obsahuje chyby',
