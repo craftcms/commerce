@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => 'A unidade de medida que deve ser usada ao especificar as dimensões do produto.',
     'The unit of measurement that should be used when specifying product weights.' => 'A unidade de medida que deve ser usada para especificar o peso do produto.',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'O Url da página que manterá a página para atualizar os detalhes de cobrança de uma assinatura, além de lidar com a autenticação 3DS.',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'O peso do carrinho que corresponde a esta regra. Um valor zero desativa o limite em cada condição.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
     'The {engine} is controlling taxes' => 'O {engine} está a controlar taxas',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => 'O nome “de” que será usado quando forem enviados e-mails de status de pedido. Deixe em branco para usar o Nome do Remetente definido nas Configurações Gerais do Craft.',
     'There are errors on the order' => 'Há erros no pedido',
