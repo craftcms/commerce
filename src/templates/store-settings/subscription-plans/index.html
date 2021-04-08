@@ -4,16 +4,16 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-  'Gateway',
   'Active subscriptions',
-  'Enabled?',
-  'Information linked?',
   'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.',
-  'No subscription plans exist yet.',
-  'Plans reordered.',
   'Couldn’t reorder plans.',
-  'Yes',
+  'Enabled?',
+  'Gateway',
+  'Information linked?',
+  'No subscription plans exist yet.',
   'No',
+  'Plans reordered.',
+  'Yes',
 ]) %}
 
 {% block actionButton %}

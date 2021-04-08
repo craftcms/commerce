@@ -1,23 +1,23 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Are you sure you want to delete this address?',
-  'No Addresses available.',
-  'Set as Primary Billing',
-  'Set as Primary Shipping',
   'Cancellation date',
   'Cart',
   'Expiration date',
   'Is subscription active?',
+  'No Addresses available.',
   'No active carts exist for this customer.',
   'No inactive carts exist for this customer.',
   'No subscriptions exist for this user yet.',
   'No',
+  'Set as Primary Billing',
+  'Set as Primary Shipping',
   'Status',
   'Subscription date',
   'Subscription',
   'Subscription',
-  'Yes',
   'View address',
+  'Yes',
 ]) %}
 
 {% set addresses = customer.getAddresses() ?? null %}

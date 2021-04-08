@@ -1,11 +1,11 @@
 {% extends "commerce/_layouts/settings" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
     'Available Shipping Categories',
     'Available Tax Categories',
     'Has Variants?',
-    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
-    'No product types exist yet.'
+    'No product types exist yet.',
 ]) %}
 
 {% block actionButton %}
