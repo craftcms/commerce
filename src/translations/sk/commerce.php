@@ -136,7 +136,7 @@ return [
     'Cancellation' => 'Zrušenie',
     'Cannot find customer.' => 'Nemožno nájsť zákazníka.',
     'Cannot switch plans for this subscription.' => 'Nie je možné prepnúť plány pre toto prihlásenie na odber.',
-    'Can’t preview this email.' => 'Can’t preview this email.',
+    'Can’t preview this email.' => 'Nie je možné zobraziť náhľad tohto e-mailu.',
     'Capture payment' => 'Zachytiť platbu',
     'Capture' => 'Zachytiť',
     'Card Holder' => 'Držiteľ karty',
