@@ -1002,7 +1002,7 @@ return [
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => '各アイテムからディスカウントされるパーセンタイル値で、4% 割引の場合は「4%」とします。パーセント率は小数点 2 桁に丸められます。',
     'The primary currency cannot be changed after orders are placed.' => '注文後に基本通貨を変更できません。',
     'The primary currency should only be changed in development; changing now will delete all existing carts.' => '開発でのみ基本通貨を変更できます。今変更すると、既存のカートがすべて削除されます。',
-    'The recipient of the email. Twig code can be used here.' => 'The recipient of the email. Twig code can be used here.',
+    'The recipient of the email. Twig code can be used here.' => 'メールの受信者。ここに Twig コードを使用できます。',
     'The recipient of the email.' => 'メールの受信者。',
     'The reply to email address. Leave blank for normal reply to of email sender. Twig code can be used here.' => '返信先メールアドレス。通常のメール送信者への返信の場合は空白のままにします。ここに Twig コードを使用できます。',
     'The subject line of the email. Twig code can be used here.' => 'メールの件名。ここに Twig コードを使用できます。',
