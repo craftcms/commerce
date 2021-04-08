@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => 'The unit of measurement that should be used when specifying product dimensions.',
     'The unit of measurement that should be used when specifying product weights.' => 'The unit of measurement that should be used when specifying product weights.',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
     'The {engine} is controlling taxes' => 'The {engine} is controlling taxes',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => 'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.',
     'There are errors on the order' => 'There are errors on the order',
