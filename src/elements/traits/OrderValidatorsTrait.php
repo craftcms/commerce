@@ -163,14 +163,15 @@ trait OrderValidatorsTrait
         $recalculateAll = $this->recalculationMode == Order::RECALCULATION_MODE_ALL;
         $recalculateAll = $recalculateAll || $this->recalculationMode == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY;
         if ($recalculateAll && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
-            $message = Craft::t('commerce', '{explanation} Coupon removed.', ['explanation' => $explanation]);
             $this->addNotice(
                 Craft::createObject([
                     'class' => OrderNotice::class,
                     'attributes' => [
                         'type' => 'invalidCouponRemoved',
                         'attribute' => $attribute,
-                        'message' => $message,
+                        'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
+                            'explanation' => $explanation,
+                        ]),
                     ]
                 ])
             );

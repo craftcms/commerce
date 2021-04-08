@@ -5,8 +5,11 @@
     'Abbreviation',
     'Couldn’t reorder states.',
     'Country',
+    'Disabled',
+    'Enabled',
     'Name',
     'No states exist yet.',
+    'Set state status',
     'States reordered.',
     'Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
 ]) %}
@@ -97,17 +100,17 @@
 
         var actions = [
             {
-                label: Craft.t('app', 'Set State Status'),
+                label: Craft.t('commerce', 'Set state status'),
                 actions: [
                     {
-                        label: Craft.t('app', 'Enabled'),
+                        label: Craft.t('commerce', 'Enabled'),
                         action: 'commerce/states/update-status',
                         param: 'status',
                         value: 'enabled',
                         status: 'enabled'
                     },
                     {
-                        label: Craft.t('app', 'Disabled'),
+                        label: Craft.t('commerce', 'Disabled'),
                         action: 'commerce/states/update-status',
                         param: 'status',
                         value: 'disabled',

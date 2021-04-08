@@ -1,8 +1,10 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+  'Address 1',
   'Are you sure you want to delete this address?',
   'Cancellation date',
   'Cart',
+  'Date Updated',
   'Expiration date',
   'Is subscription active?',
   'No Addresses available.',
@@ -10,12 +12,15 @@
   'No inactive carts exist for this customer.',
   'No subscriptions exist for this user yet.',
   'No',
+  'Primary Billing Address',
+  'Primary Shipping Address',
   'Set as Primary Billing',
   'Set as Primary Shipping',
   'Status',
   'Subscription date',
   'Subscription',
   'Subscription',
+  'Total',
   'View address',
   'Yes',
 ]) %}
@@ -110,14 +115,14 @@
                   return '';
               }
 
-              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
           } },
       { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
               if (!value) {
                   return '';
               }
 
-              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
           } },
       { name: '__slot:detail', title: '', titleClass: 'thin' },
   ];

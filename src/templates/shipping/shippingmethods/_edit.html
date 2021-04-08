@@ -1,5 +1,12 @@
 {% extends "commerce/_layouts/cp" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Couldn’t reorder rules.',
+    'Description',
+    'No shipping rules exist yet.',
+    'Rules reordered.',
+    'Shipping Rule',
+]) %}
 
 {% set crumbs = [
     { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
@@ -114,7 +121,7 @@
 
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Shipping Rule') },
-        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
         { name: '__slot:detail', title: '', titleClass: 'thin' },
     ];
 

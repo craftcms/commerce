@@ -1,6 +1,13 @@
 {% extends "commerce/_layouts/shipping" %}
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Default',
+    'Description',
+    'Handle',
+    'Name',
+    'Yes',
+]) %}
 
 {% block actionButton %}
     <a href="{{ url('commerce/shipping/shippingcategories/new') }}" class="btn submit add icon">{{ 'New shipping category'|t('commerce') }}</a>
@@ -17,7 +24,7 @@
         title: shippingCategory.name|t('site'),
         url: url('commerce/shipping/shippingcategories/'~shippingCategory.id),
         handle: shippingCategory.handle|e,
-        description: shippingCategory.description|t('site')|e,
+        description: shippingCategory.description ? shippingCategory.description|t('site')|e,
         default: shippingCategory.default ? true : false,
 
         _showDelete: (shippingCategories|length > 1 and not shippingCategory.default)
@@ -26,15 +33,15 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
-        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
         {
             name: 'default',
-            title: Craft.t('app', 'Default'),
+            title: Craft.t('commerce', 'Default'),
             callback: function(value) {
                 if (value) {
-                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app','Yes'))+'"></div>';
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce','Yes'))+'"></div>';
                 }
             }
         },

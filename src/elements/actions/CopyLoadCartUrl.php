@@ -53,7 +53,8 @@ class CopyLoadCartUrl extends ElementAction
         activate: function(\$selectedItems)
         {
             Craft.ui.createCopyTextPrompt({
-                label: Craft.t('commerce', 'Copy the URL. This URL will load the cart into the user’s session, making it the active cart.'),
+                label: Craft.t('commerce', 'Copy the URL'),
+                instructions: Craft.t('commerce', 'This URL will load the cart into the user’s session, making it the active cart.'),
                 value: url.replace("{number}", \$selectedItems.find('.element').data('number')),
             });
         }

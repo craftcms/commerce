@@ -2,6 +2,11 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Default?',
+    'Description',
+    'Handle',
+    'Name',
+    'Set default category',
+    'Used By Tax Rates',
     'Used by Tax Rates',
 ]) %}
 
@@ -42,9 +47,9 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
-        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
         {
             name: 'taxRates',
             title: Craft.t('commerce', 'Used By Tax Rates'),
@@ -76,7 +81,7 @@
             icon: 'settings',
             actions: [
                 {
-                    label: Craft.t('commerce', 'Set Default Category'),
+                    label: Craft.t('commerce', 'Set default category'),
                     action: 'commerce/tax-categories/set-default-category',
                     param: 'default',
                     value: 1,

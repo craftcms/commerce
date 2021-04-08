@@ -37,8 +37,8 @@
 
     {% if gateway.supportsWebhooks() %}
         {{ forms.textField({
-            label: "Webhook URL",
-            instructions: "The webhook URL for this gateway.",
+            label: "Webhook URL"|t('commerce'),
+            instructions: "The webhook URL for this gateway."|t('commerce'),
             disabled: true,
             value: gateway.webhookUrl
         }) }}
@@ -48,7 +48,7 @@
     {{ forms.selectField({
         first: true,
         label: 'Gateway'|t('commerce'),
-        warning: (gateway.id ? "Changing this value may affect your ability to refund existing transactions."|t),
+        warning: (gateway.id ? "Changing this value may affect your ability to refund existing transactions."|t('commerce')),
         id: 'type',
         name: 'type',
         options : gatewayOptions,

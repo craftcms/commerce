@@ -225,8 +225,9 @@
             label: 'Order Condition Formula'|t('commerce'),
             id: 'orderConditionFormula',
             rows: 5,
-            instructions: 'Use a formula to match the the. Leave this blank to match all orders. Use the `order` variable.',
-            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping rule should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
+                url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
+            }),
             errors: shippingRule is defined ? shippingRule.getErrors('orderConditionFormula'),
             } %}
             {% block input %}
@@ -280,7 +281,6 @@
             label: "Order Total Quanity"|t('commerce'),
             instructions: "The total number of items in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalQty',
-            tip: 'Order Total Quantity must be greater than the minimum value and less than the maximum value.',
             required: true
         }, minMaxTotalQtyInput) }}
 
@@ -334,7 +334,6 @@
             instructions: "The total value of items (excluding shipping and taxes) in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotal',
             required: true,
-            tip: 'Order Total Value must be greater than the minimum value and less than or equal to the maximum value.',
         }, minMaxTotalInput) }}
 
         <hr>
@@ -375,7 +374,6 @@
             instructions: "The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalWeight',
             required: true,
-            tip: 'Order Total Weight must be greater than the minimum value and less than or equal to the maximum value.',
         }, minMaxTotalWeightInput) }}
 
         <h3>{{ "Shipping Category Conditions"|t('commerce') }}</h3>
@@ -394,7 +392,7 @@
                     {% set id = shippingCategory.id %}
                     <tr{% if id %} data-id="{{ id }}" data-name="{{ shippingCategory.name }}"{% endif %}>
                         <th scope="row" data-title="{{ 'Name'|t('commerce') }}">
-                            {{ shippingCategory.name }}
+                            {{ shippingCategory.name|t('site') }}
                         </th>
                         <td data-title="{{ 'Condition'|t('commerce') }}">
                             {{ forms.selectField({

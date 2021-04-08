@@ -4,12 +4,18 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Couldn’t reorder sale.',
+  'Disabled',
   'Duration',
   'Effect',
+  'Enabled',
+  'Name',
   'No sales exist yet.',
+  'No',
   'Overrides previous?',
   'Sale reordered.',
+  'Set status',
   'Stops subsequent?',
+  'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -53,17 +59,17 @@
 {% js %}
 var actions = [
     {
-        label: Craft.t('app', 'Set Status'),
+        label: Craft.t('commerce', 'Set status'),
         actions: [
             {
-                label: Craft.t('app', 'Enabled'),
+                label: Craft.t('commerce', 'Enabled'),
                 action: 'commerce/sales/update-status',
                 param: 'status',
                 value: 'enabled',
                 status: 'enabled'
             },
             {
-                label: Craft.t('app', 'Disabled'),
+                label: Craft.t('commerce', 'Disabled'),
                 action: 'commerce/sales/update-status',
                 param: 'status',
                 value: 'disabled',
@@ -74,13 +80,13 @@ var actions = [
 ];
 
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'duration', title: Craft.t('commerce', 'Duration') },
     { name: 'effect', title: Craft.t('commerce', 'Effect') },
     { name: 'ignore', title: Craft.t('commerce', 'Overrides previous?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
 
             return '';
@@ -89,7 +95,7 @@ var columns = [
     { name: 'stop', title: Craft.t('commerce', 'Stops subsequent?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
 
             return '';

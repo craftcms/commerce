@@ -3,9 +3,11 @@
 {% do view.registerTranslations('commerce', [
     'Include in Price?',
     'Is VAT?',
+    'Name',
     'Rate',
     'Tax Category',
     'Tax Zone',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -36,16 +38,16 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'rate', title: Craft.t('commerce', 'Rate') },
     { name: 'included', title: Craft.t('commerce', 'Include in Price?'), callback: function(value) {
       if (value) {
-          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+          return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
       }
     } },
     { name: 'vat', title: Craft.t('commerce', 'Is VAT?'), callback: function(value) {
         if (value) {
-            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+            return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
         }
     } },
     { name: 'zone', title: Craft.t('commerce', 'Tax Zone'), callback: function(value) {

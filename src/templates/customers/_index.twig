@@ -1,11 +1,13 @@
 {% extends "commerce/_layouts/cp" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+    'Email',
     'No Customers available.',
     'No. of Addresses',
     'Primary Billing Address',
     'Primary Shipping Address',
     'Search customers by name, email, address or order reference/number…',
+    'User',
 ]) %}
 
 {% set title = 'Customers'|t('commerce') %}
@@ -17,11 +19,11 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Email'), sortField: 'email' },
+    { name: '__slot:title', title: Craft.t('commerce', 'Email'), sortField: 'email' },
     { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) { return value } },
     { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) { return value } },
     { name: 'addresses', title: Craft.t('commerce', 'No. of Addresses') },
-    { name: 'user', title: Craft.t('app', 'User'), callback: function(value) {
+    { name: 'user', title: Craft.t('commerce', 'User'), callback: function(value) {
         if (!value) {
             return '';
         }
@@ -49,6 +51,10 @@ new Craft.VueAdminTable({
     padded: true,
     search: true,
     searchPlaceholder: Craft.t('commerce', 'Search customers by name, email, address or order reference/number…'),
-    tableDataEndpoint: Craft.getActionUrl('commerce/customers/customers-table')
+    tableDataEndpoint: Craft.getActionUrl('commerce/customers/customers-table'),
+    itemLabels: {
+        singular: {{ 'customer'|t('commerce')|json_encode|raw }},
+        plural: {{ 'customers'|t('commerce')|json_encode|raw }},
+    },
 });
 {% endjs %}

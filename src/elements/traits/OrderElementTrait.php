@@ -298,7 +298,7 @@ trait OrderElementTrait
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
+                'label' => Craft::t('site', $orderStatus->name),
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => 0,

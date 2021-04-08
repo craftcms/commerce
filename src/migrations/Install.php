@@ -1614,7 +1614,7 @@ class Install extends Migration
 
         $data = [
             'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
-            'description' => 'All Countries, free shipping.',
+            'description' => 'All countries, free shipping',
             'name' => 'Free Everywhere',
             'enabled' => true
         ];

@@ -9,7 +9,9 @@
   'Couldn’t reorder plans.',
   'Enabled?',
   'Gateway',
+  'Handle',
   'Information linked?',
+  'Name',
   'No subscription plans exist yet.',
   'No',
   'Plans reordered.',
@@ -41,8 +43,8 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
-    { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
     { name: 'gateway', title: Craft.t('commerce', 'Gateway') },
     { name: 'subscriptions', title: Craft.t('commerce', 'Active subscriptions') },
     { name: 'information', title: Craft.t('commerce', 'Information linked?'),

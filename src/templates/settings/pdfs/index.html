@@ -5,7 +5,9 @@
     'Default?',
     'Description',
     'Handle',
+    'Name',
     'No PDFs exist yet.',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -30,14 +32,14 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: 'handle', title: Craft.t('commerce', 'Handle') },
         {
             name: 'isDefault',
             title: Craft.t('commerce', 'Default?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
             }
         }
