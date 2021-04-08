@@ -864,7 +864,7 @@ return [
     'Set as the default variant' => 'Als Standardvariante festlegen',
     'Set price' => 'Preis einstellen',
     'Set the sale price to a flat amount' => 'Den Aktionspreis auf einen Pauschalbetrag stellen',
-    'Set the sale price to a percentage of the original price' => 'Set the sale price to a percentage of the original price',
+    'Set the sale price to a percentage of the original price' => 'Setze den Verkaufspreis zu einem Prozentsatz des Originalpreises',
     'Settings saved.' => 'Einstellungen gespeichert.',
     'Settings' => 'Einstellungen',
     'Share cart…' => 'Share cart…',
