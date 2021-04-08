@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => 'De meet eenheid die gebruikt moet worden wanneer dimensies van een product worden gespecificeerd.',
     'The unit of measurement that should be used when specifying product weights.' => 'De meet eenheid die gebruikt moet worden wanneer gewichten van een product worden gespecificeerd.',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'De URL van de pagina om factuurgegevens voor een abonnement bij te werken en voor 3DS-authenticatie.',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'Het gewicht van de winkelwagen in overeenstemming met deze regel. Een nulwaarde schakelt de limiet van elke voorwaarde uit.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
     'The {engine} is controlling taxes' => 'De {engine} controleert de belasting',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => 'De “Van” naam die gebruikt zal worden bij het verzenden van bestelling status e-mails. Laat leeg om de Verzender Naam vastgesteld in de algemene instellingen van Craft te gebruiken.',
     'There are errors on the order' => 'De bestelling bevat fouten',
