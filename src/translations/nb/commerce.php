@@ -1020,7 +1020,7 @@ return [
     'The unit of measurement that should be used when specifying product dimensions.' => 'Måleenheten som skal brukes ved spesifikasjon av produktmål.',
     'The unit of measurement that should be used when specifying product weights.' => 'Måleenheten som skal brukes ved spesifikasjon av produktets vekt.',
     'The url to the page that will hold the page for updating billing details for a subscription as well as handle 3DS authentication.' => 'URL-en til siden som vil holde siden for uppdatering av fakureringsinformasjon til et abonnement, samt håndtere 3DS-autentisering.',
-    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'The weight of the cart to match this rule. A zero value disables the limit for each condition.',
+    'The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition.' => 'Vekten på varene i handlekurven for å samsvare med regelen. Nullverdi deaktiverer grensen for hver tilstand.',
     'The {engine} is controlling taxes' => 'Avgifter kontrolleres av {engine}',
     'The “From” name that will be used when sending order status emails. Leave blank to use the Sender Name defined in Craft’s General Settings.' => '“Fra”-navnet som skal brukes ved sending av e-poster med bestillingsstatuser. La stå tomt for å bruke avsendernavnet som er definert i Crafts generelle innstillinger.',
     'There are errors on the order' => 'Det er feil i ordren',
