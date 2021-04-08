@@ -989,7 +989,7 @@ return [
     'The email address that order status emails are sent from. Leave blank to use the System Email Address defined in Craft’s General Settings.' => 'Die E-Mail-Adresse von der E-Mails zum Bestellstatus gesendet werden. Keine Angabe, wenn die E-Mail-Adresse aus den allgemeinen Einstellungen in Craft verwendet werden soll.',
     'The flat value which should discount each item. i.e “3” for $3 off each item.' => 'Der Pauschalwert, der von jedem Artikel abgezogen werden soll, z. B. “3” für 3 $ Rabatt auf jeden Artikel.',
     'The item is not enabled for sale.' => 'Der Artikel ist nicht für den Verkauf freigegeben.',
-    'The language the order was made in.' => 'The language the order was made in.',
+    'The language the order was made in.' => 'Die Sprache, in der die Bestellung aufgegeben wurde.',
     'The maximum number of items in the cart to match this rule. Zero matches all carts.' => 'Die größtmögliche Anzahl von Artikeln im Einkaufswagen, bei der die Bedingungen dieser Regel erfüllt sind. Null bedeutet, dass die Regel auf alle Einkaufswagen zutrifft.',
     'The maximum the customer should spend on shipping. Set to zero to disable.' => 'Der Maximalbetrag, den der Kunde für den Versand ausgeben soll. Zum Deaktivieren auf Null setzen.',
     'The maximum total value of items in the cart (before any adjustments) to match this rule. Zero matches all carts.' => 'Der maximale Gesamtwert von Artikeln, der im Warenkörbe sein muss, (vor jeglichen Anpassungen) damit die Bedingungen dieser Regel erfüllt sind. Null bedeutet, dass die Regel auf alle Warenkörbe zutrifft.',
@@ -1001,7 +1001,7 @@ return [
     'The order is not valid.' => 'Die Bestellung ist nicht gültig.',
     'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B „4%“ für 4% Nachlass.
 Prozentwerte sind auf zwei Dezimalstellen gerundet.',
-    'The primary currency cannot be changed after orders are placed.' => 'The primary currency cannot be changed after orders are placed.',
+    'The primary currency cannot be changed after orders are placed.' => 'Die primäre Währung kann nicht geändert werden, nachdem Bestellungen aufgegeben wurden.',
     'The primary currency should only be changed in development; changing now will delete all existing carts.' => 'The primary currency should only be changed in development; changing now will delete all existing carts.',
     'The recipient of the email. Twig code can be used here.' => 'The recipient of the email. Twig code can be used here.',
     'The recipient of the email.' => 'Der Empfänger der E-Mail.',
