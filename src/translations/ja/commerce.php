@@ -835,7 +835,7 @@ return [
     'Sale reordered.' => 'セールを並び替えました。',
     'Sale saved.' => 'セールが保存されました。',
     'Sale' => 'セール',
-    'Sales are pricing rules that apply to your product catalog.' => 'Sales are pricing rules that apply to your product catalog.',
+    'Sales are pricing rules that apply to your product catalog.' => 'セールは商品カタログに適用する価格設定ルールです。',
     'Sales updated.' => 'セールは更新されました。',
     'Sales' => 'セール',
     'Save and continue editing' => '保存して編集を続く',
