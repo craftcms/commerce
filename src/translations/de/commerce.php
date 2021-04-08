@@ -453,7 +453,7 @@ return [
     'Free Shipping?' => 'Kostenloser Versand?',
     'Free orders are processed by the payment gateway' => 'Kostenlose Bestellungen werden vom Zahlungsgateway verarbeitet',
     'Free orders complete immediately' => 'Kostenlose Bestellungen schließen sofort ab',
-    'Free shipping can only be for whole order or matching items, not both.' => 'Kostenloser Versand kann nur auf die gesamte Bestellung angewandt oder auf einzelne Artikel angewendet werden, nicht auf beides gleichzeitig.',
+    'Free shipping can only be for whole order or matching items, not both.' => 'Kostenloser Versand kann nur auf die gesamte Bestellung oder auf passende Artikel angewendet werden, nicht auf beides gleichzeitig.',
     'From Name' => 'Absender',
     'Full Name' => 'Vollständiger Name',
     'Gateway Code' => 'Gateway Code',
