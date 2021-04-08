@@ -1202,7 +1202,7 @@ return [
     '{amount} included' => '{amount} inclus',
     '{description} is no longer available and was removed.' => '{description} n\'est plus disponible et a été supprimé.',
     '{description} only has {stock} in stock.' => '{description} n\'a que {stock} unités en stock.',
-    '{explanation} Coupon removed.' => '{explanation} Coupon removed.',
+    '{explanation} Coupon removed.' => '{explanation} Coupon supprimé.',
     '{name} (Primary)' => '{name} (primaire)',
     '{number} more…' => '{number} plus…',
     '{total} in total revenue' => '{total} dans les recettes totales',
