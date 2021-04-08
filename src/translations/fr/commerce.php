@@ -411,7 +411,7 @@ return [
     'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Erreur d\'analyse du modèle d\'e-mail pour l\'e-mail « {email} » dans « Chemin du modèle ». Commande : « {order} ». Erreur de modèles : « {message} » {file} : {line}',
     'Email {step} of {total}' => 'E-mail {step} sur {total}',
     'Email “{email}” could not be sent for order “{order}”. Error: {error} {file}:{line}' => 'L\'e-mail « {email} » n\'a pu être envoyé pour la commande « {order} ». Erreur : {error} {file} : {line}',
-    'Email “{email}” for order {order} was cancelled.' => 'Email “{email}” for order {order} was cancelled.',
+    'Email “{email}” for order {order} was cancelled.' => 'L\'e-mail « {email} » pour la commande « {order} » a été annulé.',
     'Email' => 'E-mail',
     'Emails' => 'E-mails',
     'Enable this discount' => 'Activer cette remise',
