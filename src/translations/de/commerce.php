@@ -721,7 +721,7 @@ return [
     'Orders' => 'Bestellungen',
     'Origin' => 'Ursprung',
     'Original Price' => 'Ursprünglicher Preis',
-    'Other Languages' => 'Other Languages',
+    'Other Languages' => 'Andere Sprachen',
     'Other countries' => 'Andere Länder',
     'Overpaid' => 'Überbezahlt',
     'Overrides previous?' => 'Vorherige überschreiben?',
