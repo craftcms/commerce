@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => 'An error occurred when duplicating the product.',
     'An error occurred while generating this PDF.' => 'An error occurred while generating this PDF.',
     'Any' => 'Any',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => 'Applied Scope',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.',
     'Are you sure you want to capture this transaction?' => 'Are you sure you want to capture this transaction?',
