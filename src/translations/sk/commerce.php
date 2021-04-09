@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => 'Pri duplikovaní produktu došlo k chybe.',
     'An error occurred while generating this PDF.' => 'Pri vytváraní tohto súboru PDF sa vyskytla chyba.',
     'Any' => 'Akékoľvek',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => 'Udaný rozsah',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Naozaj chcete archivovať plán prihlásení na odber {name}? Táto akcia nezruší existujúce prihlásenia na odber.',
     'Are you sure you want to capture this transaction?' => 'Určite zachytiť túto transakciu?',
