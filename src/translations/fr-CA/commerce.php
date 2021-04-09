@@ -890,7 +890,7 @@ return [
     'Shipping Categories' => 'Catégories d’expédition',
     'Shipping Category Conditions' => 'Conditions de la catégorie d’expédition',
     'Shipping Category' => 'Catégorie d’expédition',
-    'Shipping Estimate' => 'Estimation des frais de port',
+    'Shipping Estimate' => 'Estimation des frais de livraison',
     'Shipping First Name' => 'Nom pour la livraison',
     'Shipping Full Name' => 'Nom complet pour la livraison',
     'Shipping Last Name' => 'Nom pour la livraison',
