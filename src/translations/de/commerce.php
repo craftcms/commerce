@@ -152,7 +152,7 @@ return [
     'Categories' => 'Kategorien',
     'Category Rate Overrides' => 'Preiskategorie-Overrides',
     'Centimeters (cm)' => 'Zentimeter (cm)',
-    'Changing this value may affect your ability to refund existing transactions.' => 'Changing this value may affect your ability to refund existing transactions.',
+    'Changing this value may affect your ability to refund existing transactions.' => 'Das Ändern dieses Wertes könnte Ihre Fähigkeit, bestehende Transaktionen zurück zu erstatten, beeinflussen.',
     'Choose a color to represent the order’s status' => 'Wählen Sie eine Farbe, die den Status der Bestellung repräsentieren soll',
     'Choose the countries that this zone applies to.' => 'Wählen Sie die Länder, für die diese Zonen gültig sein sollen.',
     'Choose the currency’s ISO code.' => 'Wählen Sie den ISO-Code der Währung aus.',
