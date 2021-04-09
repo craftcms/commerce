@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => '商品の複製時にエラーが発生しました。',
     'An error occurred while generating this PDF.' => 'この PDF を生成中にエラーが発生しました。',
     'Any' => 'すべて',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => '適用範囲',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => '定期支払いプラン「{name}」をアーカイブしてもよろしいですか？既存の定期支払いはキャンセルされません。',
     'Are you sure you want to capture this transaction?' => 'この取引をキャプチャしてもよろしいですか？',
