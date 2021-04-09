@@ -37,7 +37,7 @@ return [
     'Add to Sale' => 'Zu Aktion hinzufügen',
     'Add variant above' => 'Variante darüber hinzufügen',
     'Add' => 'Hinzufügen',
-    'Additional Actions' => 'Additional Actions',
+    'Additional Actions' => 'Zusätzliche Aktionen',
     'Additional recipients that should receive this email. Twig code can be used here.' => 'Zusätzliche Empfänger, die diese E-Mail erhalten sollen. Twig-Code kann hier verwendet werden.',
     'Address 1' => 'Adresse 1',
     'Address 2' => 'Adresse 2',
