@@ -169,7 +169,7 @@ trait OrderValidatorsTrait
                     'attributes' => [
                         'type' => 'invalidCouponRemoved',
                         'attribute' => $attribute,
-                        'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
+                        'message' => Craft::t('commerce', '{explanation} Coupon removed.', [
                             'explanation' => $explanation,
                         ]),
                     ]
