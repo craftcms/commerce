@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => 'Det oppsto en feil da produktet skulle dupliseres.',
     'An error occurred while generating this PDF.' => 'En feil oppstod under generering av denne PDF-en.',
     'Any' => 'Noen',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => 'Anvendt omfang',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Er du sikker på at du vil arkivere “{name}” abonnementsplan? Den kansellerer IKKE eksisterende abonnementer.',
     'Are you sure you want to capture this transaction?' => 'Er du sikker på at du vil ta denne transaksjonen?',
