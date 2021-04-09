@@ -744,7 +744,7 @@ return [
     'Partial' => '一部',
     'Past year' => '去年',
     'Past {num} days' => '過去 {num} 日間',
-    'Pay {amount} of {currency} on the order.' => '注文の {currency} {amount} を支払う。',
+    'Pay {amount} of {currency} on the order.' => '注文金額 {amount} {currency} を支払う。',
     'Pay' => '支払う',
     'Payment Amount' => '支払い金額',
     'Payment Currencies' => '支払い通貨',
