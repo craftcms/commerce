@@ -1091,7 +1091,7 @@ return [
     'What this shipping category will be called in the control panel.' => 'Qual o nome desta categoria no Painel de Controlo.',
     'What this shipping rule will be called in the control panel.' => 'Qual o nome desta regra de envio no Painel de Controlo.',
     'What this shipping zone will be called in the control panel.' => 'Qual o nome desta zona de envio no Painel de Controlo.',
-    'What this state will be called in the control panel.' => 'Qual o nome deste estado no Painel de Controlo.',
+    'What this state will be called in the control panel.' => 'Nome deste estado no Painel de Controlo.',
     'What this status will be called in the control panel.' => 'Qual o nome deste estado no Painel de Controlo.',
     'What this subscription plan will be called in the control panel.' => 'Qual o nome deste plano de subscrição no Painel de Controlo.',
     'What this tax category will be called in the control panel.' => 'Qual o nome desta categoria de taxa no painel de controlo.',
