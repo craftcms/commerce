@@ -1033,7 +1033,7 @@ return [
     'The total number of order adjustments changed.' => '注文合計数のアジャストメントが変更されました。',
     'The total price of the order changed.' => '注文の合計金額が変更されました。',
     'The total quantity of items within the order changed.' => '注文内のアイテムの合計数量が変更されました。',
-    'The total value of items (excluding shipping and taxes) in the cart to match this rule. A zero value disables the limit for each condition.' => 'このルールに一致するカートのアイテム合計金額（配送料と税金を除く）。ゼロの値は各条件の制限を無効にします。',
+    'The total value of items (excluding shipping and taxes) in the cart to match this rule. A zero value disables the limit for each condition.' => 'このルールに一致するカートのアイテム合計額（配送料と税金を除く）。ゼロの値は各条件の制限を無効にします。',
     'The two-letter ISO country code.' => '2文字のISO国コード。',
     'The unique SKU of the donation purchasable.' => '購入可能な寄付の一意のSKU。',
     'The unit of measurement that should be used when specifying product dimensions.' => '商品の寸法を示すために使用する単位。',
