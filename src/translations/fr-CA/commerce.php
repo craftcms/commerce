@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => 'Une erreur est survenue lors de la duplication du produit.',
     'An error occurred while generating this PDF.' => 'Une erreur est survenue lors la création de ce fichier PDF.',
     'Any' => 'Chaque',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => 'Champ d\'application appliqué',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Voulez-vous vraiment archiver le plan d’abonnement « {name} »? Cela N’ANNULERA PAS les abonnements existants.',
     'Are you sure you want to capture this transaction?' => 'Êtes-vous certain(e) de vouloir saisir cette transaction?',
