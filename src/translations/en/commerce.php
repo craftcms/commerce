@@ -898,6 +898,7 @@ return [
     'Shipping Method' => 'Shipping Method',
     'Shipping Methods' => 'Shipping Methods',
     'Shipping Per Item Rate' => 'Shipping Per Item Rate',
+    'Shipping Rule' => 'Shipping Rule',
     'Shipping Zone' => 'Shipping Zone',
     'Shipping Zones' => 'Shipping Zones',
     'Shipping address required.' => 'Shipping address required.',
