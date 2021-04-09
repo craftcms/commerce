@@ -399,7 +399,7 @@ return [
     'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.' => 'Il n’existe pas de template PDF d’e-mail à l’emplacement « {templatePath} » pour l’e-mail « {email} ». Commande : « {order} ».',
     'Email Subject' => 'Objet de l\'email',
     'Email error. No email address found for order. Order: “{order}”' => 'Erreur d\'e-mail. Aucune adresse e-mail n\'a été trouvée pour cette commande. Commande : « {order} »',
-    'Email is not enabled.' => 'Les e-mails ne sont pas activés.',
+    'Email is not enabled.' => 'L\'e-mail n\'est pas activé.',
     'Email plain text template does not exist at “{templatePath}” which resulted in “{templateParsedPath}” for email “{email}”. Order: “{order}”.' => 'Comme il n’existe pas de modèle d’e-mail en texte brut à l’emplacement « {templatePath} », le chemin « {templateParsedPath} » a donc été généré pour l’e-mail « {email} ». Commande : « {order} ».',
     'Email plain text template parse error for email “{email}”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Erreur d\'analyse du modèle d\'e-mail en texte brut « {email} ». Commande : « {order} ». Erreur de modèle : « {message} » {file} : {line}',
     'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}' => 'Erreur d\'analyse du modèle d\'e-mail pour l\'e-mail « {email} » dans « Chemin du modèle ». Commande : « {order} ». Erreur de modèles : « {message} » {file} : {line}',
