@@ -68,6 +68,7 @@ return [
     'An error occurred when duplicating the product.' => 'Er is een fout opgetreden bij het dupliceren van het product.',
     'An error occurred while generating this PDF.' => 'Er is een fout opgetreden bij het genereren van deze PDF.',
     'Any' => 'Ieder',
+    'Anywhere' => 'Anywhere',
     'Applied Scope' => 'Toegepast toepassingsbereik',
     'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.' => 'Weet u zeker dat u het abonnementsplan “{name}” wilt archiveren? Hierdoor worden uw bestaande abonnementen NIET geannuleerd.',
     'Are you sure you want to capture this transaction?' => 'Weet u zeker dat u deze transactie wilt vastleggen?',
