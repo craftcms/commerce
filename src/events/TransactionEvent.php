@@ -22,4 +22,9 @@ class TransactionEvent extends Event
      * @var Transaction The transaction model
      */
     public $transaction;
+    
+    /**
+     * @var Transaction The transaction model
+     */
+    public $refundTransaction;
 }
