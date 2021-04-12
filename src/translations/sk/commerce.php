@@ -876,7 +876,7 @@ return [
     'Set as the default variant' => 'Nastaviť ako predvolenú variantu',
     'Set default category' => 'Nastaviť predvolenú kategóriu',
     'Set price' => 'Nastaviť cenu',
-    'Set state status' => 'Nastaviť stav',
+    'Set state status' => 'Nastaviť stav štátu',
     'Set status' => 'Nastaviť stav',
     'Set the sale price to a flat amount' => 'Nastaviť cenu výpredaja na pevnú sumu',
     'Set the sale price to a percentage of the original price' => 'Nastaviť cenu výpredaja na percentuálnu hodnotu pôvodnej ceny',
