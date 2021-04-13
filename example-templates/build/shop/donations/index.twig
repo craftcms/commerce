@@ -8,7 +8,7 @@
     {% if donation and donation.isAvailable %}
         <form method="post" action="" class="pt-2 pb-8">
             {{ actionInput('commerce/cart/update-cart') }}
-            {{ hiddenInput('successMessage', 'Donation added.'|hash) }}
+            {{ successMessageInput('Donation added.') }}
             {{ redirectInput('shop/cart') }}
             {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
             {{ csrfInput() }}

@@ -9,7 +9,6 @@ import OrderErrors from './apps/OrderErrors'
 import OrderSecondaryActions from './apps/OrderSecondaryActions'
 import store from './store'
 import {t} from '../base/filters/craft'
-import {capitalize} from '../base/filters/capitalize';
 import BtnLink from '../base/components/BtnLink'
 import OrderBlock from './components/OrderBlock'
 import OrderTitle from './components/OrderTitle'
@@ -20,7 +19,6 @@ if (process.env.NODE_ENV === 'development') {
     Vue.config.devtools = true
 }
 Vue.filter('t', t)
-Vue.filter('capitalize', capitalize)
 Vue.component('btn-link', BtnLink)
 Vue.component('order-block', OrderBlock)
 Vue.component('order-title', OrderTitle)

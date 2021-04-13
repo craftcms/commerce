@@ -63,7 +63,7 @@
             {% endfor %}
             <form method="post">
                 {{ actionInput('commerce/cart/update-cart') }}
-                {{ hiddenInput('successMessage', 'Notices dismissed'|hash) }}
+                {{ successMessageInput('Notices dismissed') }}
                 {{ hiddenInput('clearNotices') }}
                 {{ csrfInput() }}
                 <button type="submit"

@@ -58,14 +58,14 @@
                             return '';
                         }
 
-                        return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                        return '<span data-icon="check" title="'+Craft.t('commerce', 'Yes')+'"></span>';
                     } },
                     { name: 'shipping', title: this.$options.filters.t('Primary Shipping Address', 'commerce'), callback: function(value) {
                         if (!value) {
                             return '';
                         }
 
-                        return '<span data-icon="check" title="'+Craft.t('app', 'Yes')+'"></span>';
+                        return '<span data-icon="check" title="'+Craft.t('commerce', 'Yes')+'"></span>';
                     } },
                 ],
                 data: null,

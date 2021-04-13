@@ -11,6 +11,7 @@
 
                 <form method="post" action="">
                     {{ actionInput('commerce/cart/update-cart') }}
+                    {{ successMessageInput('Addresses selected.') }}
                     {{ redirectInput('[[folderName]]/checkout/shipping') }}
                     {{ csrfInput() }}
 

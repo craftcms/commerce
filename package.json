@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "chart.js": "^2.9.4",
+    "chartjs-adapter-moment": "^0.1.2",
+    "craftcms-sass": "^3.5.3",
+    "deepmerge": "^4.2.2",
+    "event-stream": "^4.0.1",
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-sass": "^4.1.0",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-uglify": "^3.0.2",
+    "moment": "^2.29.1",
+    "node-sass": "^5.0.0"
+  }
+}

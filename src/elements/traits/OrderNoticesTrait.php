@@ -9,11 +9,13 @@ namespace craft\commerce\elements\traits;
 
 use craft\commerce\elements\Order;
 use craft\commerce\models\OrderNotice;
-use craft\commerce\models\PaymentCurrency;
 use craft\helpers\ArrayHelper;
 
 /**
+ * Adds order notice getters and setters.
+ *
  * @property Order $this
+ * @since 3.3
  */
 trait OrderNoticesTrait
 {
@@ -25,7 +27,7 @@ trait OrderNoticesTrait
      * @param string $type type name. Use null to retrieve notices for all types.
      * @param string $attribute attribute name. Use null to retrieve notices for all attributes.
      * @return OrderNotice[] notices for all types or the specified type / attribute. Empty array is returned if no notice.
-     *
+     * @since 3.3
      */
     public function getNotices($type = null, $attribute = null)
     {
@@ -46,7 +48,7 @@ trait OrderNoticesTrait
 
         // Filter by both
         if ($type !== null && $attribute !== null) {
-            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) {
+            return ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute, $type) {
                 return $notice->attribute == $attribute && $notice->type == $type;
             }, true, true, true);
         }
@@ -58,6 +60,7 @@ trait OrderNoticesTrait
      * Adds a new notice
      *
      * @param OrderNotice $notice
+     * @since 3.3
      */
     public function addNotice(OrderNotice $notice)
     {
@@ -69,6 +72,7 @@ trait OrderNoticesTrait
      * Returns the first error of the specified type or attribute
      *
      * @return OrderNotice|null
+     * @since 3.3
      */
     public function getFirstNotice($type = null, $attribute = null)
     {
@@ -79,7 +83,7 @@ trait OrderNoticesTrait
      * Adds a list of notices.
      *
      * @param OrderNotice[] $notice an array of notices.
-     * @since 3.x
+     * @since 3.3
      */
     public function addNotices(array $notices)
     {
@@ -92,17 +96,18 @@ trait OrderNoticesTrait
      * Removes notices for all types or a single type.
      *
      * @param string $type type name. Use null to remove notices for all types.
+     * @since 3.3
      */
     public function clearNotices($type = null, $attribute = null)
     {
         if ($type === null && $attribute === null) {
             $this->_notices = [];
         } elseif ($type !== null && $attribute === null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type) {
                 return $notice->type != $type;
             }, true, true, true);
         } elseif ($type === null && $attribute !== null) {
-            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
+            $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute) {
                 return $notice->attribute != $attribute;
             }, true, true, true);
         } elseif ($type !== null && $attribute !== null) {
@@ -116,12 +121,12 @@ trait OrderNoticesTrait
      * Returns a value indicating whether there is any notices.
      *
      * @param string|null $type type name. Use null to check all types.
-     * @param string|null $attribute atrtribute name. Use null to check all attributes.
+     * @param string|null $attribute attribute name. Use null to check all attributes.
      * @return bool whether there is any notices.
+     * @since 3.3
      */
     public function hasNotices($type = null, $attribute = null): bool
     {
-        $hasNotices = !empty($this->getNotices($type, $attribute));
-        return $hasNotices;
+        return !empty($this->getNotices($type, $attribute));
     }
 }

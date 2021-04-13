@@ -134,7 +134,7 @@ class Addresses extends Component
     const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
     /**
-     * @event AddressEvent The event that is triggered before an address is deleted.
+     * @event AddressEvent The event that is triggered before purgeable addresses are deleted.
      *
      * ```php
      * use craft\commerce\events\PurgeAddressesEvent;

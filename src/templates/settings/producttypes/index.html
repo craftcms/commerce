@@ -1,11 +1,14 @@
 {% extends "commerce/_layouts/settings" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
     'Available Shipping Categories',
     'Available Tax Categories',
+    'Handle',
     'Has Variants?',
-    'Are you sure you want to delete “{name}” and all its products? Please make sure you have a backup of your database before performing this destructive action.',
-    'No product types exist yet.'
+    'Name',
+    'No product types exist yet.',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -43,12 +46,12 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
         { name: 'hasVariants', title: Craft.t('commerce', 'Has Variants?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
             }
         },

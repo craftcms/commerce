@@ -64,7 +64,6 @@ class Currency
      */
     public static function formatAsCurrency($amount, $currency = null, $convert = false, $format = true, $stripZeros = false): string
     {
-
         // return input if no currency passed, and both convert and format are false.
         if (!$convert && !$format) {
             return $amount;
