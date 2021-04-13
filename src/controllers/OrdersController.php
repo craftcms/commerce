@@ -275,6 +275,18 @@ class OrdersController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
         }
 
+        // Remove any temporary line item IDs
+        $temporaryLineItemIds = [];
+        if (!empty($orderRequestData['order']['lineItems'])) {
+            foreach ($orderRequestData['order']['lineItems'] as $key => $lineItem) {
+                if (strpos($lineItem['id'], 'new-') === 0) {
+                    $temporaryLineItemIds[] = $lineItem['id'];
+                    $lineItem['id'] = null;
+                    $orderRequestData['order']['lineItems'][$key] = $lineItem;
+                }
+            }
+        }
+
         $this->_updateOrder($order, $orderRequestData);
 
         if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
@@ -289,6 +301,17 @@ class OrdersController extends Controller
 
         $response = [];
         $response['order'] = $this->_orderToArray($order);
+
+        // Add temporary lineItem IDs back in if required
+        if (!empty($temporaryLineItemIds) && !empty($response['order']['lineItems'])) {
+            foreach ($response['order']['lineItems'] as $key => $lineItem) {
+                if ($lineItem['id'] === null && !empty($temporaryLineItemIds)) {
+                    $newKey = array_shift($temporaryLineItemIds);
+                    $lineItem['id'] = $newKey;
+                    $response['order']['lineItems'][$key] = $lineItem;
+                }
+            }
+        }
 
         if ($order->hasErrors()) {
             $response['order']['errors'] = $order->getErrors();

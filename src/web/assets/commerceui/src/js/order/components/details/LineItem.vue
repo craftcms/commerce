@@ -1,6 +1,6 @@
 <template>
     <div class="line-item">
-        <div class="absolute line-item-bg" :class="{'new-line-item': isLineItemNew, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
+        <div class="absolute line-item-bg" :class="{'highlight-line-item': highlight, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
         <div class="relative">
 
             <order-block class="order-flex order-box-sizing">
@@ -85,6 +85,12 @@
                     </div>
                 </div>
             </order-block>
+            <div class="line-item-buttons pb text-right" v-if="editing && editMode">
+                <div class="buttons right">
+                    <btn-link button-class="btn" @click="cancelEdit">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
+                    <btn-link button-class="btn submit" @click="applyEdit">{{$options.filters.t('Apply', 'commerce')}}</btn-link>
+                </div>
+            </div>
 
             <div class="hidden">
                 <div ref="snapshots" class="order-edit-modal modal fitted">
@@ -161,6 +167,8 @@
                     modal: null,
                     isVisible: false,
                 },
+                originalLineItem: null,
+                highlight: false,
             };
         },
 
@@ -225,10 +233,6 @@
 
                 return this.taxCategories[this.lineItem.taxCategoryId]
             },
-
-            isLineItemNew() {
-                return !this.lineItem.id && this.lastPurchasableIds.length && this.lastPurchasableIds.indexOf(this.lineItem.purchasableId) >= 0
-            }
         },
 
         methods: {
@@ -236,9 +240,33 @@
                 'edit',
             ]),
 
+            highlightLineItem() {
+                this.highlight = true;
+                setTimeout(function() {
+                    this.highlight = false;
+                }.bind(this), 1000);
+            },
+
             enableEditMode() {
+                this.highlight = false;
                 this.editMode = true;
+                this.originalLineItem = Object.assign({}, this.lineItem);
                 this.edit();
+            },
+
+            applyEdit() {
+                this.originalLineItem = null;
+                this.editMode = false;
+                this.highlightLineItem();
+            },
+
+            cancelEdit() {
+                if (confirm(this.$options.filters.t('Are you sure you want to reset the line item data?', 'commerce'))) {
+                    this.editMode = false;
+                    let lineItem = this.originalLineItem;
+                    this.$emit('updateLineItem', lineItem);
+                    this.originalLineItem = null;
+                }
             },
 
             _initSnapshotModal() {
@@ -289,11 +317,10 @@
         },
 
         mounted() {
-            // new line items should always be in edit mode
-            if (!this.lineItem.id) {
-                this.editMode = true;
+            if (this.lineItem.id.indexOf('new-') === 0) {
+                this.highlightLineItem();
             }
-        },
+        }
     }
 </script>
 
@@ -311,7 +338,7 @@
             left: -24px;
             right: -24px;
 
-            &.new-line-item {
+            &.highlight-line-item {
                 background: #FFFFF0;
             }
         }
@@ -320,6 +347,13 @@
             width: 33.3333%;
         }
 
+        &-buttons::after {
+            content: '.';
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
 
         label {
             @include padding-right(10px);
