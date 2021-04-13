@@ -708,7 +708,7 @@ return [
     'Order Status' => 'Order Status',
     'Order Statuses' => 'Order Statuses',
     'Order Tax Rate' => 'Order Tax Rate',
-    'Order Total Quantity' => 'Order Total Quantity',
+    'Order Total Quantity' => 'Total Order Quantity',
     'Order Total Value' => 'Total Order Value',
     'Order Total Weight' => 'Total Order Weight',
     'Order can not be empty.' => 'Order cannot be empty.',
