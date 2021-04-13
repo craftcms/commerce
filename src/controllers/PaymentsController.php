@@ -281,10 +281,12 @@ class PaymentsController extends BaseFrontEndController
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
-
+                    
+                    $error = $exception->getMessage();
+                    
                     if ($this->request->getAcceptsJson()) {
                         return $this->asJson([
-                            'error' => $exception->getMessage(),
+                            'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
                             $this->_cartVariableName => $this->cartArray($order)
                         ]);

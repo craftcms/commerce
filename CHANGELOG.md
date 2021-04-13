@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+- Fixed fail message not displaying when save payment source is ticked on payment form action.
+
 ## 3.2.17.4 - 2021-04-06
 
 ### Fixed
