@@ -278,7 +278,7 @@
         {% endset %}
 
         {{ forms.field({
-            label: "Order Total Quanity"|t('commerce'),
+            label: "Order Total Quantity"|t('commerce'),
             instructions: "The total number of items in the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalQty',
             required: true
@@ -371,7 +371,7 @@
 
         {{ forms.field({
             label: "Order Total Weight"|t('commerce'),
-            instructions: "The weight of the cart to match this rule match this rule. A zero value disables the limit for each condition."|t('commerce'),
+            instructions: "The weight of the cart to match this rule. A zero value disables the limit for each condition."|t('commerce'),
             id: 'minMaxTotalWeight',
             required: true,
         }, minMaxTotalWeightInput) }}
