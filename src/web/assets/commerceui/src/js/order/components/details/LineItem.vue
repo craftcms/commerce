@@ -88,7 +88,7 @@
             <div class="line-item-buttons pb text-right" v-if="editing && editMode">
                 <div class="buttons right">
                     <btn-link button-class="btn" @click="cancelEdit">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-                    <btn-link button-class="btn secondary" @click="applyEdit">{{$options.filters.t('Apply', 'commerce')}}</btn-link>
+                    <btn-link button-class="btn secondary" @click="applyEdit">{{$options.filters.t('Done', 'commerce')}}</btn-link>
                 </div>
             </div>
 
