@@ -88,7 +88,7 @@
             <div class="line-item-buttons pb text-right" v-if="editing && editMode">
                 <div class="buttons right">
                     <btn-link button-class="btn" @click="cancelEdit">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
-                    <btn-link button-class="btn submit" @click="applyEdit">{{$options.filters.t('Apply', 'commerce')}}</btn-link>
+                    <btn-link button-class="btn secondary" @click="applyEdit">{{$options.filters.t('Apply', 'commerce')}}</btn-link>
                 </div>
             </div>
 
@@ -261,12 +261,10 @@
             },
 
             cancelEdit() {
-                if (confirm(this.$options.filters.t('Are you sure you want to reset the line item data?', 'commerce'))) {
-                    this.editMode = false;
-                    let lineItem = this.originalLineItem;
-                    this.$emit('updateLineItem', lineItem);
-                    this.originalLineItem = null;
-                }
+                this.editMode = false;
+                let lineItem = this.originalLineItem;
+                this.$emit('updateLineItem', lineItem);
+                this.originalLineItem = null;
             },
 
             _initSnapshotModal() {

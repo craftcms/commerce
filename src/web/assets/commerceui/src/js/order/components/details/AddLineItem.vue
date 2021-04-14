@@ -1,8 +1,8 @@
 <template>
     <div>
+        <hr>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <hr>
                 <div class="text-left">
                     <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
