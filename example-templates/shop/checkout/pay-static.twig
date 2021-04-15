@@ -95,9 +95,9 @@
                     {% set canPay = true %}
                     <div class="mt-3 max-w-md {{ classes.box.base }}">
                       <form id="paymentForm" method="post" action="" class="form-horizontal paymentSource-form max-w-md">
-                          {{ hiddenInput('action', '/payments/pay') }}
+                          {{ hiddenInput('action', 'commerce/payments/pay') }}
                           {{ redirectInput('/shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
-                          {{ hiddenInput('cancelUrl', craft.app.request.getUrl()) }}
+                          {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
                           {{ hiddenInput('email', email) }}
                           {{ hiddenInput('orderNumber', cart.number) }}
                           {{ hiddenInput('paymentCurrency', paymentCurrency) }}

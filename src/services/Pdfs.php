@@ -437,6 +437,7 @@ class Pdfs extends Component
             return $event->pdf;
         }
 
+        $variables = $event->variables;
         $variables['order'] = $event->order;
         $variables['option'] = $event->option;
 

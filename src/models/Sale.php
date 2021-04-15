@@ -186,11 +186,8 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        if ($this->applyAmount !== 0) {
-            $string = (string)$this->applyAmount;
-            $number = rtrim($string, '0');
-            $diff = strlen($string) - strlen($number);
-            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2 - $diff);
+        if ($this->applyAmount) {
+            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2);
         }
 
         return Craft::$app->formatter->asPercent(0);
