@@ -20,6 +20,7 @@ use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
@@ -269,6 +270,10 @@ class LineItems extends Component
         $lineItemRecord->total = $lineItem->getTotal();
         $lineItemRecord->subtotal = $lineItem->getSubtotal();
 
+        if ($lineItem->uid) {
+            $lineItemRecord->uid = $lineItem->uid;
+        }
+
         if (!$lineItem->hasErrors()) {
             $db = Craft::$app->getDb();
             $transaction = $db->beginTransaction();
@@ -281,6 +286,7 @@ class LineItems extends Component
                     $dateUpdated = DateTimeHelper::toDateTime($lineItemRecord->dateUpdated);
                     $lineItem->dateCreated = $dateCreated;
                     $lineItem->dateUpdated = $dateUpdated;
+                    $lineItem->uid = $lineItemRecord->uid;
 
                     if ($isNewLineItem) {
                         $lineItem->id = $lineItemRecord->id;
@@ -341,7 +347,7 @@ class LineItems extends Component
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
      * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
-     * TODO: Refactor method signature so that the 2 order assignment params are no needed.
+     * TODO: Refactor method signature so that the 2 order assignment params are not needed.
      * @return LineItem
      *
      */
@@ -476,7 +482,8 @@ class LineItems extends Component
                 'shippingCategoryId',
                 'lineItemStatusId',
                 'dateCreated',
-                'dateUpdated'
+                'dateUpdated',
+                'uid',
             ])
             ->from([Table::LINEITEMS . ' lineItems']);
     }
