@@ -20,7 +20,6 @@ use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use craft\helpers\StringHelper;
 use LitEmoji\LitEmoji;
 use Throwable;
 use yii\base\Component;
