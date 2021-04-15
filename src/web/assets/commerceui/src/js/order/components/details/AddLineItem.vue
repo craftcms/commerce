@@ -149,6 +149,8 @@
                                 sku: purchasable.sku,
                                 options: [],
                                 adjustments: [],
+                                isNew: true,
+                                uid: purchasable.newLineItemUid,
                             });
                         }
                     }

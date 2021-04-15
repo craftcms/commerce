@@ -303,8 +303,8 @@
             },
 
             removeLineItem() {
-                this.enableEditMode();
                 this.$emit('removeLineItem');
+                this.edit();
             },
 
             updateLineItemStatusId(lineItemStatusId) {
@@ -315,8 +315,9 @@
         },
 
         mounted() {
-            if (this.lineItem.id.indexOf('new-') === 0) {
+            if (this.lineItem.isNew) {
                 this.highlightLineItem();
+                this.lineItem.isNew = false;
             }
         }
     }

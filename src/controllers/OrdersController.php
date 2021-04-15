@@ -275,14 +275,11 @@ class OrdersController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        // Remove any temporary line item IDs
-        $temporaryLineItemIds = [];
+        $newLineItems = [];
         if (!empty($orderRequestData['order']['lineItems'])) {
-            foreach ($orderRequestData['order']['lineItems'] as $key => $lineItem) {
-                if (strpos($lineItem['id'], 'new-') === 0) {
-                    $temporaryLineItemIds[] = $lineItem['id'];
-                    $lineItem['id'] = null;
-                    $orderRequestData['order']['lineItems'][$key] = $lineItem;
+            foreach ($orderRequestData['order']['lineItems'] as $lineItem) {
+                if (isset($lineItem['isNew']) && $lineItem['isNew']) {
+                    $newLineItems[] = $lineItem['uid'];
                 }
             }
         }
@@ -302,15 +299,11 @@ class OrdersController extends Controller
         $response = [];
         $response['order'] = $this->_orderToArray($order);
 
-        // Add temporary lineItem IDs back in if required
-        if (!empty($temporaryLineItemIds) && !empty($response['order']['lineItems'])) {
-            foreach ($response['order']['lineItems'] as $key => $lineItem) {
-                if ($lineItem['id'] === null && !empty($temporaryLineItemIds)) {
-                    $newKey = array_shift($temporaryLineItemIds);
-                    $lineItem['id'] = $newKey;
-                    $response['order']['lineItems'][$key] = $lineItem;
-                }
-            }
+        if (!empty($response['order']['lineItems'])) {
+            $response['order']['lineItems'] = array_map(function($lineItem) use($newLineItems) {
+                $lineItem['isNew'] = isset($lineItem['uid']) ? in_array($lineItem['uid'], $newLineItems, false) : false;
+                return $lineItem;
+            }, $response['order']['lineItems']);
         }
 
         if ($order->hasErrors()) {
@@ -1317,6 +1310,7 @@ class OrdersController extends Controller
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
@@ -1335,6 +1329,7 @@ class OrdersController extends Controller
             $lineItem->privateNote = $privateNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
             $lineItem->setOptions($options);
+            $lineItem->uid = $uid;
 
             $lineItem->setOrder($order);
 
@@ -1516,6 +1511,7 @@ class OrdersController extends Controller
                     'content' => $purchasable->getSnapshot(),
                     'showAsList' => true,
                 ];
+                $row['newLineItemUid'] = StringHelper::UUID();
                 $purchasables[] = $row;
             }
         }
