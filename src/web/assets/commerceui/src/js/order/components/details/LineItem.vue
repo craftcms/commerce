@@ -1,6 +1,6 @@
 <template>
     <div class="line-item">
-        <div class="absolute line-item-bg" :class="{'highlight-line-item': highlight, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
+        <div class="absolute line-item-bg" :class="{'highlight-line-item': highlightLineItem, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
         <div class="relative">
 
             <order-block class="order-flex order-box-sizing">
@@ -174,7 +174,7 @@
 
         computed: {
             ...mapState({
-                lastPurchasableIds: state => state.lastPurchasableIds,
+                recentlyAddedLineItems: state => state.recentlyAddedLineItems,
             }),
 
             ...mapGetters([
@@ -233,19 +233,16 @@
 
                 return this.taxCategories[this.lineItem.taxCategoryId]
             },
+
+            highlightLineItem() {
+                return this.lineItem && this.recentlyAddedLineItems && this.recentlyAddedLineItems.length && this.recentlyAddedLineItems.indexOf(this.lineItem.purchasableId + '-' + this.lineItem.optionsSignature) >= 0;
+            }
         },
 
         methods: {
             ...mapActions([
                 'edit',
             ]),
-
-            highlightLineItem() {
-                this.highlight = true;
-                setTimeout(function() {
-                    this.highlight = false;
-                }.bind(this), 1000);
-            },
 
             enableEditMode() {
                 this.highlight = false;
@@ -313,13 +310,6 @@
                 this.$emit('updateLineItem', lineItem)
             },
         },
-
-        mounted() {
-            if (this.lineItem.isNew) {
-                this.highlightLineItem();
-                this.lineItem.isNew = false;
-            }
-        }
     }
 </script>
 

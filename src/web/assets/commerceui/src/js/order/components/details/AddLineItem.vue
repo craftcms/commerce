@@ -152,6 +152,7 @@
                                 isNew: true,
                                 uid: purchasable.newLineItemUid,
                             });
+                            this.$store.commit('updateRecentlyAddedLineItems', purchasable.id + '-' + purchasable.newLineItemOptionsSignature);
                         }
                     }
 

@@ -20,6 +20,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
@@ -275,15 +276,6 @@ class OrdersController extends Controller
             return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
         }
 
-        $newLineItems = [];
-        if (!empty($orderRequestData['order']['lineItems'])) {
-            foreach ($orderRequestData['order']['lineItems'] as $lineItem) {
-                if (isset($lineItem['isNew']) && $lineItem['isNew']) {
-                    $newLineItems[] = $lineItem['uid'];
-                }
-            }
-        }
-
         $this->_updateOrder($order, $orderRequestData);
 
         if ($order->validate(null, false) && $order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
@@ -298,13 +290,6 @@ class OrdersController extends Controller
 
         $response = [];
         $response['order'] = $this->_orderToArray($order);
-
-        if (!empty($response['order']['lineItems'])) {
-            $response['order']['lineItems'] = array_map(function($lineItem) use($newLineItems) {
-                $lineItem['isNew'] = isset($lineItem['uid']) ? in_array($lineItem['uid'], $newLineItems, false) : false;
-                return $lineItem;
-            }, $response['order']['lineItems']);
-        }
 
         if ($order->hasErrors()) {
             $response['order']['errors'] = $order->getErrors();
@@ -1512,6 +1497,7 @@ class OrdersController extends Controller
                     'showAsList' => true,
                 ];
                 $row['newLineItemUid'] = StringHelper::UUID();
+                $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
                 $purchasables[] = $row;
             }
         }
