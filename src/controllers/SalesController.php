@@ -38,13 +38,15 @@ use function get_class;
  */
 class SalesController extends BaseCpController
 {
-    /**
-     * @inheritdoc
-     */
-    public function init()
+    public function beforeAction($action): bool
     {
-        parent::init();
+        if (!parent::beforeAction($action)) {
+            return false;
+        }
+        
         $this->requirePermission('commerce-managePromotions');
+        
+        return true;
     }
 
     /**
@@ -64,6 +66,12 @@ class SalesController extends BaseCpController
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createSales');    
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
+        
         $variables = compact('id', 'sale');
 
         if (!$variables['sale']) {
@@ -101,6 +109,12 @@ class SalesController extends BaseCpController
         $sale->description = $request->getBodyParam('description');
         $sale->apply = $request->getBodyParam('apply');
         $sale->enabled = (bool)$request->getBodyParam('enabled');
+
+        if ($sale->id === null) {
+            $this->requirePermission('commerce-createSales');
+        } else {
+            $this->requirePermission('commerce-editSales');
+        }
 
         $dateFields = [
             'dateFrom',

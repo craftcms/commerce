@@ -385,7 +385,7 @@ class Plugin extends BasePlugin
                 'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
 
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-editSales'] = $this->_registerPromotionPermission();
+            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-managePromotions'] = $this->_registerPromotionPermission();
 
             $productTypePermissions = $this->_registerProductTypePermission();
 

@@ -1012,6 +1012,14 @@ class ProductTypes extends Component
         return new ProductTypeRecord();
     }
 
+    /**
+     * Check if user has product type permission.
+     * 
+     * @param User $user
+     * @param ProductType $productType
+     * @param null $checkPermissionName detailed product type permission.
+     * @return bool
+     */
     public function hasPermission(User $user, ProductType $productType, $checkPermissionName = null): bool
     {
         if ($user->admin == true) {
