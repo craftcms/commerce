@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => 'Klant aanmaken: “{email}”',
     'Create discount…' => 'Korting aanmaken ...',
     'Create sale…' => 'Aanbieding aanmaken ...',
-    'Create your first line item' => 'Maak uw eerste lijnitem',
     'Created' => 'Gemaakt',
     'Credit Card Payment Type' => 'Creditcard betalingstype',
     'Currencies' => 'Valuta\'s',
