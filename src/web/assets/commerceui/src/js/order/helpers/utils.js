@@ -54,6 +54,7 @@ export default {
             draftData.order.lineItems[lineItemKey].orderId = lineItem.orderId
             draftData.order.lineItems[lineItemKey].options = lineItem.options
             draftData.order.lineItems[lineItemKey].adjustments = []
+            draftData.order.lineItems[lineItemKey].uid = lineItem.uid
 
             lineItem.adjustments.forEach((adjustment, adjustmentKey) => {
                 draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey] = {}

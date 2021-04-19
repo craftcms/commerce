@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => 'Create customer: “{email}”',
     'Create discount…' => 'Create discount…',
     'Create sale…' => 'Create sale…',
-    'Create your first line item' => 'Create your first line item',
     'Created' => 'Created',
     'Credit Card Payment Type' => 'Credit Card Payment Type',
     'Currencies' => 'Currencies',
