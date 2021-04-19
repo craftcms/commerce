@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => 'Opprett kunde: «{email}»',
     'Create discount…' => 'Opprett rabatt ...',
     'Create sale…' => 'Opprett salg …',
-    'Create your first line item' => 'Lag din første linjevare',
     'Created' => 'Opprettet',
     'Credit Card Payment Type' => 'Type kredittkortbetaling',
     'Currencies' => 'Valutaer',
