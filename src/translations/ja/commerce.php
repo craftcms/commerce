@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => '顧客を作成: 「{email}」',
     'Create discount…' => 'ディスカウントを作成…',
     'Create sale…' => 'セールを作成…',
-    'Create your first line item' => '最初のラインアイテムを作成する',
     'Created' => '作成済み',
     'Credit Card Payment Type' => 'クレジットカード決済のタイプ',
     'Currencies' => '通貨',
