@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## 3.3.0-beta.1 - 2021-04-06
+## 3.3.0 - 2021-04-20
 
 ### Added
 - Added support for partial payments. ([#585](https://github.com/craftcms/commerce/issues/585))
@@ -19,9 +19,11 @@
 - Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
 
 ### Changed
+- Improved the line item editing workflow on the Edit Order page.
 - Line item descriptions now link to the purchasable’s edit page in the control panel. ([#2048](https://github.com/craftcms/commerce/issues/2048))
 - All front-end controllers now support passing the order number via a `number` param. ([#1970](https://github.com/craftcms/commerce/issues/1970))
 - Products are now resaved when a product type’s available tax or shipping categories change. ([#1933](https://github.com/craftcms/commerce/pull/1933))
+- Updated Dompdf to 1.0.2.
 
 ### Deprecated
 - Deprecated `craft\commerce\services\Gateways::getGatewayOverrides()` and the `commerce-gateways.php` config file. Gateway-specific config files should be used instead. ([#1963](https://github.com/craftcms/commerce/issues/1963))
