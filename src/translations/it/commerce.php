@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => 'Crea cliente: “{email}”',
     'Create discount…' => 'Creazione sconto in corso...',
     'Create sale…' => 'Creazione vendita promozionale in corso...',
-    'Create your first line item' => 'Crea la tua prima voce',
     'Created' => 'Creato',
     'Credit Card Payment Type' => 'Tipo di pagamento con carta di credito',
     'Currencies' => 'Valute',
