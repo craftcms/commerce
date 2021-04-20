@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Unreleased
+- Fixed a bug where baseDiscount and perItemDiscount returns negative value in the discount setting page if validation is invalid. ([#2090](https://github.com/craftcms/commerce/issues/2090))
+
 ## 3.2.17.4 - 2021-04-06
 
 ### Fixed
