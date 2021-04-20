@@ -56,6 +56,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Money\Money;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -1061,6 +1062,20 @@ class Order extends Element
     private $_customer;
 
     /**
+     * @var Money
+     * @see Order::setPaymentAmount() To set the order payment amount
+     * @see Order::getPaymentAmount() To get the order payment amount
+     * ---
+     * ```php
+     * echo $order->paymentAmount;
+     * ```
+     * ```twig
+     * {{ order.paymentAmount }}
+     * ```
+     */
+    private $_paymentAmount;
+
+    /**
      * @inheritdoc
      */
     public function init()
@@ -1259,6 +1274,7 @@ class Order extends Element
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'paymentCurrency';
+        $names[] = 'paymentAmount';
         $names[] = 'email';
         $names[] = 'isPaid';
         $names[] = 'itemSubtotal';
@@ -1292,6 +1308,7 @@ class Order extends Element
         $attributes[] = 'itemSubtotal';
         $attributes[] = 'itemTotal';
         $attributes[] = 'outstandingBalance';
+        $attributes[] = 'paymentAmount';
         $attributes[] = 'totalPaid';
         $attributes[] = 'total';
         $attributes[] = 'totalPrice';
@@ -1434,6 +1451,8 @@ class Order extends Element
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
+        $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
+
         // If it is no longer paid in full, set datePaid to null
         if (!$paidInFull) {
             $this->datePaid = null;
@@ -1464,7 +1483,7 @@ class Order extends Element
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalAuthorized = $this->getTotalAuthorized();
-            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
+            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull || $canComplete) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
                 // Payment information is still stored in the transactions.
@@ -1725,43 +1744,43 @@ class Order extends Element
                 if ($item->refreshFromPurchasable()) {
                     if ($originalSalePrice > $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
-                        $this->addNotice(
-                            Craft::createObject([
-                                'class' => OrderNotice::class,
-                                'attributes' => [
-                                    'type' => 'lineItemSalePriceChange',
-                                    'attribute' => "lineItems.{$item->id}.salePrice",
-                                    'message' => $message,
-                                ]
-                            ])
-                        );
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
                         $message = Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
-                        $this->addNotice(
-                            Craft::createObject([
-                                'class' => OrderNotice::class,
-                                'attributes' => [
-                                    'type' => 'lineItemSalePriceChange',
-                                    'attribute' => "lineItems.{$item->id}.salePrice",
-                                    'message' => $message,
-                                ]
-                            ])
-                        );
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
                     }
                 } else {
                     $message = Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]);
-                    $this->addNotice(
-                        Craft::createObject([
-                            'class' => OrderNotice::class,
-                            'attributes' => [
-                                'message' => $message,
-                                'type' => $type,
-                                'attribute' => $attribute
-                            ]
-                        ])
-                    );
+                    /** @var OrderNotice $notice */
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'message' => $message,
+                            'type' => 'lineItemRemoved',
+                            'attribute' => 'lineItems'
+                        ]
+                    ]);
+                    $this->addNotice($notice);
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
@@ -2219,6 +2238,32 @@ class Order extends Element
     }
 
     /**
+     * Returns the paymentAmount for this order.
+     *
+     * @return float
+     */
+    public function getPaymentAmount(): float
+    {
+        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
+            return $this->_paymentAmount;
+        }
+        $amount = $this->getOutstandingBalance();
+        return $amount;
+    }
+
+    /**
+     * Sets the orders payment amount in the order's currency. This amount is not persisted.
+     *
+     * @param float $amount
+     */
+    public function setPaymentAmount($amount)
+    {
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
+        $amount = Currency::round($amount, $paymentCurrency);
+        $this->_paymentAmount = $amount;
+    }
+
+    /**
      * What is the status of the orders payment
      *
      * @return string
@@ -2233,7 +2278,7 @@ class Order extends Element
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->totalPaid > 0) {
+        if ($this->getTotalPaid() > 0) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2357,6 +2402,7 @@ class Order extends Element
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
+     *
      */
     public function getOutstandingBalance(): float
     {

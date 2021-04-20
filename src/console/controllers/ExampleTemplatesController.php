@@ -190,9 +190,6 @@ class ExampleTemplatesController extends Controller
             return $this->_returnErrors($errors);
         }
 
-        $this->stdout('Source: ' . $source . PHP_EOL, Console::FG_GREY);
-        $this->stdout('Destination: ' . $destination . PHP_EOL, Console::FG_GREY);
-
         if (is_dir($destination) && is_dir($source)) {
             if ($this->overwrite) {
                 $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);

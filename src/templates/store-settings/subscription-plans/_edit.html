@@ -49,7 +49,7 @@
             {{ forms.elementSelectField({
                 elementType: entryElementType,
                 elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).all() : null,
-                instructions: "The Entry that contains description for this subscriptions plan."|t('commerce'),
+                instructions: "The entry that contains the description for this subscription’s plan."|t('commerce'),
                 id: 'planInformation',
                 label: "Description"|t(','),
                 class: 'ltr',
@@ -59,7 +59,7 @@
 
             {{ forms.selectField({
                 label: "Gateway"|t('commerce'),
-                instructions: "Which payment gateway will be used for the subscription plan."|t('commerce'),
+                instructions: "The payment gateway that will be used for the subscription plan."|t('commerce'),
                 id: 'gatewayId',
                 class: 'gateway-select code ltr',
                 name: 'gatewayId',

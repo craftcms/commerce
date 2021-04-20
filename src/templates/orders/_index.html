@@ -5,14 +5,17 @@
 {% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersindex" %}
 
 {% do craft.app.view.registerTranslations('commerce', [
-    "Export",
-    "Total Revenue",
-    "Last 7 days",
-    "Last 30 days",
-    "Last Week",
-    "Last Month",
+    "Apply",
+    "Copy the URL",
     "Custom Range",
-    "Apply"
+    "Export",
+    "Last 30 days",
+    "Last 7 days",
+    "Last Month",
+    "Last Week",
+    "New Order",
+    "This URL will load the cart into the user’s session, making it the active cart.",
+    "Total Revenue",
 ]) %}
 
 {% block initJs %}

@@ -20,7 +20,7 @@
                 <h4 class="text-gray-500 mt-3">Variants</h4>
                 <form method="post">
                     {{ actionInput('commerce/cart/update-cart') }}
-                    {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
+                    {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
                     {{ csrfInput() }}
                     <div>
                         {% for variant in product.variants %}

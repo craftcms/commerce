@@ -9,11 +9,8 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
-use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
-use craft\helpers\Json;
-use yii\base\InvalidArgumentException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -23,7 +20,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3
  */
 class OrderNotice extends Model
 {

@@ -5,11 +5,15 @@
     'Couldn’t reorder countries.',
     'Countries reordered.',
     'Country Code',
+    'Disabled',
+    'Enabled',
     'Name',
-    'States',
     'No countries exist yet.',
+    'Set status',
     'State Required?',
+    'States',
     'Warning, deleting this country will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -48,7 +52,7 @@
         },
         { name: 'stateRequired', title: Craft.t('commerce', 'State Required?'), callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
             }
         }
@@ -56,17 +60,17 @@
 
     var actions = [
         {
-            label: Craft.t('app', 'Set Status'),
+            label: Craft.t('commerce', 'Set status'),
             actions: [
                 {
-                    label: Craft.t('app', 'Enabled'),
+                    label: Craft.t('commerce', 'Enabled'),
                     action: 'commerce/countries/update-status',
                     param: 'status',
                     value: 'enabled',
                     status: 'enabled'
                 },
                 {
-                    label: Craft.t('app', 'Disabled'),
+                    label: Craft.t('commerce', 'Disabled'),
                     action: 'commerce/countries/update-status',
                     param: 'status',
                     value: 'disabled',

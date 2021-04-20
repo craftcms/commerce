@@ -166,6 +166,13 @@ interface GatewayInterface extends SavableComponentInterface
     public function supportsPartialRefund(): bool;
 
     /**
+     * Returns true if gateway supports partial payment requests.
+     *
+     * @return bool
+     */
+    public function supportsPartialPayment(): bool;
+
+    /**
      * Returns true if gateway supports webhooks.
      *
      * If `true` is returned, this show the webhook url

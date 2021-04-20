@@ -166,8 +166,9 @@
             label: 'Order Condition Formula'|t('commerce'),
             id: 'orderConditionFormula',
             rows: 5,
-            instructions: 'Use a formula to match this discount to the order. Leave this blank to match all orders. Use the `order` variable.',
-            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the discount should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
+                url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
+            }),
             errors: discount is defined ? discount.getErrors('orderConditionFormula'),
             } %}
             {% block input %}
@@ -325,7 +326,7 @@
 
     <div id="actions" class="hidden">
 
-        <h3>Per Item Discount</h3>
+        <h3>{{ 'Per Item Discount'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Applied Scope"|t('commerce'),
             instructions: "Choose whether the all line items or just matching line items get the 'Per Item' amounts off."|t('commerce'),
@@ -389,7 +390,7 @@
         }) }}
 
         <hr>
-        <h3>Flat Amount Off Order</h3>
+        <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
         {% set baseDiscountInput %}
         <table class="inputs">
@@ -433,7 +434,7 @@
         }, baseDiscountInput) }}
 
         <hr>
-        <h3>Additional Actions</h3>
+        <h3>{{ 'Additional Actions'|t('commerce') }}</h3>
 
         {{ forms.lightswitchField({
             label: "Remove all shipping costs from the order"|t('commerce'),

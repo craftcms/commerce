@@ -1,3 +1,7 @@
+{% do view.registerTranslations('commerce', [
+    'Name',
+]) %}
+
 <div class="commerce-widget-table-wrapper">
   <div id="{{ id }}"></div>
 </div>
@@ -15,7 +19,7 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('app', 'Name')) },
+    { name: '__slot:title', title: Craft.escapeHtml(Craft.t('commerce', 'Name')) },
     { name: '{{ type }}', title: '{{ typeLabel|e }}' }
 ];
 

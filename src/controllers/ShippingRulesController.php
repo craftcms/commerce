@@ -81,7 +81,7 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
-        $variables['shippingZones'][] = 'Anywhere';
+        $variables['shippingZones'][] = Craft::t('commerce', 'Anywhere');
         foreach ($shippingZones as $model) {
             $variables['shippingZones'][$model->id] = $model->name;
         }
