@@ -79,8 +79,9 @@
     label: 'Zip Code Condition Formula'|t('commerce'),
     id: 'zipCodeConditionFormula',
     rows: 5,
-    instructions: 'Use a formula to match the zip code. Leave this blank to match all zip codes. Use the `zipCode` variable.',
-    tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+    instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the tax zone should include a given Zip/postal code. (The Zip/postal code can be referenced via a `zipCode` variable.)'|t('commerce', {
+        url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
+    }),
     errors: taxZone is defined ? taxZone.getErrors('zipCodeConditionFormula'),
     } %}
     {% block input %}

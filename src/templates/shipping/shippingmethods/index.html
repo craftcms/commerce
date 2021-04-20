@@ -1,5 +1,13 @@
 {% extends "commerce/_layouts/shipping" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Disabled',
+    'Enabled',
+    'Handle',
+    'Name',
+    'Set status',
+    'Type',
+]) %}
 
 {% block actionButton %}
     <a href="{{ url('commerce/shipping/shippingmethods/new') }}" class="btn submit add icon">{{ 'New shipping method'|t('commerce') }}</a>
@@ -23,24 +31,24 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
-        { name: 'type', title: Craft.t('app', 'Type') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
+        { name: 'type', title: Craft.t('commerce', 'Type') },
     ];
 
     var actions = [
         {
-            label: Craft.t('app', 'Set Status'),
+            label: Craft.t('commerce', 'Set status'),
             actions: [
                 {
-                    label: Craft.t('app', 'Enabled'),
+                    label: Craft.t('commerce', 'Enabled'),
                     action: 'commerce/shipping-methods/update-status',
                     param: 'status',
                     value: 'enabled',
                     status: 'enabled'
                 },
                 {
-                    label: Craft.t('app', 'Disabled'),
+                    label: Craft.t('commerce', 'Disabled'),
                     action: 'commerce/shipping-methods/update-status',
                     param: 'status',
                     value: 'disabled',

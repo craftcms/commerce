@@ -1,12 +1,19 @@
 <template>
     <div class="line-item">
-        <div class="absolute line-item-bg" :class="{'new-line-item': isLineItemNew, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
+        <div class="absolute line-item-bg" :class="{'highlight-line-item': highlightLineItem, 'error-bg': hasLineItemErrors(lineItemKey)}"></div>
         <div class="relative">
 
             <order-block class="order-flex order-box-sizing">
                 <div class="w-1/4">
                     <!-- Description -->
-                    <order-title>{{ lineItem.description }}</order-title>
+                    <order-title>
+                        <a :href="lineItem.purchasableCpEditUrl" v-if="lineItem.purchasableCpEditUrl">
+                            {{ lineItem.description }}
+                        </a>
+                        <span v-else>
+                            {{ lineItem.description }}
+                        </span>
+                    </order-title>
                     <!-- SKU -->
                     <div><code class="extralight">{{ lineItem.sku }}</code></div>
 
@@ -78,6 +85,12 @@
                     </div>
                 </div>
             </order-block>
+            <div class="line-item-buttons pb text-right" v-if="editing && editMode">
+                <div class="buttons right">
+                    <btn-link button-class="btn" @click="cancelEdit">{{$options.filters.t('Cancel', 'commerce')}}</btn-link>
+                    <btn-link button-class="btn secondary" @click="applyEdit">{{$options.filters.t('Done', 'commerce')}}</btn-link>
+                </div>
+            </div>
 
             <div class="hidden">
                 <div ref="snapshots" class="order-edit-modal modal fitted">
@@ -154,12 +167,14 @@
                     modal: null,
                     isVisible: false,
                 },
+                originalLineItem: null,
+                highlight: false,
             };
         },
 
         computed: {
             ...mapState({
-                lastPurchasableIds: state => state.lastPurchasableIds,
+                recentlyAddedLineItems: state => state.recentlyAddedLineItems,
             }),
 
             ...mapGetters([
@@ -219,8 +234,8 @@
                 return this.taxCategories[this.lineItem.taxCategoryId]
             },
 
-            isLineItemNew() {
-                return !this.lineItem.id && this.lastPurchasableIds.length && this.lastPurchasableIds.indexOf(this.lineItem.purchasableId) >= 0
+            highlightLineItem() {
+                return this.lineItem && this.recentlyAddedLineItems && this.recentlyAddedLineItems.length && this.recentlyAddedLineItems.indexOf(this.lineItem.purchasableId + '-' + this.lineItem.optionsSignature) >= 0;
             }
         },
 
@@ -230,8 +245,23 @@
             ]),
 
             enableEditMode() {
+                this.highlight = false;
                 this.editMode = true;
+                this.originalLineItem = Object.assign({}, this.lineItem);
                 this.edit();
+            },
+
+            applyEdit() {
+                this.originalLineItem = null;
+                this.editMode = false;
+                this.highlightLineItem();
+            },
+
+            cancelEdit() {
+                this.editMode = false;
+                let lineItem = this.originalLineItem;
+                this.$emit('updateLineItem', lineItem);
+                this.originalLineItem = null;
             },
 
             _initSnapshotModal() {
@@ -270,8 +300,8 @@
             },
 
             removeLineItem() {
-                this.enableEditMode();
                 this.$emit('removeLineItem');
+                this.edit();
             },
 
             updateLineItemStatusId(lineItemStatusId) {
@@ -279,13 +309,6 @@
                 lineItem.lineItemStatusId = lineItemStatusId
                 this.$emit('updateLineItem', lineItem)
             },
-        },
-
-        mounted() {
-            // new line items should always be in edit mode
-            if (!this.lineItem.id) {
-                this.editMode = true;
-            }
         },
     }
 </script>
@@ -304,7 +327,7 @@
             left: -24px;
             right: -24px;
 
-            &.new-line-item {
+            &.highlight-line-item {
                 background: #FFFFF0;
             }
         }
@@ -313,6 +336,13 @@
             width: 33.3333%;
         }
 
+        &-buttons::after {
+            content: '.';
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
 
         label {
             @include padding-right(10px);

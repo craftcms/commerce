@@ -85,16 +85,8 @@ class OrderAdjustments extends Component
             $adjusters[] = Shipping::class;
         }
 
-        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
-            $discountEvent = new RegisterComponentTypesEvent([
-                'types' => []
-            ]);
-            if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
-                $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
-            }
-            $discountEvent->types[] = Discount::class;
-
-            array_push($adjusters, ...$discountEvent->types);
+        foreach ($this->getDiscountAdjusters() as $discountAdjuster) {
+            $adjusters[] = $discountAdjuster;
         }
 
         if (Plugin::getInstance()->is(Plugin::EDITION_LITE, '>=')) {
@@ -288,5 +280,25 @@ class OrderAdjustments extends Component
                 'isEstimated'
             ])
             ->from([Table::ORDERADJUSTMENTS]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getDiscountAdjusters(): array
+    {
+        $discountEvent = new RegisterComponentTypesEvent([
+            'types' => []
+        ]);
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
+
+            if ($this->hasEventHandlers(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS)) {
+                $this->trigger(self::EVENT_REGISTER_DISCOUNT_ADJUSTERS, $discountEvent);
+            }
+            $discountEvent->types[] = Discount::class;
+        }
+
+        return $discountEvent->types;
     }
 }
