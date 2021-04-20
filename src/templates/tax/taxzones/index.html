@@ -2,9 +2,12 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Countries/States',
-    'Has Zip Condition?',
-    'Used By Tax Rates',
     'Default?',
+    'Description',
+    'Has Zip Condition?',
+    'Name',
+    'Type',
+    'Used By Tax Rates',
 ]) %}
 
 {% from "commerce/_includes/settings" import indexInlineList %}
@@ -47,9 +50,9 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: 'description', title: Craft.t('app', 'Description') },
-        { name: 'type', title: Craft.t('app', 'Type') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        { name: 'type', title: Craft.t('commerce', 'Type') },
         { name: 'countryState', title: Craft.t('commerce', 'Countries/States') },
         {
             name: 'zipCondition',

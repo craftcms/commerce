@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\CustomerAddress;
-use craft\test\Fixture;
+use craft\test\ActiveFixture;
 
 /**
  * Customers Addresses Fixture
@@ -16,7 +16,7 @@ use craft\test\Fixture;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1.4
  */
-class CustomersAddressesFixture extends Fixture
+class CustomersAddressesFixture extends ActiveFixture
 {
     /**
      * @inheritdoc
