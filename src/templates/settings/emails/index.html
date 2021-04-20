@@ -2,11 +2,12 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Bcc',
+    'Name',
     'No emails exist yet.',
+    'Preview',
     'Subject',
     'Template Path',
     'To',
-    'Preview',
 ]) %}
 
 {% block actionButton %}
@@ -33,7 +34,7 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: 'subject', title: Craft.t('commerce', 'Subject') },
         { name: 'to', title: Craft.t('commerce', 'To') },
         { name: 'bcc', title: Craft.t('commerce', 'Bcc') },

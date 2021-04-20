@@ -10,7 +10,6 @@
 
 
 {% do view.registerTranslations('commerce', [
-    "“{key}” has invalid JSON",
     "A valid email is required to create a customer.",
     "Actions",
     "Add a line item",
@@ -29,29 +28,31 @@
     "Are you sure you want to send email: {name}?",
     "Attention",
     "Available?",
-    "billing address",
     "Billing Address",
     "Business ID",
     "Business Name",
     "Business Tax ID",
     "Cancel",
     "City",
+    "Clear notices",
     "Close",
     "Completed",
+    "Control panel",
     "Copied!",
-    "Copy",
+    "Copy the URL",
     "Copy to {location}",
+    "Copy",
     "Couldn’t get order.",
     "Couldn’t recalculate order.",
     "Country",
     "Coupon Code",
-    "Create your first line item",
     "Create customer: “{email}”",
     "Custom 1",
     "Custom 2",
     "Custom 3",
     "Custom 4",
     "Customer Note",
+    "Customer Notices",
     "Customer",
     "Date Authorized",
     "Date Ordered",
@@ -64,8 +65,8 @@
     "Duplicate options exist",
     "Edit address",
     "Edit adjustments",
-    "Edit",
     "Edit options",
+    "Edit",
     "Email sent",
     "Enter coupon code",
     "Enter reference",
@@ -73,10 +74,10 @@
     "Full Name",
     "Hide snapshot",
     "ID",
-    "Included",
-    "Invalid email.",
-    "Invalid JSON",
     "IP Address",
+    "Included",
+    "Invalid JSON",
+    "Invalid email.",
     "Item",
     "Label",
     "Last Name",
@@ -85,8 +86,8 @@
     "Mark as completed",
     "Message",
     "Name",
-    "New address",
     "New Customer",
+    "New address",
     "No address",
     "No billing address",
     "No description",
@@ -96,6 +97,7 @@
     "Notes",
     "Number",
     "Options",
+    "Order Site",
     "Order recalculated.",
     "Origin",
     "Original Price",
@@ -112,21 +114,21 @@
     "Reference",
     "Remove address",
     "Remove",
+    "SKU",
     "Sale Amount Off",
     "Sale Price",
     "Save and continue editing",
     "Save and return to all orders",
     "Search customer…",
-    "Search…",
     "Search or enter customer email…",
+    "Search…",
     "Select address",
     "Send Email",
-    "shipping address",
+    "Share cart…",
     "Shipping Address",
     "Shipping Method",
     "Shipping",
     "Short Number",
-    "SKU",
     "Snapshot",
     "Snapshots",
     "Sorry, no matching options.",
@@ -134,16 +136,25 @@
     "Status",
     "Tax",
     "There are errors on the order",
+    "This URL will load the cart into the user’s session, making it the active cart.",
     "Title",
     "Total Price",
     "Total",
     "Type",
+    "Unable to retrieve load cart URL",
     "Unit Price",
     "Update order",
+    "View customer",
+    "View user",
+    "Web",
+    "Yes",
     "You are not allowed to add a line item.",
     "Your order is empty",
     "Zip Code",
+    "billing address",
+    "shipping address",
     "{amount} included",
+    "“{key}” has invalid JSON",
 ]) %}
 
 {% hook "cp.commerce.order.edit" %}
@@ -169,6 +180,7 @@
 {% endblock %}
 
 {% block details %}
+    <div id="order-notices-app"></div>
     <div id="order-meta-app"></div>
     {# Give plugins a chance to add other things here #}
     {% hook "cp.commerce.order.edit.details" %}
@@ -203,14 +215,15 @@
     $(document).ready(function () {
         {% if paymentForm is defined and paymentForm %}
             new Craft.Commerce.OrderEdit({
-                orderId: {{ orderId|e('js') }},
+                orderId: window.orderEdit.orderId,
                 paymentForm: {
                     errors: {{ paymentForm.errors|json_encode|raw }},
                     attributes: {{ paymentForm.attributes|json_encode|raw }}
-                }
+                },
+                paymentAmount: {{ order.getPaymentAmount()|json_encode|raw }},
+                paymentCurrency: {{ order.getPaymentCurrency()|json_encode|raw }}
             });
         {% endif %}
-
         $.each($('.tableRowInfo'), function () {
             new Craft.Commerce.TableRowAdditionalInfoIcon(this);
         });

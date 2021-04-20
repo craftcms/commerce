@@ -19,7 +19,7 @@ export default new Vuex.Store({
         originalDraft: null,
         customers: [],
         orderData: null,
-        lastPurchasableIds: [],
+        recentlyAddedLineItems: [],
         unloadEventInit: false,
     },
 
@@ -381,6 +381,10 @@ export default new Vuex.Store({
 
                     throw errorMsg
                 });
+        },
+
+        clearRecentlyAddedLineItems({state}) {
+            state.recentlyAddedLineItems = []
         }
     },
 
@@ -429,8 +433,8 @@ export default new Vuex.Store({
             state.orderData = orderData
         },
 
-        updateLastPurchasableIds(state, lastPurchasableIds) {
-            state.lastPurchasableIds = lastPurchasableIds
+        updateRecentlyAddedLineItems(state, lineItemIdentifier) {
+            state.recentlyAddedLineItems.push(lineItemIdentifier)
         }
     }
 })
