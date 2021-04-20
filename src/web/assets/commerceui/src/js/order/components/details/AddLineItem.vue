@@ -1,8 +1,9 @@
 <template>
     <div>
+        <hr>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <div class="text-right">
+                <div class="text-left">
                     <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
@@ -10,7 +11,7 @@
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <btn-link @click="showForm = true">{{"Create your first line item"|t('commerce')}}</btn-link>
+                    <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
         </template>
@@ -148,7 +149,10 @@
                                 sku: purchasable.sku,
                                 options: [],
                                 adjustments: [],
+                                isNew: true,
+                                uid: purchasable.newLineItemUid,
                             });
+                            this.$store.commit('updateRecentlyAddedLineItems', purchasable.id + '-' + purchasable.newLineItemOptionsSignature);
                         }
                     }
 

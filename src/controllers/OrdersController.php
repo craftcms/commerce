@@ -20,6 +20,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
@@ -1294,12 +1295,13 @@ class OrdersController extends Controller
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             if (!$lineItem) {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order, $uid);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
@@ -1312,6 +1314,7 @@ class OrdersController extends Controller
             $lineItem->privateNote = $privateNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
             $lineItem->setOptions($options);
+            $lineItem->uid = $uid;
 
             $lineItem->setOrder($order);
 
@@ -1493,6 +1496,8 @@ class OrdersController extends Controller
                     'content' => $purchasable->getSnapshot(),
                     'showAsList' => true,
                 ];
+                $row['newLineItemUid'] = StringHelper::UUID();
+                $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
                 $purchasables[] = $row;
             }
         }

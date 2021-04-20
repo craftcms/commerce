@@ -2,7 +2,7 @@
   "devDependencies": {
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
-    "craftcms-sass": "^3.5.3",
+    "craftcms-sass": "^3.5.6",
     "deepmerge": "^4.2.2",
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",

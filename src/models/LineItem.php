@@ -167,6 +167,11 @@ class LineItem extends Model
     public $dateUpdated;
 
     /**
+     * @var string UID
+     */
+    public $uid;
+
+    /**
      * @var PurchasableInterface Purchasable
      */
     private $_purchasable;
