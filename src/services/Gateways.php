@@ -382,6 +382,7 @@ class Gateways extends Component
      *
      * @param string $handle The gateway handle
      * @return array|null
+     * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
      */
     public function getGatewayOverrides(string $handle)
     {
@@ -389,7 +390,13 @@ class Gateways extends Component
             $this->_overrides = Craft::$app->getConfig()->getConfigFromFile('commerce-gateways');
         }
 
-        return $this->_overrides[$handle] ?? null;
+        $overrides = $this->_overrides[$handle] ?? null;
+
+        if ($overrides != null) {
+            Craft::$app->getDeprecator()->log('craft.commerce.gateways.getGatewayOverrides()', 'Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.');
+        }
+
+        return $overrides;
     }
 
 

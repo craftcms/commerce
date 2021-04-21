@@ -153,7 +153,15 @@ class Dummy extends SubscriptionGateway
      */
     public function refund(Transaction $transaction): RequestResponseInterface
     {
-        return new DummyRequestResponse();
+        $form = new DummyPaymentForm();
+
+        if($transaction->note != 'fail'){
+            $form->number = '4242424242424242';
+        }else{
+            $form->number = '378282246310005';
+        }
+
+        return new DummyRequestResponse($form);
     }
 
     /**

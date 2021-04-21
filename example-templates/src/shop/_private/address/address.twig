@@ -1,0 +1,15 @@
+{% set boldKeys = ['attention', 'name', 'businessName'] %}
+<!-- Template: {{ _self }}.twig -->
+<ul>
+    {% for key, line in address.addressLines %}
+        <li>
+            {% if key in boldKeys %}
+            <strong>{% if key == 'attention' %}Attn:{% endif %}
+                {% endif %}
+                {{ line }}
+                {% if key in boldKeys %}
+            </strong>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
