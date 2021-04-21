@@ -3,7 +3,7 @@
 ### Unreleased
 
 ### Fixed
-- Fixed a bug where baseDiscount and perItemDiscount returns negative value in the discount setting page if validation is invalid. ([#2090](https://github.com/craftcms/commerce/issues/2090))
+- Fixed a bug where Base Discount and Per Item Discount fields would show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
 
 ## 3.3.0 - 2021-04-20
 
