@@ -220,6 +220,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
 
+        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
 
