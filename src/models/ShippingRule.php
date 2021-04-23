@@ -223,8 +223,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
-
-                if($this->orderConditionFormula) {
+                if($this->{$attribute}) {
                     $order = Order::find()->one();
                     if (!$order) {
                         $order = new Order();
@@ -232,7 +231,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
                     $orderConditionParams = [
                         'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
                     ];
-                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
+                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
                         $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                     }
                 }
@@ -262,13 +261,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $lineItems = $order->getLineItems();
 
         if ($this->orderConditionFormula) {
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
             $orderConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                'order' => array_merge($orderAsArray, $fieldsAsArray)
             ];
-
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
-            };
+            }
         }
 
         $nonShippableItems = [];
