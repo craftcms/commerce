@@ -514,6 +514,7 @@ class Discounts extends Component
      * @param Order $order
      * @param Discount $discount
      * @return bool
+     * @throws \Exception
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
