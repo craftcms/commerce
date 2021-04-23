@@ -3,6 +3,7 @@
 ### Unreleased
 
 ### Fixed
+- Fixed a bug where shipping rules were enforcing a required “Order Condition Formula” field incorrectly. ([#2098](https://github.com/craftcms/commerce/issues/2098))
 - Fixed a bug where Base Discount and Per Item Discount fields would show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
 
 ## 3.3.0 - 2021-04-20
