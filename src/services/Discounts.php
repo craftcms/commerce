@@ -549,14 +549,8 @@ class Discounts extends Component
             return false;
         }
 
-        if ($discount->orderConditionFormula) {
-            $orderDiscountConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-            ];
-
-            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
-                return false;
-            }
+        if(!$this->_isDiscountConditionFormulaValid($order, $discount)){
+            return false;
         }
 
         if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
