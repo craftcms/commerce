@@ -302,7 +302,6 @@ return [
     'Create customer: “{email}”' => 'Vytvoriť zákazníka: „{email}“',
     'Create discount…' => 'Vytvoriť zľavu…',
     'Create sale…' => 'Vytvoriť výpredaj…',
-    'Create your first line item' => 'Vytvorte svoju prvú riadkovú položku',
     'Created' => 'Vytvorené',
     'Credit Card Payment Type' => 'Typ Platby Kreditnou Kartou',
     'Currencies' => 'Meny',

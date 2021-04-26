@@ -194,7 +194,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 'methodId',
                 'priority',
                 'enabled',
-                'orderConditionFormula',
                 'minQty',
                 'maxQty',
                 'minTotal',
@@ -221,17 +220,21 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
 
+        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
-                $order = Order::find()->one();
-                if (!$order) {
-                    $order = new Order();
-                }
-                $orderConditionParams = [
-                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                ];
-                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
-                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+
+                if($this->orderConditionFormula) {
+                    $order = Order::find()->one();
+                    if (!$order) {
+                        $order = new Order();
+                    }
+                    $orderConditionParams = [
+                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                    ];
+                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
+                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                    }
                 }
             }
         ];

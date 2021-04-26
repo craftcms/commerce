@@ -1,5 +1,12 @@
 # Release Notes for Craft Commerce
 
+### 3.3.0.1 - 2021-04-26
+
+### Fixed
+- Fixed a bug where an incorrect amount could be calculated when paying an outstanding balance in a non-primary currency.
+- Fixed a bug where shipping rules were enforcing the “Order Condition Formula” field as required. ([#2098](https://github.com/craftcms/commerce/issues/2098))
+- Fixed a bug where Base Discount and Per Item Discount fields could show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
+
 ## 3.3.0 - 2021-04-20
 
 ### Added
@@ -147,10 +154,6 @@
 ### Added
 - Emails and PDFs now have Language settings that can be used to specify the language that should be used, instead of the order’s language. ([#1884](https://github.com/craftcms/commerce/issues/1884))
 - Added the `cp.commerce.order.content`, `cp.commerce.order.edit.order-actions`, and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138), [#1269](https://github.com/craftcms/commerce/issues/1269))
-
-### Added
-- Partial payments on orders can now be made from the Edit Order page.
-- Added the `allowFrontEndPartialPayments` config setting.
 
 ### Changed
 - Improved the Edit Product page load time by lazy-loading variants’ related sales on scroll. ([#1883](https://github.com/craftcms/commerce/issues/1883))

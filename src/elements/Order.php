@@ -2244,11 +2244,13 @@ class Order extends Element
      */
     public function getPaymentAmount(): float
     {
-        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
+        $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getOutstandingBalance(), $this->currency, $this->paymentCurrency);
+
+        if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $outstandingBalanceInPaymentCurrency) {
             return $this->_paymentAmount;
         }
-        $amount = $this->getOutstandingBalance();
-        return $amount;
+
+        return $outstandingBalanceInPaymentCurrency;
     }
 
     /**
