@@ -2247,7 +2247,9 @@ class Order extends Element
         if ($this->_paymentAmount && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $this->getOutstandingBalance()) {
             return $this->_paymentAmount;
         }
-        $amount = $this->getOutstandingBalance();
+
+        // Different lines to make xdebug easier
+        $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getOutstandingBalance(), $this->currency, $this->paymentCurrency);
         return $amount;
     }
 

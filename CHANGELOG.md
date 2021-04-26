@@ -3,6 +3,7 @@
 ### Unreleased
 
 ### Fixed
+- Fixed a bug where the incorrect currency conversion amount was calculated when paying the outstanding balance in a non-primary currency.
 - Fixed a bug where shipping rules were enforcing the “Order Condition Formula” field as required. ([#2098](https://github.com/craftcms/commerce/issues/2098))
 - Fixed a bug where Base Discount and Per Item Discount fields would show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
 
