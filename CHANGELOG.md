@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-### 3.3.0.1 - 2021-04-26
+## 3.3.0.1 - 2021-04-26
 
 ### Fixed
 - Fixed a bug where an incorrect amount could be calculated when paying an outstanding balance in a non-primary currency.
