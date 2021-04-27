@@ -17,6 +17,7 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+use craft\commerce\events\CheckVariantAvailabilityEvent;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
@@ -170,6 +171,32 @@ class Variant extends Purchasable
      * ```
      */
     const EVENT_AFTER_CAPTURE_PRODUCT_SNAPSHOT = 'afterCaptureProductSnapshot';
+
+    /**
+     * @event craft\commerce\events\CheckVariantAvailabilityEvent The event that is triggered when checking whether a variant is available, it can be used to check additional criteria and make unavailable where required.
+     *
+     * ```php
+     * use craft\commerce\elements\Variant;
+     * use craft\commerce\elements\Product;
+     * use craft\commerce\events\CheckVariantAvailabilityEvent;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Variant::class,
+     *     Variant::EVENT_CHECK_VARIANT_AVAILABILITY,
+     *     function(CheckVariantAvailabilityEvent $event) {
+     *         // @var Product $product
+     *         $product = $event->product;
+     *         // @var Variant $variant
+     *         $variant = $event->variant;
+     *
+     *         // Check some condition or custom field value...
+     *         // ... $event->isValid = false; // set to false if you want make unavailable
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_CHECK_VARIANT_AVAILABILITY = 'checkVariantAvailabilityEvent';
 
 
     /**
@@ -1053,6 +1080,18 @@ class Variant extends Purchasable
 
         // Temporary SKU can not be added to the cart
         if (PurchasableHelper::isTempSku($this->getSku())) {
+            return false;
+        }
+
+        // Raise the 'checkVariantAvailabilityEvent' event
+        $checkAvailabilityEvent = new CheckVariantAvailabilityEvent([
+            'product' => $product,
+            'variant' => $this,
+        ]);
+
+        $this->trigger(self::EVENT_CHECK_VARIANT_AVAILABILITY, $checkAvailabilityEvent);
+
+        if (!$checkAvailabilityEvent->isValid) {
             return false;
         }
 
