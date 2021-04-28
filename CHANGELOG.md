@@ -3,7 +3,7 @@
 
 ## Unreleased
 
-- Added refundTransaction object to `\craft\commerce\services\Payments::EVENT_AFTER_CAPTURE_TRANSACTION` event. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+- Added refundTransaction object to `\craft\commerce\services\Payments::EVENT_AFTER_REFUND_TRANSACTION` event. ([#2081](https://github.com/craftcms/commerce/issues/2081))
 
 ## 3.2.17.4 - 2021-04-06
 
