@@ -9,8 +9,12 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\base\PurchasableInterface;
+use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
+use craft\commerce\events\PurchasableAvailableEvent;
 use yii\base\Component;
 
 /**
@@ -23,6 +27,29 @@ use yii\base\Component;
  */
 class Purchasables extends Component
 {
+    /**
+     * @event PurchasableAvailableEvent The event that is triggered when the availability of a purchasables is checked.
+     *
+     * This example stop users of a certain group from having the purchasable be available to them in their order.
+     *
+     * ```php
+     * use craft\commerce\events\PurchasableAvailableEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_PURCHASABLE_AVAILABLE,
+     *     function(PurchasableAvailableEvent $event) {
+     *         if($order && $user = $order->getUser()){
+     *             $event->isAvailable = $event->isAvailable && !$user->isInGroup(1); // Group ID 1 not allowed to have purchasable in the cart.
+     *         }
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
+
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
      *
@@ -44,6 +71,25 @@ class Purchasables extends Component
      */
     const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
+    /**
+     * @param PurchasableInterface $purchasable
+     * @param Order|null $order
+     * @param User|null $currentUser
+     * @return bool
+     * @since 3.x
+     */
+    public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    {
+        if ($currentUser === null) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+        }
+        $isAvailable = $purchasable->getIsAvailable();
+
+        $event = new PurchasableAvailableEvent(compact('order', 'purchasable', 'currentUser', 'isAvailable'));
+        $this->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+
+        return $event->isAvailable;
+    }
 
     /**
      * Delete a purhasable by its ID.
