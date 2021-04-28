@@ -4,16 +4,18 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-  'Gateway',
   'Active subscriptions',
-  'Enabled?',
-  'Information linked?',
   'Are you sure you want to archive the “{name}” subscription plan? It WILL NOT cancel the existing subscriptions.',
-  'No subscription plans exist yet.',
-  'Plans reordered.',
   'Couldn’t reorder plans.',
-  'Yes',
+  'Enabled?',
+  'Gateway',
+  'Handle',
+  'Information linked?',
+  'Name',
+  'No subscription plans exist yet.',
   'No',
+  'Plans reordered.',
+  'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -41,8 +43,8 @@
 
 {% js %}
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
-    { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
     { name: 'gateway', title: Craft.t('commerce', 'Gateway') },
     { name: 'subscriptions', title: Craft.t('commerce', 'Active subscriptions') },
     { name: 'information', title: Craft.t('commerce', 'Information linked?'),

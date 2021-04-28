@@ -16,7 +16,7 @@
 
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
-            <h1 class="text-xl font-bold mb-3">Cart/Order Payment</h1>
+            <h1 class="text-xl font-bold">Payment</h1>
 
             {% if (not number or not email) or (number and email and (not cart or (cart and not cart.hasOutstandingBalance))) %}
                 {% if number and email and (not cart or (cart and not cart.hasOutstandingBalance)) %}
@@ -137,6 +137,11 @@
                                             {% set params = { currency: cart.paymentCurrency } %}
                                         {% endif %}
 
+                                        <a href="{{ siteUrl(url, {
+                                            orderNumber: number,
+                                            email: email,
+                                        }) }}" class="[[classes.a]]">&larr; Back</a>
+
                                         {{ gateway.getPaymentFormHtml(params)|raw }}
 
                                         {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
@@ -167,21 +172,15 @@
                                 {% endif %}
 
                                 <div class="mt-4">
-                                    <div class="flex w-full">
-                                        <div class="w-1/2">
-                                            <a href="{{ siteUrl(url, {
-                                                orderNumber: number,
-                                                email: email,
-                                            }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Back</a>
-                                        </div>
-                                        <div class="w-1/2 text-right">
-                                            {% if canPay %}
-                                                <button type="submit"
-                                                        class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                                                    Pay {{ cart.outstandingBalance|commerceCurrency(paymentCurrency, convert=true) }}
-                                                </button>
-                                            {% endif %}
-                                        </div>
+                                    <div class="w-full">
+                                        {% if canPay %}
+
+                                            {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
+
+                                            <button type="submit"
+                                                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">Pay
+                                            </button>
+                                        {% endif %}
                                     </div>
                                 </div>
 

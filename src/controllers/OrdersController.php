@@ -19,6 +19,8 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
+use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
 use craft\commerce\models\Address;
@@ -133,7 +135,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function actionEditOrder($orderId, Order $order = null): Response
+    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -149,6 +151,7 @@ class OrdersController extends Controller
         }
 
         $variables['order'] = $order;
+        $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
         $transactions = $order->getTransactions();
@@ -414,7 +417,8 @@ class OrdersController extends Controller
             'billingAddress',
             'shippingAddress',
             'orderSite',
-            'notices'
+            'notices',
+            'loadCartUrl',
         ];
 
         $lineItems = $order->getLineItems();
@@ -735,6 +739,13 @@ class OrdersController extends Controller
         $order = $plugin->getOrders()->getOrderById($orderId);
         $gateways = $plugin->getGateways()->getAllGateways();
 
+        if ($paymentAmount = $request->getParam('paymentAmount')) {
+            $order->setPaymentAmount($paymentAmount);
+        }
+        if ($paymentCurrency = $request->getParam('paymentCurrency')) {
+            $order->setPaymentCurrency($paymentCurrency);
+        }
+
         $formHtml = '';
         /** @var Gateway $gateway */
         foreach ($gateways as $key => $gateway) {
@@ -900,6 +911,43 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
+    /*
+     * @throws BadRequestHttpException
+     */
+    public function actionPaymentAmountData()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+        $paymentCurrencies = Plugin::getInstance()->getPaymentCurrencies();
+        $paymentCurrency = $this->request->getRequiredParam('paymentCurrency');
+        $paymentAmount = $this->request->getRequiredParam('paymentAmount');
+        $orderId = $this->request->getRequiredParam('orderId');
+        $order = Order::find()->id($orderId)->one();
+        $baseCurrency = $order->currency;
+
+        $baseCurrencyPaymentAmount = $paymentCurrencies->convertCurrency($paymentAmount, $paymentCurrency, $baseCurrency);
+        $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => Currency::formatAsCurrency($baseCurrencyPaymentAmount, $baseCurrency), 'currency' => $baseCurrency]);
+
+        $outstandingBalance = $order->outstandingBalance;
+        $outstandingBalanceAsCurrency = $order->outstandingBalanceAsCurrency;
+
+        $message = '';
+        if (Currency::round($baseCurrencyPaymentAmount) > Currency::round($outstandingBalance)) {
+            $baseCurrencyPaymentAmount = $outstandingBalance;
+            $baseCurrencyPaymentAmountAsCurrency = Craft::t('commerce', 'Pay {amount} of {currency} on the order.', ['amount' => $outstandingBalanceAsCurrency, 'currency' => $baseCurrency]);
+            $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
+        }
+
+        return $this->asJson([
+            'paymentCurrency' => $paymentCurrency,
+            'paymentAmount' => $paymentAmount,
+            'outstandingBalance' => $outstandingBalance,
+            'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
+            'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
+            'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
+            'message' => $message
+        ]);
+    }
 
     /**
      * Modifies the variables of the request.
@@ -1114,11 +1162,12 @@ class OrdersController extends Controller
 
         $order->clearNotices();
 
-        // CreateObject
+        // Create Notices on Order
         $notices = [];
         foreach ($orderRequestData['order']['notices'] as $notice) {
-            $notices[] = Craft::createObject(OrderNotice::class, [
-                'attrbutes' => $notice
+            $notices[] = Craft::createObject([
+                'class' => OrderNotice::class,
+                'attributes' => $notice
             ]);
         }
         $order->addNotices($notices);
@@ -1246,12 +1295,13 @@ class OrdersController extends Controller
             $lineItemStatusId = $lineItemData['lineItemStatusId'];
             $options = $lineItemData['options'] ?? [];
             $qty = $lineItemData['qty'] ?? 1;
+            $uid = $lineItemData['uid'] ?? StringHelper::UUID();
 
             $lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($lineItemId);
 
             if (!$lineItem) {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order, $uid);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
@@ -1264,16 +1314,13 @@ class OrdersController extends Controller
             $lineItem->privateNote = $privateNote;
             $lineItem->lineItemStatusId = $lineItemStatusId;
             $lineItem->setOptions($options);
+            $lineItem->uid = $uid;
 
             $lineItem->setOrder($order);
 
             // Deleted a purchasable while we had a purchasable ID in memory on the order edit page, unset it.
             if ($purchasableId && !Craft::$app->getElements()->getElementById($purchasableId)) {
                 $lineItem->purchasableId = null;
-            }
-
-            if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_ALL) {
-                $lineItem->refreshFromPurchasable();
             }
 
             if ($order->getRecalculationMode() == Order::RECALCULATION_MODE_NONE) {
@@ -1443,12 +1490,14 @@ class OrdersController extends Controller
                 } else {
                     $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 }
-                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
                     'content' => $purchasable->getSnapshot(),
                     'showAsList' => true,
                 ];
+                $row['newLineItemUid'] = StringHelper::UUID();
+                $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
                 $purchasables[] = $row;
             }
         }

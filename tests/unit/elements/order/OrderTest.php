@@ -5,13 +5,14 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit\elements;
+namespace craftcommercetests\unit\elements\order;
 
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Discount;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
+use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use UnitTester;
 
@@ -95,7 +96,6 @@ class OrderTest extends Unit
         $this->order->setAdjustments([$adjustment1, $adjustment2, $adjustment3]);
         self::assertEquals(65, $this->order->getTotalPrice());
     }
-
 
     /**
      *

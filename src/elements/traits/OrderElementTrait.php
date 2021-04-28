@@ -298,7 +298,7 @@ trait OrderElementTrait
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
+                'label' => Craft::t('site', $orderStatus->name),
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => 0,
@@ -486,6 +486,7 @@ trait OrderElementTrait
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
             $attributes[] = 'totalPaid';
+            $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
         } else {
             $attributes[] = 'shortNumber';
@@ -609,7 +610,7 @@ trait OrderElementTrait
 
     /**
      * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
-     * 
+     *
      * @return string
      */
     private function _miniTable($miniTable)

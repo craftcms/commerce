@@ -7,7 +7,7 @@
     {% if cart.lineItems|length %}
         <form method="post" action="">
             {{ actionInput('commerce/cart/update-cart') }}
-            {{ hiddenInput('successMessage', 'The cart was updated.'|hash) }}
+            {{ successMessageInput('The cart was updated.') }}
             {{ csrfInput() }}
             <table class="w-full mt-4 rounded-lg">
                 <thead>

@@ -104,11 +104,16 @@ class ExampleTemplatesController extends Controller
         $templatesPath = $this->_getTemplatesPath();
 
         $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
-        $folderName = $this->folderName ?: $this->prompt('Folder name:', ['required' => true, 'default' => 'shop']);
 
-        if($this->cdnAssets === null)
-        {
-            $this->cdnAssets = $this->confirm('Use CDN links to assets (tailwind)?', true);
+        if ($this->folderName) {
+            $folderName = $this->folderName;
+        } else {
+            $this->stdout('A folder will be copied to your templates directory.' . PHP_EOL);
+            $folderName = $this->prompt('Choose folder name:', ['required' => true, 'default' => 'shop']);
+        }
+
+        if ($this->cdnAssets === null) {
+            $this->cdnAssets = $this->confirm('Use CDN link to resources (tailwind)?', true);
         }
 
         // Folder name is required
@@ -144,7 +149,6 @@ class ExampleTemplatesController extends Controller
                 $fileContents = str_replace(array_keys($this->_replacementData), array_values($this->_replacementData), $fileContents);
                 file_put_contents($file, $fileContents);
             }
-
         } catch (\Exception $e) {
             $errors[] = 'Could not generate templates. Exception raised:';
             $errors[] = $e->getCode() . ' ' . $e->getMessage();
@@ -185,9 +189,6 @@ class ExampleTemplatesController extends Controller
             $errors[] = 'Folder with name "' . $folderName . '" already exists in the templates folder, and the `overwrite` param was not set to true, which would replace.';
             return $this->_returnErrors($errors);
         }
-
-        $this->stdout('Source: ' . $source . PHP_EOL, Console::FG_GREY);
-        $this->stdout('Destination: ' . $destination . PHP_EOL, Console::FG_GREY);
 
         if (is_dir($destination) && is_dir($source)) {
             if ($this->overwrite) {
@@ -264,16 +265,13 @@ class ExampleTemplatesController extends Controller
      */
     private function _addTailwindCss()
     {
-        if($this->cdnAssets)
-        {
-            $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
-        }else{
+        $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+
+        if (!$this->cdnAssets) {
             $response = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
-            if ($response->getStatusCode() == '200') {
+            if ($response && $response->getStatusCode() == '200') {
                 $css = $response->getBody();
                 $tag = "<style>$css</style>";
-            } else {
-                $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
             }
         }
 

@@ -15,7 +15,7 @@
                 </div>
                 <div>
                     <strong>{{ currency.name }} {{ currency.iso }}</strong><br>
-                    <span class="text-gray-600">{{ cart.totalPrice|commerceCurrency(currency.iso,convert=true) }}</span>
+                    <span class="text-gray-600">{{ cart.outstandingBalance|commerceCurrency(currency.iso,convert=true) }}</span>
                 </div>
             </div>
         </label>

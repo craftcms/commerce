@@ -24,7 +24,7 @@
 
                     <form method="post" class="mt-6">
                         {{ actionInput('commerce/cart/update-cart') }}
-                        {{ hiddenInput('successMessage', ('Added '~ product.title ~' to the cart.')|hash) }}
+                        {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
                         {# {{ hiddenInput('clearNotices', true) }} #}
                         {{ csrfInput() }}
                         <div class="inline-block relative w-full">
