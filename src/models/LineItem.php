@@ -634,7 +634,7 @@ class LineItem extends Model
 
         /* @var $purchasable Purchasable */
         $purchasable = $this->getPurchasable();
-        if (!$purchasable || !$purchasable->getIsAvailable()) {
+        if (!$purchasable || !Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable, $this->getOrder())) {
             return false;
         }
 
