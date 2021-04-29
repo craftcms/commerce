@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where payment source error message weren’t being returned correctly.
+
 ## 3.3.0.1 - 2021-04-26
 
 ### Fixed
