@@ -309,6 +309,13 @@ class Product extends Element
         return false;
     }
 
+    public function getIsDeletable(): bool
+    {
+        $productType = $this->getType();
+        
+        return Craft::$app->getUser()->checkPermission("commerce-deleteProducts:$productType->uid"); 
+    }
+
     /**
      * Returns the product's product type.
      *

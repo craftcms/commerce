@@ -211,6 +211,7 @@ class SalesController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteSales');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
