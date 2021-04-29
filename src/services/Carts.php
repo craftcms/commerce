@@ -44,7 +44,14 @@ class Carts extends Component
      * @var Order
      */
     private $_cart;
-    
+
+    /**
+     * Useful for debugging how many times the cart is being requested during a request.
+     *
+     * @var int
+     */
+    private $_getCartCount = 0;
+
     /**
      * Get the current cart for this session.
      *
@@ -56,6 +63,7 @@ class Carts extends Component
      */
     public function getCart($forceSave = false): Order
     {
+        $this->_getCartCount++; //useful when debugging
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
@@ -278,7 +286,7 @@ class Carts extends Component
 
             $cartIds = (new Query())
                 ->select(['orders.id'])
-                ->where(['not', ['isCompleted' => 1]])
+                ->where(['not', ['isCompleted' => true]])
                 ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
                 ->from(['orders' => Table::ORDERS])
                 ->column();

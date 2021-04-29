@@ -181,9 +181,4 @@ class CurrencyAttributeBehavior extends Behavior
 
         return $name;
     }
-
-    private function _asCurrency()
-    {
-
-    }
 }

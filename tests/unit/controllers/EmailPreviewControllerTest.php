@@ -83,7 +83,7 @@ class EmailPreviewControllerTest extends Unit
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->data);
-        self::assertContains('<title>Order Confirmation</title>', $response->data);
+        self::assertStringContainsString('<title>Order Confirmation</title>', $response->data);
         self::assertRegExp('/<h1>Order Confirmation [0-9a-zA-Z]{7}<\/h1>/', $response->data);
     }
 
@@ -91,18 +91,18 @@ class EmailPreviewControllerTest extends Unit
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
         /** @var Order $order */
-        $order = $this->tester->grabFixture('orders')['completed-new'];
+        $order = $this->tester->grabFixture('orders')->getElement('completed-new');
 
         Craft::$app->getRequest()->setQueryParams([
             'emailId' => $email['id'],
-            'orderNumber' => $order['number'],
+            'orderNumber' => $order->number,
         ]);
 
         $response = $this->controller->runAction('render');
 
         self::assertInstanceOf(Response::class, $response);
         self::assertIsString($response->data);
-        self::assertContains('<title>Order Confirmation</title>', $response->data);
-        self::assertContains('<h1>Order Confirmation ' . substr($order['number'], 0, 7) . '</h1>', $response->data);
+        self::assertStringContainsString('<title>Order Confirmation</title>', $response->data);
+        self::assertStringContainsString('<h1>Order Confirmation ' . $order->shortNumber . '</h1>', $response->data);
     }
 }

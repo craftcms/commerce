@@ -28,7 +28,7 @@
     {% set customerUser = customer.getUser() ?? null %}
     {% if customerUser %}
       <div class="data">
-        <h5 class="heading">{{ 'User'|t('app') }}</h5>
+        <h5 class="heading">{{ 'User'|t('commerce') }}</h5>
         <div class="value">
           {% if currentUser.can('editUsers') %}
             {{ tag('a', {

@@ -7,10 +7,13 @@
 
 namespace craft\commerce\models;
 
+use Craft;
+use craft\commerce\base\AdjusterInterface;
 use craft\commerce\base\Model;
 use craft\commerce\base\ShippingRuleInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 
 /**
@@ -61,6 +64,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $enabled = true;
 
     /**
+     * @var string Order Condition Formula
+     */
+    public $orderConditionFormula = '';
+
+    /**
      * @var int Minimum Quantity
      */
     public $minQty = 0;
@@ -79,6 +87,11 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var float Maximum total
      */
     public $maxTotal = 0;
+
+    /**
+     * @var float Minimum type rule
+     */
+    public $minMaxTotalType = 'salePrice';
 
     /**
      * @var float Minimum Weight
@@ -184,6 +197,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 'minQty',
                 'maxQty',
                 'minTotal',
+                'minMaxTotalType',
                 'maxTotal',
                 'minWeight',
                 'maxWeight',
@@ -206,6 +220,25 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
 
+        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
+        $rules[] = [
+            'orderConditionFormula', function($attribute, $params, $validator) {
+
+                if($this->orderConditionFormula) {
+                    $order = Order::find()->one();
+                    if (!$order) {
+                        $order = new Order();
+                    }
+                    $orderConditionParams = [
+                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                    ];
+                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
+                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                    }
+                }
+            }
+        ];
+        
         return $rules;
     }
 
@@ -228,6 +261,16 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $lineItems = $order->getLineItems();
 
+        if ($this->orderConditionFormula) {
+            $orderConditionParams = [
+                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            ];
+
+            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
+                return false;
+            };
+        }
+
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
@@ -245,7 +288,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $shippingRuleCategories = $this->getShippingRuleCategories();
         $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
         list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
-
 
         // Does the order have any disallowed categories in the cart?
         $result = array_intersect($orderShippingCategories, $disallowedCategories);
@@ -277,7 +319,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        // order qty rules are inclusive (min <= x <= max)
+        // order qty rules are inclusive (min > x <  max)
         if ($this->minQty && $this->minQty > $order->totalQty) {
             return false;
         }
@@ -285,15 +327,46 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        // order total rules exclude maximum limit (min <= x < max)
-        if ($this->minTotal && $this->minTotal > $order->getItemSubtotal()) {
-            return false;
+        $itemSubtotal = $order->getItemSubtotal();
+
+        switch ($this->minMaxTotalType) {
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE:
+
+                $itemTotal = $itemSubtotal;
+                break;
+            case ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS:
+
+                $discountAdjustments = [];
+                $discountAdjusters = Plugin::getInstance()->getOrderAdjustments()->getDiscountAdjusters();
+                foreach ($discountAdjusters as $discountAdjuster) {
+                    /** @var AdjusterInterface $discountAdjuster */
+                    $adjuster = new $discountAdjuster();
+                    $discountAdjustments = array_merge($discountAdjustments, $adjuster->adjust($order));
+                }
+
+                $discountAmount = 0;
+                foreach ($discountAdjustments as $adjustment) {
+                    $discountAmount += $adjustment->amount;
+                }
+
+                $itemTotal = $itemSubtotal + $discountAmount;
+                break;
+            default:
+
+                $itemTotal = $itemSubtotal; // Default is ShippingRule::TYPE_MIN_ORDER_TOTAL_SALEPRICE
+                break;
         }
-        if ($this->maxTotal && $this->maxTotal <= $order->getItemSubtotal()) {
+
+        // order total rules exclude maximum limit (min > x <= max)
+        if ($this->minTotal && $this->minTotal > $itemTotal) {
             return false;
         }
 
-        // order weight rules exclude maximum limit (min <= x < max)
+        if ($this->maxTotal && $this->maxTotal <= $itemTotal) {
+            return false;
+        }
+
+        // order weight rules exclude maximum limit (min > x <= max)
         if ($this->minWeight && $this->minWeight > $order->totalWeight) {
             return false;
         }

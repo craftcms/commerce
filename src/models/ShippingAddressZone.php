@@ -224,7 +224,9 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
         $rules = parent::defineRules();
 
         $rules[] = [['name'], 'required'];
+        $rules[] = [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
+
         $rules[] = [
             ['states'], 'required', 'when' => static function($model) {
                 return !$model->isCountryBased;

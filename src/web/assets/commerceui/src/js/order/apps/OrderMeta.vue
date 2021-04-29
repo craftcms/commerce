@@ -200,7 +200,7 @@
 
             <div class="data">
                 <h5 class="heading">{{"Origin"|t('commerce')}}</h5>
-                <span class="value">{{draft.order.origin|capitalize}}</span>
+                <span class="value">{{originLabel(draft.order.origin)}}</span>
             </div>
         </div>
     </div>
@@ -362,6 +362,18 @@
                     .catch((error) => {
                         this.$store.dispatch('displayError', error);
                     })
+            },
+
+            originLabel(origin) {
+                switch (origin) {
+                    case 'web':
+                        return this.$options.filters.t('Web', 'commerce');
+                    case 'cp':
+                        return this.$options.filters.t('Control panel', 'commerce');
+                    default:
+                        origin = origin.toString();
+                        return origin.charAt(0).toUpperCase() + origin.slice(1);
+                }
             }
         }
     }

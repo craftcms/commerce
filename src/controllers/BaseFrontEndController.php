@@ -60,6 +60,7 @@ class BaseFrontEndController extends BaseController
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
+            'notices'
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);

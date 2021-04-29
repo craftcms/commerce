@@ -20,9 +20,11 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property ShippingMethod $method
  * @property int $methodId
+ * @property string $orderConditionFormula
  * @property int $maxQty
  * @property float $maxRate
  * @property float $maxTotal
+ * @property string $minMaxTotalType
  * @property float $maxWeight
  * @property int $minQty
  * @property float $minRate
@@ -40,6 +42,9 @@ use yii\db\ActiveQueryInterface;
  */
 class ShippingRule extends ActiveRecord
 {
+    const TYPE_MIN_MAX_TOTAL_SALEPRICE = 'salePrice';
+    const TYPE_MIN_MAX_TOTAL_SALEPRICE_WITH_DISCOUNTS = 'salePriceWithDiscounts';
+
     /**
      * @inheritdoc
      */
