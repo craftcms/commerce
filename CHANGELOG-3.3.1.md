@@ -8,3 +8,6 @@
 
 ### Changed
 - Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
+
+### Fixed
+- Fixed a PHP error when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action. 
