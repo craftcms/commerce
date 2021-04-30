@@ -81,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => null
                     ]);
                 }
 
@@ -90,6 +90,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
+            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
 
         } else {
@@ -187,6 +188,7 @@ class PaymentsController extends BaseFrontEndController
             } catch (CurrencyException $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
+                $error = $exception->getMessage();
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
@@ -284,9 +286,9 @@ class PaymentsController extends BaseFrontEndController
                     $paymentSource = $plugin->getPaymentSources()->createPaymentSource($currentUser->id, $gateway, $paymentForm);
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
-                    
+
                     $error = $exception->getMessage();
-                    
+
                     if ($this->request->getAcceptsJson()) {
                         return $this->asJson([
                             'error' => $error,
