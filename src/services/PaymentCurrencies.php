@@ -193,7 +193,9 @@ class PaymentCurrencies extends Component
      * Convert an amount between currencies based on rates configured.
      *
      * @param float $amount
-     *
+     * @param string $fromCurrency
+     * @param string $toCurrency
+     * @return float
      * @throws CurrencyException if currency not found by its ISO code
      */
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency): float
@@ -205,7 +207,7 @@ class PaymentCurrencies extends Component
             throw new CurrencyException('Currency not found: ' . $fromCurrency);
         }
 
-        if (!$fromCurrency) {
+        if (!$toCurrency) {
             throw new CurrencyException('Currency not found: ' . $toCurrency);
         }
 
