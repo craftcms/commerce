@@ -72,8 +72,8 @@ use yii\log\Logger;
  * @property OrderAdjustment[] $adjustments
  * @property string $email the email for this order
  * @property LineItem[] $lineItems
- * @property Address $billingAddress
- * @property Address $shippingAddress
+ * @property Address|null $billingAddress
+ * @property Address|null $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
  * @property string $recalculationMode the mode of recalculation.
@@ -959,13 +959,13 @@ class Order extends Element
     private $_billingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedShippingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedBillingAddress;
