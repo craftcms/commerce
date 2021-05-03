@@ -22,7 +22,7 @@
   "require": {
     "craftcms/cms": "^3.6.0",
     "dompdf/dompdf": "^1.0.2",
-    "moneyphp/money": "^3.2.1",
+    "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^2.0.3" // Only 2.0.3 and lower supports PHP 7.2
   },
   "autoload": {
