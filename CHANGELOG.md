@@ -5,6 +5,7 @@
 ### Added
 - Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
 - Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
+- Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
 
 ### Changed
 - Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
@@ -53,6 +54,7 @@
 ### Fixed
 - Fixed a PHP 8 compatibility bug. ([#1987](https://github.com/craftcms/commerce/issues/1987))
 - Fixed an error that occurred when passing an unsupported payment currency to `craft\commerce\services\PaymentCurrencies::convert()`.
+>>>>>>> develop
 
 ## 3.2.17.4 - 2021-04-06
 
