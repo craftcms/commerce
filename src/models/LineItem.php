@@ -674,8 +674,8 @@ class LineItem extends Model
         $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-        $this->sku = $purchasable->getSku();
-        $this->description = $purchasable->getDescription();
+        $this->setSku($purchasable->getSku());
+        $this->setDescription($purchasable->getDescription());
 
         // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
