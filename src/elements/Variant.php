@@ -878,6 +878,7 @@ class Variant extends Purchasable
         if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
             if ($order = $lineItem->getOrder()) {
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
+                /** @var OrderNotice $notice */
                 $notice = Craft::createObject([
                     'class' => OrderNotice::class,
                     'attributes' => [
@@ -886,7 +887,7 @@ class Variant extends Purchasable
                         'message' => $message,
                     ]
                 ]);
-                $this->addNotice($notice);
+                $order->addNotice($notice);
             }
             $lineItem->qty = $this->stock;
         }
