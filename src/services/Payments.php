@@ -369,7 +369,7 @@ class Payments extends Component
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
-            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'amount')));
+            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'refundTransaction', 'amount')));
         }
 
         return $refundTransaction;
