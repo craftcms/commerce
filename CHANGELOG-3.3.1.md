@@ -11,4 +11,5 @@
 
 ### Fixed
 - Fixed a PHP error that occurred when after changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
-- Fixed a PHP error that occurred when when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action. 
+- Fixed a PHP error that occurred when when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action.
+- Fixed a bug where the address ID’s appeared `null` in the `afterCompleteOrder` event when a registered user checked out as a guest.  
