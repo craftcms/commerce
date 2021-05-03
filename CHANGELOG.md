@@ -8,11 +8,12 @@
 - Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
 
 ### Changed
-- Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
+- Order condition forumlas now include serialized custom field values for use in formulas. ([#2066](https://github.com/craftcms/commerce/issues/2066))
 
 ### Fixed
 - Fixed a PHP error that occurred when after changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
 - Fixed a PHP error that occurred when when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action.
+- Fixed a PHP error that occurred when retreiving specific order notice when non exist. ([#2108](https://github.com/craftcms/commerce/issues/2108))
 - Fixed a bug where the address IDs appeared `null` in the `afterCompleteOrder` event when a registered user checked out as a guest.
 - Fixed a bug where payment source error message weren’t being returned correctly.
 
@@ -54,7 +55,6 @@
 ### Fixed
 - Fixed a PHP 8 compatibility bug. ([#1987](https://github.com/craftcms/commerce/issues/1987))
 - Fixed an error that occurred when passing an unsupported payment currency to `craft\commerce\services\PaymentCurrencies::convert()`.
->>>>>>> develop
 
 ## 3.2.17.4 - 2021-04-06
 
