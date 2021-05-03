@@ -2,13 +2,13 @@ import Vue from 'vue'
 import App from './apps/OrderDetails'
 import 'prismjs/themes/prism.css'
 import OrderMeta from './apps/OrderMeta'
+import OrderNotices from './apps/OrderNotices'
 import OrderActions from './apps/OrderActions'
 import OrderCustomer from './apps/OrderCustomer'
 import OrderErrors from './apps/OrderErrors'
 import OrderSecondaryActions from './apps/OrderSecondaryActions'
 import store from './store'
 import {t} from '../base/filters/craft'
-import {capitalize} from '../base/filters/capitalize';
 import BtnLink from '../base/components/BtnLink'
 import OrderBlock from './components/OrderBlock'
 import OrderTitle from './components/OrderTitle'
@@ -19,7 +19,6 @@ if (process.env.NODE_ENV === 'development') {
     Vue.config.devtools = true
 }
 Vue.filter('t', t)
-Vue.filter('capitalize', capitalize)
 Vue.component('btn-link', BtnLink)
 Vue.component('order-block', OrderBlock)
 Vue.component('order-title', OrderTitle)
@@ -74,7 +73,6 @@ window.OrderDetailsApp = new Vue({
     }
 }).$mount('#order-details-app')
 
-
 // Order meta
 // =========================================================================
 
@@ -83,6 +81,13 @@ window.OrderMetaApp = new Vue({
     store,
 }).$mount('#order-meta-app')
 
+// Order meta
+// =========================================================================
+
+window.OrderNotices = new Vue({
+    render: h => h(OrderNotices),
+    store,
+}).$mount('#order-notices-app')
 
 // Order secondary actions
 // =========================================================================

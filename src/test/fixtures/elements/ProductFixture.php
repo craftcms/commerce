@@ -7,9 +7,12 @@
 
 namespace craft\commerce\test\fixtures\elements;
 
+use craft\base\ElementInterface;
+use craft\commerce\db\Table;
 use craft\commerce\elements\Product;
 use craft\commerce\Plugin;
-use craft\test\fixtures\elements\ElementFixture;
+use craft\db\Query;
+use craft\test\fixtures\elements\BaseElementFixture;
 use yii\base\InvalidArgumentException;
 
 /**
@@ -22,18 +25,12 @@ use yii\base\InvalidArgumentException;
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since  2.1
  */
-class ProductFixture extends ElementFixture
+class ProductFixture extends BaseElementFixture
 {
-    /**
-     * {@inheritdoc}
-     */
-    public $modelClass = Product::class;
-
     /**
      * @var array
      */
     protected $productTypeIds = [];
-
 
     /**
      * {@inheritdoc}
@@ -49,18 +46,41 @@ class ProductFixture extends ElementFixture
         }
 
         // Get all product type id's
-        $productTypes = $commerce->getProductTypes()->getAllProductTypes();
-        foreach ($productTypes as $productType) {
-            $this->productTypeIds[$productType->handle] = $productType->id;
-        }
+        $this->productTypeIds = $this->_getProductTypeIds();
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function afterLoad()
+    {
+        $this->productTypeIds = $this->_getProductTypeIds();
+    }
 
     /**
-     * {@inheritdoc}
+     * @return ElementInterface
      */
-    protected function isPrimaryKey(string $key): bool
+    protected function createElement(): ElementInterface
     {
-        return parent::isPrimaryKey($key) || in_array($key, ['typeId', 'title'], true);
+        return new Product();
+    }
+
+    /**
+     * Get array of product type IDs indexed by handle.
+     * This uses a raw query to avoid service level caching/memoization.
+     *
+     * @return array
+     * @TODO review the necessity of this at the next breakpoint version.
+     */
+    private function _getProductTypeIds(): array
+    {
+        return (new Query())
+            ->select([
+                'productTypes.id',
+                'productTypes.handle',
+            ])
+            ->from([Table::PRODUCTTYPES . ' productTypes'])
+            ->indexBy('handle')
+            ->column();
     }
 }

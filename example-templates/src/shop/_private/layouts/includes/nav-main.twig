@@ -1,0 +1,41 @@
+<!-- Template: {{ _self }}.twig -->
+{% set pages = [
+    {
+        label: "Products",
+        url: '[[folderName]]/products'
+    },
+    {
+        label: "Plans",
+        url: '[[folderName]]/plans'
+    },
+    {
+        label: "Donations",
+        url: '[[folderName]]/donations'
+    }
+] %}
+
+{% if currentUser %}
+    {% set pages = pages|merge([{
+        label: "My Account",
+        url: '[[folderName]]/customer'
+    }]) %}
+{% endif %}
+
+{% if 'checkout' not in craft.app.request.pathInfo %}
+    <div class="bg-gray-100">
+        <div class="container mx-auto justify-between items-center p-6 relative">
+            <nav class="-ml-4">
+                {% for page in pages %}
+                    <a href="{{ url(page.url) }}"
+                       class="mr-3 rounded px-4 py-2 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">
+                        {{ page.label }}
+                    </a>
+                {% endfor %}
+            </nav>
+            <a href="/[[folderName]]/cart" class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow">
+                {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[color]]-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
+                <p role="img" aria-label="Shopping Cart">🛒</p>
+            </a>
+        </div>
+    </div>
+{% endif %}

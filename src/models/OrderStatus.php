@@ -118,7 +118,7 @@ class OrderStatus extends Model
     public function getDisplayName(): string
     {
         if ($this->dateDeleted !== null) {
-            return $this->name . Craft::t('commerce', ' (Trashed)');
+            return $this->name . ' ' . Craft::t('commerce', '(Trashed)');
         }
 
         return $this->name;

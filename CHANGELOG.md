@@ -1,9 +1,60 @@
 # Release Notes for Craft Commerce
 
-
 ## Unreleased
 
-- Added refundTransaction object to `\craft\commerce\services\Payments::EVENT_AFTER_REFUND_TRANSACTION` event. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+### Added
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
+- Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
+- Added `craft\commerce\events\Refiun::EVENT_AFTER_REFUND_TRANSACTION` event. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+
+### Changed
+- Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
+
+### Fixed
+- Fixed a PHP error that occurred when after changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
+- Fixed a PHP error that occurred when when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action.
+- Fixed a bug where the address IDs appeared `null` in the `afterCompleteOrder` event when a registered user checked out as a guest.
+- Fixed a bug where payment source error message weren’t being returned correctly.
+
+## 3.3.0.1 - 2021-04-26
+
+### Fixed
+- Fixed a bug where an incorrect amount could be calculated when paying an outstanding balance in a non-primary currency.
+- Fixed a bug where shipping rules were enforcing the “Order Condition Formula” field as required. ([#2098](https://github.com/craftcms/commerce/issues/2098))
+- Fixed a bug where Base Discount and Per Item Discount fields could show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
+
+## 3.3.0 - 2021-04-20
+
+### Added
+- Added support for partial payments. ([#585](https://github.com/craftcms/commerce/issues/585))
+- Carts can now display customer-facing notices on price changes and when items are automatically removed due to going out of stock. ([#2000](https://github.com/craftcms/commerce/pull/2000))
+- It’s now possible to set dynamic condition formulas on shipping rules. ([#1959](https://github.com/craftcms/commerce/issues/1959))
+- The Orders index page and Edit Order page now have a “Share cart” action, which generates a sharable URL that will load the cart into the user’s session, making it the active cart. ([#1386](https://github.com/craftcms/commerce/issues/1386))
+- Shipping rule conditions can now be based on an order’s discounted price, rather than its original price. ([#1948](https://github.com/craftcms/commerce/pull/1948))
+- Added the `allowCheckoutWithoutPayment` config setting.
+- Added the `allowPartialPaymentOnCheckout` config setting.
+- Added the `commerce/cart/complete` action.
+- Added `craft\commerce\base\GatewayInterface::supportsPartialPayment()`.
+- Added `craft\commerce\base\Gateway::supportsPartialPayment()`.
+- Added `craft\commerce\elements\Order::getLoadCartUrl()`.
+- Added `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES`. ([#1627](https://github.com/craftcms/commerce/issues/1627))
+- Added `craft\commerce\services\PaymentCurrencies::convertCurrency()`.
+- Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
+
+### Changed
+- Improved the line item editing workflow on the Edit Order page.
+- Line item descriptions now link to the purchasable’s edit page in the control panel. ([#2048](https://github.com/craftcms/commerce/issues/2048))
+- All front-end controllers now support passing the order number via a `number` param. ([#1970](https://github.com/craftcms/commerce/issues/1970))
+- Products are now resaved when a product type’s available tax or shipping categories change. ([#1933](https://github.com/craftcms/commerce/pull/1933))
+- Updated Dompdf to 1.0.2.
+
+### Deprecated
+- Deprecated `craft\commerce\services\Gateways::getGatewayOverrides()` and the `commerce-gateways.php` config file. Gateway-specific config files should be used instead. ([#1963](https://github.com/craftcms/commerce/issues/1963))
+
+### Fixed
+- Fixed a PHP 8 compatibility bug. ([#1987](https://github.com/craftcms/commerce/issues/1987))
+- Fixed an error that occurred when passing an unsupported payment currency to `craft\commerce\services\PaymentCurrencies::convert()`.
+>>>>>>> develop
 
 ## 3.2.17.4 - 2021-04-06
 

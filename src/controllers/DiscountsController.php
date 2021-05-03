@@ -181,6 +181,10 @@ class DiscountsController extends BaseCpController
             $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
+            
+            // Set back to original input value of the text field to prevent negative value.
+            $discount->baseDiscount = $baseDiscount;
+            $discount->perItemDiscount = $perItemDiscount;
         }
 
         // Send the model back to the template

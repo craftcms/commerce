@@ -6,6 +6,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         orderId: null,
         paymentForm: null,
+        paymentAmount: null,
+        paymentCurrency: null,
 
         $status: null,
         $completion: null,
@@ -17,6 +19,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.setSettings(settings);
             this.orderId = this.settings.orderId;
             this.paymentForm = this.settings.paymentForm;
+            this.paymentAmount = this.settings.paymentAmount;
+            this.paymentCurrency = this.settings.paymentCurrency;
 
             this.$makePayment = $('#make-payment');
 
@@ -31,6 +35,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 this.paymentModal = new Craft.Commerce.PaymentModal({
                     orderId: this.orderId,
                     paymentForm: this.paymentForm,
+                    paymentAmount: this.paymentAmount,
+                    paymentCurrency: this.paymentCurrency
                 });
 
             } else {
@@ -50,6 +56,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         defaults: {
             orderId: null,
-            paymentForm: null
+            paymentForm: null,
+            paymentAmount: null,
+            paymentCurrency: null,
         }
     });

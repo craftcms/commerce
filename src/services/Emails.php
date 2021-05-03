@@ -791,7 +791,7 @@ class Emails extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
             if (!$event->isValid) {
-                $error = Craft::t('commerce', 'Email “{email}”, for order "{order}" was cancelled by plugin.', [
+                $error = Craft::t('commerce', 'Email “{email}” for order {order} was cancelled.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);

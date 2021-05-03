@@ -34,7 +34,6 @@ class Tax extends Component implements AdjusterInterface
 {
     const ADJUSTMENT_TYPE = 'tax';
 
-
     /**
      * @var
      */
@@ -84,21 +83,7 @@ class Tax extends Component implements AdjusterInterface
     {
         $this->_order = $order;
 
-        $this->_address = $this->_order->getShippingAddress();
-        if (!$this->_address) {
-            $this->_address = $this->_order->getEstimatedShippingAddress();
-            $this->_isEstimated = true;
-        }
-
-        if (Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
-            $this->_address = $this->_order->getBillingAddress();
-            $this->_isEstimated = false;
-
-            if (!$this->_address) {
-                $this->_address = $this->_order->getEstimatedBillingAddress();
-                $this->_isEstimated = true;
-            }
-        }
+        $this->_setTaxAddress();
 
         $adjustments = [];
         $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
@@ -129,11 +114,11 @@ class Tax extends Component implements AdjusterInterface
         $adjustments = [];
         $removeVat = false;
 
-        $vatIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
+        $businessTaxIdOnAddress = ($this->_address && $this->_address->businessTaxId && $this->_address->country);
 
         // Do not bother checking VAT ID if the address doesn't match the zone anyway.
         $useZone = ($zone && $this->_matchAddress($zone));
-        if ($taxRate->isVat && $vatIdOnAddress && ($useZone || $taxRate->getIsEverywhere())) {
+        if ($taxRate->isVat && $businessTaxIdOnAddress && ($useZone || $taxRate->getIsEverywhere())) {
             // Do we have a valid VAT ID in our cache?
             $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
 
@@ -383,5 +368,28 @@ class Tax extends Component implements AdjusterInterface
         $includedTaxAdjustments = $order->getTotalTaxIncluded();
 
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
+    }
+
+    /**
+     *
+     */
+    private function _setTaxAddress()
+    {
+
+        $this->_isEstimated = false;
+
+        if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
+            $this->_address = $this->_order->getShippingAddress();
+            if (!$this->_address) {
+                $this->_address = $this->_order->getEstimatedShippingAddress();
+                $this->_isEstimated = true;
+            }
+        } else {
+            $this->_address = $this->_order->getBillingAddress();
+            if (!$this->_address) {
+                $this->_address = $this->_order->getEstimatedBillingAddress();
+                $this->_isEstimated = true;
+            }
+        }
     }
 }
