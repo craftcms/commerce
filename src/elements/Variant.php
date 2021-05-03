@@ -886,7 +886,7 @@ class Variant extends Purchasable
                         'message' => $message,
                     ]
                 ]);
-                $this->addNotice($notice);
+                $order->addNotice($notice);
             }
             $lineItem->qty = $this->stock;
         }
