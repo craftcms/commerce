@@ -5,7 +5,7 @@
 ### Added
 - Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
 - Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
-- Added `craft\commerce\events\Refiun::EVENT_AFTER_REFUND_TRANSACTION` event. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+- Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
 
 ### Changed
 - Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
