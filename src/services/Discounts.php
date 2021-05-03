@@ -550,7 +550,7 @@ class Discounts extends Component
             return false;
         }
 
-        if(!$this->_isDiscountConditionFormulaValid($order, $discount)){
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
             return false;
         }
 
@@ -1006,11 +1006,12 @@ class Discounts extends Component
     private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
     {
         if ($discount->orderConditionFormula) {
-            $orderDiscountConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+            $orderConditionParams = [
+                'order' => array_merge($orderAsArray, $fieldsAsArray)
             ];
-
-            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 
         return true;

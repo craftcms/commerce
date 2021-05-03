@@ -72,8 +72,8 @@ use yii\log\Logger;
  * @property OrderAdjustment[] $adjustments
  * @property string $email the email for this order
  * @property LineItem[] $lineItems
- * @property Address $billingAddress
- * @property Address $shippingAddress
+ * @property Address|null $billingAddress
+ * @property Address|null $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
  * @property string $recalculationMode the mode of recalculation.
@@ -959,13 +959,13 @@ class Order extends Element
     private $_billingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedShippingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedBillingAddress;
@@ -1816,7 +1816,7 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
+                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,
@@ -2991,7 +2991,7 @@ class Order extends Element
             $firstAvailable = ArrayHelper::firstValue($shippingMethods);
 
             if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
+                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,
