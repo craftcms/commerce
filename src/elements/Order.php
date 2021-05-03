@@ -1816,7 +1816,7 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
+                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,
@@ -2991,7 +2991,7 @@ class Order extends Element
             $firstAvailable = ArrayHelper::firstValue($shippingMethods);
 
             if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'Previously selected shipping method is longer available.');
+                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,
