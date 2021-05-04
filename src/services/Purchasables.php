@@ -76,7 +76,7 @@ class Purchasables extends Component
      * @param Order|null $order
      * @param User|null $currentUser
      * @return bool
-     * @since 3.x
+     * @since 3.3.1
      */
     public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
     {
