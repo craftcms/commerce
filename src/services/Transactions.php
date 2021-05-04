@@ -205,12 +205,12 @@ class Transactions extends Component
             $transaction->currency = $currency->iso;
             $transaction->paymentCurrency = $paymentCurrency->iso;
 
-            // amount is always in the base currency
-            $transaction->paymentAmount = $order->getPaymentAmount();
+            // Payment amount is the amount in the paymentCurrency
+            $transaction->paymentAmount =  Currency::round($order->getPaymentAmount(), $paymentCurrency);
 
-            $transaction->amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $transaction->paymentCurrency, $transaction->currency);
-            $transaction->amount = Currency::round($transaction->amount, $currency);
-            // paymentAmount is the amount in the paymentCurrency
+            // Amount is always in the base currency
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($transaction->paymentAmount, $transaction->paymentCurrency, $transaction->currency);
+            $transaction->amount = Currency::round($amount, $currency);
 
             // Capture historical rate
             $transaction->paymentRate = $paymentCurrency->rate;

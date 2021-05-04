@@ -134,8 +134,10 @@
 
   .customer-photo-wrapper {
     height: 30px;
+    min-height: 30px;
     position: relative;
     width: 30px;
+    min-width: 30px;
 
     .status {
       border: 2px solid #fff;

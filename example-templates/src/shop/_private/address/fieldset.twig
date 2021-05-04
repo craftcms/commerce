@@ -15,13 +15,9 @@
                                    data-model-name="{{ name }}"/>
                             {{ include('[[folderName]]/_private/address/address') }}
                         </div>
-                        <div class="actions">
-                            <ul>
-                                <li>
-                                    <a class="[[classes.btn.small]] [[classes.btn.grayColor]]"
-                                       href="{{ url('/[[folderName]]/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
-                                </li>
-                            </ul>
+                        <div>
+                            <a class="[[classes.btn.small]] [[classes.btn.grayColor]]"
+                               href="{{ url('/[[folderName]]/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
                         </div>
                     </label>
                 </div>
