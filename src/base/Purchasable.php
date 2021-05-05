@@ -42,11 +42,13 @@ abstract class Purchasable extends Element implements PurchasableInterface
 {
     /**
      * @var float|null
+     * @note Added by Codelight
      */
     protected $_salePrice;
 
     /**
      * @var Sale[]|null
+     * @note Added by Codelight
      */
     protected $_sales;
 
