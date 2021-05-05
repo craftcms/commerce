@@ -754,11 +754,6 @@ class Variant extends Purchasable
      */
     public function hasStock(): bool
     {
-        /**
-         * @note Added by Codelight
-         */
-        return true;
-
         return $this->stock > 0 || $this->hasUnlimitedStock;
     }
 
