@@ -732,6 +732,26 @@ class Variant extends Purchasable
     }
 
     /**
+     * @param float $test
+     * @return void
+     * @note Added by Codelight
+     */
+    public function setHasNotLimitedStock()
+    {
+        $this->_hasNotLimitedStock = true;
+    }
+
+    /**
+     * @param float $test
+     * @return void
+     * @note Added by Codelight
+     */
+    public function getHasNotLimitedStock()
+    {
+        return $this->_hasNotLimitedStock;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getTaxCategoryId(): int

@@ -52,6 +52,11 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     protected $_sales;
 
+    /**
+     * @note Added by Codelight
+     */
+    protected $_hasNotLimitedStock;
+
 
     /**
      * @inheritdoc
