@@ -37,7 +37,10 @@ class EmailPreviewController extends Controller
 
         $emailId = Craft::$app->getRequest()->getParam('emailId');
         $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
+
+        // TODO Remove `orderNumber` param in 4.0
         $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
+        $orderNumber = Craft::$app->getRequest()->getParam('number', $orderNumber);
 
         $view = Craft::$app->getView();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);

@@ -197,7 +197,7 @@
 
         {{ forms.editableTableField({
             label: "Site Settings"|t('app'),
-            instructions: "Configure the product types’s site-specific settings."|t('app'),
+            instructions: "Configure the product types’s site-specific settings."|t('commerce'),
             id: 'sites',
             name: 'sites',
             cols: {
@@ -208,15 +208,15 @@
                 },
                 uriFormat: {
                     type: 'singleline',
-                    heading: "Product URI Format"|t('app'),
-                    info: "What product URIs should look like for the site."|t('app'),
-                    placeholder: "Leave blank if products don’t have URLs"|t('app'),
+                    heading: "Product URI Format"|t('commerce'),
+                    info: "What product URIs should look like for the site."|t('commerce'),
+                    placeholder: "Leave blank if products don’t have URLs"|t('commerce'),
                     code: true
                 },
                 template: {
                     type: 'template',
                     heading: "Template"|t('app'),
-                    info: "Which template should be loaded when an entry’s URL is requested."|t('app'),
+                    info: "Which template should be loaded when a product’s URL is requested."|t('commerce'),
                     code: true
                 },
             },

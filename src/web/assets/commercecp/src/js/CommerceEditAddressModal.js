@@ -205,7 +205,6 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'custom4': this.$form.find('input[name=' + this.id + 'custom4]').val()
             };
 
-            console.log(this.address);
             var self = this;
             this.settings.onSubmit({'address': this.address}, $.proxy(function(errors) {
                 self.errors = errors;

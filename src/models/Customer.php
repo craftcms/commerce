@@ -60,6 +60,37 @@ class Customer extends Model
      */
     private $_user;
 
+    /**
+     * @return null|string
+     */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Customer');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'customer');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('commerce', 'Customers');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'customers');
+    }
 
     /**
      * Returns the email address of the customer as the string output.
