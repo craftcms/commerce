@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+##  3.3.1.1 - 2021-05-09
+
+### Fixed
+- Fixed a bug that caused the billing address to be overridden by the shipping address on order completion. ([#2128](https://github.com/craftcms/commerce/issues/2128))
+
 ## 3.3.1 - 2021-05-04
 
 ### Added
