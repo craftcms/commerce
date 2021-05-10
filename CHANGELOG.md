@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+
 ##  3.3.1.1 - 2021-05-09
 
 ### Fixed
