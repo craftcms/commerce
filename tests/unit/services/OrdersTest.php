@@ -85,7 +85,7 @@ class OrdersTest extends Unit
         self::assertIsArray($orders);
         self::assertCount(3, $orders);
         foreach ($orders as $order) {
-            self::assertTrue(in_array($order->id, [$this->fixtureData->getElement('completed-new')->id, $this->fixtureData->getElement('completed-shipped')->id]));
+            self::assertContains($order->id, [$this->fixtureData->getElement('completed-new')->id, $this->fixtureData->getElement('completed-new-past')->id, $this->fixtureData->getElement('completed-shipped')->id]);
         }
     }
 
