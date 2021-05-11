@@ -763,9 +763,9 @@ class Customers extends Component
             $originalShippingAddress->id = null;
             if ($addressesService->saveAddress($originalShippingAddress, false)) {
                 $mutated = true;
-                $order->setBillingAddress($originalShippingAddress);
+                $order->setShippingAddress($originalShippingAddress);
             } else {
-                Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
+                Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
