@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where charts weren’t displaying the correct dates. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+
 ##  3.3.1.1 - 2021-05-09
 
 ### Fixed

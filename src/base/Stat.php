@@ -13,6 +13,7 @@ use craft\db\Query;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use craft\i18n\Locale;
+use DateTime;
 use yii\base\Exception;
 use yii\db\Expression;
 
@@ -29,9 +30,9 @@ abstract class Stat implements StatInterface
     /**
      * Stat constructor.
      *
-     * @param string $dateRange
-     * @param null $startDate
-     * @param null $endDate
+     * @param string|null $dateRange
+     * @param DateTime|null $startDate
+     * @param DateTime|null $endDate
      * @throws \Exception
      */
     public function __construct(string $dateRange = null, $startDate = null, $endDate = null)
@@ -113,7 +114,7 @@ abstract class Stat implements StatInterface
     public function setEndDate($date)
     {
         if (!$date) {
-            $this->_endDate = new \DateTime();
+            $this->_endDate = new DateTime();
         } else {
             $this->_endDate = $date;
         }
@@ -233,7 +234,7 @@ abstract class Stat implements StatInterface
      * Based on the date range return the start date.
      *
      * @param string $dateRange
-     * @return bool|\DateTime|false
+     * @return bool|DateTime|false
      * @throws \Exception
      */
     private function _getStartDate(string $dateRange)
@@ -242,7 +243,7 @@ abstract class Stat implements StatInterface
             return false;
         }
 
-        $date = new \DateTime();
+        $date = new DateTime();
         switch ($dateRange) {
             case self::DATE_RANGE_ALL:
             {
@@ -293,7 +294,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @return \DateTime|false
+     * @return DateTime|false
      * @throws \Exception
      */
     private function _getFirstCompletedOrderDate()
@@ -305,14 +306,14 @@ abstract class Stat implements StatInterface
             ->orderBy('dateOrdered ASC')
             ->scalar();
 
-        return $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new \DateTime();
+        return $firstCompletedOrder ? DateTimeHelper::toDateTime($firstCompletedOrder) : new DateTime();
     }
 
     /**
      * Based on the date range return the end date.
      *
      * @param string $dateRange
-     * @return bool|\DateTime|false
+     * @return bool|DateTime|false
      * @throws \Exception
      */
     private function _getEndDate(string $dateRange)
@@ -321,7 +322,7 @@ abstract class Stat implements StatInterface
             return false;
         }
 
-        $date = new \DateTime();
+        $date = new DateTime();
         switch ($dateRange) {
             case self::DATE_RANGE_THISMONTH:
             {
@@ -371,28 +372,34 @@ abstract class Stat implements StatInterface
      */
     public function getChartQueryOptionsByInterval(string $interval)
     {
+        $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
+
+        if (Craft::$app->getDb()->getIsPgsql()) {
+            $timezoneConversionSql = "(([[dateOrdered]] AT TIME ZONE 'UTC') AT TIME ZONE '" . Craft::$app->getTimeZone() . "')";
+        }
+
         switch ($interval) {
             case 'month':
             {
+                $sqlExpression = "CONCAT(EXTRACT(YEAR FROM " . $timezoneConversionSql . "), '-', EXTRACT(MONTH FROM " . $timezoneConversionSql . "))";
                 return [
                     'interval' => 'P1M',
                     'dateKeyFormat' => 'Y-n',
-                    'dateKey' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]]))',
-                    'groupBy' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]]))',
-                    'orderBy' => 'CONCAT(EXTRACT(YEAR FROM [[dateOrdered]]), \'-\', EXTRACT(MONTH FROM [[dateOrdered]])) ASC',
+                    'dateKey' => $sqlExpression,
+                    'groupBy' => $sqlExpression,
+                    'orderBy' => $sqlExpression . ' ASC',
                 ];
-                break;
             }
             case 'day':
             {
+                $sqlExpression = "DATE(" . $timezoneConversionSql . ")";
                 return [
                     'interval' => 'P1D',
                     'dateKeyFormat' => 'Y-m-d',
-                    'dateKey' => 'DATE([[dateOrdered]])',
-                    'groupBy' => 'DATE([[dateOrdered]])',
-                    'orderBy' => 'DATE([[dateOrdered]])',
+                    'dateKey' => $sqlExpression,
+                    'groupBy' => $sqlExpression,
+                    'orderBy' => $sqlExpression,
                 ];
-                break;
             }
         }
 
@@ -419,6 +426,12 @@ abstract class Stat implements StatInterface
      */
     protected function _createStatQuery()
     {
+        // Make sure the end time is always the last point on that day.
+        // @TODO adjust this when stats can deal with time and not just whole days
+        if ($this->_endDate instanceof DateTime) {
+            $this->_endDate->setTime(23, 59, 59);
+        }
+
         return (new Query)
             ->from(Table::ORDERS . ' orders')
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
@@ -448,7 +461,7 @@ abstract class Stat implements StatInterface
             return null;
         }
 
-        $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('U'));
+        $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('Y-m-d'), true);
         $endDate = $this->getEndDate();
         while ($dateKeyDate <= $endDate) {
             $key = $dateKeyDate->format($options['dateKeyFormat']);
