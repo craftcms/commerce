@@ -55,6 +55,8 @@ class TotalRevenueTest extends Unit
 
         $todaysStats = array_pop($data);
         $this->tester->assertArrayHasKey('count', $todaysStats);
+        $this->tester->assertArrayHasKey('revenue', $todaysStats);
+        $this->tester->assertArrayHasKey('datekey', $todaysStats);
         $this->tester->assertEquals($count, $todaysStats['count']);
     }
 
