@@ -46,7 +46,7 @@ class TotalRevenueTest extends Unit
      * @param DateTime $endDate
      * @param int $count
      */
-    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count): void
+    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count, $revenue): void
     {
         $stat = new TotalRevenue($dateRange, $startDate, $endDate);
         $data = $stat->get();
@@ -58,6 +58,7 @@ class TotalRevenueTest extends Unit
         $this->tester->assertArrayHasKey('revenue', $todaysStats);
         $this->tester->assertArrayHasKey('datekey', $todaysStats);
         $this->tester->assertEquals($count, $todaysStats['count']);
+        $this->tester->assertEquals($revenue, $todaysStats['revenue']);
     }
 
     /**
@@ -71,6 +72,7 @@ class TotalRevenueTest extends Unit
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
+                83.96,
             ],
         ];
     }
