@@ -17,6 +17,7 @@
 
 ### Changed
 - Order condition formulas now include serialized custom field values. ([#2066](https://github.com/craftcms/commerce/issues/2066))
+- Replaced `date` to `datetime` filter of `orderHistory.dateCreated` attribute in status history tab in order edit page.
 
 ### Fixed
 - Fixed a PHP error that occurred when changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
