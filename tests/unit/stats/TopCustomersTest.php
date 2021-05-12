@@ -28,11 +28,6 @@ class TopCustomersTest extends Unit
     protected $tester;
 
     /**
-     * @var OrdersFixture
-     */
-    protected $fixtureData;
-
-    /**
      * @return array
      */
     public function _fixtures(): array
