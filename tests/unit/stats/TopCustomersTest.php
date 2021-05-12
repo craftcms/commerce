@@ -43,9 +43,11 @@ class TopCustomersTest extends Unit
      * @dataProvider getDataDataProvider
      *
      * @param string $dateRange
+     * @param string $type
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param mixed $count
+     * @param $customerData
      */
     public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, $count, $customerData): void
     {
