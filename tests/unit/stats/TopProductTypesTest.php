@@ -59,16 +59,16 @@ class TopProductTypesTest extends Unit
         self::assertCount($count, $data);
 
         if ($count !== 0) {
-            $topProduct = array_shift($data);
+            $topProductType = array_shift($data);
 
             $testKeys = ['id', 'name', 'qty', 'revenue', 'productType'];
             foreach ($testKeys as $testKey) {
-                self::assertArrayHasKey($testKey, $topProduct);
+                self::assertArrayHasKey($testKey, $topProductType);
 
                 if ($testKey === 'productType') {
-                    self::assertInstanceOf(ProductType::class, $topProduct[$testKey]);
+                    self::assertInstanceOf(ProductType::class, $topProductType[$testKey]);
                 } else {
-                    self::assertEquals($productTypeData[$testKey], $topProduct[$testKey]);
+                    self::assertEquals($productTypeData[$testKey], $topProductType[$testKey]);
                 }
             }
         }
