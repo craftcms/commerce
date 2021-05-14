@@ -67,7 +67,7 @@ class OrdersTest extends Unit
 
     public function testGetOrderByNumber()
     {
-        $order = $this->service->getOrderByNumber($this->fixtureData->getELement('completed-new')->number);
+        $order = $this->service->getOrderByNumber($this->fixtureData->getElement('completed-new')->number);
 
         self::assertInstanceOf(Order::class, $order);
         self::assertEquals($this->fixtureData->getElement('completed-new')->number, $order->number);
@@ -80,7 +80,7 @@ class OrdersTest extends Unit
 
     public function testGetOrdersByCustomer()
     {
-        $orders = $this->service->getOrdersByCustomer($this->fixtureData->getELement('completed-new')->customerId);
+        $orders = $this->service->getOrdersByCustomer($this->fixtureData->getElement('completed-new')->customerId);
 
         self::assertIsArray($orders);
         self::assertCount(3, $orders);
