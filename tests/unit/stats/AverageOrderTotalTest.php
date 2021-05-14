@@ -52,11 +52,11 @@ class AverageOrderTotalTest extends Unit
         $data = $stat->get();
 
         if ($average === null) {
-            $this->tester->assertEquals($average, $data);
+            self::assertEquals($average, $data);
         } else {
-            $this->tester->assertIsNumeric($data);
+            self::assertIsNumeric($data);
         }
-        $this->tester->assertEquals($average, $data);
+        self::assertEquals($average, $data);
     }
 
     /**

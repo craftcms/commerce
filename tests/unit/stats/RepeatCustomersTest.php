@@ -51,10 +51,10 @@ class RepeatCustomersTest extends Unit
         $stat = new RepeatCustomers($dateRange, $startDate, $endDate);
         $data = $stat->get();
 
-        $this->tester->assertIsArray($data);
-        $this->tester->assertEquals($total, $data['total']);
-        $this->tester->assertEquals($repeat, $data['repeat']);
-        $this->tester->assertEquals($percentage, $data['percentage']);
+        self::assertIsArray($data);
+        self::assertEquals($total, $data['total']);
+        self::assertEquals($repeat, $data['repeat']);
+        self::assertEquals($percentage, $data['percentage']);
     }
 
     /**

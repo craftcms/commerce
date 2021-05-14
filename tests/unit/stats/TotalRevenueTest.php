@@ -51,14 +51,14 @@ class TotalRevenueTest extends Unit
         $stat = new TotalRevenue($dateRange, $startDate, $endDate);
         $data = $stat->get();
 
-        $this->tester->assertIsArray($data);
+        self::assertIsArray($data);
 
         $todaysStats = array_pop($data);
-        $this->tester->assertArrayHasKey('count', $todaysStats);
-        $this->tester->assertArrayHasKey('revenue', $todaysStats);
-        $this->tester->assertArrayHasKey('datekey', $todaysStats);
-        $this->tester->assertEquals($count, $todaysStats['count']);
-        $this->tester->assertEquals($revenue, $todaysStats['revenue']);
+        self::assertArrayHasKey('count', $todaysStats);
+        self::assertArrayHasKey('revenue', $todaysStats);
+        self::assertArrayHasKey('datekey', $todaysStats);
+        self::assertEquals($count, $todaysStats['count']);
+        self::assertEquals($revenue, $todaysStats['revenue']);
     }
 
     /**

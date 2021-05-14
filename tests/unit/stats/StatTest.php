@@ -50,9 +50,9 @@ class StatTest extends Unit
 
         $data = $stat->get();
 
-        $this->tester->assertArrayHasKey($startDate->format('Y-m-d'), $data);
-        $this->tester->assertArrayHasKey($endDate->format('Y-m-d'), $data);
-        $this->tester->assertCount(2, $data);
+        self::assertArrayHasKey($startDate->format('Y-m-d'), $data);
+        self::assertArrayHasKey($endDate->format('Y-m-d'), $data);
+        self::assertCount(2, $data);
     }
 
     /**
@@ -71,7 +71,7 @@ class StatTest extends Unit
         $data = $stat->get();
 
         while ($startDate <= $endDate) {
-            $this->tester->assertArrayHasKey($startDate->format($format), $data);
+            self::assertArrayHasKey($startDate->format($format), $data);
 
             if ($keyedByDays) {
                 $startDate->add(new \DateInterval('P1D'));
@@ -80,7 +80,7 @@ class StatTest extends Unit
             }
         }
 
-        $this->tester->assertCount($keysCount, $data);
+        self::assertCount($keysCount, $data);
     }
 
     /**

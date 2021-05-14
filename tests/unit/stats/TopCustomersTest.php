@@ -54,20 +54,20 @@ class TopCustomersTest extends Unit
         $stat = new TopCustomers($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
 
-        $this->tester->assertIsArray($data);
-        $this->tester->assertCount($count, $data);
+        self::assertIsArray($data);
+        self::assertCount($count, $data);
 
         if ($count !== 0) {
             $topCustomer = array_shift($data);
 
             $testKeys = ['total', 'average', 'customerId', 'email', 'count', 'customer'];
             foreach ($testKeys as $testKey) {
-                $this->tester->assertArrayHasKey($testKey, $topCustomer);
+                self::assertArrayHasKey($testKey, $topCustomer);
 
                 if ($testKey === 'customer') {
-                    $this->tester->assertInstanceOf(Customer::class, $topCustomer[$testKey]);
+                    self::assertInstanceOf(Customer::class, $topCustomer[$testKey]);
                 } else {
-                    $this->tester->assertEquals($customerData[$testKey], $topCustomer[$testKey]);
+                    self::assertEquals($customerData[$testKey], $topCustomer[$testKey]);
                 }
             }
         }

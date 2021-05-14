@@ -54,20 +54,20 @@ class TopProductsTest extends Unit
         $stat = new TopProducts($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
 
-        $this->tester->assertIsArray($data);
-        $this->tester->assertCount($count, $data);
+        self::assertIsArray($data);
+        self::assertCount($count, $data);
 
         if ($count !== 0) {
             $topProduct = array_shift($data);
 
             $testKeys = ['id', 'title', 'qty', 'revenue', 'product'];
             foreach ($testKeys as $testKey) {
-                $this->tester->assertArrayHasKey($testKey, $topProduct);
+                self::assertArrayHasKey($testKey, $topProduct);
 
                 if ($testKey === 'product') {
-                    $this->tester->assertInstanceOf(Product::class, $topProduct[$testKey]);
+                    self::assertInstanceOf(Product::class, $topProduct[$testKey]);
                 } else {
-                    $this->tester->assertEquals($productData[$testKey], $topProduct[$testKey]);
+                    self::assertEquals($productData[$testKey], $topProduct[$testKey]);
                 }
             }
         }

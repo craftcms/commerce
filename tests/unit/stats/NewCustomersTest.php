@@ -51,8 +51,8 @@ class NewCustomersTest extends Unit
         $stat = new NewCustomers($dateRange, $startDate, $endDate);
         $data = $stat->get();
 
-        $this->tester->assertIsNumeric($data);
-        $this->tester->assertEquals($count, $data);
+        self::assertIsNumeric($data);
+        self::assertEquals($count, $data);
     }
 
     /**
