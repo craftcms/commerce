@@ -81,7 +81,7 @@ class TopProductsTest extends Unit
         return [
             [
                 TopProducts::DATE_RANGE_TODAY,
-                'total',
+                'revenue',
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
@@ -94,7 +94,7 @@ class TopProductsTest extends Unit
             ],
             [
                 TopProducts::DATE_RANGE_CUSTOM,
-                'total',
+                'revenue',
                 (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
