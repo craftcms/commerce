@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+
 ##  3.3.1.1 - 2021-05-09
 
 ### Fixed
@@ -14,6 +17,7 @@
 
 ### Changed
 - Order condition formulas now include serialized custom field values. ([#2066](https://github.com/craftcms/commerce/issues/2066))
+- Replaced `date` to `datetime` filter of `orderHistory.dateCreated` attribute in status history tab in order edit page.
 
 ### Fixed
 - Fixed a PHP error that occurred when changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
