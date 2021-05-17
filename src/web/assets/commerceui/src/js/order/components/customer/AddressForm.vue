@@ -242,21 +242,39 @@
         },
 
         methods: {
+            countryHasStates(countryId) {
+                return (Object.keys(this.states).indexOf(countryId) !== -1);
+            },
+
             handleCountryChange(option) {
+                const previousCountryId = this.address.countryId;
                 this.countrySelect = option;
                 this.address.countryId = this.countrySelect.id;
+
                 this.$emit('countryUpdate', this.countrySelect);
 
-                if (!this.hasStates) {
-                    this.address.stateName = null;
+                if (this.address.countryId != previousCountryId
+                    &&
+                    (
+                        this.countryHasStates(this.address.countryId)
+                        ||
+                        (!this.countryHasStates(this.address.countryId) && this.countryHasStates(previousCountryId))
+                    )
+                ) {
                     this.address.stateValue = null;
+                    this.address.stateId = null;
+                    this.address.stateName = null;
+                    this.$emit('stateUpdate', null);
                 }
+
                 this.validate(this.address);
             },
 
             handleStateChange(option) {
                 this.stateSelect = option;
                 this.address.stateName = null;
+                this.address.stateId = null;
+                this.address.stateText = null;
                 this.address.stateValue = this.stateSelect.id;
                 this.$emit('stateUpdate', this.stateSelect);
                 this.validate(this.address);
@@ -287,6 +305,7 @@
             },
 
             validate(address) {
+                this.$emit('updateValidating', true);
                 this.$store.dispatch('validateAddress', address).then((data) => {
                     if (!data.success && data.errors) {
                         this.errors = data.errors;
@@ -296,6 +315,7 @@
                         this.$emit('errors', false);
                         this.$emit('update', this.address);
                     }
+                    this.$emit('updateValidating', false);
                 });
             },
 
@@ -342,7 +362,7 @@
             },
 
             hasStates() {
-                return (this.country && Object.keys(this.states).indexOf(this.country.id) !== -1)
+                return (this.country && Object.keys(this.states).indexOf(this.country.id) !== -1);
             },
         },
 
