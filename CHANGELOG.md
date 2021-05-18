@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased 3.3.2
+## 3.3.2 - 2021-05-18
 
 ### Added
 - It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
@@ -14,7 +14,7 @@
 - Fixed a bug where charts weren’t always displaying the correct data for the date range. ([#2117](https://github.com/craftcms/commerce/issues/2117))
 - Fixed a bug where changes to the state of an address on the Edit Order page weren’t persisting. ([#2136](https://github.com/craftcms/commerce/issues/2136))
 
-##  3.3.1.1 - 2021-05-09
+## 3.3.1.1 - 2021-05-09
 
 ### Fixed
 - Fixed a bug that caused the billing address to be overridden by the shipping address on order completion. ([#2128](https://github.com/craftcms/commerce/issues/2128))
