@@ -226,6 +226,7 @@
 
   {# Hidden fields #}
   <input type="hidden" name="id" value="{{ address.id }}">
+  <input type="hidden" name="customerId" value="{{ customer ? customer.id|hash : null }}">
   <input type="hidden" name="action" value="commerce/addresses/save">
   {% if redirect %}
     {{ redirectInput(redirect) }}
