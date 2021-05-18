@@ -1,17 +1,16 @@
 # Release Notes for Craft Commerce
 
-##  3.3.2
+## Unreleased 3.3.2
 
 ### Added
 - It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
-- Current customer search Ajax requests are now cancelled before sending new ones on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
 - Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE`.
 - Added `craft\commerce\services\Purchasables::isPurchasableShippable()`.
 
 ### Fixed
-- Fixed a user feedback delay when searching for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
-- Fixed a PHP 8 compatibility bug where submitting blank line item quantity on the Order edit page. ([#2125](https://github.com/craftcms/commerce/issues/2125))
-- Fixed a bug where charts weren’t displaying data for the correct dates. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+- Customer search Ajax requests are now cancelled before sending new ones on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+- Fixed a PHP 8 compatibility error when submitting blank line item quantity on the Order edit page. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+- Fixed a bug where charts weren’t displaying the correct data for the date range. ([#2117](https://github.com/craftcms/commerce/issues/2117))
 - Fixed a bug where updating the state of an address on the Order edit page wouldn’t persist. ([#2136](https://github.com/craftcms/commerce/issues/2136))
 
 ##  3.3.1.1 - 2021-05-09
