@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
+
 ### Fixed
 - Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
 
