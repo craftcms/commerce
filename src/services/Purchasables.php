@@ -12,9 +12,11 @@ use craft\base\ElementInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
 use craft\commerce\events\PurchasableAvailableEvent;
+use yii\base\BaseObject;
 use yii\base\Component;
 
 /**
@@ -49,6 +51,29 @@ class Purchasables extends Component
      * ```
      */
     const EVENT_PURCHASABLE_AVAILABLE = 'purchasableAvailable';
+
+    /**
+     * @event PurchasableShippableEvent The event that is triggered when determining whether a purchasable may be shipped.
+     *
+     * This example prevents the purchasable from being shippable in a specific user group's orders:
+     *
+     * ```php
+     * use craft\commerce\events\PurchasableShippableEvent;
+     * use craft\commerce\services\Purchasables;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Purchasables::class,
+     *     Purchasables::EVENT_PURCHASABLE_SHIPPABLE,
+     *     function(PurchasableShippableEvent $event) {
+     *         if($order && $user = $order->getUser()){
+     *             $event->isShippable = $event->is && !$user->isInGroup(1);
+     *         }
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_PURCHASABLE_SHIPPABLE = 'purchasableShippable';
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for registration of additional purchasables.
@@ -92,7 +117,27 @@ class Purchasables extends Component
     }
 
     /**
-     * Delete a purhasable by its ID.
+     * @param PurchasableInterface $purchasable
+     * @param Order|null $order
+     * @param User|null $currentUser
+     * @return bool
+     * @since 3.3.2
+     */
+    public function isPurchasableShippable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
+    {
+        if ($currentUser === null) {
+            $currentUser = Craft::$app->getUser()->getIdentity();
+        }
+        $isShippable = $purchasable->getIsShippable();
+
+        $event = new PurchasableShippableEvent(compact('order', 'purchasable', 'currentUser', 'isShippable'));
+        $this->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+
+        return $event->isShippable;
+    }
+
+    /**
+     * Delete a purchasable by its ID.
      *
      * @param int $purchasableId
      * @return bool
