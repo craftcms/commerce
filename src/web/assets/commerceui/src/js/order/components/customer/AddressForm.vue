@@ -95,7 +95,7 @@
         </div>
         <div class="w-1/2 px-1">
             <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
-                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
+                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateValue" @input="update($event, self())"  v-if="!hasStates"/>
                 <select-input
                     ref="vSelect"
                     label="name"
