@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased 3.3.2
+## 3.3.2 - 2021-05-18
 
 ### Added
 - It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
