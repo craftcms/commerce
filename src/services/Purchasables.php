@@ -55,7 +55,7 @@ class Purchasables extends Component
     /**
      * @event PurchasableShippableEvent The event that is triggered when determining whether a purchasable may be shipped.
      *
-     * This example stop users of a certain group from having the purchasable be shippable to them in their order.
+     * This example prevents the purchasable from being shippable in a specific user group's orders:
      *
      * ```php
      * use craft\commerce\events\PurchasableShippableEvent;
@@ -67,7 +67,7 @@ class Purchasables extends Component
      *     Purchasables::EVENT_PURCHASABLE_SHIPPABLE,
      *     function(PurchasableShippableEvent $event) {
      *         if($order && $user = $order->getUser()){
-     *             $event->isShippable = $event->is && !$user->isInGroup(1); // Group ID 1 not allowed to have purchasable be shippable.
+     *             $event->isShippable = $event->is && !$user->isInGroup(1);
      *         }
      *     }
      * );
