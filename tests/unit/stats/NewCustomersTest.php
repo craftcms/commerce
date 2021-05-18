@@ -17,7 +17,7 @@ use UnitTester;
  * NewCustomersTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3.2
  */
 class NewCustomersTest extends Unit
 {

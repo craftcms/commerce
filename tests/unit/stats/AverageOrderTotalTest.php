@@ -17,7 +17,7 @@ use UnitTester;
  * AverageOrderTotalTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3.2
  */
 class AverageOrderTotalTest extends Unit
 {
