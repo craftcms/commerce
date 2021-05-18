@@ -22,18 +22,24 @@ export default {
         })
     },
 
-    customerSearch(query) {
+    customerSearch(options) {
         const data = {}
-
-        if (typeof query !== 'undefined') {
-            data.query = encodeURIComponent(query)
-        }
-
-        return axios.get(Craft.getActionUrl('commerce/orders/customer-search', data), {
+        const opts = Object.assign({query: null, cancelToken: null}, options);
+        let config = {
             headers: {
                 'X-CSRF-Token':  Craft.csrfTokenValue,
             }
-        })
+        }
+
+        if (typeof opts.cancelToken !== 'undefined' && opts.cancelToken) {
+            config['cancelToken'] = opts.cancelToken
+        }
+
+        if (typeof opts.query !== 'undefined' && opts.query) {
+            data.query = encodeURIComponent(opts.query)
+        }
+
+        return axios.get(Craft.getActionUrl('commerce/orders/customer-search', data), config)
     },
 
     sendEmail(emailTemplateId) {
