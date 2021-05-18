@@ -2,8 +2,15 @@
 
 ## Unreleased
 
+### Added
+- It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
+- There is now a longer wait between keystrokes when firing a search for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+- Previous requests are now cancelled when searching for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+
 ### Fixed
 - Fixed a bug where charts weren’t displaying the correct dates. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+- Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+- Fixed a bug where updating a state on an address on the Order edit page wouldn’t persist. ([#2136](https://github.com/craftcms/commerce/issues/2136))
 
 ##  3.3.1.1 - 2021-05-09
 
@@ -19,6 +26,7 @@
 
 ### Changed
 - Order condition formulas now include serialized custom field values. ([#2066](https://github.com/craftcms/commerce/issues/2066))
+- Replaced `date` to `datetime` filter of `orderHistory.dateCreated` attribute in status history tab in order edit page.
 
 ### Fixed
 - Fixed a PHP error that occurred when changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
