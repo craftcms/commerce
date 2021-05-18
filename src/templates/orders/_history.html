@@ -38,7 +38,7 @@
                                 {{ orderHistory.order.email }}
                             {% endif %}
                         </td>
-                        <td>{{ orderHistory.dateCreated|date }}</td>
+                        <td>{{ orderHistory.dateCreated|datetime }}</td>
                     </tr>
 
                         {% if orderHistory.message %}

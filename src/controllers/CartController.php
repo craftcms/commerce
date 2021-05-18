@@ -132,7 +132,7 @@ class CartController extends BaseFrontEndController
                 $purchasable['id'] = $purchasableId;
                 $purchasable['options'] = $options;
                 $purchasable['note'] = $note;
-                $purchasable['qty'] = $qty;
+                $purchasable['qty'] = (int) $qty;
 
                 $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
                 if (isset($purchasablesByKey[$key])) {
@@ -169,7 +169,7 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->qty = (int) $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
                     $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 

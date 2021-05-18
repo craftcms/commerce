@@ -751,7 +751,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        $isShippable = $this->getIsShippable();
+        $isShippable = $this->getIsShippable(); // Same as Plugin::getInstance()->getPurchasables()->isPurchasableShippable since this has no context
         return $isShippable && $this->getProduct()->freeShipping;
     }
 
