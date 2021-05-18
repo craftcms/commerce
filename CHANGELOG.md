@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+
 ### Added
 - It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
+- There is now a longer wait between keystrokes when firing a search for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+- Previous requests are now cancelled when searching for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+
 
 ### Fixed
 - Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
