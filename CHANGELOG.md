@@ -8,6 +8,7 @@
 - Previous requests are now cancelled when searching for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
 
 ### Fixed
+- Fixed a bug where charts weren’t displaying the correct dates. ([#2117](https://github.com/craftcms/commerce/issues/2117))
 - Fixed a bug where submitting a blank line item quantity throws "Unsupported operand types: int + string" error in PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
 - Fixed a bug where updating a state on an address on the Order edit page wouldn’t persist. ([#2136](https://github.com/craftcms/commerce/issues/2136))
 
