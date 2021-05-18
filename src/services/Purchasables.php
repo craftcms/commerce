@@ -67,7 +67,7 @@ class Purchasables extends Component
      *     Purchasables::EVENT_PURCHASABLE_SHIPPABLE,
      *     function(PurchasableShippableEvent $event) {
      *         if($order && $user = $order->getUser()){
-     *             $event->isShippable = $event->is && !$user->isInGroup(1); // Group ID 1 not allowed to have purchasable in the cart.
+     *             $event->isShippable = $event->is && !$user->isInGroup(1); // Group ID 1 not allowed to have purchasable be shippable.
      *         }
      *     }
      * );
