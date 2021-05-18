@@ -52,6 +52,7 @@
 
 <script>
     import {mapGetters, mapState} from 'vuex'
+    import axios from 'axios/index'
     import debounce from 'lodash.debounce'
     import SelectInput from '../../../base/components/SelectInput'
     import {validationMixin} from 'vuelidate'
@@ -74,6 +75,7 @@
 
         data() {
             return {
+                customerSearchRequest: null,
                 selectedCustomer: null,
                 newCustomerEmail: null,
             }
@@ -123,11 +125,22 @@
             },
 
             search: debounce((loading, search, vm) => {
-                vm.$store.dispatch('customerSearch', search)
+                if (vm.customerSearchRequest) {
+                    vm.customerSearchRequest.cancel();
+                }
+
+                vm.customerSearchRequest = axios.CancelToken.source();
+
+                vm.$store.dispatch('customerSearch', {query: search, cancelToken: vm.customerSearchRequest.token})
                     .then(() => {
                         loading(false)
-                    })
-            }, 350),
+                        vm.customerSearchRequest = null
+                    }).catch((err) => {
+                        if (!axios.isCancel(err)) {
+                            vm.$store.dispatch('displayError', err)
+                        }
+                });
+            }, 500),
 
             onChange() {
                 if (this.selectedCustomer && this.selectedCustomer.email) {
