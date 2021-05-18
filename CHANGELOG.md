@@ -11,7 +11,7 @@
 ### Fixed
 - Fixed a user feedback delay when searching for a customer on the Order edit page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
 - Fixed a PHP 8 compatibility bug where submitting blank line item quantity on the Order edit page. ([#2125](https://github.com/craftcms/commerce/issues/2125))
-- Fixed a bug where charts weren’t displaying data for the correct dates. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+- Fixed a bug where charts weren’t displaying the correct data for the date range. ([#2117](https://github.com/craftcms/commerce/issues/2117))
 - Fixed a bug where updating the state of an address on the Order edit page wouldn’t persist. ([#2136](https://github.com/craftcms/commerce/issues/2136))
 
 ##  3.3.1.1 - 2021-05-09
