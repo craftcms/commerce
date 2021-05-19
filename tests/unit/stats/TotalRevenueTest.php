@@ -45,6 +45,7 @@ class TotalRevenueTest extends Unit
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param int $count
+     * @param $revenue
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $count, $revenue): void
     {

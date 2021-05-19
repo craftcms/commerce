@@ -706,7 +706,6 @@ class Product extends Element
     }
 
     /**
-     *
      * @inheritDoc
      */
     protected function searchKeywords(string $attribute): string
