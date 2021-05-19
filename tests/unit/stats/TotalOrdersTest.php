@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\unit\stats;
 
+use Craft;
 use Codeception\Test\Unit;
 use craft\commerce\stats\TotalOrders;
 use craftcommercetests\fixtures\OrdersFixture;
