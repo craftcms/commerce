@@ -47,9 +47,9 @@ class TopProductsTest extends Unit
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param int $count
-     * @param array $productData
+     * @param $productDataFunction
      */
-    public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, array $productData): void
+    public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, $productDataFunction): void
     {
         $stat = new TopProducts($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
@@ -59,6 +59,7 @@ class TopProductsTest extends Unit
 
         if ($count !== 0) {
             $topProduct = array_shift($data);
+            $productData = $productDataFunction();
 
             $testKeys = ['id', 'title', 'qty', 'revenue', 'product'];
             foreach ($testKeys as $testKey) {
@@ -85,12 +86,16 @@ class TopProductsTest extends Unit
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
-                [
-                    'id' => 17,
-                    'title' => 'Hypercolor T-Shirt',
-                    'qty' => 4,
-                    'revenue' => 83.96,
-                ]
+                function() {
+                    $product = Product::find()->title('Hypercolor T-shirt')->one();
+
+                    return [
+                        'id' => $product->id,
+                        'title' => 'Hypercolor T-Shirt',
+                        'qty' => 4,
+                        'revenue' => 83.96,
+                    ];
+                }
             ],
             [
                 TopProducts::DATE_RANGE_CUSTOM,
@@ -98,7 +103,9 @@ class TopProductsTest extends Unit
                 (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                []
+                function() {
+                    return [];
+                }
             ],
         ];
     }
