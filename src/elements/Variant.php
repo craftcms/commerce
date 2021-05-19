@@ -725,7 +725,7 @@ class Variant extends Purchasable
      */
     public function getTaxCategoryId(): int
     {
-        return $this->getProduct()->taxCategoryId;
+        return $this->getProduct()->getTaxCategory()->id;
     }
 
     /**
@@ -733,7 +733,7 @@ class Variant extends Purchasable
      */
     public function getShippingCategoryId(): int
     {
-        return $this->getProduct()->shippingCategoryId;
+        return $this->getProduct()->getShippingCategory()->id;
     }
 
     /**
