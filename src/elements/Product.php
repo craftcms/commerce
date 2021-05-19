@@ -706,15 +706,16 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
+     *
+     * @inheritDoc
      */
-    public function getSearchKeywords(string $attribute): string
+    protected function searchKeywords(string $attribute): string
     {
         if ($attribute === 'sku') {
             return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
         }
 
-        return parent::getSearchKeywords($attribute);
+        return parent::searchKeywords($attribute);
     }
 
     /**
