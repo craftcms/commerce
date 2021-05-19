@@ -45,8 +45,9 @@ class TotalOrdersTest extends Unit
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param int $total
+     * @param int $daysDiff
      */
-    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $total): void
+    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $daysDiff): void
     {
         $stat = new TotalOrders($dateRange, $startDate, $endDate);
         $data = $stat->get();
@@ -58,13 +59,18 @@ class TotalOrdersTest extends Unit
         self::assertIsArray($data['chart']);
         self::assertArrayHasKey($startDate->format('Y-m-d'), $data['chart']);
         self::assertArrayHasKey($endDate->format('Y-m-d'), $data['chart']);
-        self::assertCount($endDate->diff($startDate)->days + 1, $data['chart']);
+        self::assertCount($daysDiff + 1, $data['chart']);
 
         $firstItem = array_shift($data['chart']);
         self::assertArrayHasKey('total', $firstItem);
         self::assertArrayHasKey('datekey', $firstItem);
         self::assertEquals($startDate->format('Y-m-d'), $firstItem['datekey']);
         self::assertEquals($total, $firstItem['total']);
+    }
+
+    protected function _before()
+    {
+        Craft::$app->setTimeZone('America/Los_Angeles');
     }
 
     /**
@@ -78,12 +84,18 @@ class TotalOrdersTest extends Unit
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
+                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
+                    ->diff((new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
+                    ->days
             ],
             [
                 TotalOrders::DATE_RANGE_CUSTOM,
                 (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
+                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
+                    ->diff((new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
+                    ->days
             ],
         ];
     }
