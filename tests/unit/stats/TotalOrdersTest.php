@@ -60,12 +60,13 @@ class TotalOrdersTest extends Unit
         self::assertIsArray($data['chart']);
         self::assertArrayHasKey($startDate->format('Y-m-d'), $data['chart']);
         self::assertArrayHasKey($endDate->format('Y-m-d'), $data['chart']);
-        self::assertCount($daysDiff + 1, $data['chart']);
 
         codecept_debug('date_default_timezone_get: '.date_default_timezone_get());
         codecept_debug("data['total']: ".$data['total']);
         codecept_debug('$daysDiff + 1: ' . ($daysDiff + 1));
         codecept_debug("count(data['chart']): ".count($data['chart']));
+
+        self::assertCount($daysDiff + 1, $data['chart']);
 
         $firstItem = array_shift($data['chart']);
         self::assertArrayHasKey('total', $firstItem);
