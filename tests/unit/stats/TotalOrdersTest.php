@@ -52,7 +52,7 @@ class TotalOrdersTest extends Unit
     {
         $stat = new TotalOrders($dateRange, $startDate, $endDate);
         $data = $stat->get();
-        codecept_debug('date_default_timezone_get: '.date_default_timezone_get());
+
         self::assertIsArray($data);
         self::assertArrayHasKey('total', $data);
         self::assertEquals($total, $data['total']);
@@ -62,6 +62,7 @@ class TotalOrdersTest extends Unit
         self::assertArrayHasKey($endDate->format('Y-m-d'), $data['chart']);
         self::assertCount($daysDiff + 1, $data['chart']);
 
+        codecept_debug('date_default_timezone_get: '.date_default_timezone_get());
         codecept_debug("data['total']: ".$data['total']);
         codecept_debug('$daysDiff + 1: ' . ($daysDiff + 1));
         codecept_debug("count(data['chart']): ".count($data['chart']));
