@@ -77,7 +77,7 @@ before_script:
 script:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
-    vendor/bin/codecept run unit,functional
+    vendor/bin/codecept -d run tests/unit/stats/TotalOrdersTest.php
   else
     mkdir -p build/logs
     vendor/bin/codecept run unit,functional --coverage-xml coverage.xml;
