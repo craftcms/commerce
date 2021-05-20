@@ -67,6 +67,7 @@ class TotalOrdersTest extends Unit
         codecept_debug("count(data['chart']): ".count($data['chart']));
         foreach ($data['chart'] as $outerArrayKey => $outerArrayValue) {
             codecept_debug('$outerArrayKey: '.($outerArrayKey === 0 ? (string)0 : $outerArrayKey));
+            codecept_debug('gettype($outerArrayKey): '.(gettype($outerArrayKey)));
             foreach ($outerArrayValue as $arrayKey => $arrayValue) {
                 codecept_debug('$arrayKey => $arrayValue: '.$arrayKey.' => '.(is_null($arrayValue) ? 'null' : $arrayValue));
             }
