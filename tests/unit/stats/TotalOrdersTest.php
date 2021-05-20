@@ -78,6 +78,13 @@ class TotalOrdersTest extends Unit
 
         codecept_debug('count($results): '.count($results));
 
+        foreach ($results as $num => $result) {
+            codecept_debug('row '.$num.': ');
+            foreach ($result as $column => $value) {
+                codecept_debug($column.': '.$value);
+            }
+        }
+
         self::assertCount($daysDiff + 1, $data['chart']);
 
         $firstItem = array_shift($data['chart']);
