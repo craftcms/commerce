@@ -72,6 +72,12 @@ class TotalOrdersTest extends Unit
             }
         }
 
+        $results = \Craft::$app->getDb()->createCommand(
+        'SELECT * FROM `commerce_orders` `orders` INNER JOIN `elements` `elements` ON `elements`.`id` = `orders`.`id` WHERE (`dateOrdered` >= \'2021-05-20 07:00:00\') AND (`dateOrdered` <= \'2021-05-21 06:59:59\') AND (`isCompleted`=1) AND (`elements`.`dateDeleted` IS NULL)'
+        )->queryAll();
+
+        codecept_debug('count($results): '.count($results));
+
         self::assertCount($daysDiff + 1, $data['chart']);
 
         $firstItem = array_shift($data['chart']);
