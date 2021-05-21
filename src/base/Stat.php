@@ -437,7 +437,7 @@ abstract class Stat implements StatInterface
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
             ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
-            ->andWhere(['isCompleted' => 1])
+            ->andWhere(['isCompleted' => true])
             ->andWhere(['elements.dateDeleted' => null]);
     }
 
