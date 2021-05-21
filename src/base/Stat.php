@@ -302,7 +302,7 @@ abstract class Stat implements StatInterface
         $firstCompletedOrder = (new Query())
             ->select(['dateOrdered'])
             ->from(Table::ORDERS)
-            ->where(['isCompleted' => 1])
+            ->where(['isCompleted' => true])
             ->orderBy('dateOrdered ASC')
             ->scalar();
 
