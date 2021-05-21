@@ -104,17 +104,18 @@ class SalesController extends BaseCpController
 
         // Shared attributes
         $request = Craft::$app->getRequest();
-        $sale->id = $request->getBodyParam('id');
-        $sale->name = $request->getBodyParam('name');
-        $sale->description = $request->getBodyParam('description');
-        $sale->apply = $request->getBodyParam('apply');
-        $sale->enabled = (bool)$request->getBodyParam('enabled');
-
+        
         if ($sale->id === null) {
             $this->requirePermission('commerce-createSales');
         } else {
             $this->requirePermission('commerce-editSales');
         }
+        
+        $sale->id = $request->getBodyParam('id');
+        $sale->name = $request->getBodyParam('name');
+        $sale->description = $request->getBodyParam('description');
+        $sale->apply = $request->getBodyParam('apply');
+        $sale->enabled = (bool)$request->getBodyParam('enabled');
 
         $dateFields = [
             'dateFrom',
