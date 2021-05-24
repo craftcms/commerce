@@ -226,6 +226,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteDiscounts');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
