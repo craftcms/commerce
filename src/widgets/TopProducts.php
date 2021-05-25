@@ -47,6 +47,16 @@ class TopProducts extends Widget
     public $type;
 
     /**
+     * @var array|null
+     */
+    public $revenueOptions = [
+        TopProductsStat::REVENUE_OPTION_DISCOUNT,
+        TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+        TopProductsStat::REVENUE_OPTION_TAX,
+        TopProductsStat::REVENUE_OPTION_SHIPPING,
+    ];
+
+    /**
      * @var TopProductsStat
      */
     private $_stat;
@@ -62,13 +72,47 @@ class TopProducts extends Widget
     private $_typeOptions;
 
     /**
+     * @var array
+     */
+    private $_revenueCheckboxOptions;
+
+    /**
      * @inheritDoc
      */
     public function init()
     {
+        parent::init();
+
         $this->_typeOptions = [
-            'qty' => Craft::t('commerce', 'Qty'),
-            'revenue' => Craft::t('commerce', 'Revenue'),
+            TopProductsStat::TYPE_QTY => Craft::t('commerce', 'Qty'),
+            TopProductsStat::TYPE_REVENUE => Craft::t('commerce', 'Revenue'),
+        ];
+
+        $this->_revenueCheckboxOptions = [
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_DISCOUNT,
+                'label' => Craft::t('commerce', 'Discount'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_DISCOUNT, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include line item discounts in product revenue calculation.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+                'label' => Craft::t('commerce', 'Tax (inc)'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX_INCLUDED, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include inclusive line item tax in product revenue calculation.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_TAX,
+                'label' => Craft::t('commerce', 'Tax'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include line item tax in product revenue calculation.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_SHIPPING,
+                'label' => Craft::t('commerce', 'Shipping'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_SHIPPING, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include line item shipping costs in product revenue calculation.'),
+            ],
         ];
 
         switch ($this->type) {
@@ -95,10 +139,9 @@ class TopProducts extends Widget
             $this->dateRange,
             $this->type,
             DateTimeHelper::toDateTime($this->startDate, true),
-            DateTimeHelper::toDateTime($this->endDate, true)
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->revenueOptions
         );
-
-        parent::init();
     }
 
     /**
@@ -173,6 +216,8 @@ class TopProducts extends Widget
             'namespaceId' => $namespaceId,
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
+            'revenueOptions' => $this->_revenueCheckboxOptions,
+            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE
         ]);
     }
 }

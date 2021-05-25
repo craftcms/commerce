@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Added
+- Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
+- Added `craft\commerce\stats\TopProducts::$revenueOptions`.
+- Added `craft\commerce\stats\TopProducts::getAdjustmentsSelect`.
+- Added `craft\commerce\stats\TopProducts::createAdjustmentsSubQuery`.
+- Added `craft\commerce\stats\TopProducts::getOrderBy`.
+- Added `craft\commerce\stats\TopProducts::getGroupBy`.
+- Added `craft\commerce\stats\TopProducts::TYPE_QTY`.
+- Added `craft\commerce\stats\TopProducts::TYPE_REVENUE`.
+- Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_DISCOUNT`.
+- Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_TAX`.
+- Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_TAX_INCLUDED`.
+- Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_SHIPPING`.
+
 ### Fixed
 - Fixed an bug where it was not possible to use the `DefineAttributeKeywordsEvent` event for Product SKU’s. ([#2142](https://github.com/craftcms/commerce/issues/2142))
 
