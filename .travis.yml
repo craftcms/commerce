@@ -62,7 +62,7 @@ before_script:
 - travis_retry mysql -e 'CREATE DATABASE `commercetest`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
 - mysql -e "SELECT CONVERT_TZ('2007-03-11 2:00:00','US/Eastern','US/Central') AS time1, CONVERT_TZ('2007-03-11 3:00:00','US/Eastern','US/Central') AS time2;";
-- mysql -e "	SELECT * FROM mysql.time_zone_name;";
+- mysql -e "SELECT * FROM mysql.time_zone_name;";
 - psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - cp tests/.env.example.$DB tests/.env
 - |
