@@ -82,8 +82,15 @@
 {% endif %}
 
 <hr>
+{% set newAddressParams = { customerId: customer.id } %}
+{% if addressRedirect is defined and addressRedirect %}
+    {% set newAddressParams = newAddressParams|merge({ redirect: addressRedirect }) %}
+{% endif %}
 <h2>{{ 'Addresses'|t('commerce') }}</h2>
-<div id="addresses-vue-admin-table"></div>
+<div class="commerce-tmp-address-table-wrapper">
+    <div id="addresses-vue-admin-table"></div>
+    <a href="{{ cpUrl('commerce/addresses/new', newAddressParams) }}" class="btn" data-icon="plus">{{ 'New address'|t('commerce') }}</a>
+</div>
 
 {% if currentUser.can('commerce-manageSubscriptions') %}
   <hr>
@@ -105,6 +112,17 @@
   <div id="subscriptions-vue-admin-table"></div>
 {% endif %}
 
+{% css %}
+    .commerce-tmp-address-table-wrapper {
+        position: relative;
+    }
+
+    .commerce-tmp-address-table-wrapper > a {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+{% endcss %}
 
 {% js %}
   var columns = [
@@ -213,6 +231,4 @@
       });
     }
   {% endif %}
-
-
 {% endjs %}

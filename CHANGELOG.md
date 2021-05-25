@@ -2,19 +2,45 @@
 
 ## Unreleased
 
-### Added
-- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
-- Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
-- Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+### Fixed
+- Fixed an bug where it was not possible to use the `DefineAttributeKeywordsEvent` event for Product SKU’s. ([#2142](https://github.com/craftcms/commerce/issues/2142))
 
-### Changed
-- Order condition forumlas now include serialized custom field values for use in formulas. ([#2066]https://github.com/craftcms/commerce/issues/2066))
+## 3.3.2 - 2021-05-18
+
+### Added
+- It’s now possible to create customer addresses right from the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
+- Added `craft\commerce\events\PurchasableShippableEvent`.
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE`.
+- Added `craft\commerce\services\Purchasables::isPurchasableShippable()`.
 
 ### Fixed
-- Fixed a PHP error that occurred when after changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
-- Fixed a PHP error that occurred when when using the `registerUserOnOrderComplete` parameter on the `commerce/cart/complete` action.
-- Fixed a bug where the address IDs appeared `null` in the `afterCompleteOrder` event when a registered user checked out as a guest.
-- Fixed a bug where payment source error message weren’t being returned correctly.
+- Customer search Ajax requests are now cancelled before sending new ones on the Edit Order page. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+- Fixed an error that occurred when submitting blank line item quantity on the Order edit page when running PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+- Fixed a bug where charts weren’t always displaying the correct data for the date range. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+- Fixed a bug where changes to the state of an address on the Edit Order page weren’t persisting. ([#2136](https://github.com/craftcms/commerce/issues/2136))
+
+## 3.3.1.1 - 2021-05-09
+
+### Fixed
+- Fixed a bug that caused the billing address to be overridden by the shipping address on order completion. ([#2128](https://github.com/craftcms/commerce/issues/2128))
+
+## 3.3.1 - 2021-05-04
+
+### Added
+- Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
+- Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
+
+### Changed
+- Order condition formulas now include serialized custom field values. ([#2066](https://github.com/craftcms/commerce/issues/2066))
+- Replaced `date` to `datetime` filter of `orderHistory.dateCreated` attribute in status history tab in order edit page.
+
+### Fixed
+- Fixed a PHP error that occurred when changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
+- Fixed a PHP error that occurred when passing the `registerUserOnOrderComplete` parameter to the `commerce/cart/complete` action.
+- Fixed a PHP error that occurred when attempting to retrieve an order notice that doesn’t exist. ([#2108](https://github.com/craftcms/commerce/issues/2108))
+- Fixed a bug where orders’ address IDs were `null` at the time `EVENT_AFTER_COMPLETE_ORDER` was triggered.
+- Fixed a bug where payment source error messages weren’t being returned correctly.
 
 ## 3.3.0.1 - 2021-04-26
 
@@ -54,7 +80,6 @@
 ### Fixed
 - Fixed a PHP 8 compatibility bug. ([#1987](https://github.com/craftcms/commerce/issues/1987))
 - Fixed an error that occurred when passing an unsupported payment currency to `craft\commerce\services\PaymentCurrencies::convert()`.
->>>>>>> develop
 
 ## 3.2.17.4 - 2021-04-06
 

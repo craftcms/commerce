@@ -13,12 +13,12 @@ use craft\elements\User;
 use yii\base\Event;
 
 /**
- * Class PurchasableAvailableEvent
+ * Class PurchasableShippableEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.3.1
+ * @since 3.3.2
  */
-class PurchasableAvailableEvent extends Event
+class PurchasableShippableEvent extends Event
 {
     /**
      * @var Order|null The order element.
@@ -36,7 +36,7 @@ class PurchasableAvailableEvent extends Event
     public $currentUser;
 
     /**
-     * @var bool Is this purchasable available to the order and current user. Default is: $event->purchasable->getIsAvailable()
+     * @var bool Is this purchasable shippable within the order and current user. Default is: $event->purchasable->getIsShippable()
      */
-    public $isAvailable;
+    public $isShippable;
 }

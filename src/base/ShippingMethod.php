@@ -10,6 +10,7 @@ namespace craft\commerce\base;
 use craft\commerce\base\Model as BaseModel;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
+use craft\commerce\Plugin;
 
 /**
  * Base ShippingMethod
@@ -148,7 +149,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -161,7 +162,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         $amount = $shippingRule->getBaseRate();
 
         foreach ($order->lineItems as $item) {
-            if ($item->purchasable && !$item->purchasable->hasFreeShipping() && $item->purchasable->getIsShippable()) {
+            if ($item->getPurchasable() && !$item->purchasable->hasFreeShipping() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable())) {
                 $percentageRate = $shippingRule->getPercentageRate($item->shippingCategoryId);
                 $perItemRate = $shippingRule->getPerItemRate($item->shippingCategoryId);
                 $weightRate = $shippingRule->getWeightRate($item->shippingCategoryId);

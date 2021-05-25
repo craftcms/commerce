@@ -1062,7 +1062,7 @@ class Order extends Element
     private $_customer;
 
     /**
-     * @var Money
+     * @var float
      * @see Order::setPaymentAmount() To set the order payment amount
      * @see Order::getPaymentAmount() To get the order payment amount
      * ---
