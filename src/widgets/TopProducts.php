@@ -93,25 +93,25 @@ class TopProducts extends Widget
                 'value' => TopProductsStat::REVENUE_OPTION_DISCOUNT,
                 'label' => Craft::t('commerce', 'Discount'),
                 'checked' => in_array(TopProductsStat::REVENUE_OPTION_DISCOUNT, $this->revenueOptions, true),
-                'instructions' => Craft::t('commerce', 'Include line item discounts in product revenue calculation.'),
+                'instructions' => Craft::t('commerce', 'Include line item discounts.'),
             ],
             [
                 'value' => TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
                 'label' => Craft::t('commerce', 'Tax (inc)'),
                 'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX_INCLUDED, $this->revenueOptions, true),
-                'instructions' => Craft::t('commerce', 'Include inclusive line item tax in product revenue calculation.'),
+                'instructions' => Craft::t('commerce', 'Include built-in line item tax.'),
             ],
             [
                 'value' => TopProductsStat::REVENUE_OPTION_TAX,
                 'label' => Craft::t('commerce', 'Tax'),
                 'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX, $this->revenueOptions, true),
-                'instructions' => Craft::t('commerce', 'Include line item tax in product revenue calculation.'),
+                'instructions' => Craft::t('commerce', 'Include separate line item tax.'),
             ],
             [
                 'value' => TopProductsStat::REVENUE_OPTION_SHIPPING,
                 'label' => Craft::t('commerce', 'Shipping'),
                 'checked' => in_array(TopProductsStat::REVENUE_OPTION_SHIPPING, $this->revenueOptions, true),
-                'instructions' => Craft::t('commerce', 'Include line item shipping costs in product revenue calculation.'),
+                'instructions' => Craft::t('commerce', 'Include line item shipping costs.'),
             ],
         ];
 
