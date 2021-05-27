@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where it was not possible to use the `DefineAttributeKeywordsEvent` event for Product SKU’s. ([#2142](https://github.com/craftcms/commerce/issues/2142))
+- Fixed a bug where submitting a payment gateway that is customer disabled can still be processed. ([#2150](https://github.com/craftcms/commerce/issues/2150))
 
 ## 3.3.2 - 2021-05-18
 
