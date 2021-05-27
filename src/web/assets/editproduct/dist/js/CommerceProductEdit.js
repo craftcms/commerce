@@ -1,6 +1,4 @@
-/** global: Craft */
-/** global: Garnish */
-/** global: $ */
+/* globals Craft, Garnish, $, Map */
 /**
  * Product Edit Class
  */
@@ -20,6 +18,7 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     discountIdsByVariantId: {},
     $container: null,
     $window: null,
+    $modals: new Map(),
 
     init: function(settings) {
         var _this = this;
@@ -101,6 +100,13 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     },
 
     createSalesModal: function(id, sales) {
+        if (this.$modals.has(id)) {
+            // Destroy the current modal just in case things have changed to keep things fresh.
+            var mdl = this.$modals.get(id);
+            mdl.destroy();
+            this.$modals.delete(id);
+        }
+
         var data = {
             existingSaleIds: [],
             onHide: $.proxy(this, 'resetSales')
@@ -114,6 +120,7 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
         }
 
         var salesModal = new Craft.Commerce.ProductSalesModal(sales, data);
+        this.$modals.set(id, salesModal);
     },
 
     populateSaleList: function(element) {
