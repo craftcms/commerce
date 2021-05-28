@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `url` field to the `ProductInterface` GraphQL type.
+- Added the ability to sort by SKU on the Products Index page. ([#2167](https://github.com/craftcms/commerce/issues/2167))
 
 ### Fixed
 - Fixed an error when validating a Product without a shipping category. ([#2138](https://github.com/craftcms/commerce/issues/2138))

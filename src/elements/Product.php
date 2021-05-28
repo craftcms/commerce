@@ -1205,6 +1205,7 @@ class Product extends Element
             ],
             'promotable' => Craft::t('commerce', 'Promotable?'),
             'defaultPrice' => Craft::t('commerce', 'Price'),
+            'defaultSku' => Craft::t('commerce', 'SKU'),
             [
                 'label' => Craft::t('app', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',
