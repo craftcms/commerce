@@ -38,6 +38,6 @@ class ProductTest extends Unit
 
         $product->validate();
 
-        self::assertCount(0, count($product->getErrors()));
+        self::assertCount(0, $product->getErrors());
     }
 }
