@@ -302,7 +302,7 @@ abstract class Stat implements StatInterface
         $firstCompletedOrder = (new Query())
             ->select(['dateOrdered'])
             ->from(Table::ORDERS)
-            ->where(['isCompleted' => 1])
+            ->where(['isCompleted' => true])
             ->orderBy('dateOrdered ASC')
             ->scalar();
 
@@ -372,9 +372,19 @@ abstract class Stat implements StatInterface
      */
     public function getChartQueryOptionsByInterval(string $interval)
     {
-        $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
+        if (Craft::$app->getDb()->getIsMysql()) {
+            // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
+            $timezoneConversionSql = "[[dateOrdered]]";
 
-        if (Craft::$app->getDb()->getIsPgsql()) {
+            // @TODO remove the method_exists() check at next breaking change release
+            if (method_exists(Db::class, 'validateDatabaseTimezoneSupport')) {
+                if (Db::validateDatabaseTimezoneSupport()) {
+                    $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
+                } else {
+                    Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', Craft::getLogger()::LEVEL_WARNING, 'commerce');
+                }
+            }
+        } else {
             $timezoneConversionSql = "(([[dateOrdered]] AT TIME ZONE 'UTC') AT TIME ZONE '" . Craft::$app->getTimeZone() . "')";
         }
 
@@ -437,7 +447,7 @@ abstract class Stat implements StatInterface
             ->innerJoin('{{%elements}} elements', '[[elements.id]] = [[orders.id]]')
             ->where(['>=', 'dateOrdered', Db::prepareDateForDb($this->_startDate)])
             ->andWhere(['<=', 'dateOrdered', Db::prepareDateForDb($this->_endDate)])
-            ->andWhere(['isCompleted' => 1])
+            ->andWhere(['isCompleted' => true])
             ->andWhere(['elements.dateDeleted' => null]);
     }
 

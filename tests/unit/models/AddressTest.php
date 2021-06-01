@@ -358,8 +358,8 @@ class AddressTest extends Unit
     public function validateBusinessTaxIdDataProvider(): array
     {
         return [
-            ['123', false, [], false], // Don't validate
-            ['123', true, ['businessTaxId' => ['Invalid Business Tax ID.']], true], // validate - invalid
+            ['1123', false, [], false], // Don't validate
+            ['1123', true, ['businessTaxId' => ['Invalid Business Tax ID.']], true], // validate - invalid
             ['GB000472631', false, [], true], // validate - valid
             ['exists', false, [], true], // validate - valid - already exists
         ];

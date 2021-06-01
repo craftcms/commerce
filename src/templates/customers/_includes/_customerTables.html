@@ -178,13 +178,6 @@
         deleteConfirmationMessage: Craft.t('commerece', 'Are you sure you want to delete this address?'),
         emptyMessage: Craft.t('commerce', 'No Addresses available.'),
         padded: true,
-        secondaryActions: [
-            {
-                label: Craft.t('commerce', 'New address'),
-                icon: 'plus',
-                href: 'commerce/addresses/new',
-            }
-        ],
         tableData: {{ tableData|json_encode|raw }}
     });
   {% endif %}
