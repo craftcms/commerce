@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.3.3 - 2021-06-01
 
 ### Added
 - Added the `productCount` and `variantCount` GraphQL queries. ([#1411](https://github.com/craftcms/commerce/issues/1411))
