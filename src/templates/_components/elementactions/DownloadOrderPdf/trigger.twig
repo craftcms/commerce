@@ -1,12 +1,33 @@
-{% if pdfs|length == 1 %}
-  <div class="btn formsubmit" data-param="pdfId" data-value="{{ pdfs|first.id }}">{{ 'Download PDF'|t('commerce') }}</div>
-{% else %}
-  <div class="btn menubtn">{{ 'Download PDF'|t('commerce') }}</div>
-  <div class="menu">
-    <ul>
-      {% for pdf in pdfs %}
-        <li><a class="formsubmit" data-param="pdfId" data-value="{{ pdf.id }}">{{ pdf.name|t('site') }}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
-{% endif %}
+{% import "_includes/forms" as forms %}
+
+<div class="flex">
+    <div>
+        {% if pdfs|length == 1 %}
+            {% set pdf = pdfs|first %}
+            <div class="btn formsubmit" data-param="pdfId"
+                 data-value="{{ pdf.id }}">{{ 'Download PDF'|t('commerce') }}</div>
+        {% else %}
+            <div class="btn menubtn">{{ 'Download PDF'|t('commerce') }}</div>
+            <div class="menu">
+                <ul>
+                    {% for pdf in pdfs %}
+                        <li><a class="formsubmit" data-param="pdfId" data-value="{{ pdf.id }}">
+                                {{ pdf.name|t('site') }} </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+    <div>
+        {{ forms.checkboxField({
+            label: 'Zip download?'|t('commerce'),
+            name: 'zip',
+            checked: false,
+            value: '1'
+        }) }}
+    </div>
+</div>
+{% js %}
+
+{% endjs %}
