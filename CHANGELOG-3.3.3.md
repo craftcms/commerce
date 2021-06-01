@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `url` field to the `ProductInterface` GraphQL type.
+- Added the `productCount` and `variantCount` queries for fetching the element counts to the GraphQL API. ([#1411](https://github.com/craftcms/commerce/issues/1411))
 - Added the ability to sort by SKU on the Products Index page. ([#2167](https://github.com/craftcms/commerce/issues/2167))
 
 ### Fixed
