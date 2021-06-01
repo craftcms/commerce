@@ -111,7 +111,10 @@ class Purchasables extends Component
         $isAvailable = $purchasable->getIsAvailable();
 
         $event = new PurchasableAvailableEvent(compact('order', 'purchasable', 'currentUser', 'isAvailable'));
-        $this->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+
+        if ($this->hasEventHandlers(self::EVENT_PURCHASABLE_AVAILABLE)) {
+            $this->trigger(self::EVENT_PURCHASABLE_AVAILABLE, $event);
+        }
 
         return $event->isAvailable;
     }
@@ -131,7 +134,10 @@ class Purchasables extends Component
         $isShippable = $purchasable->getIsShippable();
 
         $event = new PurchasableShippableEvent(compact('order', 'purchasable', 'currentUser', 'isShippable'));
-        $this->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+
+        if ($this->hasEventHandlers(self::EVENT_PURCHASABLE_SHIPPABLE)) {
+            $this->trigger(self::EVENT_PURCHASABLE_SHIPPABLE, $event);
+        }
 
         return $event->isShippable;
     }
