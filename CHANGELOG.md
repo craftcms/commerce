@@ -1,5 +1,20 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added the `productCount` and `variantCount` GraphQL queries. ([#1411](https://github.com/craftcms/commerce/issues/1411))
+
+### Changed
+- It’s now possible to sort products by their SKUs on product indexes. ([#2167](https://github.com/craftcms/commerce/issues/2167))
+- Products now have a `url` field when queried via GraphQL.
+
+### Fixed
+- Fixed a bug where it wasn’t possible to customize product search keywords via `EVENT_DEFINE_KEYWORDS`. ([#2142](https://github.com/craftcms/commerce/issues/2142))
+- Fixed a bug where the “Add Product to Sale” modal on Edit Product pages could be unresponsive when opened multiple times. ([#2146](https://github.com/craftcms/commerce/issues/2146))
+- Fixed an error that could occur if MySQL’s time zone tables weren’t populated yet. ([#2163](https://github.com/craftcms/commerce/issues/2163))
+- Fixed a PHP error that could occur when validating a product. ([#2138](https://github.com/craftcms/commerce/issues/2138))
+
 ## 3.3.2 - 2021-05-18
 
 ### Added
