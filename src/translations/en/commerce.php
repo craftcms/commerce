@@ -383,6 +383,7 @@ return [
     'Don’t apply any subsequent discounts to an order if this discount is applied' => 'Don’t apply any subsequent discounts to an order if this discount is applied',
     'Don’t apply this tax when the address has a valid VAT ID' => 'Don’t apply this tax when the address has a valid VAT ID',
     'Download PDF' => 'Download PDF',
+    'Download as Zip file' => 'Download as Zip file',
     'Dummy gateway payment failed.' => 'Dummy gateway payment failed.',
     'Duplicate options exist' => 'Duplicate options exist',
     'Duration' => 'Duration',
