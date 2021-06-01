@@ -372,21 +372,20 @@ abstract class Stat implements StatInterface
      */
     public function getChartQueryOptionsByInterval(string $interval)
     {
-        // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
-        $timezoneConversionSql = "[[dateOrdered]]";
+        if (Craft::$app->getDb()->getIsMysql()) {
+            // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
+            $timezoneConversionSql = "[[dateOrdered]]";
 
-        // @TODO remove version compare at next breaking change release
-        if (version_compare(Craft::$app->getInfo()->version, '3.6.16', '>=') && method_exists(Db::class, 'validateDatabaseTimezoneSupport') && Db::validateDatabaseTimezoneSupport()) {
-            $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
-        }
-
-        // @TODO remove version compare at next breaking change release
-        if (version_compare(Craft::$app->getInfo()->version, '3.6.16', '>=') && method_exists(Db::class, 'validateDatabaseTimezoneSupport') && !Db::validateDatabaseTimezoneSupport()) {
-            // @TODO insert link to documentation information
-            Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. {link}', Craft::getLogger()::LEVEL_WARNING, 'commerce');
-        }
-
-        if (Craft::$app->getDb()->getIsPgsql()) {
+            // @TODO remove the method_exists() check  at next breaking change release
+            if (method_exists(Db::class, 'validateDatabaseTimezoneSupport')) {
+                if (Db::validateDatabaseTimezoneSupport()) {
+                    $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
+                } else {
+                    // @TODO insert link to documentation information
+                    Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. {link}', Craft::getLogger()::LEVEL_WARNING, 'commerce');
+                }
+            }
+        } else {
             $timezoneConversionSql = "(([[dateOrdered]] AT TIME ZONE 'UTC') AT TIME ZONE '" . Craft::$app->getTimeZone() . "')";
         }
 
