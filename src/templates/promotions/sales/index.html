@@ -23,8 +23,10 @@
 {% endblock %}
 
 {% block content %}
-  <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
-  <div id="sales-vue-admin-table"></div>
+    <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
+    <div id="sales-vue-admin-table"></div>
+
+    {% hook "cp.commerce.sales.index" %}
 {% endblock %}
 
 {% set tableData = [] %}
