@@ -16,7 +16,7 @@ use craft\commerce\Plugin;
  * ProductTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3.3
  */
 class ProductTest extends Unit
 {
@@ -38,6 +38,6 @@ class ProductTest extends Unit
 
         $product->validate();
 
-        self::assertCount(0, count($product->getErrors()));
+        self::assertCount(0, $product->getErrors());
     }
 }

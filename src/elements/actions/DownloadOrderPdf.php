@@ -15,7 +15,6 @@ use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\FileHelper;
 use craft\helpers\StringHelper;
-use iio\libmergepdf\Merger;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use ZipArchive;
@@ -39,14 +38,9 @@ class DownloadOrderPdf extends ElementAction
     }
 
     /**
-     * @var int
+     * @var int|null
      */
     public $pdfId;
-
-    /**
-     * @var bool
-     */
-    public $zip = false;
 
     /**
      * @inheritdoc
@@ -73,14 +67,9 @@ class DownloadOrderPdf extends ElementAction
      */
     public function performAction(ElementQueryInterface $query): bool
     {
-        $pdfsService = Plugin::getInstance()->getPdfs();
-
-        $pdfId = (int)$this->pdfId;
-        $zip = (bool)$this->zip;
-        $pdf = $pdfsService->getPdfById($pdfId);
-
+        $pdf = Plugin::getInstance()->getPdfs()->getPdfById($this->pdfId);
         if (!$pdf) {
-            throw new InvalidConfigException("Invalid PDF ID: '" . $pdfId . "'");
+            throw new InvalidConfigException("Invalid PDF ID: $this->pdfId");
         }
 
         /** @var Order[] $orders */
@@ -90,10 +79,10 @@ class DownloadOrderPdf extends ElementAction
             return false;
         }
 
+        $pdfsService = Plugin::getInstance()->getPdfs();
         $response = Craft::$app->getResponse();
 
-        // Only one order, download single PDF
-        if (count($orders) === 1 && !$zip) {
+        if (count($orders) === 1) {
             $order = reset($orders);
             $renderedPdf = $pdfsService->renderPdfForOrder($order, '', null, [], $pdf);
             $filename = $this->_pdfFileName($pdf, $order);
@@ -101,19 +90,6 @@ class DownloadOrderPdf extends ElementAction
             return true;
         }
 
-        // Download collated in single PDF file
-        $merger = new Merger();
-        if (!$zip) {
-            foreach ($orders as $order) {
-                $renderedPdf = $pdfsService->renderPdfForOrder($order, '', null, [], $pdf);
-                $merger->addRaw($renderedPdf);
-            }
-            $mergedPdf = $merger->merge();
-            $response->sendContentAsFile($mergedPdf, 'Orders.pdf');
-            return true;
-        }
-
-        // If it is not collated, then it is a zip request
         $zip = new ZipArchive();
         $zipPath = Craft::$app->getPath()->getTempPath() . '/' . StringHelper::UUID() . '.zip';
 
