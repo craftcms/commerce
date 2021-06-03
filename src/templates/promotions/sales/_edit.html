@@ -12,7 +12,6 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
-
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
     {% set actionClasses = "error" %}
@@ -35,6 +34,11 @@
     3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
+{% hook "cp.commerce.sales.edit" %}
+
+{% block details %}
+    {% hook "cp.commerce.sales.edit.details" %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
@@ -76,7 +80,6 @@
             errors: sale.getErrors('enabled'),
             instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
         }) }}
-
     </div>
 
     <div id="matching-items" class="hidden">
@@ -221,6 +224,8 @@
         }) }}
 
     </div>
+
+    {% hook "cp.commerce.sales.edit.content" %}
 {% endblock %}
 
 {% js %}

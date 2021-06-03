@@ -41,6 +41,11 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% hook "cp.commerce.discounts.edit" %}
+
+{% block details %}
+    {% hook "cp.commerce.discounts.edit.details" %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/discounts/save">
@@ -82,6 +87,7 @@
             errors: discount.getErrors('enabled')
         }) }}
 
+        {# @TODO remove or rename this hook at a breaking change #}
         {% hook "cp.commerce.discount.edit" %}
     </div>
 
@@ -461,6 +467,8 @@
             errors: discount.getErrors('stopProcessing')
         }) }}
     </div>
+
+    {% hook "cp.commerce.discounts.edit.content" %}
 {% endblock %}
 
 
