@@ -1046,6 +1046,7 @@ return [
     'This action is not allowed for the current user.' => 'This action is not allowed for the current user.',
     'This coupon is for registered users and limited to {limit} uses.' => 'This coupon is for registered users and limited to {limit} uses.',
     'This coupon is limited to {limit} uses.' => 'This coupon is limited to {limit} uses.',
+    'This coupon requires an email address.' => 'This coupon requires an email address.',
     'This gateway does not support that functionality.' => 'This gateway does not support that functionality.',
     'This is being overridden by the {setting} config setting in `config/{file}.php`.' => 'This is being overridden by the {setting} config setting in `config/{file}.php`.',
     'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.' => 'This is the address where your store is located. It may be used by various plugins to determine things like shipping and taxes. It could also be used in PDF receipts.',
