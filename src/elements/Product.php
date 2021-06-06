@@ -299,7 +299,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         if ($this->getType()) {
             $uid = $this->getType()->uid;

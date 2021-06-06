@@ -550,7 +550,7 @@ class Variant extends Purchasable
      * @return bool
      * @throws InvalidConfigException
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         $product = $this->getProduct();
 
