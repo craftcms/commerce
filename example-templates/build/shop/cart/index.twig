@@ -12,8 +12,8 @@
             <table class="w-full mt-4 rounded-lg">
                 <thead>
                 <tr class="text-gray-600 bg-gray-200">
-                    <th class="py-2 pl-3 text-left w-1/3 rounded-l">Product</th>
-                    <th class="py-2 text-left">Qty</th>
+                    <th class="py-2 pl-3 text-left w-1/3 rounded-l" scope="col">Product</th>
+                    <th class="py-2 text-left" scope="col"><abbr title="Quantity" aria-label="Quantity">Qty</abbr></th>
                     <th class="py-2 pr-3 text-right rounded-r">Price</th>
                 </tr>
                 </thead>
@@ -37,7 +37,7 @@
                                     <input type="checkbox"
                                            name="lineItems[{{ item.id }}][remove]"
                                            value="1">
-                                    <span>Remove Line</span>
+                                    <span class="label">Remove Line</span>
                                 </label>
                             </div>
                         </td>
@@ -57,7 +57,7 @@
 
                             {% if item.options.donationAmount is defined %}
                                 <label for="lineitem-donationAmount-{{ item.id }}">
-                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
+                                    <span class="label text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
                                 </label>
                                 <input type="text"
                                        id="lineitem-donationAmount-{{ item.id }}"
@@ -77,7 +77,7 @@
 
                             <div class="mt-3">
                                 <label for="lineitem-note-{{ item.id }}">
-                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
+                                    <span class="label text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
                                 </label>
                                 <input type="text"
                                        id="lineitem-note-{{ item.id }}"
@@ -134,7 +134,7 @@
                                     {% for adjustment in item.adjustments %}
                                         <div class="flex w-full mt-2 text-sm">
                                             <div class="text-left">
-                                                <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong><br>
+                                                <strong class="text-gray-400 text-xs uppercase block">{{ adjustment.type }}</strong>
                                                 {{ adjustment.name }}
                                                 {% if adjustment.isEstimated %}<i
                                                         class="text-grey-dark">Estimated</i>{% endif %}<br>
@@ -240,13 +240,14 @@
                     <td class="pt-3 text-right" colspan="3">
                         <div class="flex w-full justify-end">
                             <div class="{% if cart.getFirstError('couponCode') %}bg-red-100 border-red-500 border-b-2 p-6{% else %}bg-gray-100 border-blue-300 border-b-2 p-6{% endif %} text-left max-w-sm w-full">
-                                <h5 class="font-bold">Coupon Code</h5>
+                                <label for="couponCode" class="block font-bold"><span class="label">Coupon Code</span></label>
                                 {% if cart.getFirstError('couponCode') %}
                                     <div class="text-red-500">{{ cart.getFirstError('couponCode') }}</div>
                                 {% endif %}
 
                                 <div class="pt-3">
                                     <input type="text"
+                                           id="couponCode"
                                            name="couponCode"
                                            value="{{ cart.couponCode }}"
                                            class="border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded w-full {% if cart.getFirstError('couponCode') %}text-red-500{% endif %}"

@@ -38,7 +38,7 @@
                     <input type="radio"
                            name="{{ name }}Id"
                            {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
-                    New {{ title }}
+                    <span class="label">New {{ title }}</span>
                 </label>
             </div>
         {% endif %}

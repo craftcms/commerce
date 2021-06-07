@@ -16,7 +16,7 @@
                     {{ csrfInput() }}
 
                     {% if not cart.email %}
-                        <label for="email">Email</label>
+                        <label for="email"><span class="label">Email</span></label>
                         <input type="email"
                                id="email"
                                name="email"
@@ -41,7 +41,7 @@
                                    id="billingAddressSameAsShipping"
                                    name="billingAddressSameAsShipping"
                                    checked="checked"/>
-                            Use same address for billing
+                            <span class="label">Use same address for billing</span>
                         </label>
                     </div>
 
@@ -50,7 +50,7 @@
                             <input type="checkbox"
                                    id="makePrimaryShippingAddress"
                                    name="makePrimaryShippingAddress"/>
-                            Make this the primary shipping address
+                            <span class="label">Make this the primary shipping address</span>
                         </label>
                     </div>
 
@@ -67,7 +67,7 @@
                             <input type="checkbox"
                                    id="makePrimaryBillingAddress"
                                    name="makePrimaryBillingAddress"/>
-                            Make this the primary billing address
+                            <span class="label">Make this the primary billing address</span>
                         </label>
                     </div>
 

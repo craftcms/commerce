@@ -37,8 +37,8 @@
                                 </div>
                                 <div class="pl-2 text-right w-1/4">
                                     {% if variant.onSale %}
-                                        <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
-                                        <br>{{ variant.salePriceAsCurrency }}
+                                        <del class="text-sm text-gray-500 block">{{ variant.priceAsCurrency }}</del>
+                                        {{ variant.salePriceAsCurrency }}
                                     {% else %}
                                         {{ variant.priceAsCurrency }}
                                     {% endif %}

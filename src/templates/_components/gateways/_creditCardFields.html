@@ -1,31 +1,35 @@
 {% import "_includes/forms" as forms %}
 
 <fieldset class="card-holder">
-    <legend>{{ 'Card Holder'|t('commerce') }}</legend>
+    <legend><span class="legend">{{ 'Card Holder'|t('commerce') }}</span></legend>
 
     <div class="grid" data-cols="2">
 
         <!-- Card Holder Name -->
         <div class="item" data-colspan="1">
+            <label for="cardFirstName"><span class="label">{{ "First Name"|t('commerce') }}</span></label>
             {{ forms.text({
                 name: 'firstName',
+                id: 'cardFirstName',
                 maxlength: 70,
                 placeholder: "First Name"|t('commerce'),
                 autocomplete: false,
                 class: 'card-holder-first-name'~(paymentForm.getErrors('firstName') ? ' error'),
-                value: paymentForm.firstName,
+                value: paymentForm.firstName ?? '',
                 required: true,
             }) }}
         </div>
 
         <div class="item" data-colspan="1">
+            <label for="cardLastName"><span class="label">{{ "Last Name"|t('commerce') }}</span></label>
             {{ forms.text({
                 name: 'lastName',
+                id: 'cardLastName',
                 maxlength: 70,
                 placeholder: "Last Name"|t('commerce'),
                 autocomplete: false,
                 class: 'card-holder-last-name'~(paymentForm.getErrors('lastName') ? ' error'),
-                value: paymentForm.lastName,
+                value: paymentForm.lastName ?? '',
                 required: true,
             }) }}
         </div>
@@ -41,36 +45,43 @@
 
 <!-- Card Number -->
 <fieldset class="card-data">
-    <legend>{{ 'Card'|t('commerce') }}</legend>
+    <legend><span class="legend">{{ 'Card'|t('commerce') }}</span></legend>
 
     <div>
         <div>
+            <label for="cardNumber"><span class="label">{{ "Card Number"|t('commerce') }}</span></label>
             {{ forms.text({
                 name: 'number',
+                id: 'cardNumber',
                 maxlength: 19,
                 placeholder: "Card Number"|t('commerce'),
                 autocomplete: false,
                 class: 'card-number'~(paymentForm.getErrors('number') ? ' error'),
-                value: paymentForm.number
+                value: paymentForm.number ?? ''
             }) }}
 
         </div>
 
         <div>
+            <label for="cardExpiry"><span class="label"><abbr title="expiration date in the format &quot;MM / YYYY&quot;" aria-label="expiration date in the format &quot;MM / YYYY&quot;">{{ "MM"|t('commerce')~' / '~"YYYY"|t('commerce') }}</abbr></span></label>
             {{ forms.text({
                 class: 'card-expiry'~(paymentForm.getErrors('month') or paymentForm.getErrors('year') ? ' error'),
                 type: 'text',
                 name: 'expiry',
+                id: 'cardExpiry',
+                maxlength: 9,
                 placeholder: "MM"|t('commerce')~' / '~"YYYY"|t('commerce'),
-                value: paymentForm.expiry
+                value: paymentForm.expiry ?? ''
             }) }}
 
+            <label for="cardCVV"><span class="label">{{ "CVV"|t('commerce') }}</span></label>
             {{ forms.text({
                 type: 'tel',
                 name: 'cvv',
+                id: 'cardCVV',
                 placeholder: "CVV"|t('commerce'),
                 class: 'card-cvc'~(paymentForm.getErrors('cvv') ? ' error'),
-                value: paymentForm.cvv
+                value: paymentForm.cvv ?? ''
             }) }}
         </div>
     </div>

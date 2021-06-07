@@ -16,8 +16,8 @@
                 <table class="w-full">
                     <thead>
                     <tr class="bg-gray-300 text-left">
-                        <th class="p-2">Plan</th>
-                        <th class="p-2">Next Payment</th>
+                        <th class="p-2" scope="col">Plan</th>
+                        <th class="p-2" scope="col">Next Payment</th>
                         <th class="p-2">&nbsp;</th>
                     </tr>
                     </thead>
@@ -33,11 +33,10 @@
                                         {% if information %}
                                             <div>
                                                 <h4 class="font-semibold">Plan Information Entry</h4>
-                                                <ul>
+                                                <ul class="mb-line">
                                                     <li>ID: {{ information.id }}</li>
                                                     <li>Title: {{ information.title }}</li>
                                                 </ul>
-                                                <br>
                                             </div>
                                         {% endif %}
                                     </div>

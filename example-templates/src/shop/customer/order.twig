@@ -88,16 +88,16 @@
     <table class="w-full mt-3">
         <thead>
         <tr class="text-gray-600 bg-gray-200">
-            <th class="py-2 pl-3 text-left w-1/3">Product</th>
-            <th class="py-2 text-left">Qty</th>
-            <th class="py-2 pr-3 text-right">Price</th>
+            <th class="py-2 pl-3 text-left w-1/3" scope="col">Product</th>
+            <th class="py-2 text-left" scope="col"><abbr title="Quantity" aria-label="Quantity">Qty</abbr></th>
+            <th class="py-2 pr-3 text-right" scope="col">Price</th>
         </tr>
         </thead>
         <tbody>
         {% for item in order.lineItems %}
             <tr class="align-top">
                 <td class="py-3 pl-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}" rowspan="2">
-                    <strong class="text-lg">{{ item.description }}</strong><br>
+                    <strong class="text-lg block">{{ item.description }}</strong>
                     <span class="text-gray-500 tracking-widest font-mono text-xs">{{ item.sku }}</span>
                     <div class="mt-2 relative">
                         <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">{{ item.options|length ? item.options|json_encode : 'no options.' }}</code>
@@ -271,12 +271,12 @@
     <table class="w-full mt-3">
         <thead>
         <tr class="text-gray-600 bg-gray-200">
-            <th class="py-2 pl-3 text-left">Type</th>
-            <th class="py-2 pl-3 text-left">Status</th>
-            <th class="py-2 text-left">Currency</th>
-            <th class="py-2 pr-3 text-right">Amount</th>
-            <th class="py-2 text-left">Payment Currency</th>
-            <th class="py-2 pr-3 text-right">Payment Amount</th>
+            <th class="py-2 pl-3 text-left" scope="col">Type</th>
+            <th class="py-2 pl-3 text-left" scope="col">Status</th>
+            <th class="py-2 text-left" scope="col">Currency</th>
+            <th class="py-2 pr-3 text-right" scope="col">Amount</th>
+            <th class="py-2 text-left" scope="col">Payment Currency</th>
+            <th class="py-2 pr-3 text-right" scope="col">Payment Amount</th>
         </tr>
         </thead>
         <tbody>
