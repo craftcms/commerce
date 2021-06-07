@@ -201,7 +201,7 @@ class ShippingCategories extends Component
 
     /**
      * Re-save products by product type id
-     * 
+     *
      * @param int $productTypeId
      */
     private function _resaveProductsByProductTypeId(int $productTypeId)
@@ -288,7 +288,9 @@ class ShippingCategories extends Component
                 'shippingCategories.name',
                 'shippingCategories.handle',
                 'shippingCategories.description',
-                'shippingCategories.default'
+                'shippingCategories.default',
+                'shippingCategories.dateCreated',
+                'shippingCategories.dateUpdated',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
