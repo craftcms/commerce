@@ -310,7 +310,9 @@ class Plans extends Component
                 'isArchived',
                 'dateArchived',
                 'sortOrder',
-                'uid'
+                'dateCreated',
+                'dateUpdated',
+                'uid',
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::PLANS]);
