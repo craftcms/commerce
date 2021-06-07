@@ -13,7 +13,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
+use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
+use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use iio\libmergepdf\Merger;
 use yii\base\Exception;
@@ -28,8 +30,11 @@ use ZipArchive;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
  */
-class DownloadOrderPdf extends ElementAction
+class DownloadOrderPdfAction extends ElementAction
 {
+    public const TYPE_ZIP_ARCHIVE = 'zipArchive';
+    public const TYPE_PDF_COLLATED = 'pdfCollated';
+
     /**
      * @inheritdoc
      */
@@ -46,7 +51,7 @@ class DownloadOrderPdf extends ElementAction
     /**
      * @var bool
      */
-    public $zip = false;
+    public $downloadType = 'pdfCollated';
 
     /**
      * @inheritdoc
@@ -61,10 +66,30 @@ class DownloadOrderPdf extends ElementAction
      */
     public function getTriggerHtml()
     {
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        return Craft::$app->getView()->renderTemplate('commerce/_components/elementactions/DownloadOrderPdf/trigger', [
-            'pdfs' => $pdfs,
+        $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+
+        $pdfs = [];
+        foreach ($allPdfs as $pdf) {
+            $pdfs[] = ['label' => Craft::t('site', $pdf->name), 'value' => $pdf->id];
+        }
+        $pdfOptions = Json::encode($pdfs);
+
+        $typeOptions = Json::encode([
+            ['label' => Craft::t('commerce', 'ZIP file'), 'value' => self::TYPE_ZIP_ARCHIVE],
+            ['label' => Craft::t('commerce', 'Collated PDF'), 'value' => self::TYPE_PDF_COLLATED]
         ]);
+
+        if (count($allPdfs) > 0) {
+            $js = <<<JS
+(() => {
+    new Craft.Commerce.DownloadOrderPdfAction($('#download-order-pdf'),{$pdfOptions}, {$typeOptions});
+})();
+JS;
+            Craft::$app->getView()->registerJs($js);
+            return Craft::$app->getView()->renderTemplate('commerce/_components/elementactions/DownloadOrderPdf/trigger');
+        }
+
+        return '';
     }
 
     /**
@@ -75,8 +100,7 @@ class DownloadOrderPdf extends ElementAction
     {
         $pdfsService = Plugin::getInstance()->getPdfs();
 
-        $pdfId = (int)$this->pdfId;
-        $zip = (bool)$this->zip;
+        $pdfId = $this->pdfId;
         $pdf = $pdfsService->getPdfById($pdfId);
 
         if (!$pdf) {
@@ -93,7 +117,7 @@ class DownloadOrderPdf extends ElementAction
         $response = Craft::$app->getResponse();
 
         // Only one order, download single PDF
-        if (count($orders) === 1 && !$zip) {
+        if (count($orders) === 1 && $this->downloadType == self::TYPE_PDF_COLLATED) {
             $order = reset($orders);
             $renderedPdf = $pdfsService->renderPdfForOrder($order, '', null, [], $pdf);
             $filename = $this->_pdfFileName($pdf, $order);
@@ -103,7 +127,7 @@ class DownloadOrderPdf extends ElementAction
 
         // Download collated in single PDF file
         $merger = new Merger();
-        if (!$zip) {
+        if ($this->downloadType == self::TYPE_PDF_COLLATED) {
             foreach ($orders as $order) {
                 $renderedPdf = $pdfsService->renderPdfForOrder($order, '', null, [], $pdf);
                 $merger->addRaw($renderedPdf);
