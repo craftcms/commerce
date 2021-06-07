@@ -26,6 +26,33 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled?"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: country.enabled,
+            errors: country.getErrors('enabled'),
+            warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
+        }) }}
+    </div>
+
+    {% if country and country.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ country.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ country.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/countries/save">
     {{ redirectInput('commerce/store-settings/countries') }}
@@ -61,16 +88,6 @@
         value: 1,
         checked: country.isStateRequired,
         errors: country.getErrors('isStateRequired')
-    }) }}
-
-    {{ forms.lightswitchField({
-        label: "Enabled?"|t('commerce'),
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        on: country.enabled,
-        errors: country.getErrors('enabled'),
-        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
     }) }}
 
     <hr>
