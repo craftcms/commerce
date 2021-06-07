@@ -3,4 +3,4 @@
 ## 3.3.4 - Unreleased
 
 ### Added
-- Added `craft\commerce\elements\db\variantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
+- Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
