@@ -2054,7 +2054,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
