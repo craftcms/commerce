@@ -11,6 +11,8 @@
 - Added `craft\commerce\models\Country::$dateUpdated`.
 - Added `craft\commerce\models\PaymentCurrency::$dateCreated`.
 - Added `craft\commerce\models\PaymentCurrency::$dateUpdated`.
+- Added `craft\commerce\models\ShippingAddressZone::$dateCreated`.
+- Added `craft\commerce\models\ShippingAddressZone::$dateUpdated`.
 - Added `craft\commerce\models\ShippingCategory::$dateCreated`.
 - Added `craft\commerce\models\ShippingCategory::$dateUpdated`.
 - Added `craft\commerce\models\ShippingMethod::$dateCreated`.
