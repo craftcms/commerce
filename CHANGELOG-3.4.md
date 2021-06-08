@@ -17,6 +17,12 @@
 - Added `craft\commerce\models\ShippingMethod::$dateUpdated`.
 - Added `craft\commerce\models\ShippingRule::$dateCreated`.
 - Added `craft\commerce\models\ShippingRule::$dateUpdated`.
+- Added `craft\commerce\models\TaxAddressZone::$dateCreated`.
+- Added `craft\commerce\models\TaxAddressZone::$dateUpdated`.
+- Added `craft\commerce\models\TaxCategory::$dateCreated`.
+- Added `craft\commerce\models\TaxCategory::$dateUpdated`.
+- Added `craft\commerce\models\TaxRate::$dateCreated`.
+- Added `craft\commerce\models\TaxRate::$dateUpdated`.
 - Added `craft\commerce\models\State::$dateCreated`.
 - Added `craft\commerce\models\State::$dateUpdated`.
 
