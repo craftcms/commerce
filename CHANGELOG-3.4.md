@@ -5,6 +5,8 @@
 ### Added
 - Added `craft\commerce\base\Plan::$dateCreated`.
 - Added `craft\commerce\base\Plan::$dateUpdated`.
+- Added `craft\commerce\models\Address::$dateCreated`.
+- Added `craft\commerce\models\Address::$dateUpdated`.
 - Added `craft\commerce\models\Country::$dateCreated`.
 - Added `craft\commerce\models\Country::$dateUpdated`.
 - Added `craft\commerce\models\Customer::$dateCreated`.
@@ -31,6 +33,8 @@
 - Added `craft\commerce\models\TaxRate::$dateUpdated`.
 
 ### Changed
+- Address edit page now displays date meta information.
+- Customer edit page now displays date meta information.
 - Country and State edit pages now displays date meta information.
 - Payment Currency edit page now displays date meta information.
 - Promotion edit pages now displays date meta information.
