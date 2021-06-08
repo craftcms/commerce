@@ -34,3 +34,4 @@
 - Promotion edit pages now displays date meta information.
 - Shipping edit pages now displays date meta information.
 - Subscription Plan edit page now displays date meta information.
+- Tax edit pages now displays date meta information.
