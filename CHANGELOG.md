@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Changed
+- Changed return and cancel url column type to text in `commerce_orders` table.
+
 ## 3.3.3 - 2021-06-01
 
 ### Added
