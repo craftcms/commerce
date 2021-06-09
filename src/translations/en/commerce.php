@@ -1057,6 +1057,7 @@ return [
     'This is the primary billing and shipping address for: {email}' => 'This is the primary billing and shipping address for: {email}',
     'This is the primary shipping address for: {email}' => 'This is the primary shipping address for: {email}',
     'This month' => 'This month',
+    'This order has unsaved changes.' => 'This order has unsaved changes.',
     'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.' => 'This tax rate will not be applied if a valid businessTaxId is entered into the billing address.',
     'This tax rate will not be applied if a valid businessTaxId is entered into the shipping address.' => 'This tax rate will not be applied if a valid businessTaxId is entered into the shipping address.',
     'This week' => 'This week',
