@@ -43,3 +43,6 @@
 - Shipping edit pages now displays date meta information.
 - Subscription Plan edit page now displays date meta information.
 - Tax edit pages now displays date meta information.
+
+### Fixed
+- Fixed an bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
