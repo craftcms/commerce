@@ -379,7 +379,6 @@ class Plugin extends BasePlugin
                     ]
                 ],
                 'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
-                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
                 'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                 'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                 'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
