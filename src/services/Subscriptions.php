@@ -573,7 +573,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_REACTIVATE_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" reactivation was cancelled by a plugin.', [
+            $error = Craft::t('commerce', 'Could not reactivate “{reference}”.', [
                 'reference' => $subscription->reference,
             ]);
 
@@ -638,7 +638,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" switch to "{plan}" was cancelled by a plugin.', [
+            $error = Craft::t('commerce', 'Could not switch “{reference}” to “{plan}”.', [
                 'reference' => $subscription->reference,
                 'plan' => $plan->reference
             ]);
@@ -693,7 +693,7 @@ class Subscriptions extends Component
         $this->trigger(self::EVENT_BEFORE_CANCEL_SUBSCRIPTION, $event);
 
         if (!$event->isValid) {
-            $error = Craft::t('commerce', 'Subscription "{reference}" cancellation was prevented by a plugin.', [
+            $error = Craft::t('commerce', 'Could not cancel “{reference}”.', [
                 'reference' => $subscription->reference,
             ]);
 

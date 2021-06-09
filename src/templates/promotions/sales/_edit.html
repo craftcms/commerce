@@ -35,6 +35,33 @@
     3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this sale"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: sale.enabled,
+            checked: sale.enabled,
+            errors: sale.getErrors('enabled'),
+            instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
+        }) }}
+    </div>
+
+    {% if sale and sale.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ sale.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ sale.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
@@ -65,22 +92,9 @@
             value: sale.description,
             errors: sale.getErrors('description'),
         }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Enable this sale"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: sale.enabled,
-            checked: sale.enabled,
-            errors: sale.getErrors('enabled'),
-            instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
-        }) }}
-
     </div>
 
     <div id="matching-items" class="hidden">
-
         {% for purchasableType in purchasableTypes %}
             {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
             {{ forms.elementSelectField({
@@ -181,7 +195,7 @@
                         }) }}
                     </td>
                     <td>
-                        <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}hidden{% endif %}">{{ currencySymbol }}</span>
+                        <span id="applyAmount-currency-symbol" class="{% if sale.apply == 'byPercent' or sale.apply == 'toPercent' or not sale.apply %}hidden{% endif %}">{{ currencySymbol }}</span>
                         {{ forms.text({
                             id: 'applyAmount',
                             name: 'applyAmount',
@@ -203,22 +217,20 @@
 
         {% set ignoresPrevious = ['toFlat','toPercent'] %}
         {% set checked = sale.apply in ignoresPrevious %}
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Ignore previous matching sales if this sale matches."|t('commerce'),
             id: 'ignorePrevious',
             name: 'ignorePrevious',
-            value: 1,
-            checked: (checked or sale.ignorePrevious),
+            on: (checked or sale.ignorePrevious),
             disabled: checked,
             errors: sale.getErrors('ignorePrevious')
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Do not apply subsequent matching sales beyond applying this sale."|t('commerce'),
             id: 'stopProcessing',
             name: 'stopProcessing',
-            value: 1,
-            checked: sale.stopProcessing,
+            on: sale.stopProcessing ? true : false,
             errors: sale.getErrors('stopProcessing')
         }) }}
 
@@ -237,7 +249,6 @@ $(function() {
         if ($("input[name=ignorePrevious]").prop('checked') == true) {
             $("#ignorePrevious-field").css('opacity', 0.25);
         }
-        ;
     });
 
     $('select[name=apply]').change(function() {
@@ -252,11 +263,13 @@ $(function() {
 
         if (this.value == 'toFlat' || this.value == 'toPercent') {
             $('input[name=ignorePrevious]').prop('disabled', true);
-            $('input[name=ignorePrevious]').prop('checked', true);
+            $('#ignorePrevious').prop('disabled', true);
+            $('#ignorePrevious').addClass('disabled', true);
         }
         if (this.value != 'toFlat' && this.value != 'toPercent') {
             $('input[name=ignorePrevious]').prop('disabled', false);
-            $('input[name=ignorePrevious]').prop('checked', false);
+            $('#ignorePrevious').prop('disabled', false);
+            $('#ignorePrevious').removeClass('disabled', true);
         }
     });
 });

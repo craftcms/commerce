@@ -6,7 +6,10 @@
     'Are you sure you want to delete “{name}”, this will set all line items with this status to no status?',
     'Couldn’t reorder statuses.',
     'Default status?',
+    'Handle',
     'Line item statuses reordered.',
+    'Name',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -36,18 +39,18 @@
 var columns = [
     {
         name: 'labelHtml',
-        title: Craft.t('app', 'Name'),
+        title: Craft.t('commerce', 'Name'),
         callback: function(value) {
             return '<a class="cell-bold" href="'+value.url+'">'+value.html+'</a>';
         }
     },
-    { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+    { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
     {
         name: 'default',
         title: Craft.t('commerce', 'Default Status?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
         }
     }
@@ -65,4 +68,3 @@ new Craft.VueAdminTable({
     tableData: {{ tableData|json_encode|raw }},
     });
 {% endjs %}
-

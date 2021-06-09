@@ -60,7 +60,7 @@ class ProjectConfigData
             ];
         }
 
-        return $output;
+        return array_filter($output);
     }
 
     /**

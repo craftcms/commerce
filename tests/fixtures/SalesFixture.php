@@ -9,7 +9,6 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use yii\base\InvalidArgumentException;
 
 /**
  * Sales Fixture

@@ -94,8 +94,8 @@ class TopProducts extends Widget
         $this->_stat = new TopProductsStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
 
         parent::init();

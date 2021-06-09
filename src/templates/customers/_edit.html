@@ -28,7 +28,7 @@
     {% set customerUser = customer.getUser() ?? null %}
     {% if customerUser %}
       <div class="data">
-        <h5 class="heading">{{ 'User'|t('app') }}</h5>
+        <h5 class="heading">{{ 'User'|t('commerce') }}</h5>
         <div class="value">
           {% if currentUser.can('editUsers') %}
             {{ tag('a', {
@@ -67,6 +67,17 @@
         </div>
       </div>
     {% endif %}
+  </div>
+
+  <div class="meta read-only">
+    <div class="data">
+      <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+      <div id="date-created-value" class="value">{{ customer.dateCreated|datetime('short') }}</div>
+    </div>
+    <div class="data">
+      <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+      <div id="date-updated-value" class="value">{{ customer.dateUpdated|datetime('short') }}</div>
+    </div>
   </div>
 
   {% hook "cp.commerce.customers.edit.details" %}

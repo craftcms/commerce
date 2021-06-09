@@ -1,16 +1,17 @@
 <template>
     <div>
+        <hr>
         <template v-if="!showForm">
             <template v-if="lineItems.length > 0">
-                <div class="text-right">
-                    <btn-link @click="showForm = true" button-class="btn submit">{{"Add a line item"|t('commerce')}}</btn-link>
+                <div class="text-left">
+                    <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
             <template v-else>
                 <div class="starter">
                     <div data-icon="info"></div>
                     <h2>{{"Your order is empty"|t('commerce')}}</h2>
-                    <btn-link @click="showForm = true">{{"Create your first line item"|t('commerce')}}</btn-link>
+                    <btn-link @click="showForm = true" button-class="btn icon add">{{"Add a line item"|t('commerce')}}</btn-link>
                 </div>
             </template>
         </template>
@@ -22,7 +23,7 @@
                         <div class="buttons buttons--add-line-item">
                             <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled"
                                    :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false"/>
-                            <input type="submit" class="btn submit" :class="{disabled: submitDisabled}"
+                            <input type="submit" class="btn secondary" :class="{disabled: submitDisabled}"
                                    :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" @click.prevent="lineItemAdd()"/>
                         </div>
                     </form>
@@ -44,7 +45,7 @@
                     <div class="buttons buttons--add-line-item">
                         <input type="button" class="btn" :class="{disabled: formDisabled}" :disabled="formDisabled"
                                :value="$options.filters.t('Cancel', 'commerce')" @click="showForm = false"/>
-                        <input type="submit" class="btn submit" :class="{disabled: submitDisabled}"
+                        <input type="submit" class="btn secondary" :class="{disabled: submitDisabled}"
                                :disabled="submitDisabled" :value="$options.filters.t('Add', 'commerce')" @click.prevent="lineItemAdd()"/>
                     </div>
                 </form>
@@ -148,7 +149,10 @@
                                 sku: purchasable.sku,
                                 options: [],
                                 adjustments: [],
+                                isNew: true,
+                                uid: purchasable.newLineItemUid,
                             });
+                            this.$store.commit('updateRecentlyAddedLineItems', purchasable.id + '-' + purchasable.newLineItemOptionsSignature);
                         }
                     }
 

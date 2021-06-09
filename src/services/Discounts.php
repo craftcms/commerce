@@ -384,7 +384,7 @@ class Discounts extends Component
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
-            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer');
+            $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
             return false;
         }
 
@@ -514,6 +514,7 @@ class Discounts extends Component
      * @param Order $order
      * @param Discount $discount
      * @return bool
+     * @throws \Exception
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
@@ -549,14 +550,8 @@ class Discounts extends Component
             return false;
         }
 
-        if ($discount->orderConditionFormula) {
-            $orderDiscountConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-            ];
-
-            if (!Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula')) {
-                return false;
-            }
+        if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
+            return false;
         }
 
         if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
@@ -1011,11 +1006,12 @@ class Discounts extends Component
     private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
     {
         if ($discount->orderConditionFormula) {
-            $orderDiscountConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+            $orderConditionParams = [
+                'order' => array_merge($orderAsArray, $fieldsAsArray)
             ];
-
-            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderDiscountConditionParams, 'Evaluate Order Discount Condition Formula');
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }
 
         return true;

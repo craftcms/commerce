@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
+use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
@@ -186,6 +187,18 @@ class Address extends Model
      * @since 2.2
      */
     public $isEstimated = false;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var int|string Can be a State ID or State Name
@@ -539,7 +552,7 @@ class Address extends Model
         $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
 
         if ($sanitize) {
-            array_walk($event->addressLines, function(&$value, &$key) {
+            array_walk($event->addressLines, function(&$value) {
                 $value = Craft::$app->getFormatter()->asText($value);
             });
         }

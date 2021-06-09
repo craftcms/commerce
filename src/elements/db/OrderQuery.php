@@ -14,11 +14,13 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -1181,6 +1183,8 @@ class OrderQuery extends ElementQuery
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
             }
+
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
         }
 
         return $orders;

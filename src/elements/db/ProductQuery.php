@@ -914,23 +914,27 @@ class ProductQuery extends ElementQuery
      */
     private function _applyHasVariantParam()
     {
-        if ($this->hasVariant) {
-            if ($this->hasVariant instanceof VariantQuery) {
-                $variantQuery = $this->hasVariant;
-            } else {
-                $query = Variant::find();
-                $variantQuery = Craft::configure($query, $this->hasVariant);
-            }
-
-            $variantQuery->limit = null;
-            $variantQuery->select('commerce_variants.productId');
-            $productIds = $variantQuery->asArray()->column();
-
-            // Remove any blank product IDs (if any)
-            $productIds = array_filter($productIds);
-
-            $this->subQuery->andWhere(['commerce_products.id' => array_values($productIds)]);
+        if ($this->hasVariant === null) {
+            return;
         }
+
+        if ($this->hasVariant instanceof VariantQuery) {
+            $variantQuery = $this->hasVariant;
+        } elseif (is_array($this->hasVariant)) {
+            $query = Variant::find();
+            $variantQuery = Craft::configure($query, $this->hasVariant);
+        } else {
+            return;
+        }
+
+        $variantQuery->limit = null;
+        $variantQuery->select('commerce_variants.productId');
+        $productIds = $variantQuery->asArray()->column();
+
+        // Remove any blank product IDs (if any)
+        $productIds = array_filter($productIds);
+
+        $this->subQuery->andWhere(['commerce_products.id' => array_values($productIds)]);
     }
 
     /**

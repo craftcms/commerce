@@ -18,6 +18,7 @@ use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
 use craft\commerce\models\LineItem;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -40,7 +41,7 @@ use yii\validators\Validator;
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
  * @property bool $onSale
  * @property Product $product the product associated with this variant
- * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -396,7 +397,7 @@ class Variant extends Purchasable
     public function getFieldLayout()
     {
         $fieldLayout = parent::getFieldLayout();
-        
+
         // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
         if (!$fieldLayout && $this->productId) {
             $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
@@ -549,7 +550,7 @@ class Variant extends Purchasable
      * @return bool
      * @throws InvalidConfigException
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         $product = $this->getProduct();
 
@@ -724,7 +725,7 @@ class Variant extends Purchasable
      */
     public function getTaxCategoryId(): int
     {
-        return $this->getProduct()->taxCategoryId;
+        return $this->getProduct()->getTaxCategory()->id;
     }
 
     /**
@@ -732,7 +733,7 @@ class Variant extends Purchasable
      */
     public function getShippingCategoryId(): int
     {
-        return $this->getProduct()->shippingCategoryId;
+        return $this->getProduct()->getShippingCategory()->id;
     }
 
     /**
@@ -750,7 +751,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        $isShippable = $this->getIsShippable();
+        $isShippable = $this->getIsShippable(); // Same as Plugin::getInstance()->getPurchasables()->isPurchasableShippable since this has no context
         return $isShippable && $this->getProduct()->freeShipping;
     }
 
@@ -794,12 +795,12 @@ class Variant extends Purchasable
                 'qty',
                 function($attribute, $params, Validator $validator) use ($lineItem, $getQty) {
                     if (!$this->hasStock()) {
-                        $error = Craft::t('commerce', '"{description}" is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', '“{description}” is currently out of stock.', ['description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
                     if ($this->hasStock() && !$this->hasUnlimitedStock && $getQty($lineItem) > $this->stock) {
-                        $error = Craft::t('commerce', 'There are only {num} "{description}" items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
+                        $error = Craft::t('commerce', 'There are only {num} “{description}” items left in stock.', ['num' => $this->stock, 'description' => $lineItem->purchasable->getDescription()]);
                         $validator->addError($lineItem, $attribute, $error);
                     }
 
@@ -874,8 +875,22 @@ class Variant extends Purchasable
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-            $lineItem->qty = $this->stock;
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+                /** @var Order $order */
+                $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
+                /** @var OrderNotice $notice */
+                $notice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'lineItemSalePriceChanged',
+                        'attribute' => "lineItems.{$lineItem->id}.qty",
+                        'message' => $message,
+                    ]
+                ]);
+                $order->addNotice($notice);
+                $lineItem->qty = $this->stock;
+            }
         }
 
         $lineItem->weight = (float)$this->weight; //converting nulls

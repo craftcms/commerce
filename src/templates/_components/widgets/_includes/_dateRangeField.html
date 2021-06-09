@@ -28,11 +28,11 @@
             $dateRange.val('');
 
             if (start) {
-                $startDate.val(start.getTime() / 1000);
+                $startDate.val(start.getFullYear() + '-' + (start.getMonth() + 1) + '-' + start.getDate());
             }
 
            if (end) {
-                $endDate.val(end.getTime() / 1000);
+                $endDate.val(end.getFullYear() + '-' + (end.getMonth() + 1) + '-' + end.getDate());
             }
 
            if (handle) {
