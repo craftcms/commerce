@@ -3,6 +3,7 @@
 ## 3.4 - Unreleased
 
 ### Added
+- Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
 - Added `craft\commerce\base\Plan::$dateCreated`.
 - Added `craft\commerce\base\Plan::$dateUpdated`.
 - Added `craft\commerce\models\Address::$dateCreated`.
