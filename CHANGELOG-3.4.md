@@ -1,4 +1,4 @@
-# Release Notes for Craft Commerce
+# Release Notes for Craft Commerce 3.4
 
 ## 3.4 - Unreleased
 
@@ -33,6 +33,8 @@
 - Added `craft\commerce\models\TaxRate::$dateUpdated`.
 
 ### Changed
+- Craft Commerce now requires Craft CMS 3.7.0 or later.
+- Donations, orders, products, and variants now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([craftcms/cms#8023](https://github.com/craftcms/cms/issues/8023))
 - Address edit page now displays date meta information.
 - Customer edit page now displays date meta information.
 - Country and State edit pages now displays date meta information.
