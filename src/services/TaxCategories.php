@@ -300,7 +300,9 @@ class TaxCategories extends Component
                 'taxCategories.name',
                 'taxCategories.handle',
                 'taxCategories.description',
-                'taxCategories.default'
+                'taxCategories.default',
+                'taxCategories.dateCreated',
+                'taxCategories.dateUpdated',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
