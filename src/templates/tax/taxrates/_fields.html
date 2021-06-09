@@ -198,27 +198,47 @@
     {{ forms.lightSwitchField({
         label: "Is this tax is already included in the taxable subject?"|t('commerce'),
         name: 'include',
-        instructions: "If enabled, and this tax rate does not match the order, this included tax rate amount will be removed from the order."|t('commerce'),
+        instructions: "If enabled, this tax will not add cost to the order, just show an included tax amount."|t('commerce'),
         on: taxRate.include,
         checked: taxRate.include,
+        toggle: '#removeIncluded',
         errors: taxRate.getErrors('include'),
     }) }}
 
+    <div id="removeIncluded">
+        {{ forms.lightSwitchField({
+            label: "Remove this included tax?"|t('commerce'),
+            name: 'removeIncluded',
+            instructions: "If enabled, and this tax rate does not match the order, this included tax rate amount will be removed from the price of the product when in the cart."|t('commerce'),
+            on: taxRate.removeIncluded,
+            checked: taxRate.removeIncluded,
+            errors: taxRate.getErrors('removeIncluded'),
+        }) }}
+    </div>
+
     {{ forms.lightSwitchField({
-        label: "Don’t apply this tax when the address has a valid VAT ID"|t('commerce'),
+        label: "Don’t apply this tax when the address has a valid EU VAT ID"|t('commerce'),
         name: 'isVat',
         on: taxRate.isVat,
         errors: taxRate.getErrors('isVat'),
         toggle: '#isVat'
     }) }}
 
-<p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-    {% if craft.commerce.settings.useBillingAddressForTax %}
-        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the billing address."|t('commerce') }}
-    {% else %}
-        {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
-    {% endif %}
-</p>
+    {{ forms.lightSwitchField({
+        label: "Don’t apply this tax when the address has a valid UK VAT ID"|t('commerce'),
+        name: 'isVat',
+        on: taxRate.isVat,
+        errors: taxRate.getErrors('isVat'),
+        toggle: '#isVat'
+    }) }}
+
+    <p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+        {% if craft.commerce.settings.useBillingAddressForTax %}
+            {{ "This tax rate will not be applied if a valid businessTaxId is entered into the billing address."|t('commerce') }}
+        {% else %}
+            {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
+        {% endif %}
+    </p>
 
 {% js %}
     {% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}

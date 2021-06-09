@@ -141,9 +141,17 @@ class Tax extends Component implements AdjusterInterface
         //Address doesn't match zone or we should remove the VAT
         $doesNotMatchZone = (($zone && !$this->_matchAddress($zone)) && !$taxRate->getIsEverywhere());
         if ($doesNotMatchZone || $removeVat) {
-            // Since the address doesn't match or it's a removable vat tax,
-            // before we return false (no taxes) remove the tax if it was included in the taxable amount.
-            if ($taxRate->include) {
+
+            // It is not a removable tax, so we have no tax adjustments.
+            if(!$taxRate->removeIncluded)
+            {
+                return false;
+            }
+
+            // It is a removable tax, and a removable tax can only be for the default zone so we can remove
+            // the tax from the price with a discount. @TODO We need to move this from being a discount, to a price
+            // modification before tax adjustment system runs.
+            if ($taxRate->removeIncluded) {
                 // Is this an order level tax rate?
                 if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
                     $orderTaxableAmount = 0;
@@ -202,8 +210,6 @@ class Tax extends Component implements AdjusterInterface
                 // Return the removed included taxes as discounts.
                 return $adjustments;
             }
-
-            return false;
         }
 
         // Is this an order level tax rate?
@@ -331,6 +337,7 @@ class Tax extends Component implements AdjusterInterface
     private function _getVatValidator(): Validator
     {
         if ($this->_vatValidator === null) {
+
             $this->_vatValidator = new Validator();
         }
 
@@ -375,7 +382,6 @@ class Tax extends Component implements AdjusterInterface
      */
     private function _setTaxAddress()
     {
-
         $this->_isEstimated = false;
 
         if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
