@@ -53,8 +53,6 @@ class ProductsController extends BaseController
     public function init()
     {
         parent::init();
-
-        $this->requirePermission('commerce-manageProducts');
     }
 
     /**
@@ -117,11 +115,23 @@ class ProductsController extends BaseController
         }
 
         $this->_prepEditProductVariables($variables);
-
+        
         /** @var Product $product */
         $product = $variables['product'];
+        
+        $user = Craft::$app->getUser()->getIdentity();
+        if (Plugin::getInstance()->getProducts()->hasPermission($user, $product) === false) {
+           throw new ForbiddenHttpException('User not permitted to edit this product.');
+        }
 
+        $variables['canCreateProduct'] = Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-createProducts');
+        $variables['canDeleteProduct'] = Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-deleteProducts');
+        
         if ($product->id === null) {
+            if ($variables['canCreateProduct'] === false ) {
+                throw new ForbiddenHttpException('User not permitted to create a product for the product type.');
+            }
+            
             $variables['title'] = Craft::t('commerce', 'Create a new product');
         } else {
             $variables['title'] = $product->title;
@@ -189,6 +199,11 @@ class ProductsController extends BaseController
         $productId = Craft::$app->getRequest()->getRequiredParam('productId');
         $product = Plugin::getInstance()->getProducts()->getProductById($productId);
 
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!Plugin::getInstance()->getProducts()->hasPermission($user, $product, 'commerce-deleteProducts')) {
+            throw new ForbiddenHttpException('User not permitted to delete this product.');
+        }
+
         if (!$product) {
             throw new Exception(Craft::t('commerce', 'No product exists with the ID “{id}”.',
                 ['id' => $productId]));
@@ -235,7 +250,18 @@ class ProductsController extends BaseController
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
         $variants = $request->getBodyParam('variants');
-        $this->enforceProductPermissions($oldProduct);
+
+        $user = Craft::$app->getUser()->getIdentity();
+        if ($oldProduct->id !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct)) {
+            throw new ForbiddenHttpException('User not permitted to save this product.');
+        }
+        
+        if ($request->getBodyParam('typeId') !== null && !Plugin::getInstance()->getProducts()->hasPermission($user, $oldProduct, 'commerce-createProducts')) {
+            if ($oldProduct->id === null || $duplicate === true) {
+                throw new ForbiddenHttpException('User not permitted to create a product for this type.');
+            }
+        }
+
         $elementsService = Craft::$app->getElements();
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -369,7 +395,7 @@ class ProductsController extends BaseController
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        $this->requirePermission('commerce-editProductType:' . $product->getType()->uid);
     }
 
 

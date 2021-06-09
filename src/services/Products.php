@@ -9,6 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\commerce\elements\Product;
+use craft\commerce\Plugin;
+use craft\elements\User;
 use craft\events\SiteEvent;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
@@ -59,5 +61,19 @@ class Products extends Component
                 ]
             ]));
         }
+    }
+
+    /**
+     * @param User $user
+     * @param Product $product
+     * @param null $checkPermissionName
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function hasPermission(User $user, Product $product, $checkPermissionName = null): bool
+    {
+        $productType = $product->getType();
+     
+        return Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, $checkPermissionName);
     }
 }
