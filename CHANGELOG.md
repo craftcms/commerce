@@ -1,5 +1,15 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
+
+### Fixed
+- Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
+- Fixed a bug where a disabled payment gateway could still be used. ([#2150](https://github.com/craftcms/commerce/issues/2150))
+- Fixed a MySQL error that could occur when saving a variant in PHP without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
+
 ## 3.3.3 - 2021-06-01
 
 ### Added
