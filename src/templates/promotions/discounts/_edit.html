@@ -196,7 +196,8 @@
                         value: discount.userCondition
                     }) }}
                 </div>
-                <div class="flex-grow{% if discount.userCondition == 'usersAnyOrNone' %} hidden{% endif %}">
+        
+                <div class="flex-grow{% if discount.userCondition is null or discount.userCondition == 'usersAnyOrNone' %} hidden{% endif %}">
                     {{ forms.multiselectField({
                         id: 'groups',
                         name: 'groups',
