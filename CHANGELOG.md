@@ -12,6 +12,7 @@
 - Fixed a bug where a donation marked as non-taxable could receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
 - Fixed a bug where the order’s field layout UID would change on every save. ([#2193](https://github.com/craftcms/commerce/issues/2193))
 - Fixed a SQL error that occured when saving a payment currency without a conversion rate. ([#2149](https://github.com/craftcms/commerce/issues/2149))
+- Fixed a missing validation error when saving a discount. ([#2176](https://github.com/craftcms/commerce/issues/2176))
 
 ## 3.3.3 - 2021-06-01
 
