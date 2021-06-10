@@ -1219,7 +1219,7 @@ return [
     'shippingSameAsBilling and billingSameAsShipping can’t both be set.' => 'shippingSameAsBilling と billingSameAsShipping を同時に設定することはできません。',
     'subscription' => '定期支払い',
     'subscriptions' => '定期支払い',
-    'to' => '宛先',
+    'to' => 'から',
     '{amount} included' => '{amount} 込み',
     '{description} is no longer available and was removed.' => '{description}は削除され、使用できなくなりました。',
     '{description} only has {stock} in stock.' => '{description}の在庫数は {stock} のみです。',
