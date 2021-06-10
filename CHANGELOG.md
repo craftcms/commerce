@@ -9,6 +9,7 @@
 - Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
 - Fixed a bug where a disabled payment gateway could still be used. ([#2150](https://github.com/craftcms/commerce/issues/2150))
 - Fixed a MySQL error that could occur when saving a variant in PHP without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
+- Fixed a bug where a donation marked as non-taxable could receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
 
 ## 3.3.3 - 2021-06-01
 
