@@ -174,7 +174,7 @@ class Tax extends Component implements AdjusterInterface
 
                 // Not an order level taxable, add tax adjustments to the line items.
                 foreach ($this->_order->getLineItems() as $item) {
-                    if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+                    if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getPurchasable()->getIsTaxable()) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                         $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
                         $amount = Currency::round($amount);
