@@ -23,14 +23,6 @@
   align-items: center;
 }
 
-a.block,
-span.block,
-label.block,
-strong.block,
-del.block {
-	display: block;
-}
-
 /* Width */
 
 .w-1\/2 {
@@ -162,10 +154,6 @@ del.block {
 
 .m-0 {
   margin: 0;
-}
-
-.mb-line {
-	margin-bottom: 1.2em;
 }
 
 .mt-tiny {

@@ -37,7 +37,7 @@
                                     <input type="checkbox"
                                            name="lineItems[{{ item.id }}][remove]"
                                            value="1">
-                                    <span class="label">Remove Line</span>
+                                    <span>Remove Line</span>
                                 </label>
                             </div>
                         </td>
@@ -57,7 +57,7 @@
 
                             {% if item.options.donationAmount is defined %}
                                 <label for="lineitem-donationAmount-{{ item.id }}">
-                                    <span class="label text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
+                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
                                 </label>
                                 <input type="text"
                                        id="lineitem-donationAmount-{{ item.id }}"
@@ -77,7 +77,7 @@
 
                             <div class="mt-3">
                                 <label for="lineitem-note-{{ item.id }}">
-                                    <span class="label text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
+                                    <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
                                 </label>
                                 <input type="text"
                                        id="lineitem-note-{{ item.id }}"
@@ -240,7 +240,7 @@
                     <td class="pt-3 text-right" colspan="3">
                         <div class="flex w-full justify-end">
                             <div class="{% if cart.getFirstError('couponCode') %}[[classes.box.error]]{% else %}[[classes.box.base]]{% endif %} text-left max-w-sm w-full">
-                                <label for="couponCode" class="block font-bold"><span class="label">Coupon Code</span></label>
+                                <label for="couponCode" class="block font-bold">Coupon Code</label>
                                 {% if cart.getFirstError('couponCode') %}
                                     <div class="text-red-500">{{ cart.getFirstError('couponCode') }}</div>
                                 {% endif %}

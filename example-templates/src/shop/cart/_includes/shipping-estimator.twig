@@ -6,7 +6,7 @@
         <div class="js-estimate-fields">
             {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
             {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
-            <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId"><span class="label">{{ 'Country' }}</span></label>
+            <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">{{ 'Country' }}</label>
             <select class="js-address-country js-estimate-country w-full [[classes.input]]"
                     name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
                 {% for key, option in countries %}
@@ -16,7 +16,7 @@
             </select>
 
             <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-                <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state"><span class="label">{{ 'State' }}</span></label>
+                <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">{{ 'State' }}</label>
                 {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
                 <select id="estimatedShippingAddress-stateId"
                         name="estimatedShippingAddress[stateValue]"
@@ -36,7 +36,7 @@
                        value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"/>
             </div>
 
-            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode"><span class="label">{{ 'Zip Code' }}</span></label>
+            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">{{ 'Zip Code' }}</label>
             <input type="text"
                    id="estimatedShippingAddress-zipCode"
                    name="estimatedShippingAddress[zipCode]"
@@ -49,13 +49,13 @@
                            {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}
                            name="estimatedBillingAddressSameAsShipping"
                            value="1"/>
-                    <span class="label">Billing Same as Shipping</span>
+                    Billing Same as Shipping
                 </label>
             </div>
 
             <div class="js-estimate-billing mt-6">
                 <h5 class="mt-0 font-bold">{{ 'Tax Estimate' }}</h5>
-                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId"><span class="label">{{ 'Country' }}</span></label>
+                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">{{ 'Country' }}</label>
                 <select class="js-address-country w-full [[classes.input]] js-estimate-country"
                         name="estimatedBillingAddress[countryId]" data-modelname="estimatedBillingAddress">
                     {% for key, option in countries %}
@@ -65,7 +65,7 @@
                 </select>
 
                 <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-                    <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state"><span class="label">{{ 'State' }}</span></label>
+                    <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">{{ 'State' }}</label>
                     {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
                     <select id="estimatedBillingAddress-stateId"
                             name="estimatedBillingAddress[stateValue]"
@@ -86,7 +86,7 @@
                            value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
                 </div>
 
-                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode"><span class="label">{{ 'Zip Code' }}</span></label>
+                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">{{ 'Zip Code' }}</label>
                 <input type="text"
                        id="estimatedBillingAddress-zipCode"
                        name="estimatedBillingAddress[zipCode]"
@@ -105,8 +105,8 @@
                                        name="shippingMethodHandle"
                                        value="{{ handle }}"
                                        {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
-                                <span class="label">{{ method.name }}
-                                <span title="{{ method.priceForOrder(cart) }}">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span></span>
+                                {{ method.name }}
+                                <span title="{{ method.priceForOrder(cart) }}">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
                             </label>
                         </div>
                     {% endfor %}
