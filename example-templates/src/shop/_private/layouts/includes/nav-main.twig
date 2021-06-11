@@ -32,7 +32,7 @@
                     </a>
                 {% endfor %}
             </nav>
-            <a href="/[[folderName]]/cart" class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow">
+            <a href="{{ url('[[folderName]]/cart') }}" class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow">
                 {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[color]]-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
                 <p role="img" aria-label="Shopping Cart">🛒</p>
             </a>

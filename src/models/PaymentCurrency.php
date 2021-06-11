@@ -171,6 +171,7 @@ class PaymentCurrency extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['iso'], 'required'];
+        $rules[] = [['rate'], 'required'];
         $rules[] = [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']];
 
         return $rules;
