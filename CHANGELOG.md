@@ -5,6 +5,9 @@
 ### Added
 - Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
 
+### Changed
+- Improved the performance of calculating available discounts for an order. ([#1744](https://github.com/craftcms/commerce/issues/1744))
+
 ### Fixed
 - Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
 - Fixed a bug where a disabled payment gateway could still be used. ([#2150](https://github.com/craftcms/commerce/issues/2150))
