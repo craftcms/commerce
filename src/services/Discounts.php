@@ -395,6 +395,11 @@ class Discounts extends Component
             return false;
         }
 
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
+            $explanation = Craft::t('commerce', 'This coupon requires an email address.');
+            return false;
+        }
+
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
             $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
@@ -518,7 +523,6 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-
         if (!$discount->enabled) {
             return false;
         }
@@ -543,6 +547,10 @@ class Discounts extends Component
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+            return false;
+        }
+
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
             return false;
         }
 
@@ -1082,13 +1090,25 @@ class Discounts extends Component
      * @param Discount $discount
      * @param Order $order
      * @return bool
+     * @throws \yii\base\InvalidConfigException
      */
-    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    private function _isDiscountEmailRequirementValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @param Order $order
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
