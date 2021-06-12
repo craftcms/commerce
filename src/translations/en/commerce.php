@@ -1148,5 +1148,9 @@ return [
     'Couldn’t save tax zone.' => 'Couldn’t save tax zone.',
     'Subscription to “{plan}”' => 'Subscription to “{plan}”',
     'Customer Info' => 'Customer Info',
-    'Pending' => 'Pending'
+    'Pending' => 'Pending',
+    'Any or none' => 'Any or none',
+    'Include all' => 'Include all',
+    'Include any' => 'Include any',
+    'Exclude' => 'Exclude',
 ];
