@@ -1596,6 +1596,7 @@ class Order extends Element
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
 
+        $this->clearNotices(); // Customer notices are assessed as being delivered once the customer decides to complete the order.
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
@@ -2054,7 +2055,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
