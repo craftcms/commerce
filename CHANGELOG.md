@@ -4,6 +4,7 @@
 
 ### Added
 - Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
+- Added `craft\commerce\models\LineItem::getIsTaxable()`.
 
 ### Changed
 - Changed `returnUrl` and `cancelUrl` column type to text in the `commerce_orders` table.
