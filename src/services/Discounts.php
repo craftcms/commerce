@@ -677,7 +677,7 @@ class Discounts extends Component
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
-        $record->userCondition = $model->userCondition;
+        $record->userGroupsCondition = $model->userGroupsCondition;
         $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
         $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
@@ -1031,9 +1031,9 @@ class Discounts extends Component
         $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
         
         $discountGroupIds = $discount->getUserGroupIds();
-        if ($discount->userCondition !== DiscountRecord::CONDITION_USERS_ANY_OR_NONE) {
+        if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
             
-            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ANY && 
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY && 
                 (count(array_intersect($groupIds, $discountGroupIds)) === 0)
             ) {
                 return false;
@@ -1041,13 +1041,13 @@ class Discounts extends Component
             
             sort($groupIds); 
             sort($discountGroupIds);
-            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_INCLUDE_ALL 
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL 
                && $groupIds !== $discountGroupIds
             ) {
                 return false;
             }            
             
-            if ($discount->userCondition === DiscountRecord::CONDITION_USERS_EXCLUDE &&
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE &&
                 count(array_intersect($groupIds, $discountGroupIds)) > 0
             ) {
                 return false;
@@ -1204,7 +1204,7 @@ class Discounts extends Component
                 '[[discounts.excludeOnSale]]',
                 '[[discounts.hasFreeShippingForMatchingItems]]',
                 '[[discounts.hasFreeShippingForOrder]]',
-                '[[discounts.userCondition]]',
+                '[[discounts.userGroupsCondition]]',
                 '[[discounts.allPurchasables]]',
                 '[[discounts.allCategories]]',
                 '[[discounts.categoryRelationshipType]]',

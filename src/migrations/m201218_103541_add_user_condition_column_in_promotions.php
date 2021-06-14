@@ -15,8 +15,8 @@ class m201218_103541_add_user_condition_column_in_promotions extends Migration
      */
     public function safeUp()
     {
-        if (!$this->db->columnExists('{{commerce_discounts}}', 'userCondition')) {
-            $this->addColumn('{{%commerce_discounts}}', 'userCondition', $this->string()->defaultValue('usersAnyOrNone'));
+        if (!$this->db->columnExists('{{commerce_discounts}}', 'userGroupsCondition')) {
+            $this->addColumn('{{%commerce_discounts}}', 'userGroupsCondition', $this->string()->defaultValue('userGroupsAnyOrNone'));
         }
 
         $discountAllGroups = (new Query())
@@ -26,12 +26,12 @@ class m201218_103541_add_user_condition_column_in_promotions extends Migration
 
         foreach ($discountAllGroups as $discountAllGroup) {
             $allGroups = $discountAllGroup['allGroups'];
-            $userCondition = 'usersAnyOrNone';
-            if ($allGroups === '0') {
-                $userCondition = 'usersIncludeAny';
+            $userGroupsCondition = 'userGroupsAnyOrNone';
+            if (!$allGroups) {
+                $userGroupsCondition = 'userGroupsIncludeAny';
             }
 
-            $this->update('{{%commerce_discounts}}', ['userCondition' => $userCondition], ['id' => $discountAllGroup['id']]);
+            $this->update('{{%commerce_discounts}}', ['userGroupsCondition' => $userGroupsCondition], ['id' => $discountAllGroup['id']]);
         }
 
         $this->dropColumn('{{%commerce_discounts}}', 'allGroups');

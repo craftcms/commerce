@@ -224,7 +224,7 @@ class Install extends Migration
             'excludeOnSale' => $this->boolean(),
             'hasFreeShippingForMatchingItems' => $this->boolean(),
             'hasFreeShippingForOrder' => $this->boolean(),
-            'userCondition' => $this->string()->defaultValue('usersAnyOrNone'),
+            'userGroupsCondition' => $this->string()->defaultValue('userGroupsAnyOrNone'),
             'allPurchasables' => $this->boolean(),
             'allCategories' => $this->boolean(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),

@@ -144,10 +144,9 @@ class Discount extends Model
     public $hasFreeShippingForOrder;
     
     /**
-     * @var string User condition type.
+     * @var string Type of user group condition that should match the discount. (See getUserConditions().)
      */
-    public $userCondition;
-
+    public $userGroupsCondition;
 
     /**
      * @var bool Match all products
@@ -342,14 +341,17 @@ class Discount extends Model
 
         return Craft::$app->formatter->asPercent(0);
     }
-    
-    public function getUserConditions(): array
+
+    /**
+     * @return array
+     */
+    public function getUserGroupsConditions(): array
     {
         return [
-          DiscountRecord::CONDITION_USERS_ANY_OR_NONE => Craft::t('commerce', 'Any or none'),
-          DiscountRecord::CONDITION_USERS_INCLUDE_ALL => Craft::t('commerce', 'Include all'),
-          DiscountRecord::CONDITION_USERS_INCLUDE_ANY => Craft::t('commerce', 'Include any'),
-          DiscountRecord::CONDITION_USERS_EXCLUDE => Craft::t('commerce', 'Exclude')
+          DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'Any or none'),
+          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Include all…'),
+          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Include any…'),
+          DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Exclude…')
         ];
     }
 

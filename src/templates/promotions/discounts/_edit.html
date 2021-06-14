@@ -191,13 +191,13 @@
                 <div>
                     {{ forms.select({
                         id: 'user-condition',
-                        name: 'userCondition',
-                        options: discount.getUserConditions(),
-                        value: discount.userCondition
+                        name: 'userGroupsCondition',
+                        options: discount.getUserGroupsConditions(),
+                        value: discount.userGroupCondition
                     }) }}
                 </div>
         
-                <div class="flex-grow{% if discount.userCondition is null or discount.userCondition == 'usersAnyOrNone' %} hidden{% endif %}">
+                <div class="flex-grow{% if discount.userGroupsCondition is null or discount.userGroupsCondition == 'userGroupsAnyOrNone' %} hidden{% endif %}">
                     {{ forms.multiselectField({
                         id: 'groups',
                         name: 'groups',
@@ -487,7 +487,7 @@
         $(function() {
     
             $('#user-condition').change(function () {
-                if ($(this).val() === 'usersAnyOrNone') {
+                if ($(this).val() === 'userGroupsAnyOrNone') {
                     $('#groups-field').parent().addClass('hidden');
                 } else {
                     $('#groups-field').parent().removeClass('hidden');
