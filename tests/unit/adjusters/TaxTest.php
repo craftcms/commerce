@@ -7,7 +7,6 @@
 
 namespace craftcommercetests\unit\adjusters;
 
-use Codeception\Stub;
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
@@ -15,8 +14,6 @@ use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
-use craft\fields\Entries;
-use yii\base\BaseObject;
 
 /**
  * CartTest
