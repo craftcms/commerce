@@ -44,7 +44,8 @@
 {% hook "cp.commerce.discounts.edit" %}
 
 {% block details %}
-    {% hook "cp.commerce.discounts.edit.details" %}
+
+    {{ parent() }}
 
     <div class="meta">
         {{ forms.lightSwitchField({
@@ -70,6 +71,8 @@
             </div>
         </div>
     {% endif %}
+
+    {% hook "cp.commerce.discounts.edit.details" %}
 {% endblock %}
 
 {% block content %}

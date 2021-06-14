@@ -37,7 +37,8 @@
 {% hook "cp.commerce.sales.edit" %}
 
 {% block details %}
-    {% hook "cp.commerce.sales.edit.details" %}
+
+    {{ parent() }}
 
     <div class="meta">
         {{ forms.lightSwitchField({
@@ -64,6 +65,8 @@
             </div>
         </div>
     {% endif %}
+
+    {% hook "cp.commerce.sales.edit.details" %}
 {% endblock %}
 
 {% block content %}
