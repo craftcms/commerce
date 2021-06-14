@@ -74,7 +74,7 @@ class Discount extends ActiveRecord
     const CONDITION_USER_GROUPS_ANY_OR_NONE = 'userGroupsAnyOrNone';
     const CONDITION_USER_GROUPS_INCLUDE_ALL = 'userGroupsIncludeAll';
     const CONDITION_USER_GROUPS_INCLUDE_ANY = 'userGroupsIncludeAny';
-    const CONDITION_USER_GROUPS_EXCLUDE = 'userGroupsExclude';
+    const CONDITION_USER_GROUPS_EXCLUDE = 'userGroupsExcludeAny';
 
     /**
      * @inheritdoc

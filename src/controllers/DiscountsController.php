@@ -69,6 +69,7 @@ class DiscountsController extends BaseCpController
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
         $variables = compact('id', 'discount');
+        $variables['isNewDiscount'] = false;
 
         if (!$variables['discount']) {
             if ($variables['id']) {
@@ -79,6 +80,7 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['isNewDiscount'] = true;
             }
         }
 
@@ -170,10 +172,12 @@ class DiscountsController extends BaseCpController
         $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
-        
-        if (!$groups) {
+
+        if($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE)
+        {
             $groups = [];
         }
+
         $discount->setUserGroupIds($groups);
 
         // Save it
