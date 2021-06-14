@@ -14,7 +14,9 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxRate;
+use craft\commerce\Plugin;
 use craft\fields\Entries;
+use yii\base\BaseObject;
 
 /**
  * CartTest
@@ -24,11 +26,47 @@ use craft\fields\Entries;
  */
 class TaxTest extends Unit
 {
+
+    /**
+     *
+     */
+    public $pluginInstance;
+
+    /**
+     *
+     */
+    public $originalEdition;
+
     /**
      * @var Order
      */
     private $_order;
 
+    /**
+     *
+     */
+    protected function _before()
+    {
+        parent::_before();
+
+        $this->pluginInstance = Plugin::getInstance();
+        $this->originalEdition = $this->pluginInstance->edition;
+        $this->pluginInstance->edition = Plugin::EDITION_PRO;
+    }
+
+    /**
+     *
+     */
+    protected function _after()
+    {
+        parent::_after();
+
+        $this->pluginInstance->edition = $this->originalEdition;
+    }
+
+    /**
+     *
+     */
     public function _setUp()
     {
         parent::_setUp();
@@ -51,6 +89,7 @@ class TaxTest extends Unit
 
         $adjustments = $taxAdjuster->adjust($this->_order);
 
+        self::assertEquals(15, $this->_order->getTotalQty());
         self::assertEquals(200, $this->_order->getTotalPrice());
         self::assertCount(1, $adjustments);
         self::assertEquals('10%', $adjustments[0]->description);

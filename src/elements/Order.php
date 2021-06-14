@@ -56,7 +56,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
-use Money\Money;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
