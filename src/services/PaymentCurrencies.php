@@ -324,6 +324,8 @@ class PaymentCurrencies extends Component
                 'iso',
                 'primary',
                 'rate',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::PAYMENTCURRENCIES]);
     }

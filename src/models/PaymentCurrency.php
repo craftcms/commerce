@@ -11,6 +11,7 @@ use craft\commerce\base\Model;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
 
 /**
  * Currency model.
@@ -52,6 +53,17 @@ class PaymentCurrency extends Model
      */
     private $_currency;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @return string
@@ -171,6 +183,7 @@ class PaymentCurrency extends Model
         $rules = parent::defineRules();
 
         $rules[] = [['iso'], 'required'];
+        $rules[] = [['rate'], 'required'];
         $rules[] = [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']];
 
         return $rules;

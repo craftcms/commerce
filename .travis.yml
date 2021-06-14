@@ -61,7 +61,6 @@ before_script:
   sudo mysql_upgrade || echo "MySQL is already up to date"
 - travis_retry mysql -e 'CREATE DATABASE `commercetest`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
-- mysql -e "select @@time_zone";
 - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
 - psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - cp tests/.env.example.$DB tests/.env
@@ -80,7 +79,7 @@ before_script:
 script:
 - |
   if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
-    vendor/bin/codecept run unit,functional
+    vendor/bin/codecept -d run unit,functional
   else
     mkdir -p build/logs
     vendor/bin/codecept run unit,functional --coverage-xml coverage.xml;

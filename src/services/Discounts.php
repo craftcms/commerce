@@ -29,6 +29,7 @@ use craft\db\Query;
 use craft\elements\Category;
 use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
+use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
@@ -211,7 +212,6 @@ class Discounts extends Component
      */
     const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
-
     /**
      * @var Discount[]
      */
@@ -220,8 +220,7 @@ class Discounts extends Component
     /**
      * @var Discount[]
      */
-    private $_allActiveDiscounts;
-
+    private $_activeDiscountsByKey;
 
     /**
      * Get a discount by its ID.
@@ -231,7 +230,17 @@ class Discounts extends Component
      */
     public function getDiscountById($id)
     {
-        return ArrayHelper::firstWhere($this->getAllDiscounts(), 'id', $id);
+        if (!$id) {
+            return null;
+        }
+
+        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.id]]' => $id])->all();
+
+        if (!$discounts) {
+            return null;
+        }
+
+        return ArrayHelper::firstValue($this->_populateDiscounts($discounts));
     }
 
     /**
@@ -242,18 +251,9 @@ class Discounts extends Component
     public function getAllDiscounts(): array
     {
         if (null === $this->_allDiscounts) {
-            $discounts = $this->_createDiscountQuery()
-                ->addSelect([
-                    'dp.purchasableId',
-                    'dpt.categoryId',
-                    'dug.userGroupId',
-                ])
-                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-                ->all();
+            $discounts = $this->_createDiscountQuery()->all();
 
-            $this->_allDiscounts = $this->_populateDiscountsRelations($discounts);
+            $this->_allDiscounts = $this->_populateDiscounts($discounts);
         }
 
         return $this->_allDiscounts;
@@ -261,47 +261,65 @@ class Discounts extends Component
 
     /**
      * Get all currently active discounts
+     * We pass the Order to attempt ot optimize the query to only possible discounts that might match,
+     * eliminating ones that definitely will not match.
      *
      * @param Order|null $order
-     * @return array
+     * @return Discount
      * @throws \Exception
      * @since 2.2.14
      */
-    public function getAllActiveDiscounts($order = null): array
+    public function getAllActiveDiscounts($order = null)
     {
-        if (null === $this->_allActiveDiscounts) {
-            $date = $order && $order->dateOrdered ? $order->dateOrdered : new DateTime();
-
-            $discounts = $this->_createDiscountQuery()
-                ->addSelect([
-                    'dp.purchasableId',
-                    'dpt.categoryId',
-                    'dug.userGroupId',
-                ])
-                ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-                ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-                // Restricted by enabled discounts
-                ->where([
-                    'enabled' => true,
-                ])
-                // Restrict by things that a definitely not in date
-                ->andWhere([
-                    'or',
-                    ['dateFrom' => null],
-                    ['<=', 'dateFrom', Db::prepareDateForDb($date)]
-                ])
-                ->andWhere([
-                    'or',
-                    ['dateTo' => null],
-                    ['>=', 'dateTo', Db::prepareDateForDb($date)]
-                ])
-                ->all();
-
-            $this->_allActiveDiscounts = $this->_populateDiscountsRelations($discounts);
+        // Date condition for use with key
+        if ($order && $order->dateOrdered) {
+            $date = $order->dateOrdered;
+        } else {
+            // We use a round the time so we can have a cache within the same request (rounded to 1 minute flat, no seconds)
+            $date = new DateTime();
+            $date->setTime($date->format('H'), round($date->format('i') / 1) * 1);
         }
 
-        return $this->_allActiveDiscounts;
+        // Coupon condition key
+        $couponKey = ($order && $order->couponCode) ? $order->couponCode : '*';
+        $dateKey = DateTimeHelper::toIso8601($date);
+        $cacheKey = implode(':', [$dateKey, $couponKey]);
+
+        if (isset($this->_activeDiscountsByKey[$cacheKey])) {
+            return $this->_activeDiscountsByKey[$cacheKey];
+        }
+
+        $discountQuery = $this->_createDiscountQuery()
+            // Restricted by enabled discounts
+            ->where([
+                'enabled' => true,
+            ])
+            // Restrict by things that a definitely not in date
+            ->andWhere([
+                'or',
+                ['dateFrom' => null],
+                ['<=', 'dateFrom', Db::prepareDateForDb($date)]
+            ])
+            ->andWhere([
+                'or',
+                ['dateTo' => null],
+                ['>=', 'dateTo', Db::prepareDateForDb($date)]
+            ]);
+
+        // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
+        if ($order && $order->couponCode) {
+            $discountQuery->andWhere(
+                [
+                    'or',
+                    ['code' => null],
+                    ['code' => $order->couponCode]
+                ]
+            );
+        }
+
+        $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
+
+        return $this->_activeDiscountsByKey[$cacheKey];
     }
 
     /**
@@ -395,6 +413,11 @@ class Discounts extends Component
             return false;
         }
 
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
+            $explanation = Craft::t('commerce', 'This coupon requires an email address.');
+            return false;
+        }
+
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
             $explanation = Craft::t('commerce', 'This coupon is limited to {limit} uses.', [
                 'limit' => $discount->perEmailLimit,
@@ -418,7 +441,13 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->getAllDiscounts(), function($discount) use ($code) {
+        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.code]]' => $code])->all();
+
+        if (!$discounts) {
+            return null;
+        }
+
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function($discount) use ($code) {
             return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
         });
     }
@@ -518,7 +547,6 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-
         if (!$discount->enabled) {
             return false;
         }
@@ -543,6 +571,10 @@ class Discounts extends Component
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+            return false;
+        }
+
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
             return false;
         }
 
@@ -722,7 +754,7 @@ class Discounts extends Component
 
             // Reset internal cache
             $this->_allDiscounts = null;
-            $this->_allActiveDiscounts = null;
+            $this->_activeDiscountsByKey = null;
 
             return true;
         } catch (\Exception $e) {
@@ -760,7 +792,7 @@ class Discounts extends Component
 
         // Reset internal cache
         $this->_allDiscounts = null;
-        $this->_allActiveDiscounts = null;
+        $this->_activeDiscountsByKey = null;
 
         return $result;
     }
@@ -780,7 +812,7 @@ class Discounts extends Component
 
         // Reset internal cache
         $this->_allDiscounts = null;
-        $this->_allActiveDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
@@ -798,7 +830,7 @@ class Discounts extends Component
 
         // Reset internal cache
         $this->_allDiscounts = null;
-        $this->_allActiveDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
@@ -817,7 +849,7 @@ class Discounts extends Component
 
         // Reset internal cache
         $this->_allDiscounts = null;
-        $this->_allActiveDiscounts = null;
+        $this->_activeDiscountsByKey = null;
     }
 
     /**
@@ -836,7 +868,7 @@ class Discounts extends Component
 
         // Reset internal cache
         $this->_allDiscounts = null;
-        $this->_allActiveDiscounts = null;
+        $this->_activeDiscountsByKey = null;
 
         return true;
     }
@@ -959,7 +991,7 @@ class Discounts extends Component
 
             // Reset internal cache
             $this->_allDiscounts = null;
-            $this->_allActiveDiscounts = null;
+            $this->_activeDiscountsByKey = null;
         }
     }
 
@@ -1082,13 +1114,25 @@ class Discounts extends Component
      * @param Discount $discount
      * @param Order $order
      * @return bool
+     * @throws \yii\base\InvalidConfigException
      */
-    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    private function _isDiscountEmailRequirementValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @param Order $order
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
@@ -1109,7 +1153,7 @@ class Discounts extends Component
      * @return array
      * @since 2.2.14
      */
-    private function _populateDiscountsRelations($discounts): array
+    private function _populateDiscounts($discounts): array
     {
         $allDiscountsById = [];
 
@@ -1200,6 +1244,14 @@ class Discounts extends Component
         if ($commerce && version_compare($commerce['version'], '3.1', '>=')) {
             $query->addSelect('[[discounts.appliedTo]]');
         }
+
+        $query->addSelect([
+            'dp.purchasableId',
+            'dpt.categoryId',
+            'dug.userGroupId',
+        ])->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
+            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]');
 
         return $query;
     }
