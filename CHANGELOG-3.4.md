@@ -1,8 +1,10 @@
-# Release Notes for Craft Commerce 3.4
+# Release Notes for Craft Commerce
 
 ## 3.4 - Unreleased
 
 ### Added
+- Added the `cp.commerce.discounts.index`, `cp.commerce.discounts.edit`, `cp.commerce.discounts.edit.content`, and `cp.commerce.discounts.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
+- Added the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.content`, and `cp.commerce.sales.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
 - Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
 - Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added `craft\commerce\base\Plan::$dateCreated`.
@@ -47,6 +49,8 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.7.0 or later.
+- It is possible to delete multiple sales from the Sales index page.
+- It is possible to delete multiple discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
 - The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
 - The product field layout no longer validates if it contains a field called `cheapestVariant`, `defaultVariant` or `variants`.
 - The variant field layout no longer validates if it contains a field called `description`, `price`, `product` or `sku`.
