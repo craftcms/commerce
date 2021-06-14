@@ -93,6 +93,11 @@ class Product extends Element
                 'type' => Type::string(),
                 'description' => 'The handle of the product type that contains the product.'
             ],
+            'url' => [
+                'name' => 'url',
+                'type' => Type::string(),
+                'description' => 'The product’s full URL',
+            ],
             'variants' => [
                 'name' => 'variants',
                 'type' => Type::listOf(Variant::getType()),

@@ -12,6 +12,30 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled for customers to select?"|t('commerce'),
+            name: 'enabled',
+            on: plan ? plan.enabled,
+            errors: plan ? plan.getErrors('enabled') : [],
+        }) }}
+    </div>
+
+    {% if plan and plan.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ plan.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ plan.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     {% if gatewayOptions|length > 0 or plan is not null %}
 
@@ -78,12 +102,7 @@
                 </div>
             {% endfor %}
 
-            {{ forms.lightswitchField({
-                label: "Enabled for customers to select?"|t('commerce'),
-                name: 'enabled',
-                on: plan ? plan.enabled,
-                errors: plan ? plan.getErrors('enabled') : [],
-            }) }}
+
         </div>
     {% else %}
         <p class="error">{{ 'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.'|t('commerce', {'link': url('commerce/settings/gateways')})|raw }}</p>

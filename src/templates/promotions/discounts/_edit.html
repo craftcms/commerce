@@ -41,6 +41,32 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this discount"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: discount.enabled,
+            checked: discount.enabled,
+            errors: discount.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if discount and discount.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ discount.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ discount.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/discounts/save">
@@ -70,16 +96,6 @@
             name: 'description',
             value: discount.description,
             errors: discount.getErrors('description'),
-        }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Enable this discount"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: discount.enabled,
-            checked: discount.enabled,
-            errors: discount.getErrors('enabled')
         }) }}
 
         {% hook "cp.commerce.discount.edit" %}
@@ -240,8 +256,7 @@
                         name: 'perUserLimit',
                         value: discount.perUserLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('perUserLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -256,6 +271,7 @@
         {{ forms.field({
             label: "Per User Discount Limit"|t('commerce'),
             instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+            errors: discount.getErrors('perUserLimit')
         }, customerCounterMarkup) }}
 
         {% set emailUsage = emailUsage and emailUsage|length ? emailUsage : {uses: 0, emails: 0} %}
@@ -267,8 +283,7 @@
                         name: 'perEmailLimit',
                         value: discount.perEmailLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('perEmailLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -283,6 +298,7 @@
         {{ forms.field({
             label: 'Per Email Address Discount Limit'|t('commerce'),
             instructions: 'How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users.'|t('commerce'),
+            errors: discount.getErrors('perEmailLimit')
         }, emailCounterMarkup) }}
 
         {% set totalDiscountUsesWording = discount.totalDiscountUses != 1 ? '{count} times' : '{count} time' %}
@@ -294,8 +310,7 @@
                         name: 'totalDiscountUseLimit',
                         value: discount.totalDiscountUseLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('totalDiscountUseLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -308,8 +323,9 @@
             </div>
         {% endset %}
         {{ forms.field({
-            'label': 'Total Discount Use Limit'|t('commerce'),
-            'instructions': "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            label: 'Total Discount Use Limit'|t('commerce'),
+            instructions: "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            errors: discount.getErrors('totalDiscountUseLimit'),
         }, totalDiscountLimitMarkup) }}
 
 

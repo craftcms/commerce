@@ -16,7 +16,7 @@ use yii\base\Event;
  * Class PurchasableAvailableEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.3.1
  */
 class PurchasableAvailableEvent extends Event
 {

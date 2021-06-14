@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.3.0.1",
+  "version": "3.3.3",
   "keywords": [
     "cms",
     "craftcms",
@@ -23,7 +23,8 @@
     "craftcms/cms": "^3.6.0",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
-    "ibericode/vat": "^2.0.3"
+    "ibericode/vat": "^1.1.2",
+    "iio/libmergepdf": "^4.0"
   },
   "autoload": {
     "psr-4": {
