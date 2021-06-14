@@ -42,7 +42,7 @@ class OrderSettingsController extends BaseAdminController
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
 
-        $fieldLayout->reservedAttributes = [
+        $fieldLayout->reservedFieldHandles = [
             'billingAddress',
             'customer',
             'estimatedBillingAddress',

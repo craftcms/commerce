@@ -337,7 +337,7 @@ class ProductType extends Model
     {
         $fieldLayout = $this->getFieldLayout();
 
-        $fieldLayout->reservedAttributes = [
+        $fieldLayout->reservedFieldHandles = [
             'cheapestVariant',
             'defaultVariant',
             'variants',
@@ -357,7 +357,7 @@ class ProductType extends Model
     {
         $variantFieldLayout = $this->getVariantFieldLayout();
 
-        $variantFieldLayout->reservedAttributes = [
+        $variantFieldLayout->reservedFieldHandles = [
             'description',
             'price',
             'product',
