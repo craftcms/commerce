@@ -27,6 +27,8 @@
 {% block content %}
     <p>{{ 'Discounts are rules that modify the price of items within a cart.'|t('commerce') }}</p>
     <div id="discounts-vue-admin-table"></div>
+
+    {% hook "cp.commerce.discounts.index" %}
 {% endblock %}
 
 {% set tableData = [] %}
