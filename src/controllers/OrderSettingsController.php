@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\services\Orders;
+use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
 use yii\web\Response;
 
@@ -40,6 +41,7 @@ class OrderSettingsController extends BaseAdminController
         $this->requirePostRequest();
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+
         $fieldLayout->reservedAttributes = [
             'billingAddress',
             'customer',
@@ -65,8 +67,13 @@ class OrderSettingsController extends BaseAdminController
             return null;
         }
 
-        $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
+        if ($currentOrderFieldLayout = Craft::$app->getProjectConfig()->get(Orders::CONFIG_FIELDLAYOUT_KEY)) {
+            $uid = ArrayHelper::firstKey($currentOrderFieldLayout);
+        } else {
+            $uid = StringHelper::UUID();
+        }
 
+        $configData = [$uid => $fieldLayout->getConfig()];
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
 
         $this->setSuccessFlash(Craft::t('commerce', 'Order fields saved.'));

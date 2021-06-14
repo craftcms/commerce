@@ -820,6 +820,18 @@ class LineItem extends Model
     }
 
     /**
+     * @return bool
+     */
+    public function getIsTaxable(): bool
+    {
+        if (!$this->getPurchasable()) {
+            return true; // we have a default tax category so assume so.
+        }
+
+        return $this->getPurchasable()->getIsTaxable();
+    }
+
+    /**
      * @return float
      */
     public function getTax(): float
