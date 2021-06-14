@@ -46,7 +46,7 @@ class Settings extends Model
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     /**
-     * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
+     * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
@@ -68,6 +68,22 @@ class Settings extends Model
      * @since 2.2
      */
     public $allowEmptyCartOnCheckout = false;
+
+    /**
+     * @var bool Whether carts are can be marked as completed without a payment.
+     * @group Cart
+     * @since 3.3
+     */
+    public $allowCheckoutWithoutPayment = false;
+
+    /**
+     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     *
+     * The default `false` does not allow partial payments on the front end.
+     *
+     * @group Payments
+     */
+    public $allowPartialPaymentOnCheckout = false;
 
     /**
      * @var string Key to be used when returning cart information in a response.

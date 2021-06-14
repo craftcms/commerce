@@ -6,6 +6,11 @@
 {% do view.registerTranslations('commerce', [
   'Countries/States',
   'Has Zip Condition?',
+  'Name',
+  'Description',
+  'Type',
+  'Countries/States',
+  'Has Zip Condition?',
 ]) %}
 
 {% block actionButton %}
@@ -31,9 +36,9 @@
 
 {% js %}
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: 'description', title: Craft.t('app', 'Description') },
-        { name: 'type', title: Craft.t('app', 'Type') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
+        { name: 'type', title: Craft.t('commerce', 'Type') },
         { name: 'countryState', title: Craft.t('commerce', 'Countries/States') },
         {
             name: 'zipCondition',

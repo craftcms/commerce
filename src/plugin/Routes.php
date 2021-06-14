@@ -67,6 +67,7 @@ trait Routes
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
+            $event->rules['commerce/addresses/new'] = 'commerce/addresses/edit';
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';

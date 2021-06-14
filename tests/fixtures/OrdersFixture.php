@@ -8,30 +8,25 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
+use craft\base\ElementInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
-use craft\records\Element;
-use craft\test\fixtures\elements\ElementFixture;
-use yii\db\Exception;
+use craft\test\fixtures\elements\BaseElementFixture;
+use yii\helpers\ArrayHelper;
 
 /**
  * Class OrdersFixture.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.14
  */
-class OrdersFixture extends ElementFixture
+class OrdersFixture extends BaseElementFixture
 {
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
     public $dataFile = __DIR__.'/data/orders.php';
-
-    /**
-     * @inheritdoc
-     */
-    public $modelClass = Order::class;
 
     /**
      * @inheritdoc
@@ -45,152 +40,82 @@ class OrdersFixture extends ElementFixture
     /**
      * @var array
      */
-    public $ids = [];
+    private $_lineItems = [];
 
     /**
-     * @inheritdoc
+     * @var bool
      */
-    public function load()
+    private $_markAsComplete = false;
+
+    /**
+     * Ability to manually set the dateOrdered attribute
+     * @var bool|null|\DateTime
+     */
+    private $_dateOrdered = false;
+
+    public function init()
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
-        $this->data = [];
 
-        foreach ($this->getData() as $alias => $data) {
-            /* @var Order $element */
-            $element = isset($data['id']) ? $this->getElement(['id' => $data['id']]) : new $this->modelClass;
-
-            // If they want to add a date deleted. Store it but dont set that as an element property
-            $dateDeleted = null;
-
-            if (isset($data['dateDeleted'])) {
-                $dateDeleted = $data['dateDeleted'];
-                unset($data['dateDeleted']);
-            }
-
-            // Set the field layout
-            if (isset($data['fieldLayoutType'])) {
-                $fieldLayoutType = $data['fieldLayoutType'];
-                unset($data['fieldLayoutType']);
-
-                $fieldLayout = Craft::$app->getFields()->getLayoutByType($fieldLayoutType);
-                if ($fieldLayout) {
-                    $element->fieldLayoutId = $fieldLayout->id;
-                } else {
-                    codecept_debug("Field layout with type: $fieldLayoutType could not be found");
-                }
-            }
-
-            foreach ($data as $handle => $value) {
-                if (!in_array($handle, ['_lineItems', '_markAsComplete'])) {
-                    $element->$handle = $value;
-                }
-            }
-
-
-            // Save to get an ID
-            if (!Craft::$app->getElements()->saveElement($element)) {
-                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
-            }
-
-            $this->_setLineItems($element, $data['_lineItems'] ?? []);
-
-            // Resave after extra data
-            if (!Craft::$app->getElements()->saveElement($element)) {
-                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
-            }
-
-            // Complete order if required
-            if ($data['_markAsComplete']) {
-                $element->markAsComplete();
-            }
-
-            // Add it here
-            if ($dateDeleted) {
-                $elementRecord = Element::find()
-                    ->where(['id' => $element->id])
-                    ->one();
-
-                $elementRecord->dateDeleted = $dateDeleted;
-
-                if (!$elementRecord->save()) {
-                    throw new Exception('Unable to set element as deleted');
-                }
-            } else {
-                Craft::$app->getSearch()->indexElementAttributes($element);
-            }
-
-            $this->data[$alias] = array_merge($data, [
-                'id' => $element->id,
-                'number' => $element->number,
-                'shortNumber' => $element->getShortNumber(),
-                'reference' => $element->reference
-            ]);
-            $this->ids[] = $element->id;
-
-            foreach ($element->getLineItems() as $key => $lineItem) {
-                $this->data[$alias]['_lineItems'][$key]['id'] = $lineItem->id;
-            }
-        }
+        parent::init();
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     */
+    protected function populateElement(ElementInterface $element, array $attributes): void
+    {
+        $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
+        $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
+        $this->_dateOrdered = ArrayHelper::remove($attributes, '_dateOrdered');
+
+        parent::populateElement($element, $attributes);
+    }
+
+    /**
+     * @inerhitDoc
+     */
+    protected function saveElement(ElementInterface $element): bool
+    {
+        // Do an initial save to get an ID
+        $result = parent::saveElement($element);
+
+        /** @var Order $element */
+        $this->_setLineItems($element, $this->_lineItems);
+
+        // Re-save after extra data
+        if (!$result = Craft::$app->getElements()->saveElement($element)) {
+            throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
+        }
+
+        // Complete order if required
+        if ($this->_markAsComplete) {
+            $element->markAsComplete();
+        }
+
+        if ($this->_dateOrdered) {
+            $element->dateOrdered = $this->_dateOrdered;
+            // Re-save after extra data
+            if (!$result = Craft::$app->getElements()->saveElement($element)) {
+                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
+            }
+
+        }
+
+        // Reset private variables
+        $this->_lineItems = [];
+        $this->_markAsComplete = false;
+        $this->_dateOrdered = false;
+
+        return $result;
+    }
+
+    /**
+     * Set line items on the order from the fixture data.
      *
-     * @throws InvalidElementException
-     * @throws Throwable
+     * @param Order $order
+     * @param $lineItems
      */
-    public function unload()
-    {
-        if ($this->unload && !empty($this->ids)) {
-            foreach ($this->ids as $id) {
-                /** @var Order $element */
-                $element = Order::find()->id($id)->anyStatus()->one();
-
-                $addressIds = $element->isCompleted
-                    ? [$element->billingAddressId, $element->estimatedBillingAddressId, $element->shippingAddressId, $element->estimatedShippingAddressId]
-                    : [];
-
-                if ($element && !Craft::$app->getElements()->deleteElement($element, true)) {
-                    throw new InvalidElementException($element, 'Unable to delete element.');
-                }
-
-                $addressIds = array_filter($addressIds);
-                if (!empty($addressIds)) {
-                    foreach ($addressIds as $addressId) {
-                        Plugin::getInstance()->getAddresses()->deleteAddressById($addressId);
-                    }
-                }
-            }
-
-            $this->data = [];
-            $this->ids = [];
-        }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function beforeUnload()
-    {
-        Craft::$app->db->createCommand()->checkIntegrity(true)->execute();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function afterUnload()
-    {
-        Craft::$app->db->createCommand()->checkIntegrity(false)->execute();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function isPrimaryKey(string $key): bool
-    {
-        return parent::isPrimaryKey($key) || in_array($key, ['title']);
-    }
-
     private function _setLineItems(Order $order, $lineItems)
     {
         if (empty($lineItems)) {
@@ -203,6 +128,36 @@ class OrdersFixture extends ElementFixture
         }
 
         $order->setLineItems($orderLineItems);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function createElement(): ElementInterface
+    {
+        return new Order();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function deleteElement(ElementInterface $element): bool
+    {
+        /** @var Order $element */
+        $addressIds = $element->isCompleted
+            ? [$element->billingAddressId, $element->estimatedBillingAddressId, $element->shippingAddressId, $element->estimatedShippingAddressId]
+            : [];
+
+        $result = parent::deleteElement($element);
+
+        $addressIds = array_filter($addressIds);
+        if (!empty($addressIds)) {
+            foreach ($addressIds as $addressId) {
+                Plugin::getInstance()->getAddresses()->deleteAddressById($addressId);
+            }
+        }
+
+        return $result;
 
     }
 }

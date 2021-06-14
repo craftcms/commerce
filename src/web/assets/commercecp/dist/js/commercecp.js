@@ -430,7 +430,6 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'custom4': this.$form.find('input[name=' + this.id + 'custom4]').val()
             };
 
-            console.log(this.address);
             var self = this;
             this.settings.onSubmit({'address': this.address}, $.proxy(function(errors) {
                 self.errors = errors;
@@ -468,6 +467,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         orderId: null,
         paymentForm: null,
+        paymentAmount: null,
+        paymentCurrency: null,
 
         $status: null,
         $completion: null,
@@ -479,6 +480,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
             this.setSettings(settings);
             this.orderId = this.settings.orderId;
             this.paymentForm = this.settings.paymentForm;
+            this.paymentAmount = this.settings.paymentAmount;
+            this.paymentCurrency = this.settings.paymentCurrency;
 
             this.$makePayment = $('#make-payment');
 
@@ -493,6 +496,8 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
                 this.paymentModal = new Craft.Commerce.PaymentModal({
                     orderId: this.orderId,
                     paymentForm: this.paymentForm,
+                    paymentAmount: this.paymentAmount,
+                    paymentCurrency: this.paymentCurrency
                 });
 
             } else {
@@ -512,7 +517,9 @@ Craft.Commerce.OrderEdit = Garnish.Base.extend(
     {
         defaults: {
             orderId: null,
-            paymentForm: null
+            paymentForm: null,
+            paymentAmount: null,
+            paymentCurrency: null,
         }
     });
 
@@ -653,7 +660,9 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 
             var data = {
                 orderId: settings.orderId,
-                paymentForm: settings.paymentForm
+                paymentForm: settings.paymentForm,
+                paymentAmount: settings.paymentAmount,
+                paymentCurrency: settings.paymentCurrency
             };
 
             Craft.postActionRequest('commerce/orders/get-payment-modal', data, $.proxy(function(response, textStatus) {
@@ -667,7 +676,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                         Craft.appendFootHtml(response.footHtml);
 
                         var $buttons = $('.buttons', this.$container),
-                            $cancelBtn = $('<div class="btn">' + Craft.t('app', 'Cancel') + '</div>').prependTo($buttons);
+                            $cancelBtn = $('<div class="btn">' + Craft.t('commerce', 'Cancel') + '</div>').prependTo($buttons);
 
                         this.addListener($cancelBtn, 'click', 'cancelPayment');
 
@@ -1086,7 +1095,6 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
     updateTarget: function() {
         var sourceVal = this.$source.val();
         var targetVal = this.generateTargetValue(sourceVal);
-        console.log(sourceVal);
         this.$target.prop('checked', true);
     },
     onFormSubmit: function() {
@@ -1095,6 +1103,94 @@ Craft.Commerce.VariantValuesInput = Craft.BaseInputGenerator.extend({
         }
     }
 });
+
+if (typeof Craft.Commerce === typeof undefined) {
+    Craft.Commerce = {};
+}
+
+Craft.Commerce.DownloadOrderPdfAction = Garnish.Base.extend(
+    {
+        $btn: null,
+        $actionForm: null,
+        hud: null,
+        types: null,
+        $hudBody: null,
+
+
+        init: function(btn, pdfs, types) {
+            this.$btn = btn;
+            this.pdfs = pdfs;
+            this.types = types;
+            this.$actionForm = this.$btn.closest('form');
+
+            this.$hudBody = $('<div/>', {
+                'class': 'export-form'
+            });
+
+            this.addListener(this.$btn, 'click', 'showHud');
+        },
+
+        showHud: function() {
+            if (!this.hud) {
+
+                var $pdfField = Craft.ui.createSelectField({
+                    label: Craft.t('commerce', 'PDF'),
+                    name: 'pdfId',
+                    options: this.pdfs,
+                    'class': 'fullwidth',
+                }).appendTo(this.$hudBody);
+
+                var $typeField = Craft.ui.createSelectField({
+                    label: Craft.t('commerce', 'Download Type'),
+                    name: 'type',
+                    options: this.types,
+                    'class': 'fullwidth',
+                }).appendTo(this.$hudBody);
+
+                var $submitBtn = $('<button/>', {
+                    type: 'submit',
+                    'class': 'btn submit fullwidth formsubmit',
+                    text: Craft.t('app', 'Download')
+                }).appendTo(this.$hudBody)
+
+                var $spinner = $('<div/>', {
+                    'class': 'spinner hidden'
+                }).appendTo(this.$hudBody);
+
+                this.hud = new Garnish.HUD(this.$btn, this.$hudBody, {
+                    hudClass: 'hud'
+                });
+
+                this.hud.on('hide', () => {
+                    this.$btn.removeClass('active');
+                });
+
+                var submitting = false;
+
+                $submitBtn.on('click', $.proxy(function(ev) {
+                    ev.preventDefault();
+                    if (submitting) {
+                        return;
+                    }
+                    submitting = true;
+
+                    var $pdfField = this.$hudBody.find('[name="pdfId"]');
+                    var $typeField = this.$hudBody.find('[name="type"]');
+                    this.$actionForm.find('input#pdf-id').val($pdfField.val());
+                    this.$actionForm.find('input#download-type').val($typeField.val());
+
+                    this.$actionForm.submit();
+
+                    submitting = false;
+                    this.hud.hide();
+
+                }, this));
+
+            } else {
+                this.hud.show();
+            }
+        }
+    });
 
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};

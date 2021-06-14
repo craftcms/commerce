@@ -376,10 +376,15 @@ class Customers extends Component
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[customers.id]] = [[orders.customerId]]')
             ->where(['[[orders.customerId]]' => null, '[[customers.userId]]' => null]);
-        
+
+        // Wrap subquery in another subquery to just select the ID. This is for MySQL compatibility.
+        $customersIds = (new Query())
+            ->select('custs.id')
+            ->from(['custs' => $customers]);
+
         // This will also remove all addresses related to the customer.
         Craft::$app->getDb()->createCommand()
-            ->delete(Table::CUSTOMERS, ['id' => $customers])
+            ->delete(Table::CUSTOMERS, ['id' => $customersIds])
             ->execute();
     }
 
@@ -524,24 +529,33 @@ class Customers extends Component
 
     /**
      * Sets the last used addresses on the customer on order completion.
+     *
+     * Consolidates any other orders using the same email address.
+     *
      * Duplicates the address records used for the order so they are independent to the
      * customers address book.
      *
      * @param Order $order
+     * @throws \yii\db\Exception
      */
     public function orderCompleteHandler($order)
     {
-        $orderAddressesMutated = $this->_copyAddressesToOrder($order);
+        // Create a user account if requested
 
         $this->_createUserFromOrder($order);
 
+        // Consolidate orders for email address
+        // This may change the customer on the order (which might drop the address ID's from the order), but
+        // that is ok, since the _copyAddressesToOrder below will save the addresses.
+        $this->consolidateGuestOrdersByEmail($order->email, $order);
+
+        // Ensures that the completed order only has address IDs that belong ONLY to the order, and not an address book.
+        $orderAddressesMutated = $this->_copyAddressesToOrder($order);
+
         if ($orderAddressesMutated) {
-            // We don't need to update search indexes since the addresses are the same.
+            // We don't need to update search indexes since the address contents are the same.
             Craft::$app->getElements()->saveElement($order, false, false, false);
         }
-
-        // Consolidate guest orders
-        $this->consolidateGuestOrdersByEmail($order->email, $order);
     }
 
     /**
@@ -617,21 +631,7 @@ class Customers extends Component
                 'shipping.address1',
                 'users.email',
             ])
-
-            // Exclude customer records without a user or where there isn't any data
-            ->where([
-                'or',
-                ['not', ['userId' => null]],
-                [
-                    'and',
-                    ['userId' => null],
-                    [
-                        'or',
-                        ['not', ['primaryBillingAddressId' => null]],
-                        ['not', ['primaryShippingAddressId' => null]],
-                    ]
-                ]
-            ])->andWhere([
+            ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
                 ['not', ['customers.userId' => null]]
@@ -670,20 +670,40 @@ class Customers extends Component
      * @throws \yii\db\Exception
      * @since 3.1.4
      */
-    public function consolidateGuestOrdersByEmail(string $email, $order = null)
+    public function consolidateGuestOrdersByEmail(string $email, Order $order = null)
     {
-        $customerId = (new Query())
-            ->select('orders.customerId')
-            ->from(Table::ORDERS . ' orders')
-            ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['orders.email' => $email])
-            ->andWhere(['orders.isCompleted' => true])
-            // we want the customers related to a userId to be listed first, then by their latest order
-            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
-            ->scalar(); // get the first customerId in the result
+        // Consolidation customer for this email
+        $customerId = null;
 
+        // Try and find a customer related to a user with this email address
+        if ($user = User::find()->email($email)->anyStatus()->one()) {
+            if ($customer = $this->getCustomerByUserId($user->id)) {
+                $customerId = $customer->id;
+            }
+        }
+
+        // Try and find a customer past orders with this email address
+        if (!$customerId) {
+            $customerId = (new Query())
+                ->select('orders.customerId')
+                ->from(Table::ORDERS . ' orders')
+                ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
+                ->where(['orders.email' => $email])
+                ->andWhere(['orders.isCompleted' => true])
+                // we want the customers related to a userId to be listed first, then by their latest order
+                ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
+                ->scalar();
+        }
+
+        // If we have no customer at this point, we have nothing to consolidate to
         if (!$customerId) {
             return;
+        }
+
+        // If we have a current order, lets update it with the consolidation customer now.
+        if ($order && $order->customerId != $customerId) {
+            $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+            $order->setCustomer($customer);
         }
 
         // Get completed orders for other customers with the same email but not the same customer
@@ -698,26 +718,15 @@ class Customers extends Component
             ->all();
 
         foreach ($orders as $orderRow) {
-            $userId = $orderRow['userId'];
             $orderId = $orderRow['id'];
+            $userId = $orderRow['userId'];
 
             if (!$userId) {
-                // Dont use element save, just update DB directly
-                if ($order && $order instanceof Order) {
-                    $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
-                    if (!$customer) {
-                        throw new Exception('Can’t find customer to assign order to');
-                    }
-                    $order->setCustomer($customer);
-                }
-
                 Craft::$app->getDb()->createCommand()
-                    ->update(Table::ORDERS, [
-                        'customerId' => $customerId,
-                    ], [
-                        'id' => $orderId,
-                    ])
-                    ->execute();
+                    ->update(Table::ORDERS,
+                        ['customerId' => $customerId],
+                        ['id' => $orderId]
+                    )->execute();
             }
         }
     }
@@ -732,80 +741,29 @@ class Customers extends Component
         $mutated = false;
         // Now duplicate the addresses on the order
         $addressesService = Plugin::getInstance()->getAddresses();
-        if ($order->billingAddress) {
-            $snapshotBillingAddress = new Address($order->billingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'fullName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'address3',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'label',
-                    'notes',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName',
-                    'custom1',
-                    'custom2',
-                    'custom3',
-                    'custom4',
-                ]
-            ));
-            $originalBillingAddressId = $snapshotBillingAddress->id;
-            $snapshotBillingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
+
+        if ($originalBillingAddress = $order->getBillingAddress()) {
+            // Address ID could be null if the orders customer just got switched during order completion.
+            // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
+            $originalBillingAddressId = $originalBillingAddress->id;
+            $originalBillingAddress->id = null;
+            if ($addressesService->saveAddress($originalBillingAddress, false)) {
                 $mutated = true;
-                $order->setBillingAddress($snapshotBillingAddress);
+                $order->setBillingAddress($originalBillingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
 
-        if ($order->shippingAddress) {
-            $snapshotShippingAddress = new Address($order->shippingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'fullName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'address3',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'label',
-                    'notes',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName',
-                    'custom1',
-                    'custom2',
-                    'custom3',
-                    'custom4',
-                ]
-            ));
-            $originalShippingAddressId = $snapshotShippingAddress->id;
-            $snapshotShippingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
+        if ($originalShippingAddress = $order->getShippingAddress()) {
+            // Address ID could be null if the orders customer just got switched during order completion.
+            // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
+            $originalShippingAddressId = $originalShippingAddress->id;
+            $originalShippingAddress->id = null;
+            if ($addressesService->saveAddress($originalShippingAddress, false)) {
                 $mutated = true;
-                $order->setShippingAddress($snapshotShippingAddress);
+                $order->setShippingAddress($originalShippingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -822,7 +780,7 @@ class Customers extends Component
      * @throws Throwable
      * @throws ElementNotFoundException
      */
-    public function _createUserFromOrder(Order $order)
+    private function _createUserFromOrder(Order $order)
     {
         // Only do this if requested
         if (!$order->registerUserOnOrderComplete) {
@@ -937,7 +895,7 @@ class Customers extends Component
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
             'customer' => $customer,
-            'addressRedirect' => $context['user']->getCpEditUrl(),
+            'addressRedirect' => $context['user']->getCpEditUrl() . '#customerInfo',
         ]);
     }
 
@@ -987,10 +945,13 @@ class Customers extends Component
     public function eagerLoadCustomerForOrders(array $orders): array
     {
         $customerIds = ArrayHelper::getColumn($orders, 'customerId');
-        $customersResults = $this->_createCustomerQuery()->andWhere(['id' => $customerIds])->all();
+        $customersResults = $this->_createCustomerQuery()
+            ->andWhere(['id' => $customerIds])
+            ->andWhere(['not', ['userId' => null]])
+            ->all();
 
         $customers = [];
-        $userIds = array_filter(ArrayHelper::getColumn($customersResults, 'userId'));
+        $userIds = ArrayHelper::getColumn($customersResults, 'userId');
         $users = User::find()->id($userIds)->limit(null)->all();
 
         foreach ($customersResults as $result) {
@@ -1047,7 +1008,9 @@ class Customers extends Component
                 'id',
                 'userId',
                 'primaryBillingAddressId',
-                'primaryShippingAddressId'
+                'primaryShippingAddressId',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::CUSTOMERS]);
     }

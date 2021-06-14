@@ -21,7 +21,7 @@ use UnitTester;
  * CustomerAddressesTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.x
+ * @since 3.2.14
  */
 class CustomerAddressesTest extends Unit
 {
@@ -86,7 +86,6 @@ class CustomerAddressesTest extends Unit
 
         /** @var Address $savedAddress */
         $savedAddress = Address::find()->where(['id' => 1002])->one();
-
 
         self::assertEquals(200, $response->statusCode);
         self::assertArrayHasKey('address', $response->data);

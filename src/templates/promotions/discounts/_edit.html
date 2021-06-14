@@ -41,6 +41,32 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this discount"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: discount.enabled,
+            checked: discount.enabled,
+            errors: discount.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if discount and discount.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ discount.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ discount.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/discounts/save">
@@ -70,16 +96,6 @@
             name: 'description',
             value: discount.description,
             errors: discount.getErrors('description'),
-        }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Enable this discount"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: discount.enabled,
-            checked: discount.enabled,
-            errors: discount.getErrors('enabled')
         }) }}
 
         {% hook "cp.commerce.discount.edit" %}
@@ -166,8 +182,9 @@
             label: 'Order Condition Formula'|t('commerce'),
             id: 'orderConditionFormula',
             rows: 5,
-            instructions: 'Use a formula to match this discount to the order. Leave this blank to match all orders. Use the `order` variable.',
-            tip: 'This field uses the Twig expression syntax. <a href="https://twig.symfony.com/doc/2.x/templates.html#expressions" class="go">Learn More</a>',
+            instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the discount should apply to a given order. (The order can be referenced via an `order` variable.)'|t('commerce', {
+                url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
+            }),
             errors: discount is defined ? discount.getErrors('orderConditionFormula'),
             } %}
             {% block input %}
@@ -258,8 +275,7 @@
                         name: 'perUserLimit',
                         value: discount.perUserLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('perUserLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -274,6 +290,7 @@
         {{ forms.field({
             label: "Per User Discount Limit"|t('commerce'),
             instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
+            errors: discount.getErrors('perUserLimit')
         }, customerCounterMarkup) }}
 
         {% set emailUsage = emailUsage and emailUsage|length ? emailUsage : {uses: 0, emails: 0} %}
@@ -285,8 +302,7 @@
                         name: 'perEmailLimit',
                         value: discount.perEmailLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('perEmailLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -301,6 +317,7 @@
         {{ forms.field({
             label: 'Per Email Address Discount Limit'|t('commerce'),
             instructions: 'How many times one email address is allowed to use this discount. This applies to all previous orders, whether guest or user. Set to zero for unlimited use by guests or users.'|t('commerce'),
+            errors: discount.getErrors('perEmailLimit')
         }, emailCounterMarkup) }}
 
         {% set totalDiscountUsesWording = discount.totalDiscountUses != 1 ? '{count} times' : '{count} time' %}
@@ -312,8 +329,7 @@
                         name: 'totalDiscountUseLimit',
                         value: discount.totalDiscountUseLimit,
                         min: '0',
-                        size: 10,
-                        errors: discount.getErrors('totalDiscountUseLimit'),
+                        size: 10
                     }) }}
                 </div>
                 <div>
@@ -326,24 +342,24 @@
             </div>
         {% endset %}
         {{ forms.field({
-            'label': 'Total Discount Use Limit'|t('commerce'),
-            'instructions': "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            label: 'Total Discount Use Limit'|t('commerce'),
+            instructions: "How many times this discount can be used in total by guests or logged in users. Set zero for unlimited use."|t('commerce'),
+            errors: discount.getErrors('totalDiscountUseLimit'),
         }, totalDiscountLimitMarkup) }}
 
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Exclude this discount for products that are already on sale"|t('commerce'),
             id: 'excludeOnSale',
             name: 'excludeOnSale',
-            value: 1,
-            checked: discount.excludeOnSale,
+            on: discount.excludeOnSale ? true : false,
             errors: discount.getErrors('excludeOnSale')
         }) }}
     </div>
 
     <div id="actions" class="hidden">
 
-        <h3>Per Item Discount</h3>
+        <h3>{{ 'Per Item Discount'|t('commerce') }}</h3>
         {{ forms.selectField({
             label: "Applied Scope"|t('commerce'),
             instructions: "Choose whether the all line items or just matching line items get the 'Per Item' amounts off."|t('commerce'),
@@ -399,16 +415,15 @@
             tip: 'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.'|t('commerce')
         }, pctDiscountInput) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Ignore sales when this discount is applied to matching line items"|t('commerce'),
             id: 'ignoreSales',
             name: 'ignoreSales',
-            value: 1,
-            checked: discount.ignoreSales
+            on: discount.ignoreSales ? true : false
         }) }}
 
         <hr>
-        <h3>Flat Amount Off Order</h3>
+        <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
         {% set baseDiscountInput %}
         <table class="inputs">
@@ -452,31 +467,30 @@
         }, baseDiscountInput) }}
 
         <hr>
-        <h3>Additional Actions</h3>
+        <h3>{{ 'Additional Actions'|t('commerce') }}</h3>
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Remove all shipping costs from the order"|t('commerce'),
             id: 'hasFreeShippingForOrder',
             name: 'hasFreeShippingForOrder',
-            value: 1,
-            checked: discount.hasFreeShippingForOrder
+            on: discount.hasFreeShippingForOrder ? true : false
         }) }}
 
-        {{ forms.checkboxField({
+        {#
+          This might need to be disabled to start with. That is handled in the JS
+        #}
+        {{ forms.lightswitchField({
             label: "Remove shipping costs for matching items only"|t('commerce'),
             id: 'hasFreeShippingForMatchingItems',
             name: 'hasFreeShippingForMatchingItems',
-            value: 1,
-            checked: discount.hasFreeShippingForMatchingItems,
-            disabled: discount.hasFreeShippingForOrder
+            on: discount.hasFreeShippingForMatchingItems ? true : false
         }) }}
 
-        {{ forms.checkboxField({
+        {{ forms.lightswitchField({
             label: "Don’t apply any subsequent discounts to an order if this discount is applied"|t('commerce'),
             id: 'stopProcessing',
             name: 'stopProcessing',
-            value: 1,
-            checked: discount.stopProcessing,
+            on: discount.stopProcessing ? true : false,
             errors: discount.getErrors('stopProcessing')
         }) }}
     </div>
@@ -507,12 +521,28 @@
                 }
             });
 
-            $("#hasFreeShippingForOrder").click(function (){
-                if ($("#hasFreeShippingForOrder").prop("checked")){
-                    $("#hasFreeShippingForMatchingItems").prop("checked", false);
-                    $("#hasFreeShippingForMatchingItems").prop("disabled", true);
-                }else{
-                    $("#hasFreeShippingForMatchingItems").prop("disabled", false);
+            function disableShippingSwitch() {
+                $('#hasFreeShippingForMatchingItems').data('lightswitch').turnOff();
+                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", true);
+                $('#hasFreeShippingForMatchingItems').prop("disabled", true);
+                $("#hasFreeShippingForMatchingItems").addClass("disabled");
+            }
+
+            function enableShippingSwitch() {
+                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", false);
+                $('#hasFreeShippingForMatchingItems').prop("disabled", false);
+                $("#hasFreeShippingForMatchingItems").removeClass("disabled");
+            }
+
+            if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+                disableShippingSwitch();
+            }
+
+            $('#hasFreeShippingForOrder').click(function () {
+                if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+                    disableShippingSwitch();
+                } else {
+                    enableShippingSwitch();
                 }
             });
 

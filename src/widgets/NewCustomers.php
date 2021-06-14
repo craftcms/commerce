@@ -56,8 +56,8 @@ class NewCustomers extends Widget
 
         $this->_stat = new NewCustomersStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 

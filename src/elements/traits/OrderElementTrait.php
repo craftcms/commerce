@@ -8,9 +8,11 @@
 namespace craft\commerce\elements\traits;
 
 use Craft;
-use craft\commerce\elements\actions\DownloadOrderPdf;
+use craft\commerce\elements\actions\CopyLoadCartUrl;
+use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
+use craft\commerce\elements\Order;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
@@ -44,6 +46,16 @@ trait OrderElementTrait
     public function getFieldLayout()
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function htmlAttributes(string $context): array
+    {
+        $attributes = parent::htmlAttributes($context);
+        $attributes['data-number'] = $this->number;
+        return $attributes;
     }
 
     /**
@@ -142,15 +154,52 @@ trait OrderElementTrait
             }
             case 'totals':
             {
-                $values = [
-                    [Craft::t('commerce', 'Items'), $this->itemSubtotalAsCurrency],
-                    [Craft::t('commerce', 'Discounts'), $this->storedTotalDiscountAsCurrency],
-                    [Craft::t('commerce', 'Shipping'), $this->storedTotalShippingCostAsCurrency],
-                    [Craft::t('commerce', 'Tax (inc)'), $this->storedTotalTaxIncludedAsCurrency],
-                    [Craft::t('commerce', 'Tax'), $this->storedTotalTaxAsCurrency],
-                    [Craft::t('commerce', 'Price'), $this->storedTotalPriceAsCurrency],
-                ];
-                return $this->_miniTable($values);
+                $miniTable = [];
+
+                /** @var Order $this */
+                if ($this->itemSubtotal > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Items'),
+                        'value' => $this->itemSubtotalAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalDiscount > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Discounts'),
+                        'value' => $this->storedTotalDiscountAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalShippingCost > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Shipping'),
+                        'value' => $this->storedTotalShippingCostAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalTaxIncluded > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Tax (inc)'),
+                        'value' => $this->storedTotalTaxIncludedAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalTax > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Tax'),
+                        'value' => $this->storedTotalTaxAsCurrency
+                    ];
+                }
+
+                if ($this->storedTotalPrice > 0) {
+                    $miniTable[] = [
+                        'label' => Craft::t('commerce', 'Price'),
+                        'value' => $this->storedTotalPriceAsCurrency
+                    ];
+                }
+
+                return $this->_miniTable($miniTable);
             }
             case 'orderSite':
             {
@@ -249,7 +298,7 @@ trait OrderElementTrait
             $sources[] = [
                 'key' => $key,
                 'status' => $orderStatus->color,
-                'label' => $orderStatus->name,
+                'label' => Craft::t('site', $orderStatus->name),
                 'criteria' => $criteriaStatus,
                 'defaultSort' => ['dateOrdered', 'desc'],
                 'badgeCount' => 0,
@@ -319,7 +368,7 @@ trait OrderElementTrait
             $elementService = Craft::$app->getElements();
 
             if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
-                $actions[] = DownloadOrderPdf::class;
+                $actions[] = DownloadOrderPdfAction::class;
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
@@ -336,11 +385,17 @@ trait OrderElementTrait
             if (Craft::$app->getUser()->checkPermission('commerce-editOrders')) {
                 // Only allow mass updating order status when all selected are of the same status, and not carts.
                 $isStatus = strpos($source, 'orderStatus:');
-
-
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
                         'type' => UpdateOrderStatus::class
+                    ]);
+                    $actions[] = $updateOrderStatusAction;
+                }
+
+                $isStatus = strpos($source, 'carts:');
+                if ($isStatus === 0) {
+                    $updateOrderStatusAction = $elementService->createAction([
+                        'type' => CopyLoadCartUrl::class
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }
@@ -431,6 +486,7 @@ trait OrderElementTrait
             $attributes[] = 'dateOrdered';
             $attributes[] = 'datePaid';
             $attributes[] = 'totalPaid';
+            $attributes[] = 'paidStatus';
             $attributes[] = 'totals';
         } else {
             $attributes[] = 'shortNumber';
@@ -552,24 +608,20 @@ trait OrderElementTrait
         ];
     }
 
-    private function _miniTable($values)
+    /**
+     * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
+     *
+     * @return string
+     */
+    private function _miniTable($miniTable)
     {
         $output = '';
         $output .= '<table style="padding: 0; width: 100%">';
-        foreach ($values as $row) {
-            if ($row[1] != 0) {
-                $output .= '<tr style="padding: 0">';
-                $count = 1;
-                foreach ($row as $cell) {
-                    if ($count == 1) {
-                        $output .= '<td style="text-align: left; padding: 0px">' . $cell . '</td>';
-                    } else {
-                        $output .= '<td style="text-align: right; padding: 0px">' . $cell . '</td>';
-                    }
-                    $count++;
-                }
-                $output .= '</tr>';
-            }
+        foreach ($miniTable as $row) {
+            $output .= '<tr style="padding: 0">';
+            $output .= '<td style="text-align: left; padding: 0px">' . $row['label'] . '</td>';
+            $output .= '<td style="text-align: right; padding: 0px">' . $row['value'] . '</td>';
+            $output .= '</tr>';
         }
         $output .= '</table>';
 

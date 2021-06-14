@@ -430,16 +430,22 @@ class ProductTypes extends Component
             $productTypeRecord->hasDimensions = $data['hasDimensions'];
 
             // Variant title fields
-            $productTypeRecord->hasVariantTitleField = $data['hasVariantTitleField'];
+            $hasVariantTitleField = $data['hasVariantTitleField'];
             $titleFormat = $data['titleFormat'] ?? '{product.title}';
-            if ($productTypeRecord->titleFormat != $titleFormat) {
+            if ($productTypeRecord->titleFormat != $titleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
                 $shouldResaveProducts = true;
             }
             $productTypeRecord->titleFormat = $titleFormat;
+            $productTypeRecord->hasVariantTitleField = $hasVariantTitleField;
 
             // Product title fields
-            $productTypeRecord->hasProductTitleField = $data['hasProductTitleField'];
-            $productTypeRecord->productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+            $hasProductTitleField = $data['hasProductTitleField'];
+            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+            if ($productTypeRecord->productTitleFormat != $productTitleFormat || $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
+                $shouldResaveProducts = true;
+            }
+            $productTypeRecord->productTitleFormat = $productTitleFormat;
+            $productTypeRecord->hasProductTitleField = $hasProductTitleField;
 
             if ($productTypeRecord->hasVariants != $data['hasVariants']) {
                 $shouldResaveProducts = true;
@@ -609,6 +615,7 @@ class ProductTypes extends Component
                     'criteria' => [
                         'siteId' => '*',
                         'status' => null,
+                        'typeId' => $productTypeRecord->id,
                         'enabledForSite' => false
                     ]
                 ]));

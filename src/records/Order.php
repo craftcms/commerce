@@ -40,6 +40,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $message
  * @property string $number
  * @property string $orderLanguage
+ * @property string $orderSiteId
  * @property string $origin
  * @property OrderStatus $orderStatus
  * @property int $orderStatusId

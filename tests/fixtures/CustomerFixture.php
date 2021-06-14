@@ -8,7 +8,7 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\records\Customer;
-use craft\test\Fixture;
+use craft\test\ActiveFixture;
 
 /**
  * Class CustomerFixture.
@@ -17,7 +17,7 @@ use craft\test\Fixture;
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since 2.1
  */
-class CustomerFixture extends Fixture
+class CustomerFixture extends ActiveFixture
 {
     /**
      * @inheritdoc

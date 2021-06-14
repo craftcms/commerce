@@ -14,11 +14,13 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\elements\db\ElementQuery;
 use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
 use yii\db\Connection;
 use yii\db\Expression;
@@ -32,7 +34,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/order-queries.md
+ * @doc-path orders-carts.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -1181,6 +1183,8 @@ class OrderQuery extends ElementQuery
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
             }
+
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
         }
 
         return $orders;

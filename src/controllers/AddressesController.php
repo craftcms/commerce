@@ -16,6 +16,7 @@ use craft\helpers\AdminTable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
@@ -39,32 +40,46 @@ class AddressesController extends BaseCpController
      * @param int|null $addressId
      * @param AddressModel|null $address
      * @return Response
-     * @throws HttpException
+     * @throws NotFoundHttpException
      */
     public function actionEdit(int $addressId = null, AddressModel $address = null): Response
     {
         $variables = compact('addressId', 'address');
+        $variables['customerId'] = Craft::$app->getRequest()->getQueryParam('customerId');
+        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
 
         if (!$variables['address']) {
-            $variables['address'] = $variables['addressId'] ? Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']) : null;
+            $variables['address'] = null;
+
+            if ($variables['addressId']) {
+                $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
+            } elseif ($variables['customerId']) {
+                $variables['address'] = new AddressModel();
+            }
 
             if (!$variables['address']) {
-                throw new HttpException(404);
+                throw new NotFoundHttpException('Address not found.');
             }
         }
 
-        $variables['title'] = Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']]);
+        $variables['title'] = $variables['addressId']
+            ? Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']])
+            : Craft::t('commerce', 'New address');
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
-        $variables['customerId'] = (new Query())
-            ->from(Table::CUSTOMERS_ADDRESSES)
-            ->select(['customerId'])
-            ->where(['addressId' => $variables['address']->id])
-            ->scalar();
+        if (!$variables['customerId']) {
+            $variables['customerId'] = (new Query())
+                ->from(Table::CUSTOMERS_ADDRESSES)
+                ->select(['customerId'])
+                ->where(['addressId' => $variables['address']->id])
+                ->scalar();
+        }
 
-        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
+        if (!$variables['customer'] && $variables['customerId']) {
+            $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']);
+        }
         $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '');
 
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
@@ -77,20 +92,37 @@ class AddressesController extends BaseCpController
     /**
      * @return Response
      * @throws Exception
-     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
      */
     public function actionSave()
     {
         $this->requirePostRequest();
+        $address = null;
+        $customer = null;
 
-        $id = (int)Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $customerId = Craft::$app->getRequest()->getValidatedBodyParam('customerId');
+        $customer = $customerId ? Plugin::getInstance()->getCustomers()->getCustomerById((int)$customerId) : null;
 
-        $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
+        if ($id && $customer) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId((int)$id, (int)$customer->id);
+
+            if (!$address) {
+                if (Craft::$app->getRequest()->getAcceptsJson()) {
+                    return $this->asErrorJson('Address not found.');
+                }
+
+                throw new NotFoundHttpException('Address not found.');
+            }
+        } else if ($id) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$id);
+        }
 
         if (!$address) {
             $address = new AddressModel();
         }
 
+        // @TODO namespace inputs, and use setAttributes on the model
         // Shared attributes
         $attributes = [
             'attention',
@@ -121,16 +153,11 @@ class AddressesController extends BaseCpController
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
         }
 
+        // @todo remove forked save of address. This is currently here for backwards compatibility
+        $result = $customer ? Plugin::getInstance()->getCustomers()->saveAddress($address, $customer) : Plugin::getInstance()->getAddresses()->saveAddress($address);
+
         // Save it
-        if (Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'address' => $address]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
-
-            $this->redirectToPostedUrl($address);
-        } else {
+        if (!$result) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => Craft::t('commerce', 'Couldn’t save address.'),
@@ -139,12 +166,20 @@ class AddressesController extends BaseCpController
             }
 
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save address.'));
+
+            // Send the model back to the template
+            Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+
+            return null;
         }
 
-        // Send the model back to the template
-        Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
+        if (Craft::$app->getRequest()->getAcceptsJson()) {
+            return $this->asJson(['success' => true, 'address' => $address]);
+        }
 
-        return null;
+        $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
+
+        return $this->redirectToPostedUrl($address);
     }
 
     /**
@@ -245,7 +280,7 @@ class AddressesController extends BaseCpController
 
         $rows = [];
 
-        foreach (array_slice($addresses, 0, $limit) as $row) {
+        foreach (array_slice($addresses, $offset, $limit) as $row) {
             /** @var AddressModel $row */
             $rows[] = [
                 'id' => $row->id,

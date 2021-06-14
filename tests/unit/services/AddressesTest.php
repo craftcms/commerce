@@ -96,7 +96,7 @@ class AddressesTest extends Unit
      */
     public function testGetStoreLocationAddress()
     {
-        $storeAddress = $this->addresses->getAddressById(123);
+        $storeAddress = $this->addresses->getAddressById(1123);
         $address = $this->addresses->getStoreLocationAddress();
 
         self::assertIsObject($address);
@@ -154,7 +154,7 @@ class AddressesTest extends Unit
                 return true;
             },
             'getCountryIds' => function() {
-                return ['233'];
+                return ['236'];
             },
         ]);
         self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneCountry));
@@ -170,7 +170,7 @@ class AddressesTest extends Unit
             'id' => '26',
             'name' => 'California',
             'abbreviation' => 'CA',
-            'countryId' => '233',
+            'countryId' => '236',
         ]);
         $zoneState->setStates([$state]);
         self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneState));
@@ -184,7 +184,7 @@ class AddressesTest extends Unit
                 return true;
             },
             'getCountryIds' => function() {
-                return ['233'];
+                return ['236'];
             },
         ]);
         $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "12345"';

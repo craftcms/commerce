@@ -2,11 +2,14 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'Name',
     'Abbreviation',
-    'Country',
-    'No states exist yet.',
     'Couldn’t reorder states.',
+    'Country',
+    'Disabled',
+    'Enabled',
+    'Name',
+    'No states exist yet.',
+    'Set state status',
     'States reordered.',
     'Warning, deleting this state will remove it from all addresses and zones, are you sure you want to delete “{name}”?',
 ]) %}
@@ -22,6 +25,33 @@
 {% set fullPageForm = true %}
 
 {% import "_includes/forms" as forms %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled?"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: country.enabled,
+            errors: country.getErrors('enabled'),
+            warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
+        }) }}
+    </div>
+
+    {% if country and country.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ country.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ country.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/countries/save">
@@ -60,16 +90,6 @@
         errors: country.getErrors('isStateRequired')
     }) }}
 
-    {{ forms.lightswitchField({
-        label: "Enabled?"|t('commerce'),
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        on: country.enabled,
-        errors: country.getErrors('enabled'),
-        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this country if it is disabled.'|t('commerce') : null,
-    }) }}
-
     <hr>
     <h3>States</h3>
 
@@ -97,17 +117,17 @@
 
         var actions = [
             {
-                label: Craft.t('app', 'Set State Status'),
+                label: Craft.t('commerce', 'Set state status'),
                 actions: [
                     {
-                        label: Craft.t('app', 'Enabled'),
+                        label: Craft.t('commerce', 'Enabled'),
                         action: 'commerce/states/update-status',
                         param: 'status',
                         value: 'enabled',
                         status: 'enabled'
                     },
                     {
-                        label: Craft.t('app', 'Disabled'),
+                        label: Craft.t('commerce', 'Disabled'),
                         action: 'commerce/states/update-status',
                         param: 'status',
                         value: 'disabled',

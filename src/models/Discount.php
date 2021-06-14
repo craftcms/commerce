@@ -401,17 +401,20 @@ class Discount extends Model
                 }
             }
         ];
+        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
-                $order = Order::find()->one();
-                if (!$order) {
-                    $order = new Order();
-                }
-                $orderDiscountConditionParams = [
-                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                ];
-                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderDiscountConditionParams)) {
-                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                if ($this->{$attribute}) {
+                    $order = Order::find()->one();
+                    if (!$order) {
+                        $order = new Order();
+                    }
+                    $orderDiscountConditionParams = [
+                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                    ];
+                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                    }
                 }
             }
         ];

@@ -33,6 +33,7 @@ use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
+use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\DateTimeValidator;
 use DateTime;
@@ -298,7 +299,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         if ($this->getType()) {
             $uid = $this->getType()->uid;
@@ -341,6 +342,16 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function getCacheTags(): array
+    {
+        return [
+            "productType:$this->typeId",
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getUriFormat()
     {
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
@@ -355,29 +366,44 @@ class Product extends Element
     /**
      * Returns the tax category.
      *
-     * @return TaxCategory|null
+     * @return TaxCategory
+     * @throws InvalidConfigException
      */
-    public function getTaxCategory()
+    public function getTaxCategory(): TaxCategory
     {
+        $taxCategory = null;
+
         if ($this->taxCategoryId) {
-            return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 
-        return null;
+        if (!$taxCategory) {
+            // Use default as we must have a category ID
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
+            $this->taxCategoryId = $taxCategory->id;
+        }
+
+        return $taxCategory;
     }
 
     /**
      * Returns the shipping category.
      *
-     * @return ShippingCategory|null
+     * @return ShippingCategory
      */
-    public function getShippingCategory()
+    public function getShippingCategory(): ShippingCategory
     {
         if ($this->shippingCategoryId) {
-            return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
 
-        return null;
+        if (!$shippingCategory) {
+            // Use default as we must have a category ID
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
+            $this->shippingCategoryId = $shippingCategory->id;
+        }
+
+        return $shippingCategory;
     }
 
     /**
@@ -680,15 +706,15 @@ class Product extends Element
     }
 
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function getSearchKeywords(string $attribute): string
+    protected function searchKeywords(string $attribute): string
     {
         if ($attribute === 'sku') {
             return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
         }
 
-        return parent::getSearchKeywords($attribute);
+        return parent::searchKeywords($attribute);
     }
 
     /**
@@ -817,8 +843,12 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterDelete()
+    public function beforeDelete(): bool
     {
+        if (!parent::beforeDelete()) {
+            return false;
+        }
+
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
             ->anyStatus()
@@ -827,7 +857,6 @@ class Product extends Element
         $elementsService = Craft::$app->getElements();
 
         foreach ($variants as $variant) {
-
             $hardDelete = false;
             $variant->deletedWithProduct = true;
 
@@ -840,7 +869,7 @@ class Product extends Element
             $elementsService->deleteElement($variant, $hardDelete);
         }
 
-        parent::afterDelete();
+        return true;
     }
 
     /**
@@ -1176,6 +1205,7 @@ class Product extends Element
             ],
             'promotable' => Craft::t('commerce', 'Promotable?'),
             'defaultPrice' => Craft::t('commerce', 'Price'),
+            'defaultSku' => Craft::t('commerce', 'SKU'),
             [
                 'label' => Craft::t('app', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',

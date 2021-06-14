@@ -19,7 +19,7 @@ export default new Vuex.Store({
         originalDraft: null,
         customers: [],
         orderData: null,
-        lastPurchasableIds: [],
+        recentlyAddedLineItems: [],
         unloadEventInit: false,
     },
 
@@ -57,11 +57,15 @@ export default new Vuex.Store({
         },
 
         isProEdition() {
-          return (window.orderEdit.edition == 'pro')
+            return (window.orderEdit.edition == 'pro')
         },
 
         isLiteEdition() {
-          return (window.orderEdit.edition == 'lite')
+            return (window.orderEdit.edition == 'lite')
+        },
+
+        hasOrderChanged(state) {
+            return !_isEqual(state.draft, state.originalDraft)
         },
 
         orderId() {
@@ -381,6 +385,10 @@ export default new Vuex.Store({
 
                     throw errorMsg
                 });
+        },
+
+        clearRecentlyAddedLineItems({state}) {
+            state.recentlyAddedLineItems = []
         }
     },
 
@@ -429,8 +437,8 @@ export default new Vuex.Store({
             state.orderData = orderData
         },
 
-        updateLastPurchasableIds(state, lastPurchasableIds) {
-            state.lastPurchasableIds = lastPurchasableIds
+        updateRecentlyAddedLineItems(state, lineItemIdentifier) {
+            state.recentlyAddedLineItems.push(lineItemIdentifier)
         }
     }
 })

@@ -85,8 +85,8 @@ class TotalOrdersByCountry extends Widget
         $this->_stat = new TotalOrdersByCountryStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 

@@ -196,17 +196,25 @@ class Transactions extends Component
         } else {
             $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->paymentCurrency);
             $currency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($order->currency);
-            $paymentAmount = $order->getOutstandingBalance() * $paymentCurrency->rate;
 
             /** @var Gateway $gateway */
             $gateway = $order->getGateway();
-
             $transaction->gatewayId = $gateway->id;
-            $transaction->amount = $order->getOutstandingBalance();
+
+            // Gets the outstanding balance, unless the order had a paymentAmount set in this request
             $transaction->currency = $currency->iso;
-            $transaction->paymentAmount = Currency::round($paymentAmount, $paymentCurrency);
             $transaction->paymentCurrency = $paymentCurrency->iso;
+
+            // Payment amount is the amount in the paymentCurrency
+            $transaction->paymentAmount =  Currency::round($order->getPaymentAmount(), $paymentCurrency);
+
+            // Amount is always in the base currency
+            $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($transaction->paymentAmount, $transaction->paymentCurrency, $transaction->currency);
+            $transaction->amount = Currency::round($amount, $currency);
+
+            // Capture historical rate
             $transaction->paymentRate = $paymentCurrency->rate;
+
             $transaction->setOrder($order);
         }
 

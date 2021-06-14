@@ -19,7 +19,9 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
 
             var data = {
                 orderId: settings.orderId,
-                paymentForm: settings.paymentForm
+                paymentForm: settings.paymentForm,
+                paymentAmount: settings.paymentAmount,
+                paymentCurrency: settings.paymentCurrency
             };
 
             Craft.postActionRequest('commerce/orders/get-payment-modal', data, $.proxy(function(response, textStatus) {
@@ -33,7 +35,7 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                         Craft.appendFootHtml(response.footHtml);
 
                         var $buttons = $('.buttons', this.$container),
-                            $cancelBtn = $('<div class="btn">' + Craft.t('app', 'Cancel') + '</div>').prependTo($buttons);
+                            $cancelBtn = $('<div class="btn">' + Craft.t('commerce', 'Cancel') + '</div>').prependTo($buttons);
 
                         this.addListener($cancelBtn, 'click', 'cancelPayment');
 

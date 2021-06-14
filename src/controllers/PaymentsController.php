@@ -68,7 +68,10 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        if (($number = $this->request->getBodyParam('orderNumber')) !== null) {
+        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
+        $number = $this->request->getParam('orderNumber');
+
+        if ($number !== null) {
             /** @var Order $order */
             $order = $plugin->getOrders()->getOrderByNumber($number);
 
@@ -78,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => null
                     ]);
                 }
 
@@ -87,6 +90,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
+            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
 
         } else {
@@ -184,6 +188,7 @@ class PaymentsController extends BaseFrontEndController
             } catch (CurrencyException $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
+                $error = $exception->getMessage();
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
@@ -223,8 +228,8 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
-            $error = Craft::t('commerce', 'There is no gateway or payment source available for this order.');
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->isFrontendEnabled && !$isCpRequest)) {
+            $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
@@ -282,9 +287,11 @@ class PaymentsController extends BaseFrontEndController
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
 
+                    $error = $exception->getMessage();
+
                     if ($this->request->getAcceptsJson()) {
                         return $this->asJson([
-                            'error' => $exception->getMessage(),
+                            'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
                             $this->_cartVariableName => $this->cartArray($order)
                         ]);
@@ -405,6 +412,29 @@ class PaymentsController extends BaseFrontEndController
         // When the order is marked as complete from a payment later, the order will be set to 'recalculate none' mode permanently.
         $order->setRecalculationMode(Order::RECALCULATION_MODE_NONE);
 
+        // set a partial payment amount on the order in the orders currency (not payment currency)
+        $partialAllowed = (($this->request->isSiteRequest && Plugin::getInstance()->getSettings()->allowPartialPaymentOnCheckout) || $this->request->isCpRequest);
+
+        if ($partialAllowed) {
+            if ($isCpAndAllowed) {
+                $paymentAmount = $this->request->getBodyParam('paymentAmount');
+            } else {
+                $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+            }
+
+            $order->setPaymentAmount($paymentAmount);
+        }
+
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency);
+
+        if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
+            $error = Craft::t('commerce', 'Partial payment not allowed.');
+            $this->setFailFlash($error);
+            Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
+
+            return null;
+        }
+
         if (!$paymentForm->hasErrors() && !$order->hasErrors()) {
             try {
                 $plugin->getPayments()->processPayment($order, $paymentForm, $redirect, $transaction);
@@ -488,7 +518,10 @@ class PaymentsController extends BaseFrontEndController
 
         if ($success) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                $response = ['url' => $transaction->order->returnUrl];
+                $response = [
+                    'success' => true,
+                    'url' => $transaction->order->returnUrl,
+                ];
 
                 return $this->asJson($response);
             }
@@ -496,10 +529,14 @@ class PaymentsController extends BaseFrontEndController
             return $this->redirect($transaction->order->returnUrl);
         }
 
-        $this->setFailFlash(Craft::t('commerce', 'Payment error: {message}', ['message' => $error]));
+        $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
+        $this->setFailFlash($errorMessage);
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
-            $response = ['url' => $transaction->order->cancelUrl];
+            $response = [
+                'error' => $errorMessage,
+                'url' => $transaction->order->cancelUrl,
+            ];
 
             return $this->asJson($response);
         }

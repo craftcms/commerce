@@ -434,6 +434,10 @@ class Emails extends Component
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode($view::TEMPLATE_MODE_SITE);
         $option = 'email';
+        $generalConfig = Craft::$app->getConfig()->getGeneral();
+        // Temporarily disable lazy transform generation
+        $generateTransformsBeforePageLoad = $generalConfig->generateTransformsBeforePageLoad;
+        $generalConfig->generateTransformsBeforePageLoad = true;
 
         // Make sure date vars are in the correct format
         $dateFields = ['dateOrdered', 'datePaid'];
@@ -492,6 +496,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -503,6 +508,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -529,6 +535,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -556,6 +563,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -577,6 +585,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -597,6 +606,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -616,6 +626,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -632,6 +643,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -651,6 +663,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -667,6 +680,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -683,6 +697,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -714,6 +729,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -735,6 +751,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -756,6 +773,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -773,15 +791,16 @@ class Emails extends Component
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
             if (!$event->isValid) {
-                $error = Craft::t('commerce', 'Email “{email}”, for order "{order}" was cancelled by plugin.', [
+                $notice = Craft::t('commerce', 'Email “{email}” for order {order} was cancelled.', [
                     'email' => $email->name,
                     'order' => $order->getShortNumber()
                 ]);
 
-                Craft::error($error, __METHOD__);
+                Craft::info($notice, __METHOD__);
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 // Plugins that stop a email being sent should not declare that the sending failed, just that it would blocking of the send.
                 // The blocking of the send will still be logged as an error though for now.
@@ -800,6 +819,7 @@ class Emails extends Component
 
                 Craft::$app->language = $originalLanguage;
                 $view->setTemplateMode($oldTemplateMode);
+                $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
                 return false;
             }
@@ -816,6 +836,7 @@ class Emails extends Component
 
             Craft::$app->language = $originalLanguage;
             $view->setTemplateMode($oldTemplateMode);
+            $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
             return false;
         }
@@ -833,6 +854,7 @@ class Emails extends Component
 
         Craft::$app->language = $originalLanguage;
         $view->setTemplateMode($oldTemplateMode);
+        $generalConfig->generateTransformsBeforePageLoad = $generateTransformsBeforePageLoad;
 
         // Clear out the temp PDF file if it was created.
         if (!empty($tempPath)) {

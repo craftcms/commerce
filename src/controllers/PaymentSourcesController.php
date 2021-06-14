@@ -101,6 +101,8 @@ class PaymentSourcesController extends BaseFrontEndController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Payment source created.'));
+
         return $this->redirectToPostedUrl();
     }
 

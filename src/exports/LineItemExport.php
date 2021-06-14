@@ -37,6 +37,8 @@ class LineItemExport extends ElementExporter
             'lineitems.id',
             'lineitems.orderId',
             'lineitems.purchasableId',
+            'lineitems.description',
+            'lineitems.sku',
             'lineitems.taxCategoryId',
             'lineitems.lineItemStatusId',
             'lineitems.shippingCategoryId',
