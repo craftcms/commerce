@@ -86,7 +86,7 @@ class Tax extends Component implements AdjusterInterface
         $this->_setTaxAddress();
 
         $adjustments = [];
-        $taxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
+        $taxRates = $this->getTaxRates();
 
         /** @var TaxRate $rate */
         foreach ($taxRates as $rate) {
@@ -182,7 +182,7 @@ class Tax extends Component implements AdjusterInterface
 
                 // Not an order level taxable, add tax adjustments to the line items.
                 foreach ($this->_order->getLineItems() as $item) {
-                    if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+                    if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getIsTaxable()) {
                         $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
                         $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
                         $amount = Currency::round($amount);
@@ -216,7 +216,7 @@ class Tax extends Component implements AdjusterInterface
         if (in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
             $allItemsTaxFree = true;
             foreach ($this->_order->getLineItems() as $item) {
-                if ($item->getPurchasable()->getIsTaxable()) {
+                if ($item->getIsTaxable()) {
                     $allItemsTaxFree = false;
                 }
             }
@@ -253,7 +253,7 @@ class Tax extends Component implements AdjusterInterface
 
         // not an order level tax rate, create line item adjustments.
         foreach ($this->_order->getLineItems() as $item) {
-            if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getPurchasable()->getIsTaxable()) {
+            if ($item->taxCategoryId == $taxRate->taxCategoryId && $item->getIsTaxable()) {
                 /**
                  * Any reduction in price to the line item we have added while inside this adjuster needs to be deducted,
                  * since the discount adjustments we just added won't be picked up in getTaxableSubtotal()
@@ -278,6 +278,14 @@ class Tax extends Component implements AdjusterInterface
         }
 
         return $adjustments;
+    }
+
+    /**
+     * @return TaxRate[]
+     */
+    public function getTaxRates(): array
+    {
+        return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
     }
 
     /**
