@@ -240,6 +240,7 @@ return [
     'Couldn’t save email.' => 'Couldn’t save email.',
     'Couldn’t save gateway.' => 'Couldn’t save gateway.',
     'Couldn’t save line item status.' => 'Couldn’t save line item status.',
+    'Couldn’t save order fields.' => 'Couldn’t save order fields.',
     'Couldn’t save order status.' => 'Couldn’t save order status.',
     'Couldn’t save order.' => 'Couldn’t save order.',
     'Couldn’t save product type.' => 'Couldn’t save product type.',
