@@ -44,7 +44,16 @@ abstract class BaseModelFixture extends ActiveFixture
      */
     public function init()
     {
-        parent::init();
+        /**
+         * Taken from Yii's ActiveFixture class.
+         * Preventing using the parent init method as that is expecting $modelClass to be an active record class.
+         */
+        if ($this->tableName === null) {
+            if ($this->modelClass === null) {
+                throw new InvalidConfigException('Either "modelClass" or "tableName" must be set.');
+            }
+        }
+
         if ($this->service === null || $this->saveMethod === null || $this->deleteMethod === null) {
             throw new InvalidConfigException('"service", "saveMethod" and "deleteMethod" must be set.');
         }
