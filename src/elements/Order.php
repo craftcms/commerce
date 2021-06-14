@@ -56,7 +56,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
-use Money\Money;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -1596,6 +1595,7 @@ class Order extends Element
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
 
+        $this->clearNotices(); // Customer notices are assessed as being delivered once the customer decides to complete the order.
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
@@ -1804,7 +1804,7 @@ class Order extends Element
 
             foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
                 /** @var AdjusterInterface $adjuster */
-                $adjuster = new $adjuster();
+                $adjuster = Craft::createObject($adjuster);
                 $adjustments = $adjuster->adjust($this);
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
             }
@@ -2054,7 +2054,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
