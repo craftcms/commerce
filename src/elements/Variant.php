@@ -982,7 +982,7 @@ class Variant extends Purchasable
             $record->weight = $this->weight;
             $record->minQty = $this->minQty;
             $record->maxQty = $this->maxQty;
-            $record->stock = $this->stock;
+            $record->stock = (int)$this->stock;
             $record->isDefault = (bool)$this->isDefault;
             $record->sortOrder = $this->sortOrder;
             $record->hasUnlimitedStock = $this->hasUnlimitedStock;
