@@ -35,6 +35,9 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.7.0 or later.
+- The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
+- The product field layout no longer validates if it contains a field called `cheapestVariant`, `defaultVariant` or `variants`.
+- The variant field layout no longer validates if it contains a field called `description`, `price`, `product` or `sku`.
 - Order notices are now cleared form the cart when the order is completed. ([#2116](https://github.com/craftcms/commerce/issues/2116))
 - Donations, orders, products, and variants now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([craftcms/cms#8023](https://github.com/craftcms/cms/issues/8023))
 - Address edit page now displays date meta information.

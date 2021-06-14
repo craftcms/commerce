@@ -40,6 +40,31 @@ class OrderSettingsController extends BaseAdminController
         $this->requirePostRequest();
 
         $fieldLayout = Craft::$app->getFields()->assembleLayoutFromPost();
+        $fieldLayout->reservedAttributes = [
+            'billingAddress',
+            'customer',
+            'estimatedBillingAddress',
+            'estimatedShippingAddress',
+            'paymentAmount',
+            'paymentCurrency',
+            'paymentSource',
+            'recalculationMode',
+            'shippingAddress',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            Craft::info('Field layout not saved due to validation error.', __METHOD__);
+
+            Craft::$app->getUrlManager()->setRouteParams([
+                'variables' => [
+                    'fieldLayout' => $fieldLayout,
+                ],
+            ]);
+
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order fields.'));
+            return null;
+        }
+
         $configData = [StringHelper::UUID() => $fieldLayout->getConfig()];
 
         Craft::$app->getProjectConfig()->set(Orders::CONFIG_FIELDLAYOUT_KEY, $configData);
