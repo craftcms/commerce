@@ -1160,7 +1160,6 @@ return [
     'Updated By' => 'Updated By',
     'Used By Tax Rates' => 'Used By Tax Rates',
     'Used by Tax Rates' => 'Used by Tax Rates',
-    'User Groups Condition' => 'User Groups Condition',
     'User Groups' => 'User Groups',
     'User' => 'User',
     'Validating condition syntax' => 'Validating condition syntax',
