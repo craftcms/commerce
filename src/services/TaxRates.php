@@ -139,9 +139,9 @@ class TaxRates extends Component
 
         // if not an included tax, then can not be removed.
         $record->include = (bool) $model->include;
-        $record->removeIncluded = !$record->include ? false : $model->removeIncluded;
-
         $record->isVat = $model->isVat;
+        $record->removeIncluded = !$record->include ? false : $model->removeIncluded;
+        $record->removeVatIncluded = (!$record->include || !$record->isVat) ? false : $model->removeVatIncluded;
         $record->taxable = $model->taxable;
         $record->taxCategoryId = $model->taxCategoryId;
         $record->taxZoneId = $model->taxZoneId ?: null;
@@ -206,6 +206,7 @@ class TaxRates extends Component
             $liteRate->name = 'Tax';
             $liteRate->include = false;
             $liteRate->removeIncluded = true;
+            $liteRate->removeVatIncluded = true;
             $liteRate->taxCategoryId = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory()->id;
             $liteRate->taxable = TaxRateRecord::TAXABLE_ORDER_TOTAL_PRICE;
         } else {
@@ -249,6 +250,7 @@ class TaxRates extends Component
                 'rate',
                 'include',
                 'removeIncluded',
+                'removeVatIncluded',
                 'isVat',
                 'taxable',
                 'isLite',

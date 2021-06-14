@@ -60,6 +60,11 @@ class TaxRate extends Model
     public $removeIncluded;
 
     /**
+     * @var bool Remove the included vat tax rate
+     */
+    public $removeVatIncluded;
+
+    /**
      * @var bool Is VAT
      */
     public $isVat = false;

@@ -6,8 +6,8 @@
     {{ selectField(selectParams) }}
 
     {% js %}
-        (function() {
-            var $select = $('#{{ selectParams.id }}').selectize({
+    (function() {
+        var $select = $('#{{ selectParams.id }}').selectize({
                 dropdownParent: 'body'
             });
 
@@ -140,15 +140,6 @@
         value: taxRate.taxable,
     }) }}
 
-    {{ forms.textField({
-        label: "Rate"|t('commerce'),
-        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
-        name: 'rate',
-        value: taxRate.rateAsPercent,
-        errors: taxRate.getErrors('rate'),
-        required: true,
-    }) }}
-
     {% set taxZoneSelectParams = {
         label: "Tax Zone"|t('commerce'),
         instructions: "Select a tax zone. If no zone is selected, this rate will match anywhere."|t('commerce'),
@@ -170,6 +161,20 @@
         'commerce/tax-zones/save',
         'Tax zone saved.'|t
     ) }}
+
+     {% set isVatInput %}
+         {{ forms.checkboxField({
+             label: "EU VAT ID"|t('commerce'),
+             name: 'isVat',
+             checked: taxRate.isVat,
+             errors: taxRate.getErrors('isVat'),
+             toggle: '#isVatContainer'
+         }) }}
+     {% endset %}
+
+    {{ forms.field({
+        label: "Disqualify with a valid business tax ID on the order address."|t('commerce')
+    }, isVatInput) }}
 
     {% set taxCategorySelectParams = {
         label: "Tax Category"|t('commerce'),
@@ -195,76 +200,84 @@
         'Tax category saved.'|t
     ) }}
 
-    {{ forms.lightSwitchField({
-        label: "Is this tax is already included in the taxable subject?"|t('commerce'),
-        name: 'include',
-        instructions: "If enabled, this tax will not add cost to the order, just show an included tax amount."|t('commerce'),
-        on: taxRate.include,
-        checked: taxRate.include,
-        toggle: '#removeIncluded',
-        errors: taxRate.getErrors('include'),
-    }) }}
+    {% set rateInput %}
+    <div class="flex">
+        <div>
+            {{ forms.text({
+                name: 'rate',
+                value: taxRate.rateAsPercent,
+                errors: taxRate.getErrors('rate'),
+                required: true,
+            }) }}
+        </div>
+        <div>
 
-    <div id="removeIncluded">
+            {{ forms.checkboxField({
+                label: "Included in price?"|t('commerce'),
+                name: 'include',
+                checked: taxRate.include,
+                toggle: '#removeIncludedContainer,#removeVatIncludedContainer',
+                errors: taxRate.getErrors('include'),
+            }) }}
+        </div>
+    </div>
+    {% endset %}
+
+    {{ forms.field({
+        label: "Rate"|t('commerce'),
+        instructions: "Tax rates are a percentages, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
+    }, rateInput) }}
+
+<div id="removeIncludedContainer">
+    {{ forms.lightSwitchField({
+        label: "Remove the included tax from the price of the product when this rate does not apply?"|t('commerce'),
+        name: 'removeIncluded',
+        instructions: "If enabled, and this tax rate does not match the order, this included tax rate amount will be removed from the price of the product when in the cart."|t('commerce'),
+        on: taxRate.removeIncluded,
+        checked: taxRate.removeIncluded,
+        errors: taxRate.getErrors('removeIncluded'),
+    }) }}
+</div>
+
+<div id="isVatContainer" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+    <div id="removeVatIncludedContainer" {% if not taxRate.include %} class="hidden"{% endif %}>
         {{ forms.lightSwitchField({
-            label: "Remove this included tax?"|t('commerce'),
-            name: 'removeIncluded',
+            id: 'removeVatIncluded',
+            label: "Remove the included tax when a valid EU VAT ID is present?"|t('commerce'),
+            name: 'removeVatIncluded',
             instructions: "If enabled, and this tax rate does not match the order, this included tax rate amount will be removed from the price of the product when in the cart."|t('commerce'),
-            on: taxRate.removeIncluded,
-            checked: taxRate.removeIncluded,
-            errors: taxRate.getErrors('removeIncluded'),
+            on: taxRate.removeVatIncluded,
+            checked: taxRate.removeVatIncluded,
+            errors: taxRate.getErrors('removeVatIncluded'),
         }) }}
     </div>
-
-    {{ forms.lightSwitchField({
-        label: "Don’t apply this tax when the address has a valid EU VAT ID"|t('commerce'),
-        name: 'isVat',
-        on: taxRate.isVat,
-        errors: taxRate.getErrors('isVat'),
-        toggle: '#isVat'
-    }) }}
-
-    {{ forms.lightSwitchField({
-        label: "Don’t apply this tax when the address has a valid UK VAT ID"|t('commerce'),
-        name: 'isVat',
-        on: taxRate.isVat,
-        errors: taxRate.getErrors('isVat'),
-        toggle: '#isVat'
-    }) }}
-
-    <p id="isVat" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-        {% if craft.commerce.settings.useBillingAddressForTax %}
-            {{ "This tax rate will not be applied if a valid businessTaxId is entered into the billing address."|t('commerce') }}
-        {% else %}
-            {{ "This tax rate will not be applied if a valid businessTaxId is entered into the shipping address."|t('commerce') }}
-        {% endif %}
-    </p>
+</div>
 
 {% js %}
-    {% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}
-        (function() {
-            var $taxableSelect = $('#taxable');
-            var $taxablesNoTaxCategory = {{ taxablesNoTaxCategory|json_encode|raw }};
+{% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}
+    (function() {
+        var $taxableSelect = $('#taxable');
+        var $taxablesNoTaxCategory = {{ taxablesNoTaxCategory|json_encode|raw }};
 
-            if ($taxableSelect.length) {
-                $taxableSelect.on('change', function(ev) {
-                    var $this = $(this);
-                    var $taxCategoryField = $('#taxCategoryId');
-                    var $selectize = $taxCategoryField.get(0).selectize;
+        if ($taxableSelect.length) {
+            $taxableSelect.on('change', function(ev) {
+                var $this = $(this);
+                var $taxCategoryField = $('#taxCategoryId');
+                var $selectize = $taxCategoryField.get(0).selectize;
 
-                    if ($taxablesNoTaxCategory.indexOf($this.val()) === -1) {
-                        $taxCategoryField.removeAttr('disabled');
-                        $selectize.enable();
-                        $taxCategoryField.parents('.field').removeClass('hidden');
-                        $taxCategoryField.parents('.select.selectize').removeClass('disabled');
-                    } else {
-                        $taxCategoryField.attr('disabled', true);
-                        $selectize.disable();
-                        $taxCategoryField.parents('.field').addClass('hidden');
-                        $taxCategoryField.parents('.select.selectize').addClass('disabled');
-                    }
-                });
-            }
-        })();
-    {% endif %}
+                if ($taxablesNoTaxCategory.indexOf($this.val()) === -1) {
+                    $taxCategoryField.removeAttr('disabled');
+                    $selectize.enable();
+                    $taxCategoryField.parents('.field').removeClass('hidden');
+                    $taxCategoryField.parents('.select.selectize').removeClass('disabled');
+                } else {
+                    $taxCategoryField.attr('disabled', true);
+                    $selectize.disable();
+                    $taxCategoryField.parents('.field').addClass('hidden');
+                    $taxCategoryField.parents('.select.selectize').addClass('disabled');
+                }
+            });
+        }
+    })();
+{% endif %}
 {% endjs %}

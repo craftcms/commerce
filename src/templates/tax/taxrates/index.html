@@ -2,7 +2,8 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Include in Price?',
-    'Is VAT?',
+    'Remove from Price?',
+    'Is EU VAT?',
     'Name',
     'Rate',
     'Tax Category',
@@ -30,6 +31,7 @@
         url: url('commerce/tax/taxrates/'~taxRate.id),
         rate: taxRate.rateAsPercent,
         included: taxRate.include ? true : false,
+        removeIncluded: taxRate.removeIncluded ? true : false,
         vat: taxRate.isVat ? true : false,
         zone: taxRate.isEverywhere ? 'Everywhere'|t('commerce') : { label: taxRate.taxZone.name|t('site')|e, url: taxRate.taxZone.cpEditUrl },
         category: taxRate.taxCategory ? { label: taxRate.taxCategory.name|t('site')|e, url: taxRate.taxCategory.cpEditUrl } : false,
@@ -45,7 +47,12 @@ var columns = [
           return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
       }
     } },
-    { name: 'vat', title: Craft.t('commerce', 'Is VAT?'), callback: function(value) {
+    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from Price?'), callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+        } },
+    { name: 'vat', title: Craft.t('commerce', 'Is EU VAT?'), callback: function(value) {
         if (value) {
             return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
         }

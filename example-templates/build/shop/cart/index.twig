@@ -278,7 +278,7 @@
             </table>
         </form>
     {% endif %}
-
+    Estimated shipping business tax ID: {{ cart.estimatedShippingAddress.businessTaxId }}
     {% if not cart.lineItems|length %}
         <p>You have no items in your cart, add some on the <a href="{{ url('/shop/products') }}">products
                 page</a>.</p>
