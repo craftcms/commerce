@@ -4,6 +4,7 @@
 
 ### Added
 - Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
+- Added additional user group conditon options on the Edit Discount page. ([#220](https://github.com/craftcms/commerce/issues/220))
 - Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added `craft\commerce\base\Plan::$dateCreated`.
 - Added `craft\commerce\base\Plan::$dateUpdated`.

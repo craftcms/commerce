@@ -373,6 +373,8 @@ class Discounts extends Component
      * @param Order $order
      * @param string|null $explanation
      * @return bool
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function orderCouponAvailable(Order $order, string &$explanation = null): bool
     {
@@ -401,7 +403,7 @@ class Discounts extends Component
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if (!$this->isDiscountUserGroupValid($order, $discount, $user)) {
+        if (!$this->isDiscountUserGroupValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
             return false;
         }

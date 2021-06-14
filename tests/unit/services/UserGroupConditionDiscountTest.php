@@ -19,13 +19,13 @@ use UnitTester;
 
 
 /**
- * userGroupsConditionDiscountTest
+ * UserGroupConditionDiscountTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since 2.1
  */
-class userGroupsConditionDiscountTest extends Unit
+class UserGroupConditionDiscountTest extends Unit
 {
     /**
      * @var UnitTester
@@ -49,7 +49,7 @@ class userGroupsConditionDiscountTest extends Unit
 
         $discountAdjuster = new Discounts();
 
-        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USERS_ANY_OR_NONE;
+        $mockDiscount->userGroupsCondition = DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE;
         $isValid = $discountAdjuster->isDiscountUserGroupValid($mockDiscount, new User());
         self::assertTrue($isValid);
     }
@@ -80,7 +80,7 @@ class userGroupsConditionDiscountTest extends Unit
         self::assertFalse($isValid);
     }
 
-    public function testIsuserGroupsConditionIncludeAnyValid()
+    public function testUserGroupsConditionIncludeAnyValid()
     {
         $this->_mockCustomers();
 
