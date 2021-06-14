@@ -41,7 +41,11 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% hook "cp.commerce.discounts.edit" %}
+
 {% block details %}
+    {% hook "cp.commerce.discounts.edit.details" %}
+
     <div class="meta">
         {{ forms.lightSwitchField({
             label: "Enable this discount"|t('commerce'),
@@ -477,6 +481,8 @@
             errors: discount.getErrors('stopProcessing')
         }) }}
     </div>
+
+    {% hook "cp.commerce.discounts.edit.content" %}
 {% endblock %}
 
 

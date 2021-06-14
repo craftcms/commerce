@@ -12,7 +12,6 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
-
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
     {% set actionClasses = "error" %}
@@ -35,7 +34,11 @@
     3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
+{% hook "cp.commerce.sales.edit" %}
+
 {% block details %}
+    {% hook "cp.commerce.sales.edit.details" %}
+
     <div class="meta">
         {{ forms.lightSwitchField({
             label: "Enable this sale"|t('commerce'),
@@ -92,6 +95,7 @@
             value: sale.description,
             errors: sale.getErrors('description'),
         }) }}
+
     </div>
 
     <div id="matching-items" class="hidden">
@@ -235,6 +239,8 @@
         }) }}
 
     </div>
+
+    {% hook "cp.commerce.sales.edit.content" %}
 {% endblock %}
 
 {% js %}
