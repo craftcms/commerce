@@ -7,6 +7,7 @@
   'Date Updated',
   'Expiration date',
   'Is subscription active?',
+  'New address',
   'No Addresses available.',
   'No active carts exist for this customer.',
   'No inactive carts exist for this customer.',
@@ -87,10 +88,7 @@
     {% set newAddressParams = newAddressParams|merge({ redirect: addressRedirect }) %}
 {% endif %}
 <h2>{{ 'Addresses'|t('commerce') }}</h2>
-<div class="commerce-tmp-address-table-wrapper">
-    <div id="addresses-vue-admin-table"></div>
-    <a href="{{ cpUrl('commerce/addresses/new', newAddressParams) }}" class="btn" data-icon="plus">{{ 'New address'|t('commerce') }}</a>
-</div>
+<div id="addresses-vue-admin-table"></div>
 
 {% if currentUser.can('commerce-manageSubscriptions') %}
   <hr>
@@ -111,18 +109,6 @@
   {% endfor %}
   <div id="subscriptions-vue-admin-table"></div>
 {% endif %}
-
-{% css %}
-    .commerce-tmp-address-table-wrapper {
-        position: relative;
-    }
-
-    .commerce-tmp-address-table-wrapper > a {
-        position: absolute;
-        top: 0;
-        right: 0;
-    }
-{% endcss %}
 
 {% js %}
   var columns = [
@@ -171,6 +157,13 @@
   {% if tableData is defined %}
     new Craft.VueAdminTable({
         actions: actions,
+        buttons: [
+            {
+                label: Craft.t('commerce', 'New address'),
+                href: '{{ cpUrl('commerce/addresses/new', newAddressParams) }}',
+                icon: 'plus',
+            }
+        ],
         checkboxes: true,
         columns: columns,
         container: '#addresses-vue-admin-table',
