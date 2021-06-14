@@ -758,6 +758,7 @@ return [
     'Payment Method' => 'Payment Method',
     'Payment error: {message}' => 'Payment error: {message}',
     'Payment method issue' => 'Payment method issue',
+    'Payment source created.' => 'Payment source created.',
     'Payment source deleted.' => 'Payment source deleted.',
     'Pending' => 'Pending',
     'Per Email Address Discount Limit' => 'Per Email Address Discount Limit',
