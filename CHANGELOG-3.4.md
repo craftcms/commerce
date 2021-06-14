@@ -59,5 +59,4 @@
 - Tax edit pages now displays date meta information.
 
 ### Fixed
-- Fixed an bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
 - Fixed a bug where the incorrect error explanation was returned for the discount `perEmailLimit` validation. ([#1455](https://github.com/craftcms/commerce/issues/1455))
