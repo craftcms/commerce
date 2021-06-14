@@ -4,6 +4,7 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Couldn’t reorder sale.',
+  'Delete',
   'Disabled',
   'Duration',
   'Effect',
@@ -76,8 +77,13 @@ var actions = [
                 param: 'status',
                 value: 'disabled',
                 status: 'disabled'
-            }
+            },
         ]
+    },
+    {
+        label: Craft.t('commerce', 'Delete'),
+        action: 'commerce/sales/delete',
+        error: true
     }
 ];
 
