@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use DateTime;
 
 /**
  * Tax rate model.
@@ -82,6 +83,18 @@ class TaxRate extends Model
      * @var int Tax zone ID
      */
     public $taxZoneId;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var TaxCategory

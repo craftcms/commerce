@@ -251,7 +251,9 @@ class TaxRates extends Component
                 'removeIncluded',
                 'isVat',
                 'taxable',
-                'isLite'
+                'isLite',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from([Table::TAXRATES]);
