@@ -181,7 +181,7 @@ class DiscountsController extends BaseCpController
             $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
-            
+
             // Set back to original input value of the text field to prevent negative value.
             $discount->baseDiscount = $baseDiscount;
             $discount->perItemDiscount = $perItemDiscount;
@@ -218,13 +218,30 @@ class DiscountsController extends BaseCpController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $ids = Craft::$app->getRequest()->getBodyParam('ids');
 
-        Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
 
-        return $this->asJson(['success' => true]);
+        if ($id) {
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        foreach ($ids as $id) {
+            Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
+        }
+
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Discounts deleted.'));
+
+        return $this->redirect($this->request->getReferrer());
     }
 
     /**
