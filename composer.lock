@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3709a0990458db41cf5cb0f587cf85be",
+    "content-hash": "febcc651620631a914342afbd2cd1090",
     "packages": [
         {
             "name": "cebe/markdown",
@@ -539,16 +539,16 @@
         },
         {
             "name": "craftcms/cms",
-            "version": "3.6.16",
+            "version": "3.7.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craftcms/cms.git",
-                "reference": "e393adc8419f39c2047b211289eb813b5e1869b3"
+                "reference": "20119c37f04c828e2e7a57aa9889c725c2abe7cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craftcms/cms/zipball/e393adc8419f39c2047b211289eb813b5e1869b3",
-                "reference": "e393adc8419f39c2047b211289eb813b5e1869b3",
+                "url": "https://api.github.com/repos/craftcms/cms/zipball/20119c37f04c828e2e7a57aa9889c725c2abe7cd",
+                "reference": "20119c37f04c828e2e7a57aa9889c725c2abe7cd",
                 "shasum": ""
             },
             "require": {
@@ -623,6 +623,12 @@
             "license": [
                 "proprietary"
             ],
+            "authors": [
+                {
+                    "name": "Pixel & Tonic",
+                    "homepage": "https://pixelandtonic.com/"
+                }
+            ],
             "description": "Craft CMS",
             "homepage": "https://craftcms.com",
             "keywords": [
@@ -638,7 +644,7 @@
                 "rss": "https://github.com/craftcms/cms/releases.atom",
                 "source": "https://github.com/craftcms/cms"
             },
-            "time": "2021-06-01T18:14:34+00:00"
+            "time": "2021-06-14T12:03:51+00:00"
         },
         {
             "name": "craftcms/oauth2-craftid",
@@ -1496,35 +1502,33 @@
         },
         {
             "name": "ibericode/vat",
-            "version": "2.0.3",
+            "version": "1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ibericode/vat.git",
-                "reference": "70de835ab5c1bc8d72248e3784a9a1e63ee268e9"
+                "reference": "1d24382454481384bbc987dcbc959cfef17d6baa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ibericode/vat/zipball/70de835ab5c1bc8d72248e3784a9a1e63ee268e9",
-                "reference": "70de835ab5c1bc8d72248e3784a9a1e63ee268e9",
+                "url": "https://api.github.com/repos/ibericode/vat/zipball/1d24382454481384bbc987dcbc959cfef17d6baa",
+                "reference": "1d24382454481384bbc987dcbc959cfef17d6baa",
                 "shasum": ""
             },
             "require": {
-                "ext-curl": "*",
-                "ext-json": "*",
-                "php": ">=7.1"
+                "ext-soap": "*",
+                "php": ">=7.1",
+                "psr/simple-cache": "^1.0"
+            },
+            "provide": {
+                "psr/simple-cache-implementation": "1.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^8.5.2",
-                "squizlabs/php_codesniffer": "^3.5"
-            },
-            "suggest": {
-                "ext-soap": "Needed to support VIES VAT number validation",
-                "ibericode/vat-bundle": "Symfony bundle for integrating this package"
+                "phpunit/phpunit": "^6.3|^7.0"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Ibericode\\Vat\\": "src/"
+                    "DvK\\Vat\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1537,15 +1541,15 @@
                     "email": "hi@dvk.co"
                 }
             ],
-            "description": "PHP library for dealing with EU VAT",
+            "description": "PHP library for dealing with VAT in Europe",
             "keywords": [
                 "vat"
             ],
             "support": {
                 "issues": "https://github.com/ibericode/vat/issues",
-                "source": "https://github.com/ibericode/vat/tree/master"
+                "source": "https://github.com/ibericode/vat/tree/1.2.1"
             },
-            "time": "2020-04-17T07:45:10+00:00"
+            "time": "2019-01-08T09:21:39+00:00"
         },
         {
             "name": "iio/libmergepdf",
@@ -2905,6 +2909,57 @@
                 "source": "https://github.com/php-fig/log/tree/1.1.4"
             },
             "time": "2021-05-03T11:20:27+00:00"
+        },
+        {
+            "name": "psr/simple-cache",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/simple-cache.git",
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/simple-cache/zipball/408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
+                "reference": "408d5eafb83c57f6365a3ca330ff23aa4a5fa39b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\SimpleCache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interfaces for simple caching",
+            "keywords": [
+                "cache",
+                "caching",
+                "psr",
+                "psr-16",
+                "simple-cache"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/simple-cache/tree/master"
+            },
+            "time": "2017-10-23T01:57:42+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -9074,7 +9129,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "craftcms/cms": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

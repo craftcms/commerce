@@ -3,10 +3,13 @@
 ## 3.4 - Unreleased
 
 ### Added
+- Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
+- Added additional user conditon options on the Edit Discount page. ([#220](https://github.com/craftcms/commerce/issues/220))
+- Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
+- It is possible to delete multiple sales from the Sales index page.
+- It is possible to delete multiple discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
 - Added the `cp.commerce.discounts.index`, `cp.commerce.discounts.edit`, `cp.commerce.discounts.edit.content`, and `cp.commerce.discounts.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
 - Added the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.content`, and `cp.commerce.sales.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
-- Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
-- Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added `craft\commerce\base\Plan::$dateCreated`.
 - Added `craft\commerce\base\Plan::$dateUpdated`.
 - Added `craft\commerce\models\Address::$dateCreated`.

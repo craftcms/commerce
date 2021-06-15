@@ -5,6 +5,7 @@
 {% do view.registerTranslations('commerce', [
     'Code',
     'Couldn’t reorder discounts.',
+    'Delete',
     'Disabled',
     'Discounts reordered.',
     'Duration',
@@ -74,6 +75,11 @@
                     status: 'disabled'
                 }
             ]
+        },
+        {
+            label: Craft.t('commerce', 'Delete'),
+            action: 'commerce/discounts/delete',
+            error: true,
         }
     ];
 
