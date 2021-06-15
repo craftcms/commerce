@@ -242,7 +242,6 @@
 </div>
 
 <div id="isVatContainer" {% if not taxRate.isVat %} class="hidden"{% endif %}>
-    <br>
     <div id="removeVatIncludedContainer" {% if not taxRate.include %} class="hidden"{% endif %} style="margin-top: 1.5rem;">
         {{ forms.lightSwitchField({
             id: 'removeVatIncluded',

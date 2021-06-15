@@ -127,7 +127,7 @@ class Tax extends Component implements AdjusterInterface
         $adjustments = [];
         $hasValidEuVatId = false;
 
-        $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->taxZone && $this->_matchAddress($taxRate->taxZone));
+        $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
         if ($zoneMatches && $taxRate->isVat) {
             $hasValidEuVatId = $this->_validateEuBusinessTaxId();
@@ -165,31 +165,32 @@ class Tax extends Component implements AdjusterInterface
                 $adjustments[] = $adjustment;
             }
 
-            // Not an order level taxable, add tax adjustments to the line items.
-            foreach ($this->_order->getLineItems() as $item) {
-                if ($item->taxCategoryId == $taxRate->taxCategoryId) {
-                    $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
-                    $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
-                    $amount = Currency::round($amount);
+            if (!in_array($taxRate->taxable, TaxRateRecord::ORDER_TAXABALES, false)) {
+                // Not an order level taxable, add tax adjustments to the line items.
+                foreach ($this->_order->getLineItems() as $item) {
+                    if ($item->taxCategoryId == $taxRate->taxCategoryId) {
+                        $taxableAmount = $item->getTaxableSubtotal($taxRate->taxable);
+                        $amount = -($taxableAmount - ($taxableAmount / (1 + $taxRate->rate)));
+                        $amount = Currency::round($amount);
 
-                    $adjustment = $this->_createAdjustment($taxRate);
-                    // We need to display the adjustment that removed the included tax
-                    $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
-                    $adjustment->amount = $amount;
-                    $adjustment->setLineItem($item);
-                    $adjustment->type = 'discount';
-                    $adjustment->included = false;
+                        $adjustment = $this->_createAdjustment($taxRate);
+                        // We need to display the adjustment that removed the included tax
+                        $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
+                        $adjustment->amount = $amount;
+                        $adjustment->setLineItem($item);
+                        $adjustment->type = 'discount';
+                        $adjustment->included = false;
 
-                    $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
+                        $objectId = spl_object_hash($item); // We use this ID since some line items are not saved in the DB yet and have no ID.
 
-                    if (isset($this->_costRemovedByLineItem[$objectId])) {
-                        $this->_costRemovedByLineItem[$objectId] += $amount;
-                    } else {
-                        $this->_costRemovedByLineItem[$objectId] = $amount;
+                        if (isset($this->_costRemovedByLineItem[$objectId])) {
+                            $this->_costRemovedByLineItem[$objectId] += $amount;
+                        } else {
+                            $this->_costRemovedByLineItem[$objectId] = $amount;
+                        }
 
+                        $adjustments[] = $adjustment;
                     }
-
-                    $adjustments[] = $adjustment;
                 }
             }
             // Return the removed included taxes as discounts.
