@@ -10,7 +10,6 @@ namespace craftcommercetests\unit\adjusters;
 use Codeception\Test\Unit;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -35,11 +34,6 @@ class TaxTest extends Unit
     public $originalEdition;
 
     /**
-     * @var Order
-     */
-    private $_order;
-
-    /**
      *
      */
     protected function _before()
@@ -49,7 +43,6 @@ class TaxTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
         $this->originalEdition = $this->pluginInstance->edition;
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
-        $this->_order = $this->_createOrder();
     }
 
     /**
@@ -63,149 +56,178 @@ class TaxTest extends Unit
     }
 
     /**
-     *
+     * @dataProvider dataCases
      */
-    public function testAdjustIncluded()
-    {
-        $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => function() {
-                return $this->_getIncludedTaxRate();
-            }
-        ]);
-
-        $adjustments = $taxAdjuster->adjust($this->_order);
-
-        self::assertEquals(15, $this->_order->getTotalQty());
-        self::assertEquals(200, $this->_order->getTotalPrice());
-        self::assertCount(1, $adjustments);
-        self::assertEquals('10% inc', $adjustments[0]->description);
-        self::assertEquals(18.18, round($adjustments[0]->amount, 2));
-        self::assertTrue($adjustments[0]->included);
-    }
-
-    /**
-     *
-     */
-    public function testAdjustNonIncluded()
-    {
-        $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => function() {
-                return $this->_getTaxrates();
-            }
-        ]);
-
-        $adjustments = $taxAdjuster->adjust($this->_order);
-
-        self::assertEquals(15, $this->_order->getTotalQty());
-        self::assertEquals(200, $this->_order->getTotalPrice());
-
-        self::assertCount(1, $adjustments);
-
-        self::assertEquals('10%', $adjustments[0]->description);
-        self::assertEquals(20, round($adjustments[0]->amount, 2));
-        self::assertFalse($adjustments[0]->included);
-    }
-
-    /**
-     *
-     */
-    public function testAdjustIncludedAndNonIncluded()
-    {
-        $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => function() {
-                return $this->_getIncludedAndNonIncludedTaxRate();
-            },
-            '_address' => function() {
-                return $this->_getAddress();
-            }
-        ]);
-
-        $adjustments = $taxAdjuster->adjust($this->_order);
-        $this->_order->setAdjustments($adjustments);
-
-        self::assertEquals(15, $this->_order->getTotalQty());
-        self::assertEquals(220, $this->_order->getTotalPrice());
-
-        self::assertCount(2, $this->_order->getAdjustments());
-
-        self::assertEquals('10% inc', $adjustments[0]->description);
-        self::assertEquals(18.18, round($adjustments[0]->amount, 2));
-        self::assertTrue($adjustments[0]->included);
-
-        self::assertEquals('10%', $adjustments[1]->description);
-        self::assertEquals(20, $adjustments[1]->amount);
-        self::assertTrue($adjustments[0]->included);
-    }
-
-    /**
-     * @return array
-     */
-    private function _getIncludedAndNonIncludedTaxRate(): array
-    {
-        $rates = [];
-        $rates = array_merge($rates, $this->_getIncludedTaxRate());
-        $rates = array_merge($rates, $this->_getTaxRates());
-
-        return $rates;
-    }
-
-    private function _getTaxRates(): array
-    {
-        $rates = [];
-        $austriaRate = new TaxRate();
-        $austriaRate->name = "Austria";
-        $austriaRate->code = "AUVAT";
-        $austriaRate->rate = 0.1; // 10%
-        $austriaRate->include = false; // 10%
-        $austriaRate->taxable = 'order_total_price'; // 10%
-
-        $rates[] = $austriaRate;
-
-        return $rates;
-    }
-
-    private function _getIncludedTaxRate(): array
-    {
-        $rates = [];
-        $netherlandsRate = new TaxRate();
-        $netherlandsRate->name = "Netherlands";
-        $netherlandsRate->code = "NVAT";
-        $netherlandsRate->rate = 0.1; // 10%
-        $netherlandsRate->include = true; // 10%
-        $netherlandsRate->isVat = true; // 10%
-        $netherlandsRate->taxable = 'order_total_price'; // 10%
-
-        $rates[] = $netherlandsRate;
-
-        return $rates;
-    }
-
-    private function _getAddress($withValidVatId = false)
-    {
-        $address = new Address();
-        $address->businessTaxId = $withValidVatId ? 'CZ25666011' : 'xxx';
-        $address->countryId = 1;
-
-        return $address;
-    }
-
-    /**
-     * @return Order
-     */
-    private function _createOrder(): Order
+    public function testAdjust($lineItemData, $taxRateData, $expectedAdjustmentData, $expectedOther)
     {
         $order = new Order();
 
-        $lineItem1 = new LineItem();
-        $lineItem1->qty = 10;
-        $lineItem1->salePrice = 10;
+        $taxRates = [];
+        foreach ($taxRateData as $item) {
+            $rate = new TaxRate();
+            $rate->name = $item['name'];
+            $rate->code = $item['code'];
+            $rate->rate = $item['rate'];
+            $rate->include = $item['include'];
+            $rate->isVat = $item['isVat'];
+            $rate->taxable = $item['taxable'];
+            $taxRates[] = $rate;
+        }
 
-        $lineItem2 = new LineItem();
-        $lineItem2->qty = 5;
-        $lineItem2->salePrice = 20;
+        $lineItems = [];
+        foreach ($lineItemData as $item) {
+            $lineItem = new LineItem();
+            $lineItem->qty = $item['qty'];
+            $lineItem->salePrice = $item['salePrice'];
+            $lineItems[] = $lineItem;
+        }
 
-        $order->setLineItems([$lineItem1, $lineItem2]);
+        $order->setLineItems($lineItems);
 
-        return $order;
+        $taxAdjuster = $this->make(Tax::class, [
+            'getTaxRates' => $taxRates
+        ]);
+
+        $adjustments = $taxAdjuster->adjust($order);
+        $order->setAdjustments($adjustments);
+
+        self::assertEquals($expectedOther['orderTotalQty'], $order->getTotalQty(), 'Order total quantity');
+        self::assertEquals($expectedOther['orderTotalPrice'], $order->getTotalPrice(), 'Order total price');
+        self::assertEquals($expectedOther['orderTotalTax'], $order->getTotalTax(), 'Order total tax');
+        self::assertEquals($expectedOther['orderTotalTaxIncluded'], $order->getTotalTaxIncluded(), 'Order total included tax');
+
+        self::assertCount(count($expectedAdjustmentData), $adjustments, 'Total number of adjustments');
+        foreach ($expectedAdjustmentData as $index => $item) {
+            self::assertEquals($item['amount'], round($adjustments[$index]->amount, 2), 'Adjustment amount');
+            self::assertEquals($item['included'], $adjustments[$index]->included, 'Adjustment included');
+            self::assertEquals($item['description'], $adjustments[$index]->description, 'Adjustment description');
+            self::assertEquals($item['type'], $adjustments[$index]->type, 'Adjustment type');
+        }
+    }
+
+//    /**
+//     * @param false $withValidVatId
+//     * @return Address
+//     */
+//    private function _getAddress($withValidVatId = false)
+//    {
+//        $address = new Address();
+//        $address->businessTaxId = $withValidVatId ? 'CZ25666011' : null;
+//        $address->countryId = 1;
+//
+//        return $address;
+//    }
+
+    /**
+     * @return array[]
+     */
+    public function dataCases()
+    {
+        return [
+
+            // Example 1) 10% included tax
+            [
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'Australia',
+                        'code' => 'GST',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => false,
+                        'taxable' => 'order_total_price'
+                        // zone is everywhere
+                    ]
+                ],
+                [ // Expected Adjustments
+                    [
+                        'type' => 'tax',
+                        'amount' => 9.09,
+                        'included' => true,
+                        'description' => '10% inc'
+                    ]
+                ],
+                [
+                    'orderTotalPrice' => 100,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 9.09,
+                ]
+            ],
+
+            // Example 2) 10% not included
+            [
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'Australia',
+                        'code' => 'GST',
+                        'rate' => 0.1,
+                        'include' => false,
+                        'isVat' => false,
+                        'taxable' => 'order_total_price'
+                        // zone is everywhere
+                    ]
+                ],
+                [ // Expected Adjustments
+                    [
+                        'type' => 'tax',
+                        'amount' => 10,
+                        'included' => false,
+                        'description' => '10%'
+                    ]
+                ],
+                [
+                    'orderTotalPrice' => 110,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 10,
+                    'orderTotalTaxIncluded' => 0,
+                ]
+            ],
+
+            // Example 3) 10% included, 2 line items, isVat
+            [
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1], // 100 total price
+                    ['salePrice' => 50, 'qty' => 2] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'Netherlands',
+                        'code' => 'EUNETHERVAT',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => true,
+                        'taxable' => 'price_shipping'
+                        // zone is everywhere
+                    ]
+                ],
+                [ // Expected Adjustments
+                    [
+                        'type' => 'tax',
+                        'amount' => 9.09,
+                        'included' => true,
+                        'description' => '10% inc'
+                    ],
+                    [
+                        'type' => 'tax',
+                        'amount' => 9.09,
+                        'included' => true,
+                        'description' => '10% inc'
+                    ]
+                ],
+                [
+                    'orderTotalPrice' => 200,
+                    'orderTotalQty' => 3,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 18.18,
+                ]
+            ]
+
+        ];
     }
 }
