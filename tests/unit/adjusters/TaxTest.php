@@ -363,7 +363,7 @@ class TaxTest extends Unit
                 ]
             ],
 
-            // Example 7) 10% tax that does not apply since it has a valid tax ID, but does not remove
+            // Example 7) 10% included tax that does not apply since it has a valid tax ID, but does not remove
             [
                 [ // Address
                     'countryIso' => 'CZ',
