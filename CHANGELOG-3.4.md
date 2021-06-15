@@ -69,6 +69,7 @@
 - Subscription Plan edit page now displays date meta information.
 - Tax edit pages now displays date meta information.
 - Updated the `ibericode/vat` package dependency to v2.
+- Added the `iio/libmergepdf` package dependency.
 
 ### Fixed
 - Fixed a bug where the incorrect error explanation was returned for the discount `perEmailLimit` validation. ([#1455](https://github.com/craftcms/commerce/issues/1455))
