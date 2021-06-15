@@ -105,19 +105,6 @@ class TaxTest extends Unit
         }
     }
 
-//    /**
-//     * @param false $withValidVatId
-//     * @return Address
-//     */
-//    private function _getAddress($withValidVatId = false)
-//    {
-//        $address = new Address();
-//        $address->businessTaxId = $withValidVatId ? 'CZ25666011' : null;
-//        $address->countryId = 1;
-//
-//        return $address;
-//    }
-
     /**
      * @return array[]
      */
