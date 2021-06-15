@@ -80,12 +80,6 @@ class Tax extends Component implements AdjusterInterface
      */
     private $_costRemovedForOrderTotalPrice = 0;
 
-    public function init()
-    {
-        parent::init();
-
-    }
-
     /**
      * @inheritdoc
      */
@@ -157,7 +151,7 @@ class Tax extends Component implements AdjusterInterface
 
                 $adjustment = $this->_createAdjustment($taxRate);
                 // We need to display the adjustment that removed the included tax
-                $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed'). 'Due to '. ($removeDueToVat ? 'vat ID valid' : 'wrong zone');
+                $adjustment->name = Craft::t('site', $taxRate->name) . ' ' . Craft::t('commerce', 'Removed');
                 $adjustment->amount = $amount;
                 $adjustment->type = 'discount'; // @TODO Not use a discount adjustment, but modify the price of the item instead.
                 $adjustment->included = false;
@@ -175,7 +169,7 @@ class Tax extends Component implements AdjusterInterface
 
                         $adjustment = $this->_createAdjustment($taxRate);
                         // We need to display the adjustment that removed the included tax
-                        $adjustment->name = $taxRate->name . ' ' . Craft::t('commerce', 'Removed');
+                        $adjustment->name = Craft::t('site', $taxRate->name) . ' ' . Craft::t('commerce', 'Removed');
                         $adjustment->amount = $amount;
                         $adjustment->setLineItem($item);
                         $adjustment->type = 'discount';
@@ -384,8 +378,8 @@ class Tax extends Component implements AdjusterInterface
     {
         $adjustment = new OrderAdjustment;
         $adjustment->type = self::ADJUSTMENT_TYPE;
-        $adjustment->name = $rate->name;
-        $adjustment->description = $rate->rate * 100 . '%' . ($rate->include ? ' inc' : '');
+        $adjustment->name = Craft::t('site', $rate->name);
+        $adjustment->description = $rate->rate * 100 . '%';
         $adjustment->setOrder($this->_order);
         $adjustment->isEstimated = $this->_isEstimated;
         $adjustment->sourceSnapshot = $rate->toArray();
