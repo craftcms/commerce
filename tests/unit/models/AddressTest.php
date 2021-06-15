@@ -16,7 +16,7 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\services\Countries;
 use craft\commerce\services\States;
-use DvK\Vat\Validator;
+use Ibericode\Vat\Validator;
 use yii\caching\DummyCache;
 
 /**

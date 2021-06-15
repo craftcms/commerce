@@ -15,7 +15,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
 use DateTime;
-use DvK\Vat\Validator;
+use Ibericode\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
 
