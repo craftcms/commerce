@@ -4,10 +4,11 @@
 
 ### Added
 - Added the ability to download collated PDFs when downloading PDFs for more than one Order from the Edit Order page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
-- Added additional user conditon options on the Edit Discount page. ([#220](https://github.com/craftcms/commerce/issues/220))
+- Added additional user group conditon options on the Edit Discount page. ([#220](https://github.com/craftcms/commerce/issues/220))
+- Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/18813))
 - Added the ability to custom the revenue calculations in the Top Product stat. ([#1919](https://github.com/craftcms/commerce/issues/1919))
-- It is possible to delete multiple sales from the Sales index page.
 - It is possible to delete multiple discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
+- It is possible to delete multiple sales from the Sales index page.
 - Added the `cp.commerce.discounts.index`, `cp.commerce.discounts.edit`, `cp.commerce.discounts.edit.content`, and `cp.commerce.discounts.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
 - Added the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.content`, and `cp.commerce.sales.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
 - Added `craft\commerce\base\Plan::$dateCreated`.
@@ -38,6 +39,8 @@
 - Added `craft\commerce\models\TaxCategory::$dateUpdated`.
 - Added `craft\commerce\models\TaxRate::$dateCreated`.
 - Added `craft\commerce\models\TaxRate::$dateUpdated`.
+- Added `craft\commerce\models\TaxRates::removeIncluded`.
+- Added `craft\commerce\models\TaxRates::removeVatIncluded`.
 - Added `craft\commerce\stats\TopProducts::$revenueOptions`.
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_DISCOUNT`.
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_SHIPPING`.
@@ -52,6 +55,9 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.7.0 or later.
+- The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
+- The product field layout no longer validates if it contains a field called `cheapestVariant`, `defaultVariant` or `variants`.
+- The variant field layout no longer validates if it contains a field called `description`, `price`, `product` or `sku`.
 - Order notices are now cleared form the cart when the order is completed. ([#2116](https://github.com/craftcms/commerce/issues/2116))
 - Donations, orders, products, and variants now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([craftcms/cms#8023](https://github.com/craftcms/cms/issues/8023))
 - Address edit page now displays date meta information.
@@ -62,6 +68,8 @@
 - Shipping edit pages now displays date meta information.
 - Subscription Plan edit page now displays date meta information.
 - Tax edit pages now displays date meta information.
+- Updated the `ibericode/vat` package dependency to v2.
+- Added the `iio/libmergepdf` package dependency.
 
 ### Fixed
 - Fixed a bug where the incorrect error explanation was returned for the discount `perEmailLimit` validation. ([#1455](https://github.com/craftcms/commerce/issues/1455))

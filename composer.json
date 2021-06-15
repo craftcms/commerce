@@ -2,7 +2,7 @@
   "name": "craftcms/commerce",
   "description": "Craft Commerce",
   "type": "craft-plugin",
-  "version": "3.3.3",
+  "version": "3.3.4",
   "keywords": [
     "cms",
     "craftcms",
@@ -20,10 +20,10 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "3.7.x-dev",
+    "craftcms/cms": "^3.7.0-beta.1",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
-    "ibericode/vat": "^1.1.2",
+    "ibericode/vat": "^2.0.3",
     "iio/libmergepdf": "^4.0"
   },
   "autoload": {
@@ -58,7 +58,7 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php":  "7.2.5"
+      "php": "7.2.5"
     }
   }
 }

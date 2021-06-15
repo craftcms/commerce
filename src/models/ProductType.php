@@ -172,6 +172,9 @@ class ProductType extends Model
         $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
         $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
 
+        $rules[] = ['fieldLayout', 'validateFieldLayout'];
+        $rules[] = ['variantFieldLayout', 'validateVariantFieldLayout'];
+
         return $rules;
     }
 
@@ -323,6 +326,47 @@ class ProductType extends Model
         }
 
         return $fieldLayout;
+    }
+
+    /**
+     * Validate the field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateFieldLayout(): void
+    {
+        $fieldLayout = $this->getFieldLayout();
+
+        $fieldLayout->reservedFieldHandles = [
+            'cheapestVariant',
+            'defaultVariant',
+            'variants',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            $this->addModelErrors($fieldLayout, 'fieldLayout');
+        }
+    }
+
+    /**
+     * Validate the variant field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateVariantFieldLayout(): void
+    {
+        $variantFieldLayout = $this->getVariantFieldLayout();
+
+        $variantFieldLayout->reservedFieldHandles = [
+            'description',
+            'price',
+            'product',
+            'sku',
+        ];
+
+        if (!$variantFieldLayout->validate()) {
+            $this->addModelErrors($variantFieldLayout, 'variantFieldLayout');
+        }
     }
 
     /**
