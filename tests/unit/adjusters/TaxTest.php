@@ -96,7 +96,9 @@ class TaxTest extends Unit
             $rate->code = $item['code'];
             $rate->rate = $item['rate'];
             $rate->include = $item['include'];
+            $rate->removeIncluded = $item['removeIncluded'] ?? false;
             $rate->isVat = $item['isVat'];
+            $rate->removeVatIncluded = $item['removeVatIncluded'] ?? false;
             $rate->taxable = $item['taxable'];
             $taxRates[] = $rate;
         }
@@ -298,6 +300,7 @@ class TaxTest extends Unit
                         'code' => 'NLVAT',
                         'rate' => 0.1,
                         'include' => true,
+                        'removeIncluded' => true,
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
@@ -337,6 +340,7 @@ class TaxTest extends Unit
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
+                        'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
                             'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
@@ -353,6 +357,38 @@ class TaxTest extends Unit
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 0,
+                ]
+            ],
+
+            // Example 7) 10% included tax that does not apply since it has a valid tax ID, but does not remove
+            [
+                [ // Address
+                    'countryIso' => 'CZ',
+                    'businessTaxId' => 'CZ25666011'
+                ],
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'CZ Vat',
+                        'code' => 'CZVAT',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => true,
+                        'removeVatIncluded' => false,
+                        'taxable' => 'order_total_price',
+                        'zone' => [
+                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                        ]
+                    ]
+                ],
+                [
+                    'adjustments' => [],
+                    'orderTotalPrice' => 100,
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,

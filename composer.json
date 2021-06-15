@@ -23,7 +23,7 @@
     "craftcms/cms": "3.7.x-dev",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
-    "ibericode/vat": "^1.1.2",
+    "ibericode/vat": "^2.0.3",
     "iio/libmergepdf": "^4.0"
   },
   "autoload": {
@@ -58,7 +58,7 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php":  "7.2.5"
+      "php": "7.2.5"
     }
   }
 }

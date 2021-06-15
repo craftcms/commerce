@@ -81,6 +81,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
     /**
      * @throws HttpException
+     * @noinspection Duplicates
      */
     public function actionSave()
     {
