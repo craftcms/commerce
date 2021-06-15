@@ -7,13 +7,13 @@
 - Added `craft\commerce\models\LineItem::getIsTaxable()`.
 
 ### Changed
-- Changed `returnUrl` and `cancelUrl` column type to text in the `commerce_orders` table.
+- Changed the `commerce_orders` table’s `returnUrl` and `cancelUrl` column types to `text`.
 - Improved the performance of calculating available discounts for an order. ([#1744](https://github.com/craftcms/commerce/issues/1744))
 
 ### Fixed
 - Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
 - Fixed a bug where a disabled payment gateway could still be used. ([#2150](https://github.com/craftcms/commerce/issues/2150))
-- Fixed a SQL error that could occur when saving a variant in PHP without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
+- Fixed a SQL error that could occur when programmatically saving a variant without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
 - Fixed a bug where a donation marked as non-taxable could receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
 - Fixed a bug where the order’s field layout UID would change on every save. ([#2193](https://github.com/craftcms/commerce/issues/2193))
 - Fixed a SQL error that occured when saving a payment currency without a conversion rate. ([#2149](https://github.com/craftcms/commerce/issues/2149))
