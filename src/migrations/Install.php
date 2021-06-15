@@ -774,9 +774,9 @@ class Install extends Migration
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean(),
+            'isVat' => $this->boolean(), // @TODO rename to isEuVat
             'removeIncluded' => $this->boolean(),
             'removeVatIncluded' => $this->boolean(),
-            'isVat' => $this->boolean(),
             'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
             'isLite' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
