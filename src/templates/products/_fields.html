@@ -214,6 +214,7 @@
     {{ forms.field({
         label: 'Dimensions'|t('commerce'),
         id: 'width',
+        fieldClass: 'variant-properties-dimensions',
         errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
     }, dimensionsInput) }}
 
