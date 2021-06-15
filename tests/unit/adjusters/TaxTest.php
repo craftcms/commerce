@@ -314,7 +314,7 @@ class TaxTest extends Unit
                             'type' => 'discount',
                             'amount' => -9.09,
                             'included' => false,
-                            'description' => '10% '
+                            'description' => '10%'
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
