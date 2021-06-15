@@ -101,6 +101,7 @@ class VariantQuery extends ElementQuery
 
     /**
      * @var
+     * @since 3.3.4
      */
     public $hasUnlimitedStock;
 
@@ -372,6 +373,7 @@ class VariantQuery extends ElementQuery
      *
      * @param bool $value
      * @return static self reference
+     * @since 3.3.4
      */
     public function hasUnlimitedStock(bool $value = true)
     {
