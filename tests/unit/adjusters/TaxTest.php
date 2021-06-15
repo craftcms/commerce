@@ -169,7 +169,7 @@ class TaxTest extends Unit
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10% inc'
+                            'description' => '10%'
                         ]
                     ],
                     'orderTotalPrice' => 100,
@@ -240,13 +240,13 @@ class TaxTest extends Unit
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10% inc'
+                            'description' => '10%'
                         ],
                         [
                             'type' => 'tax',
                             'amount' => 9.09,
                             'included' => true,
-                            'description' => '10% inc'
+                            'description' => '10%'
                         ]
                     ],
                     'orderTotalPrice' => 200,
@@ -314,7 +314,7 @@ class TaxTest extends Unit
                             'type' => 'discount',
                             'amount' => -9.09,
                             'included' => false,
-                            'description' => '10% inc'
+                            'description' => '10% '
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
@@ -353,7 +353,7 @@ class TaxTest extends Unit
                             'type' => 'discount',
                             'amount' => -9.09,
                             'included' => false,
-                            'description' => '10% inc'
+                            'description' => '10%'
                         ],
                     ],
                     'orderTotalPrice' => 90.91,
