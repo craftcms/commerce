@@ -273,7 +273,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return TaxRate[]
      */
-    public function getTaxRates()
+    protected function getTaxRates()
     {
         return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
     }
