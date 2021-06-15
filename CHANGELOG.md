@@ -1,23 +1,22 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.3.4 - 2021-06-15
 
 ### Added
 - Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
 - Added `craft\commerce\models\LineItem::getIsTaxable()`.
 
 ### Changed
-- Changed the `commerce_orders` table’s `returnUrl` and `cancelUrl` column types to `text`.
-- Improved the performance of calculating available discounts for an order. ([#1744](https://github.com/craftcms/commerce/issues/1744))
+- Improved the performance of determining an order’s available discounts. ([#1744](https://github.com/craftcms/commerce/issues/1744))
 
 ### Fixed
 - Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
-- Fixed a bug where a disabled payment gateway could still be used. ([#2150](https://github.com/craftcms/commerce/issues/2150))
+- Fixed a bug where it was possible for an order to use a disabled payment gateway. ([#2150](https://github.com/craftcms/commerce/issues/2150))
 - Fixed a SQL error that could occur when programmatically saving a variant without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
-- Fixed a bug where a donation marked as non-taxable could receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
-- Fixed a bug where the order’s field layout UID would change on every save. ([#2193](https://github.com/craftcms/commerce/issues/2193))
-- Fixed a SQL error that occured when saving a payment currency without a conversion rate. ([#2149](https://github.com/craftcms/commerce/issues/2149))
-- Fixed a missing validation error when saving a discount. ([#2176](https://github.com/craftcms/commerce/issues/2176))
+- Fixed a bug where a donation marked as non-taxable could still receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
+- Fixed a bug where the order field layout’s UID would change on every save. ([#2193](https://github.com/craftcms/commerce/issues/2193))
+- Fixed a SQL error that occurred when saving a payment currency without a conversion rate. ([#2149](https://github.com/craftcms/commerce/issues/2149))
+- Fixed a bug where discounts weren’t displaying validation errors for the “Per User Discount Limit” field. ([#2176](https://github.com/craftcms/commerce/issues/2176))
 
 ## 3.3.3 - 2021-06-01
 

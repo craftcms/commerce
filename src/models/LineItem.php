@@ -821,6 +821,7 @@ class LineItem extends Model
 
     /**
      * @return bool
+     * @since 3.3.4
      */
     public function getIsTaxable(): bool
     {
