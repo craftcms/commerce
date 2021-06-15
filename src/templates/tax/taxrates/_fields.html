@@ -248,7 +248,7 @@
             id: 'removeVatIncluded',
             label: "Remove the included tax when a valid EU VAT ID is present?"|t('commerce'),
             name: 'removeVatIncluded',
-            instructions: "If enabled and this rate does not match the order, this rate amount will be removed from the subject price in the cart."|t('commerce'),
+            instructions: "If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart."|t('commerce'),
             on: taxRate.removeVatIncluded,
             checked: taxRate.removeVatIncluded,
             errors: taxRate.getErrors('removeVatIncluded'),
