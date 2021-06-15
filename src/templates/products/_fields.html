@@ -83,6 +83,26 @@
     }) }}
 {% endmacro %}
 
+{% macro singleVariantFields(product, productType) %}
+    {% if not productType.hasVariants %}
+        {% namespace 'variants['~(product.defaultVariant.id ?: 'new1')~']' %}
+            <div class="meta">
+                <input class="default-input" type="hidden"
+                       name="isDefault"
+                       value="1">
+                {{ _self.generalVariantFields(product.defaultVariant, product) }}
+            </div>
+            {% if productType.hasDimensions %}
+                <div class="meta">
+                    {{ _self.dimensionVariantFields(product.defaultVariant) }}
+                </div>
+            {% endif %}
+        {% endnamespace %}
+    {% endif %}
+
+{% endmacro %}
+
+
 {% macro generalVariantFields(variant, product) %}
     {%- import "_includes/forms" as forms -%}
     {%- import "commerce/_includes/forms/commerceForms" as commerceForms -%}
