@@ -50,6 +50,11 @@ class Tax extends Component implements AdjusterInterface
     private $_address;
 
     /**
+     * @var TaxRate[]
+     */
+    private $_taxRates;
+
+    /**
      * @var bool
      */
     private $_isEstimated = false;
@@ -87,14 +92,18 @@ class Tax extends Component implements AdjusterInterface
     public function adjust(Order $order): array
     {
         $this->_order = $order;
+        $this->_address = $this->_getTaxAddress();
+        $this->_taxRates = $this->getTaxRates();
 
-        $this->_setTaxAddress();
+        return $this->_adjustInternal();
+    }
 
+    private function _adjustInternal()
+    {
         $adjustments = [];
-        $taxRates = $this->getTaxRates();
 
         /** @var TaxRate $rate */
-        foreach ($taxRates as $rate) {
+        foreach ($this->_taxRates as $rate) {
             $newAdjustments = $this->_getAdjustments($rate);
             if ($newAdjustments) {
                 $adjustments[] = $newAdjustments;
@@ -264,7 +273,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return TaxRate[]
      */
-    public function getTaxRates(): array
+    public function getTaxRates()
     {
         return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
     }
@@ -402,22 +411,25 @@ class Tax extends Component implements AdjusterInterface
     /**
      *
      */
-    private function _setTaxAddress()
+    private function _getTaxAddress()
     {
-        $this->_isEstimated = false;
+        $address = null;
 
+        $this->_isEstimated = false;
         if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
-            $this->_address = $this->_order->getShippingAddress();
-            if (!$this->_address) {
-                $this->_address = $this->_order->getEstimatedShippingAddress();
+            $address = $this->_order->getShippingAddress();
+            if (!$address) {
+                $address = $this->_order->getEstimatedShippingAddress();
                 $this->_isEstimated = true;
             }
         } else {
-            $this->_address = $this->_order->getBillingAddress();
-            if (!$this->_address) {
-                $this->_address = $this->_order->getEstimatedBillingAddress();
+            $address = $this->_order->getBillingAddress();
+            if (!$address) {
+                $address = $this->_order->getEstimatedBillingAddress();
                 $this->_isEstimated = true;
             }
         }
+
+        return $address;
     }
 }

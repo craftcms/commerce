@@ -49,6 +49,7 @@ class TaxTest extends Unit
         $this->pluginInstance = Plugin::getInstance();
         $this->originalEdition = $this->pluginInstance->edition;
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
+        $this->_order = $this->_createOrder();
     }
 
     /**
@@ -64,20 +65,29 @@ class TaxTest extends Unit
     /**
      *
      */
-    public function _setUp()
+    public function testAdjustIncluded()
     {
-        parent::_setUp();
+        $taxAdjuster = $this->make(Tax::class, [
+            'getTaxRates' => function() {
+                return $this->_getIncludedTaxRate();
+            }
+        ]);
 
-        $this->_order = $this->_createOrder();
+        $adjustments = $taxAdjuster->adjust($this->_order);
+
+        self::assertEquals(15, $this->_order->getTotalQty());
+        self::assertEquals(200, $this->_order->getTotalPrice());
+        self::assertCount(1, $adjustments);
+        self::assertEquals('10% inc', $adjustments[0]->description);
+        self::assertEquals(18.18, round($adjustments[0]->amount, 2));
+        self::assertTrue($adjustments[0]->included);
     }
 
     /**
      *
      */
-    public function testAdjust()
+    public function testAdjustNonIncluded()
     {
-
-//        $address = $this->_getAddress(false);
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => function() {
                 return $this->_getTaxrates();
@@ -88,19 +98,81 @@ class TaxTest extends Unit
 
         self::assertEquals(15, $this->_order->getTotalQty());
         self::assertEquals(200, $this->_order->getTotalPrice());
+
         self::assertCount(1, $adjustments);
+
         self::assertEquals('10%', $adjustments[0]->description);
-        self::assertEquals(20, $adjustments[0]->amount);
+        self::assertEquals(20, round($adjustments[0]->amount, 2));
         self::assertFalse($adjustments[0]->included);
     }
 
+    /**
+     *
+     */
+    public function testAdjustIncludedAndNonIncluded()
+    {
+        $taxAdjuster = $this->make(Tax::class, [
+            'getTaxRates' => function() {
+                return $this->_getIncludedAndNonIncludedTaxRate();
+            },
+            '_address' => function() {
+                return $this->_getAddress();
+            }
+        ]);
+
+        $adjustments = $taxAdjuster->adjust($this->_order);
+        $this->_order->setAdjustments($adjustments);
+
+        self::assertEquals(15, $this->_order->getTotalQty());
+        self::assertEquals(220, $this->_order->getTotalPrice());
+
+        self::assertCount(2, $this->_order->getAdjustments());
+
+        self::assertEquals('10% inc', $adjustments[0]->description);
+        self::assertEquals(18.18, round($adjustments[0]->amount, 2));
+        self::assertTrue($adjustments[0]->included);
+
+        self::assertEquals('10%', $adjustments[1]->description);
+        self::assertEquals(20, $adjustments[1]->amount);
+        self::assertTrue($adjustments[0]->included);
+    }
+
+    /**
+     * @return array
+     */
+    private function _getIncludedAndNonIncludedTaxRate(): array
+    {
+        $rates = [];
+        $rates = array_merge($rates, $this->_getIncludedTaxRate());
+        $rates = array_merge($rates, $this->_getTaxRates());
+
+        return $rates;
+    }
+
     private function _getTaxRates(): array
+    {
+        $rates = [];
+        $austriaRate = new TaxRate();
+        $austriaRate->name = "Austria";
+        $austriaRate->code = "AUVAT";
+        $austriaRate->rate = 0.1; // 10%
+        $austriaRate->include = false; // 10%
+        $austriaRate->taxable = 'order_total_price'; // 10%
+
+        $rates[] = $austriaRate;
+
+        return $rates;
+    }
+
+    private function _getIncludedTaxRate(): array
     {
         $rates = [];
         $netherlandsRate = new TaxRate();
         $netherlandsRate->name = "Netherlands";
         $netherlandsRate->code = "NVAT";
         $netherlandsRate->rate = 0.1; // 10%
+        $netherlandsRate->include = true; // 10%
+        $netherlandsRate->isVat = true; // 10%
         $netherlandsRate->taxable = 'order_total_price'; // 10%
 
         $rates[] = $netherlandsRate;
@@ -108,10 +180,11 @@ class TaxTest extends Unit
         return $rates;
     }
 
-    private function _getAddress($withValidVatId)
+    private function _getAddress($withValidVatId = false)
     {
         $address = new Address();
         $address->businessTaxId = $withValidVatId ? 'CZ25666011' : 'xxx';
+        $address->countryId = 1;
 
         return $address;
     }
