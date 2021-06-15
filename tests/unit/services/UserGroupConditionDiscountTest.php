@@ -41,7 +41,7 @@ class UserGroupConditionDiscountTest extends Unit
         $this->discounts = Plugin::getInstance()->getDiscounts();
     }
 
-    public function testIsuserGroupsConditionAnyOrNoneValid()
+    public function testIsUserGroupsConditionAnyOrNoneValid()
     {
         $this->_mockCustomers();
 
@@ -54,7 +54,7 @@ class UserGroupConditionDiscountTest extends Unit
         self::assertTrue($isValid);
     }
 
-    public function testIsuserGroupsConditionIncludeAllValid()
+    public function testIsUserGroupsConditionIncludeAllValid()
     {
         $discountAdjuster = new Discounts();
         $this->_mockCustomers();
@@ -99,7 +99,7 @@ class UserGroupConditionDiscountTest extends Unit
         self::assertFalse($isValid);
     }
 
-    public function testIsuserGroupsConditionExcludeValid()
+    public function testIsUserGroupsConditionExcludeValid()
     {
         $discountAdjuster = new Discounts();
         $this->_mockCustomers();
