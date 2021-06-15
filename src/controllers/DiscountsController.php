@@ -69,6 +69,7 @@ class DiscountsController extends BaseCpController
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
         $variables = compact('id', 'discount');
+        $variables['isNewDiscount'] = false;
 
         if (!$variables['discount']) {
             if ($variables['id']) {
@@ -79,6 +80,7 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['isNewDiscount'] = true;
             }
         }
 
@@ -118,7 +120,8 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
-
+        $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
+            
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
@@ -169,9 +172,12 @@ class DiscountsController extends BaseCpController
         $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
-        if (!$groups) {
+
+        if($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE)
+        {
             $groups = [];
         }
+
         $discount->setUserGroupIds($groups);
 
         // Save it
@@ -359,7 +365,7 @@ class DiscountsController extends BaseCpController
             $variables['title'] = Craft::t('commerce', 'Create a Discount');
         }
 
-        //getting user groups map
+        // getting user groups map
         if (Craft::$app->getEdition() == Craft::Pro) {
             $groups = Craft::$app->getUserGroups()->getAllGroups();
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
