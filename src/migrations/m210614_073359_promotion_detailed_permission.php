@@ -19,22 +19,22 @@ class m210614_073359_promotion_detailed_permission extends Migration
     public function safeUp()
     {
         // Create new promotion permissions
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editSales']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsales']);
         $editSalesId = $this->db->getLastInsertID();        
         
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createSales']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsales']);
         $createSalesId = $this->db->getLastInsertID();        
         
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deleteSales']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesales']);
         $deleteSalesId = $this->db->getLastInsertID();        
         
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editDiscounts']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editdiscounts']);
         $editDiscountsId = $this->db->getLastInsertID();        
         
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createDiscounts']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-creatediscounts']);
         $createDiscountsId = $this->db->getLastInsertID();        
         
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deleteDiscounts']);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletediscounts']);
         $deleteDiscountsId = $this->db->getLastInsertID();
         
         $permissionId = (new Query())
@@ -56,6 +56,22 @@ class m210614_073359_promotion_detailed_permission extends Migration
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $editDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $createDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $deleteDiscountsId]);
+        }
+
+        // Check if manage product type is ticked for user group permissions
+        $groupPromotions = (new Query())
+            ->select(['id', 'permissionId', 'groupId'])
+            ->from([Table::USERPERMISSIONS_USERGROUPS])
+            ->where(['permissionId' => $permissionId])
+            ->all();
+
+        foreach ($groupPromotions as $groupPromotion) {
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $editSalesId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $createSalesId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $deleteSalesId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $editDiscountsId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $createDiscountsId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupPromotion['groupId'], 'permissionId' => $deleteDiscountsId]);
         }
     }
 

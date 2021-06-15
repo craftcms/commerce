@@ -11,7 +11,7 @@ use yii\db\Expression;
 /**
  * m201111_072959_v4_product_permission_conversion migration.
  */
-class m201111_072959_v4_product_permission_conversion extends Migration
+class m201111_072959_product_permission_conversion extends Migration
 {
     /**
      * @inheritdoc
