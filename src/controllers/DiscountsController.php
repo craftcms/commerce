@@ -365,7 +365,7 @@ class DiscountsController extends BaseCpController
             $variables['title'] = Craft::t('commerce', 'Create a Discount');
         }
 
-        //getting user groups map
+        // getting user groups map
         if (Craft::$app->getEdition() == Craft::Pro) {
             $groups = Craft::$app->getUserGroups()->getAllGroups();
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');

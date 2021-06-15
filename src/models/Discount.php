@@ -348,10 +348,10 @@ class Discount extends Model
     public function getUserGroupsConditions(): array
     {
         return [
-          DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'Any or none'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Include all…'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Include any…'),
-          DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Exclude any…')
+          DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
+          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
+          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
+          DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:')
         ];
     }
 
