@@ -724,6 +724,10 @@ class Product extends Element
         // Custom styling
         $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
 
+        if (!$this->getType()->hasVariants) {
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
+        }
+
         return implode('', $html);
     }
 
