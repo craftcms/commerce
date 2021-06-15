@@ -77,6 +77,10 @@ body.rtl .variant-matrixblock > .titlebar {
   width: 310px;
   border-right: 1px solid #e3e5e8; }
 
+.fields > .variant-properties > .variant-properties-dimensions > .input > .flex > .textwrapper > .text {
+  margin: 0;
+  padding: 7px 0; }
+
 .variant-matrixblock:not(.single-col) > .fields > .custom-fields {
   padding: 14px 24px;
   width: calc(100% - 359px); }
