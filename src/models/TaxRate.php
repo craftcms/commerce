@@ -56,11 +56,13 @@ class TaxRate extends Model
 
     /**
      * @var bool Remove the included tax rate
+     * @since 3.4
      */
     public $removeIncluded;
 
     /**
      * @var bool Remove the included vat tax rate
+     * @since 3.4
      */
     public $removeVatIncluded;
 

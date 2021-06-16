@@ -36,8 +36,8 @@
 - Added `craft\commerce\models\TaxCategory::$dateUpdated`.
 - Added `craft\commerce\models\TaxRate::$dateCreated`.
 - Added `craft\commerce\models\TaxRate::$dateUpdated`.
-- Added `craft\commerce\models\TaxRates::removeIncluded`.
-- Added `craft\commerce\models\TaxRates::removeVatIncluded`.
+- Added `craft\commerce\models\TaxRate::$removeIncluded`.
+- Added `craft\commerce\models\TaxRate::$removeVatIncluded`.
 - Added `craft\commerce\stats\TopProducts::$revenueOptions`.
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_DISCOUNT`.
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_SHIPPING`.
