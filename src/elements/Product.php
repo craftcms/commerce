@@ -678,31 +678,71 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getEditorHtml(): string
+    public function getSidebarHtml(): string
     {
-        $viewService = Craft::$app->getView();
-        $html = parent::getEditorHtml();
-        $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
+        $html = [];
 
-        $productType = $this->getType();
+        // General Meta fields
+        $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
 
-        if (!$productType->hasVariants) {
-            /** @var Variant $variant */
-            $variant = ArrayHelper::firstValue($this->getVariants());
-            $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
-            $viewService->setNamespace($newNamespace);
-            $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant, $variant->getProduct()]));
+        // Enabled field
+        $topMetaHtml .= Cp::lightswitchFieldHtml([
+            'label' => Craft::t('commerce', 'Enabled'),
+            'id' => 'enabled',
+            'name' => 'enabled',
+            'on' =>  $this->enabled,
+        ]);
 
-            if ($productType->hasDimensions) {
-                $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'dimensionVariantFields', [$variant]));
-            }
-
-            $viewService->setNamespace($namespace);
-            $viewService->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
+        // Multi site enabled
+        if (Craft::$app->getIsMultiSite()) {
+            $topMetaHtml .= Cp::lightswitchFieldHtml([
+                'label' => Craft::t('commerce', 'Enabled for site'),
+                'id' => 'enabledForSite',
+                'name' => 'enabledForSite',
+                'on' =>  $this->enabledForSite,
+            ]);
         }
 
-        return $html;
+        $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
+
+        $html[] = Html::tag('div', Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.behavioralMetaFields(product) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        ), ['class' => 'meta']);
+
+        $html[] = Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.singleVariantFields(product, product.getType()) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        );
+
+        $html[] = parent::getSidebarHtml();
+
+        // Custom styling
+        $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
+
+        if (!$this->getType()->hasVariants) {
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
+        }
+
+        return implode('', $html);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = parent::getMetadata();
+
+        if (array_key_exists(Craft::t('app', 'Status'), $metadata)) {
+            unset($metadata[Craft::t('app', 'Status')]);
+        }
+
+        return $metadata;
     }
 
     /**
