@@ -74,7 +74,7 @@ class TopProducts extends Stat
      * Options to be used when when calculating revenue total.
      *
      * @var string[]
-     * @since 3.x
+     * @since 3.4
      */
     public $revenueOptions = [];
 
@@ -82,7 +82,7 @@ class TopProducts extends Stat
      * Default options for calculating revenue total.
      *
      * @var string[]
-     * @since 3.x
+     * @since 3.4
      */
     private $_defaultRevenueOptions = [
         self::REVENUE_OPTION_DISCOUNT,
@@ -187,7 +187,7 @@ class TopProducts extends Stat
      * Create select statement for a stat type `custom` based on the options chosen.
      *
      * @return Expression
-     * @since 3.x
+     * @since 3.4
      */
     protected function getAdjustmentsSelect()
     {
@@ -220,7 +220,7 @@ class TopProducts extends Stat
      * Create the adjustments sub query for use with revenue calculation.
      *
      * @return Query
-     * @since 3.x
+     * @since 3.4
      */
     protected function createAdjustmentsSubQuery(): Query
     {
@@ -251,7 +251,7 @@ class TopProducts extends Stat
      * Return the order by clause for the data query.
      *
      * @return Expression
-     * @since 3.x
+     * @since 3.4
      */
     protected function getOrderBy()
     {
@@ -271,7 +271,7 @@ class TopProducts extends Stat
      * Return group by statement based on state type.
      *
      * @return string
-     * @since 3.x
+     * @since 3.4
      */
     protected function getGroupBy()
     {
