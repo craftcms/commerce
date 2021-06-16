@@ -2,13 +2,12 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 
 /**
- * m210616_152013_change_return_cancel_url_column_type_again migration.
+ * m210616_152013_change_return_cancel_url_column_type migration.
  */
-class m210616_152013_change_return_cancel_url_column_type_again extends Migration
+class m210616_152013_change_return_cancel_url_column_type extends Migration
 {
     /**
      * @inheritdoc
@@ -25,7 +24,7 @@ class m210616_152013_change_return_cancel_url_column_type_again extends Migratio
      */
     public function safeDown()
     {
-        echo "m210616_152013_change_return_cancel_url_column_type_again cannot be reverted.\n";
+        echo "m210616_152013_change_return_cancel_url_column_type cannot be reverted.\n";
         return false;
     }
 }
