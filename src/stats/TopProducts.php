@@ -24,19 +24,35 @@ use yii\db\Expression;
 class TopProducts extends Stat
 {
     /**
-     * Constants for the type of stat query.
-     * @since 3.x
+     * Stat returned based on quantity.
+     * @since 3.4
      */
     const TYPE_QTY = 'qty';
+
+    /**
+     * Stat returned based on revenue.
+     * @since 3.4
+     */
     const TYPE_REVENUE = 'revenue';
 
     /**
-     * Options for what to include when calculating product revenue.
-     * @since 3.x
+     * @since 3.4
      */
     const REVENUE_OPTION_DISCOUNT = 'discount';
+
+    /**
+     * @since 3.4
+     */
     const REVENUE_OPTION_TAX = 'tax';
+
+    /**
+     * @since 3.4
+     */
     const REVENUE_OPTION_TAX_INCLUDED = 'tax_included';
+
+    /**
+     * @since 3.4
+     */
     const REVENUE_OPTION_SHIPPING = 'shipping';
 
     /**
