@@ -37,6 +37,9 @@ class Currency
 
         $decimals = $currency->minorUnit;
 
+        // If $amount is string it throws round error on PHP 8
+        $amount = (float) $amount;
+
         return round($amount, $decimals);
     }
 

@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where rounding a string value throws an error on PHP 8. ([#2198](https://github.com/craftcms/commerce/issues/2198))
+
 ## 3.3.4 - 2021-06-15
 
 ### Added
