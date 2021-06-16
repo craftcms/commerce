@@ -3226,6 +3226,36 @@ class Order extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [];
+
+        if ($this->isCompleted) {
+            $metadata[Craft::t('commerce', 'Reference')] = $this->reference;
+            $metadata[Craft::t('commerce', 'Date Ordered')] = Craft::$app->getFormatter()->asDatetime($this->dateOrdered, 'short');
+        }
+
+        $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
+
+        $orderSite = $this->getOrderSite();
+        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
+
+        $shippingMethod = $this->getShippingMethod();
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+
+        $metadata[Craft::t('app', 'ID')] = $this->id;
+        $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
+        $metadata[Craft::t('commerce', 'Paid Status')] = $this->getPaidStatusHtml();
+        $metadata[Craft::t('commerce', 'Total Price')] = $this->totalPriceAsCurrency;
+        $metadata[Craft::t('commerce', 'Paid Amount')] = $this->totalPaidAsCurrency;
+        $metadata[Craft::t('commerce', 'Origin')] = $this->origin;
+
+        return array_merge($metadata, parent::getMetadata());
+    }
+
+    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @return null
