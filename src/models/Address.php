@@ -615,7 +615,7 @@ class Address extends Model
     private function _validateVatNumber($businessVatId)
     {
         try {
-            return $this->_getVatValidator()->validate($businessVatId);
+            return $this->_getVatValidator()->validateVatNumber($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 

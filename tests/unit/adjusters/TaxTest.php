@@ -24,7 +24,6 @@ use craft\commerce\Plugin;
  */
 class TaxTest extends Unit
 {
-
     /**
      *
      */
