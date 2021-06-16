@@ -1,8 +1,8 @@
 {% extends "commerce/_layouts/tax" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'Include in Price?',
-    'Remove from Price?',
+    'Include in price?',
+    'Remove from price?',
     'Is EU VAT?',
     'Name',
     'Rate',
@@ -42,12 +42,12 @@
 var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'rate', title: Craft.t('commerce', 'Rate') },
-    { name: 'included', title: Craft.t('commerce', 'Include in Price?'), callback: function(value) {
+    { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
       if (value) {
           return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
       }
     } },
-    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from Price?'), callback: function(value) {
+    { name: 'removeIncluded', title: Craft.t('commerce', 'Remove from price?'), callback: function(value) {
             if (value) {
                 return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
