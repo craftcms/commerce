@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.3.4.1 - 2021-06-16
+
+### Fixed
+- Fixed a bug where the database schema for new Craft Commerce installations wasn’t consistent with older installations.
+
 ## 3.3.4 - 2021-06-15
 
 ### Added
