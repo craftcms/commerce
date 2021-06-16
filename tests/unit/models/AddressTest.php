@@ -16,7 +16,7 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\services\Countries;
 use craft\commerce\services\States;
-use Ibericode\Vat\Validator;
+use DvK\Vat\Validator;
 use yii\caching\DummyCache;
 
 /**
@@ -96,7 +96,7 @@ class AddressTest extends Unit
         // Validate the VAT id
         Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId = $validateBusinessTaxIdAsVatId;
 
-        $validator = $this->make(Validator::class, ['validateVatNumberExistence' => function($val) {
+        $validator = $this->make(Validator::class, ['validateExistence' => function($val) {
             return $val == 'GB000472631';
         }]);
         $addressModel = Stub::make(new Address, ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);

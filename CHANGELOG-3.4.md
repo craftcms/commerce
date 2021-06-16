@@ -60,7 +60,6 @@
 - Order notices are now cleared when orders are completed. ([#2116](https://github.com/craftcms/commerce/issues/2116))
 - Donations, orders, products, and variants now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([craftcms/cms#8023](https://github.com/craftcms/cms/issues/8023))
 - Address, customer, country, state, payment currency, promotion, shipping, subscription plan, and tax edit pages now display date meta info.
-- Updated ibericode/vat to 2.x.
 
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))

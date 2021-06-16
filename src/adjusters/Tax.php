@@ -18,7 +18,7 @@ use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use Ibericode\Vat\Validator;
+use DvK\Vat\Validator;
 use Exception;
 use function in_array;
 
@@ -349,7 +349,7 @@ class Tax extends Component implements AdjusterInterface
     private function _validateVatNumber($businessVatId)
     {
         try {
-            return $this->_getVatValidator()->validateVatNumber($businessVatId);
+            return $this->_getVatValidator()->validate($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 

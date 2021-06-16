@@ -15,7 +15,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
 use DateTime;
-use Ibericode\Vat\Validator;
+use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
 
@@ -615,7 +615,7 @@ class Address extends Model
     private function _validateVatNumber($businessVatId)
     {
         try {
-            return $this->_getVatValidator()->validateVatNumber($businessVatId);
+            return $this->_getVatValidator()->validate($businessVatId);
         } catch (Exception $e) {
             Craft::error('Communication with VAT API failed: ' . $e->getMessage(), __METHOD__);
 
