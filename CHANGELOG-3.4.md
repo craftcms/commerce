@@ -53,6 +53,7 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.7 or later.
+- Product slideouts now include the full field layout and meta fields. ([#2205](https://github.com/craftcms/commerce/pull/2205))
 - Discounts now have additional user group condition options. ([#220](https://github.com/craftcms/commerce/issues/220))
 - The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
 - Product field layouts no longer validate if they contain a field called `cheapestVariant`, `defaultVariant` or `variants`.
