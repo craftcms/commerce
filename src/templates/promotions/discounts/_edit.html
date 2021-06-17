@@ -319,7 +319,7 @@
                            value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-customer-usage-spinner"
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-customer-usage-spinner"
                          data-field="#customer-usage-counter"
                          data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
                     <div id="clear-customer-usage-spinner" class="spinner hidden"></div>
@@ -349,7 +349,7 @@
                            value="{{ '{uses} uses across {emails} email addresses'|t('commerce', emailUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-email-usage-spinner"
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-email-usage-spinner"
                          data-field="#email-usage-counter"
                          data-type="{{ counterTypeEmail }}">{{ "Reset usage"|t('commerce') }}</div>
                     <div id="clear-email-usage-spinner" class="spinner hidden"></div>
@@ -379,7 +379,7 @@
                            value="{{ totalDiscountUsesWording|t('commerce', {count: discount.totalDiscountUses}) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-discount-use-spinner"
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-discount-use-spinner"
                          data-field="#total-discount-use-counter"
                          data-type="{{ counterTypeTotal }}">{{ "Clear counter"|t('commerce') }}</div>
                     <div id="clear-discount-use-spinner" class="spinner hidden"></div>
@@ -542,7 +542,6 @@
 
     {% hook "cp.commerce.discounts.edit.content" %}
 {% endblock %}
-
 
 {% js %}
 $(function() {

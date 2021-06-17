@@ -171,3 +171,16 @@ ul.commerce-sales li a span {
 .commerce-sales-buttons a {
   margin-top: 5px;
 }
+
+#discountform .clear-btn.discount-clear-use {
+  padding: 0 7px;
+  width: auto;
+}
+
+.ltr #discountform .clear-btn.discount-clear-use::before {
+  padding-right: 3px;
+}
+
+.rtl #discountform .clear-btn.discount-clear-use::before {
+  padding-left: 3px;
+}
