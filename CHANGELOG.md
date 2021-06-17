@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+
+### Fixed
+- Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+
 ## 3.3.4.1 - 2021-06-16
 
 ### Fixed
