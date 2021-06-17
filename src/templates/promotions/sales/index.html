@@ -19,7 +19,9 @@
 ]) %}
 
 {% block actionButton %}
-  <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    {% if currentUser.can('commerce-createSales') %}
+        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% block content %}

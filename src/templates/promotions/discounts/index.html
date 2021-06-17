@@ -20,7 +20,9 @@
 ]) %}
 
 {% block actionButton %}
-    <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% if currentUser.can('commerce-createDiscounts') %}
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% endif %}
 {% endblock %}
 
 

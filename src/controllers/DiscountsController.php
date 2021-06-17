@@ -68,6 +68,12 @@ class DiscountsController extends BaseCpController
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
+        if ($id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $variables = compact('id', 'discount');
 
         if (!$variables['discount']) {
@@ -98,6 +104,13 @@ class DiscountsController extends BaseCpController
         $request = Craft::$app->getRequest();
 
         $discount->id = $request->getBodyParam('id');
+        
+        if ($discount->id === null) {
+            $this->requirePermission('commerce-createDiscounts');
+        } else {
+            $this->requirePermission('commerce-editDiscounts');
+        }
+        
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
@@ -213,6 +226,7 @@ class DiscountsController extends BaseCpController
      */
     public function actionDelete(): Response
     {
+        $this->requirePermission('commerce-deleteDiscounts');
         $this->requirePostRequest();
         $this->requireAcceptsJson();
 
