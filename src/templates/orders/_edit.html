@@ -167,16 +167,13 @@
     <input type="hidden" name="orderId" value="{{ order.id }}">
     {{ redirectInput('commerce/orders/'~order.id) }}
 
-    <div id="order-secondary-actions">
-        <div id="order-secondary-actions-app"></div>
+    <div id="order-secondary-actions" class="flex">
         {% hook "cp.commerce.order.edit.order-secondary-actions" %}
+        <div id="order-secondary-actions-app"></div>
     </div>
-
-    <div class="flex-grow"></div>
-
-    <div id="order-actions">
-        <div id="order-actions-app"></div>
+    <div id="order-actions" class="flex">
         {% hook "cp.commerce.order.edit.order-actions" %}
+        <div id="order-actions-app"></div>
     </div>
 {% endblock %}
 

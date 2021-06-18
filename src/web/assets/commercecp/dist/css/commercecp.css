@@ -191,6 +191,16 @@ ul.commerce-sales li a span {
   /* Safari */
   transform: rotate(-20deg); }
 
+@media only screen and (max-width: 768px) {
+  .commerceordersedit #action-button {
+    flex-direction: column-reverse;
+    height: auto; }
+    .commerceordersedit #action-button > .flex {
+      flex-wrap: wrap;
+      width: 100%; }
+  body.ltr.commerceordersedit #action-button.flex > *:not(:last-child) {
+    margin-right: 0 !important; } }
+
 #paymentmodal.loading {
   min-width: 300px;
   min-height: 300px; }
