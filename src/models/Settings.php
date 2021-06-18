@@ -230,20 +230,6 @@ class Settings extends Model
     public $minimumTotalPriceStrategy = 'default';
 
     /**
-     * @var string Filename format to be used for order PDFs.
-     * @group Orders
-     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
-     */
-    public $orderPdfFilenameFormat = 'Order-{number}';
-
-    /**
-     * @var string Path to the template to be used for order PDFs.
-     * @group Orders
-     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
-     */
-    public $orderPdfPath = 'shop/special/receipt';
-
-    /**
      * @var string Human-friendly reference number format for orders. Result must be unique.
      *
      * See [Order Numbers](orders.md#order-numbers).
@@ -504,7 +490,7 @@ class Settings extends Model
     {
         $rules = parent::defineRules();
 
-        $rules [] = [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'], 'required'];
+        $rules [] = [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'];
 
         return $rules;
     }
