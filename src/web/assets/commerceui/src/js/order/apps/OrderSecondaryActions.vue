@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="editing || hasOrderChanged">
         <div class="order-flex" v-if="!editing">
             <div v-if="defaultPdfUrl">
                 <div id="order-save" class="btngroup">
@@ -19,8 +19,6 @@
             </div>
 
             <template v-if="emailTemplates.length > 0">
-                <div class="spacer"></div>
-
                 <div class="btngroup send-email">
                     <div class="btn menubtn" ref="sendEmailMenuBtn">{{"Send Email"|t('commerce')}}</div>
                     <div class="menu">
@@ -32,8 +30,9 @@
                     </div>
                 </div>
                 <div v-if="emailLoading">
-                    <div class="spacer"></div>
-                    <div class="spinner"></div>
+                    <div class="order-email-spinner">
+                        <div class="spinner"></div>
+                    </div>
                 </div>
             </template>
         </div>
@@ -107,8 +106,26 @@
 </script>
 
 <style lang="scss">
+    .order-email-spinner {
+        .ltr & {
+            padding-left: 7px;
+        }
+
+        .rtl & {
+            padding-right: 7px;
+        }
+    }
+
     .btngroup.send-email {
         position: relative;
+
+        .ltr & {
+            margin-left: 7px;
+        }
+
+        .rtl & {
+            margin-right: 7px;
+        }
 
         .spinner {
             position: absolute;
