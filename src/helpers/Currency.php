@@ -38,6 +38,7 @@ class Currency
         $decimals = $currency->minorUnit;
 
         // If $amount is string it throws round error on PHP 8
+        // @todo to be removed on Commerce 4 - ensure $amount is of float type
         $amount = (float) $amount;
 
         return round($amount, $decimals);
