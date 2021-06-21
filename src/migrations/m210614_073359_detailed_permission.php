@@ -2,41 +2,54 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
 use craft\db\Table;
-use yii\db\Expression;
 
 /**
- * m210614_073359_discount_detailed_permission migration.
+ * m210614_073359_detailed_permission migration.
  */
-class m210614_073359_promotion_detailed_permission extends Migration
+class m210614_073359_detailed_permission extends Migration
 {
     /**
      * @inheritdoc
      */
     public function safeUp()
     {
+        $this->_detailedPromotions();
+        $this->_detailedSubscriptions();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function safeDown()
+    {
+        echo "m210614_073359_detailed_permission cannot be reverted.\n";
+        return false;
+    }
+    
+    private function _detailedPromotions()
+    {
         // Create new promotion permissions
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsales']);
-        $editSalesId = $this->db->getLastInsertID();        
-        
+        $editSalesId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsales']);
-        $createSalesId = $this->db->getLastInsertID();        
-        
+        $createSalesId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesales']);
-        $deleteSalesId = $this->db->getLastInsertID();        
-        
+        $deleteSalesId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editdiscounts']);
-        $editDiscountsId = $this->db->getLastInsertID();        
-        
+        $editDiscountsId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-creatediscounts']);
-        $createDiscountsId = $this->db->getLastInsertID();        
-        
+        $createDiscountsId = $this->db->getLastInsertID();
+
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletediscounts']);
         $deleteDiscountsId = $this->db->getLastInsertID();
-        
+
         $permissionId = (new Query())
             ->select(['id'])
             ->from([Table::USERPERMISSIONS])
@@ -48,11 +61,11 @@ class m210614_073359_promotion_detailed_permission extends Migration
             ->from([Table::USERPERMISSIONS_USERS])
             ->where(['permissionId' => $permissionId])
             ->all();
-        
+
         foreach ($userPromotions as $userPromotion) {
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $editSalesId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $createSalesId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $deleteSalesId]);            
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $deleteSalesId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $editDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $createDiscountsId]);
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userPromotion['userId'], 'permissionId' => $deleteDiscountsId]);
@@ -75,12 +88,46 @@ class m210614_073359_promotion_detailed_permission extends Migration
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function safeDown()
+    private function _detailedSubscriptions()
     {
-        echo "m210614_073359_discount_detailed_permission cannot be reverted.\n";
-        return false;
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptions']);
+        $editSubscriptionId = $this->db->getLastInsertID();        
+        
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsubscriptions']);
+        $createSubscriptionId = $this->db->getLastInsertID();        
+        
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesubscriptions']);
+        $deleteSubscriptionId = $this->db->getLastInsertID();
+
+        $permissionId = (new Query())
+            ->select(['id'])
+            ->from([Table::USERPERMISSIONS])
+            ->where(['name' => 'commerce-managesubscriptions'])
+            ->scalar();
+
+        $userSubscriptions = (new Query())
+            ->select(['id', 'userId'])
+            ->from([Table::USERPERMISSIONS_USERS])
+            ->where(['permissionId' => $permissionId])
+            ->all();
+
+        foreach ($userSubscriptions as $userSubscription) {
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $editSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $createSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $deleteSubscriptionId]);
+        }
+
+        $groupSubscriptions = (new Query())
+            ->select(['id', 'permissionId', 'groupId'])
+            ->from([Table::USERPERMISSIONS_USERGROUPS])
+            ->where(['permissionId' => $permissionId])
+            ->all();
+
+        foreach ($groupSubscriptions as $groupSubscription) {
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $createSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $deleteSubscriptionId]);
+        }
+
     }
 }

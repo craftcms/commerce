@@ -386,13 +386,11 @@ class Plugin extends BasePlugin
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-managePromotions'] = $this->_registerPromotionPermission();
 
+            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-manageSubscriptions'] = $this->_registerSubscriptionPermission();
+
             $productTypePermissions = $this->_registerProductTypePermission();
 
             $event->permissions = ArrayHelper::merge($event->permissions, $productTypePermissions);
-            
-            $subscriptionPermissions = [ Craft::t('commerce', 'Craft Commerce') => $this->_registerSubscriptionPermission()];
-
-            $event->permissions = ArrayHelper::merge($event->permissions, $subscriptionPermissions);
         });
     }
 
@@ -431,10 +429,12 @@ class Plugin extends BasePlugin
 
     private function _registerSubscriptionPermission()
     {
-        return [
-            'commerce-editSubscriptions' => [ 'label' => 'Edit Subscriptions'],
-            'commerce-createSubscriptions' => [ 'label' => 'Create Subscriptions'],
-            'commerce-deleteSubscriptions' => [ 'label' => 'Delete Subscriptions']
+        return ['label' => Craft::t('commerce', 'Manage subscriptions'),
+            'nested' => [
+                'commerce-editSubscriptions' => ['label' => 'Edit Subscriptions'],
+                'commerce-createSubscriptions' => ['label' => 'Create Subscriptions'],
+                'commerce-deleteSubscriptions' => ['label' => 'Delete Subscriptions']
+            ]
         ];
     }
 
