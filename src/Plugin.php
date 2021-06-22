@@ -378,12 +378,13 @@ class Plugin extends BasePlugin
                         ],
                     ]
                 ],
-                'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
                 'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                 'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                 'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
             ];
 
+            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-manageCustomers'] = $this->_registerCustomerPermission();
+            
             $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-managePromotions'] = $this->_registerPromotionPermission();
 
             $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-manageSubscriptions'] = $this->_registerSubscriptionPermission();
@@ -425,6 +426,16 @@ class Plugin extends BasePlugin
         }
 
         return $permissions;
+    }
+    
+    private function _registerCustomerPermission()
+    {
+        return ['label' => Craft::t('commerce', 'Manage customers'),
+            'nested' => [
+                'commerce-editCustomers' => ['label' => 'Edit Customers'],
+                'commerce-createCustomers' => ['label' => 'Create Customers']
+            ]
+        ];
     }
 
     private function _registerSubscriptionPermission()

@@ -18,9 +18,10 @@ class m210614_073359_detailed_permission extends Migration
      */
     public function safeUp()
     {
-        $this->_detailedProducts();
         $this->_detailedPromotions();
         $this->_detailedSubscriptions();
+        $this->_detailedCustomers();
+        $this->_detailedProducts();
         $this->_projectConfigUpdates();
     }
 
@@ -135,34 +136,40 @@ class m210614_073359_detailed_permission extends Migration
 
     }
 
-    private function _projectConfigUpdates()
+    private function _detailedCustomers()
     {
-        // Make project config updates
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editcustomers']);
+        $editCustomerId = $this->db->getLastInsertID();
 
-        if (version_compare($schemaVersion, '4.0', '<')) {
-            $groups = (new Query())
-                ->select(['id', 'name', 'uid'])
-                ->from(['groups' => Table::USERGROUPS])
-                ->all();
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createcustomers']);
+        $createCustomerId = $this->db->getLastInsertID();
 
-            $setGroupPermissions = [];
+        $permissionId = (new Query())
+            ->select(['id'])
+            ->from([Table::USERPERMISSIONS])
+            ->where(['name' => 'commerce-managecustomers'])
+            ->scalar();
 
-            foreach ($groups as $group) {
-                $groupPermissions = (new Query())
-                    ->select(['up.name'])
-                    ->from(['up_ug' => Table::USERPERMISSIONS_USERGROUPS])
-                    ->where(['up_ug.groupId' => $group['id']])
-                    ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[up_ug.permissionId]]')
-                    ->column();
+        $userCustomers = (new Query())
+            ->select(['id', 'userId'])
+            ->from([Table::USERPERMISSIONS_USERS])
+            ->where(['permissionId' => $permissionId])
+            ->all();
 
-                $setGroupPermissions[$group['uid']] = $groupPermissions;
-            }
+        foreach ($userCustomers as $userCustomer) {
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userCustomer['userId'], 'permissionId' => $editCustomerId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userCustomer['userId'], 'permissionId' => $createCustomerId]);
+        }
 
-            foreach ($setGroupPermissions as $uid => $setGroupPermission) {
-                $projectConfig->set('users.groups.' . $uid . '.permissions', $setGroupPermission);
-            }
+        $groupCustomers = (new Query())
+            ->select(['id', 'permissionId', 'groupId'])
+            ->from([Table::USERPERMISSIONS_USERGROUPS])
+            ->where(['permissionId' => $permissionId])
+            ->all();
+
+        foreach ($groupCustomers as $groupCustomer) {
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupCustomer['groupId'], 'permissionId' => $editCustomerId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupCustomer['groupId'], 'permissionId' => $createCustomerId]);
         }
     }
 
@@ -222,6 +229,37 @@ class m210614_073359_detailed_permission extends Migration
 
             // No longer need this top level permission
             $this->delete(Table::USERPERMISSIONS, ['name' => 'commerce-manageproducts']);
+        }
+    }
+
+    private function _projectConfigUpdates()
+    {
+        // Make project config updates
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+
+        if (version_compare($schemaVersion, '4.0', '<')) {
+            $groups = (new Query())
+                ->select(['id', 'name', 'uid'])
+                ->from(['groups' => Table::USERGROUPS])
+                ->all();
+
+            $setGroupPermissions = [];
+
+            foreach ($groups as $group) {
+                $groupPermissions = (new Query())
+                    ->select(['up.name'])
+                    ->from(['up_ug' => Table::USERPERMISSIONS_USERGROUPS])
+                    ->where(['up_ug.groupId' => $group['id']])
+                    ->innerJoin(['up' => Table::USERPERMISSIONS], '[[up.id]] = [[up_ug.permissionId]]')
+                    ->column();
+
+                $setGroupPermissions[$group['uid']] = $groupPermissions;
+            }
+
+            foreach ($setGroupPermissions as $uid => $setGroupPermission) {
+                $projectConfig->set('users.groups.' . $uid . '.permissions', $setGroupPermission);
+            }
         }
     }
 }
