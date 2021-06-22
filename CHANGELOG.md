@@ -967,7 +967,7 @@
 - Fixed a PHP error that occurred on Windows environments. ([#1247](https://github.com/craftcms/commerce/issues/1247))
 - Fixed a bug where orders’ Date Ordered attributes could shift after saving an order from the Edit Order page. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
-- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a bug that prevented emails from being sent. ([#1257](https://github.com/craftcms/commerce/issues/1257))
 - Fixed a error that occurred on the Edit User page when the logged-in user did’t have the “Manage subscriptions” permission. ([#1252](https://github.com/craftcms/commerce/issues/1252))
 - Fixed an error that occurred when setting a primary address on a customer. ([#1253](https://github.com/craftcms/commerce/issues/1253))
 - Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))
