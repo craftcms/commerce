@@ -1153,8 +1153,11 @@ class OrdersController extends Controller
             }
             // If no user or customer
             if ($customer == null) {
-                $customer = new Customer();
-                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+                // @todo We could add a flash message here that user doesn't have create customer permission.
+                if (Craft::$app->getUser()->checkPermission('commerce-createCustomers')) {
+                    $customer = new Customer();
+                    Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+                }
             }
 
             $order->setCustomer($customer);
