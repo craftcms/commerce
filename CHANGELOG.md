@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
 
 ## 3.3.4.1 - 2021-06-16
 
