@@ -4,6 +4,7 @@
 
 ### Changed
 - It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+- It’s now possible to search orders by the shipping or billing address.
 
 ### Fixed
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))

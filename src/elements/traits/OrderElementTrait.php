@@ -251,6 +251,8 @@ trait OrderElementTrait
                 return $this->billingAddress->fullName ?? '';
             case 'billingPhone':
                 return $this->billingAddress->phone ?? '';
+            case 'billingAddressLines':
+                return $this->billingAddress->addressLines ?? '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
@@ -259,6 +261,8 @@ trait OrderElementTrait
                 return $this->shippingAddress->fullName ?? '';
             case 'shippingPhone':
                 return $this->shippingAddress->phone ?? '';
+            case 'shippingAddressLines':
+                return $this->shippingAddress->addressLines ?? '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
