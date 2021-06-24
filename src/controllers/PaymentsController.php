@@ -425,9 +425,9 @@ class PaymentsController extends BaseFrontEndController
             $order->setPaymentAmount($paymentAmount);
         }
 
-        $paymentAmountInPrimaryCurrency = round(Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency), 2);
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency);
 
-        if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
+        if (!$partialAllowed && round($paymentAmountInPrimaryCurrency, 2) < $order->getOutstandingBalance()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
             $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
