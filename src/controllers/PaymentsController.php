@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
@@ -427,7 +428,7 @@ class PaymentsController extends BaseFrontEndController
 
         $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency);
 
-        if (!$partialAllowed && round($paymentAmountInPrimaryCurrency, 2) < $order->getOutstandingBalance()) {
+        if (!$partialAllowed && Currency::round($paymentAmountInPrimaryCurrency) < $order->getOutstandingBalance()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
             $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
