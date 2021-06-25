@@ -19,8 +19,7 @@ use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use Money\Converter;
-use Money\Currency;
+use craft\commerce\helpers\Currency as CurrencyHelper;
 use Money\Exchange\FixedExchange;
 use Money\Exchange\ReversedCurrenciesExchange;
 
@@ -195,10 +194,11 @@ class PaymentCurrencies extends Component
      * @param float $amount
      * @param string $fromCurrency
      * @param string $toCurrency
+     * @param bool $round
      * @return float
      * @throws CurrencyException if currency not found by its ISO code
      */
-    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency): float
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, $round = false): float
     {
         $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
         $toCurrency = $this->getPaymentCurrencyByIso($toCurrency);
@@ -213,10 +213,16 @@ class PaymentCurrencies extends Component
 
         if ($this->getPrimaryPaymentCurrency()->iso != $fromCurrency) {
             // now the amount is in the primary currency
-            $amount = $amount / $fromCurrency->rate;
+            $amount /= $fromCurrency->rate;
         }
 
-        return $amount * $toCurrency->rate;
+        $result = $amount * $toCurrency->rate;
+
+        if ($round) {
+            return CurrencyHelper::round($result, $toCurrency);
+        }
+
+        return $result;
     }
 
 
