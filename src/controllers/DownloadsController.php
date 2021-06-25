@@ -8,7 +8,9 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
+use craft\commerce\records\Email;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
@@ -34,9 +36,9 @@ class DownloadsController extends BaseFrontEndController
      */
     public function actionPdf(): Response
     {
-        $number = Craft::$app->getRequest()->getQueryParam('number');
-        $pdfHandle = Craft::$app->getRequest()->getQueryParam('pdfHandle');
-        $option = Craft::$app->getRequest()->getQueryParam('option', '');
+        $number = $this->request->getQueryParam('number');
+        $pdfHandle = $this->request->getQueryParam('pdfHandle');
+        $option = $this->request->getQueryParam('option', '');
 
         if (!$number) {
             throw new HttpInvalidParamException('Order number required');
@@ -64,7 +66,16 @@ class DownloadsController extends BaseFrontEndController
             throw new InvalidCallException("Can not find a PDF to render.");
         }
 
+        $originalLanguage = Craft::$app->language;
+
+        $language = $pdf->getRenderLanguage($order);
+        Locale::switchAppLanguage($language);
+
         $renderedPdf = Plugin::getInstance()->getPdfs()->renderPdfForOrder($order, $option, null, [], $pdf);
+
+        // Set previous language back
+        Craft::$app->language = $originalLanguage;
+        Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($originalLanguage));
 
         $fileName = $this->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
         if (!$fileName) {

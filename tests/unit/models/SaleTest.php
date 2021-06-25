@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\models;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\Sale;
@@ -21,7 +21,7 @@ use craft\commerce\services\Sales;
 class SaleTest extends Unit
 {
     /**
-     * @TODO Remove when populateSaleRelations is removed
+     * @todo Remove when populateSaleRelations is removed
      */
     public function testLoadRelationsCalledOnce()
     {
@@ -29,7 +29,7 @@ class SaleTest extends Unit
         $sale = new Sale();
 
         $mockSalesService = $this->make(Sales::class, [
-            'populateSaleRelations' => function () use (&$populateSaleRelationsRunCount, &$sale) {
+            'populateSaleRelations' => function() use (&$populateSaleRelationsRunCount, &$sale) {
                 $populateSaleRelationsRunCount++;
                 $sale->setPurchasableIds([]);
                 $sale->setCategoryIds([]);
@@ -39,57 +39,72 @@ class SaleTest extends Unit
 
         Plugin::getInstance()->set('sales', $mockSalesService);
         $sale->getPurchasableIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
+        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
         $sale->getCategoryIds();
-        $this->assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
+        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
     }
 
+    /**
+     *
+     */
     public function testSetCategoryIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
+        self::assertSame([], $sale->getCategoryIds(), 'No category IDs returns blank array');
 
-       $sale->setCategoryIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getCategoryIds());
+        $sale->setCategoryIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getCategoryIds());
     }
 
+    /**
+     *
+     */
     public function testSetPurchasableIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
+        self::assertSame([], $sale->getPurchasableIds(), 'No purchasable IDs returns blank array');
 
-       $sale->setPurchasableIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
+        $sale->setPurchasableIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getPurchasableIds());
     }
 
+    /**
+     *
+     */
     public function testSetUserGroupIds()
     {
-       $sale = new Sale();
-       $ids = [1, 2, 3, 4, 1];
+        $sale = new Sale();
+        $ids = [1, 2, 3, 4, 1];
 
-       $this->assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
+        self::assertSame([], $sale->getUserGroupIds(), 'No user group IDs returns blank array');
 
-       $sale->setUserGroupIds($ids);
-       $this->assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
+        $sale->setUserGroupIds($ids);
+        self::assertSame([1, 2, 3, 4], $sale->getUserGroupIds());
     }
 
+    /**
+     *
+     */
     public function testGetApplyAmountAsPercent()
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1000';
 
-        $this->assertSame('10%', $sale->getApplyAmountAsPercent());
+        self::assertSame('10.00%', $sale->getApplyAmountAsPercent());
     }
 
+    /**
+     *
+     */
     public function testGetApplyAmountAsFlat()
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1500';
 
-        $this->assertSame('0.15', $sale->getApplyAmountAsFlat());
+        self::assertSame('0.15', $sale->getApplyAmountAsFlat());
     }
 }

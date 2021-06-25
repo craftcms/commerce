@@ -81,7 +81,7 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
-        $variables['shippingZones'][] = 'Anywhere';
+        $variables['shippingZones'][] = Craft::t('commerce', 'Anywhere');
         foreach ($shippingZones as $model) {
             $variables['shippingZones'][$model->id] = $model->name;
         }
@@ -158,10 +158,12 @@ class ShippingRulesController extends BaseShippingSettingsController
         $shippingRule->shippingZoneId = $request->getBodyParam('shippingZoneId');
         $shippingRule->methodId = $request->getBodyParam('methodId');
         $shippingRule->enabled = (bool)$request->getBodyParam('enabled');
+        $shippingRule->orderConditionFormula = trim($request->getBodyParam('orderConditionFormula', ''));
         $shippingRule->minQty = $request->getBodyParam('minQty');
         $shippingRule->maxQty = $request->getBodyParam('maxQty');
         $shippingRule->minTotal = Localization::normalizeNumber($request->getBodyParam('minTotal'));
         $shippingRule->maxTotal = Localization::normalizeNumber($request->getBodyParam('maxTotal'));
+        $shippingRule->minMaxTotalType = $request->getBodyParam('minMaxTotalType');
         $shippingRule->minWeight = Localization::normalizeNumber($request->getBodyParam('minWeight'));
         $shippingRule->maxWeight = Localization::normalizeNumber($request->getBodyParam('maxWeight'));
         $shippingRule->baseRate = Localization::normalizeNumber($request->getBodyParam('baseRate'));
@@ -174,9 +176,12 @@ class ShippingRulesController extends BaseShippingSettingsController
         $ruleCategories = [];
         $allRulesCategories = Craft::$app->getRequest()->getBodyParam('ruleCategories');
         foreach ($allRulesCategories as $key => $ruleCategory) {
-            $ruleCategory['perItemRate'] = Localization::normalizeNumber($ruleCategory['perItemRate']);
-            $ruleCategory['weightRate'] = Localization::normalizeNumber($ruleCategory['weightRate']);
-            $ruleCategory['percentageRate'] = Localization::normalizeNumber($ruleCategory['percentageRate']);
+            $perItemRate = $ruleCategory['perItemRate'];
+            $weightRate = $ruleCategory['weightRate'];
+            $percentageRate = $ruleCategory['percentageRate'];
+            $ruleCategory['perItemRate'] = (!isset($perItemRate) || trim($perItemRate) === '') ? null : Localization::normalizeNumber($perItemRate);
+            $ruleCategory['weightRate'] = (!isset($weightRate) || trim($weightRate) === '') ? null : Localization::normalizeNumber($weightRate);
+            $ruleCategory['percentageRate'] = (!isset($percentageRate) || trim($percentageRate) === '') ? null : Localization::normalizeNumber($percentageRate);
 
             $ruleCategories[$key] = new ShippingRuleCategory($ruleCategory);
             $ruleCategories[$key]->shippingCategoryId = $key;
@@ -186,10 +191,10 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         // Save it
         if (Plugin::getInstance()->getShippingRules()->saveShippingRule($shippingRule)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping rule saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Shipping rule saved.'));
             $this->redirectToPostedUrl($shippingRule);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping rule.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping rule.'));
         }
 
         // Send the model back to the template

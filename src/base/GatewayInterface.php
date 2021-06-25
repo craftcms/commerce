@@ -166,6 +166,13 @@ interface GatewayInterface extends SavableComponentInterface
     public function supportsPartialRefund(): bool;
 
     /**
+     * Returns true if gateway supports partial payment requests.
+     *
+     * @return bool
+     */
+    public function supportsPartialPayment(): bool;
+
+    /**
      * Returns true if gateway supports webhooks.
      *
      * If `true` is returned, this show the webhook url
@@ -178,7 +185,7 @@ interface GatewayInterface extends SavableComponentInterface
     public function supportsWebhooks(): bool;
 
     /**
-     * Returns true if gateway supports payments for the supplied order.
+     * Returns `true` if gateway supports payments for the supplied order.
      *
      * This method is called before a payment is made for the supplied order. It can be
      * used by developers building a checkout and deciding if this gateway should be shown as
@@ -186,7 +193,7 @@ interface GatewayInterface extends SavableComponentInterface
      *
      * It also can prevent a gateway from being used with a particular order.
      *
-     * An example of this can be found in the manual payment gateway: It has a setting that can limit it's use
+     * An example of this can be found in the manual payment gateway: It has a setting that can limit its use
      * to only be used with orders that are of a zero value amount. See below for an example of how it uses this
      * method to reject the gateway's use on orders that are not $0.00 if the setting is turned on
      *

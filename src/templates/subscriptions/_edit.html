@@ -17,7 +17,7 @@
 
     {% block actionButton %}
     <div class="btngroup">
-            <input type="button" id="saveCustomFieldsSubmit" class="btn submit" value="{{ 'Update Subscription'|t('app') }}">
+            <input type="button" id="saveCustomFieldsSubmit" class="btn submit" value="{{ 'Update subscription'|t('commerce') }}">
     </div>
     {% endblock %}
 
@@ -176,59 +176,67 @@
 
 <div class="data">
     <h5 class="heading">{{ 'User'|t('commerce') }}</h5>
-    <p class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></p>
+    <div class="value"><a href="{{ subscription.subscriber.cpEditUrl}}">{{subscription.subscriber.fullName ? subscription.subscriber.fullName : subscription.subscriber.friendlyName}}</a></div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Plan'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.getPlan().name }}</p>
+    <div class="value">{{ subscription.getPlan().name }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Reference'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.reference }}</p>
+    <div class="value">
+        {% include '_includes/forms/copytext' with {
+            id: 'commerce-sub-reference',
+            buttonId: 'commerce-sub-reference-copy-btn',
+            value: subscription.reference,
+            class: ['code', not subscription.reference ? 'disabled' : '']|filter,
+
+        } %}
+    </div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Created'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.dateCreated|datetime }}</p>
+    <div class="value">{{ subscription.dateCreated|datetime }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Trial days credited'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.trialDays }}</p>
+    <div class="value">{{ subscription.trialDays }}</div>
 </div>
 
 {% if subscription.trialDays %}
 <div class="data">
     <h5 class="heading">{{ 'Trial expiration'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.trialExpires|datetime }}</p>
+    <div class="value">{{ subscription.trialExpires|datetime }}</div>
 </div>
 {% endif %}
 
 <div class="data">
     <h5 class="heading">{{ 'Next payment'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.nextPaymentDate|datetime }}</p>
+    <div class="value">{{ subscription.nextPaymentDate|datetime }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.nextPaymentDate|datetime }}</p>
+    <div class="value">{{ subscription.nextPaymentDate|datetime }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Expiry'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.dateExpired ? subscription.dateExpired|datetime : '' }}</p>
+    <div class="value">{{ subscription.dateExpired ? subscription.dateExpired|datetime : '' }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Cancellation'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.dateCanceled ? subscription.dateCanceled|datetime : '' }}</p>
+    <div class="value">{{ subscription.dateCanceled ? subscription.dateCanceled|datetime : '' }}</div>
 </div>
 
 <div class="data">
     <h5 class="heading">{{ 'Billing issues'|t('commerce') }}</h5>
-    <p class="value">{{ subscription.getBillingIssueDescription() }}</p>
+    <div class="value">{{ subscription.getBillingIssueDescription() }}</div>
 </div>
 
 </div>

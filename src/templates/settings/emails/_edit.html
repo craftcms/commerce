@@ -78,7 +78,7 @@
     {{ forms.field({
         id: 'recipient-type',
         label: 'Recipient'|t('commerce'),
-        instructions: 'The recipient of the email.'|t('commerce'),
+        instructions: 'The recipient of the email. Twig code can be used here.'|t('commerce'),
         errors: email.getErrors('to'),
         required: true,
     }, recipientInput) }}
@@ -128,6 +128,17 @@
         name: 'pdfId',
         value: email.pdfId,
         options: pdfList
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Language'|t('commerce'),
+        instructions: "The language to be used when email is rendered."|t,
+        id: 'language',
+        name: 'language',
+        options : emailLanguageOptions,
+        value : email.language,
+        errors: email.getErrors('language') ?? null,
+        toggle: true
     }) }}
 
     {{ forms.lightswitchField({

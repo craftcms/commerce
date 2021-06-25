@@ -17,6 +17,7 @@ use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping category service.
@@ -65,7 +66,6 @@ class ShippingCategories extends Component
         return ArrayHelper::map($categories, 'id', 'name');
     }
 
-
     /**
      * Get a shipping category by its ID.
      *
@@ -95,9 +95,10 @@ class ShippingCategories extends Component
     /**
      * Returns the default shipping category.
      *
-     * @return ShippingCategory|null
+     * @return ShippingCategory
+     * @throws InvalidConfigException
      */
-    public function getDefaultShippingCategory()
+    public function getDefaultShippingCategory(): ShippingCategory
     {
         $categories = $this->getAllShippingCategories();
 
@@ -105,6 +106,10 @@ class ShippingCategories extends Component
 
         if (!$default) {
             $default = ArrayHelper::firstValue($categories);
+        }
+
+        if (!$default) {
+            throw new InvalidConfigException('Commerce must have at least one (default) shipping category set up.');
         }
 
         return $default;
@@ -119,8 +124,6 @@ class ShippingCategories extends Component
      */
     public function saveShippingCategory(ShippingCategory $shippingCategory, bool $runValidation = true): bool
     {
-        $oldHandle = null;
-
         if ($shippingCategory->id) {
             $record = ShippingCategoryRecord::findOne($shippingCategory->id);
 
@@ -129,7 +132,6 @@ class ShippingCategories extends Component
                     ['id' => $shippingCategory->id]));
             }
 
-            $oldHandle = $record->handle;
         } else {
             $record = new ShippingCategoryRecord();
         }
@@ -170,16 +172,15 @@ class ShippingCategories extends Component
             // If we are removing a product type for this shipping category the products of that type should be re-saved
             if (!in_array($oldProductTypeId, $newProductTypeIds, false)) {
                 // Re-save all products that no longer have this shipping category available to them
-                Craft::$app->getQueue()->push(new ResaveElements([
-                    'elementType' => Product::class,
-                    'criteria' => [
-                        'typeId' => $oldProductTypeId,
-                        'siteId' => '*',
-                        'unique' => true,
-                        'status' => null,
-                        'enabledForSite' => false,
-                    ]
-                ]));
+                $this->_resaveProductsByProductTypeId($oldProductTypeId);
+            }
+        }
+
+        foreach ($newProductTypeIds as $newProductTypeId) {
+            // If we are adding a product type for this shipping category the products of that type should be re-saved
+            if (!in_array($newProductTypeId, $currentProductTypeIds, false)) {
+                // Re-save all products when assigning this shipping category available to them
+                $this->_resaveProductsByProductTypeId($newProductTypeId);
             }
         }
 
@@ -192,10 +193,29 @@ class ShippingCategories extends Component
             Craft::$app->getDb()->createCommand()->insert(Table::PRODUCTTYPES_SHIPPINGCATEGORIES, $data)->execute();
         }
 
-        // Clear cache
+        // Clear Service cache
         $this->_allShippingCategories = null;
 
         return true;
+    }
+
+    /**
+     * Re-save products by product type id
+     * 
+     * @param int $productTypeId
+     */
+    private function _resaveProductsByProductTypeId(int $productTypeId)
+    {
+        Craft::$app->getQueue()->push(new ResaveElements([
+            'elementType' => Product::class,
+            'criteria' => [
+                'typeId' => $productTypeId,
+                'siteId' => '*',
+                'unique' => true,
+                'status' => null,
+                'enabledForSite' => false,
+            ]
+        ]));
     }
 
     /**

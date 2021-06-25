@@ -110,7 +110,7 @@ class ShippingZonesController extends BaseShippingSettingsController
                 ]);
             }
 
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save shipping zone.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping zone.'));
             Craft::$app->getUrlManager()->setRouteParams(['shippingZone' => $shippingZone]);
 
             return null;
@@ -125,7 +125,7 @@ class ShippingZonesController extends BaseShippingSettingsController
             ]);
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Shipping zone saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Shipping zone saved.'));
         $this->redirectToPostedUrl($shippingZone);
 
         // Send the model back to the template

@@ -34,6 +34,7 @@ abstract class Table
     const ORDERADJUSTMENTS = '{{%commerce_orderadjustments}}';
     const ORDERHISTORIES = '{{%commerce_orderhistories}}';
     const ORDERS = '{{%commerce_orders}}';
+    const ORDERNOTICES = '{{%commerce_ordernotices}}';
     const ORDERSTATUS_EMAILS = '{{%commerce_orderstatus_emails}}';
     const ORDERSTATUSES = '{{%commerce_orderstatuses}}';
     const PAYMENTCURRENCIES = '{{%commerce_paymentcurrencies}}';

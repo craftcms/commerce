@@ -369,7 +369,7 @@ class Payments extends Component
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
-            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'amount')));
+            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'refundTransaction', 'amount')));
         }
 
         return $refundTransaction;
@@ -630,9 +630,10 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
-            $amount = ($amount ?: $parent->amount);
-            $child->paymentAmount = $amount;
-            $child->amount = $amount / $parent->paymentRate;
+            // If amount is not supplied refund the full amount
+            $child->paymentAmount = $amount ?: $parent->getRefundableAmount();
+            // Calculate amount in the primary currency
+            $child->amount = $child->paymentAmount / $parent->paymentRate;
             $child->note = $note;
 
             $gateway = $parent->getGateway();

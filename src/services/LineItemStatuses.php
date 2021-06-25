@@ -133,7 +133,7 @@ class LineItemStatuses extends Component
         }
 
         $result = $this->_createLineItemStatusesQuery()
-            ->andWhere(['default' => 1])
+            ->andWhere(['default' => true])
             ->one();
 
         if ($result) {

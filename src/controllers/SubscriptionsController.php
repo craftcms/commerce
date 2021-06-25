@@ -123,7 +123,7 @@ class SubscriptionsController extends BaseController
         $subscription->setScenario(Element::SCENARIO_LIVE);
 
         if (!Craft::$app->getElements()->saveElement($subscription)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save subscription.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save subscription.'));
             Craft::$app->getUrlManager()->setRouteParams([
                 'subscription' => $subscription
             ]);
@@ -171,7 +171,6 @@ class SubscriptionsController extends BaseController
         $this->requireLogin();
         $this->requirePostRequest();
 
-        $session = Craft::$app->getSession();
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
@@ -236,7 +235,7 @@ class SubscriptionsController extends BaseController
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
             return null;
         }
 
@@ -247,6 +246,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription started.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -260,7 +260,6 @@ class SubscriptionsController extends BaseController
         $this->requireLogin();
         $this->requirePostRequest();
 
-        $session = Craft::$app->getSession();
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
@@ -293,7 +292,7 @@ class SubscriptionsController extends BaseController
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -305,6 +304,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription reactivated.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -318,7 +318,6 @@ class SubscriptionsController extends BaseController
         $this->requireLogin();
         $this->requirePostRequest();
 
-        $session = Craft::$app->getSession();
         $plugin = Commerce::getInstance();
 
         $request = Craft::$app->getRequest();
@@ -361,7 +360,7 @@ class SubscriptionsController extends BaseController
                 $error = Craft::t('commerce', 'Unable to modify subscription at this time.');
             }
         } catch (SubscriptionException $exception) {
-            $error = $session->setError($exception->getMessage());
+            $error = $this->setFailFlash($exception->getMessage());
         }
 
         if ($error) {
@@ -369,7 +368,7 @@ class SubscriptionsController extends BaseController
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -381,6 +380,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription switched.'));
         return $this->redirectToPostedUrl();
     }
 
@@ -394,7 +394,6 @@ class SubscriptionsController extends BaseController
         $this->requireLogin();
         $this->requirePostRequest();
 
-        $session = Craft::$app->getSession();
         $plugin = Commerce::getInstance();
         $request = Craft::$app->getRequest();
 
@@ -442,7 +441,7 @@ class SubscriptionsController extends BaseController
                 return $this->asErrorJson($error);
             }
 
-            $session->setError($error);
+            $this->setFailFlash($error);
 
             return null;
         }
@@ -454,6 +453,7 @@ class SubscriptionsController extends BaseController
             ]);
         }
 
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription cancelled.'));
         return $this->redirectToPostedUrl();
     }
 }

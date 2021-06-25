@@ -11,6 +11,7 @@
     'ID',
     'Name',
     'Type',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -39,11 +40,11 @@
 {% js %}
     var columns = [
         { name: 'id', title: Craft.t('commerce', 'ID') },
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
-        { name: '__slot:handle', title: Craft.t('app', 'Handle') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Handle') },
         {
             name: 'type',
-            title: Craft.t('app', 'Type'),
+            title: Craft.t('commerce', 'Type'),
             callback: function(value) {
                 if (value.missing) {
                     return '<span class="error">'+value.name+'</span>';
@@ -57,7 +58,7 @@
             title: Craft.t('commerce', 'Customer Enabled?'),
             callback: function(value) {
                 if (value) {
-                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></div>';
+                    return '<div data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></div>';
                 }
             }
         }

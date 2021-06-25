@@ -5,6 +5,7 @@ import Vuex from 'vuex'
 import ordersApi from '../api/orders'
 import addressesApi from '../api/addresses'
 import utils from '../helpers/utils'
+import _isEqual from 'lodash.isequal'
 
 Vue.use(Vuex)
 
@@ -18,7 +19,8 @@ export default new Vuex.Store({
         originalDraft: null,
         customers: [],
         orderData: null,
-        lastPurchasableIds: [],
+        recentlyAddedLineItems: [],
+        unloadEventInit: false,
     },
 
     getters: {
@@ -379,11 +381,27 @@ export default new Vuex.Store({
 
                     throw errorMsg
                 });
+        },
+
+        clearRecentlyAddedLineItems({state}) {
+            state.recentlyAddedLineItems = []
         }
     },
 
     mutations: {
         updateEditing(state, editing) {
+            if (!state.unloadEventInit && editing) {
+                state.unloadEventInit = true
+                // Add event listener for leaving the page
+                window.addEventListener('beforeunload', function(ev) {
+                    // Only check if we are not saving
+                    if (!state.saveLoading && !_isEqual(state.draft, state.originalDraft)) {
+                        ev.preventDefault();
+                        ev.returnValue = '';
+                    }
+                });
+            }
+
             state.editing = editing
         },
 
@@ -415,8 +433,8 @@ export default new Vuex.Store({
             state.orderData = orderData
         },
 
-        updateLastPurchasableIds(state, lastPurchasableIds) {
-            state.lastPurchasableIds = lastPurchasableIds
+        updateRecentlyAddedLineItems(state, lineItemIdentifier) {
+            state.recentlyAddedLineItems.push(lineItemIdentifier)
         }
     }
 })

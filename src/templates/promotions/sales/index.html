@@ -3,13 +3,19 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
+  'Couldn’t reorder sale.',
+  'Disabled',
   'Duration',
   'Effect',
-  'Overrides previous?',
-  'Stops subsequent?',
+  'Enabled',
+  'Name',
   'No sales exist yet.',
+  'No',
+  'Overrides previous?',
   'Sale reordered.',
-  'Couldn’t reorder sale.',
+  'Set status',
+  'Stops subsequent?',
+  'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -17,16 +23,21 @@
 {% endblock %}
 
 {% block content %}
+  <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
   <div id="sales-vue-admin-table"></div>
 {% endblock %}
 
 {% set tableData = [] %}
 {% for sale in sales %}
-  {% set effect = (sale.apply == 'byPercent' or sale.apply == 'toPercent') ?
-    sale.applyAmountAsPercent ~ ' ' ~ (sale.apply == 'byPercent' ? 'off original price'|t('commerce')|e : 'of original price'|t('commerce')|e )
-    :
-    sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) ~ ' ' ~ (sale.apply == 'byFlat' ? 'off original price'|t('commerce')|e : '(new price)'|t('commerce')|e )
-  %}
+  {% set effect %}
+      {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
+          {{ sale.applyAmountAsPercent }}
+          {{ sale.apply == 'byPercent' ? '(off original price)'|t('commerce') : '(of original price)'|t('commerce') }}
+      {% else %}
+          {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }}
+          {{ sale.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}
+      {% endif %}
+{% endset %}
 
   {% set dateRange = (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞') %}
   {% if not sale.dateFrom and not sale.dateTo %}
@@ -48,17 +59,17 @@
 {% js %}
 var actions = [
     {
-        label: Craft.t('app', 'Set Status'),
+        label: Craft.t('commerce', 'Set status'),
         actions: [
             {
-                label: Craft.t('app', 'Enabled'),
+                label: Craft.t('commerce', 'Enabled'),
                 action: 'commerce/sales/update-status',
                 param: 'status',
                 value: 'enabled',
                 status: 'enabled'
             },
             {
-                label: Craft.t('app', 'Disabled'),
+                label: Craft.t('commerce', 'Disabled'),
                 action: 'commerce/sales/update-status',
                 param: 'status',
                 value: 'disabled',
@@ -69,13 +80,13 @@ var actions = [
 ];
 
 var columns = [
-    { name: '__slot:title', title: Craft.t('app', 'Name') },
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'duration', title: Craft.t('commerce', 'Duration') },
     { name: 'effect', title: Craft.t('commerce', 'Effect') },
     { name: 'ignore', title: Craft.t('commerce', 'Overrides previous?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
 
             return '';
@@ -84,7 +95,7 @@ var columns = [
     { name: 'stop', title: Craft.t('commerce', 'Stops subsequent?'),
         callback: function(value) {
             if (value) {
-                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
             }
 
             return '';

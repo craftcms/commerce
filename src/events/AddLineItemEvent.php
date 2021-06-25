@@ -11,7 +11,7 @@ use craft\commerce\models\LineItem;
 use craft\events\CancelableEvent;
 
 /**
- * Class LineItemEvent
+ * Class AddLineItemEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

@@ -163,10 +163,10 @@ class ProductTypesController extends BaseAdminController
 
         // Save it
         if (Plugin::getInstance()->getProductTypes()->saveProductType($productType)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Product type saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Product type saved.'));
             $this->redirectToPostedUrl($productType);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save product type.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product type.'));
         }
 
         // Send the productType back to the template

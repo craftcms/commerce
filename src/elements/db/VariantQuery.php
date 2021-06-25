@@ -27,9 +27,11 @@ use yii\db\Schema;
  * @method Variant[]|array all($db = null)
  * @method Variant|array|null one($db = null)
  * @method Variant|array|null nth(int $n, Connection $db = null)
+ * @property-write Product $product
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/variant-queries.md
+ * @doc-path products-variants.md
+ * @prefix-doc-params
  * @replace {element} variant
  * @replace {elements} variants
  * @replace {twig-method} craft.variants()
@@ -41,10 +43,11 @@ use yii\db\Schema;
  */
 class VariantQuery extends ElementQuery
 {
+
     /**
-     * @var string the SKU of the variant
+     * @inheritdoc
      */
-    public $sku;
+    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
     /**
      * @var bool Whether to only return variants that the user has permission to edit.
@@ -52,39 +55,9 @@ class VariantQuery extends ElementQuery
     public $editable = false;
 
     /**
-     * @var Product
-     */
-    public $product;
-
-    /**
-     * @var
-     */
-    public $productId;
-
-    /**
-     * @var
-     */
-    public $typeId;
-
-    /**
-     * @var
-     */
-    public $isDefault;
-
-    /**
-     * @var
-     */
-    public $stock;
-
-    /**
      * @var
      */
     public $hasStock;
-
-    /**
-     * @var
-     */
-    public $price;
 
     /**
      * @var
@@ -97,9 +70,40 @@ class VariantQuery extends ElementQuery
     public $hasProduct;
 
     /**
-     * @inheritdoc
+     * @var
      */
-    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
+    public $isDefault;
+
+    /**
+     * @var
+     */
+    public $price;
+
+    /**
+     * @var
+     */
+    public $productId;
+
+    /**
+     * @var string the SKU of the variant
+     */
+    public $sku;
+
+    /**
+     * @var
+     */
+    public $stock;
+
+    /**
+     * @var
+     */
+    public $typeId;
+
+    /**
+     * @var
+     * @since 3.3.4
+     */
+    public $hasUnlimitedStock;
 
     /**
      * @var
@@ -146,6 +150,20 @@ class VariantQuery extends ElementQuery
         }
 
         parent::__construct($elementType, $config);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __set($name, $value)
+    {
+        switch ($name) {
+            case 'product':
+                $this->product($value);
+                break;
+            default:
+                parent::__set($name, $value);
+        }
     }
 
     /**
@@ -208,7 +226,11 @@ class VariantQuery extends ElementQuery
      */
     public function product($value)
     {
-        $this->product = $value;
+        if ($value instanceof Product) {
+            $this->productId = [$value->id];
+        } else {
+            $this->productId = $value;
+        }
         return $this;
     }
 
@@ -336,6 +358,26 @@ class VariantQuery extends ElementQuery
     public function hasStock(bool $value = true)
     {
         $this->hasStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have been set to unlimited stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with unlimited stock checked.
+     * | `false` | with unlimited stock not checked.
+     *
+     * @param bool $value
+     * @return static self reference
+     * @since 3.3.4
+     */
+    public function hasUnlimitedStock(bool $value = true)
+    {
+        $this->hasUnlimitedStock = $value;
         return $this;
     }
 
@@ -501,6 +543,13 @@ class VariantQuery extends ElementQuery
      */
     protected function beforePrepare(): bool
     {
+        $this->_normalizeProductId();
+
+        // See if 'productId' was invalid
+        if ($this->productId === []) {
+            return false;
+        }
+
         $this->joinElementTable('commerce_variants');
 
         $this->query->select([
@@ -531,16 +580,8 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
-        if ($this->product) {
-            if ($this->product instanceof Product) {
-                $this->productId = $this->product->id;
-            } else {
-                $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->product));
-            }
-        }
-
         if ($this->productId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_variants.productId', $this->productId));
+            $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
 
         if ($this->price) {
@@ -599,6 +640,12 @@ class VariantQuery extends ElementQuery
         // have a type which supports dimensions
         if ($this->width !== false || $this->height !== false || $this->length !== false || $this->weight !== false) {
             $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
+        }
+
+        if ($this->hasUnlimitedStock !== null) {
+            $this->subQuery->andWhere([
+                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock
+            ]);
         }
 
         if ($this->hasStock !== null) {
@@ -851,25 +898,64 @@ class VariantQuery extends ElementQuery
     }
 
     /**
-     * Applies the hasVariant query condition
+     * Normalizes the productId param to an array of IDs or null
+     */
+    private function _normalizeProductId()
+    {
+        if (empty($this->productId)) {
+            $this->productId = null;
+        } else if (is_numeric($this->productId)) {
+            $this->productId = [$this->productId];
+        } else if (!is_array($this->productId) || !ArrayHelper::isNumeric($this->productId)) {
+            $this->productId = (new Query())
+                ->select(['id'])
+                ->from([Table::PRODUCTS])
+                ->where(Db::parseParam('id', $this->productId))
+                ->column();
+        }
+    }
+
+    /**
+     * Applies the hasProduct query condition
      */
     private function _applyHasProductParam()
     {
-        if ($this->hasProduct) {
-            if ($this->hasProduct instanceof ProductQuery) {
-                $productQuery = $this->hasProduct;
-            } else {
-                $query = Product::find();
-                $productQuery = Craft::configure($query, $this->hasProduct);
-            }
-
-            $productQuery->limit = null;
-            $productQuery->select('commerce_products.id');
-            $productIds = $productQuery->column();
-
-            // Remove any blank product IDs (if any)
-            $productIds = array_filter($productIds);
-            $this->subQuery->andWhere(['commerce_products.id' => $productIds]);
+        if ($this->hasProduct === null) {
+            return;
         }
+
+        if ($this->hasProduct instanceof ProductQuery) {
+            $productQuery = $this->hasProduct;
+        } elseif (is_array($this->hasProduct)) {
+            $query = Product::find();
+            $productQuery = Craft::configure($query, $this->hasProduct);
+        } else {
+            return;
+        }
+
+        $productQuery->limit = null;
+        $productQuery->select('commerce_products.id');
+        $productIds = $productQuery->column();
+
+        // Remove any blank product IDs (if any)
+        $productIds = array_filter($productIds);
+        $this->subQuery->andWhere(['commerce_variants.productId' => $productIds]);
+    }
+
+    /**
+     * @inheritdoc
+     * @since 3.5.0
+     */
+    protected function cacheTags(): array
+    {
+        $tags = [];
+
+        if ($this->productId) {
+            foreach ($this->productId as $productId) {
+                $tags[] = "product:$productId";
+            }
+        }
+
+        return $tags;
     }
 }

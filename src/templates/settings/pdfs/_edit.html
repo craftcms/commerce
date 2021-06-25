@@ -73,6 +73,17 @@
             errors: pdf.getErrors('fileNameFormat')
         }) }}
 
+    {{ forms.selectField({
+        label: 'Language'|t('commerce'),
+        instructions: "The language to be used when PDF is rendered."|t,
+        id: 'language',
+        name: 'language',
+        options : pdfLanguageOptions,
+        value : pdf.language,
+        errors: pdf.getErrors('language') ?? null,
+        hasOptgroups: true
+    }) }}
+
     {{ forms.lightswitchField({
         label: "Enabled?"|t('commerce'),
         instructions: 'If disabled, this PDF will not be available or sent with emails.'|t('commerce'),

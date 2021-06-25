@@ -175,7 +175,7 @@ class Plans extends Component
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
-        return ArrayHelper::firstWhere($this->_getAllPlans(), 'planInformationId', $entryId);
+        return ArrayHelper::where($this->_getAllPlans(), 'planInformationId', $entryId);
     }
 
     /**

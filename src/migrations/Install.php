@@ -79,7 +79,8 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::ELEMENTINDEXSETTINGS, ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
     }
@@ -261,6 +262,7 @@ class Install extends Migration
             'templatePath' => $this->string()->notNull(),
             'plainTextTemplatePath' => $this->string(),
             'pdfId' => $this->integer(),
+            'language' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -276,6 +278,7 @@ class Install extends Migration
             'enabled' => $this->boolean(),
             'isDefault' => $this->boolean(),
             'sortOrder' => $this->integer(),
+            'language' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -357,6 +360,17 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::ORDERNOTICES, [
+            'id' =>  $this->primaryKey(),
+            'orderId' => $this->integer()->notNull(),
+            'type' => $this->string(),
+            'attribute' => $this->string(),
+            'message' => $this->text(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
@@ -405,8 +419,8 @@ class Install extends Migration
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean(),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
-            'returnUrl' => $this->string(),
-            'cancelUrl' => $this->string(),
+            'returnUrl' => $this->text(),
+            'cancelUrl' => $this->text(),
             'shippingMethodHandle' => $this->string(),
             'shippingMethodName' => $this->string(),
             'orderSiteId' => $this->integer(),
@@ -657,10 +671,12 @@ class Install extends Migration
             'description' => $this->string(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
             'enabled' => $this->boolean(),
+            'orderConditionFormula' => $this->text(),
             'minQty' => $this->integer()->notNull()->defaultValue(0),
             'maxQty' => $this->integer()->notNull()->defaultValue(0),
             'minTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxTotal' => $this->decimal(14, 4)->notNull()->defaultValue(0),
+            'minMaxTotalType' => $this->enum('minMaxTotalType', ['salePrice', 'salePriceWithDiscounts'])->notNull()->defaultValue('salePrice'),
             'minWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxWeight' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'baseRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
@@ -867,6 +883,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::ORDERADJUSTMENTS);
         $this->dropTableIfExists(Table::ORDERHISTORIES);
         $this->dropTableIfExists(Table::ORDERS);
+        $this->dropTableIfExists(Table::ORDERNOTICES);
         $this->dropTableIfExists(Table::ORDERSTATUS_EMAILS);
         $this->dropTableIfExists(Table::ORDERSTATUSES);
         $this->dropTableIfExists(Table::PAYMENTCURRENCIES);
@@ -943,6 +960,7 @@ class Install extends Migration
         $this->createIndex(null, Table::LINEITEMS, 'taxCategoryId', false);
         $this->createIndex(null, Table::LINEITEMS, 'shippingCategoryId', false);
         $this->createIndex(null, Table::ORDERADJUSTMENTS, 'orderId', false);
+        $this->createIndex(null, Table::ORDERNOTICES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'prevStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
@@ -1053,6 +1071,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['shippingCategoryId'], Table::SHIPPINGCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
@@ -1137,6 +1156,7 @@ class Install extends Migration
             Table::EMAILS,
             Table::LINEITEMS,
             Table::ORDERADJUSTMENTS,
+            Table::ORDERNOTICES,
             Table::ORDERHISTORIES,
             Table::ORDERS,
             Table::ORDERSTATUS_EMAILS,
@@ -1595,7 +1615,7 @@ class Install extends Migration
 
         $data = [
             'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
-            'description' => 'All Countries, free shipping.',
+            'description' => 'All countries, free shipping',
             'name' => 'Free Everywhere',
             'enabled' => true
         ];

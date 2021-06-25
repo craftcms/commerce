@@ -2,15 +2,273 @@
 
 ## Unreleased
 
+### Changed
+- It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+- It’s now possible to search orders by the shipping or billing address.
+
+### Fixed
+- Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+
+## 3.3.4.1 - 2021-06-16
+
+### Fixed
+- Fixed a bug where the database schema for new Craft Commerce installations wasn’t consistent with older installations.
+
+## 3.3.4 - 2021-06-15
+
+### Added
+- Added `craft\commerce\elements\db\VariantQuery::hasUnlimitedStock()`. ([#2188](https://github.com/craftcms/commerce/issues/2188))
+- Added `craft\commerce\models\LineItem::getIsTaxable()`.
+
+### Changed
+- Improved the performance of determining an order’s available discounts. ([#1744](https://github.com/craftcms/commerce/issues/1744))
+
+### Fixed
+- Fixed a bug that could occur when rebuilding the project config. ([#2194](https://github.com/craftcms/commerce/issues/2194))
+- Fixed a bug where it was possible for an order to use a disabled payment gateway. ([#2150](https://github.com/craftcms/commerce/issues/2150))
+- Fixed a SQL error that could occur when programmatically saving a variant without stock. ([#2186](https://github.com/craftcms/commerce/issues/2186))
+- Fixed a bug where a donation marked as non-taxable could still receive tax. ([#2144](https://github.com/craftcms/commerce/pull/2144))
+- Fixed a bug where the order field layout’s UID would change on every save. ([#2193](https://github.com/craftcms/commerce/issues/2193))
+- Fixed a SQL error that occurred when saving a payment currency without a conversion rate. ([#2149](https://github.com/craftcms/commerce/issues/2149))
+- Fixed a bug where discounts weren’t displaying validation errors for the “Per User Discount Limit” field. ([#2176](https://github.com/craftcms/commerce/issues/2176))
+
+## 3.3.3 - 2021-06-01
+
+### Added
+- Added the `productCount` and `variantCount` GraphQL queries. ([#1411](https://github.com/craftcms/commerce/issues/1411))
+
+### Changed
+- It’s now possible to sort products by their SKUs on product indexes. ([#2167](https://github.com/craftcms/commerce/issues/2167))
+- Products now have a `url` field when queried via GraphQL.
+
+### Fixed
+- Fixed a bug where it wasn’t possible to customize product search keywords via `EVENT_DEFINE_KEYWORDS`. ([#2142](https://github.com/craftcms/commerce/issues/2142))
+- Fixed a bug where the “Add Product to Sale” modal on Edit Product pages could be unresponsive when opened multiple times. ([#2146](https://github.com/craftcms/commerce/issues/2146))
+- Fixed an error that could occur if MySQL’s time zone tables weren’t populated yet. ([#2163](https://github.com/craftcms/commerce/issues/2163))
+- Fixed a PHP error that could occur when validating a product. ([#2138](https://github.com/craftcms/commerce/issues/2138))
+
+## 3.3.2 - 2021-05-18
+
+### Added
+- It’s now possible to create customer addresses in the control panel. ([#1324](https://github.com/craftcms/commerce/issues/1324))
+- Added `craft\commerce\events\PurchasableShippableEvent`.
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_SHIPPABLE`.
+- Added `craft\commerce\services\Purchasables::isPurchasableShippable()`.
+
+### Fixed
+- Customer search Ajax requests are now cancelled before sending new ones on Edit Order pages. ([#2137](https://github.com/craftcms/commerce/issues/2137))
+- Fixed an error that occurred when submitting a blank line item quantity from an Edit Order page, when running PHP 8. ([#2125](https://github.com/craftcms/commerce/issues/2125))
+- Fixed a bug where changes to addresses’ State fields on Edit Order pages weren’t persisting. ([#2136](https://github.com/craftcms/commerce/issues/2136))
+- Fixed a bug where charts weren’t always displaying the correct data for the date range, when running MySQL. ([#2117](https://github.com/craftcms/commerce/issues/2117))
+
+## 3.3.1.1 - 2021-05-09
+
+### Fixed
+- Fixed a bug that caused the billing address to be overridden by the shipping address on order completion. ([#2128](https://github.com/craftcms/commerce/issues/2128))
+
+## 3.3.1 - 2021-05-04
+
+### Added
+- Added `craft\commerce\events\RefundTransactionEvent::$refundTransaction`. ([#2081](https://github.com/craftcms/commerce/issues/2081))
+- Added `craft\commerce\services\Purchasables::EVENT_PURCHASABLE_AVAILABLE`.
+- Added `craft\commerce\services\Purchasables::isPurchasableAvailable()`.
+
+### Changed
+- Order condition formulas now include serialized custom field values. ([#2066](https://github.com/craftcms/commerce/issues/2066))
+- Replaced `date` to `datetime` filter of `orderHistory.dateCreated` attribute in status history tab in order edit page.
+
+### Fixed
+- Fixed a PHP error that occurred when changing a variant from having unlimited stock. ([#2111](https://github.com/craftcms/commerce/issues/2111))
+- Fixed a PHP error that occurred when passing the `registerUserOnOrderComplete` parameter to the `commerce/cart/complete` action.
+- Fixed a PHP error that occurred when attempting to retrieve an order notice that doesn’t exist. ([#2108](https://github.com/craftcms/commerce/issues/2108))
+- Fixed a bug where orders’ address IDs were `null` at the time `EVENT_AFTER_COMPLETE_ORDER` was triggered.
+- Fixed a bug where payment source error messages weren’t being returned correctly.
+
+## 3.3.0.1 - 2021-04-26
+
+### Fixed
+- Fixed a bug where an incorrect amount could be calculated when paying an outstanding balance in a non-primary currency.
+- Fixed a bug where shipping rules were enforcing the “Order Condition Formula” field as required. ([#2098](https://github.com/craftcms/commerce/issues/2098))
+- Fixed a bug where Base Discount and Per Item Discount fields could show negative values on the Edit Discount page. ([#2090](https://github.com/craftcms/commerce/issues/2090))
+
+## 3.3.0 - 2021-04-20
+
+### Added
+- Added support for partial payments. ([#585](https://github.com/craftcms/commerce/issues/585))
+- Carts can now display customer-facing notices on price changes and when items are automatically removed due to going out of stock. ([#2000](https://github.com/craftcms/commerce/pull/2000))
+- It’s now possible to set dynamic condition formulas on shipping rules. ([#1959](https://github.com/craftcms/commerce/issues/1959))
+- The Orders index page and Edit Order page now have a “Share cart” action, which generates a sharable URL that will load the cart into the user’s session, making it the active cart. ([#1386](https://github.com/craftcms/commerce/issues/1386))
+- Shipping rule conditions can now be based on an order’s discounted price, rather than its original price. ([#1948](https://github.com/craftcms/commerce/pull/1948))
+- Added the `allowCheckoutWithoutPayment` config setting.
+- Added the `allowPartialPaymentOnCheckout` config setting.
+- Added the `commerce/cart/complete` action.
+- Added `craft\commerce\base\GatewayInterface::supportsPartialPayment()`.
+- Added `craft\commerce\base\Gateway::supportsPartialPayment()`.
+- Added `craft\commerce\elements\Order::getLoadCartUrl()`.
+- Added `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES`. ([#1627](https://github.com/craftcms/commerce/issues/1627))
+- Added `craft\commerce\services\PaymentCurrencies::convertCurrency()`.
+- Added `craft\commerce\test\fixtures\elements\ProductFixture::_getProductTypeIds()`.
+
+### Changed
+- Improved the line item editing workflow on the Edit Order page.
+- Line item descriptions now link to the purchasable’s edit page in the control panel. ([#2048](https://github.com/craftcms/commerce/issues/2048))
+- All front-end controllers now support passing the order number via a `number` param. ([#1970](https://github.com/craftcms/commerce/issues/1970))
+- Products are now resaved when a product type’s available tax or shipping categories change. ([#1933](https://github.com/craftcms/commerce/pull/1933))
+- Updated Dompdf to 1.0.2.
+
+### Deprecated
+- Deprecated `craft\commerce\services\Gateways::getGatewayOverrides()` and the `commerce-gateways.php` config file. Gateway-specific config files should be used instead. ([#1963](https://github.com/craftcms/commerce/issues/1963))
+
+### Fixed
+- Fixed a PHP 8 compatibility bug. ([#1987](https://github.com/craftcms/commerce/issues/1987))
+- Fixed an error that occurred when passing an unsupported payment currency to `craft\commerce\services\PaymentCurrencies::convert()`.
+
+## 3.2.17.4 - 2021-04-06
+
+### Fixed
+- Fixed a bug where line items would disappear from the Edit Order page when their quantity value was cleared. ([#2058](https://github.com/craftcms/commerce/issues/2058))
+- Fixed a bug where customers without primary billing and shipping addresses weren’t being shown in the Customers list. ([#2052](https://github.com/craftcms/commerce/issues/2052))
+
+## 3.2.17.3 - 2021-03-18
+
+### Fixed
+- Fixed a bug where the “All Totals” column on the Orders index page was showing blank values. ([#2047](https://github.com/craftcms/commerce/pull/2047))
+
+## 3.2.17.2 - 2021-03-17
+
+### Fixed
+- Fixed a bug where the `commerce/reset-data` command did not delete addresses. ([#2042](https://github.com/craftcms/commerce/issues/2042))
+- Fixed a bug where included tax totals may be incorrect after updating from Commerce 1.
+- Fixed a bug where the `success` and `error` keys were missing from `commerce/payments/complete-payment` JSON responses. ([#2043](https://github.com/craftcms/commerce/issues/2043))
+
+## 3.2.17.1 - 2021-03-08
+
+### Changed
+- The `generateTransformsBeforePageLoad` config setting is now automatically enabled when rendering emails. ([#2034](https://github.com/craftcms/commerce/issues/2034))
+- `craft\commerce\services\Pdfs::EVENT_BEFORE_RENDER_PDF` event handlers can now modify the variables the PDF will be rendered with. ([#2039](https://github.com/craftcms/commerce/issues/2039))
+
+### Fixed
+- Fixed a bug where the Orders index page was showing the wrong shipping and billing addresses. ([#1962](https://github.com/craftcms/commerce/issues/1962))
+- Fixed a bug where sales were storing incorrect amounts for locales that use a period for the grouping symbol. ([#2029](https://github.com/craftcms/commerce/issues/2029))
+
+## 3.2.17 - 2021-03-03
+
+### Added 
+- Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
+- Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
+
+### Fixed
+- Fixed a UI bug with the “Order Site” and “Status” fields on the Edit Order page. ([#2023](https://github.com/craftcms/commerce/issues/2023))
+
+### Security
+- Fixed an XSS vulnerability.
+
+## 3.2.16 - 2021-02-26
+
+### Fixed
+- Fixed a bug where it wasn’t possible to paginate addresses on the Edit Order page. ([#2024](https://github.com/craftcms/commerce/issues/2024))
+- Fixed a PHP error that could occur when adding purchasables to a sale from the Edit Product page. ([#1998](https://github.com/craftcms/commerce/issues/1998))
+- Fixed a bug where guest customers weren’t being consolidated to the user’s customer. ([#2019](https://github.com/craftcms/commerce/issues/2019))
+- Fixed a migration error that could occur when updating from Commerce 2. ([#2022](https://github.com/craftcms/commerce/issues/2022))
+
+## 3.2.15.3 - 2021-02-24
+
+### Fixed
+- Fixed a bug where past orders weren’t being consolidated to the user’s customer. ([#2019](https://github.com/craftcms/commerce/issues/2019))
+
+## 3.2.15.2 - 2021-02-18
+
+### Fixed
+- Fixed a bug where querying for an empty array on the `productId` variant query param would return all variants.
+
+## 3.2.15.1 - 2021-02-18
+
+### Fixed
+- Fixed an error that occurred when deleting products. ([#2009](https://github.com/craftcms/commerce/issues/2009))
+
+## 3.2.15 - 2021-02-17
+
+### Changed
+- Carts that only contains non-shipppable items no longer attempt to match any shipping rules. ([#1990](https://github.com/craftcms/commerce/issues/1990))
+- Product queries with the `type` or `typeId` param will now only invalidate their `{% cache %}` tags when products of the same type(s) are saved/deleted.
+- Variant queries with the `product` or `productId` param will now only invalidate their `{% cache %}` tags when the referenced products are saved/deleted.
+- The `commerce/payment-sources/add`, `commerce/subscriptions/subscribe`, `commerce/subscriptions/switch`, `commerce/subscriptions/cancel`, and `commerce/subscriptions/reactivate` actions now accept hashed `successMessage` params. ([#1955](https://github.com/craftcms/commerce/issues/1955))
+- `craft\commerce\elements\db\VariantQuery::product` is now write-only.
+
+### Fixed
+- Fixed a bug where carts weren’t getting recalculated after their billing address was saved via the `commerce/customer-addresses/save` action. ([#1997](https://github.com/craftcms/commerce/issues/1997))
+- Fixed a bug where category shipping rules weren’t remembering their cost overrides when set to `0` . ([#1999](https://github.com/craftcms/commerce/issues/1999))
+
+## 3.2.14.1 - 2021-01-28
+
+### Fixed
+- Fixed a UI bug with product dimension inputs on Craft 3.6. ([#1977](https://github.com/craftcms/commerce/issues/1977))
+
+## 3.2.14 - 2021-01-13
+
+### Added
+- It is now possible to sort purchasables by `description`, `sku` or `price` when adding a line item on the Edit Order page. ([#1940](https://github.com/craftcms/commerce/issues/1940))
+- Added `craft\commerce\elements\db\ProductQuery::defaultPrice()`, `defaultWidth()`, `defaultHeight()`, `defaultLength()`, `defaultWeight()`, and `defaultSku()`. ([#1877](https://github.com/craftcms/commerce/issues/1877))
+
+### Changed
+- Purchasables are now sorted by `id` by default when adding a line item to an order on the Edit Order page.
+
+### Fixed
+- Fixed a bug where the Edit Order page was listing soft-deleted purchasables when adding a line item. ([#1939](https://github.com/craftcms/commerce/issues/1939))
+- Fixed a bug where product indexes’ “Title” columns were getting mislabeled as “ID”. ([#1787](https://github.com/craftcms/commerce/issues/1787))
+- Fixed an error that could occur when saving a product, if a price, weight, or dimension field was set to a non-numeric value. ([#1942](https://github.com/craftcms/commerce/issues/1942))
+- Fixed a bug where line item prices could show the wrong currency on Edit Order pages. ([#1890](https://github.com/craftcms/commerce/issues/1890))
+- Fixed an error that could occur when saving an address. ([#1947](https://github.com/craftcms/commerce/issues/1947))
+- Fixed an error that occurred when calling `Plans::getPlansByInformationEntryId()`. ([#1949](https://github.com/craftcms/commerce/issues/1949))
+- Fixed a SQL error that occurred when purging customers on MySQL. ([#1958](https://github.com/craftcms/commerce/issues/1958))
+- Fixed a SQL error that occurred when retrieving the default line item status on PostgreSQL.
+
+## 3.2.13.2 - 2020-12-15
+
+### Fixed
+- Fixed a bug where product URLs were resolving even though the product was not live. ([#1929](https://github.com/craftcms/commerce/pull/1929))
+
+## 3.2.13.1 - 2020-12-15
+
+### Fixed
+- Fixed a migration error that could occur when updating from Commerce 3.1 ([#1928](https://github.com/craftcms/commerce/issues/1928))
+
+## 3.2.13 - 2020-12-10
+
+### Added
+- Emails and PDFs now have Language settings that can be used to specify the language that should be used, instead of the order’s language. ([#1884](https://github.com/craftcms/commerce/issues/1884))
+- Added the `cp.commerce.order.content`, `cp.commerce.order.edit.order-actions`, and `cp.commerce.order.edit.order-secondary-actions` template hooks to the Edit Order page. ([#138](https://github.com/craftcms/commerce/issues/138), [#1269](https://github.com/craftcms/commerce/issues/1269))
+
+### Changed
+- Improved the Edit Product page load time by lazy-loading variants’ related sales on scroll. ([#1883](https://github.com/craftcms/commerce/issues/1883))
+- The Edit Order page no longer requires orders to have at least one line item to be saved.
+
+### Fixed
+- Fixed a bug where Products indexes weren’t displaying `0` stock values. ([#1908](https://github.com/craftcms/commerce/issues/1908))
+- Fixed a bug where dates and numbers in order PDFs weren’t always rendered with the order’s locale. ([#1876](https://github.com/craftcms/commerce/issues/1876))
+- Fixed a bug where `craft\commerce\models\Address::getAddressLines()` wasn’t including a `businessTaxId` key. ([#1894](https://github.com/craftcms/commerce/issues/1894))
+- Fixed a bug where `craft\commerce\services\Discounts::getDiscountByCode()` was returning disabled discounts.
+- Fixed a bug where `craft\commerce\models\Address::setAttributes()` wasn’t setting the `businessId` by default. ([#1909](https://github.com/craftcms/commerce/issues/1909))
+- Fixed some PostgreSQL compatibility issues.
+
+## 3.2.12 - 2020-11-17
+
 ### Added
 - Variants now have `priceAsCurrency` and `salePriceAsCurrency` fields when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
 - Products now have an `defaultPriceAsCurrency` field when queried via GraphQL. ([#1856](https://github.com/craftcms/commerce/issues/1856))
-- Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
+
+### Changed
+- Improved the Edit Order page’s ability to warn against losing unsaved changes. ([#1850](https://github.com/craftcms/commerce/issues/1850))
+- All built-in success/fail flash messages are now customizable by passing hashed `successMessage` and `failMessage` params with the request. ([#1871](https://github.com/craftcms/commerce/issues/1871))
 
 ### Fixed
-- Fixed a permission error when accessing the subscription plans on Store Settings page. ([#1857](https://github.com/craftcms/commerce/issues/1857))
-- Fixed a PHP error that occurred when attempting to preview an email without any completed orders in the system. ([#1858](https://github.com/craftcms/commerce/issues/1858))
-- Fixed a bug where purchasables template cache doesn't invalidates when adding or removing sales in the control panel sales page. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+- Fixed an error that occurred when attempting to edit a subscription plan, if `allowAdminChanges` was disabled. ([#1857](https://github.com/craftcms/commerce/issues/1857))
+- Fixed an error that occurred when attempting to preview an email, if no orders had been completed yet. ([#1858](https://github.com/craftcms/commerce/issues/1858))
+- Fixed an error that occurred when adding a new address to a completed order on the Edit Order page, if using PostgreSQL.
+- Fixed a bug where template caches weren’t getting invalidated when sales were added or removed. ([#1849](https://github.com/craftcms/commerce/issues/1849))
+- Fixed a bug where sales weren’t properly supporting localized number formats.
+- Fixed a deprecation warning that occurred in the example templates. ([#1859](https://github.com/craftcms/commerce/issues/1859))
 
 ## 3.2.11 - 2020-11-04
 
@@ -711,7 +969,7 @@
 - Fixed a PHP error that occurred on Windows environments. ([#1247](https://github.com/craftcms/commerce/issues/1247))
 - Fixed a bug where orders’ Date Ordered attributes could shift after saving an order from the Edit Order page. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
-- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a bug that prevented emails from being sent. ([#1257](https://github.com/craftcms/commerce/issues/1257))
 - Fixed a error that occurred on the Edit User page when the logged-in user did’t have the “Manage subscriptions” permission. ([#1252](https://github.com/craftcms/commerce/issues/1252))
 - Fixed an error that occurred when setting a primary address on a customer. ([#1253](https://github.com/craftcms/commerce/issues/1253))
 - Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))
@@ -917,6 +1175,52 @@
 - Removed `craft\commerce\web\assets\RevenueWidgetAsset`.
 - Removed `craft\commerce\widgets\Revenue`. Use `craft\commerce\widgets\TotalRevenue` instead.
 - Removed the `phpoffice/phpspreadsheet` package dependency.
+
+## 2.2.27 - 2021-03-17
+
+### Fixed
+- Fixed a bug where included taxes may not have shown up in order totals.
+
+## 2.2.26 - 2021-03-03
+
+### Fixed
+- Fixed a bug where `craft\commerce\elements\Order::getTotalShippingCost()` wasn’t returning a value. ([#2027](https://github.com/craftcms/commerce/pull/2027))
+
+## 2.2.25 - 2021-01-21
+
+### Fixed
+- Fixed a bug where comparing getTotalPaid and getTotal methods in `craft\commerce\elements\Order::getPaidStatus` returns invalid boolean value. ([#1836](https://github.com/craftcms/commerce/issues/1836))
+- Fixed a bug that prevented a customer from unsubscribing from a subscription and deleting payment sources.
+
+## 2.2.24 - 2020-11-16
+
+### Fixed
+- Fixed a bug when deleting an address as a customer throws an error when cart is not empty. ([#1874](https://github.com/craftcms/commerce/pull/1874))
+
+## 2.2.23 - 2020-10-19
+
+### Fixed
+- Fixed a bug where addresses were incorrectly associated with a customer after logging in. ([#1227](https://github.com/craftcms/commerce/issues/1227))
+
+## 2.2.22 - 2020-09-15
+
+### Fixed
+- Fixed a PHP error that could occur during line item validation on Yii 2.0.36. ([yiisoft/yii2#18175](https://github.com/yiisoft/yii2/issues/18175))
+- Fixed a bug products were incorrectly showing as having sales when using the `hasSales` query parameter.
+- Fixed a bug where it wasn’t possible to update the rate on a payment currency. ([#1547](https://github.com/craftcms/commerce/issues/1547))
+
+## 2.2.21 - 2020-06-17
+
+### Changed
+- Improved handling of race conditions between processing a webhook and completing an order. ([#1510](https://github.com/craftcms/commerce/issues/1510))
+
+### Fixed
+- Fixed a bug where “Purchase Total” and “Purchase Quantity” discount conditions weren’t being applied correctly. ([#1389](https://github.com/craftcms/commerce/issues/1389))
+
+## 2.2.20 - 2020-05-27
+
+### Fixed
+- Fixed a bug where free shipping discounts could be applied incorrectly. ([#1473](https://github.com/craftcms/commerce/issues/1473))
 
 ## 2.2.19 - 2020-04-15
 
