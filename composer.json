@@ -34,6 +34,7 @@
   "extra": {
     "handle": "commerce",
     "name": "Craft Commerce",
+    "version": "3.3.4.1",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
