@@ -528,7 +528,7 @@ class Settings extends Model
     public function getOrderPdfFilenameFormat($fromSettings = false)
     {
         if ($fromSettings) {
-            return $this->_orderPdfFilenameFormat;
+            return $this->_orderPdfFilenameFormat ?? '';
         }
 
         Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
@@ -547,7 +547,7 @@ class Settings extends Model
     public function getOrderPdfPath($fromSettings = false)
     {
         if ($fromSettings) {
-            return $this->_orderPdfPath;
+            return $this->_orderPdfPath ?? '';
         }
 
         Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
