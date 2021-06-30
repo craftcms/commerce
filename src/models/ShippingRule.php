@@ -287,7 +287,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $shippingRuleCategories = $this->getShippingRuleCategories();
         $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-        list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+        [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
         // Does the order have any disallowed categories in the cart?
         $result = array_intersect($orderShippingCategories, $disallowedCategories);

@@ -10,8 +10,8 @@ namespace craft\commerce\exports;
 use Craft;
 use craft\base\EagerLoadingFieldInterface;
 use craft\commerce\elements\db\OrderQuery;
-use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\exporters\Expanded as CraftExpanded;
 
 /**
  * Expanded represents an "Expanded" order exporter.

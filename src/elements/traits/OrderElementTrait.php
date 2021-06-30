@@ -17,8 +17,8 @@ use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
-use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
 
 trait OrderElementTrait

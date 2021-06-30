@@ -45,7 +45,6 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;

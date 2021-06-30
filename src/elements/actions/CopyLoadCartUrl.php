@@ -11,7 +11,6 @@ use Craft;
 use craft\base\ElementAction;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use yii\helpers\Url;
 
 /**
  * CopyUrl represents a Copy URL element action.

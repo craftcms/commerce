@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\Order;
@@ -19,9 +20,6 @@ use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use craft\commerce\helpers\Currency as CurrencyHelper;
-use Money\Exchange\FixedExchange;
-use Money\Exchange\ReversedCurrenciesExchange;
 
 /**
  * Payment currency service.
@@ -43,21 +41,6 @@ class PaymentCurrencies extends Component
      * @var PaymentCurrency[]
      */
     private $_allCurrenciesById;
-
-    /**
-     * @var
-     */
-    private $_exchange;
-
-    /**
-     *
-     */
-    public function init()
-    {
-        $this->_exchange = new ReversedCurrenciesExchange(new FixedExchange([
-            $this->getPrimaryPaymentCurrencyIso() => ArrayHelper::map($this->getNonPrimaryPaymentCurrencies(), 'iso', 'rate')
-        ]));
-    }
 
     /**
      * Get payment currency by its ID.
