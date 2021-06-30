@@ -10,9 +10,7 @@ namespace craftcommercetests\unit\services;
 use Codeception\Stub\Expected;
 use Codeception\Test\Unit;
 use craft\commerce\errors\CurrencyException;
-use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
-
 use craft\commerce\services\PaymentCurrencies;
 use craftcommercetests\fixtures\PaymentCurrenciesFixture;
 use UnitTester;

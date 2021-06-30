@@ -2,9 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m210317_050824_taxIncluded_update migration.

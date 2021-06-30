@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\models\Country;
-use craft\commerce\stats\TotalOrders;
 use craft\commerce\stats\TotalOrdersByCountry;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
