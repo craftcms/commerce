@@ -10,6 +10,7 @@
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
 - Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
 - Fixed a bug where months were missing in past year stat queries.
+- Fixed a PHP error that could occur when calling `getAvailableShippingMethodOptions` on orders that have deleted purchasables.
 
 ## 3.3.4.1 - 2021-06-16
 
