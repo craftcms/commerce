@@ -387,6 +387,16 @@ class Settings extends Model
     public $validateCartCustomFieldsOnSubmission = false;
 
     /**
+     * @todo remove in 4.0
+     */
+    private $_orderPdfFilenameFormat;
+
+    /**
+     * @todo remove in 4.0
+     */
+    public $_orderPdfPath;
+
+    /**
      * Returns a key-value array of weight unit options and labels.
      *
      * @return array
@@ -493,5 +503,59 @@ class Settings extends Model
         $rules [] = [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'];
 
         return $rules;
+    }
+
+    /**
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function setOrderPdfFilenameFormat($value)
+    {
+        $this->_orderPdfFilenameFormat = $value;
+    }
+
+    /**
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function setOrderPdfPath($value)
+    {
+        $this->_orderPdfPath = $value;
+    }
+
+    /**
+     * @param bool $fromSettings For use in migration only
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function getOrderPdfFilenameFormat($fromSettings = false)
+    {
+        if ($fromSettings) {
+            return $this->_orderPdfFilenameFormat;
+        }
+
+        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        /** @var Pdf $pdf */
+        $pdf = ArrayHelper::firstValue($pdfs);
+
+        return $pdf->fileNameFormat ?? '';
+    }
+
+    /**
+     * @param bool $fromSettings For use in migration only
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function getOrderPdfPath($fromSettings = false)
+    {
+        if ($fromSettings) {
+            return $this->_orderPdfPath;
+        }
+
+        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        /** @var Pdf $pdf */
+        $pdf = ArrayHelper::firstValue($pdfs);
+
+        return $pdf->templatePath ?? '';
     }
 }

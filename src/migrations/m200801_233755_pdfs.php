@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\Plugin;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Pdfs;
 use craft\db\Migration;
@@ -21,8 +22,8 @@ class m200801_233755_pdfs extends Migration
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
-        $orderPdfFilenameFormat = $projectConfig->get('plugins.commerce.orderPdfFilenameFormat', true) ?: 'Order-{number}';
-        $orderPdfPath = $projectConfig->get('plugins.commerce.orderPdfPath', true) ?: 'shop/special/receipt';
+        $orderPdfFilenameFormat = Plugin::getInstance()->getSettings()->getOrderPdfFilenameFormat(true);
+        $orderPdfPath = Plugin::getInstance()->getSettings()->getOrderPdfPath(true);
 
         $emailPdfTemplates = (new Query())
             ->select(['*'])
