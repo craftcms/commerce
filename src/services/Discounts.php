@@ -495,7 +495,7 @@ class Discounts extends Component
         }
 
         // can't match something not promotable
-        if (!$lineItem->purchasable || !$lineItem->purchasable->getIsPromotable()) {
+        if (!$lineItem->getPurchasable() || !$lineItem->getPurchasable()->getIsPromotable()) {
             return false;
         }
 

@@ -1814,7 +1814,7 @@ class Order extends Element
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
             if ($this->shippingMethodHandle) {
                 if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                    $this->shippingMethodHandle = null;
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
                     $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
                     $this->addNotice(
                         Craft::createObject([

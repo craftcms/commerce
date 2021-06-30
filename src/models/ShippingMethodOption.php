@@ -35,7 +35,7 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
-     * @var
+     * @var boolean
      */
     public $matchesOrder;
 
