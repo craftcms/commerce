@@ -35,6 +35,11 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
+     * @var
+     */
+    public $matchesOrder;
+
+    /**
      * @return array
      */
     public function behaviors(): array
