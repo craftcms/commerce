@@ -85,7 +85,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         // Shared attributes
         $currency->id = Craft::$app->getRequest()->getBodyParam('currencyId');
         $currency->iso = Craft::$app->getRequest()->getBodyParam('iso');
-        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate');
+        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate', 1);
         $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
 
         // Check to see if the primary currency is being changed

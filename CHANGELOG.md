@@ -9,6 +9,7 @@
 ### Fixed
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
 - Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+- Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
 - Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
 - Fixed a bug where months were missing in past year stat queries.
 
