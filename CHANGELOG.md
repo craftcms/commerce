@@ -67,6 +67,19 @@
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
 
+## Unreleased
+
+### Changed
+- It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+- It’s now possible to search orders by the shipping or billing address.
+
+### Fixed
+- Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+- Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
+- Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
+- Fixed a bug where months were missing in past year stat queries.
+
 ## 3.3.4.1 - 2021-06-16
 
 ### Fixed
@@ -1026,7 +1039,7 @@
 - Fixed a PHP error that occurred on Windows environments. ([#1247](https://github.com/craftcms/commerce/issues/1247))
 - Fixed a bug where orders’ Date Ordered attributes could shift after saving an order from the Edit Order page. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
-- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a bug that prevented emails from being sent. ([#1257](https://github.com/craftcms/commerce/issues/1257))
 - Fixed a error that occurred on the Edit User page when the logged-in user did’t have the “Manage subscriptions” permission. ([#1252](https://github.com/craftcms/commerce/issues/1252))
 - Fixed an error that occurred when setting a primary address on a customer. ([#1253](https://github.com/craftcms/commerce/issues/1253))
 - Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))

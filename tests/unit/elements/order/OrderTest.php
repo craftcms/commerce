@@ -12,7 +12,6 @@ use craft\commerce\adjusters\Discount;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
-use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use UnitTester;
 
