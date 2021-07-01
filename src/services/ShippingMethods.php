@@ -305,7 +305,9 @@ class ShippingMethods extends Component
                 'name',
                 'handle',
                 'enabled',
-                'isLite'
+                'isLite',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::SHIPPINGMETHODS]);
 

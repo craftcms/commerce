@@ -8,8 +8,8 @@
 namespace craft\commerce\console\controllers;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\console\Controller;
+use craft\commerce\db\Table;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\helpers\Console;

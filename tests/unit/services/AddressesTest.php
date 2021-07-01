@@ -252,6 +252,8 @@ class AddressesTest extends Unit
             'custom3',
             'custom4',
             'isEstimated',
+            'dateCreated',
+            'dateUpdated',
             'stateValue',
         ];
         $keys = array_keys($this->addresses->removeReadOnlyAttributesFromArray($addressArray));

@@ -204,6 +204,8 @@ class Sales extends Component
                 'sales.sortOrder',
                 'sales.categoryRelationshipType',
                 'sales.enabled',
+                'sales.dateCreated',
+                'sales.dateUpdated',
                 'sp.purchasableId',
                 'spt.categoryId',
                 'sug.userGroupId'

@@ -556,6 +556,38 @@ class Customers extends Component
             // We don't need to update search indexes since the address contents are the same.
             Craft::$app->getElements()->saveElement($order, false, false, false);
         }
+
+        // Copy address to guest customer's address book if they have no addresses
+        $customer = $order->getCustomer();
+        if ($customer && !$customer->userId && empty($customer->getAddresses()) && ($order->billingAddressId || $order->shippingAddressId)) {
+            $addressesUpdated = false;
+            if ($order->billingAddressId && $billingAddress = $order->getBillingAddress()) {
+                $billingAddress->id = null;
+                if ($this->saveAddress($billingAddress, $customer, false)) {
+                    $customer->primaryBillingAddressId = $billingAddress->id;
+                    $addressesUpdated = true;
+                }
+            }
+
+            if ($order->shippingAddressId) {
+                $shippingAddress = $order->getShippingAddress();
+                if ($shippingAddress && $shippingAddress->sameAs($order->getBillingAddress())) {
+                    // Don't create two addresses in the address book if they are the same
+                    $customer->primaryShippingAddressId = $customer->primaryBillingAddressId;
+                    $addressesUpdated = true;
+                } else if ($shippingAddress) {
+                    $shippingAddress->id = null;
+                    if ($this->saveAddress($shippingAddress, $customer, false)) {
+                        $customer->primaryShippingAddressId = $shippingAddress->id;
+                        $addressesUpdated = true;
+                    }
+                }
+            }
+
+            if ($addressesUpdated) {
+                $this->saveCustomer($customer);
+            }
+        }
     }
 
     /**
@@ -1008,7 +1040,9 @@ class Customers extends Component
                 'id',
                 'userId',
                 'primaryBillingAddressId',
-                'primaryShippingAddressId'
+                'primaryShippingAddressId',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::CUSTOMERS]);
     }

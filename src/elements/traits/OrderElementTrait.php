@@ -9,7 +9,7 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
-use craft\commerce\elements\actions\DownloadOrderPdf;
+use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
 use craft\commerce\elements\Order;
@@ -17,8 +17,8 @@ use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
-use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
 
 trait OrderElementTrait
@@ -372,7 +372,7 @@ trait OrderElementTrait
             $elementService = Craft::$app->getElements();
 
             if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
-                $actions[] = DownloadOrderPdf::class;
+                $actions[] = DownloadOrderPdfAction::class;
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {

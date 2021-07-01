@@ -17,12 +17,12 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -514,11 +514,11 @@ class Variant extends Purchasable
     public function updateSku(Product $product)
     {
         $type = $product->getType();
-        // If we have a blank SKU, generate from product type's skuFormat
+        // If we have a blank SKU, generate from product type’s skuFormat
         if (!$this->sku && $type->skuFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
-            // Set Craft to the products's site's language, in case the title format has any static translations
+            // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
@@ -550,7 +550,7 @@ class Variant extends Purchasable
      * @return bool
      * @throws InvalidConfigException
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         $product = $this->getProduct();
 

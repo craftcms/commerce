@@ -12,11 +12,10 @@ use craft\base\ElementInterface;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Variant;
+use craft\commerce\events\PurchasableAvailableEvent;
 use craft\commerce\events\PurchasableShippableEvent;
 use craft\elements\User;
 use craft\events\RegisterComponentTypesEvent;
-use craft\commerce\events\PurchasableAvailableEvent;
-use yii\base\BaseObject;
 use yii\base\Component;
 
 /**

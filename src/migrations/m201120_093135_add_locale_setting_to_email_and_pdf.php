@@ -2,9 +2,9 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\db\Migration;
 use craft\db\Query;
-use Craft;
 
 /**
  * m201120_093135_add_language_setting_to_email_and_pdf migration.

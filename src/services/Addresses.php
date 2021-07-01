@@ -570,7 +570,9 @@ class Addresses extends Component
                 'addresses.custom3',
                 'addresses.custom4',
                 'addresses.isEstimated',
-                'addresses.isStoreLocation'
+                'addresses.isStoreLocation',
+                'addresses.dateCreated',
+                'addresses.dateUpdated',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

@@ -15,7 +15,6 @@ use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
-use yii\base\BaseObject;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -300,7 +299,9 @@ class TaxCategories extends Component
                 'taxCategories.name',
                 'taxCategories.handle',
                 'taxCategories.description',
-                'taxCategories.default'
+                'taxCategories.default',
+                'taxCategories.dateCreated',
+                'taxCategories.dateUpdated',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
