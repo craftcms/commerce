@@ -7,9 +7,9 @@
 
 namespace craft\commerce\helpers;
 
+use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
-use craft\commerce\models\Currency as CurrencyModel;
 use yii\base\InvalidCallException;
 
 /**

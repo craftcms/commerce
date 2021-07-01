@@ -9,15 +9,12 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\View;
-use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
 use yii\web\Response;
 
 /**

@@ -7,8 +7,8 @@
 
 namespace craftcommercetests\unit\stats;
 
-use Craft;
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\stats\TotalOrders;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;

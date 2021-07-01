@@ -2,14 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
-use craft\commerce\elements\Subscription;
-use craft\commerce\fields\Products;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\db\Table;
-use craft\helpers\MigrationHelper;
-use yii\db\Expression;
 
 /**
  * m201102_064231_fix_deletedWithProduct_bool migration.
