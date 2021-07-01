@@ -101,7 +101,7 @@
         checkboxes: true,
         columns: columns,
         container: '#discounts-vue-admin-table',
-        deleteAction: 'commerce/discounts/delete',
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
         emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
         padded: true,
         reorderAction: 'commerce/discounts/reorder',

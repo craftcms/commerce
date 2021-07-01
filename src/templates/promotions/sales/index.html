@@ -104,7 +104,7 @@ new Craft.VueAdminTable({
   checkboxes: true,
   columns: columns,
   container: '#sales-vue-admin-table',
-  deleteAction: 'commerce/sales/delete',
+  deleteAction: {{ currentUser.can('commerce-deleteSales')? '"commerce/sales/delete"' : 'null' }},
   emptyMessage: Craft.t('commerce', 'No sales exist yet.'),
   padded: true,
   reorderAction: 'commerce/sales/reorder',
