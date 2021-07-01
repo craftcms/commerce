@@ -72,7 +72,6 @@
 ### Changed
 - It’s now possible to copy a subscription’s reference right from the Edit Subscription page.
 - It’s now possible to search orders by the shipping or billing address.
-- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 
 ### Fixed
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
@@ -80,9 +79,6 @@
 - Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
 - Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
 - Fixed a bug where months were missing in past year stat queries.
-- Fixed a PHP error that could occur when calling `getAvailableShippingMethodOptions` on orders that have deleted purchasables.
-- Fixed a bug where it wasn’t possible to tell if a shipping method had been automatically or manually selected. ([#2070](https://github.com/craftcms/commerce/issues/2070))
-- Fixed a bug where an unavailable shipping method was showing as selected when editing a cart on the Order edit page. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 
 ## 3.3.4.1 - 2021-06-16
 
