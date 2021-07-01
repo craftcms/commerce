@@ -18,7 +18,6 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
-use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;

@@ -51,7 +51,7 @@ class VariantMatrix
         $viewService->setNamespace(null);
 
         // Get the field HTML
-        list($fieldBodyHtml, $fieldFootHtml) = self::_getVariantFieldHtml($product, $namespacedName);
+        [$fieldBodyHtml, $fieldFootHtml] = self::_getVariantFieldHtml($product, $namespacedName);
 
         $viewService->registerAssetBundle(VariantMatrixAsset::class);
         $viewService->registerJs('new Craft.Commerce.VariantMatrix(' .

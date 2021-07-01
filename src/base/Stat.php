@@ -474,6 +474,12 @@ abstract class Stat implements StatInterface
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('Y-m-d'), true);
         $endDate = $this->getEndDate();
         while ($dateKeyDate <= $endDate) {
+
+            // If we are looking monthly make sure we get every month by using the 1st day
+            if ($dateRangeInterval == 'month') {
+                $dateKeyDate->setDate($dateKeyDate->format('Y'), $dateKeyDate->format('m'), 1);
+            }
+
             $key = $dateKeyDate->format($options['dateKeyFormat']);
 
             // Setup default results values

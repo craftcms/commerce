@@ -9,7 +9,6 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\base\Stat;
-use craft\commerce\stats\TotalRevenue;
 use DateTime;
 use UnitTester;
 

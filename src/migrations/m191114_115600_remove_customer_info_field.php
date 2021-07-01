@@ -7,9 +7,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m191114_115600_remove_customer_info_field migration.

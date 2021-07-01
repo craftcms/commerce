@@ -4,9 +4,15 @@
 
 ### Changed
 - It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+- It’s now possible to search orders by the shipping or billing address.
 
 ### Fixed
 - Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+- Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
+- Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
+- Fixed a bug where months were missing in past year stat queries.
+- Fixed a bug where the outstanding payment amount due in an alternate currency was not rounded after conversion causing the order to not be marked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
 
 ## 3.3.4.1 - 2021-06-16
 
