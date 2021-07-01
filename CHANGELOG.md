@@ -13,6 +13,7 @@
 - Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
 - Fixed a bug where months were missing in past year stat queries.
 - Fixed a bug where the outstanding payment amount due in an alternate currency was not rounded after conversion causing the order to not be marked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
+- Fixed a bug where the PDF general settings were not migrated correctly to the new default PDF when updating from a version before Commerce 3.2.0. ([#2213](https://github.com/craftcms/commerce/issues/2213))
 
 ## 3.3.4.1 - 2021-06-16
 
