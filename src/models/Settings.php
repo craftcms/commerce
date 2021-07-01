@@ -397,6 +397,24 @@ class Settings extends Model
     public $_orderPdfPath;
 
     /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
+        // We only want to mass set or retrieve these prior to 3.2
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '<')) {
+            $names[] = 'orderPdfFilenameFormat'; // @todo remove in 4.0
+            $names[] = 'orderPdfPath'; // @todo remove in 4.0
+        }
+
+        return $names;
+    }
+
+    /**
      * Returns a key-value array of weight unit options and labels.
      *
      * @return array
