@@ -2,6 +2,7 @@
 
 namespace craft\commerce\migrations;
 
+use Craft;
 use craft\commerce\Plugin;
 use craft\commerce\services\Emails;
 use craft\commerce\services\Pdfs;
@@ -19,6 +20,11 @@ class m200801_233755_pdfs extends Migration
      */
     public function safeUp()
     {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        $orderPdfFilenameFormat = Plugin::getInstance()->getSettings()->getOrderPdfFilenameFormat(true);
+        $orderPdfPath = Plugin::getInstance()->getSettings()->getOrderPdfPath(true);
+
         $emailPdfTemplates = (new Query())
             ->select(['*'])
             ->from(['{{%commerce_emails}}'])
@@ -66,7 +72,6 @@ class m200801_233755_pdfs extends Migration
         }
 
         // Don't make the same config changes twice...
-        $projectConfig = \Craft::$app->getProjectConfig();
         $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
         if (version_compare($schemaVersion, '3.2.2', '>=')) {
             return;
@@ -80,8 +85,8 @@ class m200801_233755_pdfs extends Migration
             'name' => 'Default',
             'handle' => 'order',
             'description' => 'Default Order PDF',
-            'templatePath' => Plugin::getInstance()->getSettings()->orderPdfPath,
-            'fileNameFormat' => Plugin::getInstance()->getSettings()->orderPdfFilenameFormat,
+            'templatePath' => $orderPdfPath,
+            'fileNameFormat' => $orderPdfFilenameFormat,
             'isDefault' => true,
             'enabled' => true,
             'sortOrder' => $sortOrder++,
@@ -98,14 +103,14 @@ class m200801_233755_pdfs extends Migration
 
             // If the email had attachPdf set to true, but had no pdf template path, then we need to use the default one from settings.
             if (empty($templatePath) || !$templatePath) {
-                $templatePath = Plugin::getInstance()->getSettings()->orderPdfPath;
+                $templatePath = $orderPdfPath;
             }
             $configData = [
                 'name' => $email['name'] . ' PDF',
                 'handle' => StringHelper::toCamelCase($email['name']),
                 'description' => $email['name'],
                 'templatePath' => $templatePath,
-                'fileNameFormat' => Plugin::getInstance()->getSettings()->orderPdfFilenameFormat,
+                'fileNameFormat' => $orderPdfFilenameFormat,
                 'enabled' => true,
                 'sortOrder' => $sortOrder++,
                 'isDefault' => false,
