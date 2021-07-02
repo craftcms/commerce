@@ -833,6 +833,19 @@ class LineItem extends Model
     }
 
     /**
+     * @return bool
+     * @since 3.4
+     */
+    public function getIsShippable(): bool
+    {
+        if (!$this->getPurchasable()) {
+            return true; // we have a default shipping category so assume so.
+        }
+
+        return $this->getPurchasable()->getIsShippable();
+    }
+
+    /**
      * @return float
      */
     public function getTax(): float

@@ -2,7 +2,12 @@
 
 ## Unreleased 3.4.0-beta.2
 
+### Added
+- Added `craft\commerce\models\LineItem::getIsShippable()`.
+- Added `craft\commerce\elements\Order::hasShippableItems()`.
+
 ### Fixed
+- Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
 - Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
 
 ## 3.4.0-beta.1 - 2021-06-16
