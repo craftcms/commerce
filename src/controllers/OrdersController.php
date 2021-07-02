@@ -435,7 +435,6 @@ class OrdersController extends Controller
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
-        // TODO merge this and the above line items loop into one.
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
@@ -1254,7 +1253,6 @@ class OrdersController extends Controller
 
             $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
 
-            // TODO figure out if we need to validate at this point;
             Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
             $billingAddressId = $billingAddress->id;
         }
@@ -1267,7 +1265,6 @@ class OrdersController extends Controller
 
             $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
 
-            // TODO figure out if we need to validate at this point;
             Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
             $shippingAddressId = $shippingAddress->id;
         }

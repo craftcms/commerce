@@ -462,7 +462,7 @@ class CartController extends BaseFrontEndController
     {
         $cart = null;
 
-        // TODO Remove `orderNumber` param in 4.0
+        // TODO Remove `orderNumber` param in 4.0 #COM-33
         $orderNumber = $this->request->getBodyParam('orderNumber');
         $orderNumber = $this->request->getBodyParam('number', $orderNumber);
 

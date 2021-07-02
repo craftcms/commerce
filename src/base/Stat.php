@@ -376,7 +376,7 @@ abstract class Stat implements StatInterface
             // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
             $timezoneConversionSql = "[[dateOrdered]]";
 
-            // @TODO remove the method_exists() check at next breaking change release
+            // @TODO remove the method_exists() check at next breaking change release #COM-28
             if (method_exists(Db::class, 'validateDatabaseTimezoneSupport')) {
                 if (Db::validateDatabaseTimezoneSupport()) {
                     $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
@@ -437,7 +437,6 @@ abstract class Stat implements StatInterface
     protected function _createStatQuery()
     {
         // Make sure the end time is always the last point on that day.
-        // @TODO adjust this when stats can deal with time and not just whole days
         if ($this->_endDate instanceof DateTime) {
             $this->_endDate->setTime(23, 59, 59);
         }
