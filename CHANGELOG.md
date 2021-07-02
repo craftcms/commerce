@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased 3.4.0-beta.2
+
+### Fixed
+- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
+
 ## 3.4.0-beta.1 - 2021-06-16
 
 ### Added
