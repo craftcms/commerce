@@ -7,12 +7,9 @@
 
 namespace craftcommercetests\unit\elements\order;
 
-use Craft;
 use Codeception\Test\Unit;
-use craft\commerce\adjusters\Discount;
+use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
-use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use UnitTester;
@@ -50,6 +47,7 @@ class OrderNoticesTest extends Unit
      */
     public function testOrderNotices()
     {
+        /** @var OrderNotice $firstNotice */
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [
@@ -67,6 +65,7 @@ class OrderNoticesTest extends Unit
         self::assertEquals($firstNotice->message, $firstNotice->message);
         self::assertCount(1, $notices);
 
+        /** @var OrderNotice $secondNotice */
         $secondNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [

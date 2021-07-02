@@ -17,12 +17,12 @@ use craft\commerce\events\CustomizeProductSnapshotDataEvent;
 use craft\commerce\events\CustomizeProductSnapshotFieldsEvent;
 use craft\commerce\events\CustomizeVariantSnapshotDataEvent;
 use craft\commerce\events\CustomizeVariantSnapshotFieldsEvent;
+use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\helpers\Purchasable as PurchasableHelper;
 use craft\commerce\records\Variant as VariantRecord;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
@@ -41,7 +41,7 @@ use yii\validators\Validator;
  * @property string $eagerLoadedElements some eager-loaded elements on a given handle
  * @property bool $onSale
  * @property Product $product the product associated with this variant
- * @property Sale[] $salesApplied sales models which are currently affecting the salePrice of this purchasable
+ * @property Sale[] $sales sales models which are currently affecting the salePrice of this purchasable
  * @property string $priceAsCurrency
  * @property string $salePriceAsCurrency
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -514,11 +514,11 @@ class Variant extends Purchasable
     public function updateSku(Product $product)
     {
         $type = $product->getType();
-        // If we have a blank SKU, generate from product type's skuFormat
+        // If we have a blank SKU, generate from product type’s skuFormat
         if (!$this->sku && $type->skuFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
-            // Set Craft to the products's site's language, in case the title format has any static translations
+            // Set Craft to the product’s site’s language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
             $this->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $this);
@@ -550,7 +550,7 @@ class Variant extends Purchasable
      * @return bool
      * @throws InvalidConfigException
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         $product = $this->getProduct();
 
@@ -725,7 +725,7 @@ class Variant extends Purchasable
      */
     public function getTaxCategoryId(): int
     {
-        return $this->getProduct()->taxCategoryId;
+        return $this->getProduct()->getTaxCategory()->id;
     }
 
     /**
@@ -733,7 +733,7 @@ class Variant extends Purchasable
      */
     public function getShippingCategoryId(): int
     {
-        return $this->getProduct()->shippingCategoryId;
+        return $this->getProduct()->getShippingCategory()->id;
     }
 
     /**
@@ -751,7 +751,7 @@ class Variant extends Purchasable
      */
     public function hasFreeShipping(): bool
     {
-        $isShippable = $this->getIsShippable();
+        $isShippable = $this->getIsShippable(); // Same as Plugin::getInstance()->getPurchasables()->isPurchasableShippable since this has no context
         return $isShippable && $this->getProduct()->freeShipping;
     }
 
@@ -875,14 +875,22 @@ class Variant extends Purchasable
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
-        if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
-            if ($order = $lineItem->getOrder()) {
+        if (($order = $lineItem->getOrder()) && !$order->isCompleted) {
+            if (($lineItem->qty > $this->stock) && !$this->hasUnlimitedStock) {
+                /** @var Order $order */
                 $message = Craft::t('commerce', '{description} only has {stock} in stock.', ['description' => $lineItem->getDescription(), 'stock' => $this->stock]);
-                $this->addNotice(
-                    OrderNotice::create('lineItemStockLimited', "lineItems", $message)
-                );
+                /** @var OrderNotice $notice */
+                $notice = Craft::createObject([
+                    'class' => OrderNotice::class,
+                    'attributes' => [
+                        'type' => 'lineItemSalePriceChanged',
+                        'attribute' => "lineItems.{$lineItem->id}.qty",
+                        'message' => $message,
+                    ]
+                ]);
+                $order->addNotice($notice);
+                $lineItem->qty = $this->stock;
             }
-            $lineItem->qty = $this->stock;
         }
 
         $lineItem->weight = (float)$this->weight; //converting nulls
@@ -974,7 +982,7 @@ class Variant extends Purchasable
             $record->weight = $this->weight;
             $record->minQty = $this->minQty;
             $record->maxQty = $this->maxQty;
-            $record->stock = $this->stock;
+            $record->stock = (int)$this->stock;
             $record->isDefault = (bool)$this->isDefault;
             $record->sortOrder = $this->sortOrder;
             $record->hasUnlimitedStock = $this->hasUnlimitedStock;

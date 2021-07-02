@@ -2,7 +2,7 @@
 
 <div id="gateway-{{ gateway.id }}-form"
      class="gateway-form {% if order and order.gatewayId != gateway.id %}hidden{% endif %}">
-    <form method="POST" id="form-gateway-{{ gateway.id }}">
+    <form method="POST">
         <input type="hidden" name="action" value="commerce/payments/pay"/>
         <input type="hidden" name="redirect" value="commerce/payments/pay"/>
 
@@ -21,14 +21,13 @@
 
         <fieldset>
         <legend>Payment Amount</legend>
-        <div id="currency-selector-{{ gateway.id }}">
-            <input type="text"  id="paymentAmount-{{ gateway.id }}" name="paymentAmount" class="text" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+        <div>
+            <input type="text"  class="paymentAmount text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
 
             {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
             {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
-
             {% if currencies|length > 1 %}
-                <select id="paymentCurrency-{{ gateway.id }}" class="text" name="paymentCurrency"  style="margin: 0 5px;">
+                <select class="paymentCurrency text" name="paymentCurrency"  style="margin: 0 5px;">
                 {% for currency in currencies %}
                     <option value="{{currency.iso}}" {% if order.paymentCurrency == currency.iso %}selected {% endif %}>
                         {{ currency.iso }}
@@ -36,16 +35,19 @@
                 {% endfor %}
                 </select>
             {% else %}
-                 <input type="hidden" id="paymentCurrency-{{ gateway.id }}" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
+                 <input type="hidden" class="paymentCurrency" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
             {% endif %}
-            <span id="baseCurrencyAmount-{{ gateway.id }}">{{ order.currency }} {{ order.paymentAmountAsCurrency }}</span>
-            <p id="response-message-{{ gateway.id }}"></p>
+
+            <span class="baseCurrencyAmount">
+            {{ 'Pay {amount} of {currency} on the order.'|t('commerce', {'amount' : order.outstandingBalanceAsCurrency, 'currency' : order.currency}) }}
+            </span>
+            <p class="response-message"></p>
         </div>
         </fieldset>
 
         <div class="footer">
             <div class="buttons right">
-                <input id="submit-payment-{{ gateway.id }}" type="submit" class="btn submit" value="{{ 'Pay'|t('commerce') }}">
+                <input type="submit" class="submit-payment btn submit" value="{{ 'Pay'|t('commerce') }}">
             </div>
         </div>
 
@@ -55,31 +57,27 @@
 {% js %}
 
     var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
-    var outstandingBalance = '{{ order.getpaymentAmount() }}';
+    var paymentAmount = '{{ order.getpaymentAmount() }}';
     var orderId = '{{ order.id }}';
 
-   $("#gateway-{{ gateway.id }}-form").on('submit', function (ev) {
-        $("#gateway-{{ gateway.id }}-form") = $(this);
+    function debounce(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    };
 
-        if ($("#gateway-{{ gateway.id }}-form").data('processing')) {
-            ev.preventDefault();
-            return false;
-        }
 
-        $("#gateway-{{ gateway.id }}-form").data('processing', true);
-    });
-
-
-    function debounce(callback, wait) {
-      let timeout;
-      return (...args) => {
-          clearTimeout(timeout);
-          timeout = setTimeout(function () { callback.apply(this, args); }, wait);
-      };
-    }
-
-    function updatePrice() {
-        var price = $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").val();
+    function updatePrice(form) {
+        var price = form.find("input.paymentAmount").val();
 
         $.ajax({
             type: "POST",
@@ -91,44 +89,36 @@
             data: {
                 'action' : 'commerce/orders/payment-amount-data',
                 'paymentAmount': price,
-                'paymentCurrency': $("#gateway-{{ gateway.id }}-form").find("#paymentCurrency-{{ gateway.id }}").val(),
+                'paymentCurrency': form.find(".paymentCurrency").val(),
                 'orderId' : orderId
             },
             success: function(data){
-                $("#gateway-{{ gateway.id }}-form").find("#baseCurrencyAmount-{{ gateway.id }}").html(data.baseCurrencyPaymentAmountAsCurrency);
-                $("#real-paymentAmount-{{ gateway.id }}").val(data.baseCurrencyPaymentAmount);
-                $('#response-message-{{ gateway.id }}').html(data.message);
+                console.log(data);
+                form.find(".baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
+                form.find(".response-message").html(data.message);
                 window.dispatchEvent(new Event('resize'));
-                $('#submit-payment-{{ gateway.id }}').prop('disabled', false);
+                form.find('.submit-payment').prop('disabled', false);
             }
         });
     }
 
-    $("#gateway-{{ gateway.id }}-form").find("input#paymentAmount-{{ gateway.id }}").bind('keyup mouseup', debounce(() => {
-        var newVal = $("input#paymentAmount-{{ gateway.id }}").val();
+    $("input.paymentAmount").bind('keyup mouseup', debounce(function(){
+        var $input = $(this);
+        var $form = $input.closest('form')
+        var newVal = $form.find("input.paymentAmount").val();
         if(!newVal) {
-            newVal = outstandingBalance;
-            $("input#paymentAmount-{{ gateway.id }}").val(newVal);
+            newVal = paymentAmount;
+            $form.find("input.paymentAmount").val(newVal);
         }
-        updatePrice();
-    }, 500));
+        updatePrice($form);
+    },500));
 
-    var previous;
-
-    if($("select#paymentCurrency-{{ gateway.id }}").length){
-        $("select#paymentCurrency-{{ gateway.id }}").on('focus', function () {
-            previous = this.value;
-        }).on('change', function() {
-            $('#submit-payment-{{ gateway.id }}').prop('disabled', true);
-
-            if(this.value != primaryBaseCurrency){
-                $("input#paymentAmount-{{ gateway.id }}").removeAttr('max');
-            }else{
-                $("input#paymentAmount-{{ gateway.id }}").attr('max', outstandingBalance);
-            }
-
-            updatePrice();
+    $("select.paymentCurrency").each(function( index ) {
+        var $form = $(this.form);
+        $(this).on('change', function() {
+            console.log('change');
+            updatePrice($form);
         });
-    }
+    });
 
 {% endjs %}

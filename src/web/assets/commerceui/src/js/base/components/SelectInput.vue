@@ -147,7 +147,7 @@
             },
 
             onSearchFocus() {
-                if (!this.$refs.vSelect.value) {
+                if (!this.$refs.vSelect.search) {
                     this.$refs.vSelect.open = false;
                 }
             },

@@ -96,7 +96,7 @@ class AddressesTest extends Unit
      */
     public function testGetStoreLocationAddress()
     {
-        $storeAddress = $this->addresses->getAddressById(123);
+        $storeAddress = $this->addresses->getAddressById(1123);
         $address = $this->addresses->getStoreLocationAddress();
 
         self::assertIsObject($address);
@@ -252,6 +252,8 @@ class AddressesTest extends Unit
             'custom3',
             'custom4',
             'isEstimated',
+            'dateCreated',
+            'dateUpdated',
             'stateValue',
         ];
         $keys = array_keys($this->addresses->removeReadOnlyAttributesFromArray($addressArray));

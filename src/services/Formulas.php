@@ -87,7 +87,7 @@ class Formulas extends Component
      * @throws SyntaxError
      * @throws \Twig\Error\LoaderError
      */
-    public function evaluateCondition(string $formula, $params, $name = 'Evalute Condition'): bool
+    public function evaluateCondition(string $formula, $params, $name = 'Evaluate Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');

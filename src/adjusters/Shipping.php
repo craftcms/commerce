@@ -64,7 +64,7 @@ class Shipping extends Component implements AdjusterInterface
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -125,7 +125,7 @@ class Shipping extends Component implements AdjusterInterface
                     }
 
                     $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                    $shippable = $item->purchasable->getIsShippable();
+                    $shippable = Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable());
                     if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                         $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 

@@ -43,10 +43,11 @@ use yii\db\Schema;
  */
 class VariantQuery extends ElementQuery
 {
+
     /**
-     * @var string the SKU of the variant
+     * @inheritdoc
      */
-    public $sku;
+    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
     /**
      * @var bool Whether to only return variants that the user has permission to edit.
@@ -56,32 +57,7 @@ class VariantQuery extends ElementQuery
     /**
      * @var
      */
-    public $productId;
-
-    /**
-     * @var
-     */
-    public $typeId;
-
-    /**
-     * @var
-     */
-    public $isDefault;
-
-    /**
-     * @var
-     */
-    public $stock;
-
-    /**
-     * @var
-     */
     public $hasStock;
-
-    /**
-     * @var
-     */
-    public $price;
 
     /**
      * @var
@@ -94,9 +70,40 @@ class VariantQuery extends ElementQuery
     public $hasProduct;
 
     /**
-     * @inheritdoc
+     * @var
      */
-    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
+    public $isDefault;
+
+    /**
+     * @var
+     */
+    public $price;
+
+    /**
+     * @var
+     */
+    public $productId;
+
+    /**
+     * @var string the SKU of the variant
+     */
+    public $sku;
+
+    /**
+     * @var
+     */
+    public $stock;
+
+    /**
+     * @var
+     */
+    public $typeId;
+
+    /**
+     * @var
+     * @since 3.3.4
+     */
+    public $hasUnlimitedStock;
 
     /**
      * @var
@@ -351,6 +358,26 @@ class VariantQuery extends ElementQuery
     public function hasStock(bool $value = true)
     {
         $this->hasStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have been set to unlimited stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with unlimited stock checked.
+     * | `false` | with unlimited stock not checked.
+     *
+     * @param bool $value
+     * @return static self reference
+     * @since 3.3.4
+     */
+    public function hasUnlimitedStock(bool $value = true)
+    {
+        $this->hasUnlimitedStock = $value;
         return $this;
     }
 
@@ -613,6 +640,12 @@ class VariantQuery extends ElementQuery
         // have a type which supports dimensions
         if ($this->width !== false || $this->height !== false || $this->length !== false || $this->weight !== false) {
             $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
+        }
+
+        if ($this->hasUnlimitedStock !== null) {
+            $this->subQuery->andWhere([
+                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock
+            ]);
         }
 
         if ($this->hasStock !== null) {

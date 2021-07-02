@@ -9,13 +9,9 @@ namespace craft\commerce\console\controllers;
 
 use Craft;
 use craft\commerce\console\Controller;
-use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
-use craft\helpers\Install as InstallHelper;
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
 use yii\console\ExitCode;
 
 /**

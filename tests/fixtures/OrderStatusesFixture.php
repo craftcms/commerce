@@ -8,7 +8,6 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\models\OrderStatus;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use yii\base\InvalidArgumentException;

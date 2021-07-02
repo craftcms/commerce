@@ -772,7 +772,7 @@ return [
     'Pounds (lb)' => 'Pounds (lb)',
     'Preview' => 'Preview',
     'Previous Status' => 'Previous Status',
-    'Previously selected shipping method is longer available.' => 'Previously selected shipping method is longer available.',
+    'The previously-selected shipping method is no longer available.' => 'The previously-selected shipping method is no longer available.',
     'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}',
     'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}',
     'Price' => 'Price',

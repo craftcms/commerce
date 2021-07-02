@@ -34,6 +34,7 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
@@ -41,7 +42,6 @@ use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
-use craft\db\Table as CraftTable;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
@@ -339,7 +339,7 @@ class OrdersController extends Controller
         }
 
         if ($sort) {
-            list($field, $direction) = explode('|', $sort);
+            [$field, $direction] = explode('|', $sort);
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -556,7 +556,7 @@ class OrdersController extends Controller
 
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
-            list($column, $direction) = explode('|', $sort);
+            [$column, $direction] = explode('|', $sort);
             if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
@@ -1490,7 +1490,7 @@ class OrdersController extends Controller
                 } else {
                     $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 }
-                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
                     'content' => $purchasable->getSnapshot(),

@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use DateTime;
 
 /**
  * Shipping rule model
@@ -139,6 +140,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $isLite = 0;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @param Order $order
      * @return array
      */
@@ -147,7 +160,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $orderShippingCategories = [];
         foreach ($order->lineItems as $lineItem) {
             // Dont' look at the shipping category of non shippable products.
-            if ($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable()) {
+            if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
             }
         }
@@ -194,7 +207,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 'methodId',
                 'priority',
                 'enabled',
-                'orderConditionFormula',
                 'minQty',
                 'maxQty',
                 'minTotal',
@@ -221,21 +233,24 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $rules[] = [['shippingRuleCategories'], 'validateShippingRuleCategories', 'skipOnEmpty' => true];
 
+        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
         $rules[] = [
             'orderConditionFormula', function($attribute, $params, $validator) {
-                $order = Order::find()->one();
-                if (!$order) {
-                    $order = new Order();
-                }
-                $orderConditionParams = [
-                    'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                ];
-                if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->orderConditionFormula, $orderConditionParams)) {
-                    $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                if($this->{$attribute}) {
+                    $order = Order::find()->one();
+                    if (!$order) {
+                        $order = new Order();
+                    }
+                    $orderConditionParams = [
+                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                    ];
+                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderConditionParams)) {
+                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                    }
                 }
             }
         ];
-        
+
         return $rules;
     }
 
@@ -259,19 +274,20 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $lineItems = $order->getLineItems();
 
         if ($this->orderConditionFormula) {
+            $fieldsAsArray = $order->getSerializedFieldValues();
+            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
             $orderConditionParams = [
-                'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                'order' => array_merge($orderAsArray, $fieldsAsArray)
             ];
-
             if (!Plugin::getInstance()->getFormulas()->evaluateCondition($this->orderConditionFormula, $orderConditionParams, 'Evaluate Shipping Rule Order Condition Formula')) {
                 return false;
-            };
+            }
         }
 
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -284,7 +300,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $shippingRuleCategories = $this->getShippingRuleCategories();
         $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-        list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+        [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
         // Does the order have any disallowed categories in the cart?
         $result = array_intersect($orderShippingCategories, $disallowedCategories);

@@ -7,7 +7,7 @@
 
 namespace craft\commerce\console;
 
-use \craft\console\Controller as CraftController;
+use craft\console\Controller as CraftController;
 
 /**
  * Base commerce console controller
