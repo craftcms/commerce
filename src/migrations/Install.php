@@ -936,6 +936,7 @@ class Install extends Migration
     {
         $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
         $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
+        $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);

@@ -6,6 +6,9 @@
 - Added `craft\commerce\models\LineItem::getIsShippable()`.
 - Added `craft\commerce\elements\Order::hasShippableItems()`.
 
+### Changed
+- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
+
 ### Fixed
 - Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
 - Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
