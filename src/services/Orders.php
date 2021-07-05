@@ -193,7 +193,7 @@ class Orders extends Component
         $data['origin'] = $cart->origin;
         $data['orderLanguage'] = $cart->orderLanguage;
         $data['shippingMethod'] = $cart->shippingMethodHandle;
-        $data['shippingMethodId'] = $cart->getShippingMethodId(); // TODO: Remove in Commerce 4
+        $data['shippingMethodId'] = $cart->getShippingMethodId(); // TODO: Remove in Commerce 4 #COM-38
         $data['paymentMethodId'] = $cart->gatewayId;
         $data['gatewayId'] = $cart->gatewayId;
         $data['paymentSourceId'] = $cart->paymentSourceId;

@@ -21,7 +21,7 @@ use craft\commerce\services\Sales;
 class SaleTest extends Unit
 {
     /**
-     * @todo Remove when populateSaleRelations is removed
+     * @todo Remove when populateSaleRelations is removed #COM-58
      */
     public function testLoadRelationsCalledOnce()
     {

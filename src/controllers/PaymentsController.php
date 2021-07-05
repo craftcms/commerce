@@ -68,7 +68,7 @@ class PaymentsController extends BaseFrontEndController
         $isCpRequest = Craft::$app->getRequest()->getIsCpRequest();
         $userSession = Craft::$app->getUser();
 
-        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace.
+        // TODO Move to `number` param in 4.0 once we move to paymentForm that is in it's own request data namespace. #COM-33
         $number = $this->request->getParam('orderNumber');
 
         if ($number !== null) {
@@ -90,7 +90,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
-            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
+            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed. #COM-36
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
 
         } else {

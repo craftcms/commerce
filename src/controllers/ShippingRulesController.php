@@ -57,10 +57,6 @@ class ShippingRulesController extends BaseShippingSettingsController
             }
         }
 
-        // TODO: check if the following two lines can be removed
-        // $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
-        // $variables['states'] = $plugin->getStates()->getAllStatesAsList();
-
         $this->getView()->setNamespace('new');
 
         $this->getView()->startJsBuffer();

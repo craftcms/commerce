@@ -80,7 +80,7 @@ class PaymentCurrencies extends Component
             foreach ($rows as $row) {
                 $paymentCurrency = new PaymentCurrency($row);
 
-                // TODO: Fix this with money/money package in 4.0
+                // TODO: Fix this with money/money package in 4.0 #COM-52
                 if (!$currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($paymentCurrency->iso)) {
                     throw new CurrencyException(Craft::t('commerce', 'No payment currency found with ISO code “{iso}”.', ['iso' => $paymentCurrency->iso]));
                 }

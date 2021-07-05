@@ -98,7 +98,7 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $this->request->getParam('purchasableId')) {
             $note = $this->request->getParam('note', '');
-            $options = $this->request->getParam('options', []);
+            $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {

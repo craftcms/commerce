@@ -104,7 +104,7 @@ class LineItemTest extends Unit
             'emoji' => ':x:'
         ];
 
-        // TODO change this when set options for emojis is refactored
+        // TODO change this when set options for emojis is refactored #COM-46
         $lineItem->setOptions($options);
         if (Craft::$app->getDb()->getSupportsMb4()) {
             self::assertSame($options, $lineItem->getOptions());

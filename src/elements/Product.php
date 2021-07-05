@@ -198,7 +198,7 @@ class Product extends Element
     {
         $fields = parent::fields();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }

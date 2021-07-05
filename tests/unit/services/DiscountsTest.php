@@ -198,7 +198,7 @@ class DiscountsTest extends Unit
 
     /**
      * @throws Exception
-     * @todo Replace stub with fixture data.
+     * @todo Replace stub with fixture data. #COM-54
      *
      */
     public function testCouponPerEmailLimit()
@@ -271,9 +271,7 @@ class DiscountsTest extends Unit
         );
     }
 
-    // @todo: Test the lineItemMatching category and purchasableIds based features. As well as see coverage to see
-    // @todo: if everything is covered.
-
+    // TODO: More tests required. Like lineItemMatching category and purchasableIds based features. #COM-54
 
     /**
      * @throws Exception
@@ -281,8 +279,7 @@ class DiscountsTest extends Unit
      */
     public function testOrderCompleteHandler()
     {
-        // TODO: Update this test to create a full real order that saves.
-
+        // TODO: Update this test to create a full real order that saves. #COM-54
 
         /** @var Order $order */
         $order = $this->make(Order::class, [

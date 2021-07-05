@@ -149,7 +149,7 @@
 {% if product.id %}
   <div class="meta">
     {# Related Sales #}
-    {# TODO allow viewing of sales when a view promotions permission is introduced #}
+    {# TODO allow viewing of sales when a view promotions permission is introduced #COM-53 #}
     {% if currentUser.can('commerce-managePromotions') and not craft.app.request.isAjax %}
       {{ productFields.relatedSales(product.defaultVariant.id, productType.hasVariants) }}
       {{ productFields.relatedDiscounts(product.defaultVariant.id, product.defaultVariant) }}

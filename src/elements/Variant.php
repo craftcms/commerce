@@ -294,7 +294,7 @@ class Variant extends Purchasable
     {
         $fields = parent::fields();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -398,7 +398,7 @@ class Variant extends Purchasable
     {
         $fieldLayout = parent::getFieldLayout();
 
-        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout()
+        // TODO: If we ever resave all products in a migration, we can remove this fallback and just use the default getFieldLayout() #COM-41
         if (!$fieldLayout && $this->productId) {
             $fieldLayout = $this->getProduct()->getType()->getVariantFieldLayout();
         }
