@@ -6,6 +6,9 @@
 - Added `craft\commerce\models\LineItem::getIsShippable()`.
 - Added `craft\commerce\elements\Order::hasShippableItems()`.
 
+### Changed
+- Sending emails now have a high priority in the queue. ([#2157](https://github.com/craftcms/commerce/issues/2157))
+
 ### Fixed
 - Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
 - Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
