@@ -332,7 +332,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
+        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($this->request->getAcceptsJson()) {
@@ -425,7 +425,7 @@ class PaymentsController extends BaseFrontEndController
             $order->setPaymentAmount($paymentAmount);
         }
 
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency);
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency, true);
 
         if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');

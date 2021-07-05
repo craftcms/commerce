@@ -2,9 +2,7 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
-use craft\db\Query;
 
 /**
  * m210302_050822_change_adjust_type_to_lowercase migration.

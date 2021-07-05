@@ -10,7 +10,6 @@ namespace craftcommercetests\fixtures;
 use Craft;
 use craft\commerce\models\Email;
 use craft\commerce\Plugin;
-use craft\services\ProjectConfig;
 
 /**
  * Class EmailsFixture.

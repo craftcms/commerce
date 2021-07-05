@@ -7,7 +7,6 @@
 
 namespace craft\commerce\controllers;
 
-use Craft;
 use craft\commerce\Plugin;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;

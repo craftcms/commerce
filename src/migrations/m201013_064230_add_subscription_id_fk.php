@@ -2,7 +2,6 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\commerce\elements\Subscription;
 use craft\db\Migration;
 use craft\db\Query;

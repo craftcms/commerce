@@ -3,8 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use Craft;
 
 /**
  * m210114_093299_add_orderConditionFormula_to_shipping_rules migration.

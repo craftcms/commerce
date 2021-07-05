@@ -7,12 +7,9 @@
 
 namespace craftcommercetests\unit\elements\order;
 
-use Craft;
 use Codeception\Test\Unit;
-use craft\commerce\adjusters\Discount;
+use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
-use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use UnitTester;
