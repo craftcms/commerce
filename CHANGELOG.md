@@ -16,7 +16,7 @@
 ## 3.4.0-beta.1 - 2021-06-16
 
 ### Added
-- Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index pgae. ([#1785](https://github.com/craftcms/commerce/issues/1785))
+- Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
 - Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/18813))
 - Added the “Revenue Options” setting to the Top Products widget. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added the ability to bulk-delete discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
