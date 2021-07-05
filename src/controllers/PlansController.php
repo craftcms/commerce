@@ -45,14 +45,6 @@ class PlansController extends BaseStoreSettingsController
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
     {
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        
-        if ($planId === null) {
-            $this->requirePermission('commerce-createSubscriptions');
-        } else {
-            $this->requirePermission('commerce-editSubscriptions');
-        }
-        
         $variables = compact('planId', 'plan');
 
         $variables['brandNewPlan'] = false;

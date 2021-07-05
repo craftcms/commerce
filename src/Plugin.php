@@ -443,8 +443,9 @@ class Plugin extends BasePlugin
         return ['label' => Craft::t('commerce', 'Manage subscriptions'),
             'nested' => [
                 'commerce-editSubscriptions' => ['label' => 'Edit Subscriptions'],
-                'commerce-createSubscriptions' => ['label' => 'Create Subscriptions'],
-                'commerce-deleteSubscriptions' => ['label' => 'Delete Subscriptions']
+                'commerce-createSubscriptionPlan' => ['label' => 'Create Subscription Plan'],
+                'commerce-editSubscriptionPlan' => ['label' => 'Edit Subscription Plan'],
+                'commerce-deleteSubscriptionPlan' => ['label' => 'Delete Subscription Plan']
             ]
         ];
     }

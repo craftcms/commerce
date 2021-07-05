@@ -98,11 +98,14 @@ class m210614_073359_detailed_permission extends Migration
         $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptions']);
         $editSubscriptionId = $this->db->getLastInsertID();
 
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsubscriptions']);
-        $createSubscriptionId = $this->db->getLastInsertID();
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-createsubscriptionplan']);
+        $createSubscriptionPlanId = $this->db->getLastInsertID();        
+        
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-editsubscriptionplan']);
+        $editSubscriptionPlanId = $this->db->getLastInsertID();
 
-        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesubscriptions']);
-        $deleteSubscriptionId = $this->db->getLastInsertID();
+        $this->insert(Table::USERPERMISSIONS, ['name' => 'commerce-deletesubscriptionplan']);
+        $deleteSubscriptionPlanId = $this->db->getLastInsertID();
 
         $permissionId = (new Query())
             ->select(['id'])
@@ -118,8 +121,9 @@ class m210614_073359_detailed_permission extends Migration
 
         foreach ($userSubscriptions as $userSubscription) {
             $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $editSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $createSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $deleteSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $createSubscriptionPlanId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $editSubscriptionPlanId]);
+            $this->insert(Table::USERPERMISSIONS_USERS, ['userId' => $userSubscription['userId'], 'permissionId' => $deleteSubscriptionPlanId]);
         }
 
         $groupSubscriptions = (new Query())
@@ -130,8 +134,9 @@ class m210614_073359_detailed_permission extends Migration
 
         foreach ($groupSubscriptions as $groupSubscription) {
             $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $createSubscriptionId]);
-            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $deleteSubscriptionId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $createSubscriptionPlanId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $editSubscriptionPlanId]);
+            $this->insert(Table::USERPERMISSIONS_USERGROUPS, ['groupId' => $groupSubscription['groupId'], 'permissionId' => $deleteSubscriptionPlanId]);
         }
 
     }

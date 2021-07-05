@@ -54,6 +54,8 @@ class SubscriptionsController extends BaseController
     {
         $variables = [];
         $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-editSubscriptions');
+        
         $this->getView()->registerAssetBundle(CommerceCpAsset::class);
 
         if ($subscription === null && $subscriptionId) {
@@ -111,6 +113,7 @@ class SubscriptionsController extends BaseController
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
+        $this->requirePermission('commerce-editSubscriptions');
 
         $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
