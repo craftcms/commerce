@@ -137,37 +137,6 @@ class Discounts extends Component
      *
      * Event::on(
      *     Discounts::class,
-     *     Discounts::EVENT_BEFORE_MATCH_LINE_ITEM,
-     *     function(MatchLineItemEvent $event) {
-     *         // @var LineItem $lineItem
-     *         $lineItem = $event->lineItem;
-     *         // @var Discount $discount
-     *         $discount = $event->discount;
-     *
-     *         // Check some business rules and prevent a match in special cases
-     *         // ...
-     *     }
-     * );
-     * ```
-     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
-     */
-    const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
-
-    /**
-     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
-     *
-     * This event will be raised if all standard conditions are met.
-     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount to the line item.
-     *
-     * ```php
-     * use craft\commerce\services\Discounts;
-     * use craft\commerce\events\MatchLineItemEvent;
-     * use craft\commerce\models\Discount;
-     * use craft\commerce\models\LineItem;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     Discounts::class,
      *     Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM,
      *     function(MatchLineItemEvent $event) {
      *         // @var LineItem $lineItem
@@ -320,51 +289,6 @@ class Discounts extends Component
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
 
         return $this->_activeDiscountsByKey[$cacheKey];
-    }
-
-    /**
-     * Populates a discount's relations.
-     *
-     * @param Discount $discount
-     * @throws DeprecationException
-     * @deprecated in 3.2.4.
-     */
-    public function populateDiscountRelations(Discount $discount)
-    {
-        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
-
-        $rows = (new Query())->select(
-            'dp.purchasableId,
-            dpt.categoryId,
-            dug.userGroupId')
-            ->from(Table::DISCOUNTS . ' discounts')
-            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-            ->where(['discounts.id' => $discount->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = (int)$row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = (int)$row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = (int)$row['userGroupId'];
-            }
-        }
-
-        $discount->setPurchasableIds($purchasableIds);
-        $discount->setCategoryIds($categoryIds);
-        $discount->setUserGroupIds($userGroupIds);
     }
 
     /**
@@ -532,10 +456,6 @@ class Discounts extends Component
 
         if ($this->hasEventHandlers(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM)) {
             $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
-        }
-
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 
         return $event->isValid;

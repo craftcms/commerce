@@ -29,7 +29,16 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`.
-
+- Removed `craft\commerce\services\Customers::getCustomerId()`. Use `Customers::getCustomer()->id` instead.
+- Removed `craft\commerce\services\Customers::saveUserHandler()`. Use `Customers::afterSaveUserHandler()` instead.
+- Removed `craft\commerce\services\Discounts::EVENT_BEFORE_MATCH_LINE_ITEM`. Use `Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM` instead.
+- Removed `craft\commerce\services\Discounts::populateDiscountRelations()`.
+- Removed `craft\commerce\services\Orders::cartArray()`. Use `$order->toArray()` instead.
+- Removed `craft\commerce\services\Payments::getTotalPaidForOrder()`. Use `Order::getTotalPaid()` instead.
+- Removed `craft\commerce\services\Payments::getTotalRefundedForOrder()`.
+- Removed `craft\commerce\services\Payments::getTotalAuthorizedOnlyForOrder()`. Use `Order::getTotalAuthorized()` instead.
+- Removed `craft\commerce\services\Payments::getTotalAuthorizedForOrder()`.
+- Removed `json_encode_filtered` twig filter.
 
 ### Fixed
 

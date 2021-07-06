@@ -383,6 +383,7 @@ class Gateways extends Component
      * @param string $handle The gateway handle
      * @return array|null
      * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
+     * // TODO Only remove once Craft 4 has lightswitch and dropdown overrides in core
      */
     public function getGatewayOverrides(string $handle)
     {
