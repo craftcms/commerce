@@ -8,6 +8,7 @@
 
 ### Changed
 - Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
+- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 
 ### Fixed
 - Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
