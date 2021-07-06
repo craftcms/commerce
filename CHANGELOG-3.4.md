@@ -64,4 +64,3 @@
 
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
-- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
