@@ -88,14 +88,20 @@
 - It’s now possible to copy a subscription’s reference right from the Edit Subscription page.
 - It’s now possible to search orders by the shipping or billing address.
 
+## 3.3.5 - 2021-07-06
+
+### Added
+- It’s now possible to copy a subscription’s reference from its edit page.
+- It’s now possible to search for orders by their shipping and billing addresses.
+
 ### Fixed
-- Fixed a bug where long subscription references would break the meta layout on the Edit Subscription page. ([#2211](https://github.com/craftcms/commerce/issues/2211))
-- Fixed a bug where non-promotable purchasables were having order level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
-- Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
-- Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
-- Fixed a bug where months were missing in past year stat queries.
-- Fixed a bug where the outstanding payment amount due in an alternate currency was not rounded after conversion causing the order to not be marked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
-- Fixed a bug where the PDF general settings were not migrated correctly to the new default PDF when updating from a version before Commerce 3.2.0. ([#2213](https://github.com/craftcms/commerce/issues/2213))
+- Fixed a bug where long subscription references would break the meta layout on Edit Subscription pages. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables could have order-level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+- Fixed a bug where it wasn’t possible to change the base currency. ([#2221](https://github.com/craftcms/commerce/issues/2221))
+- Fixed a bug where primary addresses weren’t being copied to new guest customers’ address books. ([#2224](https://github.com/craftcms/commerce/issues/2224))
+- Fixed a bug where months were missing in Past Year stat queries.
+- Fixed a bug where the outstanding payment amount due in an alternate currency wasn’t getting rounded after conversion, preventing orders from being barked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
+- Fixed a bug where some PDF settings weren’t getting migrated properly when updating from an earlier version of Commerce than 3.2.0. ([#2213](https://github.com/craftcms/commerce/issues/2213))
 - Fixed a PHP 8 compatibility bug. ([#2198](https://github.com/craftcms/commerce/issues/2198))
 
 ## 3.3.4.1 - 2021-06-16
