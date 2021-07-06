@@ -9,6 +9,7 @@
 ### Changed
 - Sending emails now have a high priority in the queue. ([#2157](https://github.com/craftcms/commerce/issues/2157))
 - Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
+- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 
 ### Fixed
 - Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
@@ -84,7 +85,7 @@
 ## Unreleased
 
 ### Changed
-- It is now possible to copy a subscription’s reference right from the Edit Subscription page.
+- It’s now possible to copy a subscription’s reference right from the Edit Subscription page.
 - It’s now possible to search orders by the shipping or billing address.
 
 ### Fixed
