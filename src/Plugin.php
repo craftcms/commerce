@@ -113,21 +113,6 @@ class Plugin extends BasePlugin
     }
 
     /**
-     * @param $message
-     * @param array $params
-     * @param null $language
-     * @return string
-     * @see Craft::t()
-     *
-     * @since 2.2.0
-     * @deprecated in 3.2.4
-     */
-    public static function t($message, $params = [], $language = null)
-    {
-        return Craft::t('commerce', $message, $params, $language);
-    }
-
-    /**
      * @inheritDoc
      */
     public $schemaVersion = '3.4.11';

@@ -447,69 +447,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param null $query
-     * @return Response
-     * @throws InvalidConfigException
-     * @deprecated in 3.5.0. Use [[actionPurchasablesTable()]] instead.
-     */
-    public function actionPurchasableSearch($query = null)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'The `orders/purchasable-search` action is deprecated. Use `orders/purchasables-table` instead.');
-
-        if ($query === null) {
-            $results = (new Query())
-                ->select(['id', 'price', 'description', 'sku'])
-                ->from('{{%commerce_purchasables}}')
-                ->limit(10)
-                ->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Prepare purchasables query
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $sqlQuery = (new Query())
-            ->select(['id', 'price', 'description', 'sku'])
-            ->from(Table::PURCHASABLES);
-
-        // Are they searching for a purchasable ID?
-        if (is_numeric($query)) {
-            $results = $sqlQuery->where(['id' => $query])->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Are they searching for a SKU or purchasable description?
-        if ($query) {
-            $sqlQuery->where([
-                'or',
-                [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
-                [$likeOperator, 'sku', $query]
-            ]);
-        }
-
-        $results = $sqlQuery->limit(30)->all();
-
-        if (!$results) {
-            return $this->asJson([]);
-        }
-
-        $purchasables = $this->_addLivePurchasableInfo($results);
-
-        return $this->asJson($purchasables);
-    }
-
-    /**
      * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
