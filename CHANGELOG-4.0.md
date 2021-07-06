@@ -8,6 +8,9 @@
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 
+### Changed (Previous Deprecated)
+- The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
+
 ### Deprecated
 
 ### Removed (Changed in 4.0, not previously deprecated)
