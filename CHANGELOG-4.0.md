@@ -16,7 +16,6 @@
 ### Removed (Changed in 4.0, not previously deprecated)
 
 ### Removed (Previously Deprecated)
-
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
 - Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
