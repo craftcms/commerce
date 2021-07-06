@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.3.5 - 2021-07-06
 
 ### Added
 - It’s now possible to copy a subscription’s reference from its edit page.
