@@ -1,9 +1,22 @@
 # Release Notes for Craft Commerce
 
+## Unreleased 3.4.0-beta.2
+
+### Added
+- Added `craft\commerce\models\LineItem::getIsShippable()`.
+- Added `craft\commerce\elements\Order::hasShippableItems()`.
+
+### Changed
+- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
+
+### Fixed
+- Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
+- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
+
 ## 3.4.0-beta.1 - 2021-06-16
 
 ### Added
-- Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index pgae. ([#1785](https://github.com/craftcms/commerce/issues/1785))
+- Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
 - Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/18813))
 - Added the “Revenue Options” setting to the Top Products widget. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added the ability to bulk-delete discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
@@ -79,6 +92,9 @@
 - Fixed a bug where user cannot change base currency due to rate being required. ([#2221](https://github.com/craftcms/commerce/issues/2221))
 - Fixed a bug where primary addresses weren’t being copied to a brand new guest customer’s address book. ([#2224](https://github.com/craftcms/commerce/issues/2224))
 - Fixed a bug where months were missing in past year stat queries.
+- Fixed a bug where the outstanding payment amount due in an alternate currency was not rounded after conversion causing the order to not be marked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
+- Fixed a bug where the PDF general settings were not migrated correctly to the new default PDF when updating from a version before Commerce 3.2.0. ([#2213](https://github.com/craftcms/commerce/issues/2213))
+- Fixed a PHP 8 compatibility bug. ([#2198](https://github.com/craftcms/commerce/issues/2198))
 
 ## 3.3.4.1 - 2021-06-16
 

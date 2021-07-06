@@ -55,7 +55,6 @@
 - Craft Commerce now requires Craft CMS 3.7 or later.
 - Product slideouts now include the full field layout and meta fields. ([#2205](https://github.com/craftcms/commerce/pull/2205))
 - Discounts now have additional user group condition options. ([#220](https://github.com/craftcms/commerce/issues/220))
-- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 - The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
 - Product field layouts no longer validate if they contain a field called `cheapestVariant`, `defaultVariant` or `variants`.
 - Variant field layouts no longer validate if they contain a field called `description`, `price`, `product` or `sku`.
@@ -65,7 +64,3 @@
 
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
-- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
-- Fixed a PHP error that could occur when calling `getAvailableShippingMethodOptions` on orders that have deleted purchasables.
-- Fixed a bug where it wasn’t possible to tell if a shipping method had been automatically or manually selected. ([#2070](https://github.com/craftcms/commerce/issues/2070))
-- Fixed a bug where an unavailable shipping method was showing as selected when editing a cart on the Order edit page. ([#1521](https://github.com/craftcms/commerce/issues/1521))

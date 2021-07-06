@@ -160,6 +160,11 @@ class Addresses extends Component
      */
     private $_addressesById = [];
 
+    /**
+     * @var Address|null
+     */
+    private $_storeLocationAddress;
+
 
     /**
      * Returns an address by its ID.
@@ -227,15 +232,17 @@ class Addresses extends Component
      */
     public function getStoreLocationAddress(): Address
     {
+        if ($this->_storeLocationAddress !== null) {
+            return $this->_storeLocationAddress;
+        }
+
         $result = $this->_createAddressQuery()
             ->where(['isStoreLocation' => true])
             ->one();
 
-        if (!$result) {
-            return new Address();
-        }
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
 
-        return new Address($result);
+        return $this->_storeLocationAddress;
     }
 
     /**
@@ -319,6 +326,9 @@ class Addresses extends Component
                 'isNew' => $isNewAddress
             ]));
         }
+
+        // Clear cache
+        $this->_storeLocationAddress = null;
 
         return true;
     }

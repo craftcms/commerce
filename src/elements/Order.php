@@ -2408,6 +2408,21 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @since 3.4
+     */
+    public function hasShippableItems(): bool
+    {
+        foreach ($this->getLineItems() as $item) {
+            if ($item->getIsShippable()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
