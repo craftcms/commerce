@@ -9,7 +9,6 @@ namespace craft\commerce\events;
 
 use craft\db\Query;
 use craft\events\CancelableEvent;
-use yii\base\Event;
 
 /**
  * Class PurgeAddressesEvent

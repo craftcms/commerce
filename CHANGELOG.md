@@ -1,5 +1,21 @@
 # Release Notes for Craft Commerce
 
+## 3.3.5 - 2021-07-06
+
+### Added
+- It’s now possible to copy a subscription’s reference from its edit page.
+- It’s now possible to search for orders by their shipping and billing addresses.
+
+### Fixed
+- Fixed a bug where long subscription references would break the meta layout on Edit Subscription pages. ([#2211](https://github.com/craftcms/commerce/issues/2211))
+- Fixed a bug where non-promotable purchasables could have order-level discounts applied. ([#2180](https://github.com/craftcms/commerce/issues/2180))
+- Fixed a bug where it wasn’t possible to change the base currency. ([#2221](https://github.com/craftcms/commerce/issues/2221))
+- Fixed a bug where primary addresses weren’t being copied to new guest customers’ address books. ([#2224](https://github.com/craftcms/commerce/issues/2224))
+- Fixed a bug where months were missing in Past Year stat queries.
+- Fixed a bug where the outstanding payment amount due in an alternate currency wasn’t getting rounded after conversion, preventing orders from being barked as fully paid. ([#2222](https://github.com/craftcms/commerce/issues/2222))
+- Fixed a bug where some PDF settings weren’t getting migrated properly when updating from an earlier version of Commerce than 3.2.0. ([#2213](https://github.com/craftcms/commerce/issues/2213))
+- Fixed a PHP 8 compatibility bug. ([#2198](https://github.com/craftcms/commerce/issues/2198))
+
 ## 3.3.4.1 - 2021-06-16
 
 ### Fixed
@@ -959,7 +975,7 @@
 - Fixed a PHP error that occurred on Windows environments. ([#1247](https://github.com/craftcms/commerce/issues/1247))
 - Fixed a bug where orders’ Date Ordered attributes could shift after saving an order from the Edit Order page. ([#1246](https://github.com/craftcms/commerce/issues/1246))
 - Fixed a bug that caused the “Variant Fields” tab to disappear on Edit Product Type pages.
-- Fixed a bug that prevented emails from being sent. ([#1257])(https://github.com/craftcms/commerce/issues/1257)
+- Fixed a bug that prevented emails from being sent. ([#1257](https://github.com/craftcms/commerce/issues/1257))
 - Fixed a error that occurred on the Edit User page when the logged-in user did’t have the “Manage subscriptions” permission. ([#1252](https://github.com/craftcms/commerce/issues/1252))
 - Fixed an error that occurred when setting a primary address on a customer. ([#1253](https://github.com/craftcms/commerce/issues/1253))
 - Fixed an error that could occur when selecting certain options on the Total Revenue dashboard widget. ([#1255](https://github.com/craftcms/commerce/issues/1255))

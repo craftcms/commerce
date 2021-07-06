@@ -7,9 +7,9 @@
 
 namespace craft\commerce\helpers;
 
+use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
-use craft\commerce\models\Currency as CurrencyModel;
 use yii\base\InvalidCallException;
 
 /**
@@ -36,6 +36,10 @@ class Currency
         }
 
         $decimals = $currency->minorUnit;
+
+        // If $amount is string it throws round error on PHP 8
+        // @todo to be removed on Commerce 4 - ensure $amount is of float type
+        $amount = (float) $amount;
 
         return round($amount, $decimals);
     }
