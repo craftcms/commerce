@@ -7,6 +7,7 @@
 - Added `craft\commerce\elements\Order::hasShippableItems()`.
 
 ### Changed
+- Sending emails now have a high priority in the queue. ([#2157](https://github.com/craftcms/commerce/issues/2157))
 - Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
 
 ### Fixed
