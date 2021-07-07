@@ -218,6 +218,7 @@ class ShippingRulesController extends BaseShippingSettingsController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
+        $this->requireAcceptsJson();
         $request = Craft::$app->getRequest();
 
         if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
@@ -231,16 +232,10 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
 
-        if ($request->getAcceptsJson()) {
-            if ($deleted) {
-                return $this->asJson(['success' => true]);
-            } else {
-                return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
-            }
+        if ($deleted) {
+            return $this->asJson(['success' => true]);
         }
 
-        if ($deleted) {
-            return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
-        }
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
     }
 }
