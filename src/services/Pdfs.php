@@ -291,7 +291,6 @@ class Pdfs extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws Throwable if reasons
      * @since 3.2
      */
     public function handleChangedPdf(ConfigEvent $event)
