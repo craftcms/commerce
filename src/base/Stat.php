@@ -376,13 +376,10 @@ abstract class Stat implements StatInterface
             // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
             $timezoneConversionSql = "[[dateOrdered]]";
 
-            // @TODO remove the method_exists() check at next breaking change release #COM-28
-            if (method_exists(Db::class, 'validateDatabaseTimezoneSupport')) {
-                if (Db::validateDatabaseTimezoneSupport()) {
-                    $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
-                } else {
-                    Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', Craft::getLogger()::LEVEL_WARNING, 'commerce');
-                }
+            if (Db::supportsTimeZones()) {
+                $timezoneConversionSql = "CONVERT_TZ([[dateOrdered]], 'UTC', '" . Craft::$app->getTimeZone() . "')";
+            } else {
+                Craft::getLogger()->log('For accurate Commerce statistics it is recommend to make sure you have the timezones table populated. https://craftcms.com/knowledge-base/populating-mysql-mariadb-timezone-tables', Craft::getLogger()::LEVEL_WARNING, 'commerce');
             }
         } else {
             $timezoneConversionSql = "(([[dateOrdered]] AT TIME ZONE 'UTC') AT TIME ZONE '" . Craft::$app->getTimeZone() . "')";
