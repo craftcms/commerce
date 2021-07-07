@@ -328,7 +328,7 @@ class Pdfs extends Component
             }
 
             $transaction->commit();
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
