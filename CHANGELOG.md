@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.3.5.1 - 2021-07-07
 
 ### Fixed
 - Fixed a bug where the customer search box was showing as “undefined” on Edit Order pages. ([#2247](https://github.com/craftcms/commerce/issues/2247))
