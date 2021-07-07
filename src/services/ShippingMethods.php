@@ -110,6 +110,7 @@ class ShippingMethods extends Component
      *
      * @param Order $order
      * @return ShippingMethod[]
+     * @TODO rename to matchingShippingMethods in 4.0
      */
     public function getAvailableShippingMethods(Order $order): array
     {

@@ -1792,50 +1792,58 @@ class Order extends Element
             }
         }
 
-        // Since shipping adjusters run on the original price, pre discount, let's recalculate
-        // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-        if ($this->shippingMethodHandle) {
-            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->recalculate();
-                return;
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+            // if the currently selected shipping method is now not available after adjustments have run.
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            if ($this->shippingMethodHandle) {
+                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                    $this->addNotice(
+                        Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'shippingMethodChanged',
+                                'attribute' => 'shippingMethodHandle',
+                                'message' => $message,
+                            ]
+                        ])
+                    );
+                    $this->recalculate();
+                    return;
+                }
             }
         }
     }
 
     /**
      * @return ShippingMethodOption[]
+     *
      * @since 3.1
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
+
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
-
             $option = new ShippingMethodOption();
             $option->setOrder($this);
             foreach ($attributes as $attribute) {
                 $option->$attribute = $method->$attribute;
             }
 
+            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
-            $options[$option->handle] = $option;
+            // Add all methods if completed, and only the matching methods when it is not completed.
+            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
+                $options[$option->handle] = $option;
+            }
         }
 
         return $options;
@@ -2961,40 +2969,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-
-        // Do we have a shipping method available based on the current selection?
-        if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
-            return $shippingMethod;
-        }
-
-        $handles = ArrayHelper::getColumn($shippingMethods, 'handle');
-
-        if (!empty($handles)) {
-            /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = ArrayHelper::firstValue($shippingMethods);
-
-            if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->shippingMethodHandle = null;
-            }
-
-            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
-                $this->shippingMethodHandle = $firstAvailable->getHandle();
-            }
-        }
-
-        return ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle);
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
