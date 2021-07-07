@@ -1504,23 +1504,6 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustments.
-     *
-     * @return float
-     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
-     */
-    public function getTotalTaxablePrice(): float
-    {
-        $itemTotal = $this->getItemSubtotal();
-
-        $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getTotalTax();
-        $includedTaxAdjustments = $this->getTotalTaxIncluded();
-
-        return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
-    }
-
-    /**
      * Marks the order as complete and sets the default order status, then saves the order.
      *
      * @return bool
@@ -2588,19 +2571,6 @@ class Order extends Element
         } else {
             $this->_lineItems = $lineItems;
         }
-    }
-
-    /**
-     * @param string|array $types
-     * @param bool $included
-     * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($types, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($types, $included);
     }
 
     /**

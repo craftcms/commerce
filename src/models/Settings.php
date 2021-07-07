@@ -525,6 +525,7 @@ class Settings extends Model
 
     /**
      * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     * // TODO only remove when migrations have a breakpoint #COM-60
      */
     public function setOrderPdfFilenameFormat($value)
     {
@@ -533,6 +534,7 @@ class Settings extends Model
 
     /**
      * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     * // TODO only remove when migrations have a breakpoint #COM-60
      */
     public function setOrderPdfPath($value)
     {
@@ -542,6 +544,7 @@ class Settings extends Model
     /**
      * @param bool $fromSettings For use in migration only
      * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     * // TODO only remove when migrations have a breakpoint #COM-60
      */
     public function getOrderPdfFilenameFormat($fromSettings = false)
     {
@@ -561,6 +564,7 @@ class Settings extends Model
     /**
      * @param bool $fromSettings For use in migration only
      * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     * // TODO only remove when migrations have a breakpoint #COM-60
      */
     public function getOrderPdfPath($fromSettings = false)
     {
