@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Closure;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -316,7 +317,7 @@ class LineItem extends Model
         $cleanEmojiValues = static function(&$options) use (&$cleanEmojiValues) {
             foreach ($options as $key => $value) {
                 if (is_array($value)) {
-                    $cleanEmojiValues($options[$key]);
+                    $cleanEmojiValues($value);
                 } else {
                     if (is_string($value)) {
                         $options[$key] = LitEmoji::unicodeToShortcode($value);
@@ -478,7 +479,7 @@ class LineItem extends Model
      */
     private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
     {
-        if (isset($rule[1]) && $rule[1] instanceof \Closure) {
+        if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];
             $method->bindTo($purchasable);
             $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
