@@ -324,6 +324,7 @@ class Plugin extends BasePlugin
             return;
         }
 
+        /** @phpstan-ignore-next-line */
         Event::on(RedactorField::class, RedactorField::EVENT_REGISTER_LINK_OPTIONS, function(RegisterLinkOptionsEvent $event) {
             // Include a Product link option if there are any product types that have URLs
             $productSources = [];

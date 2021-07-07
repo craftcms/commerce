@@ -40,14 +40,15 @@
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
-    "vlucas/phpdotenv": "^3.4",
     "codeception/codeception": "^4.0.0",
-    "fzaninotto/faker": "^1.8",
-    "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-asserts": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0"
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-rest": "^1.0.0",
+    "codeception/module-yii2": "^1.0.0",
+    "fzaninotto/faker": "^1.8",
+    "phpstan/phpstan": "^0.12.91",
+    "vlucas/phpdotenv": "^3.4"
   },
   "scripts": {
     "testunit": [
