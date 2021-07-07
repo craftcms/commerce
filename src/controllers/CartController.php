@@ -423,12 +423,7 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
-        if (($cartUpdatedNotice = $this->request->getParam('cartUpdatedNotice')) !== null) {
-            $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
-            Craft::$app->getDeprecator()->log('cartUpdatedNotice', 'The `cartUpdatedNotice` param has been deprecated for `carts/*` requests. Use a hashed `successMessage` param instead.');
-        } else {
-            $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
-        }
+        $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
 
         if ($this->request->getAcceptsJson()) {
             $message = $this->request->getValidatedBodyParam('successMessage') ?? $cartUpdatedMessage;

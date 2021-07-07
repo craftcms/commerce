@@ -421,17 +421,6 @@ class LineItem extends Model
     }
 
     /**
-     * @param $saleAmount
-     * @throws DeprecationException
-     * @since 3.1.1
-     * @deprecated in 3.1.1
-     */
-    public function setSaleAmount($saleAmount)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of `saleAmount` has been deprecated. `saleAmount` is automatically calculated.');
-    }
-
-    /**
      * @return float
      * @since 3.1.1
      */
@@ -786,19 +775,6 @@ class LineItem extends Model
         }
 
         return $amount;
-    }
-
-    /**
-     * @param string $type
-     * @param bool $included
-     * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($type, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', '`LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($type, $included);
     }
 
     /**
