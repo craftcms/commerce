@@ -38,7 +38,6 @@ class UserGroupConditionDiscountTest extends Unit
     protected function _before()
     {
         parent::_before();
-        $this->discounts = Plugin::getInstance()->getDiscounts();
     }
 
     public function testIsUserGroupsConditionAnyOrNoneValid()
