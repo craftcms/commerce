@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+### Unreleased
+
+### Fixed
+- Fixed a bug where it was impossible to query for `productTypeId` on Products using the GraphQL API. ([#2248](https://github.com/craftcms/commerce/issues/2248))
+
 ## 3.3.5 - 2021-07-06
 
 ### Added
