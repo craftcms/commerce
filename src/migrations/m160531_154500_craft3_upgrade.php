@@ -14,6 +14,7 @@ use craft\commerce\fields\Customer;
 use craft\commerce\fields\Products;
 use craft\commerce\widgets\Orders;
 use craft\commerce\widgets\Revenue;
+use craft\commerce\widgets\TotalRevenue;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
 
@@ -39,7 +40,7 @@ class m160531_154500_craft3_upgrade extends Migration
 
         // Widgets
         $this->update('{{%widgets}}', ['type' => Orders::class], ['type' => 'Commerce_Orders']);
-        $this->update('{{%widgets}}', ['type' => Revenue::class], ['type' => 'Commerce_Revenue']);
+        $this->update('{{%widgets}}', ['type' => TotalRevenue::class], ['type' => 'Commerce_Revenue']);
 
         // Before messing with columns, it's much safer to drop all the FKs and indexes
         MigrationHelper::dropAllForeignKeysOnTable('{{%commerce_producttypes_i18n}}', $this);
