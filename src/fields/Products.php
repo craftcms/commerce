@@ -15,6 +15,8 @@ use craft\commerce\gql\interfaces\elements\Product as ProductInterface;
 use craft\commerce\gql\resolvers\elements\Product as ProductResolver;
 use craft\commerce\web\assets\editproduct\EditProductAsset;
 use craft\fields\BaseRelationField;
+use craft\helpers\Gql as GqlHelper;
+use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -65,6 +67,7 @@ class Products extends BaseRelationField
             'type' => Type::listOf(ProductInterface::getType()),
             'args' => ProductArguments::getArguments(),
             'resolve' => ProductResolver::class . '::resolve',
+            'complexity' => GqlHelper::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
         ];
     }
 
