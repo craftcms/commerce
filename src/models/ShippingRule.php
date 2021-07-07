@@ -164,8 +164,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
             }
         }
-        $orderShippingCategories = array_unique($orderShippingCategories);
-        return $orderShippingCategories;
+
+        return array_unique($orderShippingCategories);
     }
 
     /**
