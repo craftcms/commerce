@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where the customer search box was showing as “undefined” on the Order edit page. ([#2247](https://github.com/craftcms/commerce/issues/2247))
-- Fixed a bug where it was impossible to query for `productTypeId` on Products using the GraphQL API. ([#2248](https://github.com/craftcms/commerce/issues/2248))
+- Fixed a bug where the customer search box was showing as “undefined” on Edit Order pages. ([#2247](https://github.com/craftcms/commerce/issues/2247))
+- Fixed a bug where it wasn’t possible to query for products by `productTypeId` via GraphQL. ([#2248](https://github.com/craftcms/commerce/issues/2248))
 
 ## 3.3.5 - 2021-07-06
 
