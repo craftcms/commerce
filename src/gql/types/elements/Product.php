@@ -43,6 +43,8 @@ class Product extends ElementType
         switch ($fieldName) {
             case 'productTypeHandle':
                 return $source->getType()->handle;
+            case 'productTypeId':
+                return $source->getType()->id;
         }
 
         return parent::resolve($source, $arguments, $context, $resolveInfo);
