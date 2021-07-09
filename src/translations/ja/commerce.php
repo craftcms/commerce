@@ -57,7 +57,7 @@ return [
     'All Totals' => 'すべての合計',
     'All active subscriptions' => 'すべての有効な定期支払い',
     'All products' => 'すべての商品',
-    'All users' => 'All users',
+    'All users' => 'すべてのユーザー',
     'All' => 'すべて',
     'Allow' => '許可',
     'Allowed Qty' => '許可する数量',
