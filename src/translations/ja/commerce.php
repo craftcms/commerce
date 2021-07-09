@@ -766,7 +766,7 @@ return [
     'Payment Method' => '支払い方法',
     'Payment error: {message}' => '支払いエラー: {message}',
     'Payment method issue' => '支払い方法の問題',
-    'Payment source created.' => 'Payment source created.',
+    'Payment source created.' => '支払い元が作成されました。',
     'Payment source deleted.' => '支払い元は削除されました。',
     'Pending' => '保留中',
     'Per Email Address Discount Limit' => 'メールアドレスごとのディスカウント限度',
