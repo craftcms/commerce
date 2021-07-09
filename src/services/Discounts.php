@@ -436,14 +436,14 @@ class Discounts extends Component
             return null;
         }
 
-        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.code]]' => $code])->all();
+        $discounts = $this->_createDiscountQuery()->andWhere([new Expression('LOWER([[discounts.code]])') => strtolower($code)])->all();
 
         if (!$discounts) {
             return null;
         }
 
         return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function($discount) use ($code) {
-            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+            return ($discount->enabled && $discount->code && $code);
         });
     }
 
