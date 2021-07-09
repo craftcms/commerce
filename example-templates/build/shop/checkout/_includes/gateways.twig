@@ -2,44 +2,49 @@
 {% set paymentSources = paymentSources is not defined ? [] : paymentSources %}
 {% set availableGateways = availableGateways is not defined ? [] : availableGateways %}
 
-<label class="font-semibold">Choose a payment gateway or payment source:</label>
-{% if paymentSources|length %}
-    {% for source in paymentSources %}
-        <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-            <div class="flex justify-start items-center">
-                <div class="pr-2">
-                    <input type="radio"
-                           name="paymentSourceId"
-                           value="{{ source.id }}"
-                           {% if source.id == cart.paymentSourceId %}checked{% endif %} />
-                </div>
-                <div>
-                    <strong>{{ source.description }}</strong>
-                    <br><span class="text-gray-600">Stored source</span>
-                </div>
-            </div>
-        </label>
-    {% endfor %}
-{% endif %}
+<fieldset>
+    <!-- Legend text should be kept short as it's repeated by screen reader software 
+	    for each form control in the fieldset, so the `aria-hidden` attribute is used to hide the nonsessential portion. --> 
+    <legend><span class="legend font-semibold"><span aria-hidden="true">Choose a</span> payment gateway or payment source:</span></legend>
 
-{% if availableGateways|length %}
-    {% for id,name in availableGateways %}
-        <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-            <div class="flex justify-start items-center">
-                <div class="pr-2">
-                    <input type="radio"
-                           name="gatewayId"
-                           value="{{ id }}"
-                           {% if id == cart.gatewayId %}checked{% endif %} />
+    {% if paymentSources|length %}
+        {% for source in paymentSources %}
+            <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+                <div class="flex justify-start items-center">
+                    <div class="pr-2">
+                        <input type="radio"
+                               name="paymentSourceId"
+                               value="{{ source.id }}"
+                               {% if source.id == cart.paymentSourceId %}checked{% endif %} />
+                    </div>
+                    <div>
+                        <strong>{{ source.description }}</strong>
+                        <span class="text-gray-600 block">Stored source</span>
+                    </div>
                 </div>
-                <div>
-                    <strong>{{ name }}</strong>
-                    <br><span class="text-gray-600">Payment gateway</span>
+            </label>
+        {% endfor %}
+    {% endif %}
+
+    {% if availableGateways|length %}
+        {% for id,name in availableGateways %}
+            <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+                <div class="flex justify-start items-center">
+                    <div class="pr-2">
+                        <input type="radio"
+                               name="gatewayId"
+                               value="{{ id }}"
+                               {% if id == cart.gatewayId %}checked{% endif %} />
+                    </div>
+                    <div>
+                        <strong>{{ name }}</strong>
+                        <span class="text-gray-600 block">Payment gateway</span>
+                    </div>
                 </div>
-            </div>
-        </label>
-    {% endfor %}
-{% endif %}
+            </label>
+        {% endfor %}
+    {% endif %}
+</fieldset>
 
 {% js %}
 var $paymentSources = document.querySelectorAll('[name="paymentSourceId"]');

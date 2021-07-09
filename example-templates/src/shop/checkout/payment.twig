@@ -63,14 +63,14 @@
                             {{ cart.gateway.getPaymentFormHtml(params)|raw }}
 
                             {% if cart.gateway.supportsPaymentSources() and currentUser %}
-                                <div class="checkbox">
+                                <div class="checkbox mb-5">
                                     <label>
                                         <input type="checkbox"
                                                name="savePaymentSource"
                                                value="1"/>
                                         Save card for future purchases
                                     </label>
-                                </div><br/>
+                                </div>
                             {% endif %}
 
                         {% else %}
