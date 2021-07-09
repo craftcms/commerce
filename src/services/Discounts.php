@@ -436,7 +436,7 @@ class Discounts extends Component
             return null;
         }
 
-        $discounts = $this->_createDiscountQuery()->andWhere([new Expression('LOWER([[discounts.code]])') => strtolower($code)])->all();
+        $discounts = $this->_createDiscountQuery()->andWhere(['ilike', '[[discounts.code]]', $code])->all();
 
         if (!$discounts) {
             return null;
