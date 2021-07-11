@@ -51,7 +51,7 @@ return [
     'Address removed.' => 'Adresse entfernt.',
     'Address saved.' => 'Adresse gespeichert.',
     'Addresses' => 'Adressen',
-    'Adjust price when included rate is disqualified?' => 'Preis anpassen, wenn der enthaltene Steuersatz disqualifiziert wird?',
+    'Adjust price when included rate is disqualified?' => 'Preis anpassen, wenn der enthaltene Steuersatz nicht dafür qualifiziert ist?',
     'Adjustments' => 'Anpassungen',
     'All Orders' => 'Alle Bestellungen',
     'All Totals' => 'Alle Summen',
