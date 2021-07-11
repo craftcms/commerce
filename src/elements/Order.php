@@ -83,7 +83,7 @@ use yii\log\Logger;
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
  * @property-read ShippingMethodInterface $shippingMethod
- * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
+ * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only) #COM-38
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
  * @property-read string $pdfUrl the URL to the order’s PDF invoice
@@ -275,7 +275,7 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4 #COM-39
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -1350,7 +1350,7 @@ class Order extends Element
             };
         }
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event  #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -1504,23 +1504,6 @@ class Order extends Element
     }
 
     /**
-     * Returns the total price of the order, minus any tax adjustments.
-     *
-     * @return float
-     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
-     */
-    public function getTotalTaxablePrice(): float
-    {
-        $itemTotal = $this->getItemSubtotal();
-
-        $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getTotalTax();
-        $includedTaxAdjustments = $this->getTotalTaxIncluded();
-
-        return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
-    }
-
-    /**
      * Marks the order as complete and sets the default order status, then saves the order.
      *
      * @return bool
@@ -1594,6 +1577,7 @@ class Order extends Element
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
 
+        $this->clearNotices(); // Customer notices are assessed as being delivered once the customer decides to complete the order.
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
@@ -1808,50 +1792,58 @@ class Order extends Element
             }
         }
 
-        // Since shipping adjusters run on the original price, pre discount, let's recalculate
-        // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-        if ($this->shippingMethodHandle) {
-            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->recalculate();
-                return;
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+            // if the currently selected shipping method is now not available after adjustments have run.
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            if ($this->shippingMethodHandle) {
+                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                    $this->addNotice(
+                        Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'shippingMethodChanged',
+                                'attribute' => 'shippingMethodHandle',
+                                'message' => $message,
+                            ]
+                        ])
+                    );
+                    $this->recalculate();
+                    return;
+                }
             }
         }
     }
 
     /**
      * @return ShippingMethodOption[]
+     *
      * @since 3.1
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
+
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
-
             $option = new ShippingMethodOption();
             $option->setOrder($this);
             foreach ($attributes as $attribute) {
                 $option->$attribute = $method->$attribute;
             }
 
+            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
-            $options[$option->handle] = $option;
+            // Add all methods if completed, and only the matching methods when it is not completed.
+            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
+                $options[$option->handle] = $option;
+            }
         }
 
         return $options;
@@ -1886,7 +1878,7 @@ class Order extends Element
             $this->setBillingAddress($this->getShippingAddress());
         }
 
-        // TODO: Move the recalculate to somewhere else. Saving should be for saving only
+        // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
         // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
 
@@ -2052,7 +2044,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
@@ -2399,6 +2391,21 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @since 3.4
+     */
+    public function hasShippableItems(): bool
+    {
+        foreach ($this->getLineItems() as $item) {
+            if ($item->getIsShippable()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
@@ -2572,19 +2579,6 @@ class Order extends Element
         } else {
             $this->_lineItems = $lineItems;
         }
-    }
-
-    /**
-     * @param string|array $types
-     * @param bool $included
-     * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($types, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($types, $included);
     }
 
     /**
@@ -2959,7 +2953,7 @@ class Order extends Element
 
     /**
      * @return int|null
-     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
+     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only) #COM-38
      */
     public function getShippingMethodId()
     {
@@ -2975,40 +2969,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-
-        // Do we have a shipping method available based on the current selection?
-        if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
-            return $shippingMethod;
-        }
-
-        $handles = ArrayHelper::getColumn($shippingMethods, 'handle');
-
-        if (!empty($handles)) {
-            /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = ArrayHelper::firstValue($shippingMethods);
-
-            if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->shippingMethodHandle = null;
-            }
-
-            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
-                $this->shippingMethodHandle = $firstAvailable->getHandle();
-            }
-        }
-
-        return ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle);
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
@@ -3221,6 +3182,36 @@ class Order extends Element
         }
 
         return Craft::$app->getSites()->getSiteById($this->orderSiteId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [];
+
+        if ($this->isCompleted) {
+            $metadata[Craft::t('commerce', 'Reference')] = $this->reference;
+            $metadata[Craft::t('commerce', 'Date Ordered')] = Craft::$app->getFormatter()->asDatetime($this->dateOrdered, 'short');
+        }
+
+        $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
+
+        $orderSite = $this->getOrderSite();
+        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
+
+        $shippingMethod = $this->getShippingMethod();
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+
+        $metadata[Craft::t('app', 'ID')] = $this->id;
+        $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
+        $metadata[Craft::t('commerce', 'Paid Status')] = $this->getPaidStatusHtml();
+        $metadata[Craft::t('commerce', 'Total Price')] = $this->totalPriceAsCurrency;
+        $metadata[Craft::t('commerce', 'Paid Amount')] = $this->totalPaidAsCurrency;
+        $metadata[Craft::t('commerce', 'Origin')] = $this->origin;
+
+        return array_merge($metadata, parent::getMetadata());
     }
 
     /**

@@ -64,7 +64,7 @@ class EmailsFixture extends BaseModelFixture
     {
         parent::beforeUnload();
 
-        // TODO remove this when we figure out why things are being unlaoded twice
+        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
         $this->_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
         Craft::$app->getProjectConfig()->muteEvents = true;
     }

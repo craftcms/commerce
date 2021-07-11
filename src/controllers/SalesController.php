@@ -198,12 +198,30 @@ class SalesController extends BaseCpController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $ids = Craft::$app->getRequest()->getBodyParam('ids');
 
-        Plugin::getInstance()->getSales()->deleteSaleById($id);
-        return $this->asJson(['success' => true]);
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
+
+        if ($id) {
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        foreach ($ids as $id) {
+            Plugin::getInstance()->getSales()->deleteSaleById($id);
+        }
+
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales deleted.'));
+
+        return $this->redirect($this->request->getReferrer());
     }
 
     /**

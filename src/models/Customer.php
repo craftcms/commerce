@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use DateTime;
 use Exception;
 
 /**
@@ -54,6 +55,18 @@ class Customer extends Model
      * @var int The primary shipping address id
      */
     public $primaryShippingAddressId;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var User $_user

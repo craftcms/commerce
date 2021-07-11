@@ -188,6 +188,7 @@ class PlansController extends BaseStoreSettingsController
      * @param int|null $planId
      * @return Response
      * @deprecated 3.2.11
+     * // TODO Remove with routes in #COM-47
      */
     public function actionRedirect($planId = null): Response
     {

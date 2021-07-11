@@ -293,7 +293,7 @@ class Countries extends Component
     private function _clearCaches()
     {
         // Clear all caches
-        // TODO refactor memoization
+        // TODO refactor memoization (Not using _fetchedAllCountries anymore) #COM-48
         $this->_fetchedAllCountries = false;
         $this->_countriesById = [];
         $this->_countriesByShippingZoneId = [];
@@ -315,6 +315,8 @@ class Countries extends Component
                 'countries.iso',
                 'countries.isStateRequired',
                 'countries.enabled',
+                'countries.dateCreated',
+                'countries.dateUpdated',
             ])
             ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);

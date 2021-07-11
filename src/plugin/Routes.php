@@ -55,7 +55,7 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            // @todo remove the following three lines at the next breakpoint
+            // @todo remove the following three lines at the next breakpoint #COM-47
             $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/redirect';
             $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/redirect';
             $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/redirect';

@@ -57,11 +57,15 @@ export default new Vuex.Store({
         },
 
         isProEdition() {
-          return (window.orderEdit.edition == 'pro')
+            return (window.orderEdit.edition == 'pro')
         },
 
         isLiteEdition() {
-          return (window.orderEdit.edition == 'lite')
+            return (window.orderEdit.edition == 'lite')
+        },
+
+        hasOrderChanged(state) {
+            return !_isEqual(state.draft, state.originalDraft)
         },
 
         orderId() {

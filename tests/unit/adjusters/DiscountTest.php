@@ -126,12 +126,12 @@ class DiscountTest extends Unit
         $orderLevelDiscount = [
             'name' => 'Order Level',
             'description' => 'Order level discount',
-            'allGroups' => true,
             'allPurchasables' => true,
             'allCategories' => true,
             'stopProcessing' => false,
             'baseDiscount' => -10,
             'baseDiscountType' => DiscountRecord::BASE_DISCOUNT_TYPE_VALUE,
+            'userGroupsCondition' => DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE
         ];
 
         $lineItemPromotable = [

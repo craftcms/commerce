@@ -122,7 +122,7 @@ class AddressesController extends BaseCpController
             $address = new AddressModel();
         }
 
-        // @TODO namespace inputs, and use setAttributes on the model
+        // @TODO namespace inputs, and use setAttributes on the model #COM-30
         // Shared attributes
         $attributes = [
             'attention',
@@ -153,7 +153,7 @@ class AddressesController extends BaseCpController
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
         }
 
-        // @todo remove forked save of address. This is currently here for backwards compatibility
+        // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
         $result = $customer ? Plugin::getInstance()->getCustomers()->saveAddress($address, $customer) : Plugin::getInstance()->getAddresses()->saveAddress($address);
 
         // Save it

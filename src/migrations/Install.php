@@ -225,7 +225,7 @@ class Install extends Migration
             'excludeOnSale' => $this->boolean(),
             'hasFreeShippingForMatchingItems' => $this->boolean(),
             'hasFreeShippingForOrder' => $this->boolean(),
-            'allGroups' => $this->boolean(),
+            'userGroupsCondition' => $this->string()->defaultValue('userGroupsAnyOrNone'),
             'allPurchasables' => $this->boolean(),
             'allCategories' => $this->boolean(),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
@@ -526,7 +526,7 @@ class Install extends Migration
 
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean(),
-            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0
+            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0 #COM-44
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean(),
@@ -774,7 +774,9 @@ class Install extends Migration
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean(),
-            'isVat' => $this->boolean(),
+            'isVat' => $this->boolean(), // @TODO rename to isEuVat #COM-45
+            'removeIncluded' => $this->boolean(),
+            'removeVatIncluded' => $this->boolean(),
             'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
             'isLite' => $this->boolean(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -934,6 +936,7 @@ class Install extends Migration
     {
         $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
         $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
+        $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);

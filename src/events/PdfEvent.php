@@ -15,7 +15,7 @@ use yii\base\Event;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4
+ * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4 #COM-43
  */
 class PdfEvent extends Event
 {

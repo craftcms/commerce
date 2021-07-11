@@ -348,7 +348,7 @@ class LineItems extends Component
      * @param string $note The note on the line item
      * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
      * @param string|null $uid
-     * TODO: Refactor method signature so that the 2 order assignment params are not needed.
+     * TODO: Refactor method signature so that the 2 order assignment params are not needed. #COM-50
      * @return LineItem
      * @throws \Exception
      */

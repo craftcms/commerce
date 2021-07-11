@@ -35,6 +35,11 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
+     * @var boolean
+     */
+    public $matchesOrder;
+
+    /**
      * @return array
      */
     public function behaviors(): array
@@ -74,7 +79,7 @@ class ShippingMethodOption extends ShippingMethod
      */
     protected function getCurrency(): string
     {
-        return $this->_order->currency ?? parent::getCurrency();
+        return $this->_order->currency;
     }
 
     /**

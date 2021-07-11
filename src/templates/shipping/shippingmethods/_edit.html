@@ -24,6 +24,31 @@
            value="{{ shippingMethod.id ? 'Save and set rules'|t('commerce') :'Save'|t('commerce') }}">
 {% endblock %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this shipping method on the front end"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            on: shippingMethod.enabled,
+            errors: shippingMethod.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if shippingMethod and shippingMethod.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ shippingMethod.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ shippingMethod.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
         <input type="hidden" name="action" value="commerce/shipping-methods/save">
         {{ redirectInput('commerce/shipping/shippingmethods/{id}#rules') }}
@@ -53,14 +78,6 @@
             value: shippingMethod.handle,
             errors: shippingMethod.getErrors('handle'),
             required: true,
-        }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Enable this shipping method on the front end"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            on: shippingMethod.enabled,
-            errors: shippingMethod.getErrors('enabled')
         }) }}
 
 {% if shippingMethod.id %}

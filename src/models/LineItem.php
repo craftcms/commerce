@@ -327,7 +327,7 @@ class LineItem extends Model
             return $options;
         };
 
-        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change.
+        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change. #COM-46
         if (Craft::$app->getDb()->getSupportsMb4()) {
             $this->_options = $options;
         } else {
@@ -418,17 +418,6 @@ class LineItem extends Model
     public function setSalePrice($salePrice)
     {
         $this->_salePrice = $salePrice;
-    }
-
-    /**
-     * @param $saleAmount
-     * @throws DeprecationException
-     * @since 3.1.1
-     * @deprecated in 3.1.1
-     */
-    public function setSaleAmount($saleAmount)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of `saleAmount` has been deprecated. `saleAmount` is automatically calculated.');
     }
 
     /**
@@ -792,19 +781,6 @@ class LineItem extends Model
      * @param string $type
      * @param bool $included
      * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($type, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', '`LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($type, $included);
-    }
-
-    /**
-     * @param string $type
-     * @param bool $included
-     * @return float|int
      */
     private function _getAdjustmentsTotalByType($type, $included = false)
     {
@@ -830,6 +806,19 @@ class LineItem extends Model
         }
 
         return $this->getPurchasable()->getIsTaxable();
+    }
+
+    /**
+     * @return bool
+     * @since 3.4
+     */
+    public function getIsShippable(): bool
+    {
+        if (!$this->getPurchasable()) {
+            return true; // we have a default shipping category so assume so.
+        }
+
+        return $this->getPurchasable()->getIsShippable();
     }
 
     /**

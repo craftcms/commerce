@@ -69,7 +69,7 @@ class OrdersControllerTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
-    public function testPurchasblesTable()
+    public function testPurchasablesTable()
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 
@@ -93,7 +93,7 @@ class OrdersControllerTest extends Unit
         self::assertEquals('hct-blue', $purchasable['sku']);
     }
 
-    public function testPurchasblesTableSort()
+    public function testPurchasablesTableSort()
     {
         $this->request->getHeaders()->set('Accept', 'application/json');
 

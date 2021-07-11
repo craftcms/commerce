@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
+use DateTime;
 
 /**
  * Shipping rule model
@@ -139,6 +140,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $isLite = 0;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @param Order $order
      * @return array
      */
@@ -237,7 +250,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
                 }
             }
         ];
-        
+
         return $rules;
     }
 

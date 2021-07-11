@@ -82,8 +82,6 @@ class PaymentSourcesController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    // TODO remove `paymentForm` key at next breaking changing
-                    'paymentForm' => $paymentForm->getErrors(),
                     'paymentFormErrors' => $paymentForm->getErrors(),
                 ]);
             }
@@ -101,7 +99,7 @@ class PaymentSourcesController extends BaseFrontEndController
             ]);
         }
 
-        $this->setSuccessFlash('Payment source created.');
+        $this->setSuccessFlash(Craft::t('commerce', 'Payment source created.'));
 
         return $this->redirectToPostedUrl();
     }

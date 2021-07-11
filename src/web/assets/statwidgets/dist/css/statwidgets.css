@@ -44,3 +44,11 @@
     height: 12px;
     margin-right: 3px;
     width: 12px; }
+
+.commerce-widget-revenue-options-check {
+  margin-top: 4px; }
+
+.revenue-options > .field > .input p.commerce-widget-revenue-options-instructions {
+  color: #606d7b;
+  margin: 0 !important;
+  padding-left: 21px; }

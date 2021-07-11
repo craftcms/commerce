@@ -1229,7 +1229,7 @@ class OrderQuery extends ElementQuery
         $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
         $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
 
-        // TODO: remove after next breakpoint
+        // TODO: remove after next breakpoint #COM-37
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
         if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {

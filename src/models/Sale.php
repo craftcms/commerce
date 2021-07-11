@@ -105,6 +105,18 @@ class Sale extends Model
     public $sortOrder;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;

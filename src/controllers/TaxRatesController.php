@@ -158,6 +158,8 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);

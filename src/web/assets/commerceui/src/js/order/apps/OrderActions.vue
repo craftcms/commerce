@@ -1,6 +1,6 @@
 <template>
     <div v-if="canEdit" class="order-flex">
-        <div>
+        <div class="order-edit-action-buttons">
             <div v-if="saveLoading" id="order-save-spinner" class="spinner"></div>
 
             <template v-if="!editing">
@@ -24,7 +24,6 @@
         </div>
 
         <template v-if="editing || canDelete">
-            <div class="spacer"></div>
             <update-order-btn ref="updateOrderBtn"></update-order-btn>
         </template>
     </div>
@@ -91,7 +90,7 @@
             // Force edit
             if (this.forceEdit && this.canEdit) {
                 // Set timeout to wait for Prism editor to be initialized
-                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized
+                // Todo: Investigate why this.$nextTick(() => {}) is not enough to wait for Prism Editor to be initialized #COM-55
                 setTimeout(function() {
                     this.edit()
                 }.bind(this), 50)
@@ -115,3 +114,15 @@
         }
     }
 </script>
+
+<style lang="scss">
+    .order-edit-action-buttons {
+        .ltr & {
+            padding-right: 7px;
+        }
+
+        .rtl & {
+            padding-left: 7px;
+        }
+    }
+</style>

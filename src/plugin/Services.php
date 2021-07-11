@@ -292,16 +292,6 @@ trait Services
     }
 
     /**
-     * @deprecated
-     */
-    public function getPdf(): Pdfs
-    {
-        \Craft::$app->getDeprecator()->log('Plugin::getInstance()->getPdf()', '`Plugin::getInstance()->getPdf()` has been deprecated. Use `Plugin::getInstance()->getPdfs()` instead.');
-
-        return $this->get('pdfs');
-    }
-
-    /**
      * Returns the payment sources service
      *
      * @return Plans The subscription plans service

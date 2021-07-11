@@ -23,6 +23,7 @@ use craft\db\Table as CraftTable;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\Queue;
 use craft\helpers\StringHelper;
 use Throwable;
 use yii\base\Component;
@@ -440,12 +441,12 @@ class OrderStatuses extends Component
                         $language = $email->getRenderLanguage($order);
                         Locale::switchAppLanguage($language);
 
-                        Craft::$app->getQueue()->push(new SendEmail([
+                        Queue::push(new SendEmail([
                             'orderId' => $order->id,
                             'commerceEmailId' => $email->id,
                             'orderHistoryId' => $orderHistory->id,
                             'orderData' => $order->toArray()
-                        ]));
+                        ]), 100);
                     }
                 }
 
@@ -506,7 +507,7 @@ class OrderStatuses extends Component
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES]);
 
-        // todo: remove schema version condition after next beakpoint
+        // todo: remove schema version condition after next beakpoint #COM-37
         $schemaVersion = Plugin::getInstance()->schemaVersion;
         if (version_compare($schemaVersion, '2.1.09', '>=')) {
             if (!$withTrashed) {

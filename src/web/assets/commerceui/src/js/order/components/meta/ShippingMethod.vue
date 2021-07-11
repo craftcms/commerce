@@ -10,7 +10,12 @@
         >
             <template v-slot:option="slotProps">
                 <div class="shipping-method-select-option">
-                    {{slotProps.option.name}}
+                    <span class="status" :class="{ enabled: slotProps.option.matchesOrder, disabled: !slotProps.option.matchesOrder }"></span>{{slotProps.option.name}}
+                </div>
+            </template>
+            <template v-slot:selected-option="slotProps">
+                <div>
+                    <span class="status" :class="{ enabled: slotProps.selectedOption.matchesOrder, disabled: !slotProps.selectedOption.matchesOrder }"></span>{{slotProps.selectedOption.name}}
                 </div>
             </template>
         </select-input>
@@ -39,7 +44,7 @@
 
         computed: {
             shippingMethods() {
-                return [{handle: 'none', name: this.$options.filters.t("None", 'commerce')}, ...this.$store.getters.shippingMethods]
+                return [this.noneShippingMethod, ...this.$store.getters.shippingMethods]
             },
 
             shippingMethod() {
@@ -53,7 +58,7 @@
                     }
                 }
 
-                return {handle: 'none', name: this.$options.filters.t("None", 'commerce')}
+                return this.noneShippingMethod
             },
 
             shippingMethodHandle: {
@@ -65,6 +70,26 @@
                     const order = JSON.parse(JSON.stringify(this.order))
                     order.shippingMethodHandle = value
                     this.$emit('updateOrder', order)
+                }
+            },
+
+            noneShippingMethod() {
+                return {handle: 'none', name: this.$options.filters.t("None", 'commerce'), matchesOrder: true};
+            },
+
+            orderShippingMethodHandle() {
+                return this.order.shippingMethodHandle;
+            }
+        },
+
+        watch: {
+            orderShippingMethodHandle(val) {
+                if (!val) {
+                    this.selectedShippingMethod = null;
+                }
+
+                if (this.selectedShippingMethod && val != this.selectedShippingMethod.handle) {
+                    this.selectedShippingMethod = this.shippingMethods.find(s => s.handle === val);
                 }
             }
         },

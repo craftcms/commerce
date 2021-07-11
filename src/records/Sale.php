@@ -60,7 +60,7 @@ class Sale extends ActiveRecord
      */
     public function getGroups(): ActiveQueryInterface
     {
-        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable(Table::SALE_USERGROUP, ['saleId' => 'id']);
+        return $this->hasMany(UserGroup::class, ['id' => 'userGroupId'])->viaTable(Table::SALE_USERGROUPS, ['saleId' => 'id']);
     }
 
     /**

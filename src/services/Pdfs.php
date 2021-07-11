@@ -291,7 +291,6 @@ class Pdfs extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws Throwable if reasons
      * @since 3.2
      */
     public function handleChangedPdf(ConfigEvent $event)
@@ -329,7 +328,7 @@ class Pdfs extends Component
             }
 
             $transaction->commit();
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }

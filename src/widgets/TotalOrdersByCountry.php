@@ -144,7 +144,7 @@ class TotalOrdersByCountry extends Widget
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         if (empty($stats)) {
-            // TODO no stats available message
+            // TODO no stats available message #COM-57
             return '';
         }
 

@@ -1,5 +1,5 @@
 <?php
-// Using the data from moneyphp/money until we actually move to the package in Craft Commerce 2
+// Using the data from moneyphp/money until we actually move to the package in Craft Commerce 2 // TODO Read Redirectly from library #COM-52
 // https://raw.githubusercontent.com/moneyphp/money/master/resources/currency.php
 
 return [

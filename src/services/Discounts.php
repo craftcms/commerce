@@ -137,37 +137,6 @@ class Discounts extends Component
      *
      * Event::on(
      *     Discounts::class,
-     *     Discounts::EVENT_BEFORE_MATCH_LINE_ITEM,
-     *     function(MatchLineItemEvent $event) {
-     *         // @var LineItem $lineItem
-     *         $lineItem = $event->lineItem;
-     *         // @var Discount $discount
-     *         $discount = $event->discount;
-     *
-     *         // Check some business rules and prevent a match in special cases
-     *         // ...
-     *     }
-     * );
-     * ```
-     * @deprecated in 3.2.4. Discounts::EVENT_BEFORE_MATCH_LINE_ITEM has been deprecated. Use Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM instead.
-     */
-    const EVENT_BEFORE_MATCH_LINE_ITEM = 'beforeMatchLineItem';
-
-    /**
-     * @event MatchLineItemEvent The event that is triggered when a line item is matched with a discount.
-     *
-     * This event will be raised if all standard conditions are met.
-     * You may set the `isValid` property to `false` on the event to prevent the matching of the discount to the line item.
-     *
-     * ```php
-     * use craft\commerce\services\Discounts;
-     * use craft\commerce\events\MatchLineItemEvent;
-     * use craft\commerce\models\Discount;
-     * use craft\commerce\models\LineItem;
-     * use yii\base\Event;
-     *
-     * Event::on(
-     *     Discounts::class,
      *     Discounts::EVENT_DISCOUNT_MATCHES_LINE_ITEM,
      *     function(MatchLineItemEvent $event) {
      *         // @var LineItem $lineItem
@@ -323,56 +292,13 @@ class Discounts extends Component
     }
 
     /**
-     * Populates a discount's relations.
-     *
-     * @param Discount $discount
-     * @throws DeprecationException
-     * @deprecated in 3.2.4.
-     */
-    public function populateDiscountRelations(Discount $discount)
-    {
-        Craft::$app->getDeprecator()->log('Discounts::populateDiscountRelations()', 'Discounts::populateDiscountRelations() has been deprecated, the discount model will load the relationships automatically.');
-
-        $rows = (new Query())->select(
-            'dp.purchasableId,
-            dpt.categoryId,
-            dug.userGroupId')
-            ->from(Table::DISCOUNTS . ' discounts')
-            ->leftJoin(Table::DISCOUNT_PURCHASABLES . ' dp', '[[dp.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_CATEGORIES . ' dpt', '[[dpt.discountId]]=[[discounts.id]]')
-            ->leftJoin(Table::DISCOUNT_USERGROUPS . ' dug', '[[dug.discountId]]=[[discounts.id]]')
-            ->where(['discounts.id' => $discount->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = (int)$row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = (int)$row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = (int)$row['userGroupId'];
-            }
-        }
-
-        $discount->setPurchasableIds($purchasableIds);
-        $discount->setCategoryIds($categoryIds);
-        $discount->setUserGroupIds($userGroupIds);
-    }
-
-    /**
      * Is discount coupon available to the order
      *
      * @param Order $order
      * @param string|null $explanation
      * @return bool
+     * @throws \yii\base\InvalidConfigException
+     * @throws \Exception
      */
     public function orderCouponAvailable(Order $order, string &$explanation = null): bool
     {
@@ -401,7 +327,7 @@ class Discounts extends Component
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+        if (!$this->isDiscountUserGroupValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
             return false;
         }
@@ -410,6 +336,11 @@ class Discounts extends Component
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
+            return false;
+        }
+
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
+            $explanation = Craft::t('commerce', 'This coupon requires an email address.');
             return false;
         }
 
@@ -495,7 +426,7 @@ class Discounts extends Component
         }
 
         // can't match something not promotable
-        if (!$lineItem->purchasable->getIsPromotable()) {
+        if (!$lineItem->getPurchasable() || !$lineItem->getPurchasable()->getIsPromotable()) {
             return false;
         }
 
@@ -527,10 +458,6 @@ class Discounts extends Component
             $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
         }
 
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
-        }
-
         return $event->isValid;
     }
 
@@ -542,7 +469,6 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-
         if (!$discount->enabled) {
             return false;
         }
@@ -558,7 +484,7 @@ class Discounts extends Component
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
-        if (!$this->_isDiscountUserGroupValid($order, $discount, $user)) {
+        if (!$this->isDiscountUserGroupValid($discount, $user)) {
             return false;
         }
 
@@ -567,6 +493,10 @@ class Discounts extends Component
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+            return false;
+        }
+
+        if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
             return false;
         }
 
@@ -696,7 +626,7 @@ class Discounts extends Component
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
+        $record->userGroupsCondition = $model->userGroupsCondition;
         $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
         $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
 
@@ -1042,16 +972,34 @@ class Discounts extends Component
     }
 
     /**
-     * @param Order $order
      * @param Discount $discount
      * @param $user
      * @return bool
      */
-    private function _isDiscountUserGroupValid(Order $order, Discount $discount, $user): bool
-    {
-        if (!$discount->allGroups) {
-            $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-            if (empty(array_intersect($groupIds, $discount->getUserGroupIds()))) {
+    public function isDiscountUserGroupValid(Discount $discount, $user): bool
+    {        
+        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+        
+        $discountGroupIds = $discount->getUserGroupIds();
+        if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
+            
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY && 
+                (count(array_intersect($groupIds, $discountGroupIds)) === 0)
+            ) {
+                return false;
+            }
+            
+            sort($groupIds); 
+            sort($discountGroupIds);
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL 
+               && $groupIds !== $discountGroupIds
+            ) {
+                return false;
+            }            
+            
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE &&
+                count(array_intersect($groupIds, $discountGroupIds)) > 0
+            ) {
                 return false;
             }
         }
@@ -1106,13 +1054,25 @@ class Discounts extends Component
      * @param Discount $discount
      * @param Order $order
      * @return bool
+     * @throws \yii\base\InvalidConfigException
      */
-    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    private function _isDiscountEmailRequirementValid(Discount $discount, Order $order): bool
     {
         if ($discount->perEmailLimit > 0 && !$order->getEmail()) {
             return false;
         }
 
+        return true;
+    }
+
+    /**
+     * @param Discount $discount
+     * @param Order $order
+     * @return bool
+     * @throws \yii\base\InvalidConfigException
+     */
+    private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
+    {
         if ($discount->perEmailLimit > 0 && $order->getEmail()) {
             $usage = (new Query())
                 ->select(['uses'])
@@ -1206,7 +1166,7 @@ class Discounts extends Component
                 '[[discounts.excludeOnSale]]',
                 '[[discounts.hasFreeShippingForMatchingItems]]',
                 '[[discounts.hasFreeShippingForOrder]]',
-                '[[discounts.allGroups]]',
+                '[[discounts.userGroupsCondition]]',
                 '[[discounts.allPurchasables]]',
                 '[[discounts.allCategories]]',
                 '[[discounts.categoryRelationshipType]]',

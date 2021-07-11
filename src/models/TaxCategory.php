@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 
 /**
  * Tax Category model.
@@ -45,6 +46,18 @@ class TaxCategory extends Model
      * @var bool Default
      */
     public $default;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var array Product Types

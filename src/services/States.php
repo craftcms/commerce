@@ -364,7 +364,9 @@ class States extends Component
                 'states.abbreviation',
                 'states.countryId',
                 'states.enabled',
-                'states.sortOrder'
+                'states.sortOrder',
+                'states.dateCreated',
+                'states.dateUpdated',
             ])
             ->from([Table::STATES . ' states'])
             ->orderBy(['states.sortOrder' => SORT_ASC]);

@@ -69,6 +69,17 @@
     {% endif %}
   </div>
 
+  <div class="meta read-only">
+    <div class="data">
+      <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+      <div id="date-created-value" class="value">{{ customer.dateCreated|datetime('short') }}</div>
+    </div>
+    <div class="data">
+      <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+      <div id="date-updated-value" class="value">{{ customer.dateUpdated|datetime('short') }}</div>
+    </div>
+  </div>
+
   {% hook "cp.commerce.customers.edit.details" %}
 {% endblock %}
 
