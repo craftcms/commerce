@@ -44,7 +44,7 @@ Craft.Commerce.DownloadOrderPdfAction = Garnish.Base.extend(
                 var $submitBtn = $('<button/>', {
                     type: 'submit',
                     'class': 'btn submit fullwidth formsubmit',
-                    text: Craft.t('app', 'Download')
+                    text: Craft.t('commerce', 'Download')
                 }).appendTo(this.$hudBody)
 
                 var $spinner = $('<div/>', {
