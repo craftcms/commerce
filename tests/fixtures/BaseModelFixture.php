@@ -8,9 +8,11 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
-use craft\test\ActiveFixture;
+use yii\base\ArrayAccessTrait;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\test\DbFixture;
+use yii\test\FileFixtureTrait;
 
 /**
  * Base Model Fixture
@@ -18,8 +20,11 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2.14
  */
-abstract class BaseModelFixture extends ActiveFixture
+abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate, \ArrayAccess, \Countable
 {
+    use ArrayAccessTrait;
+    use FileFixtureTrait;
+
     /**
      * Name of the delete method in the service.
      *
@@ -40,20 +45,20 @@ abstract class BaseModelFixture extends ActiveFixture
     public $service;
 
     /**
+     * @var array the data rows. Each array element represents one row of data (column name => column value).
+     */
+    public $data = [];
+
+    /**
+     * @var array
+     */
+    protected $ids = [];
+
+    /**
      * @throws InvalidConfigException
      */
     public function init()
     {
-        /**
-         * Taken from Yii's ActiveFixture class.
-         * Preventing using the parent init method as that is expecting $modelClass to be an active record class.
-         */
-        if ($this->tableName === null) {
-            if ($this->modelClass === null) {
-                throw new InvalidConfigException('Either "modelClass" or "tableName" must be set.');
-            }
-        }
-
         if ($this->service === null || $this->saveMethod === null || $this->deleteMethod === null) {
             throw new InvalidConfigException('"service", "saveMethod" and "deleteMethod" must be set.');
         }
@@ -89,6 +94,11 @@ abstract class BaseModelFixture extends ActiveFixture
         }
     }
 
+    protected function getData(): array
+    {
+        return $this->loadData($this->dataFile, false);
+    }
+
     /**
      * @inheritDoc
      */
@@ -111,7 +121,8 @@ abstract class BaseModelFixture extends ActiveFixture
      * @param $data
      * @return mixed
      */
-    protected function prepData($data) {
+    protected function prepData($data)
+    {
         return $data;
     }
 
@@ -122,7 +133,8 @@ abstract class BaseModelFixture extends ActiveFixture
      * @param $data
      * @return mixed
      */
-    protected function prepModel($model, $data) {
+    protected function prepModel($model, $data)
+    {
         return $model;
     }
 }
