@@ -115,11 +115,11 @@
                 </div>
             </template>
 
-            <div class="data">
+            <div class="data order-meta-shipping-method">
                 <h5 class="heading">{{"Shipping Method"|t('commerce')}}</h5>
                 <div class="value" v-if="draft.order.shippingMethodHandle">
                     <span v-if="draft.order.shippingMethodName">{{draft.order.shippingMethodName}}</span>
-                    <span class="small code shipping-method-handle"><br>{{draft.order.shippingMethodHandle}}</span>
+                    <span class="small code shipping-method-handle">{{draft.order.shippingMethodHandle}}</span>
                 </div>
             </div>
         </div>
@@ -426,6 +426,11 @@
         .btn-link {
             @include margin-left(7px);
         }
+    }
+
+    .meta .data.order-meta-shipping-method .value {
+        align-items: start;
+        flex-direction: column;
     }
 
     .shipping-method-handle {
