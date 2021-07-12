@@ -122,10 +122,10 @@ class TaxTest extends Unit
         self::assertCount(count($expected['adjustments']), $adjustments, 'Total number of adjustments');
 
         foreach ($expected['adjustments'] as $index => $item) {
+            self::assertEquals($item['type'], $adjustments[$index]->type, 'Adjustment type');
             self::assertEquals($item['amount'], round($adjustments[$index]->amount, 2), 'Adjustment amount');
             self::assertEquals($item['included'], $adjustments[$index]->included, 'Adjustment included');
             self::assertEquals($item['description'], $adjustments[$index]->description, 'Adjustment description');
-            self::assertEquals($item['type'], $adjustments[$index]->type, 'Adjustment type');
         }
 
         self::assertEquals($expected['orderTotalQty'], $order->getTotalQty(), 'Order total quantity');
