@@ -198,6 +198,66 @@ class Address extends Model
     private $_vatValidator;
 
     /**
+     * @var string Country Code
+     */
+    public $countryCode;
+
+    /**
+     * @var string Administrative area
+     */
+    public $administrativeArea;
+
+    /**
+     * @var string Locality (City)
+     */
+    public $locality;
+
+    /**
+     * @var string Dependent Locality
+     */
+    public $dependentLocality;
+
+    /**
+     * @var string Postal code
+     */
+    public $postalCode;
+
+    /**
+     * @var string Sorting code
+     */
+    public $sortingCode;
+
+    /**
+     * @var string Address line 1
+     */
+    public $addressLine1;
+
+    /**
+     * @var string Address line 2
+     */
+    public $addressLine2;
+
+    /**
+     * @var string Organization
+     */
+    public $organization;
+
+    /**
+     * @var string Given name (First name)
+     */
+    public $givenName;
+
+    /**
+     * @var string Additional name (Middle name / Patronymic)
+     */
+    public $additionalName;
+
+    /**
+     * @var string Family name (Last name)
+     */
+    public $familyName;
+    
+    /**
      * @inheritDoc
      */
     public function init()
