@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a PHP error that could occur when submitting a string only line item option when adding multiple items to the cart at once.
+- Fixed a PHP error that could occur when adding multiple items to the cart at once.
 
 ## 3.3.5.1 - 2021-07-07
 
