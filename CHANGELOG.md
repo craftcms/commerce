@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a PHP error that could occur when adding multiple items to the cart at once.
+
 ## 3.3.5.1 - 2021-07-07
 
 ### Fixed
