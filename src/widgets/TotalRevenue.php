@@ -63,8 +63,8 @@ class TotalRevenue extends Widget
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -84,6 +84,9 @@ class TotalRevenue extends Widget
         return Craft::t('commerce', 'Total Revenue');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getTitle(): string
     {
         $stats = $this->_stat->get();
@@ -134,7 +137,7 @@ class TotalRevenue extends Widget
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);
         if ($this->_stat->getDateRangeInterval() == 'month') {
             $labels = array_map(static function($label) {
-                list($year, $month) = explode('-', $label);
+                [$year, $month] = explode('-', $label);
                 $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);

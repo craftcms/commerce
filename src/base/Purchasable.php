@@ -24,7 +24,6 @@ use craft\validators\UniqueValidator;
  * @property bool $isAvailable whether the purchasable is currently available for purchase
  * @property bool $isPromotable whether this purchasable can be subject to discounts or sales
  * @property bool $onSale
- * @property int $purchasableId the ID of the Purchasable element that will be be added to the line item
  * @property float $promotionRelationSource The source for any promotion category relation
  * @property float $price the base price the item will be added to the line item with
  * @property-read float $salePrice the base price the item will be added to the line item with
@@ -56,7 +55,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * @note Added by Codelight
      */
     protected $_hasNotLimitedStock;
-
 
     /**
      * @inheritdoc
@@ -94,7 +92,6 @@ abstract class Purchasable extends Element implements PurchasableInterface
         $names = parent::extraFields();
 
         $names[] = 'description';
-        $names[] = 'purchasableId';
         $names[] = 'sales';
         $names[] = 'snapshot';
         return $names;

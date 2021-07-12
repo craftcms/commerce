@@ -147,7 +147,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $orderShippingCategories = [];
         foreach ($order->lineItems as $lineItem) {
             // Dont' look at the shipping category of non shippable products.
-            if ($lineItem->getPurchasable() && $lineItem->getPurchasable()->getIsShippable()) {
+            if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
             }
         }
@@ -274,7 +274,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
         $nonShippableItems = [];
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable, $order)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -287,7 +287,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
         $shippingRuleCategories = $this->getShippingRuleCategories();
         $orderShippingCategories = $this->_getUniqueCategoryIdsInOrder($order);
-        list($disallowedCategories, $requiredCategories) = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
+        [$disallowedCategories, $requiredCategories] = $this->_getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories);
 
         // Does the order have any disallowed categories in the cart?
         $result = array_intersect($orderShippingCategories, $disallowedCategories);

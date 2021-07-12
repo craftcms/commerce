@@ -7,7 +7,6 @@
 
 namespace craft\commerce\queue\jobs;
 
-use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\EmailException;
 use craft\commerce\helpers\Locale;

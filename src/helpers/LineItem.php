@@ -19,11 +19,11 @@ use craft\helpers\Json;
 class LineItem
 {
     /**
-     * @param $options
+     * @param array $options
      *
-     * @return bool Were line items merged?
+     * @return string The generated options signature
      */
-    public static function generateOptionsSignature($options)
+    public static function generateOptionsSignature(array $options = [])
     {
         ksort($options);
         return md5(Json::encode($options));

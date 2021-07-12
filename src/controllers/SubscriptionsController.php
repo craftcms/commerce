@@ -191,7 +191,7 @@ class SubscriptionsController extends BaseController
                 $value = $request->getValidatedBodyParam($attributeName);
 
                 if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
-                    list($hashedPlanUid, $parameterValue) = explode(':', $value);
+                    [$hashedPlanUid, $parameterValue] = explode(':', $value);
 
                     if ($plan->uid == $hashedPlanUid) {
                         $parameters->{$attributeName} = $parameterValue;
@@ -345,7 +345,7 @@ class SubscriptionsController extends BaseController
                     $value = $request->getValidatedBodyParam($attributeName);
 
                     if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
-                        list($hashedPlanUid, $parameterValue) = explode(':', $value);
+                        [$hashedPlanUid, $parameterValue] = explode(':', $value);
 
                         if ($hashedPlanUid == $planUid) {
                             $parameters->{$attributeName} = $parameterValue;
@@ -418,7 +418,7 @@ class SubscriptionsController extends BaseController
                     $value = $request->getValidatedBodyParam($attributeName);
 
                     if (is_string($value) && StringHelper::countSubstrings($value, ':') > 0) {
-                        list($hashedSubscriptionUid, $parameterValue) = explode(':', $value);
+                        [$hashedSubscriptionUid, $parameterValue] = explode(':', $value);
 
                         if ($hashedSubscriptionUid == $subscriptionUid) {
                             $parameters->{$attributeName} = $parameterValue;

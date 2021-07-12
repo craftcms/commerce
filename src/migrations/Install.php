@@ -79,7 +79,8 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::ELEMENTINDEXSETTINGS, ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
     }
@@ -418,8 +419,8 @@ class Install extends Migration
             'message' => $this->text(),
             'registerUserOnOrderComplete' => $this->boolean(),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
-            'returnUrl' => $this->string(),
-            'cancelUrl' => $this->string(),
+            'returnUrl' => $this->text(),
+            'cancelUrl' => $this->text(),
             'shippingMethodHandle' => $this->string(),
             'shippingMethodName' => $this->string(),
             'orderSiteId' => $this->integer(),

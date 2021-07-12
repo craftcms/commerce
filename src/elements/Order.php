@@ -45,7 +45,6 @@ use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
 use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -56,7 +55,6 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
-use Money\Money;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
@@ -1743,7 +1741,7 @@ class Order extends Element
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
                 if ($item->refreshFromPurchasable()) {
                     if ($originalSalePrice > $item->salePrice) {
-                        $message = Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        $message = Craft::t('commerce', 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */
                         $notice = Craft::createObject([
                             'class' => OrderNotice::class,
@@ -1757,7 +1755,7 @@ class Order extends Element
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
-                        $message = Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        $message = Craft::t('commerce', 'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */
                         $notice = Craft::createObject([
                             'class' => OrderNotice::class,
@@ -1770,7 +1768,7 @@ class Order extends Element
                         $this->addNotice($notice);
                     }
                 } else {
-                    $message = Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]);
+                    $message = Craft::t('commerce', '{description} is no longer available.', ['description' => $item->getDescription()]);
                     /** @var OrderNotice $notice */
                     $notice = Craft::createObject([
                         'class' => OrderNotice::class,
@@ -1804,7 +1802,7 @@ class Order extends Element
 
             foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
                 /** @var AdjusterInterface $adjuster */
-                $adjuster = new $adjuster();
+                $adjuster = Craft::createObject($adjuster);
                 $adjustments = $adjuster->adjust($this);
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
             }
@@ -1816,7 +1814,7 @@ class Order extends Element
         if ($this->shippingMethodHandle) {
             if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                 $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,
@@ -2991,7 +2989,7 @@ class Order extends Element
             $firstAvailable = ArrayHelper::firstValue($shippingMethods);
 
             if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
+                $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
                 $this->addNotice(
                     Craft::createObject([
                         'class' => OrderNotice::class,

@@ -1,7 +1,7 @@
 {% extends "commerce/_layouts/tax" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'Include in Price?',
+    'Include in price?',
     'Is VAT?',
     'Name',
     'Rate',
@@ -40,7 +40,7 @@
 var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'rate', title: Craft.t('commerce', 'Rate') },
-    { name: 'included', title: Craft.t('commerce', 'Include in Price?'), callback: function(value) {
+    { name: 'included', title: Craft.t('commerce', 'Include in price?'), callback: function(value) {
       if (value) {
           return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
       }
