@@ -235,7 +235,7 @@ class TaxCategories extends Component
         $record = TaxCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            return (bool)$record->softDelete();
         }
 
         return false;
@@ -303,6 +303,7 @@ class TaxCategories extends Component
                 'taxCategories.dateCreated',
                 'taxCategories.dateUpdated',
             ])
+            ->where(['[[taxCategories.dateDeleted]]' => null])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }
 }

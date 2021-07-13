@@ -15,6 +15,8 @@ return [
         'availableForPurchase' => 1,
         'promotable' => 1,
         'postDate' => (new DateTime('now')),
+        'shippingCategoryId' => 101,
+        'taxCategoryId' => 101,
         '_variants' => [
             'new_0' => [
                 'title' => 'Rad Hoodie',

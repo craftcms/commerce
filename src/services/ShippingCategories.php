@@ -232,7 +232,7 @@ class ShippingCategories extends Component
         $record = ShippingCategoryRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            return (bool)$record->softDelete();
         }
 
         // Clear cache
@@ -292,6 +292,7 @@ class ShippingCategories extends Component
                 'shippingCategories.dateCreated',
                 'shippingCategories.dateUpdated',
             ])
+            ->where(['[[shippingCategories.dateDeleted]]' => null])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }
 }
