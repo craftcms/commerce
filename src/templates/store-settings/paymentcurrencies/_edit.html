@@ -11,6 +11,21 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block details %}
+    {% if currency and currency.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ currency.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ currency.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/payment-currencies/save">
     {{ redirectInput('commerce/store-settings/paymentcurrencies') }}

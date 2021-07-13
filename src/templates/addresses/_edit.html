@@ -14,21 +14,34 @@
 
 {% import "_includes/forms" as forms %}
 
-{% block content %}
-  {% if customer and customer.userId and address.id and (customer.primaryBillingAddressId == address.id or customer.primaryShippingAddressId == address.id) %}
-    <div class="pane">
-      <p><span data-icon="info"></span>
-        {% if customer.primaryBillingAddressId == address.id and customer.primaryShippingAddressId == address.id %}
-          {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: customer.email }) }}
-        {% elseif customer.primaryBillingAddressId == address.id %}
-          {{ 'This is the primary billing address for: {email}'|t('commerce', { email: customer.email }) }}
-        {% elseif customer.primaryShippingAddressId == address.id %}
-          {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: customer.email }) }}
-        {% endif %}
-      </p>
-    </div>
-  {% endif %}
+{% block details %}
+    {% if address and address.id %}
+        <div class="meta read-only">
+            {% if customer and customer.userId and address.id and (customer.primaryBillingAddressId == address.id or customer.primaryShippingAddressId == address.id) %}
+                <p><span data-icon="info"></span>
+                    {% if customer.primaryBillingAddressId == address.id and customer.primaryShippingAddressId == address.id %}
+                        {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+                    {% elseif customer.primaryBillingAddressId == address.id %}
+                        {{ 'This is the primary billing address for: {email}'|t('commerce', { email: customer.email }) }}
+                    {% elseif customer.primaryShippingAddressId == address.id %}
+                        {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+                    {% endif %}
+                </p>
+            {% endif %}
 
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ address.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ address.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',

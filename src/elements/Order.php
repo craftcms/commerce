@@ -1594,6 +1594,7 @@ class Order extends Element
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
 
+        $this->clearNotices(); // Customer notices are assessed as being delivered once the customer decides to complete the order.
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
@@ -1741,7 +1742,7 @@ class Order extends Element
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
                 if ($item->refreshFromPurchasable()) {
                     if ($originalSalePrice > $item->salePrice) {
-                        $message = Craft::t('commerce', 'Price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        $message = Craft::t('commerce', 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */
                         $notice = Craft::createObject([
                             'class' => OrderNotice::class,
@@ -1755,7 +1756,7 @@ class Order extends Element
                     }
 
                     if ($originalSalePrice < $item->salePrice) {
-                        $message = Craft::t('commerce', 'Price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        $message = Craft::t('commerce', 'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
                         /** @var OrderNotice $notice */
                         $notice = Craft::createObject([
                             'class' => OrderNotice::class,
@@ -1768,7 +1769,7 @@ class Order extends Element
                         $this->addNotice($notice);
                     }
                 } else {
-                    $message = Craft::t('commerce', '{description} is no longer available and was removed.', ['description' => $item->getDescription()]);
+                    $message = Craft::t('commerce', '{description} is no longer available.', ['description' => $item->getDescription()]);
                     /** @var OrderNotice $notice */
                     $notice = Craft::createObject([
                         'class' => OrderNotice::class,
@@ -1808,50 +1809,58 @@ class Order extends Element
             }
         }
 
-        // Since shipping adjusters run on the original price, pre discount, let's recalculate
-        // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-        if ($this->shippingMethodHandle) {
-            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                $this->shippingMethodHandle = null;
-                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->recalculate();
-                return;
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+            // if the currently selected shipping method is now not available after adjustments have run.
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            if ($this->shippingMethodHandle) {
+                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                    $this->addNotice(
+                        Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'shippingMethodChanged',
+                                'attribute' => 'shippingMethodHandle',
+                                'message' => $message,
+                            ]
+                        ])
+                    );
+                    $this->recalculate();
+                    return;
+                }
             }
         }
     }
 
     /**
      * @return ShippingMethodOption[]
+     *
      * @since 3.1
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
+
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
 
         foreach ($methods as $method) {
-
             $option = new ShippingMethodOption();
             $option->setOrder($this);
             foreach ($attributes as $attribute) {
                 $option->$attribute = $method->$attribute;
             }
 
+            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
-            $options[$option->handle] = $option;
+            // Add all methods if completed, and only the matching methods when it is not completed.
+            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
+                $options[$option->handle] = $option;
+            }
         }
 
         return $options;
@@ -2052,7 +2061,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
@@ -2396,6 +2405,21 @@ class Order extends Element
         }
 
         return $total;
+    }
+
+    /**
+     * @return bool
+     * @since 3.4
+     */
+    public function hasShippableItems(): bool
+    {
+        foreach ($this->getLineItems() as $item) {
+            if ($item->getIsShippable()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -2975,40 +2999,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-
-        // Do we have a shipping method available based on the current selection?
-        if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
-            return $shippingMethod;
-        }
-
-        $handles = ArrayHelper::getColumn($shippingMethods, 'handle');
-
-        if (!empty($handles)) {
-            /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = ArrayHelper::firstValue($shippingMethods);
-
-            if ($this->shippingMethodHandle && !in_array($this->shippingMethodHandle, $handles, false)) {
-                $message = Craft::t('commerce', 'Previously selected shipping method is no longer available.');
-                $this->addNotice(
-                    Craft::createObject([
-                        'class' => OrderNotice::class,
-                        'attributes' => [
-                            'type' => 'shippingMethodChanged',
-                            'attribute' => 'shippingMethodHandle',
-                            'message' => $message,
-                        ]
-                    ])
-                );
-                $this->shippingMethodHandle = null;
-            }
-
-            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
-                $this->shippingMethodHandle = $firstAvailable->getHandle();
-            }
-        }
-
-        return ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle);
+        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
@@ -3221,6 +3212,36 @@ class Order extends Element
         }
 
         return Craft::$app->getSites()->getSiteById($this->orderSiteId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [];
+
+        if ($this->isCompleted) {
+            $metadata[Craft::t('commerce', 'Reference')] = $this->reference;
+            $metadata[Craft::t('commerce', 'Date Ordered')] = Craft::$app->getFormatter()->asDatetime($this->dateOrdered, 'short');
+        }
+
+        $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
+
+        $orderSite = $this->getOrderSite();
+        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
+
+        $shippingMethod = $this->getShippingMethod();
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+
+        $metadata[Craft::t('app', 'ID')] = $this->id;
+        $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
+        $metadata[Craft::t('commerce', 'Paid Status')] = $this->getPaidStatusHtml();
+        $metadata[Craft::t('commerce', 'Total Price')] = $this->totalPriceAsCurrency;
+        $metadata[Craft::t('commerce', 'Paid Amount')] = $this->totalPaidAsCurrency;
+        $metadata[Craft::t('commerce', 'Origin')] = $this->origin;
+
+        return array_merge($metadata, parent::getMetadata());
     }
 
     /**

@@ -7,7 +7,7 @@
     { label: "Discounts"|t('commerce'), url: url('commerce/promotions/discounts') },
 ] %}
 
-{% set fullPageForm = true %}
+{% set fullPageForm = false %}
 
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
@@ -41,8 +41,68 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% hook "cp.commerce.discounts.edit" %}
+
+{% block details %}
+
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this discount"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: discount.enabled,
+            checked: discount.enabled,
+            errors: discount.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if discount and discount.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ discount.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ discount.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% hook "cp.commerce.discounts.edit.details" %}
+{% endblock %}
+
+{% block actionButton %}
+    <div class="btngroup">
+        <button type="button" class="btn submit formsubmit" data-form="discountform">{{ 'Save'|t('app') }}</button>
+        <button type="button" class="btn submit menubtn" data-form="discountform"></button>
+        <div class="menu">
+            <ul>
+                <li>
+                    <a class="formsubmit"
+                       data-redirect="{{ (isNewDiscount ? 'commerce/promotions/discounts/{id}' : discount.getCpEditUrl())|hash }}">
+                        {{ forms.optionShortcutLabel('S') }}
+                        {{ "Save and continue editing"|t('app') }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
 
 {% block content %}
+        {% set formAttributes = {
+            id: 'discountform',
+            method: 'post',
+            'accept-charset': 'UTF-8',
+            data: {
+                saveshortcut: true,
+                'saveshortcut-redirect':  'commerce/promotions/discounts'|hash,
+                'confirm-unload': true
+            },
+        } %}
+    <form {{ attr(formAttributes) }}>
     <input type="hidden" name="action" value="commerce/discounts/save">
     {{ redirectInput('commerce/promotions/discounts') }}
     {% if discount.id %}
@@ -70,16 +130,6 @@
             name: 'description',
             value: discount.description,
             errors: discount.getErrors('description'),
-        }) }}
-
-        {{ forms.lightSwitchField({
-            label: "Enable this discount"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: discount.enabled,
-            checked: discount.enabled,
-            errors: discount.getErrors('enabled')
         }) }}
 
         {% hook "cp.commerce.discount.edit" %}
@@ -113,9 +163,11 @@
             errors: discount.getErrors('categories'),
         }) }}
 
-        <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}" data-target="categoryRelationshipType-advanced">Advanced</a>
+        <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
+           data-target="categoryRelationshipType-advanced">Advanced</a>
 
-        <div id="categoryRelationshipType-advanced" class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
+        <div id="categoryRelationshipType-advanced"
+             class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
             {{ forms.selectField({
                 id: 'categoryRelationshipType',
                 name: 'categoryRelationshipType',
@@ -133,12 +185,12 @@
 
     <div id="coupon" class="hidden">
         {{ forms.textField({
-        label: "Coupon Code"|t('commerce'),
-        instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
-        id: 'code',
-        name: 'code',
-        value: discount.code,
-        errors: discount.getErrors('code'),
+            label: "Coupon Code"|t('commerce'),
+            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
+            id: 'code',
+            name: 'code',
+            value: discount.code,
+            errors: discount.getErrors('code'),
         }) }}
     </div>
 
@@ -170,11 +222,11 @@
                 url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
             }),
             errors: discount is defined ? discount.getErrors('orderConditionFormula'),
-            } %}
+        } %}
             {% block input %}
                 {% import "_includes/forms" as forms %}
                 <div id="orderConditionFormulaField" class="flex flex-nowrap" style="align-items: stretch;">
-                    <div  class="order-condition">
+                    <div class="order-condition">
                         {{ forms.textarea({
                             value: discount is defined ? discount.orderConditionFormula,
                             name: 'orderConditionFormula',
@@ -187,18 +239,37 @@
             {% endblock %}
         {% endembed %}
 
-        {% if groups|length %}
-            {{ forms.multiselectField({
-                label: 'User Groups'|t('commerce'),
-                instructions: "Groups for which this discount will be applicable to. Leave blank for all groups"|t('commerce'),
-                id: 'groups',
-                name: 'groups',
-                options: groups,
-                values: discount.getUserGroupIds(),
-                errors: discount.getErrors('groups'),
-                class: 'selectize fullwidth',
-            }) }}
-        {% endif %}
+        {% set usersInput %}
+            <div class="flex">
+                <div>
+                    {{ forms.select({
+                        id: 'user-condition',
+                        name: 'userGroupsCondition',
+                        options: discount.getUserGroupsConditions(),
+                        value: discount.userGroupsCondition
+                    }) }}
+                </div>
+
+                <div class="flex-grow{% if discount.userGroupsCondition is null or discount.userGroupsCondition == 'userGroupsAnyOrNone' %} hidden{% endif %}">
+                    {{ forms.multiselectField({
+                        id: 'groups',
+                        name: 'groups',
+                        options: groups,
+                        values: discount.getUserGroupIds(),
+                        errors: discount.getErrors('groups'),
+                        class: 'selectize fullwidth',
+                    }) }}
+                </div>
+            </div>
+        {% endset %}
+
+        {{ forms.field({
+            id: 'user-groups-condition',
+            label: 'Users'|t('commerce'),
+            instructions: 'Choose which users the discount applies to.'|t('commerce'),
+            errors: [],
+            required: false,
+        }, usersInput) }}
 
         {{ commerceForms.numberField({
             label: "Purchase Total"|t('commerce'),
@@ -244,10 +315,13 @@
                     }) }}
                 </div>
                 <div>
-                    <input id="customer-usage-counter" disabled class="text disabled fullwidth" size="30" value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
+                    <input id="customer-usage-counter" disabled class="text disabled fullwidth" size="30"
+                           value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-customer-usage-spinner" data-field="#customer-usage-counter" data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-customer-usage-spinner"
+                         data-field="#customer-usage-counter"
+                         data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
                     <div id="clear-customer-usage-spinner" class="spinner hidden"></div>
                 </div>
             </div>
@@ -271,10 +345,13 @@
                     }) }}
                 </div>
                 <div>
-                    <input id="email-usage-counter" disabled class="text disabled fullwidth" size="30" value="{{ '{uses} uses across {emails} email addresses'|t('commerce', emailUsage) }}">
+                    <input id="email-usage-counter" disabled class="text disabled fullwidth" size="30"
+                           value="{{ '{uses} uses across {emails} email addresses'|t('commerce', emailUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-email-usage-spinner" data-field="#email-usage-counter" data-type="{{ counterTypeEmail }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-email-usage-spinner"
+                         data-field="#email-usage-counter"
+                         data-type="{{ counterTypeEmail }}">{{ "Reset usage"|t('commerce') }}</div>
                     <div id="clear-email-usage-spinner" class="spinner hidden"></div>
                 </div>
             </div>
@@ -298,10 +375,13 @@
                     }) }}
                 </div>
                 <div>
-                    <input id="total-discount-use-counter" disabled class="text disabled fullwidth" size="10" value="{{ totalDiscountUsesWording|t('commerce', {count: discount.totalDiscountUses}) }}">
+                    <input id="total-discount-use-counter" disabled class="text disabled fullwidth" size="10"
+                           value="{{ totalDiscountUsesWording|t('commerce', {count: discount.totalDiscountUses}) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn" data-spinner="#clear-discount-use-spinner" data-field="#total-discount-use-counter" data-type="{{ counterTypeTotal }}">{{ "Clear counter"|t('commerce') }}</div>
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-discount-use-spinner"
+                         data-field="#total-discount-use-counter"
+                         data-type="{{ counterTypeTotal }}">{{ "Clear counter"|t('commerce') }}</div>
                     <div id="clear-discount-use-spinner" class="spinner hidden"></div>
                 </div>
             </div>
@@ -320,8 +400,6 @@
             on: discount.excludeOnSale ? true : false,
             errors: discount.getErrors('excludeOnSale')
         }) }}
-
-
     </div>
 
     <div id="actions" class="hidden">
@@ -393,35 +471,35 @@
         <h3>{{ 'Flat Amount Off Order'|t('commerce') }}</h3>
 
         {% set baseDiscountInput %}
-        <table class="inputs">
-            <tr>
-                <td>
-                    {{ forms.text({
-                        id: 'baseDiscount',
-                        name: 'baseDiscount',
-                        type: 'text',
-                        step: 'any',
-                        size: 10,
-                        value: discount.baseDiscount ? discount.baseDiscount : 0,
-                    }) }}
-                </td>
-                <td style="padding-left: 14px;">
-                    {% if baseDiscountTypes|length > 1 %}
-                    {{ forms.select({
-                        id: 'baseDiscountType',
-                        name: 'baseDiscountType',
-                        options: baseDiscountTypes,
-                        value: discount.baseDiscountType
-                    }) }}
-                    {% endif %}
-                </td>
-            </tr>
-        </table>
+            <table class="inputs">
+                <tr>
+                    <td>
+                        {{ forms.text({
+                            id: 'baseDiscount',
+                            name: 'baseDiscount',
+                            type: 'text',
+                            step: 'any',
+                            size: 10,
+                            value: discount.baseDiscount ? discount.baseDiscount : 0,
+                        }) }}
+                    </td>
+                    <td style="padding-left: 14px;">
+                        {% if baseDiscountTypes|length > 1 %}
+                            {{ forms.select({
+                                id: 'baseDiscountType',
+                                name: 'baseDiscountType',
+                                options: baseDiscountTypes,
+                                value: discount.baseDiscountType
+                            }) }}
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
         {% endset %}
 
         {% set showWarning = false %}
-        {% if discount.baseDiscountType in ['percentTotal','percentTotalDiscounted','percentItems','percentItemsDiscounted']  %}
-        {% set showWarning = true %}
+        {% if discount.baseDiscountType in ['percentTotal','percentTotalDiscounted','percentItems','percentItemsDiscounted'] %}
+            {% set showWarning = true %}
         {% endif %}
 
         {{ forms.field({
@@ -444,7 +522,7 @@
         }) }}
 
         {#
-          This might need to be disabled to start with. That is handled in the JS
+        This might need to be disabled to start with. That is handled in the JS
         #}
         {{ forms.lightswitchField({
             label: "Remove shipping costs for matching items only"|t('commerce'),
@@ -461,63 +539,73 @@
             errors: discount.getErrors('stopProcessing')
         }) }}
     </div>
+
+    {% hook "cp.commerce.discounts.edit.content" %}
 {% endblock %}
 
-
 {% js %}
-        $(function() {
-            $('#groups').selectize({
-                plugins: ['remove_button'],
-                dropdownParent: 'body'
-            });
+$(function() {
 
-            $('#code').on('keyup blur', function(event) {
-                if (this.value.length === 0) {
-                    $('#coupon-fields').addClass('hidden');
-                } else {
-                    $('#coupon-fields').removeClass('hidden');
-                }
-            });
+    $('#user-condition').change(function() {
+        if ($(this).val() === 'userGroupsAnyOrNone') {
+            $('#groups-field').parent().addClass('hidden');
+        } else {
+            $('#groups-field').parent().removeClass('hidden');
+        }
+    });
 
-            function disableShippingSwitch() {
-                $('#hasFreeShippingForMatchingItems').data('lightswitch').turnOff();
-                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", true);
-                $('#hasFreeShippingForMatchingItems').prop("disabled", true);
-                $("#hasFreeShippingForMatchingItems").addClass("disabled");
-            }
+    $('#groups').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
 
-            function enableShippingSwitch() {
-                $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", false);
-                $('#hasFreeShippingForMatchingItems').prop("disabled", false);
-                $("#hasFreeShippingForMatchingItems").removeClass("disabled");
-            }
+    $('#code').on('keyup blur', function(event) {
+        if (this.value.length === 0) {
+            $('#coupon-fields').addClass('hidden');
+        } else {
+            $('#coupon-fields').removeClass('hidden');
+        }
+    });
 
-            if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
-                disableShippingSwitch();
-            }
+    function disableShippingSwitch() {
+        $('#hasFreeShippingForMatchingItems').data('lightswitch').turnOff();
+        $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", true);
+        $('#hasFreeShippingForMatchingItems').prop("disabled", true);
+        $("#hasFreeShippingForMatchingItems").addClass("disabled");
+    }
 
-            $('#hasFreeShippingForOrder').click(function () {
-                if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
-                    disableShippingSwitch();
-                } else {
-                    enableShippingSwitch();
-                }
-            });
+    function enableShippingSwitch() {
+        $('input[name="hasFreeShippingForMatchingItems"]').prop("disabled", false);
+        $('#hasFreeShippingForMatchingItems').prop("disabled", false);
+        $("#hasFreeShippingForMatchingItems").removeClass("disabled");
+    }
 
-            $('.clear-btn').click(function(event) {
-                var $this = $(this);
-                var $spinner = $($this.data('spinner'));
-                var $field = $($this.data('field'));
-                var type = $this.data('type');
-                var r = confirm(Craft.t('commerce', 'Are you sure you want to clear this discount usage counter?'));
+    if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+        disableShippingSwitch();
+    }
 
-                if (r == true) {
-                    $spinner.toggleClass('hidden');
-                    $.ajax({
-                        type: "POST",
-                        dataType: 'json',
-                        headers: {
-                            "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+    $('#hasFreeShippingForOrder').click(function() {
+        if ($('input[name="hasFreeShippingForOrder"]').val() == 1) {
+            disableShippingSwitch();
+        } else {
+            enableShippingSwitch();
+        }
+    });
+
+    $('.clear-btn').click(function(event) {
+        var $this = $(this);
+        var $spinner = $($this.data('spinner'));
+        var $field = $($this.data('field'));
+        var type = $this.data('type');
+        var r = confirm(Craft.t('commerce', 'Are you sure you want to clear this discount usage counter?'));
+
+        if (r == true) {
+            $spinner.toggleClass('hidden');
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                headers: {
+                    "X-CSRF-Token": '{{ craft.app.request.csrfToken }}',
                         },
                         url: '',
                         data: {
