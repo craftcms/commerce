@@ -81,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => null
                     ]);
                 }
 
@@ -90,6 +90,7 @@ class PaymentsController extends BaseFrontEndController
                 return null;
             }
 
+            // @TODO Fix this in Commerce 4. `order` if completed, `cartVariableName` if no completed.
             $this->_cartVariableName = 'order'; // can not override the name of the order cart in json responses for orders
 
         } else {
@@ -187,6 +188,7 @@ class PaymentsController extends BaseFrontEndController
             } catch (CurrencyException $exception) {
                 Craft::$app->getErrorHandler()->logException($exception);
 
+                $error = $exception->getMessage();
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
@@ -226,7 +228,7 @@ class PaymentsController extends BaseFrontEndController
         // This will return the gateway to be used. The orders gateway ID could be null, but it will know the gateway from the paymentSource ID
         $gateway = $order->getGateway();
 
-        if (!$gateway || !$gateway->availableForUseWithOrder($order)) {
+        if (!$gateway || !$gateway->availableForUseWithOrder($order) || (!$gateway->isFrontendEnabled && !$isCpRequest)) {
             $error = Craft::t('commerce', 'There is no gateway or payment source available for use with this order.');
 
             if ($this->request->getAcceptsJson()) {
@@ -285,9 +287,11 @@ class PaymentsController extends BaseFrontEndController
                 } catch (PaymentSourceException $exception) {
                     Craft::$app->getErrorHandler()->logException($exception);
 
+                    $error = $exception->getMessage();
+
                     if ($this->request->getAcceptsJson()) {
                         return $this->asJson([
-                            'error' => $exception->getMessage(),
+                            'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
                             $this->_cartVariableName => $this->cartArray($order)
                         ]);
@@ -328,7 +332,7 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
+        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($this->request->getAcceptsJson()) {
@@ -421,7 +425,7 @@ class PaymentsController extends BaseFrontEndController
             $order->setPaymentAmount($paymentAmount);
         }
 
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency);
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency, true);
 
         if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');

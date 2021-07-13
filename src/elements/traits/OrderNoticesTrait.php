@@ -19,7 +19,7 @@ use craft\helpers\ArrayHelper;
  */
 trait OrderNoticesTrait
 {
-    private $_notices;
+    private $_notices = [];
 
     /**
      * Returns the notices for all types/attributes or a single type/attributes.

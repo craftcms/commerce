@@ -13,12 +13,12 @@
     "lodash.find": "^4.6.0",
     "lodash.isequal": "^4.5.0",
     "lodash.isobjectlike": "^4.0.0",
-    "prismjs": "^1.23.0",
-    "vue": "^2.6.12",
+    "prismjs": "^1.24.0",
+    "vue": "^2.6.14",
     "vue-prism-editor": "^0.6.1",
     "vue-select": "3.5.2",
     "vuelidate": "^0.7.6",
-    "vuex": "^3.6.0"
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.12.1",
@@ -30,7 +30,7 @@
     "eslint-plugin-vue": "^5.2.3",
     "node-sass": "^4.13.1",
     "sass-loader": "^7.3.1",
-    "vue-template-compiler": "^2.6.12"
+    "vue-template-compiler": "^2.6.14"
   },
   "eslintConfig": {
     "root": true,

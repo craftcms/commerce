@@ -254,7 +254,6 @@
             applyEdit() {
                 this.originalLineItem = null;
                 this.editMode = false;
-                this.highlightLineItem();
             },
 
             cancelEdit() {

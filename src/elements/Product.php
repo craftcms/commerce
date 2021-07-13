@@ -298,7 +298,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         if ($this->getType()) {
             $uid = $this->getType()->uid;
@@ -365,29 +365,44 @@ class Product extends Element
     /**
      * Returns the tax category.
      *
-     * @return TaxCategory|null
+     * @return TaxCategory
+     * @throws InvalidConfigException
      */
-    public function getTaxCategory()
+    public function getTaxCategory(): TaxCategory
     {
+        $taxCategory = null;
+
         if ($this->taxCategoryId) {
-            return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 
-        return null;
+        if (!$taxCategory) {
+            // Use default as we must have a category ID
+            $taxCategory = Plugin::getInstance()->getTaxCategories()->getDefaultTaxCategory();
+            $this->taxCategoryId = $taxCategory->id;
+        }
+
+        return $taxCategory;
     }
 
     /**
      * Returns the shipping category.
      *
-     * @return ShippingCategory|null
+     * @return ShippingCategory
      */
-    public function getShippingCategory()
+    public function getShippingCategory(): ShippingCategory
     {
         if ($this->shippingCategoryId) {
-            return Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
 
-        return null;
+        if (!$shippingCategory) {
+            // Use default as we must have a category ID
+            $shippingCategory = Plugin::getInstance()->getShippingCategories()->getDefaultShippingCategory();
+            $this->shippingCategoryId = $shippingCategory->id;
+        }
+
+        return $shippingCategory;
     }
 
     /**
@@ -662,43 +677,83 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getEditorHtml(): string
+    public function getSidebarHtml(): string
     {
-        $viewService = Craft::$app->getView();
-        $html = parent::getEditorHtml();
-        $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
+        $html = [];
 
-        $productType = $this->getType();
+        // General Meta fields
+        $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
 
-        if (!$productType->hasVariants) {
-            /** @var Variant $variant */
-            $variant = ArrayHelper::firstValue($this->getVariants());
-            $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
-            $viewService->setNamespace($newNamespace);
-            $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant, $variant->getProduct()]));
+        // Enabled field
+        $topMetaHtml .= Cp::lightswitchFieldHtml([
+            'label' => Craft::t('commerce', 'Enabled'),
+            'id' => 'enabled',
+            'name' => 'enabled',
+            'on' =>  $this->enabled,
+        ]);
 
-            if ($productType->hasDimensions) {
-                $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'dimensionVariantFields', [$variant]));
-            }
-
-            $viewService->setNamespace($namespace);
-            $viewService->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
+        // Multi site enabled
+        if (Craft::$app->getIsMultiSite()) {
+            $topMetaHtml .= Cp::lightswitchFieldHtml([
+                'label' => Craft::t('commerce', 'Enabled for site'),
+                'id' => 'enabledForSite',
+                'name' => 'enabledForSite',
+                'on' =>  $this->enabledForSite,
+            ]);
         }
 
-        return $html;
+        $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
+
+        $html[] = Html::tag('div', Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.behavioralMetaFields(product) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        ), ['class' => 'meta']);
+
+        $html[] = Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.singleVariantFields(product, product.getType()) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        );
+
+        $html[] = parent::getSidebarHtml();
+
+        // Custom styling
+        $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
+
+        if (!$this->getType()->hasVariants) {
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
+        }
+
+        return implode('', $html);
     }
 
     /**
      * @inheritdoc
      */
-    public function getSearchKeywords(string $attribute): string
+    public function getMetadata(): array
+    {
+        $metadata = parent::getMetadata();
+
+        if (array_key_exists(Craft::t('app', 'Status'), $metadata)) {
+            unset($metadata[Craft::t('app', 'Status')]);
+        }
+
+        return $metadata;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function searchKeywords(string $attribute): string
     {
         if ($attribute === 'sku') {
             return implode(' ', ArrayHelper::getColumn($this->getVariants(), 'sku'));
         }
 
-        return parent::getSearchKeywords($attribute);
+        return parent::searchKeywords($attribute);
     }
 
     /**
@@ -1189,6 +1244,7 @@ class Product extends Element
             ],
             'promotable' => Craft::t('commerce', 'Promotable?'),
             'defaultPrice' => Craft::t('commerce', 'Price'),
+            'defaultSku' => Craft::t('commerce', 'SKU'),
             [
                 'label' => Craft::t('app', 'Date Created'),
                 'orderBy' => 'elements.dateCreated',

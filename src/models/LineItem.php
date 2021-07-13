@@ -674,8 +674,8 @@ class LineItem extends Model
         $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
         $this->taxCategoryId = $purchasable->getTaxCategoryId();
         $this->shippingCategoryId = $purchasable->getShippingCategoryId();
-        $this->sku = $purchasable->getSku();
-        $this->description = $purchasable->getDescription();
+        $this->setSku($purchasable->getSku());
+        $this->setDescription($purchasable->getDescription());
 
         // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
@@ -764,10 +764,7 @@ class LineItem extends Model
 
         foreach ($adjustments as $adjustment) {
             // Since the line item may not yet be saved and won't have an ID, we need to check the adjuster references this as it's line item.
-            $hasLineItemId = (bool)$adjustment->lineItemId;
-            $hasLineItem = (bool)$adjustment->getLineItem();
-
-            if (($hasLineItemId && $adjustment->lineItemId == $this->id) || ($hasLineItem && $adjustment->getLineItem() === $this)) {
+            if (($adjustment->lineItemId && $adjustment->lineItemId == $this->id) || (!$adjustment->lineItemId && $adjustment->getLineItem() === $this)) {
                 $lineItemAdjustments[] = $adjustment;
             }
         }
@@ -820,6 +817,32 @@ class LineItem extends Model
         }
 
         return $amount;
+    }
+
+    /**
+     * @return bool
+     * @since 3.3.4
+     */
+    public function getIsTaxable(): bool
+    {
+        if (!$this->getPurchasable()) {
+            return true; // we have a default tax category so assume so.
+        }
+
+        return $this->getPurchasable()->getIsTaxable();
+    }
+
+    /**
+     * @return bool
+     * @since 3.4
+     */
+    public function getIsShippable(): bool
+    {
+        if (!$this->getPurchasable()) {
+            return true; // we have a default shipping category so assume so.
+        }
+
+        return $this->getPurchasable()->getIsShippable();
     }
 
     /**

@@ -16,7 +16,6 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\Html;
-use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
 use Throwable;
 use yii\base\Exception;
@@ -132,7 +131,7 @@ class CartController extends BaseFrontEndController
                 $purchasable['id'] = $purchasableId;
                 $purchasable['options'] = $options;
                 $purchasable['note'] = $note;
-                $purchasable['qty'] = $qty;
+                $purchasable['qty'] = (int) $qty;
 
                 $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
                 if (isset($purchasablesByKey[$key])) {
@@ -169,7 +168,7 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->qty = (int) $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
                     $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 
@@ -326,11 +325,11 @@ class CartController extends BaseFrontEndController
 
         // Set if the customer should be registered on order completion
         if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $order->registerUserOnOrderComplete = true;
+            $this->_cart->registerUserOnOrderComplete = true;
         }
 
         if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $order->registerUserOnOrderComplete = false;
+            $this->_cart->registerUserOnOrderComplete = false;
         }
 
         if (!empty($errors)) {

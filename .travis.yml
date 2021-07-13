@@ -8,7 +8,7 @@ env:
 branches:
   only:
   - develop
-  - 3.3
+  - 3.4
 services:
 - mysql
 - postgresql
@@ -57,9 +57,11 @@ before_script:
   php -r "echo INTL_ICU_DATA_VERSION . \"\n\";"
   psql --version
   mysql --version
+  date +%Z
   sudo mysql_upgrade || echo "MySQL is already up to date"
 - travis_retry mysql -e 'CREATE DATABASE `commercetest`;';
 - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
+- mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
 - psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - cp tests/.env.example.$DB tests/.env
 - |

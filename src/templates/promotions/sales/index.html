@@ -4,6 +4,7 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
   'Couldn’t reorder sale.',
+  'Delete',
   'Disabled',
   'Duration',
   'Effect',
@@ -23,8 +24,10 @@
 {% endblock %}
 
 {% block content %}
-  <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
-  <div id="sales-vue-admin-table"></div>
+    <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
+    <div id="sales-vue-admin-table"></div>
+
+    {% hook "cp.commerce.sales.index" %}
 {% endblock %}
 
 {% set tableData = [] %}
@@ -74,8 +77,13 @@ var actions = [
                 param: 'status',
                 value: 'disabled',
                 status: 'disabled'
-            }
+            },
         ]
+    },
+    {
+        label: Craft.t('commerce', 'Delete'),
+        action: 'commerce/sales/delete',
+        error: true
     }
 ];
 

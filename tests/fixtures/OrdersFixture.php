@@ -47,6 +47,12 @@ class OrdersFixture extends BaseElementFixture
      */
     private $_markAsComplete = false;
 
+    /**
+     * Ability to manually set the dateOrdered attribute
+     * @var bool|null|\DateTime
+     */
+    private $_dateOrdered = false;
+
     public function init()
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
@@ -61,6 +67,7 @@ class OrdersFixture extends BaseElementFixture
     {
         $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
         $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
+        $this->_dateOrdered = ArrayHelper::remove($attributes, '_dateOrdered');
 
         parent::populateElement($element, $attributes);
     }
@@ -76,7 +83,7 @@ class OrdersFixture extends BaseElementFixture
         /** @var Order $element */
         $this->_setLineItems($element, $this->_lineItems);
 
-        // Resave after extra data
+        // Re-save after extra data
         if (!$result = Craft::$app->getElements()->saveElement($element)) {
             throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
@@ -86,9 +93,18 @@ class OrdersFixture extends BaseElementFixture
             $element->markAsComplete();
         }
 
+        if ($this->_dateOrdered) {
+            $element->dateOrdered = $this->_dateOrdered;
+            // Re-save after extra data
+            if (!$result = Craft::$app->getElements()->saveElement($element)) {
+                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
+            }
+        }
+
         // Reset private variables
         $this->_lineItems = [];
         $this->_markAsComplete = false;
+        $this->_dateOrdered = false;
 
         return $result;
     }

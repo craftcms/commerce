@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;

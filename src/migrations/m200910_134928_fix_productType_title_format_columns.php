@@ -2,10 +2,8 @@
 
 namespace craft\commerce\migrations;
 
-use Craft;
 use craft\db\Migration;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
 
 /**
  * m200910_134928_fix_productType_title_format_columns migration.

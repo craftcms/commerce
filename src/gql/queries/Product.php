@@ -38,6 +38,12 @@ class Product extends Query
                 'resolve' => ProductResolver::class . '::resolve',
                 'description' => 'This query is used to query for products.'
             ],
+            'productCount' => [
+                'type' => Type::nonNull(Type::int()),
+                'args' => ProductArguments::getArguments(),
+                'resolve' => ProductResolver::class . '::resolveCount',
+                'description' => 'This query is used to return the number of products.'
+            ],
             'product' => [
                 'type' => ProductInterface::getType(),
                 'args' => ProductArguments::getArguments(),

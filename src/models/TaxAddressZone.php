@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
 
 /**
  * Tax zone model.
@@ -56,6 +57,18 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * @since 2.2
      */
     public $zipCodeConditionFormula;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var bool Country based
