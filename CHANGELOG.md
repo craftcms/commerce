@@ -3,21 +3,6 @@
 ## Unreleased (3.4)
 
 ### Added
-- Added `craft\commerce\models\LineItem::getIsShippable()`.
-- Added `craft\commerce\elements\Order::hasShippableItems()`.
-
-### Changed
-- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
-- Emails are now added to the queue with a higher priority than most jobs. ([#2157](https://github.com/craftcms/commerce/issues/2157))
-- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
-
-### Fixed
-- Fixed a bug where orders that didn‘t contain any shippable items still required a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
-- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
-
-## 3.4.0-beta.1 - 2021-06-16
-
-### Added
 - Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
 - Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/18813))
 - Added the “Revenue Options” setting to the Top Products widget. ([#1919](https://github.com/craftcms/commerce/issues/1919))
@@ -27,12 +12,14 @@
 - Added the `cp.commerce.sales.index`, `cp.commerce.sales.edit`, `cp.commerce.sales.edit.content`, and `cp.commerce.sales.edit.details` template hooks. ([#2173](https://github.com/craftcms/commerce/issues/2173))
 - Added `craft\commerce\base\Plan::$dateCreated`.
 - Added `craft\commerce\base\Plan::$dateUpdated`.
+- Added `craft\commerce\elements\Order::hasShippableItems()`.
 - Added `craft\commerce\models\Address::$dateCreated`.
 - Added `craft\commerce\models\Address::$dateUpdated`.
 - Added `craft\commerce\models\Country::$dateCreated`.
 - Added `craft\commerce\models\Country::$dateUpdated`.
 - Added `craft\commerce\models\Customer::$dateCreated`.
 - Added `craft\commerce\models\Customer::$dateUpdated`.
+- Added `craft\commerce\models\LineItem::getIsShippable()`.
 - Added `craft\commerce\models\PaymentCurrency::$dateCreated`.
 - Added `craft\commerce\models\PaymentCurrency::$dateUpdated`.
 - Added `craft\commerce\models\Sale::$dateCreated`.
@@ -62,29 +49,30 @@
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_TAX`.
 - Added `craft\commerce\stats\TopProducts::TYPE_QTY`.
 - Added `craft\commerce\stats\TopProducts::TYPE_REVENUE`.
-- Added `craft\commerce\stats\TopProducts::createAdjustmentsSubQuery`.
-- Added `craft\commerce\stats\TopProducts::getAdjustmentsSelect`.
-- Added `craft\commerce\stats\TopProducts::getGroupBy`.
-- Added `craft\commerce\stats\TopProducts::getOrderBy`.
+- Added `craft\commerce\stats\TopProducts::createAdjustmentsSubQuery()`.
+- Added `craft\commerce\stats\TopProducts::getAdjustmentsSelect()`.
+- Added `craft\commerce\stats\TopProducts::getGroupBy()`.
+- Added `craft\commerce\stats\TopProducts::getOrderBy()`.
 - Added libmergepdf.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 3.7 or later.
 - Product slideouts now include the full field layout and meta fields. ([#2205](https://github.com/craftcms/commerce/pull/2205))
 - Discounts now have additional user group condition options. ([#220](https://github.com/craftcms/commerce/issues/220))
+- It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
 - The order field layout no longer validates if it contains a field called `billingAddress`, `customer`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentAmount`, `paymentCurrency`, `paymentSource`, `recalculationMode` or `shippingAddress`.
 - Product field layouts no longer validate if they contain a field called `cheapestVariant`, `defaultVariant` or `variants`.
 - Variant field layouts no longer validate if they contain a field called `description`, `price`, `product` or `sku`.
 - Order notices are now cleared when orders are completed. ([#2116](https://github.com/craftcms/commerce/issues/2116))
 - Donations, orders, products, and variants now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([craftcms/cms#8023](https://github.com/craftcms/cms/issues/8023))
 - Address, customer, country, state, payment currency, promotion, shipping, subscription plan, and tax edit pages now display date meta info.
+- Emails are now added to the queue with a higher priority than most jobs. ([#2157](https://github.com/craftcms/commerce/issues/2157))
+- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
 
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
-
-## Unreleased (3.3)
-
-### Fixed
+- Fixed a bug where orders that didn‘t contain any shippable items still required a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
+- Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
 - Fixed a PHP error that could occur when adding multiple items to the cart at once.
 
 ## 3.3.5.1 - 2021-07-07
