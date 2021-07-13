@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased (3.4)
+## 3.4.0 - 2021-07-13
 
 ### Added
 - Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
