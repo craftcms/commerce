@@ -7,12 +7,12 @@
 - Added `craft\commerce\elements\Order::hasShippableItems()`.
 
 ### Changed
-- Sending emails now have a high priority in the queue. ([#2157](https://github.com/craftcms/commerce/issues/2157))
-- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
 - It’s now possible to select any shipping method for a completed order. ([#1521](https://github.com/craftcms/commerce/issues/1521))
+- Emails are now added to the queue with a higher priority than most jobs. ([#2157](https://github.com/craftcms/commerce/issues/2157))
+- Improved the performance of store location address retrieval. ([#2238](https://github.com/craftcms/commerce/issues/2238))
 
 ### Fixed
-- Fixed a bug where orders that contained no shippable items could still require a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
+- Fixed a bug where orders that didn‘t contain any shippable items still required a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
 - Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
 
 ## 3.4.0-beta.1 - 2021-06-16

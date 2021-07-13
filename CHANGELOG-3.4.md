@@ -45,10 +45,10 @@
 - Added `craft\commerce\stats\TopProducts::REVENUE_OPTION_TAX`.
 - Added `craft\commerce\stats\TopProducts::TYPE_QTY`.
 - Added `craft\commerce\stats\TopProducts::TYPE_REVENUE`.
-- Added `craft\commerce\stats\TopProducts::createAdjustmentsSubQuery`.
-- Added `craft\commerce\stats\TopProducts::getAdjustmentsSelect`.
-- Added `craft\commerce\stats\TopProducts::getGroupBy`.
-- Added `craft\commerce\stats\TopProducts::getOrderBy`.
+- Added `craft\commerce\stats\TopProducts::createAdjustmentsSubQuery()`.
+- Added `craft\commerce\stats\TopProducts::getAdjustmentsSelect()`.
+- Added `craft\commerce\stats\TopProducts::getGroupBy()`.
+- Added `craft\commerce\stats\TopProducts::getOrderBy()`.
 - Added libmergepdf.
 
 ### Changed
