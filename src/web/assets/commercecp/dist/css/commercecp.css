@@ -77,6 +77,10 @@ body.rtl .variant-matrixblock > .titlebar {
   width: 310px;
   border-right: 1px solid #e3e5e8; }
 
+.variant-properties > .variant-properties-dimensions > .input > .flex > .textwrapper > .text {
+  margin: 0;
+  padding: 7px 0; }
+
 .variant-matrixblock:not(.single-col) > .fields > .custom-fields {
   padding: 14px 24px;
   width: calc(100% - 359px); }
@@ -163,6 +167,16 @@ ul.commerce-sales li a span {
 .commerce-sales-buttons a {
   margin-top: 5px; }
 
+#discountform .clear-btn.discount-clear-use {
+  padding: 0 7px;
+  width: auto; }
+
+.ltr #discountform .clear-btn.discount-clear-use::before {
+  padding-right: 3px; }
+
+.rtl #discountform .clear-btn.discount-clear-use::before {
+  padding-left: 3px; }
+
 .order-details .paidLogo {
   font-weight: bold;
   position: absolute;
@@ -176,6 +190,16 @@ ul.commerce-sales li a span {
   -webkit-transform: rotate(-20deg);
   /* Safari */
   transform: rotate(-20deg); }
+
+@media only screen and (max-width: 768px) {
+  .commerceordersedit #action-button {
+    flex-direction: column-reverse;
+    height: auto; }
+    .commerceordersedit #action-button > .flex {
+      flex-wrap: wrap;
+      width: 100%; }
+  body.ltr.commerceordersedit #action-button.flex > *:not(:last-child) {
+    margin-right: 0 !important; } }
 
 #paymentmodal.loading {
   min-width: 300px;

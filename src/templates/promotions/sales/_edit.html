@@ -12,7 +12,6 @@
 {% import "_includes/forms" as forms %}
 {% import "commerce/_includes/forms/commerceForms" as commerceForms %}
 
-
 {% set actionClasses = "" %}
 {% if (sale.getErrors('applyAmount') or sale.getErrors('apply')) %}
     {% set actionClasses = "error" %}
@@ -35,6 +34,38 @@
     3: {'label':'Actions'|t('commerce'),'url':'#actions','class': actionClasses}
 } %}
 
+{% hook "cp.commerce.sales.edit" %}
+
+{% block details %}
+
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this sale"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: sale.enabled,
+            checked: sale.enabled,
+            errors: sale.getErrors('enabled'),
+            instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
+        }) }}
+    </div>
+
+    {% if sale and sale.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ sale.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ sale.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+
+    {% hook "cp.commerce.sales.edit.details" %}
+{% endblock %}
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/sales/save">
@@ -66,21 +97,9 @@
             errors: sale.getErrors('description'),
         }) }}
 
-        {{ forms.lightSwitchField({
-            label: "Enable this sale"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            value: 1,
-            on: sale.enabled,
-            checked: sale.enabled,
-            errors: sale.getErrors('enabled'),
-            instructions: 'Whether this sale should be available for use, regardless of other conditions.'|t('commerce')
-        }) }}
-
     </div>
 
     <div id="matching-items" class="hidden">
-
         {% for purchasableType in purchasableTypes %}
             {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
             {{ forms.elementSelectField({
@@ -221,6 +240,8 @@
         }) }}
 
     </div>
+
+    {% hook "cp.commerce.sales.edit.content" %}
 {% endblock %}
 
 {% js %}
