@@ -129,11 +129,11 @@ class CartController extends BaseFrontEndController
 
                 $purchasable = [];
                 $purchasable['id'] = $purchasableId;
-                $purchasable['options'] = $options;
+                $purchasable['options'] = is_array($options) ? $options : [];
                 $purchasable['note'] = $note;
                 $purchasable['qty'] = (int) $qty;
 
-                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
                 if (isset($purchasablesByKey[$key])) {
                     $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
                 } else {

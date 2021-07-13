@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased 3.4.0-beta.2
+## Unreleased (3.4)
 
 ### Added
 - Added `craft\commerce\models\LineItem::getIsShippable()`.
@@ -81,6 +81,11 @@
 
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
+
+## Unreleased (3.3)
+
+### Fixed
+- Fixed a PHP error that could occur when adding multiple items to the cart at once.
 
 ## 3.3.5.1 - 2021-07-07
 
