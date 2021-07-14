@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a UI bug with the Order Edit page. ([#2270](https://github.com/craftcms/commerce/issues/2270))
-- Fixed a bug where `orderSiteId` and `orderLanguage` parameters weren’t querying Orders correctly. ([#2272](https://github.com/craftcms/commerce/issues/2272))
+- Fixed a couple UI bugs on Edit Order pages. ([#2270](https://github.com/craftcms/commerce/issues/2270))
+- Fixed a bug where `orderSiteId` and `orderLanguage` order query params woren’t working correctly. ([#2272](https://github.com/craftcms/commerce/issues/2272))
 
 ## 3.4.0 - 2021-07-13
 
