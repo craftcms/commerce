@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a PHP error that could occur when adding multiple items to the cart at once.
+- Fixed a bug where `orderSiteId` and `orderLanguage` parameters weren’t querying Orders correctly. ([#2272](https://github.com/craftcms/commerce/issues/2272))
 
 ## 3.3.5.1 - 2021-07-07
 
