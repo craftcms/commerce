@@ -1,6 +1,6 @@
 <template>
-    <div v-if="editing || hasOrderChanged">
-        <div class="order-flex" v-if="!editing">
+    <div>
+        <div class="order-flex" v-if="!editing && !hasOrderChanged">
             <div v-if="defaultPdfUrl">
                 <div id="order-save" class="btngroup">
                     <a class="btn" :href="defaultPdfUrl.url" target="_blank">{{"Download PDF"|t('commerce')}}</a>
@@ -36,8 +36,8 @@
                 </div>
             </template>
         </div>
-        <div v-else>
-            <span v-if="hasOrderChanged">{{"This order has unsaved changes."|t('commerce')}}</span>
+        <div v-else-if="hasOrderChanged">
+            <span>{{"This order has unsaved changes."|t('commerce')}}</span>
         </div>
     </div>
 </template>
