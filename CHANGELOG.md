@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.0.1 - 2021-07-14
 
 ### Fixed
 - Fixed a couple UI bugs on Edit Order pages. ([#2270](https://github.com/craftcms/commerce/issues/2270))
