@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a UI bug with the Order Edit page. ([#2270](https://github.com/craftcms/commerce/issues/2270))
+- Fixed a bug where `orderSiteId` and `orderLanguage` parameters weren’t querying Orders correctly. ([#2272](https://github.com/craftcms/commerce/issues/2272))
 
 ## 3.4.0 - 2021-07-13
 
@@ -79,7 +80,6 @@
 - Fixed a bug where orders that didn‘t contain any shippable items still required a shipping method selection. ([#2204](https://github.com/craftcms/commerce/issues/2204))
 - Fixed a UI bug with Order Edit page template hooks. ([#2148](https://github.com/craftcms/commerce/issues/2148))
 - Fixed a PHP error that could occur when adding multiple items to the cart at once.
-- Fixed a bug where `orderSiteId` and `orderLanguage` parameters weren’t querying Orders correctly. ([#2272](https://github.com/craftcms/commerce/issues/2272))
 
 ## 3.3.5.1 - 2021-07-07
 
