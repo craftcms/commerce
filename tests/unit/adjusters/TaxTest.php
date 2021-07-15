@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\adjusters;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
@@ -41,6 +42,8 @@ class TaxTest extends Unit
     {
         parent::_before();
 
+        // start with fresh cache
+        Craft::$app->getCache()->flush();
         $this->pluginInstance = Plugin::getInstance();
         $this->originalEdition = $this->pluginInstance->edition;
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
@@ -65,7 +68,7 @@ class TaxTest extends Unit
 
         $address = new Address();
         $address->countryId = $this->pluginInstance->getCountries()->getCountryByIso($addressData['countryIso'])->id;
-        $address->businessTaxId = isset($addressData['businessTaxId']) ? $addressData['businessTaxId'] : null;
+        $address->businessTaxId = $addressData['businessTaxId'] ?? null;
 
         $order->setShippingAddress($address);
 
@@ -113,7 +116,11 @@ class TaxTest extends Unit
         $order->setLineItems($lineItems);
 
         $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => $taxRates
+            'getTaxRates' => $taxRates,
+            'validateVatNumber' => function($vatNum) {
+                // test validation returning false
+                return false;
+            }
         ]);
 
         $adjustments = $taxAdjuster->adjust($order);
