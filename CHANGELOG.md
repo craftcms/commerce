@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## 3.4.0.2 - 2021-07-19
+
+### Fixed
+- Fixed a bug where it wasn't possible for customers to select shipping methods registered by plugins. ([#2273](https://github.com/craftcms/commerce/issues/2273))
+
 ## 3.4.0.1 - 2021-07-14
 
 ### Fixed
