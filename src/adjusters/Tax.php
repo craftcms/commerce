@@ -330,23 +330,23 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validBusinessTaxId) {
-            $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
+            $validBusinessTaxId = $this->validateVatNumber($this->_address->businessTaxId);
         }
 
         if ($validBusinessTaxId) {
             Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
             return true;
-        } else {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
-            return false;
         }
+
+        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
+        return false;
     }
 
     /**
      * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    protected function validateVatNumber($businessVatId): bool
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
