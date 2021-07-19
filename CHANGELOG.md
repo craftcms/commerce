@@ -3,8 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug that prevented shipping methods registerd by plugins from being available for selection by customers. ([#2273](https://github.com/craftcms/commerce/issues/2273))
-
+- Fixed a bug where it wasn't possible for customers to select shipping methods registered by plugins. ([#2273](https://github.com/craftcms/commerce/issues/2273))
 ## 3.4.0.1 - 2021-07-14
 
 ### Fixed
