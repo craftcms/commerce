@@ -117,9 +117,8 @@ class TaxTest extends Unit
 
         $taxAdjuster = $this->make(Tax::class, [
             'getTaxRates' => $taxRates,
-            'validateVatNumber' => function($vatNum) {
-                // test validation returning false
-                return false;
+            'validateVatNumber' => function($vatNum) use ($addressData) {
+                return $addressData['_validateVat'] ?? false;
             }
         ]);
 
@@ -334,7 +333,8 @@ class TaxTest extends Unit
             'tax-valid-vat-1' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -373,7 +373,8 @@ class TaxTest extends Unit
             'tax-valid-vat-2' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -398,6 +399,46 @@ class TaxTest extends Unit
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
+                ]
+            ],
+
+            // Example 6) 10% tax that does not get removed due to an invalid VAT ID
+            'tax-invalid-vat-1' => [
+                [ // Address
+                    'countryIso' => 'CZ',
+                    'businessTaxId' => 'CZ99999999',
+                    '_validateVat' => false,
+                ],
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'CZ Vat',
+                        'code' => 'CZVAT',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => true,
+                        'removeVatIncluded' => true,
+                        'taxable' => 'order_total_price',
+                        'zone' => [
+                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                        ]
+                    ]
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'description' => '10%',
+                            'included' => true,
+                            'amount' => 9.09,
+                        ]
+                    ],
+                    'orderTotalPrice' => 100,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 9.09,
                 ]
             ]
         ];
