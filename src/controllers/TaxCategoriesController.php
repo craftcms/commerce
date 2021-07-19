@@ -82,6 +82,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @return Response|null
      * @throws HttpException
+     * @noinspection Duplicates
      */
     public function actionSave()
     {

@@ -161,7 +161,7 @@ class Transaction extends Model
     /**
      * @inheritdoc
      */
-    public function __construct($attributes = null)
+    public function __construct($attributes = [])
     {
         // generate unique hash
         $this->hash = md5(uniqid(mt_rand(), true));

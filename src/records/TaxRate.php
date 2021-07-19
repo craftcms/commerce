@@ -16,6 +16,8 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property bool $include
+ * @property bool $removeIncluded
+ * @property bool $removeVatIncluded
  * @property bool $isVat
  * @property string $name
  * @property string $code

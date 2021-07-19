@@ -11,6 +11,33 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block details %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled?"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            value: 1,
+            on: state.enabled,
+            errors: state.getErrors('enabled'),
+            warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.'|t('commerce') : null,
+        }) }}
+    </div>
+
+    {% if state and state.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ state.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ state.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/states/save">
     {% if state.id %}<input type="hidden" name="stateId" value="{{ state.id }}">{% endif %}
@@ -45,27 +72,17 @@
     {% endif %}
 
     <div class="{{ hideSelect ? 'hidden' : '' }}">
-    {{ forms.selectField({
-        label: "Country"|t('commerce'),
-        id: 'countryId',
-        name: 'countryId',
-        value: state.countryId ? state.countryId : countryId,
-        errors: state.getErrors('countryId'),
-        required: true,
-        options: countries,
-        class: 'selectize fullwidth',
-    }) }}
+        {{ forms.selectField({
+            label: "Country"|t('commerce'),
+            id: 'countryId',
+            name: 'countryId',
+            value: state.countryId ? state.countryId : countryId,
+            errors: state.getErrors('countryId'),
+            required: true,
+            options: countries,
+            class: 'selectize fullwidth',
+        }) }}
     </div>
-
-    {{ forms.lightswitchField({
-        label: "Enabled?"|t('commerce'),
-        id: 'enabled',
-        name: 'enabled',
-        value: 1,
-        on: state.enabled,
-        errors: state.getErrors('enabled'),
-        warning: showDisableWarning ? 'You will not be able to update addresses, shipping zones or tax zones related to this state if it is disabled.'|t('commerce') : null,
-    }) }}
 {% endblock %}
 
 {% js %}

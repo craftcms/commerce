@@ -984,7 +984,7 @@ class OrdersController extends Controller
 
         $variables['tabs'] = [];
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-details'] = [
             'label' => Craft::t('commerce', 'Order Details'),
             'url' => '#orderDetailsTab',
             'class' => null
@@ -1000,13 +1000,13 @@ class OrdersController extends Controller
             $variables['tabs'][$tabId] = $tab;
         }
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-transactions'] = [
             'label' => Craft::t('commerce', 'Transactions'),
             'url' => '#transactionsTab',
             'class' => null
         ];
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-history'] = [
             'label' => Craft::t('commerce', 'Status History'),
             'url' => '#orderHistoryTab',
             'class' => null

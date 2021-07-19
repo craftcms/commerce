@@ -57,11 +57,15 @@ export default new Vuex.Store({
         },
 
         isProEdition() {
-          return (window.orderEdit.edition == 'pro')
+            return (window.orderEdit.edition == 'pro')
         },
 
         isLiteEdition() {
-          return (window.orderEdit.edition == 'lite')
+            return (window.orderEdit.edition == 'lite')
+        },
+
+        hasOrderChanged(state) {
+            return !_isEqual(state.draft, state.originalDraft)
         },
 
         orderId() {
@@ -191,7 +195,7 @@ export default new Vuex.Store({
         },
 
         edit({commit, state}) {
-            const $tabLinks = window.document.querySelectorAll('#tabs a.tab')
+            const $tabLinks = window.document.querySelectorAll('#tabs > ul > li > a')
             let $selectedLink = null
             let $detailsLink = null
             let switchToDetailsTab = false

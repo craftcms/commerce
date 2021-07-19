@@ -1040,7 +1040,9 @@ class Customers extends Component
                 'id',
                 'userId',
                 'primaryBillingAddressId',
-                'primaryShippingAddressId'
+                'primaryShippingAddressId',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::CUSTOMERS]);
     }

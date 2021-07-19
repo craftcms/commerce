@@ -59,7 +59,6 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
      */
     public function init()
     {
-        parent::init();
         if ($this->service === null || $this->saveMethod === null || $this->deleteMethod === null) {
             throw new InvalidConfigException('"service", "saveMethod" and "deleteMethod" must be set.');
         }
