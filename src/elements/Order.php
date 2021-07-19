@@ -1840,26 +1840,31 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
+        $allMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-        $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
 
         $options = [];
-        $attributes = (new ShippingMethod())->attributes();
 
-        foreach ($methods as $method) {
-            $option = new ShippingMethodOption();
+        foreach ($availableMethods as $method) {
+            $option = new ShippingMethodOption($method->getAttributes());
             $option->setOrder($this);
-            foreach ($attributes as $attribute) {
-                $option->$attribute = $method->$attribute;
-            }
-
-            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
+            $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
+            $options[$option->getHandle()] = $option;
+        }
 
-            // Add all methods if completed, and only the matching methods when it is not completed.
-            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
-                $options[$option->handle] = $option;
+        // If the order is completed add all other shipping methods
+        if ($this->isCompleted) {
+            // Add any additional method
+            foreach ($allMethods as $method) {
+                // If they are not in the existing available matching shipping method options
+                if (!ArrayHelper::keyExists($method->getHandle(), $options)) {
+                    $option = new ShippingMethodOption($method->getAttributes());
+                    $option->setOrder($this);
+                    $option->matchesOrder = false;
+                    $option->price = $method->getPriceForOrder($this);
+                    $options[$option->getHandle()] = $option;
+                }
             }
         }
 
