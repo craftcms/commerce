@@ -312,7 +312,7 @@ class Discounts extends Component
                 [
                     'or',
                     ['code' => null],
-                    ['code' => $order->couponCode]
+                    ['ilike', 'code', $order->couponCode]
                 ]
             );
         }
@@ -443,7 +443,7 @@ class Discounts extends Component
             return null;
         }
 
-        $discounts = $this->_createDiscountQuery()->andWhere(['[[discounts.code]]' => $code])->all();
+        $discounts = $this->_createDiscountQuery()->andWhere(['ilike', '[[discounts.code]]', $code])->all();
 
         if (!$discounts) {
             return null;
