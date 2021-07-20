@@ -434,7 +434,6 @@ abstract class Stat implements StatInterface
     protected function _createStatQuery()
     {
         // Make sure the end time is always the last point on that day.
-        // @TODO adjust this when stats can deal with time and not just whole days
         if ($this->_endDate instanceof DateTime) {
             $this->_endDate->setTime(23, 59, 59);
         }

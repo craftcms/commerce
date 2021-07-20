@@ -146,20 +146,6 @@ class Email extends Model
     }
 
     /**
-     * @deprecated in 3.2.0 Use $email->getPdf()->templatePath instead
-     */
-    public function getPdfTemplatePath()
-    {
-        Craft::$app->getDeprecator()->log('\craft\commerce\models\Email::getPdfTemplatePath()', '\craft\commerce\models\Email::getPdfTemplatePath(), use \craft\commerce\models\Email::getPdf()->getTemplatePath() instead.');
-
-        if ($pdf = $this->getPdf()) {
-            return $pdf->templatePath;
-        }
-
-        return "";
-    }
-
-    /**
      * Returns the field layout config for this email.
      *
      * @return array

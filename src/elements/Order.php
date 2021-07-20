@@ -83,7 +83,7 @@ use yii\log\Logger;
  * @property-read OrderStatus $orderStatus
  * @property-read float $outstandingBalance The balance amount to be paid on the Order
  * @property-read ShippingMethodInterface $shippingMethod
- * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
+ * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only) #COM-38
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
  * @property-read string $pdfUrl the URL to the order’s PDF invoice
@@ -275,7 +275,7 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4
+     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4 #COM-39
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -1350,7 +1350,7 @@ class Order extends Element
             };
         }
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event  #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -1501,23 +1501,6 @@ class Order extends Element
 
         // restore recalculation lock state
         $this->setRecalculationMode($originalRecalculationMode);
-    }
-
-    /**
-     * Returns the total price of the order, minus any tax adjustments.
-     *
-     * @return float
-     * @deprecated in 2.2.9. Use `craft\commerce\adjusters\Tax::_getOrderTotalTaxablePrice()` instead.
-     */
-    public function getTotalTaxablePrice(): float
-    {
-        $itemTotal = $this->getItemSubtotal();
-
-        $allNonIncludedAdjustmentsTotal = $this->getAdjustmentsTotal();
-        $taxAdjustments = $this->getTotalTax();
-        $includedTaxAdjustments = $this->getTotalTaxIncluded();
-
-        return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
     }
 
     /**
@@ -1895,7 +1878,7 @@ class Order extends Element
             $this->setBillingAddress($this->getShippingAddress());
         }
 
-        // TODO: Move the recalculate to somewhere else. Saving should be for saving only
+        // TODO: Move the recalculate to somewhere else. Saving should be for saving only #COM-40
         // Right now orders always recalc when saved and not completed but that shouldn't always be the case.
         $this->recalculate();
 
@@ -2602,19 +2585,6 @@ class Order extends Element
      * @param string|array $types
      * @param bool $included
      * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($types, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('Order::getAdjustmentsTotalByType()', '`Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($types, $included);
-    }
-
-    /**
-     * @param string|array $types
-     * @param bool $included
-     * @return float|int
      */
     public function _getAdjustmentsTotalByType($types, $included = false)
     {
@@ -2983,7 +2953,7 @@ class Order extends Element
 
     /**
      * @return int|null
-     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
+     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only) #COM-38
      */
     public function getShippingMethodId()
     {

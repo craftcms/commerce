@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use Closure;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\base\Purchasable;
@@ -316,7 +317,7 @@ class LineItem extends Model
         $cleanEmojiValues = static function(&$options) use (&$cleanEmojiValues) {
             foreach ($options as $key => $value) {
                 if (is_array($value)) {
-                    $cleanEmojiValues($options[$key]);
+                    $cleanEmojiValues($value);
                 } else {
                     if (is_string($value)) {
                         $options[$key] = LitEmoji::unicodeToShortcode($value);
@@ -327,7 +328,7 @@ class LineItem extends Model
             return $options;
         };
 
-        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change.
+        // TODO make this consistent no matter what the DB driver is. Will be a "breaking" change. #COM-46
         if (Craft::$app->getDb()->getSupportsMb4()) {
             $this->_options = $options;
         } else {
@@ -421,17 +422,6 @@ class LineItem extends Model
     }
 
     /**
-     * @param $saleAmount
-     * @throws DeprecationException
-     * @since 3.1.1
-     * @deprecated in 3.1.1
-     */
-    public function setSaleAmount($saleAmount)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::setSaleAmount()', 'The setting of `saleAmount` has been deprecated. `saleAmount` is automatically calculated.');
-    }
-
-    /**
      * @return float
      * @since 3.1.1
      */
@@ -489,7 +479,7 @@ class LineItem extends Model
      */
     private function _normalizePurchasableRule($rule, PurchasableInterface $purchasable)
     {
-        if (isset($rule[1]) && $rule[1] instanceof \Closure) {
+        if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];
             $method->bindTo($purchasable);
             $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
@@ -786,19 +776,6 @@ class LineItem extends Model
         }
 
         return $amount;
-    }
-
-    /**
-     * @param string $type
-     * @param bool $included
-     * @return float|int
-     * @deprecated in 2.2
-     */
-    public function getAdjustmentsTotalByType($type, $included = false)
-    {
-        Craft::$app->getDeprecator()->log('LineItem::getAdjustmentsTotalByType()', '`LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.');
-
-        return $this->_getAdjustmentsTotalByType($type, $included);
     }
 
     /**

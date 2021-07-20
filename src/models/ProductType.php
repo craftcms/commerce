@@ -74,7 +74,7 @@ class ProductType extends Model
 
     /**
      * @var string Variant title format
-     * TODO: Rename to variantTitleFormat in 4.0
+     * TODO: Rename to variantTitleFormat in 4.0 #COM-44
      */
     public $titleFormat = '{product.title}';
 

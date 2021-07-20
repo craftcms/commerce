@@ -591,36 +591,6 @@ class Customers extends Component
     }
 
     /**
-     * Id of current customer record. Guaranteed not null
-     *
-     * @return int
-     * @throws Exception
-     * @deprecated in 3.1.11. Use `Customers::getCustomer()->id` instead.
-     */
-    public function getCustomerId(): int
-    {
-        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', '`Customers::getCustomerId()` has been deprecated. Use `Customers::getCustomer()->id`, since it is guaranteed to have a ID.');
-
-        return $this->getCustomer()->id;
-    }
-
-    /**
-     * Handle a saved user.
-     *
-     * @param Event $event
-     * @throws Exception
-     * @deprecated in 3.1.11. Use afterSaveUserHandler() instead.
-     */
-    public function saveUserHandler(Event $event)
-    {
-        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', '`Customers::saveUserHandler()` has been deprecated. Use `Customers::afterSaveUserHandler()` instead.');
-
-        if ($customer = $this->getCustomerByUserId($event->sender->id)) {
-            $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
-        }
-    }
-
-    /**
      * Retrieve customer query with the option to specify a search term
      *
      * @param string|null $search

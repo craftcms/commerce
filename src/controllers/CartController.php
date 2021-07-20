@@ -98,7 +98,7 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $this->request->getParam('purchasableId')) {
             $note = $this->request->getParam('note', '');
-            $options = $this->request->getParam('options', []);
+            $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
@@ -423,12 +423,7 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
-        if (($cartUpdatedNotice = $this->request->getParam('cartUpdatedNotice')) !== null) {
-            $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
-            Craft::$app->getDeprecator()->log('cartUpdatedNotice', 'The `cartUpdatedNotice` param has been deprecated for `carts/*` requests. Use a hashed `successMessage` param instead.');
-        } else {
-            $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
-        }
+        $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
 
         if ($this->request->getAcceptsJson()) {
             $message = $this->request->getValidatedBodyParam('successMessage') ?? $cartUpdatedMessage;
@@ -462,7 +457,7 @@ class CartController extends BaseFrontEndController
     {
         $cart = null;
 
-        // TODO Remove `orderNumber` param in 4.0
+        // TODO Remove `orderNumber` param in 4.0 #COM-33
         $orderNumber = $this->request->getBodyParam('orderNumber');
         $orderNumber = $this->request->getBodyParam('number', $orderNumber);
 

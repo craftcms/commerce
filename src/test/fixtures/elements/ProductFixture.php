@@ -70,7 +70,7 @@ class ProductFixture extends BaseElementFixture
      * This uses a raw query to avoid service level caching/memoization.
      *
      * @return array
-     * @TODO review the necessity of this at the next breakpoint version.
+     * @TODO review the necessity of this at the next breakpoint version. #COM-54
      */
     private function _getProductTypeIds(): array
     {

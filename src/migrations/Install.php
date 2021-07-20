@@ -526,7 +526,7 @@ class Install extends Migration
 
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean(),
-            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0
+            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0 #COM-44
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean(),
@@ -774,7 +774,7 @@ class Install extends Migration
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
             'include' => $this->boolean(),
-            'isVat' => $this->boolean(), // @TODO rename to isEuVat
+            'isVat' => $this->boolean(), // @TODO rename to isEuVat #COM-45
             'removeIncluded' => $this->boolean(),
             'removeVatIncluded' => $this->boolean(),
             'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),

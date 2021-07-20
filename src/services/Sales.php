@@ -260,6 +260,7 @@ class Sales extends Component
      *
      * @param Sale $sale
      * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
+     * // TODO Removed when completing #COM-58
      */
     public function populateSaleRelations(Sale $sale)
     {
