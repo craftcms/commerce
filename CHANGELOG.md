@@ -82,11 +82,11 @@
 ### Fixed
 - Fixed a bug where discounts weren’t displaying validation errors for the “Per Email Address Discount Limit” field. ([#1455](https://github.com/craftcms/commerce/issues/1455))
 
-## Unreleased
+## 3.3.5.1 - 2021-07-07
 
-### Changed
-- It’s now possible to copy a subscription’s reference right from the Edit Subscription page.
-- It’s now possible to search orders by the shipping or billing address.
+### Fixed
+- Fixed a bug where the customer search box was showing as “undefined” on Edit Order pages. ([#2247](https://github.com/craftcms/commerce/issues/2247))
+- Fixed a bug where it wasn’t possible to query for products by `productTypeId` via GraphQL. ([#2248](https://github.com/craftcms/commerce/issues/2248))
 
 ## 3.3.5 - 2021-07-06
 
