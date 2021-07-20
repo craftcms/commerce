@@ -1844,9 +1844,10 @@ class Order extends Element
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         $options = [];
+        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($availableMethods as $method) {
-            $option = new ShippingMethodOption($method->getAttributes());
+            $option = new ShippingMethodOption($method->getAttributes($attributes));
             $option->setOrder($this);
             $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
@@ -1859,7 +1860,7 @@ class Order extends Element
             foreach ($allMethods as $method) {
                 // If they are not in the existing available matching shipping method options
                 if (!ArrayHelper::keyExists($method->getHandle(), $options)) {
-                    $option = new ShippingMethodOption($method->getAttributes());
+                    $option = new ShippingMethodOption($method->getAttributes($attributes));
                     $option->setOrder($this);
                     $option->matchesOrder = false;
                     $option->price = $method->getPriceForOrder($this);
