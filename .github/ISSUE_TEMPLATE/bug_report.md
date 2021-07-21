@@ -1,29 +1,22 @@
 ---
 name: Bug Report
-about: Create a report to help us improve
-title: ''
-labels: New
-assignees: ''
+about: Report an issue or unexpected behavior
+labels: bug
 
 ---
 
-**Description**
-Describe what the problem is.
+### Description
 
-**To Reproduce**
-How, and what happened?
-1. `In the CP...`
+
+
+### Steps to reproduce
+
+1.
 2.
 
-**Expected behavior**
-What did you expect to happen?
+### Additional info
 
-**Additional info**
 - Craft version:
-- Commerce version:
 - PHP version:
 - Database driver & version:
-- Other Plugins & versions:
-
-**Additional context**
-Add any other context about the problem here.
+- Plugins & versions:
