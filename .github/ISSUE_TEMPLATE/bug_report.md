@@ -16,7 +16,8 @@ labels: bug
 
 ### Additional info
 
-- Craft version:
+- Craft CMS version:
+- Craft Commerce version:
 - PHP version:
 - Database driver & version:
 - Plugins & versions:
