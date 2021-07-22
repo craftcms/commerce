@@ -11,10 +11,12 @@
 ### Changed (Previous Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
+- Subscription plans are no longer accessible via old Control Panel URLs.
 
 ### Deprecated
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.

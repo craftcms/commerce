@@ -181,27 +181,4 @@ class PlansController extends BaseStoreSettingsController
 
         return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
     }
-
-    /**
-     * Temporary redirect function after subscriptions plans were moved.
-     *
-     * @param int|null $planId
-     * @return Response
-     * @deprecated 3.2.11
-     * // TODO Remove with routes in #COM-47
-     */
-    public function actionRedirect($planId = null): Response
-    {
-        $request = Craft::$app->getRequest();
-
-        if ($request->getSegment(5) == 'new') {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/new', 301);
-        }
-
-        if ($request->getSegment(5) && $planId) {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/' . $planId, 301);
-        }
-
-        return $this->redirect('commerce/store-settings/subscription-plans', 301);
-    }
 }
