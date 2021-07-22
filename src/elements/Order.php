@@ -1844,9 +1844,10 @@ class Order extends Element
         $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
 
         $options = [];
+        $attributes = (new ShippingMethod())->attributes();
 
         foreach ($availableMethods as $method) {
-            $option = new ShippingMethodOption($method->getAttributes());
+            $option = new ShippingMethodOption($method->getAttributes($attributes));
             $option->setOrder($this);
             $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
@@ -1859,7 +1860,7 @@ class Order extends Element
             foreach ($allMethods as $method) {
                 // If they are not in the existing available matching shipping method options
                 if (!ArrayHelper::keyExists($method->getHandle(), $options)) {
-                    $option = new ShippingMethodOption($method->getAttributes());
+                    $option = new ShippingMethodOption($method->getAttributes($attributes));
                     $option->setOrder($this);
                     $option->matchesOrder = false;
                     $option->price = $method->getPriceForOrder($this);
@@ -1873,13 +1874,12 @@ class Order extends Element
 
     public function beforeSave(bool $isNew): bool
     {
-
-        if (null === $this->shippingMethodHandle) {
+        if (!$this->shippingMethodHandle) {
             // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
         } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
             // Update shipping method name if there is a handle and we can retrieve the method
-            $this->shippingMethodName = $shippingMethod->name;
+            $this->shippingMethodName = $shippingMethod->getName();
         }
 
         return parent::beforeSave($isNew);
@@ -2985,15 +2985,14 @@ class Order extends Element
         $this->_estimatedBillingAddress = null;
     }
 
-
     /**
      * @return int|null
      * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
      */
     public function getShippingMethodId()
     {
-        if ($this->getShippingMethod()) {
-            return $this->getShippingMethod()->getId();
+        if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            return $shippingMethod->getId();
         }
 
         return null;
@@ -3004,7 +3003,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
+        return ArrayHelper::firstWhere(Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this), 'handle', $this->shippingMethodHandle);
     }
 
     /**
@@ -3236,8 +3235,7 @@ class Order extends Element
         $orderSite = $this->getOrderSite();
         $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
 
-        $shippingMethod = $this->getShippingMethod();
-        $metadata[Craft::t('commerce', 'Shipping Method')] = $shippingMethod->getName() ?? '';
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $this->shippingMethodName ?? '';
 
         $metadata[Craft::t('app', 'ID')] = $this->id;
         $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();

@@ -311,7 +311,7 @@ class CartController extends BaseFrontEndController
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->getShippingMethod()) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 
