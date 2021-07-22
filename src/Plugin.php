@@ -183,12 +183,12 @@ class Plugin extends BasePlugin
     public function beforeInstall(): bool
     {
         // Check version before installing
-        if (version_compare(Craft::$app->getInfo()->version, '3.0', '<')) {
-            throw new Exception('Craft Commerce 2 requires Craft CMS 3+ in order to run.');
+        if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
+            throw new Exception('Craft Commerce 4 requires Craft CMS 4+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70000) {
-            Craft::error('Craft Commerce requires PHP 7.0+ in order to run.');
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70400) {
+            Craft::error('Craft Commerce requires PHP 7.4+ in order to run.');
 
             return false;
         }
