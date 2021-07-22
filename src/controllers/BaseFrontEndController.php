@@ -65,11 +65,6 @@ class BaseFrontEndController extends BaseController
 
         $cartInfo = $cart->toArray([], $extraFields);
 
-        // This is to avoid deprecation error with calling `getAvailableShippingMethods` method on the order
-        // TODO Remove this at 4.0 #COM-32
-        $availableShippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($cart);
-        $cartInfo['availableShippingMethods'] = $availableShippingMethods;
-
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
