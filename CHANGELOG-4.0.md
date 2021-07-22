@@ -30,6 +30,7 @@
 - Removed `craft\commerce\elements\Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\events\LineItemEvent::isValid`.
 - Removed `craft\commerce\models\Email::getPdfTemplatePath()`. Use `craft\commerce\models\Email::getPdf()->getTemplatePath()` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`.
 - Removed `craft\commerce\services\Customers::getCustomerId()`. Use `Customers::getCustomer()->id` instead.

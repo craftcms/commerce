@@ -27,10 +27,4 @@ class LineItemEvent extends Event
      * @var bool If this is a new line item.
      */
     public $isNew = false;
-
-    /**
-     * @deprecated This event is not cancellable. This prop is here for backwards compatibility.
-     * TODO remove in 4.0 #COM-42
-     */
-    public $isValid = true;
 }
