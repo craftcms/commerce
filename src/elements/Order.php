@@ -1372,7 +1372,7 @@ class Order extends Element
     public function extraFields(): array
     {
         $names = parent::extraFields();
-        $names[] = 'availableShippingMethods';
+        $names[] = 'matchingShippingMethods';
         $names[] = 'availableShippingMethodOptions';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
@@ -1823,9 +1823,9 @@ class Order extends Element
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $matchingMethods = Plugin::getInstance()->getShippingMethods()->getMatchingShippingMethods($this);
         $methods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
-        $availableMethodHandles = ArrayHelper::getColumn($availableMethods, 'handle');
+        $matchingMethodHandles = ArrayHelper::getColumn($matchingMethods, 'handle');
 
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
@@ -1837,7 +1837,7 @@ class Order extends Element
                 $option->$attribute = $method->$attribute;
             }
 
-            $option->matchesOrder = ArrayHelper::isIn($method->handle, $availableMethodHandles);
+            $option->matchesOrder = ArrayHelper::isIn($method->handle, $matchingMethodHandles);
             $option->price = $method->getPriceForOrder($this);
 
             // Add all methods if completed, and only the matching methods when it is not completed.

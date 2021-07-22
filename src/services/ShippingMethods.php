@@ -106,15 +106,14 @@ class ShippingMethods extends Component
     }
 
     /**
-     * Get all available shipping methods.
+     * Get all matching shipping methods.
      *
      * @param Order $order
      * @return ShippingMethod[]
-     * @TODO rename to matchingShippingMethods in 4.0
      */
-    public function getAvailableShippingMethods(Order $order): array
+    public function getMatchingShippingMethods(Order $order): array
     {
-        $availableMethods = [];
+        $matchingMethods = [];
 
         $methods = $this->getAllShippingMethods();
 
@@ -132,7 +131,7 @@ class ShippingMethods extends Component
             $totalPrice = $method->getPriceForOrder($order);
 
             if ($method->getIsEnabled() && $method->matchOrder($order)) {
-                $availableMethods[$method->getHandle()] = [
+                $matchingMethods[$method->getHandle()] = [
                     'method' => $method,
                     'price' => $totalPrice, // Store the price so we can sort on it before returning
                 ];
@@ -140,12 +139,12 @@ class ShippingMethods extends Component
         }
 
         // Sort by price. Using the cached price and don't call `$method->getPriceForOrder($order);` again.
-        uasort($availableMethods, function($a, $b) {
+        uasort($matchingMethods, static function($a, $b) {
             return $a['price'] - $b['price'];
         });
 
         $shippingMethods = [];
-        foreach ($availableMethods as $shippingMethod) {
+        foreach ($matchingMethods as $shippingMethod) {
             $method = $shippingMethod['method'];
             $shippingMethods[$method->getHandle()] = $method; // Keep the key being the handle of the method for front-end use.
         }
