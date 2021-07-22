@@ -754,8 +754,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.typeId',
             'commerce_products.promotable',
             'commerce_products.freeShipping',
-            // TODO: uncomment after next breakpoint #COM-37
-            //'commerce_products.availableForPurchase',
+            'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -769,14 +768,8 @@ class ProductQuery extends ElementQuery
             'commerce_products.shippingCategoryId'
         ]);
 
-        // TODO: remove after next breakpoint #COM-37
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if ($commerce && version_compare($commerce['version'], '2.0.0-beta.5', '>=')) {
-            $this->query->addSelect(['commerce_products.availableForPurchase']);
-
-            if ($this->availableForPurchase !== null) {
-                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
-            }
+        if ($this->availableForPurchase !== null) {
+            $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
         }
 
         if ($this->postDate) {

@@ -977,26 +977,26 @@ class Discounts extends Component
      * @return bool
      */
     public function isDiscountUserGroupValid(Discount $discount, $user): bool
-    {        
+    {
         $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
-        
+
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
-            
-            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY && 
+
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY &&
                 (count(array_intersect($groupIds, $discountGroupIds)) === 0)
             ) {
                 return false;
             }
-            
-            sort($groupIds); 
+
+            sort($groupIds);
             sort($discountGroupIds);
-            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL 
+            if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL
                && $groupIds !== $discountGroupIds
             ) {
                 return false;
-            }            
-            
+            }
+
             if ($discount->userGroupsCondition === DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE &&
                 count(array_intersect($groupIds, $discountGroupIds)) > 0
             ) {
@@ -1176,14 +1176,10 @@ class Discounts extends Component
                 '[[discounts.sortOrder]]',
                 '[[discounts.dateCreated]]',
                 '[[discounts.dateUpdated]]',
+                '[[discounts.appliedTo]]',
             ])
             ->from(['discounts' => Table::DISCOUNTS])
             ->orderBy(['sortOrder' => SORT_ASC]);
-
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if ($commerce && version_compare($commerce['version'], '3.1', '>=')) {
-            $query->addSelect('[[discounts.appliedTo]]');
-        }
 
         $query->addSelect([
             'dp.purchasableId',

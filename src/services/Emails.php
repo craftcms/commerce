@@ -329,18 +329,8 @@ class Emails extends Component
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-
-            // todo: remove schema version condition after next beakpoint #COM-37
-            $projectConfig = Craft::$app->getProjectConfig();
-            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-
-            if (version_compare($schemaVersion, '3.2.0', '>=')) {
-                $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
-            }
-
-            if (version_compare($schemaVersion, '3.2.13', '>=')) {
-                $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
-            }
+            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
+            $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
 
             $emailRecord->save(false);
 
@@ -909,21 +899,11 @@ class Emails extends Component
                 'emails.templatePath',
                 'emails.plainTextTemplatePath',
                 'emails.uid',
+                'emails.pdfId',
+                'emails.language',
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);
-
-        // todo: remove schema version condition after next beakpoint #COM-37
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
-
-        if (version_compare($schemaVersion, '3.2.0', '>=')) {
-            $query->addSelect(['emails.pdfId']);
-        }
-
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
-            $query->addSelect(['emails.language']);
-        }
 
         return $query;
     }

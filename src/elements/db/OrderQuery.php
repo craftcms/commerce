@@ -1221,6 +1221,21 @@ class OrderQuery extends ElementQuery
             'commerce_orders.paymentSourceId',
             'commerce_orders.customerId',
             'commerce_orders.dateUpdated',
+            'commerce_orders.registerUserOnOrderComplete',
+            'commerce_orders.recalculationMode',
+            'commerce_orders.origin',
+            'commerce_orders.dateAuthorized',
+            'storedTotalPrice' => 'commerce_orders.totalPrice',
+            'storedTotalPaid' => 'commerce_orders.totalPaid',
+            'storedItemTotal' => 'commerce_orders.itemTotal',
+            'storedTotalDiscount' => 'commerce_orders.totalDiscount',
+            'storedTotalShippingCost' => 'commerce_orders.totalShippingCost',
+            'storedTotalTax' => 'commerce_orders.totalTax',
+            'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
+            'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
+            'commerce_orders.shippingMethodName',
+            'commerce_orders.orderSiteId',
+            'commerce_orders.orderLanguage',
         ]);
 
         // Join shipping and billing address
@@ -1228,58 +1243,6 @@ class OrderQuery extends ElementQuery
         $this->subQuery->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
         $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
         $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-
-        // TODO: remove after next breakpoint #COM-37
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-
-        if ($commerce && version_compare($commerce['version'], '2.1.3', '>=')) {
-            $this->query->addSelect(['commerce_orders.registerUserOnOrderComplete']);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0', '>=')) {
-            $this->query->addSelect(['commerce_orders.recalculationMode']);
-            $this->query->addSelect(['commerce_orders.origin']);
-
-            if ($this->origin) {
-                $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
-            }
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
-            $this->query->addSelect(['commerce_orders.dateAuthorized']);
-            if ($this->dateAuthorized) {
-                $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
-            }
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.0.7', '>=')) {
-            $this->query->addSelect([
-                'storedTotalPrice' => 'commerce_orders.totalPrice',
-                'storedTotalPaid' => 'commerce_orders.totalPaid',
-                'storedItemTotal' => 'commerce_orders.itemTotal',
-                'storedTotalDiscount' => 'commerce_orders.totalDiscount',
-                'storedTotalShippingCost' => 'commerce_orders.totalShippingCost',
-                'storedTotalTax' => 'commerce_orders.totalTax',
-                'storedTotalTaxIncluded' => 'commerce_orders.totalTaxIncluded',
-            ]);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.2.0', '>=')) {
-            $this->query->addSelect([
-                'commerce_orders.shippingMethodName',
-            ]);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.2.4', '>=')) {
-            $this->query->addSelect([
-                'storedItemSubtotal' => 'commerce_orders.itemSubtotal',
-            ]);
-        }
-
-        if ($commerce && version_compare($commerce['version'], '3.2.9', '>=')) {
-            $this->query->addSelect(['commerce_orders.orderSiteId']);
-            $this->query->addSelect(['commerce_orders.orderLanguage']);
-        }
 
         if ($this->number !== null) {
             // If it's set to anything besides a non-empty string, abort the query
@@ -1298,6 +1261,10 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(new Expression('LEFT([[commerce_orders.number]], 7) = :shortNumber', [':shortNumber' => $this->shortNumber]));
         }
 
+        if ($this->origin) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.origin', $this->origin));
+        }
+
         if ($this->reference) {
             $this->subQuery->andWhere(['commerce_orders.reference' => $this->reference]);
         }
@@ -1309,6 +1276,10 @@ class OrderQuery extends ElementQuery
         // Allow true ot false but not null
         if ($this->isCompleted !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.isCompleted', $this->isCompleted, '=', false, Schema::TYPE_BOOLEAN));
+        }
+
+        if ($this->dateAuthorized) {
+            $this->subQuery->andWhere(Db::parseDateParam('commerce_orders.dateAuthorized', $this->datePaid));
         }
 
         if ($this->dateOrdered) {

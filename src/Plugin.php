@@ -699,13 +699,6 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand()
     {
-        if (
-            !Craft::$app instanceof ConsoleApplication ||
-            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
-        ) {
-            return;
-        }
-
         Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
                 'action' => function(): int {

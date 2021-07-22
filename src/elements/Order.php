@@ -1248,14 +1248,9 @@ class Order extends Element
      */
     public function datetimeAttributes(): array
     {
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-
         $attributes = parent::datetimeAttributes();
 
-        if ($commerce && version_compare($commerce['version'], '3.0.6', '>=')) {
-            $attributes[] = 'dateAuthorized';
-        }
-
+        $attributes[] = 'dateAuthorized';
         $attributes[] = 'datePaid';
         $attributes[] = 'dateOrdered';
         $attributes[] = 'dateUpdated';

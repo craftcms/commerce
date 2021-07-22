@@ -311,13 +311,7 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
-
-            /** @var Plugin $plugin */
-            $projectConfig = Craft::$app->getProjectConfig();
-            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
-            if (version_compare($schemaVersion, '3.2.13', '>=')) {
-                $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
-            }
+            $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -563,15 +557,11 @@ class Pdfs extends Component
                 'sortOrder',
                 'isDefault',
                 'uid',
+                'language',
             ])
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
-
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
-            $query->addSelect(['language']);
-        }
 
         return $query;
     }
