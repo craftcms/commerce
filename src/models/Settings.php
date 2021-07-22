@@ -387,12 +387,12 @@ class Settings extends Model
     public $validateCartCustomFieldsOnSubmission = false;
 
     /**
-     * @todo remove in 4.0
+     * @todo remove in 4.0 #COM-60
      */
     private $_orderPdfFilenameFormat;
 
     /**
-     * @todo remove in 4.0
+     * @todo remove in 4.0 #COM-60
      */
     public $_orderPdfPath;
 
@@ -405,7 +405,7 @@ class Settings extends Model
 
         $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
 
-        // We only want to mass set or retrieve these prior to 3.2
+        // We only want to mass set or retrieve these prior to 3.2 #COM-60
         if ($commerce && version_compare($commerce['version'], '3.2.0', '<')) {
             $names[] = 'orderPdfFilenameFormat'; // @todo remove in 4.0
             $names[] = 'orderPdfPath'; // @todo remove in 4.0
