@@ -616,7 +616,6 @@ class ProductTypes extends Component
                         'siteId' => '*',
                         'status' => null,
                         'typeId' => $productTypeRecord->id,
-                        'enabledForSite' => false
                     ]
                 ]));
             }
