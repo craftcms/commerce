@@ -23,14 +23,6 @@ jobs:
     env: DB=mysql TASK_TESTS_COVERAGE=1 XDEBUG_MODE=coverage
   - php: 7.4
     env: DB=pgsql
-  - php: 7.3
-    env: DB=mysql
-  - php: 7.3
-    env: DB=pgsql
-  - php: 7.2.5
-    env: DB=mysql
-  - php: 7.2.5
-    env: DB=pgsql
 cache:
   directories:
   - "$HOME/.composer/cache"
