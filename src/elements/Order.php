@@ -105,7 +105,6 @@ use yii\log\Logger;
  * @property-read float $total
  * @property-read float $totalPrice
  * @property-read int $totalSaleAmount the total sale amount
- * @property-read float $totalTaxablePrice
  * @property-read int $totalQty the total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
@@ -119,7 +118,6 @@ use yii\log\Logger;
  * @property-read string $totalAsCurrency
  * @property-read string $totalPriceAsCurrency
  * @property-read string $totalSaleAmountAsCurrency
- * @property-read string $totalTaxablePriceAsCurrency
  * @property-read string $totalTaxAsCurrency
  * @property-read string $totalTaxIncludedAsCurrency
  * @property-read string $totalShippingCostAsCurrency
@@ -1283,7 +1281,6 @@ class Order extends Element
         $names[] = 'totalPrice';
         $names[] = 'totalQty';
         $names[] = 'totalSaleAmount';
-        $names[] = 'totalTaxablePrice';
         $names[] = 'totalWeight';
         return $names;
     }
@@ -1306,7 +1303,6 @@ class Order extends Element
         $attributes[] = 'total';
         $attributes[] = 'totalPrice';
         $attributes[] = 'totalSaleAmount';
-        $attributes[] = 'totalTaxablePrice';
         $attributes[] = 'totalTax';
         $attributes[] = 'totalTaxIncluded';
         $attributes[] = 'totalShippingCost';
