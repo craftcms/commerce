@@ -273,7 +273,6 @@ class Order extends Element
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
-     * @todo Change to `afterRemoveLineItemFromOrder` in next major release (`To` → `From`) like Commerce 4 #COM-39
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -294,7 +293,7 @@ class Order extends Element
      * );
      * ```
      */
-    const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemToOrder';
+    const EVENT_AFTER_REMOVE_LINE_ITEM = 'afterRemoveLineItemFromOrder';
 
     /**
      * @event \yii\base\Event The event that is triggered after a line item has been removed from an order.
