@@ -680,7 +680,7 @@ class LineItem extends Model
         // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
-            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
                 if ($ignoreSales) {
                     break;
