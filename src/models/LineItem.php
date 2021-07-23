@@ -177,7 +177,7 @@ class LineItem extends Model
     private $_purchasable;
 
     /**
-     * @var Order Order
+     * @var Order Order|null
      */
     private $_order;
 
@@ -231,7 +231,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getOrder()->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes()
         ];
 
