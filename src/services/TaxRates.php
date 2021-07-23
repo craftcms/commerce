@@ -242,20 +242,20 @@ class TaxRates extends Component
     {
         $query = (new Query())
             ->select([
-                'id',
-                'taxZoneId',
-                'taxCategoryId',
-                'name',
                 'code',
-                'rate',
-                'include',
-                'removeIncluded',
-                'removeVatIncluded',
-                'isVat',
-                'taxable',
-                'isLite',
                 'dateCreated',
                 'dateUpdated',
+                'id',
+                'include',
+                'isLite',
+                'isVat',
+                'name',
+                'rate',
+                'removeIncluded',
+                'removeVatIncluded',
+                'taxable',
+                'taxCategoryId',
+                'taxZoneId',
             ])
             ->orderBy(['include' => SORT_DESC, 'isVat' => SORT_DESC])
             ->from([Table::TAXRATES]);

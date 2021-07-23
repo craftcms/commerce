@@ -547,17 +547,17 @@ class Pdfs extends Component
     {
         $query = (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
                 'description',
-                'templatePath',
-                'fileNameFormat',
                 'enabled',
-                'sortOrder',
+                'fileNameFormat',
+                'handle',
+                'id',
                 'isDefault',
-                'uid',
                 'language',
+                'name',
+                'sortOrder',
+                'templatePath',
+                'uid',
             ])
             ->orderBy('name')
             ->from([Table::PDFS])

@@ -887,20 +887,20 @@ class Emails extends Component
     {
         $query = (new Query())
             ->select([
-                'emails.id',
-                'emails.name',
-                'emails.subject',
-                'emails.recipientType',
-                'emails.to',
                 'emails.bcc',
                 'emails.cc',
-                'emails.replyTo',
                 'emails.enabled',
-                'emails.templatePath',
-                'emails.plainTextTemplatePath',
-                'emails.uid',
-                'emails.pdfId',
+                'emails.id',
                 'emails.language',
+                'emails.name',
+                'emails.pdfId',
+                'emails.plainTextTemplatePath',
+                'emails.recipientType',
+                'emails.replyTo',
+                'emails.subject',
+                'emails.templatePath',
+                'emails.to',
+                'emails.uid',
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);

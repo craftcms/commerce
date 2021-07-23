@@ -223,14 +223,14 @@ class TaxZones extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'description',
-                'isCountryBased',
-                'zipCodeConditionFormula',
-                'default',
                 'dateCreated',
                 'dateUpdated',
+                'default',
+                'description',
+                'id',
+                'isCountryBased',
+                'name',
+                'zipCodeConditionFormula',
             ])
             ->orderBy('name')
             ->from([Table::TAXZONES]);

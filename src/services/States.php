@@ -359,14 +359,14 @@ class States extends Component
     {
         return (new Query())
             ->select([
-                'states.id',
-                'states.name',
                 'states.abbreviation',
                 'states.countryId',
-                'states.enabled',
-                'states.sortOrder',
                 'states.dateCreated',
                 'states.dateUpdated',
+                'states.enabled',
+                'states.id',
+                'states.name',
+                'states.sortOrder',
             ])
             ->from([Table::STATES . ' states'])
             ->orderBy(['states.sortOrder' => SORT_ASC]);

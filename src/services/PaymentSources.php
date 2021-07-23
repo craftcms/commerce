@@ -340,12 +340,12 @@ class PaymentSources extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'gatewayId',
-                'userId',
-                'token',
                 'description',
+                'gatewayId',
+                'id',
                 'response',
+                'token',
+                'userId',
             ])
             ->from([Table::PAYMENTSOURCES]);
     }

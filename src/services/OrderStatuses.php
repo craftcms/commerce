@@ -494,15 +494,15 @@ class OrderStatuses extends Component
     {
         $query = (new Query())
             ->select([
+                'color',
+                'dateDeleted',
+                'default',
+                'description',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
-                'description',
                 'sortOrder',
-                'default',
-                'dateDeleted',
-                'uid'
+                'uid',
             ])
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES]);

@@ -410,17 +410,17 @@ class Gateways extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'type',
-                'name',
-                'handle',
-                'paymentType',
-                'isFrontendEnabled',
-                'isArchived',
                 'dateArchived',
+                'handle',
+                'id',
+                'isArchived',
+                'isFrontendEnabled',
+                'name',
+                'paymentType',
                 'settings',
+                'sortOrder',
+                'type',
                 'uid',
-                'sortOrder'
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);

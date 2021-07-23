@@ -300,13 +300,13 @@ class ShippingMethods extends Component
     {
         $query = (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
-                'enabled',
-                'isLite',
                 'dateCreated',
                 'dateUpdated',
+                'enabled',
+                'handle',
+                'id',
+                'isLite',
+                'name',
             ])
             ->from([Table::SHIPPINGMETHODS]);
 

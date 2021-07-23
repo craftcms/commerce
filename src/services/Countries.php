@@ -310,13 +310,13 @@ class Countries extends Component
     {
         return (new Query())
             ->select([
-                'countries.id',
-                'countries.name',
-                'countries.iso',
-                'countries.isStateRequired',
-                'countries.enabled',
                 'countries.dateCreated',
                 'countries.dateUpdated',
+                'countries.enabled',
+                'countries.id',
+                'countries.iso',
+                'countries.isStateRequired',
+                'countries.name',
             ])
             ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);

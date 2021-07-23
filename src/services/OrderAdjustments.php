@@ -268,16 +268,16 @@ class OrderAdjustments extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'description',
-                'type',
                 'amount',
+                'description',
+                'id',
                 'included',
-                'sourceSnapshot',
+                'isEstimated',
                 'lineItemId',
+                'name',
                 'orderId',
-                'isEstimated'
+                'sourceSnapshot',
+                'type',
             ])
             ->from([Table::ORDERADJUSTMENTS]);
     }

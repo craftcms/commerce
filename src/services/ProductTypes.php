@@ -253,12 +253,12 @@ class ProductTypes extends Component
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
             $rows = (new Query())
                 ->select([
+                    'hasUrls',
                     'id',
                     'productTypeId',
                     'siteId',
+                    'template',
                     'uriFormat',
-                    'hasUrls',
-                    'template'
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
@@ -933,25 +933,20 @@ class ProductTypes extends Component
     {
         return (new Query())
             ->select([
-                'productTypes.id',
+                'productTypes.descriptionFormat',
                 'productTypes.fieldLayoutId',
-                'productTypes.variantFieldLayoutId',
-                'productTypes.name',
                 'productTypes.handle',
                 'productTypes.hasDimensions',
-                'productTypes.hasVariants',
-
-                // Variant title fields
-                'productTypes.hasVariantTitleField',
-                'productTypes.titleFormat',
-
-                // Product title fields
                 'productTypes.hasProductTitleField',
+                'productTypes.hasVariants',
+                'productTypes.hasVariantTitleField',
+                'productTypes.id',
+                'productTypes.name',
                 'productTypes.productTitleFormat',
-
                 'productTypes.skuFormat',
-                'productTypes.descriptionFormat',
-                'productTypes.uid'
+                'productTypes.titleFormat',
+                'productTypes.uid',
+                'productTypes.variantFieldLayoutId',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
     }

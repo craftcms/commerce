@@ -232,11 +232,11 @@ class TopProducts extends Stat
 
         return (new Query())
             ->select([
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0) as discount'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0) as tax'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0) as tax_included'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0) as shipping'),
                 '[[v.productId]]',
+                'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0)'),
+                'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0)'),
+                'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0)'),
+                'tax_included' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0)'),
             ])
             ->from(Table::ORDERADJUSTMENTS)
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.id]] = [[lineItemId]]')

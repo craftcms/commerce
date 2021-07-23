@@ -601,19 +601,19 @@ class Customers extends Component
     {
         $customersQuery = (new Query())
             ->select([
-                'customers.id as id',
-                'userId',
-                new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END as email'),
-                'primaryBillingAddressId',
-                'billing.firstName as billingFirstName',
-                'billing.lastName as billingLastName',
-                'billing.fullName as billingFullName',
                 'billing.address1 as billingAddress',
-                'shipping.firstName as shippingFirstName',
-                'shipping.lastName as shippingLastName',
-                'shipping.fullName as shippingFullName',
-                'shipping.address1 as shippingAddress',
+                'billing.firstName as billingFirstName',
+                'billing.fullName as billingFullName',
+                'billing.lastName as billingLastName',
+                'customers.id as id',
+                'email' => new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END'),
+                'primaryBillingAddressId',
                 'primaryShippingAddressId',
+                'shipping.address1 as shippingAddress',
+                'shipping.firstName as shippingFirstName',
+                'shipping.fullName as shippingFullName',
+                'shipping.lastName as shippingLastName',
+                'userId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
@@ -1007,12 +1007,12 @@ class Customers extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'userId',
-                'primaryBillingAddressId',
-                'primaryShippingAddressId',
                 'dateCreated',
                 'dateUpdated',
+                'id',
+                'primaryBillingAddressId',
+                'primaryShippingAddressId',
+                'userId',
             ])
             ->from([Table::CUSTOMERS]);
     }

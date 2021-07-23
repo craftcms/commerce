@@ -283,13 +283,13 @@ class ShippingCategories extends Component
     {
         return (new Query())
             ->select([
-                'shippingCategories.id',
-                'shippingCategories.name',
-                'shippingCategories.handle',
-                'shippingCategories.description',
-                'shippingCategories.default',
                 'shippingCategories.dateCreated',
                 'shippingCategories.dateUpdated',
+                'shippingCategories.default',
+                'shippingCategories.description',
+                'shippingCategories.handle',
+                'shippingCategories.id',
+                'shippingCategories.name',
             ])
             ->from([Table::SHIPPINGCATEGORIES . ' shippingCategories']);
     }

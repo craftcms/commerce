@@ -299,19 +299,19 @@ class Plans extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'gatewayId',
-                'name',
-                'handle',
-                'planInformationId',
-                'reference',
-                'planData',
-                'enabled',
-                'isArchived',
                 'dateArchived',
-                'sortOrder',
                 'dateCreated',
                 'dateUpdated',
+                'enabled',
+                'gatewayId',
+                'handle',
+                'id',
+                'isArchived',
+                'name',
+                'planData',
+                'planInformationId',
+                'reference',
+                'sortOrder',
                 'uid',
             ])
             ->orderBy(['sortOrder' => SORT_ASC])

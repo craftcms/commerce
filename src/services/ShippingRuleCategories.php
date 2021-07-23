@@ -116,13 +116,13 @@ class ShippingRuleCategories extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'shippingRuleId',
-                'shippingCategoryId',
                 'condition',
-                'perItemRate',
-                'weightRate',
+                'id',
                 'percentageRate',
+                'perItemRate',
+                'shippingCategoryId',
+                'shippingRuleId',
+                'weightRate',
             ])
             ->from([Table::SHIPPINGRULE_CATEGORIES]);
     }

@@ -67,11 +67,11 @@ class OrderNotices extends Component
     {
         return (new Query())
             ->select([
+                'attribute',
                 'id',
+                'message',
                 'orderId',
                 'type',
-                'attribute',
-                'message'
             ])
             ->from([Table::ORDERNOTICES]);
     }
