@@ -7,6 +7,8 @@
 
 namespace craft\commerce\models;
 
+use CommerceGuys\Addressing\AddressInterface;
+use CommerceGuys\Addressing\Country\CountryRepository;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\events\DefineAddressLinesEvent;
@@ -35,7 +37,7 @@ use LitEmoji\LitEmoji;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class Address extends Model
+class Address extends Model implements AddressInterface
 {
     /**
      * @event DefineAddressLinesEvent The event that is triggered when determining the lines of the address to display.
@@ -693,5 +695,71 @@ class Address extends Model
         }
 
         return $this->_vatValidator;
+    }
+
+    public function getCountryCode()
+    {
+        return $this->getCountryIso();
+    }
+
+    public function getAdministrativeArea()
+    {
+        return $this->getStateText();
+    }
+
+    public function getLocality()
+    {
+        return $this->city;
+    }
+
+    public function getDependentLocality()
+    {
+        return $this->dependentLocality;
+    }
+
+    public function getPostalCode()
+    {
+        return $this->zipCode ?? $this->postalCode;
+    }
+
+    public function getSortingCode()
+    {
+        return $this->sortingCode;
+    }
+
+    public function getAddressLine1()
+    {
+        return $this->address1;
+    }
+
+    public function getAddressLine2()
+    {
+        return $this->address2;
+    }
+
+    public function getOrganization()
+    {
+        return $this->businessName;
+    }
+
+    public function getGivenName()
+    {
+        return $this->firstName;
+    }
+
+    public function getAdditionalName()
+    {
+        return $this->additionalName;
+    }
+
+    public function getFamilyName()
+    {
+        return $this->lastName;
+    }
+
+    public function getLocale()
+    {
+        $countryRepository = new CountryRepository();
+        return $countryRepository->get($this->countryIso)->getLocale();
     }
 }
