@@ -179,28 +179,29 @@ class LineItems extends Component
      * If a line item is found for that order ID with those exact options, that line item is
      * returned. Otherwise, a new line item is returned.
      *
-     * @param int $orderId
+     * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
      * @return LineItem
+     * @throws \Exception
      */
-    public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
     {
         $signature = LineItemHelper::generateOptionsSignature($options);
 
-        $result = $this->_createLineItemQuery()
+        $result = $order->id ? $this->_createLineItemQuery()
             ->where([
-                'orderId' => $orderId,
+                'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
                 'optionsSignature' => $signature
             ])
-            ->one();
+            ->one() : null;
 
         if ($result) {
             $lineItem = new LineItem($result);
             $lineItem->typecastAttributes();
         } else {
-            $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
+            $lineItem = $this->createLineItem($order, $purchasableId, $options);
         }
 
         return $lineItem;
@@ -341,28 +342,22 @@ class LineItems extends Component
     /**
      * Create a line item.
      *
-     * @param int $orderId The order ID the line item is associated with
+     * @param Order $order The order the line item is associated with
      * @param int $purchasableId The ID of the purchasable the line item represents
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
-     * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
      * @param string|null $uid
-     * TODO: Refactor method signature so that the 2 order assignment params are not needed. #COM-50
      * @return LineItem
      * @throws \Exception
      */
-    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = '', Order $order = null, string $uid = null): LineItem
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
         $lineItem->note = $note;
         $lineItem->uid = $uid ?: StringHelper::UUID();
-
-        if ($order == null) {
-            $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        }
         $lineItem->setOrder($order);
 
         /** @var PurchasableInterface $purchasable */

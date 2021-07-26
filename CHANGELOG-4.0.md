@@ -8,6 +8,8 @@
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
+- `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
+- `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
