@@ -4,6 +4,8 @@
 
 ### Fixed
 - Fixed a bug where queries for discounts by coupon code were case-sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
+- Fixed a migration that could fail when using a table prefix. ([#2497](https://github.com/craftcms/commerce/issues/2497))
+
 
 ## 3.4.0.3 - 2021-07-21
 
