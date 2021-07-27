@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where queries for discounts using a coupon code were case-sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
-- Fixed a SQL error that could occur during a migration when using a database table prefix. ([#2497](https://github.com/craftcms/commerce/issues/2497))
+- Fixed a bug where discount queries on coupon codes were case sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
+- Fixed a SQL error that could occur during a migration with a database using a table prefix. ([#2497](https://github.com/craftcms/commerce/issues/2497))
 
 ### Changed
 - Improved the performance of order recalculation.
