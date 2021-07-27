@@ -1,5 +1,13 @@
 # Release Notes for Craft Commerce
 
+## 3.4.1 - 2021-07-26
+
+### Changed
+- Improved the performance of order recalculation.
+
+### Fixed
+- Fixed a bug where discount queries on coupon codes were case sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
+- Fixed a SQL error that could occur during a migration with a database using a table prefix. ([#2497](https://github.com/craftcms/commerce/issues/2497))
 
 ## 3.4.0.3 - 2021-07-21
 

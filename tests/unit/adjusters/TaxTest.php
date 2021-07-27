@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\adjusters;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Address;
@@ -41,6 +42,8 @@ class TaxTest extends Unit
     {
         parent::_before();
 
+        // start with fresh cache
+        Craft::$app->getCache()->flush();
         $this->pluginInstance = Plugin::getInstance();
         $this->originalEdition = $this->pluginInstance->edition;
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
@@ -65,7 +68,7 @@ class TaxTest extends Unit
 
         $address = new Address();
         $address->countryId = $this->pluginInstance->getCountries()->getCountryByIso($addressData['countryIso'])->id;
-        $address->businessTaxId = isset($addressData['businessTaxId']) ? $addressData['businessTaxId'] : null;
+        $address->businessTaxId = $addressData['businessTaxId'] ?? null;
 
         $order->setShippingAddress($address);
 
@@ -113,7 +116,10 @@ class TaxTest extends Unit
         $order->setLineItems($lineItems);
 
         $taxAdjuster = $this->make(Tax::class, [
-            'getTaxRates' => $taxRates
+            'getTaxRates' => $taxRates,
+            'validateVatNumber' => function($vatNum) use ($addressData) {
+                return $addressData['_validateVat'] ?? false;
+            }
         ]);
 
         $adjustments = $taxAdjuster->adjust($order);
@@ -327,7 +333,8 @@ class TaxTest extends Unit
             'tax-valid-vat-1' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -366,7 +373,8 @@ class TaxTest extends Unit
             'tax-valid-vat-2' => [
                 [ // Address
                     'countryIso' => 'CZ',
-                    'businessTaxId' => 'CZ25666011'
+                    'businessTaxId' => 'CZ25666011',
+                    '_validateVat' => true,
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -391,6 +399,46 @@ class TaxTest extends Unit
                     'orderTotalQty' => 1,
                     'orderTotalTax' => 0,
                     'orderTotalTaxIncluded' => 0,
+                ]
+            ],
+
+            // Example 6) 10% tax that does not get removed due to an invalid VAT ID
+            'tax-invalid-vat-1' => [
+                [ // Address
+                    'countryIso' => 'CZ',
+                    'businessTaxId' => 'CZ99999999',
+                    '_validateVat' => false,
+                ],
+                [ // Line Items
+                    ['salePrice' => 100, 'qty' => 1] // 100 total price
+                ],
+                [ // Tax Rates
+                    [
+                        'name' => 'CZ Vat',
+                        'code' => 'CZVAT',
+                        'rate' => 0.1,
+                        'include' => true,
+                        'isVat' => true,
+                        'removeVatIncluded' => true,
+                        'taxable' => 'order_total_price',
+                        'zone' => [
+                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                        ]
+                    ]
+                ],
+                [
+                    'adjustments' => [
+                        [
+                            'type' => 'tax',
+                            'description' => '10%',
+                            'included' => true,
+                            'amount' => 9.09,
+                        ]
+                    ],
+                    'orderTotalPrice' => 100,
+                    'orderTotalQty' => 1,
+                    'orderTotalTax' => 0,
+                    'orderTotalTaxIncluded' => 9.09,
                 ]
             ]
         ];
