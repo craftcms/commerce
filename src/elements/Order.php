@@ -67,46 +67,46 @@ use yii\log\Logger;
 /**
  * Order or Cart model.
  *
- * @property OrderAdjustment[] $adjustments
- * @property string $email the email for this order
- * @property LineItem[] $lineItems
- * @property Address|null $billingAddress
- * @property Address|null $shippingAddress
+ * @property OrderAdjustment[] $adjustments The order’s adjustments
+ * @property string $email The order’s email address
+ * @property LineItem[] $lineItems The order’s line items
+ * @property Address|null $billingAddress The order’s billing address
+ * @property Address|null $shippingAddress The order’s shipping address
  * @property PaymentSource|null $paymentSource
- * @property string $paymentCurrency the payment currency for this order
- * @property string $recalculationMode the mode of recalculation.
+ * @property string $paymentCurrency The payment currency for this order
+ * @property string $recalculationMode The mode of recalculation
  * @property string $origin
  * @property-read ShippingMethod[] $availableShippingMethods
- * @property-read bool $activeCart Is the current order the same as the active cart
- * @property-read Customer $customer
- * @property-read Gateway $gateway
- * @property-read OrderStatus $orderStatus
- * @property-read float $outstandingBalance The balance amount to be paid on the Order
+ * @property-read bool $activeCart Whether the order is the same as the active cart
+ * @property-read Customer $customer The order’s customer
+ * @property-read Gateway $gateway The order’s payment gateway
+ * @property-read OrderStatus $orderStatus The order status
+ * @property-read float $outstandingBalance The balance amount to be paid on the order
  * @property-read ShippingMethodInterface $shippingMethod
  * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
- * @property-read string $pdfUrl the URL to the order’s PDF invoice
- * @property-read float|int $adjustmentSubtotal the total of adjustments made to order
+ * @property-read string $pdfUrl The URL to the order’s PDF invoice
+ * @property-read float|int $adjustmentSubtotal The total of adjustments made to order
  * @property-read float $adjustmentsTotal
- * @property-read OrderHistory[] $histories order histories
- * @property-read bool $isPaid if the order is paid
- * @property-read bool $isUnpaid if the order is not paid
- * @property-read float $itemTotal
- * @property-read int $itemSubtotal the total of all line item subtotals
- * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
- * @property-read bool $isEmpty the order has no line items with any qty
- * @property-read null|Transaction $lastTransaction The last transaction on the order.
- * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
- * @property-read string $paidStatus the order’s paid status
- * @property-read string $paidStatusHtml the order’s paid status as HTML
+ * @property-read OrderHistory[] $histories Order histories
+ * @property-read bool $isPaid Whether the order is paid
+ * @property-read bool $isUnpaid Whether the order is not paid
+ * @property-read float $itemTotal The sum of each line item’s total
+ * @property-read int $itemSubtotal The total of all line item subtotals
+ * @property-read bool $isActiveCart Whether the order has the same ID as the current session’s cart
+ * @property-read bool $isEmpty Whether the order has no line items with any qty
+ * @property-read null|Transaction $lastTransaction The last transaction on the order
+ * @property-read Transaction[] $nestedTransactions Order transactions that have child transactions set on them
+ * @property-read string $paidStatus The order’s paid status
+ * @property-read string $paidStatusHtml The order’s paid status as HTML
  * @property-read string $shortNumber
- * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
- * @property-read float $total
- * @property-read float $totalPrice
- * @property-read int $totalSaleAmount the total sale amount
+ * @property-read float $totalPaid The total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $total The sum of `itemSubtotal` and `adjustmentsTotal`
+ * @property-read float $totalPrice The total order price with a minimum enforced by the `minimumTotalPriceStrategy` setting
+ * @property-read int $totalSaleAmount The total sale amount
  * @property-read float $totalTaxablePrice
- * @property-read int $totalQty the total number of items
+ * @property-read int $totalQty The total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
  * @property-read string $customerLinkHtml
