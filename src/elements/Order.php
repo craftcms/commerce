@@ -3247,6 +3247,8 @@ class Order extends Element
 
     /**
      * Updates the line items, including deleting the old ones.
+     *
+     * @throws Throwable
      */
     private function _saveLineItems(): void
     {
