@@ -15,7 +15,7 @@ class m201218_103541_add_user_condition_column_in_promotions extends Migration
      */
     public function safeUp()
     {
-        if (!$this->db->columnExists('{{commerce_discounts}}', 'userGroupsCondition')) {
+        if (!$this->db->columnExists('{{%commerce_discounts}}', 'userGroupsCondition')) {
             $this->addColumn('{{%commerce_discounts}}', 'userGroupsCondition', $this->string()->defaultValue('userGroupsAnyOrNone'));
         }
 
