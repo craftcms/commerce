@@ -56,6 +56,7 @@ use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
 use Throwable;
+use Twig\Markup;
 use yii\base\Exception;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
@@ -1072,7 +1073,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
@@ -1115,7 +1116,7 @@ class Order extends Element
             }
         }
 
-        return parent::init();
+        parent::init();
     }
 
     /**
@@ -1205,7 +1206,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->reference ?: $this->getShortNumber();
     }
@@ -1257,7 +1258,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $names = parent::attributes();
         $names[] = 'adjustmentSubtotal';
@@ -1428,7 +1429,7 @@ class Order extends Element
     /**
      * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
      */
-    public function updateOrderPaidInformation()
+    public function updateOrderPaidInformation(): void
     {
         $this->_transactions = null; // clear order's transaction cache
 
@@ -1587,7 +1588,7 @@ class Order extends Element
     /**
      * Called after the order successfully completes
      */
-    public function afterOrderComplete()
+    public function afterOrderComplete(): void
     {
         // Run order complete handlers directly.
         Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
@@ -1608,7 +1609,7 @@ class Order extends Element
      *
      * @param LineItem $lineItem
      */
-    public function removeLineItem(LineItem $lineItem)
+    public function removeLineItem(LineItem $lineItem): void
     {
         $lineItems = $this->getLineItems();
         foreach ($lineItems as $key => $item) {
@@ -1630,7 +1631,7 @@ class Order extends Element
      *
      * @param LineItem $lineItem
      */
-    public function addLineItem($lineItem)
+    public function addLineItem($lineItem): void
     {
         $lineItems = $this->getLineItems();
         $isNew = ($lineItem->id === null);
@@ -1680,9 +1681,9 @@ class Order extends Element
     /**
      * Sets the recalculation mode of the order
      *
-     * @param $value
+     * @param string $value
      */
-    public function setRecalculationMode($value)
+    public function setRecalculationMode(string $value): void
     {
         $this->_recalculationMode = $value;
     }
@@ -1692,7 +1693,7 @@ class Order extends Element
      *
      * @throws Exception
      */
-    public function recalculate()
+    public function recalculate(): void
     {
         if (!$this->id) {
             throw new InvalidCallException('Do not recalculate an order that has not been saved');
@@ -1788,16 +1789,17 @@ class Order extends Element
                 if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
                     $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
                     $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
-                    $this->addNotice(
-                        Craft::createObject([
-                            'class' => OrderNotice::class,
-                            'attributes' => [
-                                'type' => 'shippingMethodChanged',
-                                'attribute' => 'shippingMethodHandle',
-                                'message' => $message,
-                            ]
-                        ])
-                    );
+                    /** @var OrderNotice $orderNotice */
+                    $orderNotice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'type' => 'shippingMethodChanged',
+                            'attribute' => 'shippingMethodHandle',
+                            'message' => $message,
+                        ]
+                    ]);
+
+                    $this->addNotice($orderNotice);
                     $this->recalculate();
                     return;
                 }
@@ -1838,6 +1840,9 @@ class Order extends Element
         return $options;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function beforeSave(bool $isNew): bool
     {
 
@@ -1855,7 +1860,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         // Make sure addresses are set before recalculation so that on the next page load
         // the correct adjustments and totals are shown
@@ -2027,7 +2032,7 @@ class Order extends Element
             }
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
@@ -2049,7 +2054,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getLink(): string
+    public function getLink(): ?Markup
     {
         return Template::raw("<a href='" . $this->getCpEditUrl() . "'>" . ($this->reference ?: $this->getShortNumber()) . '</a>');
     }
@@ -2068,9 +2073,8 @@ class Order extends Element
      * @param string|null $option The option that should be available to the PDF template (e.g. “receipt”)
      * @param string|null $pdfHandle The handle of the PDF to use. If none is passed the default PDF is used.
      * @return string|null The URL to the order’s PDF invoice, or null if the PDF template doesn’t exist
-     * @throws Exception
      */
-    public function getPdfUrl($option = null, $pdfHandle = null)
+    public function getPdfUrl(string $option = null, string $pdfHandle = null): ?string
     {
         $path = "commerce/downloads/pdf";
         $params = [];
@@ -2091,9 +2095,8 @@ class Order extends Element
      * Returns the URL to the cart’s load action url
      *
      * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
-     * @throws Exception
      */
-    public function getLoadCartUrl()
+    public function getLoadCartUrl(): ?string
     {
         if ($this->isCompleted) {
             return null;
@@ -2110,7 +2113,7 @@ class Order extends Element
     /**
      * @return Customer|null
      */
-    public function getCustomer()
+    public function getCustomer(): ?Customer
     {
         if ($this->_customer !== null && $this->_customer->id == $this->customerId) {
             return $this->_customer;
@@ -2131,7 +2134,7 @@ class Order extends Element
      * @param Customer|null $customer
      * @since 3.1.11
      */
-    public function setCustomer($customer)
+    public function setCustomer($customer): void
     {
         if ($customer !== null && $customer instanceof Customer) {
             if (!$customer->id) {
@@ -2168,9 +2171,8 @@ class Order extends Element
 
     /**
      * @return User|null
-     * @throws InvalidConfigException
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         return $this->getCustomer() ? $this->getCustomer()->getUser() : null;
     }
@@ -2179,9 +2181,8 @@ class Order extends Element
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
      *
      * @return string|null
-     * @throws InvalidConfigException
      */
-    public function getEmail()
+    public function getEmail(): ?string
     {
         if ($this->getCustomer() && $this->getCustomer()->getUser()) {
             $this->setEmail($this->getCustomer()->getUser()->email);
@@ -2195,7 +2196,7 @@ class Order extends Element
      *
      * @param string|null $value
      */
-    public function setEmail($value)
+    public function setEmail(?string $value): void
     {
         $this->_email = $value;
     }
@@ -2237,7 +2238,7 @@ class Order extends Element
      *
      * @param float $amount
      */
-    public function setPaymentAmount($amount)
+    public function setPaymentAmount(float $amount): void
     {
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
@@ -2550,7 +2551,7 @@ class Order extends Element
     /**
      * @param LineItem[] $lineItems
      */
-    public function setLineItems(array $lineItems)
+    public function setLineItems(array $lineItems): void
     {
         $this->_lineItems = [];
 
@@ -2734,7 +2735,7 @@ class Order extends Element
     /**
      * @param OrderAdjustment[] $adjustments
      */
-    public function setAdjustments(array $adjustments)
+    public function setAdjustments(array $adjustments): void
     {
         $this->_orderAdjustments = $adjustments;
     }
@@ -2760,7 +2761,7 @@ class Order extends Element
      *
      * @return Address|null
      */
-    public function getShippingAddress()
+    public function getShippingAddress(): ?Address
     {
         if (null === $this->_shippingAddress && $this->shippingAddressId) {
             $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
@@ -2774,7 +2775,7 @@ class Order extends Element
      *
      * @param Address|array|null $address
      */
-    public function setShippingAddress($address)
+    public function setShippingAddress($address): void
     {
         if ($address === null) {
             $this->shippingAddressId = null;
@@ -2804,7 +2805,7 @@ class Order extends Element
     /**
      * @since 3.1
      */
-    public function removeShippingAddress()
+    public function removeShippingAddress(): void
     {
         $this->shippingAddressId = null;
         $this->_shippingAddress = null;
@@ -2814,7 +2815,7 @@ class Order extends Element
      * @return Address|null
      * @since 2.2
      */
-    public function getEstimatedShippingAddress()
+    public function getEstimatedShippingAddress(): ?Address
     {
         if (null === $this->_estimatedShippingAddress && $this->estimatedShippingAddressId) {
             $this->_estimatedShippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedShippingAddressId);
@@ -2827,7 +2828,7 @@ class Order extends Element
      * @param Address|array $address
      * @since 2.2
      */
-    public function setEstimatedShippingAddress($address)
+    public function setEstimatedShippingAddress($address): void
     {
         if (!$address instanceof Address) {
             $address = new Address($address);
@@ -2841,7 +2842,7 @@ class Order extends Element
     /**
      * @since 3.1
      */
-    public function removeEstimatedShippingAddress()
+    public function removeEstimatedShippingAddress(): void
     {
         $this->estimatedShippingAddressId = null;
         $this->_estimatedShippingAddress = null;
@@ -2852,7 +2853,7 @@ class Order extends Element
      *
      * @return Address|null
      */
-    public function getBillingAddress()
+    public function getBillingAddress(): ?Address
     {
         if (null === $this->_billingAddress && $this->billingAddressId) {
             $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
@@ -2866,7 +2867,7 @@ class Order extends Element
      *
      * @param Address|array|null $address
      */
-    public function setBillingAddress($address)
+    public function setBillingAddress($address): void
     {
         if ($address === null) {
             $this->billingAddressId = null;
@@ -2896,7 +2897,7 @@ class Order extends Element
     /**
      * @since 3.1
      */
-    public function removeBillingAddress()
+    public function removeBillingAddress(): void
     {
         $this->billingAddressId = null;
         $this->_billingAddress = null;
@@ -2906,7 +2907,7 @@ class Order extends Element
      * @return Address|null
      * @since 2.2
      */
-    public function getEstimatedBillingAddress()
+    public function getEstimatedBillingAddress(): ?Address
     {
         if (null === $this->_estimatedBillingAddress && $this->estimatedBillingAddressId) {
             $this->_estimatedBillingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedBillingAddressId);
@@ -2919,7 +2920,7 @@ class Order extends Element
      * @param Address|array $address
      * @since 2.2
      */
-    public function setEstimatedBillingAddress($address)
+    public function setEstimatedBillingAddress($address): void
     {
         if (!$address instanceof Address) {
             $address = new Address($address);
@@ -2933,7 +2934,7 @@ class Order extends Element
     /**
      * @since 3.1
      */
-    public function removeEstimatedBillingAddress()
+    public function removeEstimatedBillingAddress(): void
     {
         $this->estimatedBillingAddressId = null;
         $this->_estimatedBillingAddress = null;
@@ -2942,7 +2943,7 @@ class Order extends Element
     /**
      * @return ShippingMethod|null
      */
-    public function getShippingMethod()
+    public function getShippingMethod(): ?ShippingMethod
     {
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
@@ -2950,9 +2951,8 @@ class Order extends Element
     /**
      * @return GatewayInterface|null
      * @throws InvalidArgumentException
-     * @throws InvalidConfigException
      */
-    public function getGateway()
+    public function getGateway(): ?GatewayInterface
     {
         if ($this->gatewayId === null && $this->paymentSourceId === null) {
             return null;
@@ -2993,7 +2993,7 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency($value)
+    public function setPaymentCurrency($value): void
     {
         $this->_paymentCurrency = $value;
     }
@@ -3005,7 +3005,7 @@ class Order extends Element
      * @throws InvalidConfigException if the payment source is being set by a guest customer.
      * @throws InvalidArgumentException if the order is set to an invalid payment source.
      */
-    public function getPaymentSource()
+    public function getPaymentSource(): ?PaymentSource
     {
         if ($this->paymentSourceId === null) {
             return null;
@@ -3027,7 +3027,7 @@ class Order extends Element
      *
      * @param PaymentSource|null $paymentSource
      */
-    public function setPaymentSource($paymentSource)
+    public function setPaymentSource(?PaymentSource $paymentSource): void
     {
         if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
             throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
@@ -3054,7 +3054,7 @@ class Order extends Element
      *
      * @param int $gatewayId
      */
-    public function setGatewayId(int $gatewayId)
+    public function setGatewayId(int $gatewayId): void
     {
         $this->gatewayId = $gatewayId;
         $this->paymentSourceId = null;
@@ -3074,7 +3074,7 @@ class Order extends Element
      * @param Transaction[]|null $transactions
      * @since 3.2.0
      */
-    public function setTransactions($transactions)
+    public function setTransactions(?array $transactions): void
     {
         $this->_transactions = $transactions;
     }
@@ -3098,7 +3098,7 @@ class Order extends Element
     /**
      * @return Transaction|null
      */
-    public function getLastTransaction()
+    public function getLastTransaction(): ?Transaction
     {
         $transactions = $this->getTransactions();
         return count($transactions) ? array_pop($transactions) : null;
@@ -3139,7 +3139,7 @@ class Order extends Element
     /**
      * @return OrderStatus|null
      */
-    public function getOrderStatus()
+    public function getOrderStatus(): ?OrderStatus
     {
         return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
     }
@@ -3150,7 +3150,7 @@ class Order extends Element
      * @return Site|null
      * @since 3.2.9
      */
-    public function getOrderSite()
+    public function getOrderSite(): ?Site
     {
         if (!$this->orderSiteId) {
             return null;
@@ -3192,12 +3192,11 @@ class Order extends Element
     /**
      * Updates the adjustments, including deleting the old ones.
      *
-     * @return null
      * @throws Exception
      * @throws Throwable
      * @throws StaleObjectException
      */
-    private function _saveAdjustments()
+    private function _saveAdjustments(): void
     {
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
@@ -3217,8 +3216,6 @@ class Order extends Element
                 $previousAdjustment->delete();
             }
         }
-
-        return null;
     }
 
 
@@ -3226,7 +3223,7 @@ class Order extends Element
      * @throws StaleObjectException
      * @throws Throwable
      */
-    private function _saveNotices()
+    private function _saveNotices(): void
     {
         // Line items that are currently in the DB
         $previousNotices = OrderNoticeRecord::find()
@@ -3251,7 +3248,7 @@ class Order extends Element
     /**
      * Updates the line items, including deleting the old ones.
      */
-    private function _saveLineItems()
+    private function _saveLineItems(): void
     {
         // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()
