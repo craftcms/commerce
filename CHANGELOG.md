@@ -1,5 +1,9 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where queries for discounts by coupon code were case-sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
 
 ## 3.4.0.3 - 2021-07-21
 
