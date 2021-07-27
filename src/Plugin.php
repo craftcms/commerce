@@ -8,6 +8,7 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Donation;
@@ -115,22 +116,22 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.4.11';
+    public ?string $schemaVersion = '3.4.11';
 
     /**
      * @inheritdoc
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * @inheritdoc
      */
-    public $hasCpSection = true;
+    public bool $hasCpSection = true;
 
     /**
      * @inheritdoc
      */
-    public $minVersionRequired = '2.2.18';
+    public string $minVersionRequired = '2.2.18';
 
     use CommerceServices;
     use Variables;
@@ -180,7 +181,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function beforeInstall(): bool
+    public function beforeInstall(): void
     {
         // Check version before installing
         if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
@@ -189,11 +190,7 @@ class Plugin extends BasePlugin
 
         if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70400) {
             Craft::error('Craft Commerce requires PHP 7.4+ in order to run.');
-
-            return false;
         }
-
-        return true;
     }
 
     /**
@@ -286,7 +283,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
