@@ -1299,11 +1299,11 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->orderLanguage) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderStatusId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderLanguage));
         }
 
         if ($this->orderSiteId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderStatusId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderSiteId));
         }
 
         if ($this->customerId) {

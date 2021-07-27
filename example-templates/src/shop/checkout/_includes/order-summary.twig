@@ -35,11 +35,7 @@
             <h4 class="font-semibold mt-3">Shipping method</h4>
 
             <div>
-                {% if cart.shippingMethod %}
-                    {{ cart.shippingMethod.name }}
-                {% else %}
-                    No shipping method selected.
-                {% endif %}
+                {{ cart.shippingMethodName ?: 'No shipping method selected.' }}
             </div>
         </div>
     {% endif %}

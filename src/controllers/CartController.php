@@ -129,11 +129,11 @@ class CartController extends BaseFrontEndController
 
                 $purchasable = [];
                 $purchasable['id'] = $purchasableId;
-                $purchasable['options'] = $options;
+                $purchasable['options'] = is_array($options) ? $options : [];
                 $purchasable['note'] = $note;
                 $purchasable['qty'] = (int) $qty;
 
-                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
                 if (isset($purchasablesByKey[$key])) {
                     $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
                 } else {
@@ -311,7 +311,7 @@ class CartController extends BaseFrontEndController
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->getShippingMethod()) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 

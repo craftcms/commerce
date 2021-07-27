@@ -178,7 +178,7 @@ class LineItem extends Model
     private $_purchasable;
 
     /**
-     * @var Order Order
+     * @var Order Order|null
      */
     private $_order;
 
@@ -232,7 +232,7 @@ class LineItem extends Model
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getOrder()->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes()
         ];
 
@@ -670,7 +670,7 @@ class LineItem extends Model
         // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
-            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
                 if ($ignoreSales) {
                     break;

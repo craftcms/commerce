@@ -61,7 +61,7 @@ class ShippingMethods extends Component
 
 
     /**
-     * Returns the Commerce managed and 3rd party shipping methods
+     * Returns the Commerce managed shipping methods stored in the database.
      *
      * @return ShippingMethod[]
      */
@@ -106,7 +106,7 @@ class ShippingMethods extends Component
     }
 
     /**
-     * Get all matching shipping methods.
+     * Get all available shipping methods to the order.
      *
      * @param Order $order
      * @return ShippingMethod[]

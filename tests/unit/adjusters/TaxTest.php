@@ -122,10 +122,10 @@ class TaxTest extends Unit
         self::assertCount(count($expected['adjustments']), $adjustments, 'Total number of adjustments');
 
         foreach ($expected['adjustments'] as $index => $item) {
+            self::assertEquals($item['type'], $adjustments[$index]->type, 'Adjustment type');
             self::assertEquals($item['amount'], round($adjustments[$index]->amount, 2), 'Adjustment amount');
             self::assertEquals($item['included'], $adjustments[$index]->included, 'Adjustment included');
             self::assertEquals($item['description'], $adjustments[$index]->description, 'Adjustment description');
-            self::assertEquals($item['type'], $adjustments[$index]->type, 'Adjustment type');
         }
 
         self::assertEquals($expected['orderTotalQty'], $order->getTotalQty(), 'Order total quantity');
@@ -142,7 +142,7 @@ class TaxTest extends Unit
         return [
 
             // Example 1) 10% included tax
-            [
+            'tax-10pct-included' => [
                 [ // Address
                     'countryIso' => 'AU'
                 ],
@@ -179,7 +179,7 @@ class TaxTest extends Unit
             ],
 
             // Example 2) 10% not included
-            [
+            'tax-10pct-not-included' => [
                 [ // Address
                     'countryIso' => 'AU'
                 ],
@@ -214,7 +214,7 @@ class TaxTest extends Unit
             ],
 
             // Example 3) 10% included, 2 line items, isVat
-            [
+            'tax-10pct-included-2-line-items' => [
                 [ // Address
                     'countryIso' => 'NL'
                 ],
@@ -256,7 +256,7 @@ class TaxTest extends Unit
             ],
 
             // Example 4) 10% tax that does not apply due to zone mismatch
-            [
+            'tax-zone-mismatch-1' => [
                 [ // Address
                     'countryIso' => 'AU'
                 ],
@@ -286,7 +286,7 @@ class TaxTest extends Unit
             ],
 
             // Example 5) 10% tax that gets removed due to zone mismatch
-            [
+            'tax-zone-mismatch-2' => [
                 [ // Address
                     'countryIso' => 'AU'
                 ],
@@ -324,7 +324,7 @@ class TaxTest extends Unit
             ],
 
             // Example 6) 10% tax that gets removed due to valid VAT ID
-            [
+            'tax-valid-vat-1' => [
                 [ // Address
                     'countryIso' => 'CZ',
                     'businessTaxId' => 'CZ25666011'
@@ -363,7 +363,7 @@ class TaxTest extends Unit
             ],
 
             // Example 7) 10% included tax that does not apply since it has a valid tax ID, but does not remove
-            [
+            'tax-valid-vat-2' => [
                 [ // Address
                     'countryIso' => 'CZ',
                     'businessTaxId' => 'CZ25666011'
