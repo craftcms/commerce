@@ -72,7 +72,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 

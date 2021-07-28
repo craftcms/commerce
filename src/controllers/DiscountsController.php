@@ -45,7 +45,7 @@ class DiscountsController extends BaseCpController
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requirePermission('commerce-managePromotions');
@@ -121,7 +121,7 @@ class DiscountsController extends BaseCpController
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
         $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
-            
+
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;

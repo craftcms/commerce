@@ -17,7 +17,9 @@ use craft\helpers\AdminTable;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -30,17 +32,17 @@ use yii\web\Response;
 class CustomersController extends BaseCpController
 {
     /**
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\web\ForbiddenHttpException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requirePermission('commerce-manageCustomers');
     }
 
     /**
-     * @throws HttpException
+     * @return Response
      */
     public function actionIndex(): Response
     {

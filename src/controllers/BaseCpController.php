@@ -20,7 +20,7 @@ class BaseCpController extends BaseController
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
