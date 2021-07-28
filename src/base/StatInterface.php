@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * Stat Interface
  *
@@ -85,13 +87,13 @@ interface StatInterface
     public function getEndDate();
 
     /**
-     * @param null|\DateTime $date
+     * @param null|DateTime $date
      * @return mixed
      */
     public function setStartDate($date);
 
     /**
-     * @param null|\DateTime $date
+     * @param null|DateTime $date
      * @return mixed
      */
     public function setEndDate($date);
