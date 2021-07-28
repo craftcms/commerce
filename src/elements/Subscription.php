@@ -23,6 +23,7 @@ use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -196,7 +197,7 @@ class Subscription extends Element
     /**
      * @return null|string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
@@ -215,7 +216,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -424,7 +425,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         if ($this->isExpired) {
             return self::STATUS_EXPIRED;
@@ -527,7 +528,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'order') {
             $this->_order = $elements[0] ?? null;
@@ -592,7 +593,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $subscriptionRecord = SubscriptionRecord::findOne($this->id);
@@ -759,7 +760,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         switch ($attribute) {
             case 'subscriber':

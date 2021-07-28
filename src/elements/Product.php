@@ -34,6 +34,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -241,7 +242,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): string
     {
         return 'product';
     }
@@ -333,7 +334,7 @@ class Product extends Element
     /**
      * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->title;
     }
@@ -351,7 +352,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getUriFormat()
+    public function getUriFormat(): ?string
     {
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
@@ -408,7 +409,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         $productType = $this->getType();
 
@@ -427,7 +428,7 @@ class Product extends Element
      *
      * @return null|Variant
      */
-    public function getDefaultVariant()
+    public function getDefaultVariant(): ?Variant
     {
         $variants = $this->getVariants();
 
@@ -503,7 +504,7 @@ class Product extends Element
      *
      * @param Variant[]|array $variants
      */
-    public function setVariants($variants)
+    public function setVariants($variants): void
     {
         $this->_variants = [];
 
@@ -530,7 +531,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         $status = parent::getStatus();
 
@@ -616,7 +617,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'variants') {
             $this->setVariants($elements);
@@ -652,7 +653,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         if ($attribute === 'variants') {
             $elementQuery->andWith('variants');
@@ -759,7 +760,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
             if (!$isNew) {
@@ -829,7 +830,7 @@ class Product extends Element
             }
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
@@ -838,7 +839,7 @@ class Product extends Element
      * @since 3.0.3
      * @see \craft\elements\Entry::updateTitle
      */
-    public function updateTitle()
+    public function updateTitle(): void
     {
         $productType = $this->getType();
 
@@ -860,7 +861,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.
@@ -890,7 +891,7 @@ class Product extends Element
 
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
-            ->anyStatus()
+            ->status(null)
             ->all();
 
         $elementsService = Craft::$app->getElements();
@@ -914,11 +915,11 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterRestore()
+    public function afterRestore(): void
     {
         // Also restore any variants for this element
         $variantsQuery = Variant::find()
-            ->anyStatus()
+            ->status(null)
             ->siteId($this->siteId)
             ->productId($this->id)
             ->trashed()
@@ -999,7 +1000,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -1394,7 +1395,7 @@ class Product extends Element
     /**
      * @inheritDoc
      */
-    public function setScenario($value)
+    public function setScenario($value): void
     {
         foreach ($this->getVariants() as $variant) {
             $variant->setScenario($value);
@@ -1406,7 +1407,7 @@ class Product extends Element
     /**
      * @inheritDoc
      */
-    public function afterPropagate(bool $isNew)
+    public function afterPropagate(bool $isNew): void
     {
         /** @var Product $original */
         if ($original = $this->duplicateOf) {
@@ -1419,6 +1420,7 @@ class Product extends Element
             }
             $this->setVariants($newVariants);
         }
+
         parent::afterPropagate($isNew);
     }
 }

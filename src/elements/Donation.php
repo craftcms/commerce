@@ -135,7 +135,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): string
     {
         return 'donation';
     }
@@ -218,7 +218,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
@@ -271,7 +271,7 @@ class Donation extends Purchasable
      * @param bool $isNew
      * @throws Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $record = DonationRecord::findOne($this->id);
@@ -293,14 +293,6 @@ class Donation extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function isSelectable(): bool
-    {
-        return true;
+        parent::afterSave($isNew);
     }
 }
