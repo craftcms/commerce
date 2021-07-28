@@ -60,7 +60,6 @@ abstract class Table
     const SHIPPINGZONES = '{{%commerce_shippingzones}}';
     const STATES = '{{%commerce_states}}';
     const SUBSCRIPTIONS = '{{%commerce_subscriptions}}';
-    const SUBDIVISIONS = '{{%commerce_subdivisions}}';
     const TAXCATEGORIES = '{{%commerce_taxcategories}}';
     const TAXRATES = '{{%commerce_taxrates}}';
     const TAXZONE_COUNTRIES = '{{%commerce_taxzone_countries}}';
