@@ -107,7 +107,7 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
+    protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
 
 
     /**
@@ -466,7 +466,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before($value)
+    public function before($value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -729,7 +729,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value)
+    public function status($value): ElementQuery
     {
         return parent::status($value);
     }

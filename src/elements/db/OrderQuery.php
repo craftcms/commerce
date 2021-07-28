@@ -175,7 +175,7 @@ class OrderQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
+    protected array $defaultOrderBy = ['commerce_orders.id' => SORT_ASC];
 
     /**
      * @inheritdoc
@@ -1150,7 +1150,7 @@ class OrderQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    public function populate($rows)
+    public function populate($rows): array
     {
         $orders = parent::populate($rows);
 
