@@ -490,26 +490,26 @@ class Transactions extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'orderId',
-                'hash',
-                'gatewayId',
-                'type',
-                'status',
                 'amount',
+                'code',
                 'currency',
+                'dateCreated',
+                'dateUpdated',
+                'gatewayId',
+                'hash',
+                'id',
+                'message',
+                'note',
+                'orderId',
+                'parentId',
                 'paymentAmount',
                 'paymentCurrency',
                 'paymentRate',
                 'reference',
-                'message',
-                'note',
-                'code',
                 'response',
+                'status',
+                'type',
                 'userId',
-                'parentId',
-                'dateCreated',
-                'dateUpdated',
             ])
             ->from([Table::TRANSACTIONS])
             ->orderBy(['id' => SORT_ASC]);

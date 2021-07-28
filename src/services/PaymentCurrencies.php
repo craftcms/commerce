@@ -309,12 +309,12 @@ class PaymentCurrencies extends Component
     {
         return (new Query())
             ->select([
+                'dateCreated',
+                'dateUpdated',
                 'id',
                 'iso',
                 'primary',
                 'rate',
-                'dateCreated',
-                'dateUpdated',
             ])
             ->from([Table::PAYMENTCURRENCIES]);
     }

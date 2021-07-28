@@ -494,26 +494,23 @@ class OrderStatuses extends Component
     {
         $query = (new Query())
             ->select([
+                'color',
+                'dateDeleted',
+                'default',
+                'description',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
-                'description',
                 'sortOrder',
-                'default',
-                'dateDeleted',
-                'uid'
+                'uid',
             ])
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES]);
 
-        // todo: remove schema version condition after next beakpoint #COM-37
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '2.1.09', '>=')) {
-            if (!$withTrashed) {
-                $query->where(['dateDeleted' => null]);
-            }
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
         }
+
         return $query;
     }
 

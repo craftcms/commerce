@@ -8,6 +8,7 @@
 namespace craft\commerce;
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
 use craft\commerce\elements\Donation;
@@ -115,22 +116,22 @@ class Plugin extends BasePlugin
     /**
      * @inheritDoc
      */
-    public $schemaVersion = '3.4.11';
+    public ?string $schemaVersion = '3.4.11';
 
     /**
      * @inheritdoc
      */
-    public $hasCpSettings = true;
+    public bool $hasCpSettings = true;
 
     /**
      * @inheritdoc
      */
-    public $hasCpSection = true;
+    public bool $hasCpSection = true;
 
     /**
      * @inheritdoc
      */
-    public $minVersionRequired = '2.2.18';
+    public string $minVersionRequired = '2.2.18';
 
     use CommerceServices;
     use Variables;
@@ -180,20 +181,16 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function beforeInstall(): bool
+    public function beforeInstall(): void
     {
         // Check version before installing
-        if (version_compare(Craft::$app->getInfo()->version, '3.0', '<')) {
-            throw new Exception('Craft Commerce 2 requires Craft CMS 3+ in order to run.');
+        if (version_compare(Craft::$app->getInfo()->version, '4.0', '<')) {
+            throw new Exception('Craft Commerce 4 requires Craft CMS 4+ in order to run.');
         }
 
-        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70000) {
-            Craft::error('Craft Commerce requires PHP 7.0+ in order to run.');
-
-            return false;
+        if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 70400) {
+            Craft::error('Craft Commerce requires PHP 7.4+ in order to run.');
         }
-
-        return true;
     }
 
     /**
@@ -286,7 +283,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel()
+    protected function createSettingsModel(): ?Model
     {
         return new Settings();
     }
@@ -699,13 +696,6 @@ class Plugin extends BasePlugin
      */
     private function _defineResaveCommand()
     {
-        if (
-            !Craft::$app instanceof ConsoleApplication ||
-            version_compare(Craft::$app->version, '3.2.0-beta.3', '<')
-        ) {
-            return;
-        }
-
         Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
                 'action' => function(): int {

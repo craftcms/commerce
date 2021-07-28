@@ -400,12 +400,12 @@ class LineItemStatuses extends Component
     {
         return (new Query())
             ->select([
+                'color',
+                'default',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
                 'sortOrder',
-                'default',
                 'uid',
             ])
             ->where(['isArchived' => false])

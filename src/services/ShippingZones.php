@@ -216,13 +216,13 @@ class ShippingZones extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
-                'description',
-                'isCountryBased',
-                'zipCodeConditionFormula',
                 'dateCreated',
                 'dateUpdated',
+                'description',
+                'id',
+                'isCountryBased',
+                'name',
+                'zipCodeConditionFormula',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);

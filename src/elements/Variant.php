@@ -863,7 +863,6 @@ class Variant extends Purchasable
                 'map' => $map,
                 'criteria' => [
                     'status' => null,
-                    'enabledForSite' => false,
                 ]
             ];
         }

@@ -329,18 +329,8 @@ class Emails extends Component
             $emailRecord->templatePath = $data['templatePath'];
             $emailRecord->plainTextTemplatePath = $data['plainTextTemplatePath'] ?? null;
             $emailRecord->uid = $emailUid;
-
-            // todo: remove schema version condition after next beakpoint #COM-37
-            $projectConfig = Craft::$app->getProjectConfig();
-            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-
-            if (version_compare($schemaVersion, '3.2.0', '>=')) {
-                $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
-            }
-
-            if (version_compare($schemaVersion, '3.2.13', '>=')) {
-                $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
-            }
+            $emailRecord->pdfId = $pdfUid ? Db::idByUid(Table::PDFS, $pdfUid) : null;
+            $emailRecord->language = $data['language'] ?? EmailRecord::LOCALE_ORDER_LANGUAGE;
 
             $emailRecord->save(false);
 
@@ -897,33 +887,23 @@ class Emails extends Component
     {
         $query = (new Query())
             ->select([
-                'emails.id',
-                'emails.name',
-                'emails.subject',
-                'emails.recipientType',
-                'emails.to',
                 'emails.bcc',
                 'emails.cc',
-                'emails.replyTo',
                 'emails.enabled',
-                'emails.templatePath',
+                'emails.id',
+                'emails.language',
+                'emails.name',
+                'emails.pdfId',
                 'emails.plainTextTemplatePath',
+                'emails.recipientType',
+                'emails.replyTo',
+                'emails.subject',
+                'emails.templatePath',
+                'emails.to',
                 'emails.uid',
             ])
             ->orderBy('name')
             ->from([Table::EMAILS . ' emails']);
-
-        // todo: remove schema version condition after next beakpoint #COM-37
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
-
-        if (version_compare($schemaVersion, '3.2.0', '>=')) {
-            $query->addSelect(['emails.pdfId']);
-        }
-
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
-            $query->addSelect(['emails.language']);
-        }
 
         return $query;
     }

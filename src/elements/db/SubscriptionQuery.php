@@ -714,22 +714,22 @@ class SubscriptionQuery extends ElementQuery
         $this->subQuery->innerJoin('{{%users}} users', '[[commerce_subscriptions.userId]] = [[users.id]]');
 
         $this->query->select([
-            'commerce_subscriptions.id',
-            'commerce_subscriptions.userId',
-            'commerce_subscriptions.planId',
+            'commerce_subscriptions.dateCanceled',
+            'commerce_subscriptions.dateExpired',
+            'commerce_subscriptions.dateSuspended',
             'commerce_subscriptions.gatewayId',
+            'commerce_subscriptions.hasStarted',
+            'commerce_subscriptions.id',
+            'commerce_subscriptions.isCanceled',
+            'commerce_subscriptions.isExpired',
+            'commerce_subscriptions.isSuspended',
+            'commerce_subscriptions.nextPaymentDate',
             'commerce_subscriptions.orderId',
+            'commerce_subscriptions.planId',
             'commerce_subscriptions.reference',
             'commerce_subscriptions.subscriptionData',
             'commerce_subscriptions.trialDays',
-            'commerce_subscriptions.nextPaymentDate',
-            'commerce_subscriptions.isCanceled',
-            'commerce_subscriptions.dateCanceled',
-            'commerce_subscriptions.isExpired',
-            'commerce_subscriptions.dateExpired',
-            'commerce_subscriptions.hasStarted',
-            'commerce_subscriptions.isSuspended',
-            'commerce_subscriptions.dateSuspended',
+            'commerce_subscriptions.userId',
         ]);
 
         if ($this->userId) {

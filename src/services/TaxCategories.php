@@ -214,7 +214,6 @@ class TaxCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-                'enabledForSite' => false,
             ]
         ]));
     }
@@ -295,13 +294,13 @@ class TaxCategories extends Component
     {
         return (new Query())
             ->select([
-                'taxCategories.id',
-                'taxCategories.name',
-                'taxCategories.handle',
-                'taxCategories.description',
-                'taxCategories.default',
                 'taxCategories.dateCreated',
                 'taxCategories.dateUpdated',
+                'taxCategories.default',
+                'taxCategories.description',
+                'taxCategories.handle',
+                'taxCategories.id',
+                'taxCategories.name',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }

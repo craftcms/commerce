@@ -1,5 +1,25 @@
 # Release Notes for Craft Commerce
 
+## 3.4.1 - 2021-07-26
+
+### Changed
+- Improved the performance of order recalculation.
+
+### Fixed
+- Fixed a bug where discount queries on coupon codes were case sensitive. ([#2249](https://github.com/craftcms/commerce/issues/2249))
+- Fixed a SQL error that could occur during a migration with a database using a table prefix. ([#2497](https://github.com/craftcms/commerce/issues/2497))
+
+## 3.4.0.3 - 2021-07-21
+
+### Fixed
+- Fixed a bug where it wasn't possible for customers to select shipping methods registered by plugins. ([#2278](https://github.com/craftcms/commerce/issues/2278))
+- Fixed a PHP error that could occur when accessing an orders’ shipping method that was registered by plugins. ([#2279](https://github.com/craftcms/commerce/issues/2279))
+
+## 3.4.0.2 - 2021-07-19
+
+### Fixed
+- Fixed a bug where it wasn't possible for customers to select shipping methods registered by plugins. ([#2273](https://github.com/craftcms/commerce/issues/2273))
+
 ## 3.4.0.1 - 2021-07-14
 
 ### Fixed

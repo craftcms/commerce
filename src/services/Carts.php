@@ -137,7 +137,7 @@ class Carts extends Component
             $number = $this->getSessionCartNumber();
             // Get the cart based on the number in the session.
             // It might be completed or trashed, but we still want to load it so we can determine this and forget it.
-            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->one();
+            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->withLineItems()->withAdjustments()->one();
         }
 
         // If the cart is already completed or trashed, forget the cart and start again.

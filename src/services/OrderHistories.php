@@ -207,13 +207,13 @@ class OrderHistories extends Component
     {
         return (new Query())
             ->select([
+                'customerId',
+                'dateCreated',
                 'id',
                 'message',
+                'newStatusId',
                 'orderId',
                 'prevStatusId',
-                'newStatusId',
-                'customerId',
-                'dateCreated'
             ])
             ->from([Table::ORDERHISTORIES]);
     }

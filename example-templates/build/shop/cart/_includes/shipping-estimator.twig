@@ -1,12 +1,12 @@
 <!-- Template: {{ _self }}.twig -->
 {% if not cart.getShippingAddress() %}
     <div class="bg-gray-100 border-blue-300 border-b-2 p-6 max-w-sm">
-        <h5 class="mt-0 font-bold">%Shipping Estimate%</h5>
+        <h5 class="mt-0 font-bold">Shipping Estimate</h5>
 
         <div class="js-estimate-fields">
             {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
             {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
-            <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">%Country%</label>
+            <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">Country</label>
             <select class="js-address-country js-estimate-country w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                     name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
                 {% for key, option in countries %}
@@ -16,7 +16,7 @@
             </select>
 
             <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-                <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">%State%</label>
+                <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">State</label>
                 {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
                 <select id="estimatedShippingAddress-stateId"
                         name="estimatedShippingAddress[stateValue]"
@@ -36,7 +36,7 @@
                        value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"/>
             </div>
 
-            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">%Zip Code%</label>
+            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">Zip Code</label>
             <input type="text"
                    id="estimatedShippingAddress-zipCode"
                    name="estimatedShippingAddress[zipCode]"
@@ -54,8 +54,8 @@
             </div>
 
             <div class="js-estimate-billing mt-6">
-                <h5 class="mt-0 font-bold">%Tax Estimate%</h5>
-                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">%Country%</label>
+                <h5 class="mt-0 font-bold">Tax Estimate</h5>
+                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">Country</label>
                 <select class="js-address-country w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded js-estimate-country"
                         name="estimatedBillingAddress[countryId]" data-modelname="estimatedBillingAddress">
                     {% for key, option in countries %}
@@ -65,7 +65,7 @@
                 </select>
 
                 <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-                    <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">%State%</label>
+                    <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">State</label>
                     {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
                     <select id="estimatedBillingAddress-stateId"
                             name="estimatedBillingAddress[stateValue]"
@@ -86,7 +86,7 @@
                            value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
                 </div>
 
-                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">%Zip Code%</label>
+                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">Zip Code</label>
                 <input type="text"
                        id="estimatedBillingAddress-zipCode"
                        name="estimatedBillingAddress[zipCode]"
@@ -112,7 +112,7 @@
                     {% endfor %}
                 </div>
                 <div class="mt-6">
-                    <a class="text-blue-500 hover:text-blue-600 js-estimate-show-fields" href="#">%Show Estimate Fields%</a>
+                    <a class="text-blue-500 hover:text-blue-600 js-estimate-show-fields" href="#">Show Estimate Fields</a>
                 </div>
             {% endif %}
         </div>

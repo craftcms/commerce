@@ -2,9 +2,9 @@
 <div class="my-6">
     <div class="mb-2">{{ 'Showing' }} {{ products|length }} {{ 'of' }} {{ pageInfo.total }}</div>
     {% if pageInfo.currentPage != 1 %}<a class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300"
-                                         href="{{ pageInfo.firstUrl }}">@First@</a>{% endif %}
+                                         href="{{ pageInfo.firstUrl }}">First</a>{% endif %}
     {% if pageInfo.prevUrl %}<a class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300"
-                                href="{{ pageInfo.prevUrl }}">@Previous@</a>{% endif %}
+                                href="{{ pageInfo.prevUrl }}">Previous</a>{% endif %}
 
     {% for page, url in pageInfo.getPrevUrls(5) %}
         <a class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300" href="{{ url }}">{{ page }}</a>
@@ -17,8 +17,8 @@
     {% endfor %}
 
     {% if pageInfo.nextUrl %}<a class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300"
-                                href="{{ pageInfo.nextUrl }}">@Next@</a>{% endif %}
+                                href="{{ pageInfo.nextUrl }}">Next</a>{% endif %}
     {% if pageInfo.currentPage != pageInfo.totalPages %}<a
         class="text-blue-400px-2 py-1 px-2 rounded border border-gray-300" href="{{ pageInfo.lastUrl }}">
-            @Last@</a>{% endif %}
+            Last</a>{% endif %}
 </div>
