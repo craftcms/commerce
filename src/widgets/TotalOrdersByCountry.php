@@ -20,6 +20,7 @@ use craft\helpers\StringHelper;
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -64,7 +65,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -101,7 +102,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -133,7 +134,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
 

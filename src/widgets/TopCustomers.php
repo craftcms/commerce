@@ -64,7 +64,7 @@ class TopCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->_typeOptions = [
             'total' => Craft::t('commerce', 'Total'),
@@ -135,7 +135,7 @@ class TopCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -143,7 +143,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
 

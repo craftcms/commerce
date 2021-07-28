@@ -48,7 +48,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->dateRange = !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
@@ -95,7 +95,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $numbers = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -109,7 +109,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

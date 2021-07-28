@@ -52,9 +52,9 @@ class TopPurchasables extends Widget
     public $nameField;
 
     /**
-     * @var TopProductsStat
+     * @var TopPurchasablesStat
      */
-    private $_stat;
+    private TopPurchasablesStat $_stat;
 
     /**
      * @var string
@@ -74,7 +74,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->nameField = $this->nameField ?: 'description';
 
@@ -152,7 +152,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -160,7 +160,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
 
