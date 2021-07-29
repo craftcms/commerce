@@ -187,7 +187,7 @@ class Shipping extends Component implements AdjusterInterface
             $adjustment->amount = $amount;
             $adjustment->description = $rule->getDescription();
             $adjustment->isEstimated = $this->_isEstimated;
-            $adjustment->sourceSnapshot = [];
+            $adjustment->setSourceSnapshot([]);
 
             return [$adjustment];
         }

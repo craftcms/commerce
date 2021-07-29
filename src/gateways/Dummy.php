@@ -41,7 +41,7 @@ class Dummy extends SubscriptionGateway
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): ?string
     {
         $paymentFormModel = $this->getPaymentFormModel();
 

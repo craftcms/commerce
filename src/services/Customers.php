@@ -284,7 +284,7 @@ class Customers extends Component
             ]));
         }
 
-        if (!$customer->id) {
+        if (!isset($customer->id)) {
             $customerRecord = new CustomerRecord();
         } else {
             $customerRecord = CustomerRecord::findOne($customer->id);
@@ -301,9 +301,11 @@ class Customers extends Component
             return false;
         }
 
-        $customerRecord->userId = $customer->userId;
-        $customerRecord->primaryBillingAddressId = $customer->primaryBillingAddressId;
-        $customerRecord->primaryShippingAddressId = $customer->primaryShippingAddressId;
+        $customerRecord->setAttributes([
+            'userId' => $customer->userId,
+            'primaryBillingAddressId' => $customer->primaryBillingAddressId,
+            'primaryShippingAddressId' => $customer->primaryShippingAddressId,
+        ]);
 
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
