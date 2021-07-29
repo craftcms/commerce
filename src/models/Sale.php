@@ -32,117 +32,104 @@ class Sale extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var DateTime|null Date From
      */
-    public $dateFrom;
+    public ?DateTime $dateFrom;
 
     /**
      * @var DateTime|null Date To
      */
-    public $dateTo;
+    public ?DateTime $dateTo;
 
     /**
      * @var string How the sale should be applied
      */
-    public $apply;
+    public string $apply;
 
     /**
      * @var float The amount field used by the apply option
      */
-    public $applyAmount;
+    public float $applyAmount;
 
     /**
      * @var bool ignore the previous sales that affect the purchasable
      */
-    public $ignorePrevious;
+    public bool $ignorePrevious;
 
     /**
      * @var bool should the sales system stop processing other sales after this one
      */
-    public $stopProcessing;
+    public bool $stopProcessing;
 
     /**
      * @var bool Match all groups
      */
-    public $allGroups = false;
+    public bool $allGroups = false;
 
     /**
      * @var bool Match all purchasables
      */
-    public $allPurchasables = false;
+    public bool $allPurchasables = false;
 
     /**
      * @var bool Match all categories
      */
-    public $allCategories = false;
+    public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
      */
-    public $categoryRelationshipType;
+    public string $categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
     /**
      * @var bool Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var int The order index of the application of the sale
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @var int[] Product Ids
      */
-    private $_purchasableIds;
+    private array $_purchasableIds;
 
     /**
      * @var int[] Product Type IDs
      */
-    private $_categoryIds;
+    private array $_categoryIds;
 
     /**
      * @var int[] Group IDs
      */
-    private $_userGroupIds;
-
-
-    /**
-     * @inheritDoc
-     */
-    public function init()
-    {
-        if ($this->categoryRelationshipType === null) {
-            $this->categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
-        }
-
-        parent::init();
-    }
+    private array $_userGroupIds;
 
     /**
      * @inheritdoc
@@ -186,9 +173,9 @@ class Sale extends Model
     }
 
     /**
-     * @return string|false
+     * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
@@ -289,7 +276,7 @@ class Sale extends Model
      *
      * @param array $ids
      */
-    public function setCategoryIds(array $ids)
+    public function setCategoryIds(array $ids): void
     {
         $this->_categoryIds = array_unique($ids);
     }
@@ -299,7 +286,7 @@ class Sale extends Model
      *
      * @param array $purchasableIds
      */
-    public function setPurchasableIds(array $purchasableIds)
+    public function setPurchasableIds(array $purchasableIds): void
     {
         $this->_purchasableIds = array_unique($purchasableIds);
     }
@@ -309,7 +296,7 @@ class Sale extends Model
      *
      * @param array $userGroupIds
      */
-    public function setUserGroupIds(array $userGroupIds)
+    public function setUserGroupIds(array $userGroupIds): void
     {
         $this->_userGroupIds = array_unique($userGroupIds);
     }
