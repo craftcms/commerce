@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use DateTime;
 
@@ -16,6 +17,8 @@ use DateTime;
  * Tax Category model.
  *
  * @property string $cpEditUrl
+ * @property \craft\commerce\models\ProductType[] $productTypes
+ * @property-read int[] $productTypeIds
  * @property array|TaxRate[] $taxRates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -25,44 +28,44 @@ class TaxCategory extends Model
     /**
      * @var int ID;
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var bool Default
      */
-    public $default;
+    public bool $default;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @var array Product Types
      */
-    private $_productTypes;
+    private array $_productTypes;
 
 
     /**
@@ -72,7 +75,7 @@ class TaxCategory extends Model
      */
     public function __toString()
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
@@ -80,11 +83,9 @@ class TaxCategory extends Model
      */
     public function getTaxRates(): array
     {
-        $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
 
-        /** @var TaxRate $rate */
-        foreach ($allTaxRates as $rate) {
+        foreach (Plugin::getInstance()->getTaxRates()->getAllTaxRates() as $rate) {
             if ($this->id === $rate->taxCategoryId) {
                 $taxRates[] = $rate;
             }
@@ -104,7 +105,7 @@ class TaxCategory extends Model
     /**
      * @param ProductType[] $productTypes
      */
-    public function setProductTypes($productTypes)
+    public function setProductTypes($productTypes): void
     {
         $this->_productTypes = $productTypes;
     }
@@ -114,7 +115,7 @@ class TaxCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if ($this->_productTypes === null) {
+        if (!isset($this->_productTypes)) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByTaxCategoryId($this->id);
         }
 
@@ -128,12 +129,7 @@ class TaxCategory extends Model
      */
     public function getProductTypeIds(): array
     {
-        $ids = [];
-        foreach ($this->getProductTypes() as $productType) {
-            $ids[] = $productType->id;
-        }
-
-        return $ids;
+        return ArrayHelper::getColumn($this->getProductTypes(), 'id');
     }
 
     /**

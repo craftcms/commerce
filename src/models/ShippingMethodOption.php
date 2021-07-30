@@ -27,17 +27,17 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var float Price of the shipping method option
      */
-    public $price;
+    public float $price;
 
     /**
      * @var boolean
      */
-    public $matchesOrder;
+    public bool $matchesOrder;
 
     /**
      * @return array
@@ -85,7 +85,7 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @return float
      */
-    public function getPrice()
+    public function getPrice(): float
     {
         return $this->price;
     }
@@ -94,7 +94,7 @@ class ShippingMethodOption extends ShippingMethod
      * @param $order
      * @since 3.1.10
      */
-    public function setOrder($order)
+    public function setOrder($order): void
     {
         $this->_order = $order;
     }

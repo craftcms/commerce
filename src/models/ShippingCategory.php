@@ -9,12 +9,15 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use DateTime;
 
 /**
  * Shipping Category model.
  *
+ * @property array|ProductType[] $productTypes
+ * @property-read int[] $productTypeIds
  * @property string $cpEditUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -24,44 +27,44 @@ class ShippingCategory extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var bool Default
      */
-    public $default;
+    public bool $default;
 
     /**
      * @var ProductType[]
      */
-    private $_productTypes;
+    private array $_productTypes;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * Returns the name of this shipping category.
@@ -70,7 +73,7 @@ class ShippingCategory extends Model
      */
     public function __toString()
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
@@ -82,9 +85,9 @@ class ShippingCategory extends Model
     }
 
     /**
-     * @param array $productTypes
+     * @param ProductType[] $productTypes
      */
-    public function setProductTypes($productTypes)
+    public function setProductTypes(array $productTypes): void
     {
         $this->_productTypes = $productTypes;
     }
@@ -94,7 +97,7 @@ class ShippingCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if ($this->_productTypes === null) {
+        if (!isset($this->_productTypes)) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 
@@ -108,12 +111,7 @@ class ShippingCategory extends Model
      */
     public function getProductTypeIds(): array
     {
-        $ids = [];
-        foreach ($this->getProductTypes() as $productType) {
-            $ids[] = $productType->id;
-        }
-
-        return $ids;
+        return ArrayHelper::getColumn($this->getProductTypes(), 'id', false);
     }
 
     /**
