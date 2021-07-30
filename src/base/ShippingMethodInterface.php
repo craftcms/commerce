@@ -30,7 +30,7 @@ interface ShippingMethodInterface
      *
      * @return int|null The shipping method ID, or null if it is not managed by Craft Commerce
      */
-    public function getId();
+    public function getId(): ?int;
 
     /**
      * Returns the name of this Shipping Method as displayed to the customer and in the control panel.
@@ -72,7 +72,7 @@ interface ShippingMethodInterface
      * @param Order $order
      * @return float
      */
-    public function getPriceForOrder(Order $order);
+    public function getPriceForOrder(Order $order): float;
 
     /**
      * The first matching shipping rule for this shipping method
@@ -80,7 +80,7 @@ interface ShippingMethodInterface
      * @param Order $order
      * @return null|ShippingRuleInterface
      */
-    public function getMatchingShippingRule(Order $order);
+    public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface;
 
     /**
      * Is this shipping method available to the order?

@@ -18,45 +18,50 @@ use DateTime;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read string $cpEditUrl
+ * @property-read array $shippingRules
+ * @property-read bool $isEnabled
+ * @property-read string $type
  */
 abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
 {
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var bool Enabled
      */
-    public $enabled;
+    public bool $enabled;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @var bool Is this the shipping method for the lite edition.
      */
-    public $isLite = false;
+    public bool $isLite = false;
 
 
     /**
@@ -70,7 +75,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): ?int
     {
         throw new NotImplementedException();
     }
@@ -133,7 +138,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @inheritdoc
      */
-    public function getMatchingShippingRule(Order $order)
+    public function getMatchingShippingRule(Order $order): ?ShippingRuleInterface
     {
         foreach ($this->getShippingRules() as $rule) {
             /** @var ShippingRuleInterface $rule */
@@ -149,7 +154,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @param Order $order
      * @return float
      */
-    public function getPriceForOrder(Order $order)
+    public function getPriceForOrder(Order $order): float
     {
         $shippingRule = $this->getMatchingShippingRule($order);
         $lineItems = $order->getLineItems();
