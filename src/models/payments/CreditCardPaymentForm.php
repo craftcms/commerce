@@ -20,53 +20,53 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @var string First name
      */
-    public $firstName;
+    public string $firstName;
 
     /**
      * @var string Last name
      */
-    public $lastName;
+    public string $lastName;
 
     /**
      * @var int Card number
      */
-    public $number;
+    public int $number;
 
     /**
      * @var int Expiry month
      */
-    public $month;
+    public int $month;
 
     /**
      * @var int Expiry year
      */
-    public $year;
+    public int $year;
 
     /**
      * @var int CVV number
      */
-    public $cvv;
+    public int $cvv;
 
     /**
      * @var string Token
      */
-    public $token;
+    public string $token;
 
     /**
      * @var string Expiry date
      */
-    public $expiry;
+    public string $expiry;
 
     /**
      * @var bool
      */
-    public $threeDSecure = false;
+    public bool $threeDSecure = false;
 
 
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true)
+    public function setAttributes($values, $safeOnly = true): void
     {
         parent::setAttributes($values, $safeOnly);
 
@@ -105,10 +105,10 @@ class CreditCardPaymentForm extends BasePaymentForm
     }
 
     /**
-     * @param $attribute
+     * @param string $attribute
      * @param $params
      */
-    public function creditCardLuhn($attribute, $params)
+    public function creditCardLuhn(string $attribute, $params): void
     {
         $str = '';
         foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {
