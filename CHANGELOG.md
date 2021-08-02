@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- The `registerUserOnOrderComplete` order parameter is now honored when completing an order from the control panel. ([#2503](https://github.com/craftcms/commerce/issues/2503))
+
 ## 3.4.1 - 2021-07-26
 
 ### Changed

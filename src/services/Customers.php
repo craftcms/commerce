@@ -824,11 +824,6 @@ class Customers extends Component
             return;
         }
 
-        // If a user is logged in, then don't create a user account
-        if (Craft::$app->getUser()->getIdentity()) {
-            return;
-        }
-
         // order already has a registered user associated
         if ($order->getUser()) {
             return;
