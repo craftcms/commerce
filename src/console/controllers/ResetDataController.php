@@ -27,7 +27,6 @@ class ResetDataController extends Controller
      * Reset Commerce data.
      *
      * @return int
-     * @throws \yii\db\Exception
      */
     public function actionIndex(): int
     {

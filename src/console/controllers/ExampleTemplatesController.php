@@ -12,6 +12,9 @@ use craft\commerce\console\Controller;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
+use GuzzleHttp\Exception\GuzzleException;
+use yii\base\ErrorException;
+use yii\base\Exception;
 use yii\console\ExitCode;
 
 /**
@@ -25,52 +28,52 @@ class ExampleTemplatesController extends Controller
     /**
      * @inheritdoc
      */
-    public $defaultAction = 'generate';
+    public string $defaultAction = 'generate';
 
     /**
      * @var string Name of the folder the templates will copy into
      * @since 3.3
      */
-    public $folderName;
+    public string $folderName;
 
     /**
      * @var bool Whether to overwrite an existing folder. Must be passed if a folder with that name already exists.
      * @since 3.3
      */
-    public $overwrite = false;
+    public bool $overwrite = false;
 
     /**
      * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
      * @since 3.3
      */
-    public $cdnAssets;
+    public bool $cdnAssets;
 
     /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
      * @since 3.3
      */
-    public $devBuild = false;
+    public bool $devBuild = false;
 
     /**
      * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
      * Possible values are: blue, red
      */
-    public $baseColor;
+    public string $baseColor;
 
     /**
      * @var array
      */
-    private $_replacementData = [];
+    private array $_replacementData = [];
 
     /**
      * @var string[]
      */
-    private $_colors = ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+    private array $_colors = ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
 
     /**
      * @inheritdoc
      */
-    public function options($actionID)
+    public function options($actionID): array
     {
         $options = parent::options($actionID);
         $options[] = 'folderName';
@@ -85,6 +88,9 @@ class ExampleTemplatesController extends Controller
      * Generate and copy the example templates.
      *
      * @return int
+     * @throws GuzzleException
+     * @throws ErrorException
+     * @throws Exception
      */
     public function actionGenerate(): int
     {
@@ -210,10 +216,7 @@ class ExampleTemplatesController extends Controller
         return ExitCode::OK;
     }
 
-    /**
-     *
-     */
-    private function _addTranslationsToReplacementData()
+    private function _addTranslationsToReplacementData(): void
     {
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             "{{ 'Adjustments' }}" => Craft::t('commerce', 'Adjustments'),
@@ -234,10 +237,7 @@ class ExampleTemplatesController extends Controller
         ]);
     }
 
-    /**
-     *
-     */
-    private function _addCssClassesToReplacementData()
+    private function _addCssClassesToReplacementData(): void
     {
         $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
         $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
@@ -257,9 +257,9 @@ class ExampleTemplatesController extends Controller
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
-    private function _addTailwindCss()
+    private function _addTailwindCss(): void
     {
         $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
 
@@ -288,7 +288,7 @@ class ExampleTemplatesController extends Controller
 
     /**
      * @return string
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     private function _getTemplatesPath(): string
     {
