@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Whitelisted date twig filter on discount condition formula to allow condition operator on date attributes and fields. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
 ## 3.4.1 - 2021-07-26
 
 ### Changed
