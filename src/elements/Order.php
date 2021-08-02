@@ -15,7 +15,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
-use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
@@ -145,7 +144,6 @@ use yii\log\Logger;
 class Order extends Element
 {
     use OrderValidatorsTrait;
-    use OrderDeprecatedTrait;
     use OrderElementTrait;
     use OrderNoticesTrait;
 
