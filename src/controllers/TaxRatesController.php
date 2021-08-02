@@ -14,6 +14,11 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -47,7 +52,12 @@ class TaxRatesController extends BaseTaxSettingsController
      * @param int|null $id
      * @param TaxRate|null $taxRate
      * @return Response
+     * @throws ForbiddenHttpException
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
@@ -141,9 +151,11 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -189,9 +201,11 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');

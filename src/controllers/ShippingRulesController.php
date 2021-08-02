@@ -15,6 +15,11 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\base\InvalidRouteException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -33,6 +38,10 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param ShippingRule|null $shippingRule
      * @return Response
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
@@ -127,17 +136,20 @@ class ShippingRulesController extends BaseShippingSettingsController
      * Duplicates a shipping rule.
      *
      * @return Response|null
+     * @throws InvalidRouteException
      * @since 3.2
      */
-    public function actionDuplicate()
+    public function actionDuplicate(): ?Response
     {
         return $this->runAction('save', ['duplicate' => true]);
     }
 
     /**
-     * @throws HttpException
+     * @param bool $duplicate
+     * @throws BadRequestHttpException
+     * @throws Exception
      */
-    public function actionSave($duplicate = false)
+    public function actionSave(bool $duplicate = false): void
     {
         $this->requirePostRequest();
 
@@ -214,19 +226,19 @@ class ShippingRulesController extends BaseShippingSettingsController
 
     /**
      * @throws HttpException
+     * @throws ProductTypeNotFoundException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
-        $request = Craft::$app->getRequest();
 
         if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
 
-        if (!$shippingRule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
+        if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 

@@ -36,6 +36,7 @@ class SubscriptionsController extends BaseController
 {
     /**
      * @return Response
+     * @throws ForbiddenHttpException
      */
     public function actionIndex(): Response
     {
@@ -107,7 +108,7 @@ class SubscriptionsController extends BaseController
      * @throws HttpException if invalid data posted
      * @throws Throwable if reasons
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
@@ -141,7 +142,7 @@ class SubscriptionsController extends BaseController
      * @throws NotFoundHttpException If subscription not found
      * @throws InvalidConfigException
      */
-    public function actionRefreshPayments()
+    public function actionRefreshPayments(): Response
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-manageSubscriptions');
@@ -166,7 +167,7 @@ class SubscriptionsController extends BaseController
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSubscribe()
+    public function actionSubscribe(): ?Response
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -252,10 +253,10 @@ class SubscriptionsController extends BaseController
 
     /**
      * @return Response|null
-     * @throws InvalidConfigException
      * @throws BadRequestHttpException
+     * @throws Throwable
      */
-    public function actionReactivate()
+    public function actionReactivate(): ?Response
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -313,7 +314,7 @@ class SubscriptionsController extends BaseController
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionSwitch()
+    public function actionSwitch(): ?Response
     {
         $this->requireLogin();
         $this->requirePostRequest();
@@ -389,7 +390,7 @@ class SubscriptionsController extends BaseController
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
-    public function actionCancel()
+    public function actionCancel(): ?Response
     {
         $this->requireLogin();
         $this->requirePostRequest();

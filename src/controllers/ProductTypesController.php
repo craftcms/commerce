@@ -99,7 +99,7 @@ class ProductTypesController extends BaseAdminController
      * @throws Throwable
      * @throws BadRequestHttpException
      */
-    public function actionSaveProductType()
+    public function actionSaveProductType(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
 

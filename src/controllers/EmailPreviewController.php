@@ -15,6 +15,8 @@ use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\View;
+use yii\base\Exception;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -27,6 +29,8 @@ class EmailPreviewController extends Controller
 {
     /**
      * @return Response
+     * @throws Exception
+     * @throws ForbiddenHttpException
      */
     public function actionRender(): Response
     {

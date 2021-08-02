@@ -30,16 +30,13 @@ class PaymentSourcesController extends BaseFrontEndController
      * Adds a payment source.
      *
      * @return Response|null
-     * @throws HttpException
-     * @throws MissingComponentException
-     * @throws InvalidConfigException
      * @throws BadRequestHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
      */
-    public function actionAdd()
+    public function actionAdd(): ?Response
     {
         $this->requirePostRequest();
-
-        $order = null;
 
         $plugin = Plugin::getInstance();
 
@@ -111,7 +108,7 @@ class PaymentSourcesController extends BaseFrontEndController
      * @throws Throwable if failed to delete the payment source on the gateway
      * @throws BadRequestHttpException if user not logged in
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
         $this->requireLogin();

@@ -29,10 +29,12 @@ class CustomerAddressesController extends BaseFrontEndController
      * Add New Address
      *
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
      * @throws Exception
-     * @throws HttpException
+     * @throws Throwable
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -165,7 +167,7 @@ class CustomerAddressesController extends BaseFrontEndController
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
 

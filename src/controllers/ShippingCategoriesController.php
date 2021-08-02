@@ -80,10 +80,12 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws Exception
      * @noinspection Duplicates
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -160,12 +162,12 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws MissingComponentException
-     * @throws Exception
+     * @return Response|null
      * @throws BadRequestHttpException
+     * @throws Exception
      * @since 3.2.9
      */
-    public function actionSetDefaultCategory()
+    public function actionSetDefaultCategory(): ?Response
     {
         $this->requirePostRequest();
 
@@ -185,5 +187,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $this->setFailFlash(Craft::t('commerce', 'Unable to set default shipping category.'));
+        return null;
     }
 }

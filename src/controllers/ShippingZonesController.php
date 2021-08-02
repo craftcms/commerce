@@ -10,6 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -22,7 +26,7 @@ use yii\web\Response;
 class ShippingZonesController extends BaseShippingSettingsController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
     public function actionIndex(): Response
     {
@@ -34,7 +38,7 @@ class ShippingZonesController extends BaseShippingSettingsController
 
     /**
      * @param int|null $id
-     * @param ShippingAddressZone $shippingZone
+     * @param ShippingAddressZone|null $shippingZone
      * @return Response
      * @throws HttpException
      */
@@ -67,9 +71,11 @@ class ShippingZonesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @return Response|null
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -153,10 +159,12 @@ class ShippingZonesController extends BaseShippingSettingsController
 
     /**
      * @return Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
+     * @throws LoaderError
+     * @throws SyntaxError
      * @since 2.2
      */
-    public function actionTestZip()
+    public function actionTestZip(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

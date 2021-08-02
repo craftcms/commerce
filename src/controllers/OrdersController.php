@@ -16,6 +16,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
@@ -103,6 +104,12 @@ class OrdersController extends Controller
 
     /**
      * Create an order
+     *
+     * @return Response
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws Throwable
      */
     public function actionNewOrder(): Response
     {
@@ -130,12 +137,19 @@ class OrdersController extends Controller
 
     /**
      * @param int $orderId
-     * @param Order $order
+     * @param Order|null $order
+     * @param null $paymentForm
      * @return Response
+     * @throws CurrencyException
+     * @throws Exception
+     * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
+    public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -165,13 +179,17 @@ class OrdersController extends Controller
     }
 
     /**
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
+     * @return Response|null
      * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws OrderStatusException
+     * @throws Throwable
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePermission('commerce-editOrders');
         $this->requirePostRequest();
@@ -225,17 +243,17 @@ class OrdersController extends Controller
             $order->markAsComplete();
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
      * Deletes an order.
      *
      * @return Response|null
-     * @throws Exception if you try to edit a non existing Id.
+     * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
-    public function actionDeleteOrder()
+    public function actionDeleteOrder(): ?Response
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-deleteOrders');
@@ -263,7 +281,7 @@ class OrdersController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function actionRefresh()
+    public function actionRefresh(): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -302,7 +320,6 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws InvalidConfigException
      * @throws ForbiddenHttpException
      */
     public function actionUserOrdersTable(): Response
@@ -376,7 +393,7 @@ class OrdersController extends Controller
      * @param Order $order
      * @return array
      */
-    private function _orderToArray($order)
+    private function _orderToArray($order): array
     {
         // Remove custom fields
         $orderFields = array_keys($order->fields());
@@ -452,7 +469,7 @@ class OrdersController extends Controller
      * @throws ForbiddenHttpException
      * @throws InvalidConfigException
      */
-    public function actionPurchasablesTable()
+    public function actionPurchasablesTable(): Response
     {
         $this->requirePermission('commerce-editOrders');
         $this->requireAcceptsJson();
@@ -518,7 +535,7 @@ class OrdersController extends Controller
      * @param null $query
      * @return Response
      */
-    public function actionCustomerSearch($query = null)
+    public function actionCustomerSearch($query = null): Response
     {
         $limit = 30;
         $customers = [];
@@ -541,8 +558,10 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
-    public function actionSendEmail()
+    public function actionSendEmail(): Response
     {
         $this->requireAcceptsJson();
 
@@ -597,7 +616,7 @@ class OrdersController extends Controller
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    public function actionUpdateOrderAddress()
+    public function actionUpdateOrderAddress(): Response
     {
         $this->requireAcceptsJson();
 
@@ -658,6 +677,7 @@ class OrdersController extends Controller
      *
      * @return Response
      * @throws BadRequestHttpException
+     * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -743,9 +763,9 @@ class OrdersController extends Controller
      * Captures Transaction
      *
      * @return Response
-     * @throws TransactionException
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws TransactionException
      */
     public function actionTransactionCapture(): Response
     {
@@ -781,10 +801,10 @@ class OrdersController extends Controller
      * Refunds transaction.
      *
      * @return Response
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionTransactionRefund()
+    public function actionTransactionRefund(): Response
     {
         $this->requirePermission('commerce-refundPayment');
         $this->requirePostRequest();
@@ -847,10 +867,12 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    /*
+    /**
+     * @return Response
      * @throws BadRequestHttpException
+     * @throws CurrencyException
      */
-    public function actionPaymentAmountData()
+    public function actionPaymentAmountData(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
@@ -888,10 +910,9 @@ class OrdersController extends Controller
     /**
      * Modifies the variables of the request.
      *
-     * @param $variables
-     * @throws InvalidConfigException
+     * @param array $variables
      */
-    private function _updateTemplateVariables(&$variables)
+    private function _updateTemplateVariables(array &$variables): void
     {
         /** @var Order $order */
         $order = $variables['order'];
@@ -975,9 +996,10 @@ class OrdersController extends Controller
 
     /**
      * @param array $variables
+     * @throws Exception
      * @throws InvalidConfigException
      */
-    private function _registerJavascript(array $variables)
+    private function _registerJavascript(array $variables): void
     {
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
@@ -1078,7 +1100,7 @@ class OrdersController extends Controller
      * @throws Exception
      * @throws InvalidConfigException
      */
-    private function _updateOrder(Order $order, $orderRequestData)
+    private function _updateOrder(Order $order, $orderRequestData): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
@@ -1331,7 +1353,7 @@ class OrdersController extends Controller
      * @throws CurrencyException
      * @since 3.0
      */
-    private function _getTransactionsWithLevelsTableArray($transactions, $level = 0): array
+    private function _getTransactionsWithLevelsTableArray(array $transactions, int $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -1407,8 +1429,6 @@ class OrdersController extends Controller
 
     /**
      * @param array $results
-     * @param string $baseCurrency
-     * @param array $purchasables
      * @return array
      * @throws InvalidConfigException
      */

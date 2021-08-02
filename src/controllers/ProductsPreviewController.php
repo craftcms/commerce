@@ -20,6 +20,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -35,7 +36,7 @@ class ProductsPreviewController extends Controller
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected bool $allowAnonymous = true;
 
 
     /**
@@ -97,7 +98,7 @@ class ProductsPreviewController extends Controller
      * @return Response|null
      * @throws HttpException
      */
-    public function actionViewSharedProduct($productId, $site = null)
+    public function actionViewSharedProduct($productId, $site = null): ?Response
     {
         $this->requireToken();
 
@@ -123,7 +124,7 @@ class ProductsPreviewController extends Controller
      * @throws MissingComponentException
      * @throws BadRequestHttpException
      */
-    public function actionSaveProduct()
+    public function actionSaveProduct(): ?Response
     {
         $this->requirePostRequest();
 
@@ -175,9 +176,10 @@ class ProductsPreviewController extends Controller
 
     /**
      * @param Product $product
-     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
      */
-    protected function enforceProductPermissions(Product $product)
+    protected function enforceProductPermissions(Product $product): void
     {
         $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
@@ -187,7 +189,8 @@ class ProductsPreviewController extends Controller
      *
      * @param Product $product
      * @return Response
-     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ServerErrorHttpException
      */
     private function _showProduct(Product $product): Response
     {

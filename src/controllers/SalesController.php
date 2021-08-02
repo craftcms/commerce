@@ -61,6 +61,7 @@ class SalesController extends BaseCpController
      * @param Sale|null $sale
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
@@ -88,7 +89,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -173,7 +174,7 @@ class SalesController extends BaseCpController
     }
 
     /**
-     *
+     * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
     {
@@ -359,11 +360,10 @@ class SalesController extends BaseCpController
 
     /**
      * @throws BadRequestHttpException
-     * @throws \craft\errors\MissingComponentException
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
@@ -393,7 +393,7 @@ class SalesController extends BaseCpController
      * @param $variables
      * @throws InvalidConfigException
      */
-    private function _populateVariables(&$variables)
+    private function _populateVariables(&$variables): void
     {
         /** @var Sale $sale */
         $sale = $variables['sale'];
