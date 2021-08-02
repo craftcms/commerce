@@ -15,6 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
+use craft\errors\SiteNotFoundException;
 use craft\validators\UniqueValidator;
 
 /**
@@ -42,12 +43,12 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @var float|null
      */
-    private $_salePrice;
+    private ?float $_salePrice;
 
     /**
      * @var Sale[]|null
      */
-    private $_sales;
+    private ?array $_sales;
 
     /**
      * @inheritdoc
@@ -246,6 +247,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * Update purchasable table
      *
      * @param bool $isNew
+     * @throws SiteNotFoundException
      */
     public function afterSave(bool $isNew): void
     {
@@ -297,7 +299,8 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getOnSale(): bool
     {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
+        $salePrice = $this->getSalePrice();
+        return null === $salePrice ? false : (Currency::round($salePrice) != Currency::round($this->getPrice()));
     }
 
     /**
@@ -305,7 +308,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     private function _loadSales(): void
     {
-        if (null === $this->_sales) {
+        if (!isset($this->_sales)) {
             // Default the sales and salePrice to the original price without any sales
             $this->_sales = [];
             $this->_salePrice = Currency::round($this->getPrice());

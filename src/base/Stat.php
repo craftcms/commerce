@@ -52,7 +52,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getHandle(): string
     {
@@ -89,7 +89,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function prepareData($data)
     {
@@ -97,9 +97,9 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function setStartDate($date)
+    public function setStartDate(?DateTime $date): void
     {
         if (!$date) {
             $this->_startDate = $this->_getFirstCompletedOrderDate();
@@ -109,9 +109,9 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function setEndDate($date)
+    public function setEndDate(?DateTime $date): void
     {
         if (!$date) {
             $this->_endDate = new DateTime();
@@ -121,7 +121,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getStartDate()
     {
@@ -129,7 +129,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getEndDate()
     {
@@ -137,7 +137,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public function getDateRangeWording(): string
     {
@@ -203,7 +203,7 @@ abstract class Stat implements StatInterface
     /**
      * @throws Exception
      */
-    private function _setDates()
+    private function _setDates(): void
     {
         if (!$this->dateRange) {
             throw new Exception('A date range string must be specified to set stat dates.');
@@ -338,7 +338,7 @@ abstract class Stat implements StatInterface
      * @return string|null
      * @throws \Exception
      */
-    private function _getCacheKey()
+    private function _getCacheKey(): ?string
     {
         $orderLastUpdatedString = 'never';
 
@@ -359,7 +359,7 @@ abstract class Stat implements StatInterface
      * @param string $interval
      * @return array|null
      */
-    public function getChartQueryOptionsByInterval(string $interval)
+    public function getChartQueryOptionsByInterval(string $interval): ?array
     {
         if (Craft::$app->getDb()->getIsMysql()) {
             // The fallback if timezone can't happen in sql is simply just extract the information from the UTC date stored in `dateOrdered`.
@@ -403,9 +403,9 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @return mixed|string
+     * @return string
      */
-    public function getDateRangeInterval()
+    public function getDateRangeInterval(): string
     {
         if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
             $interval = date_diff($this->_startDate, $this->_endDate);
@@ -420,7 +420,7 @@ abstract class Stat implements StatInterface
      *
      * @return \yii\db\Query
      */
-    protected function _createStatQuery()
+    protected function _createStatQuery(): \yii\db\Query
     {
         // Make sure the end time is always the last point on that day.
         if ($this->_endDate instanceof DateTime) {
@@ -443,7 +443,7 @@ abstract class Stat implements StatInterface
      * @return array|null
      * @throws \Exception
      */
-    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null)
+    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null): ?array
     {
         // Allow the passing in of a custom query in case we need to add extra logic
         $query = $query ?: $this->_createStatQuery();
@@ -459,7 +459,6 @@ abstract class Stat implements StatInterface
         $dateKeyDate = DateTimeHelper::toDateTime($this->getStartDate()->format('Y-m-d'), true);
         $endDate = $this->getEndDate();
         while ($dateKeyDate <= $endDate) {
-
             // If we are looking monthly make sure we get every month by using the 1st day
             if ($dateRangeInterval == 'month') {
                 $dateKeyDate->setDate($dateKeyDate->format('Y'), $dateKeyDate->format('m'), 1);
@@ -492,9 +491,9 @@ abstract class Stat implements StatInterface
 
     /**
      * @param int $days
-     * @return mixed
+     * @return string[]|null
      */
-    private function _getCustomDateChartQueryOptions(int $days)
+    private function _getCustomDateChartQueryOptions(int $days): ?array
     {
         if ($days > 90) {
             return $this->getChartQueryOptionsByInterval('month');

@@ -20,60 +20,60 @@ trait PlanTrait
     /**
      * @var int Plan ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var int The gateway ID.
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var string plan name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string plan handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var int ID of the entry containing plan information
      */
-    public $planInformationId;
+    public int $planInformationId;
 
     /**
      * @var string plan reference on the gateway
      */
-    public $reference;
+    public string $reference;
 
     /**
      * @var bool whether the plan is enabled on site
      */
-    public $enabled;
+    public bool $enabled;
 
     /**
      * @var bool whether the plan is archived
      */
-    public $isArchived;
+    public bool $isArchived;
 
     /**
      * @var DateTime when the plan was archived
      */
-    public $dateArchived;
+    public DateTime $dateArchived;
 
     /**
      * @var string gateway response
      */
-    public $planData;
+    public string $planData;
 
     /**
      * @var string plan uid
      */
-    public $uid;
+    public string $uid;
 
     /**
      * @var int sort order
      */
-    public $sortOrder;
+    public int $sortOrder;
 }
