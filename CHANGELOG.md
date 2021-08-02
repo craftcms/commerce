@@ -5,6 +5,9 @@
 ### Changed
 - The `registerUserOnOrderComplete` order parameter is now honored when completing an order from the control panel. ([#2503](https://github.com/craftcms/commerce/issues/2503))
 
+### Fixed
+- Whitelisted date twig filter on discount condition formula to allow condition operator on date attributes and fields. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
 ## 3.4.1 - 2021-07-26
 
 ### Changed
