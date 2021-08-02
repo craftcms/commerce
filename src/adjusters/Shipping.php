@@ -27,23 +27,22 @@ class Shipping extends Component implements AdjusterInterface
 {
     const ADJUSTMENT_TYPE = 'shipping';
 
-
     /**
-     * @var
+     * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var bool
      */
-    private $_isEstimated = false;
+    private bool $_isEstimated = false;
 
     /**
      * Temporary feature flag for testing
      *
      * @var bool
      */
-    private $_consolidateShippingToSingleAdjustment = false;
+    private bool $_consolidateShippingToSingleAdjustment = false;
 
     /**
      * @inheritdoc
@@ -201,7 +200,7 @@ class Shipping extends Component implements AdjusterInterface
      * @param ShippingRule $rule
      * @return OrderAdjustment
      */
-    private function _createAdjustment($shippingMethod, $rule): OrderAdjustment
+    private function _createAdjustment(ShippingMethod $shippingMethod, ShippingRule $rule): OrderAdjustment
     {
         //preparing model
         $adjustment = new OrderAdjustment;
