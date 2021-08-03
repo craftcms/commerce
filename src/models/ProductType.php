@@ -116,7 +116,7 @@ class ProductType extends Model
     /**
      * @var int Variant layout ID
      */
-    public int $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId;
 
     /**
      * @var string UID
