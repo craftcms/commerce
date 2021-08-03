@@ -23,12 +23,12 @@ class LiteShippingSettings extends Model
     /**
      * @var float Shipping base rate
      */
-    public $shippingBaseRate;
+    public float $shippingBaseRate;
 
     /**
      * @var float Shipping per item rate
      */
-    public $shippingPerItemRate;
+    public float $shippingPerItemRate;
 
     /**
      * @return array|string[]

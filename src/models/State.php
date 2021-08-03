@@ -17,6 +17,7 @@ use yii\base\InvalidConfigException;
  * State model.
  *
  * @property Country $country
+ * @property-read string $label
  * @property string $cpEditUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -26,44 +27,44 @@ class State extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Abbreviation
      */
-    public $abbreviation;
+    public string $abbreviation;
 
     /**
      * @var int Country ID
      */
-    public $countryId;
+    public int $countryId;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var int Ordering
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @inheritdoc
@@ -90,7 +91,7 @@ class State extends Model
      */
     public function __toString(): string
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
@@ -108,6 +109,7 @@ class State extends Model
 
     /**
      * @return string
+     * @throws InvalidConfigException
      */
     public function getLabel(): string
     {

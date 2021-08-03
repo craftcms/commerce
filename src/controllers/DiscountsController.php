@@ -45,7 +45,7 @@ class DiscountsController extends BaseCpController
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requirePermission('commerce-managePromotions');
@@ -92,7 +92,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -121,7 +121,7 @@ class DiscountsController extends BaseCpController
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
         $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
-            
+
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
@@ -203,7 +203,8 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     *
+     * @return Response
+     * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
     {
@@ -290,7 +291,7 @@ class DiscountsController extends BaseCpController
      * @throws BadRequestHttpException
      * @since 3.0
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
@@ -318,7 +319,6 @@ class DiscountsController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws InvalidConfigException
      */
     public function actionGetDiscountsByPurchasableId(): Response
     {
@@ -357,7 +357,7 @@ class DiscountsController extends BaseCpController
     /**
      * @param array $variables
      */
-    private function _populateVariables(&$variables)
+    private function _populateVariables(array &$variables): void
     {
         if ($variables['discount']->id) {
             $variables['title'] = $variables['discount']->name;
@@ -429,7 +429,7 @@ class DiscountsController extends BaseCpController
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;
-        $categories = $categoryIds = [];
+        $categories = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
             $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));

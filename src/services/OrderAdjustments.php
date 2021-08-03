@@ -184,10 +184,9 @@ class OrderAdjustments extends Component
         $record->description = $orderAdjustment->description;
         $record->amount = $orderAdjustment->amount;
         $record->included = $orderAdjustment->included;
-        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
+        $record->sourceSnapshot = $orderAdjustment->getSourceSnapshot();
         $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
         $record->orderId = $orderAdjustment->getOrder()->id ?? null;
-        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
         $record->isEstimated = $orderAdjustment->isEstimated;
 
         $record->save(false);

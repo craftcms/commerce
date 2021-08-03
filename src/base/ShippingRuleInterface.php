@@ -43,28 +43,28 @@ interface ShippingRuleInterface
      * Returns the percentage rate that is multiplied per line item subtotal.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      * @return float
      */
-    public function getPercentageRate($shippingCategory): float;
+    public function getPercentageRate(?int $shippingCategoryId): float;
 
     /**
      * Returns the flat rate that is multiplied per qty.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      * @return float
      */
-    public function getPerItemRate($shippingCategory): float;
+    public function getPerItemRate(?int $shippingCategoryId): float;
 
     /**
      * Returns the rate that is multiplied by the line item's weight.
      * Zero will not make any changes.
      *
-     * @param int|null $shippingCategory the shipping category for the rate requested. A null category should use the default shipping category set up in Craft Commerce.
+     * @param int|null $shippingCategoryId the shipping category ID for the rate requested. A null category ID should use the default shipping category set up in Craft Commerce.
      * @return float
      */
-    public function getWeightRate($shippingCategory): float;
+    public function getWeightRate(?int $shippingCategoryId): float;
 
     /**
      * Returns a base shipping cost. This is added at the order level.

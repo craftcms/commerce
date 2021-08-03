@@ -20,6 +20,7 @@ use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\models\FieldLayout;
 
 trait OrderElementTrait
 {
@@ -43,7 +44,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
@@ -504,7 +505,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         /** @var OrderQuery $elementQuery */
 

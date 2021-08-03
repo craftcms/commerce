@@ -76,7 +76,7 @@ class LineItemStatusesController extends BaseAdminController
      * @throws Exception
      * @throws MissingComponentException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -129,7 +129,7 @@ class LineItemStatusesController extends BaseAdminController
      * @throws BadRequestHttpException
      * @throws Throwable
      */
-    public function actionArchive()
+    public function actionArchive(): ?Response
     {
         $this->requireAcceptsJson();
 

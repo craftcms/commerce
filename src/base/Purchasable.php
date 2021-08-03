@@ -15,6 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Purchasable as PurchasableRecord;
+use craft\errors\SiteNotFoundException;
 use craft\validators\UniqueValidator;
 
 /**
@@ -42,17 +43,17 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @var float|null
      */
-    private $_salePrice;
+    private ?float $_salePrice;
 
     /**
      * @var Sale[]|null
      */
-    private $_sales;
+    private ?array $_sales;
 
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $names = parent::attributes();
 
@@ -69,7 +70,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * @inheritdoc
      * @since 3.2.9
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
 
@@ -80,7 +81,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         $names = parent::extraFields();
 
@@ -123,7 +124,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
      *
      * @return Sale[]|null
      */
-    public function getSales()
+    public function getSales(): ?array
     {
         $this->_loadSales();
 
@@ -157,7 +158,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
     }
 
@@ -198,7 +199,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
     }
 
@@ -246,8 +247,9 @@ abstract class Purchasable extends Element implements PurchasableInterface
      * Update purchasable table
      *
      * @param bool $isNew
+     * @throws SiteNotFoundException
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         $purchasable = PurchasableRecord::findOne($this->id);
 
@@ -273,7 +275,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * Clean up purchasable table
      */
-    public function afterDelete()
+    public function afterDelete(): void
     {
         $purchasable = PurchasableRecord::findOne($this->id);
 
@@ -297,15 +299,16 @@ abstract class Purchasable extends Element implements PurchasableInterface
      */
     public function getOnSale(): bool
     {
-        return null === $this->salePrice ? false : (Currency::round($this->salePrice) != Currency::round($this->price));
+        $salePrice = $this->getSalePrice();
+        return null === $salePrice ? false : (Currency::round($salePrice) != Currency::round($this->getPrice()));
     }
 
     /**
      * Reloads any sales applicable to the purchasable for the current user.
      */
-    private function _loadSales()
+    private function _loadSales(): void
     {
-        if (null === $this->_sales) {
+        if (!isset($this->_sales)) {
             // Default the sales and salePrice to the original price without any sales
             $this->_sales = [];
             $this->_salePrice = Currency::round($this->getPrice());

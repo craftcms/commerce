@@ -33,11 +33,10 @@ abstract class Plan extends Model implements PlanInterface
 {
     use PlanTrait;
 
-
     /**
      * @var SubscriptionGatewayInterface|null the gateway
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway;
 
     /**
      * @var mixed the plan data.
@@ -48,13 +47,13 @@ abstract class Plan extends Model implements PlanInterface
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * Returns the billing plan friendly name
@@ -72,7 +71,7 @@ abstract class Plan extends Model implements PlanInterface
      * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
      */
-    public function getGateway()
+    public function getGateway(): ?SubscriptionGatewayInterface
     {
         if (null === $this->_gateway) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
@@ -104,7 +103,7 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return Entry|null
      */
-    public function getInformation()
+    public function getInformation(): ?Entry
     {
         if ($this->planInformationId) {
             return Entry::find()->id($this->planInformationId)->one();
@@ -167,7 +166,7 @@ abstract class Plan extends Model implements PlanInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [

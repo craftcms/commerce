@@ -15,8 +15,11 @@ use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -28,9 +31,12 @@ use yii\web\Response;
  */
 class PaymentsController extends BaseFrontEndController
 {
-    private $_cartVariableName;
+    /**
+     * @var string
+     */
+    private string $_cartVariableName;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->_cartVariableName = Plugin::getInstance()->getSettings()->cartVariable;
@@ -51,11 +57,15 @@ class PaymentsController extends BaseFrontEndController
 
     /**
      * @return Response|null
-     * @throws HttpException
-     * @throws \yii\base\InvalidConfigException
+     * @throws CurrencyException
+     * @throws Exception
      * @throws NotSupportedException
+     * @throws \Throwable
+     * @throws ElementNotFoundException
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
-    public function actionPay()
+    public function actionPay(): ?Response
     {
         $this->requirePostRequest();
 
@@ -489,9 +499,9 @@ class PaymentsController extends BaseFrontEndController
 
         if ($order->returnUrl) {
             return $this->redirect($order->returnUrl);
-        } else {
-            return $this->redirectToPostedUrl($order);
         }
+
+        return $this->redirectToPostedUrl($order);
     }
 
     /**

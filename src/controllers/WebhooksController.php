@@ -33,8 +33,10 @@ class WebhooksController extends BaseController
     public $enableCsrfValidation = false;
 
     /**
+     * @param null $gatewayId
      * @return Response
-     * @throws HttpException If webhook not expected.
+     * @throws BadRequestHttpException
+     * @throws NotFoundHttpException
      */
     public function actionProcessWebhook($gatewayId = null): Response
     {

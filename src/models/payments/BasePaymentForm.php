@@ -25,7 +25,7 @@ abstract class BasePaymentForm extends Model
      * @param PaymentSource $paymentSource the source to ue
      * @throws NotSupportedException if not supported by current gateway.
      */
-    public function populateFromPaymentSource(PaymentSource $paymentSource)
+    public function populateFromPaymentSource(PaymentSource $paymentSource): void
     {
         throw new NotSupportedException();
     }

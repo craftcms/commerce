@@ -38,47 +38,47 @@ class OrderStatus extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Color
      */
-    public $color = 'green';
+    public string $color = 'green';
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var int Sort order
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var bool Default status
      */
-    public $default;
+    public bool $default;
 
     /**
      * @var bool Default status
      */
-    public $dateDeleted;
+    public bool $dateDeleted;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
      * @return array

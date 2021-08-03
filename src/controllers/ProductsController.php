@@ -26,6 +26,7 @@ use craft\models\Site;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\base\InvalidRouteException;
 use yii\base\Model;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -45,12 +46,12 @@ class ProductsController extends BaseController
     /**
      * @var string[] The action names that bypass the "Access Craft Commerce" permission.
      */
-    protected $ignorePluginPermission = ['save-product', 'duplicate-product', 'delete-product'];
+    protected array $ignorePluginPermission = ['save-product', 'duplicate-product', 'delete-product'];
 
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -179,10 +180,10 @@ class ProductsController extends BaseController
     /**
      * Deletes a product.
      *
-     * @throws Exception if you try to edit a non existing Id.
+     * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
-    public function actionDeleteProduct()
+    public function actionDeleteProduct(): Response
     {
         $this->requirePostRequest();
 
@@ -227,7 +228,7 @@ class ProductsController extends BaseController
      * @throws MissingComponentException
      * @throws BadRequestHttpException
      */
-    public function actionSaveProduct(bool $duplicate = false)
+    public function actionSaveProduct(bool $duplicate = false): ?Response
     {
         $this->requirePostRequest();
 
@@ -355,9 +356,10 @@ class ProductsController extends BaseController
      * Duplicates a product.
      *
      * @return Response|null
+     * @throws InvalidRouteException
      * @since 3.1.3
      */
-    public function actionDuplicateProduct()
+    public function actionDuplicateProduct(): ?Response
     {
         return $this->runAction('save-product', ['duplicate' => true]);
     }
@@ -367,7 +369,7 @@ class ProductsController extends BaseController
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    protected function enforceProductPermissions(Product $product)
+    protected function enforceProductPermissions(Product $product): void
     {
         $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
     }
@@ -375,9 +377,8 @@ class ProductsController extends BaseController
 
     /**
      * @param array $variables
-     * @throws InvalidConfigException
      */
-    private function _prepVariables(array &$variables)
+    private function _prepVariables(array &$variables): void
     {
         $variables['tabs'] = [];
 
@@ -399,7 +400,7 @@ class ProductsController extends BaseController
      * @throws SiteNotFoundException
      * @throws InvalidConfigException
      */
-    private function _prepEditProductVariables(array &$variables)
+    private function _prepEditProductVariables(array &$variables): void
     {
         if (!empty($variables['productTypeHandle'])) {
             $variables['productType'] = Plugin::getInstance()->getProductTypes()->getProductTypeByHandle($variables['productTypeHandle']);

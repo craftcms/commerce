@@ -29,72 +29,72 @@ class Email extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Subject
      */
-    public $subject;
+    public string $subject;
 
     /**
      * @var string Recipient Type
      */
-    public $recipientType;
+    public string $recipientType;
 
     /**
      * @var string To
      */
-    public $to;
+    public string $to;
 
     /**
      * @var string Bcc
      */
-    public $bcc;
+    public string $bcc;
 
     /**
      * @var string Cc
      */
-    public $cc;
+    public string $cc;
 
     /**
      * @var string Reply to
      */
-    public $replyTo;
+    public string $replyTo;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var string Template path
      */
-    public $templatePath;
+    public string $templatePath;
 
     /**
      * @var string Plain Text Template path
      */
-    public $plainTextTemplatePath;
+    public string $plainTextTemplatePath;
 
     /**
      * @var int The PDF UID.
      */
-    public $pdfId;
+    public int $pdfId;
 
     /**
      * @var string The language.
      */
-    public $language;
+    public string $language;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
      * Determines the language this pdf, if
@@ -137,7 +137,7 @@ class Email extends Model
     /**
      * @return Pdf|null
      */
-    public function getPdf()
+    public function getPdf(): ?Pdf
     {
         if (!$this->pdfId) {
             return null;

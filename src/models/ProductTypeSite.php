@@ -26,47 +26,47 @@ class ProductTypeSite extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var int Product type ID
      */
-    public $productTypeId;
+    public int $productTypeId;
 
     /**
      * @var int Site ID
      */
-    public $siteId;
+    public int $siteId;
 
     /**
      * @var bool Has Urls
      */
-    public $hasUrls;
+    public bool $hasUrls;
 
     /**
      * @var string URL Format
      */
-    public $uriFormat;
+    public string $uriFormat;
 
     /**
      * @var string Template Path
      */
-    public $template;
+    public string $template;
 
     /**
-     * @var ProductType
+     * @var ProductType|null
      */
-    private $_productType;
+    private ?ProductType $_productType;
 
     /**
-     * @var Site
+     * @var Site|null
      */
-    private $_site;
+    private ?Site $_site;
 
     /**
      * @var bool
      */
-    public $uriFormatIsRequired = true;
+    public bool $uriFormatIsRequired = true;
 
 
     /**
@@ -97,7 +97,7 @@ class ProductTypeSite extends Model
      *
      * @param ProductType $productType
      */
-    public function setProductType(ProductType $productType)
+    public function setProductType(ProductType $productType): void
     {
         $this->_productType = $productType;
     }

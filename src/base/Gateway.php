@@ -24,6 +24,7 @@ use craft\helpers\UrlHelper;
  * @property string $name
  * @property null|BasePaymentForm $paymentFormModel
  * @property string $paymentType
+ * @property-read null|string $transactionHashFromWebhook
  * @property array $paymentTypeOptions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -91,7 +92,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['paymentType', 'handle'], 'required'],
@@ -133,7 +134,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * @param array $params
      * @return string|null
      */
-    abstract public function getPaymentFormHtml(array $params);
+    abstract public function getPaymentFormHtml(array $params): ?string;
 
     /**
      * Returns the transaction hash based on a webhook request
@@ -141,7 +142,7 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * @return string|null
      * @since 3.1.9
      */
-    public function getTransactionHashFromWebhook()
+    public function getTransactionHashFromWebhook(): ?string
     {
         return null;
     }

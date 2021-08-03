@@ -18,6 +18,11 @@ use craft\commerce\models\subscriptions\SwitchPlansForm;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read Plan $planModel
+ * @property-read CancelSubscriptionForm $cancelSubscriptionFormModel
+ * @property-read SwitchPlansForm $switchPlansFormModel
+ * @property-read SubscriptionForm $subscriptionFormModel
  */
 abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewayInterface
 {
@@ -89,7 +94,7 @@ abstract class SubscriptionGateway extends Gateway implements SubscriptionGatewa
     /**
      * @inheritdoc
      */
-    public function refreshPaymentHistory(Subscription $subscription)
+    public function refreshPaymentHistory(Subscription $subscription): void
     {
     }
 }

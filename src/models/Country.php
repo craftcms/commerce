@@ -25,53 +25,53 @@ class Country extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string ISO code
      */
-    public $iso;
+    public string $iso;
 
     /**
      * @var bool State Required
      */
-    public $isStateRequired;
+    public bool $isStateRequired;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @return string
      */
     public function __toString(): string
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
      * @return array
      * @since 3.1
      */
-    public function getStates()
+    public function getStates(): array
     {
         return Plugin::getInstance()->getStates()->getStatesByCountryId($this->id);
     }

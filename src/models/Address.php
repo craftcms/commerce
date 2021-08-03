@@ -49,158 +49,158 @@ class Address extends Model implements AddressInterface
     /**
      * @var int Address ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var bool Is this the store location.
      */
-    public $isStoreLocation = false;
+    public bool $isStoreLocation = false;
 
     /**
      * @var string Attention
      */
-    public $attention;
+    public string $attention;
 
     /**
      * @var string Title
      */
-    public $title;
+    public string $title;
 
     /**
      * @var string First Name
      */
-    public $firstName;
+    public string $firstName;
 
     /**
      * @var string Last Name
      */
-    public $lastName;
+    public string $lastName;
 
     /**
      * @var string Full Name
      * @since 2.2
      */
-    public $fullName;
+    public string $fullName;
 
     /**
      * @var string Address Line 1
      */
-    public $address1;
+    public string $address1;
 
     /**
      * @var string Address Line 2
      */
-    public $address2;
+    public string $address2;
 
     /**
      * @var string Address Line 3
      * @since 2.2
      */
-    public $address3;
+    public string $address3;
 
     /**
      * @var string City
      */
-    public $city;
+    public string $city;
 
     /**
      * @var string Zip
      */
-    public $zipCode;
+    public string $zipCode;
 
     /**
      * @var string Phone
      */
-    public $phone;
+    public string $phone;
 
     /**
      * @var string Alternative Phone
      */
-    public $alternativePhone;
+    public string $alternativePhone;
 
     /**
      * @var string Label
      * @since 2.2
      */
-    public $label;
+    public string $label;
 
     /**
      * @var string Business Name
      */
-    public $businessName;
+    public string $businessName;
 
     /**
      * @var string Business Tax ID
      */
-    public $businessTaxId;
+    public string $businessTaxId;
 
     /**
      * @var string Business ID
      */
-    public $businessId;
+    public string $businessId;
 
     /**
-     * @var string State Name
+     * @var string|null State Name
      */
-    public $stateName;
+    public ?string $stateName;
 
     /**
      * @var int Country ID
      */
-    public $countryId;
+    public int $countryId;
 
     /**
-     * @var int State ID
+     * @var int|null State ID
      */
-    public $stateId;
+    public ?int $stateId;
 
     /**
      * @var string Notes, only field that can contain Emoji
      * @since 2.2
      */
-    public $notes;
+    public string $notes;
 
     /**
      * @var string Custom Field 1
      * @since 2.2
      */
-    public $custom1;
+    public string $custom1;
 
     /**
      * @var string Custom Field 2
      * @since 2.2
      */
-    public $custom2;
+    public string $custom2;
 
     /**
      * @var string Custom Field 3
      * @since 2.2
      */
-    public $custom3;
+    public string $custom3;
 
     /**
      * @var string Custom Field 4
      * @since 2.2
      */
-    public $custom4;
+    public string $custom4;
 
     /**
      * @var bool If this address is used for estimated values
      * @since 2.2
      */
-    public $isEstimated = false;
+    public bool $isEstimated = false;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @var int|string Can be a State ID or State Name
@@ -275,11 +275,11 @@ class Address extends Model implements AddressInterface
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
-        $this->isEstimated = (bool)$this->isEstimated;
-        $this->isStoreLocation = (bool)$this->isStoreLocation;
+        // $this->isEstimated = (bool)$this->isEstimated;
+        // $this->isStoreLocation = (bool)$this->isStoreLocation;
 
         parent::init();
     }
@@ -307,7 +307,7 @@ class Address extends Model implements AddressInterface
      * @inheritDoc
      * @since 3.2.1
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
         $fields['countryIso'] = 'countryIso';
@@ -322,7 +322,7 @@ class Address extends Model implements AddressInterface
     /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'country',
@@ -432,7 +432,7 @@ class Address extends Model implements AddressInterface
      * @param $params
      * @param $validator
      */
-    public function validateState($attribute, $params, $validator)
+    public function validateState($attribute, $params, $validator): void
     {
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
@@ -446,7 +446,7 @@ class Address extends Model implements AddressInterface
      * @param $params
      * @param $validator
      */
-    public function validateBusinessTaxId($attribute, $params, $validator)
+    public function validateBusinessTaxId($attribute, $params, $validator): void
     {
         if (!Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId) {
             return;
@@ -478,13 +478,13 @@ class Address extends Model implements AddressInterface
     public function getCountryText(): string
     {
         $country = $this->getCountry();
-        return $country ? $country->name : '';
+        return $country->name ?? '';
     }
 
     /**
      * @return Country|null
      */
-    public function getCountry()
+    public function getCountry(): ?Country
     {
         return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
     }
@@ -496,7 +496,7 @@ class Address extends Model implements AddressInterface
     public function getCountryIso(): string
     {
         $country = $this->getCountry();
-        return $country ? $country->iso : '';
+        return $country->iso ?? '';
     }
 
     /**
@@ -513,7 +513,7 @@ class Address extends Model implements AddressInterface
             return $this->stateId ? $state->name : $this->stateName;
         }
 
-        return $state ? $state->name : '';
+        return $state->name ?? '';
     }
 
     /**
@@ -522,13 +522,13 @@ class Address extends Model implements AddressInterface
     public function getAbbreviationText(): string
     {
         $state = $this->getState();
-        return $state ? $state->abbreviation : '';
+        return $state->abbreviation ?? '';
     }
 
     /**
      * @return State|null
      */
-    public function getState()
+    public function getState(): ?State
     {
         return $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
     }
@@ -554,7 +554,7 @@ class Address extends Model implements AddressInterface
      *
      * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      */
-    public function setStateValue($value)
+    public function setStateValue($value): void
     {
         if ($value) {
             if (Plugin::getInstance()->getStates()->getStateById((int)$value)) {
@@ -579,7 +579,7 @@ class Address extends Model implements AddressInterface
      * @return array
      * @since 3.2.0
      */
-    public function getAddressLines($sanitize = false): array
+    public function getAddressLines(bool $sanitize = false): array
     {
         $addressLines = [
             'attention' => $this->attention,
@@ -614,7 +614,7 @@ class Address extends Model implements AddressInterface
         $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
 
         if ($sanitize) {
-            array_walk($event->addressLines, function(&$value) {
+            array_walk($event->addressLines, static function(&$value) {
                 $value = Craft::$app->getFormatter()->asText($value);
             });
         }
@@ -629,7 +629,7 @@ class Address extends Model implements AddressInterface
      * @return bool
      * @since 3.2.1
      */
-    public function sameAs($otherAddress): bool
+    public function sameAs(?Address $otherAddress): bool
     {
         if (!$otherAddress || !$otherAddress instanceof self) {
             return false;
@@ -674,7 +674,7 @@ class Address extends Model implements AddressInterface
      * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    private function _validateVatNumber(string $businessVatId): bool
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
@@ -690,7 +690,7 @@ class Address extends Model implements AddressInterface
      */
     private function _getVatValidator(): Validator
     {
-        if ($this->_vatValidator === null) {
+        if (!isset($this->_vatValidator)) {
             $this->_vatValidator = new Validator();
         }
 

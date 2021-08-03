@@ -35,9 +35,9 @@ class Purchasable extends ActiveRecord
     }
 
     /**
-     * @return ActiveQuery
+     * @return \craft\db\ActiveQuery
      */
-    public static function find()
+    public static function find(): \craft\db\ActiveQuery
     {
         return parent::find()
             ->innerJoinWith(['element element'])

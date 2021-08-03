@@ -12,9 +12,11 @@ use craft\commerce\db\Table;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
@@ -29,8 +31,9 @@ class AddressesController extends BaseCpController
 {
     /**
      * @inheritdoc
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requirePermission('commerce-manageOrders');
@@ -94,11 +97,10 @@ class AddressesController extends BaseCpController
      * @throws Exception
      * @throws NotFoundHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
         $address = null;
-        $customer = null;
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
         $customerId = Craft::$app->getRequest()->getValidatedBodyParam('customerId');
@@ -187,10 +189,10 @@ class AddressesController extends BaseCpController
      *
      * @throws BadRequestHttpException
      * @throws Exception
-     * @throws \craft\errors\MissingComponentException
+     * @throws MissingComponentException
      * @since 3.0.4
      */
-    public function actionSetPrimaryAddress()
+    public function actionSetPrimaryAddress(): ?Response
     {
         $this->requirePostRequest();
         $request = Craft::$app->getRequest();
@@ -256,16 +258,14 @@ class AddressesController extends BaseCpController
      * @throws BadRequestHttpException
      * @since 3.1
      */
-    public function actionGetCustomerAddresses()
+    public function actionGetCustomerAddresses(): Response
     {
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
         $customerId = $request->getRequiredParam('customerId');
         $page = $request->getParam('page', 1);
-        $sort = $request->getParam('sort', null);
         $limit = $request->getParam('per_page', 10);
-        $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
@@ -309,7 +309,7 @@ class AddressesController extends BaseCpController
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-        $addressPost = $request->getParam('address', null);
+        $addressPost = $request->getParam('address');
 
         if (!$addressPost) {
             return $this->asErrorJson(Craft::t('commerce', 'An address must be provided.'));
@@ -340,7 +340,7 @@ class AddressesController extends BaseCpController
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-        $addressId = $request->getParam('id', null);
+        $addressId = $request->getParam('id');
 
         if (!$addressId) {
             return $this->asErrorJson(Craft::t('commerce', 'Address ID is required.'));

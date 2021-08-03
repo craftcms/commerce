@@ -45,99 +45,98 @@ class ProductType extends Model
     /**
      * @var int ID
      */
-    public $id;
+    public int $id;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var bool Has dimension
      */
-    public $hasDimensions;
+    public bool $hasDimensions;
 
     /**
      * @var bool Has variants
      */
-    public $hasVariants;
+    public bool $hasVariants;
 
     /**
      * @var bool Has variant title field
      */
-    public $hasVariantTitleField = true;
+    public bool $hasVariantTitleField = true;
 
     /**
      * @var string Variant title format
      * TODO: Rename to variantTitleFormat in 4.0 #COM-44
      */
-    public $titleFormat = '{product.title}';
+    public string $titleFormat = '{product.title}';
 
     /**
      * @var bool Has product title field?
      */
-    public $hasProductTitleField = true;
+    public bool $hasProductTitleField = true;
 
     /**
      * @var string Product title format
      */
-    public $productTitleFormat = '';
+    public string $productTitleFormat = '';
 
     /**
      * @var string SKU format
      */
-    public $skuFormat;
+    public string $skuFormat;
 
     /**
      * @var string Description format
      */
-    public $descriptionFormat;
+    public string $descriptionFormat;
 
     /**
      * @var string Line item format
      */
-    public $lineItemFormat;
+    public string $lineItemFormat;
 
     /**
      * @var string Template
      */
-    public $template;
+    public string $template;
 
     /**
-     * @var  int Field layout ID
+     * @var int Field layout ID
      */
-    public $fieldLayoutId;
+    public int $fieldLayoutId;
 
     /**
      * @var int Variant layout ID
      */
-    public $variantFieldLayoutId;
+    public int $variantFieldLayoutId;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
      * @var TaxCategory[]
      */
-    private $_taxCategories;
+    private array $_taxCategories;
 
     /**
      * @var ShippingCategory[]
      */
-    private $_shippingCategories;
+    private array $_shippingCategories;
 
     /**
      * @var ProductTypeSite[]
      */
-    private $_siteSettings;
-
+    private array $_siteSettings;
 
     /**
      * @return null|string
@@ -195,13 +194,13 @@ class ProductType extends Model
     }
 
     /**
-     * Returns the product types's site-specific settings.
+     * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]
      */
     public function getSiteSettings(): array
     {
-        if ($this->_siteSettings !== null) {
+        if (isset($this->_siteSettings)) {
             return $this->_siteSettings;
         }
 
@@ -219,7 +218,7 @@ class ProductType extends Model
      *
      * @param ProductTypeSite[] $siteSettings
      */
-    public function setSiteSettings(array $siteSettings)
+    public function setSiteSettings(array $siteSettings): void
     {
         $this->_siteSettings = $siteSettings;
 
@@ -243,7 +242,7 @@ class ProductType extends Model
     /**
      * @param int[]|ShippingCategory[] $shippingCategories
      */
-    public function setShippingCategories($shippingCategories)
+    public function setShippingCategories(array $shippingCategories): void
     {
         $categories = [];
         foreach ($shippingCategories as $category) {
@@ -277,7 +276,7 @@ class ProductType extends Model
     /**
      * @param int[]|TaxCategory[] $taxCategories
      */
-    public function setTaxCategories($taxCategories)
+    public function setTaxCategories(array $taxCategories): void
     {
         $categories = [];
         foreach ($taxCategories as $category) {
