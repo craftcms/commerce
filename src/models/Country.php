@@ -38,9 +38,9 @@ class Country extends Model
     public string $iso;
 
     /**
-     * @var bool State Required
+     * @var bool|null State Required
      */
-    public bool $isStateRequired;
+    public ?bool $isStateRequired;
 
     /**
      * @var bool Is Enabled

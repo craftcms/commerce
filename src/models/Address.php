@@ -7,8 +7,11 @@
 
 namespace craft\commerce\models;
 
+use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\AddressInterface;
 use CommerceGuys\Addressing\Country\CountryRepository;
+use CommerceGuys\Addressing\Formatter\DefaultFormatter;
+use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\events\DefineAddressLinesEvent;
@@ -578,6 +581,7 @@ class Address extends Model implements AddressInterface
      * @param bool $sanitize
      * @return array
      * @since 3.2.0
+     * @deprecated in 4.0 use [[getAddressFormat]]
      */
     public function getAddressLines(bool $sanitize = false): array
     {
@@ -620,6 +624,22 @@ class Address extends Model implements AddressInterface
         }
 
         return $event->addressLines;
+    }
+
+    /**
+     * Return a address formatted html based on the country's ISO
+     * 
+     * @return string
+     * @sinice 4.0
+     */
+    public function getAddressFormatHtml(): string
+    {
+        $addressFormatRepository = new AddressFormatRepository();
+        $countryRepository = new CountryRepository();
+        $subdivisionRepository = new SubdivisionRepository();
+        $formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
+        
+        return $formatter->format($this);
     }
 
     /**
