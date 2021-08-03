@@ -58,7 +58,7 @@ class OrderStatus extends Model
     /**
      * @var string Description
      */
-    public string $description;
+    public ?string $description;
 
     /**
      * @var int Sort order
@@ -73,7 +73,7 @@ class OrderStatus extends Model
     /**
      * @var bool Default status
      */
-    public bool $dateDeleted;
+    public ?bool $dateDeleted;
 
     /**
      * @var string UID
