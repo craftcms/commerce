@@ -10,6 +10,7 @@ namespace craft\commerce\elements\traits;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\LineItem;
@@ -25,24 +26,23 @@ use yii\validators\Validator;
 trait OrderValidatorsTrait
 {
     /**
-     * @param $attribute
+     * @param string $attribute
      * @param $params
      * @param Validator $validator
      */
-    public function validateGatewayId($attribute, $params, Validator $validator)
+    public function validateGatewayId(string $attribute, $params, Validator $validator): void
     {
-        /** @var GatewayInterface $gateway */
         if ($this->gatewayId && !$this->getGateway()) {
             $validator->addError($this, $attribute, Craft::t('commerce', 'Invalid gateway: {value}'));
         }
     }
 
     /**
-     * @param $attribute
+     * @param string $attribute
      * @param $params
      * @param Validator $validator
      */
-    public function validatePaymentSourceId($attribute, $params, Validator $validator)
+    public function validatePaymentSourceId(string $attribute, $params, Validator $validator): void
     {
         try {
             // this will confirm the payment source is valid and belongs to the orders customer
@@ -54,11 +54,13 @@ trait OrderValidatorsTrait
     }
 
     /**
-     * @param $attribute
+     * @param string $attribute
      * @param $params
      * @param Validator $validator
+     * @throws CurrencyException
+     * @noinspection PhpUnused
      */
-    public function validatePaymentCurrency($attribute, $params, Validator $validator)
+    public function validatePaymentCurrency(string $attribute, $params, Validator $validator): void
     {
         try {
             // this will confirm the payment source is valid and belongs to the orders customer
@@ -72,8 +74,9 @@ trait OrderValidatorsTrait
      * Validates addresses, and also adds prefixed validation errors to order
      *
      * @param string $attribute the attribute being validated
+     * @noinspection PhpUnused
      */
-    public function validateAddress($attribute)
+    public function validateAddress(string $attribute): void
     {
         /** @var Address $address */
         $address = $this->$attribute;
@@ -87,8 +90,9 @@ trait OrderValidatorsTrait
      * Validates that an address belongs to the order‘s customer.
      *
      * @param string $attribute the attribute being validated
+     * @noinspection PhpUnused
      */
-    public function validateAddressCanBeUsed($attribute)
+    public function validateAddressCanBeUsed(string $attribute): void
     {
         $customer = $this->getCustomer();
         /** @var Address $address */
@@ -131,7 +135,7 @@ trait OrderValidatorsTrait
      *
      * @param string $attribute the attribute being validated
      */
-    public function validateAddressReuse($attribute)
+    public function validateAddressReuse(string $attribute): void
     {
         if ($this->shippingSameAsBilling && $this->billingSameAsShipping) {
             $this->addError($attribute, Craft::t('commerce', 'shippingSameAsBilling and billingSameAsShipping can’t both be set.'));
@@ -143,12 +147,11 @@ trait OrderValidatorsTrait
      *
      * @param string $attribute the attribute being validated
      */
-    public function validateLineItems($attribute)
+    public function validateLineItems(string $attribute): void
     {
         OrderHelper::mergeDuplicateLineItems($this);
 
         foreach ($this->getLineItems() as $key => $lineItem) {
-            /** @var LineItem $lineItem */
             if (!$lineItem->validate()) {
                 $this->addModelErrors($lineItem, "lineItems.{$key}");
             }
@@ -157,24 +160,26 @@ trait OrderValidatorsTrait
 
     /**
      * @param $attribute
+     * @throws InvalidConfigException
+     * @noinspection PhpUnused
      */
-    public function validateCouponCode($attribute)
+    public function validateCouponCode($attribute): void
     {
         $recalculateAll = $this->recalculationMode == Order::RECALCULATION_MODE_ALL;
         $recalculateAll = $recalculateAll || $this->recalculationMode == Order::RECALCULATION_MODE_ADJUSTMENTS_ONLY;
         if ($recalculateAll && $this->$attribute && !Plugin::getInstance()->getDiscounts()->orderCouponAvailable($this, $explanation)) {
-            $this->addNotice(
-                Craft::createObject([
-                    'class' => OrderNotice::class,
-                    'attributes' => [
-                        'type' => 'invalidCouponRemoved',
-                        'attribute' => $attribute,
-                        'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
-                            'explanation' => $explanation,
-                        ]),
-                    ]
-                ])
-            );
+            /** @var OrderNotice $notice */
+            $notice = Craft::createObject([
+                'class' => OrderNotice::class,
+                'attributes' => [
+                    'type' => 'invalidCouponRemoved',
+                    'attribute' => $attribute,
+                    'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
+                        'explanation' => $explanation,
+                    ]),
+                ]
+            ]);
+            $this->addNotice($notice);
             $this->$attribute = null;
         }
     }
