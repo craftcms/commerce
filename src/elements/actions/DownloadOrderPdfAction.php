@@ -13,13 +13,14 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
 use iio\libmergepdf\Merger;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\web\HttpException;
+use yii\web\RangeNotSatisfiableHttpException;
 use ZipArchive;
 
 /**
@@ -46,12 +47,12 @@ class DownloadOrderPdfAction extends ElementAction
     /**
      * @var int
      */
-    public $pdfId;
+    public int $pdfId;
 
     /**
-     * @var bool
+     * @var string
      */
-    public $downloadType = 'pdfCollated';
+    public string $downloadType = 'pdfCollated';
 
     /**
      * @inheritdoc
@@ -64,7 +65,7 @@ class DownloadOrderPdfAction extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $allPdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
 
@@ -94,7 +95,13 @@ JS;
 
     /**
      * @inheritdoc
+     * @param ElementQueryInterface $query
+     * @return bool
+     * @throws Exception
+     * @throws HttpException
      * @throws InvalidConfigException
+     * @throws RangeNotSatisfiableHttpException
+     * @throws \Throwable
      */
     public function performAction(ElementQueryInterface $query): bool
     {
@@ -163,13 +170,17 @@ JS;
      *
      * @param Pdf $pdf
      * @param Order $order
+     * @return string
+     * @throws Exception
+     * @throws \Throwable
      */
     private function _pdfFileName(Pdf $pdf, Order $order): string
     {
-        $fileName = Craft::$app->getView()->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+        $fileName = Craft::$app->getView()->renderObjectTemplate($pdf->fileNameFormat, $order);
         if (!$fileName) {
             $fileName = $pdf->handle . '-' . $order->number;
         }
-        return "$fileName.pdf";
+
+        return $fileName . '.pdf';
     }
 }
