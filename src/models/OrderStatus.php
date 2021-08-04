@@ -56,7 +56,7 @@ class OrderStatus extends Model
     public string $color = 'green';
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
     public ?string $description;
 
@@ -71,7 +71,7 @@ class OrderStatus extends Model
     public bool $default;
 
     /**
-     * @var bool Default status
+     * @var bool|null Default status
      */
     public ?bool $dateDeleted;
 
