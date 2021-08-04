@@ -223,12 +223,14 @@ trait OrderElementTrait
             'billingLastName',
             'billingFullName',
             'billingPhone',
+            'billingAddressLines',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
             'shippingPhone',
+            'shippingAddressLines',
             'shortNumber',
             'transactionReference',
             'username',
@@ -252,7 +254,8 @@ trait OrderElementTrait
             case 'billingPhone':
                 return $this->billingAddress->phone ?? '';
             case 'billingAddressLines':
-                return $this->billingAddress->addressLines ?? '';
+                $addressLines = $this->billingAddress->getAddressLines(true);
+                return !empty($addressLines) ? implode(' ', $addressLines) : '';
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
@@ -262,7 +265,8 @@ trait OrderElementTrait
             case 'shippingPhone':
                 return $this->shippingAddress->phone ?? '';
             case 'shippingAddressLines':
-                return $this->shippingAddress->addressLines ?? '';
+                $addressLines = $this->shippingAddress->getAddressLines(true);
+                return !empty($addressLines) ? implode(' ', $addressLines) : '';
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':

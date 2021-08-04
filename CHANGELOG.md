@@ -8,7 +8,7 @@
 ### Fixed
 - Whitelisted date twig filter on discount condition formula to allow condition operator on date attributes and fields. ([#2505](https://github.com/craftcms/commerce/issues/2505))
 - Fixed a bug where attempting to pay for an order with a zero value payment amount in an alternative currency would be ingored in favor of the outstanding balance. ([#2501](https://github.com/craftcms/commerce/issues/2501))
-
+- Fixed a bug where billing and shipping `addressLines` weren’t being added to the Order’s search index. 
 
 ## 3.4.1 - 2021-07-26
 
