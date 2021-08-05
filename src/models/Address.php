@@ -45,9 +45,9 @@ class Address extends Model
     const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines';
 
     /**
-     * @var int Address ID
+     * @var int|null Address ID
      */
-    public int $id;
+    public ?int $id;
 
     /**
      * @var bool Is this the store location.
