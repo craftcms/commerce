@@ -470,7 +470,7 @@ class Addresses extends Component
         }
 
         if ($event->isValid) {
-            foreach ($addresses->batch(500) as $address) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
                 $ids = ArrayHelper::getColumn($address, 'id', false);
 
                 if (!empty($ids)) {
