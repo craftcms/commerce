@@ -179,82 +179,82 @@ class Variant extends Purchasable
     /**
      * @var int $productId
      */
-    public $productId;
+    public int $productId;
 
     /**
      * @var bool $isDefault
      */
-    public $isDefault;
+    public bool $isDefault;
 
     /**
      * @inheritdoc
      */
-    public $price;
+    public float $price;
 
     /**
      * @var int $sortOrder
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var int $width
      */
-    public $width;
+    public int $width;
 
     /**
      * @var int $height
      */
-    public $height;
+    public int $height;
 
     /**
      * @var int $length
      */
-    public $length;
+    public int $length;
 
     /**
      * @var int $weight
      */
-    public $weight;
+    public int $weight;
 
     /**
      * @var int $stock
      */
-    public $stock;
+    public int $stock;
 
     /**
      * @var bool $hasUnlimitedStock
      */
-    public $hasUnlimitedStock;
+    public bool $hasUnlimitedStock;
 
     /**
      * @var int $minQty
      */
-    public $minQty;
+    public int $minQty;
 
     /**
      * @var int $maxQty
      */
-    public $maxQty;
+    public int $maxQty;
 
     /**
-     * @var bool Whether the variant was deleted along with its product
+     * @var bool|null Whether the variant was deleted along with its product
      * @see beforeDelete()
      */
-    public $deletedWithProduct = false;
+    public ?bool $deletedWithProduct = false;
 
     /**
      * @var Product The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
-    private $_product;
+    private Product $_product;
 
     /**
      * @var string SKU
      * @see getSku()
      * @see setSku()
      */
-    private $_sku;
+    private string $_sku;
 
     /**
      * @return array
@@ -316,9 +316,9 @@ class Variant extends Purchasable
         // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
         if ($product && $product->getType()->hasVariants) {
             return "{$this->product}: {$this->title}";
-        } else {
-            return parent::__toString();
         }
+
+        return parent::__toString();
     }
 
     /**
@@ -445,6 +445,7 @@ class Variant extends Purchasable
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
+     * @throws InvalidConfigException
      */
     public function setProduct(Product $product): void
     {
@@ -720,7 +721,7 @@ class Variant extends Purchasable
      * @param string|null $sku
      * @return void
      */
-    public function setSku(string $sku = null)
+    public function setSku(string $sku = null): void
     {
         $this->_sku = $sku;
     }
@@ -918,7 +919,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return (bool)$this->getProduct()->promotable;
+        return $this->getProduct()->promotable;
     }
 
     /**
@@ -1157,7 +1158,6 @@ class Variant extends Purchasable
     public function beforeSave(bool $isNew): bool
     {
         // Set the field layout
-        /** @var ProductType $productType */
         $productType = $this->getProduct()->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
@@ -1334,7 +1334,6 @@ class Variant extends Purchasable
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        /* @var $productType ProductType */
         $productType = $this->product->getType();
 
         switch ($attribute) {

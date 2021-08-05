@@ -353,22 +353,22 @@ class ProductQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `xxx-001` | of products defaukt SKU of `xxx-001`.
-     * | `'not xxx-001'` | not a defaukt SKU of `xxx-001`.
+     * | `xxx-001` | of products default SKU of `xxx-001`.
+     * | `'not xxx-001'` | not a default SKU of `xxx-001`.
      * | `['not xxx-001', 'not xxx-002']` | of a default SKU of xxx-001 or xxx-002.
-     * | `['not', `xxx-001`, `xxx-002`]` | not a product defaukt SKU of `xxx-001` or `xxx-001`.
+     * | `['not', `xxx-001`, `xxx-002`]` | not a product default SKU of `xxx-001` or `xxx-001`.
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product defaukt SKU of `xxx-001` #}
+     * {# Fetch {elements} of the product default SKU of `xxx-001` #}
      * {% set {elements-var} = {twig-method}
      *     .defaultSku('xxx-001')
      *     .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements}  of the product defaukt SKU of `xxx-001`
+     * // Fetch {elements}  of the product default SKU of `xxx-001`
      * ${elements-var} = {php-method}
      *     ->defaultSku('xxx-001')
      *     ->all();
@@ -770,43 +770,43 @@ class ProductQuery extends ElementQuery
             'commerce_products.shippingCategoryId'
         ]);
 
-        if ($this->availableForPurchase !== null) {
+        if (isset($this->availableForPurchase) && $this->availableForPurchase !== null) {
             $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
         }
 
-        if ($this->postDate) {
+        if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
         }
 
-        if ($this->expiryDate) {
+        if (isset($this->expiryDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
-        if ($this->typeId) {
+        if (isset($this->typeId)) {
             $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
         }
 
-        if ($this->defaultPrice) {
+        if (isset($this->defaultPrice)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultPrice', $this->defaultPrice));
         }
 
-        if ($this->defaultHeight) {
+        if (isset($this->defaultHeight)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultHeight', $this->defaultHeight));
         }
 
-        if ($this->defaultLength) {
+        if (isset($this->defaultLength)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultLength', $this->defaultLength));
         }
 
-        if ($this->defaultWidth) {
+        if (isset($this->defaultWidth)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWidth', $this->defaultWidth));
         }
 
-        if ($this->defaultWeight) {
+        if (isset($this->defaultWeight)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWeight', $this->defaultWeight));
         }
 
-        if ($this->defaultSku) {
+        if (isset($this->defaultSku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
         }
 

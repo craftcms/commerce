@@ -65,7 +65,6 @@ class Subscription extends Element
      */
     const STATUS_SUSPENDED = 'suspended';
 
-
     /**
      * @var int User id
      */
