@@ -21,10 +21,10 @@ class DiscountEvent extends Event
     /**
      * @var Discount The discount model
      */
-    public $discount;
+    public Discount $discount;
 
     /**
      * @var bool If this is a new discount
      */
-    public $isNew;
+    public bool $isNew;
 }

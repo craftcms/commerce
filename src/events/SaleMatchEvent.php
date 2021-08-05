@@ -22,15 +22,15 @@ class SaleMatchEvent extends CancelableEvent
     /**
      * @var Sale The sale
      */
-    public $sale;
+    public Sale $sale;
 
     /**
      * @var PurchasableInterface The purchasable matched
      */
-    public $purchasable;
+    public PurchasableInterface $purchasable;
 
     /**
      * @var bool If this is a new sale
      */
-    public $isNew;
+    public bool $isNew;
 }

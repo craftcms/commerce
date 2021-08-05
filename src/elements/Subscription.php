@@ -68,97 +68,97 @@ class Subscription extends Element
     /**
      * @var int User id
      */
-    public $userId;
+    public int $userId;
 
     /**
      * @var int Plan id
      */
-    public $planId;
+    public int $planId;
 
     /**
      * @var int Gateway id
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var int|null Order id
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
      * @var string Subscription reference on the gateway
      */
-    public $reference;
+    public string $reference;
 
     /**
      * @var int Trial days granted
      */
-    public $trialDays;
+    public int $trialDays;
 
     /**
      * @var DateTime Date of next payment
      */
-    public $nextPaymentDate;
+    public DateTime $nextPaymentDate;
 
     /**
      * @var bool Whether the subscription is canceled
      */
-    public $isCanceled;
+    public bool $isCanceled;
 
     /**
      * @var DateTime Time when subscription was canceled
      */
-    public $dateCanceled;
+    public DateTime $dateCanceled;
 
     /**
      * @var bool Whether the subscription has expired
      */
-    public $isExpired;
+    public bool $isExpired;
 
     /**
      * @var DateTime Time when subscription expired
      */
-    public $dateExpired;
+    public DateTime $dateExpired;
 
     /**
      * @var bool Whether the subscription has started
      */
-    public $hasStarted;
+    public bool $hasStarted;
 
     /**
      * @var bool Whether the subscription is on hold due to payment issues
      */
-    public $isSuspended;
+    public bool $isSuspended;
 
     /**
      * @var DateTime Time when subscription was put on hold
      */
-    public $dateSuspended;
+    public DateTime $dateSuspended;
 
     /**
-     * @var SubscriptionGatewayInterface
+     * @var SubscriptionGatewayInterface|null
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
      * @var Plan
      */
-    private $_plan;
+    private Plan $_plan;
 
     /**
      * @var User
      */
-    private $_user;
+    private User $_user;
 
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var array The subscription data from gateway
      */
-    public $_subscriptionData;
+    public array $_subscriptionData;
 
 
     /**
@@ -207,7 +207,7 @@ class Subscription extends Element
      * @return bool
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function canReactivate()
+    public function canReactivate(): bool
     {
         return $this->isCanceled && !$this->isExpired && $this->getGateway()->supportsReactivation();
     }
@@ -224,8 +224,9 @@ class Subscription extends Element
      * Returns whether this subscription is on trial.
      *
      * @return bool
+     * @throws Exception
      */
-    public function getIsOnTrial()
+    public function getIsOnTrial(): bool
     {
         if ($this->isExpired) {
             return false;
@@ -274,7 +275,7 @@ class Subscription extends Element
      *
      * @param string|array $data
      */
-    public function setSubscriptionData($data)
+    public function setSubscriptionData($data): void
     {
         $data = Json::decodeIfJson($data);
 
@@ -309,7 +310,7 @@ class Subscription extends Element
      *
      * @return null|Order
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         if ($this->_order) {
             return $this->_order;
@@ -408,7 +409,7 @@ class Subscription extends Element
     /**
      * @return null|string
      */
-    public function getName()
+    public function getName(): ?string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
     }
@@ -637,10 +638,11 @@ class Subscription extends Element
     /**
      * Return a description of the billing issue (if any) with this subscription.
      *
-     * @return mixed
+     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueDescription()
+    public function getBillingIssueDescription(): string
     {
         return $this->getGateway()->getBillingIssueDescription($this);
     }
@@ -648,10 +650,11 @@ class Subscription extends Element
     /**
      * Return the form HTML for resolving the billing issue (if any) with this subscription.
      *
-     * @return mixed
+     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueResolveFormHtml()
+    public function getBillingIssueResolveFormHtml(): string
     {
         return $this->getGateway()->getBillingIssueResolveFormHtml($this);
     }
@@ -659,10 +662,10 @@ class Subscription extends Element
     /**
      * Return whether this subscription has billing issues.
      *
-     * @return mixed
+     * @return bool
      * @throws InvalidConfigException if not a subscription gateway anymore
      */
-    public function getHasBillingIssues()
+    public function getHasBillingIssues(): bool
     {
         return $this->getGateway()->getHasBillingIssues($this);
     }

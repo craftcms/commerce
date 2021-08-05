@@ -21,10 +21,10 @@ class CustomizeVariantSnapshotDataEvent extends Event
     /**
      * @var Variant The variant
      */
-    public $variant;
+    public Variant $variant;
 
     /**
      * @var array The captured data
      */
-    public $fieldData;
+    public array $fieldData;
 }

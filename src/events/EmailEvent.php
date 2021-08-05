@@ -21,10 +21,10 @@ class EmailEvent extends Event
     /**
      * @var Email Email
      */
-    public $email;
+    public Email $email;
 
     /**
      * @var bool Whether the email is brand new.
      */
-    public $isNew = false;
+    public bool $isNew = false;
 }
