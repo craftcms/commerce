@@ -95,18 +95,20 @@
 
     <div id="states-vue-admin-table"></div>
     {% set tableData = [] %}
-    {% for state in states if state.countryId == country.id %}
-      {% set tableData = tableData|merge([{
-            id: state.id,
-            title: state.name|t('site'),
-            url: url('commerce/store-settings/states/'~state.id),
-            status: state.enabled ? true : false,
-            abbreviation: state.abbreviation|e,
-            country: {
-                status: state.country.enabled ? true : false,
-                country: state.country.name|t('site')|e
-            }
-        }]) %}
+    {% for state in states %}
+        {% if state.countryId == country.id %}
+          {% set tableData = tableData|merge([{
+                id: state.id,
+                title: state.name|t('site'),
+                url: url('commerce/store-settings/states/'~state.id),
+                status: state.enabled ? true : false,
+                abbreviation: state.abbreviation|e,
+                country: {
+                    status: state.country.enabled ? true : false,
+                    country: state.country.name|t('site')|e
+                }
+            }]) %}
+        {% endif %}
     {% endfor %}
 
     {% js %}

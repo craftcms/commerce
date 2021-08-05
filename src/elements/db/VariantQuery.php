@@ -47,7 +47,7 @@ class VariantQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
+    protected array $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
     /**
      * @var bool Whether to only return variants that the user has permission to edit.

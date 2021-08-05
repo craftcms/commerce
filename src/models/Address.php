@@ -52,7 +52,7 @@ class Address extends Model implements AddressInterface
     /**
      * @var int Address ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var bool Is this the store location.
@@ -62,130 +62,130 @@ class Address extends Model implements AddressInterface
     /**
      * @var string Attention
      */
-    public string $attention;
+    public string $attention = '';
 
     /**
      * @var string Title
      */
-    public string $title;
+    public string $title = '';
 
     /**
      * @var string First Name
      */
-    public string $firstName;
+    public string $firstName = '';
 
     /**
      * @var string Last Name
      */
-    public string $lastName;
+    public string $lastName = '';
 
     /**
      * @var string Full Name
      * @since 2.2
      */
-    public string $fullName;
+    public string $fullName = '';
 
     /**
      * @var string Address Line 1
      */
-    public string $address1;
+    public string $address1 = '';
 
     /**
      * @var string Address Line 2
      */
-    public string $address2;
+    public string $address2 = '';
 
     /**
      * @var string Address Line 3
      * @since 2.2
      */
-    public string $address3;
+    public string $address3 = '';
 
     /**
      * @var string City
      */
-    public string $city;
+    public string $city = '';
 
     /**
      * @var string Zip
      */
-    public string $zipCode;
+    public string $zipCode = '';
 
     /**
      * @var string Phone
      */
-    public string $phone;
+    public string $phone = '';
 
     /**
      * @var string Alternative Phone
      */
-    public string $alternativePhone;
+    public string $alternativePhone = '';
 
     /**
      * @var string Label
      * @since 2.2
      */
-    public string $label;
+    public string $label = '';
 
     /**
      * @var string Business Name
      */
-    public string $businessName;
+    public string $businessName = '';
 
     /**
      * @var string Business Tax ID
      */
-    public string $businessTaxId;
+    public string $businessTaxId = '';
 
     /**
      * @var string Business ID
      */
-    public string $businessId;
+    public string $businessId = '';
 
     /**
      * @var string|null State Name
      */
-    public ?string $stateName;
+    public ?string $stateName = '';
 
     /**
-     * @var int Country ID
+     * @var int|null Country ID
      */
-    public int $countryId;
+    public ?int $countryId = null;
 
     /**
      * @var int|null State ID
      */
-    public ?int $stateId;
+    public ?int $stateId = null;
 
     /**
      * @var string Notes, only field that can contain Emoji
      * @since 2.2
      */
-    public string $notes;
+    public string $notes = '';
 
     /**
      * @var string Custom Field 1
      * @since 2.2
      */
-    public string $custom1;
+    public string $custom1 = '';
 
     /**
      * @var string Custom Field 2
      * @since 2.2
      */
-    public string $custom2;
+    public string $custom2 = '';
 
     /**
      * @var string Custom Field 3
      * @since 2.2
      */
-    public string $custom3;
+    public string $custom3 = '';
 
     /**
      * @var string Custom Field 4
      * @since 2.2
      */
-    public string $custom4;
+    public string $custom4 = '';
 
     /**
      * @var bool If this address is used for estimated values

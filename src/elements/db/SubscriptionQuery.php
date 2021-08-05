@@ -116,7 +116,7 @@ class SubscriptionQuery extends ElementQuery
     /**
      * @var array
      */
-    protected $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
+    protected array $defaultOrderBy = ['commerce_subscriptions.dateCreated' => SORT_DESC];
 
     /**
      * @inheritdoc
@@ -695,7 +695,7 @@ class SubscriptionQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value)
+    public function status($value): self
     {
         return parent::status($value);
     }
@@ -820,7 +820,7 @@ class SubscriptionQuery extends ElementQuery
      * @inheritdoc
      */
 
-    public function anyStatus()
+    public function anyStatus(): self
     {
         $this->isSuspended = null;
         $this->hasStarted = null;

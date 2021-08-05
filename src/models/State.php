@@ -27,7 +27,7 @@ class State extends Model
     /**
      * @var int ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
@@ -35,9 +35,9 @@ class State extends Model
     public string $name;
 
     /**
-     * @var string Abbreviation
+     * @var string|null Abbreviation
      */
-    public string $abbreviation;
+    public ?string $abbreviation = '';
 
     /**
      * @var int Country ID
@@ -50,9 +50,9 @@ class State extends Model
     public bool $enabled = true;
 
     /**
-     * @var int Ordering
+     * @var int|null Ordering
      */
-    public int $sortOrder;
+    public ?int $sortOrder;
 
     /**
      * @var DateTime|null

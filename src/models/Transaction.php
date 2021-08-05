@@ -45,7 +45,7 @@ class Transaction extends Model
     /**
      * @var int Parent transaction ID
      */
-    public int $parentId;
+    public ?int $parentId;
 
     /**
      * @var int User ID

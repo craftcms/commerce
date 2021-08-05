@@ -71,7 +71,7 @@ class Customer extends Model
     /**
      * @var User|null $_user
      */
-    private ?User $_user;
+    private ?User $_user = null;
 
     /**
      * @return null|string
