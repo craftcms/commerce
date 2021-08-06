@@ -11,7 +11,7 @@ class CommercePanel extends Panel
     /**
      * @inheritDoc
      */
-    public function getName()
+    public function getName(): string
     {
         return 'Commerce';
     }
@@ -19,7 +19,7 @@ class CommercePanel extends Panel
     /**
      * @inheritDoc
      */
-    public function getSummary()
+    public function getSummary(): string
     {
         // TODO Add a real panel COM-56
         return '<div class="yii-debug-toolbar__block"><a href="#47" title="">Cart <span class="yii-debug-toolbar__label yii-debug-toolbar__label_success">3</span></a></div>';
@@ -28,7 +28,7 @@ class CommercePanel extends Panel
     /**
      * @inheritDoc
      */
-    public function getDetail()
+    public function getDetail(): string
     {
         return 'Detail data';
     }
