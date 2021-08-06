@@ -66,7 +66,7 @@ class AddressDataController extends Controller
                 
                 $state->name = $subdivisionName;
           
-                $state->abbreviation = $subdivision->getCode();
+                $state->abbreviation = $subdivision->getIsoCode() ?: $subdivision->getCode();
                 $state->countryId = $country->id;
                 $state->enabled = 1;
                 
