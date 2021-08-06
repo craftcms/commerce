@@ -38,19 +38,19 @@ class Carts extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cartName = 'commerce_cart';
+    protected string $cartName = 'commerce_cart';
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private $_cart;
+    private ?Order $_cart;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.
      *
      * @var int
      */
-    private $_getCartCount = 0;
+    private int $_getCartCount = 0;
 
     /**
      * Get the current cart for this session.
@@ -61,7 +61,7 @@ class Carts extends Component
      * @throws Exception
      * @throws Throwable
      */
-    public function getCart($forceSave = false): Order
+    public function getCart(bool $forceSave = false): Order
     {
         $this->_getCartCount++; //useful when debugging
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
@@ -127,7 +127,7 @@ class Carts extends Component
      * @throws MissingComponentException
      * @throws Throwable
      */
-    private function _getCart()
+    private function _getCart(): ?Order
     {
         $cart = null;
         $isNumberCartInSession = $this->getHasSessionCartNumber();
@@ -159,7 +159,7 @@ class Carts extends Component
      * @return void
      * @throws MissingComponentException
      */
-    public function forgetCart()
+    public function forgetCart(): void
     {
         $this->_cart = null;
         Craft::$app->getSession()->remove($this->cartName);
@@ -240,7 +240,7 @@ class Carts extends Component
      * @return void
      * @throws MissingComponentException
      */
-    private function setSessionCartNumber(string $cartNumber)
+    private function setSessionCartNumber(string $cartNumber): void
     {
         $session = Craft::$app->getSession();
         $session->set($this->cartName, $cartNumber);
@@ -255,7 +255,7 @@ class Carts extends Component
      * @throws MissingComponentException
      * @throws Throwable
      */
-    public function restorePreviousCartForCurrentUser()
+    public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         $cart = $this->getCart();
@@ -292,7 +292,7 @@ class Carts extends Component
                 ->column();
 
             // Taken from craft\services\Elements::deleteElement(); Using the method directly
-            // takes too much resources since it retrieves the order before deleting it.
+            // takes too many resources since it retrieves the order before deleting it.
 
             // Delete the elements table rows, which will cascade across all other InnoDB tables
             Craft::$app->getDb()->createCommand()

@@ -30,11 +30,13 @@ use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
+use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
 
 /**
  * Email service.
  *
+ * @property-read \craft\commerce\models\Email[] $allEnabledEmails
  * @property array|Email[] $allEmails
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -209,7 +211,7 @@ class Emails extends Component
      * @param int $id
      * @return Email|null
      */
-    public function getEmailById($id)
+    public function getEmailById(int $id): ?Email
     {
         $result = $this->_createEmailQuery()
             ->where(['id' => $id])
@@ -303,7 +305,7 @@ class Emails extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedEmail(ConfigEvent $event)
+    public function handleChangedEmail(ConfigEvent $event): void
     {
         $emailUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -378,8 +380,10 @@ class Emails extends Component
      *
      * @param ConfigEvent $event
      * @return void
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function handleDeletedEmail(ConfigEvent $event)
+    public function handleDeletedEmail(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $emailRecord = $this->_getEmailRecord($uid);
@@ -404,15 +408,15 @@ class Emails extends Component
      *
      * @param Email $email
      * @param Order $order
-     * @param OrderHistory $orderHistory
-     * @param array $orderData Since the order may have changed by the time the email sends.
+     * @param OrderHistory|null $orderHistory
+     * @param array|null $orderData Since the order may have changed by the time the email sends.
      * @param string $error The reason this method failed.
      * @return bool $result
      * @throws Exception
      * @throws Throwable
      * @throws \yii\base\InvalidConfigException
      */
-    public function sendEmail($email, $order, $orderHistory = null, $orderData = null, &$error = ''): bool
+    public function sendEmail(Email $email, Order $order, ?OrderHistory $orderHistory = null, ?array $orderData = null, string &$error = ''): bool
     {
         if (!$email->enabled) {
             $error = Craft::t('commerce', 'Email is not enabled.');
@@ -470,7 +474,7 @@ class Emails extends Component
         if ($email->recipientType == EmailRecord::TYPE_CUSTOM) {
             // To:
             try {
-                $emails = $view->renderString((string)$email->to, $renderVariables);
+                $emails = $view->renderString($email->to, $renderVariables);
                 $emails = preg_split('/[\s,]+/', $emails);
 
                 $newEmail->setTo($emails);
@@ -506,7 +510,7 @@ class Emails extends Component
         // BCC:
         if ($email->bcc) {
             try {
-                $bcc = $view->renderString((string)$email->bcc, $renderVariables);
+                $bcc = $view->renderString($email->bcc, $renderVariables);
                 $bcc = str_replace(';', ',', $bcc);
                 $bcc = preg_split('/[\s,]+/', $bcc);
 
@@ -534,7 +538,7 @@ class Emails extends Component
         // CC:
         if ($email->cc) {
             try {
-                $cc = $view->renderString((string)$email->cc, $renderVariables);
+                $cc = $view->renderString($email->cc, $renderVariables);
                 $cc = str_replace(';', ',', $cc);
                 $cc = preg_split('/[\s,]+/', $cc);
 
@@ -562,7 +566,7 @@ class Emails extends Component
         if ($email->replyTo) {
             // Reply To:
             try {
-                $newEmail->setReplyTo($view->renderString((string)$email->replyTo, $renderVariables));
+                $newEmail->setReplyTo($view->renderString($email->replyTo, $renderVariables));
             } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “ReplyTo:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                     'email' => $email->name,
@@ -583,7 +587,7 @@ class Emails extends Component
 
         // Subject:
         try {
-            $newEmail->setSubject($view->renderString((string)$email->subject, $renderVariables));
+            $newEmail->setSubject($view->renderString($email->subject, $renderVariables));
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template parse error for email “{email}” in “Subject:”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -603,7 +607,7 @@ class Emails extends Component
 
         // Template Path
         try {
-            $templatePath = $view->renderString((string)$email->templatePath, $renderVariables);
+            $templatePath = $view->renderString($email->templatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -640,7 +644,7 @@ class Emails extends Component
         // Plain Text Template Path
         $plainTextTemplatePath = null;
         try {
-            $plainTextTemplatePath = $view->renderString((string)$email->plainTextTemplatePath, $renderVariables);
+            $plainTextTemplatePath = $view->renderString($email->plainTextTemplatePath, $renderVariables);
         } catch (\Exception $e) {
             $error = Craft::t('commerce', 'Email plain text template path parse error for email “{email}” in “Template Path”. Order: “{order}”. Template error: “{message}” {file}:{line}', [
                 'email' => $email->name,
@@ -699,7 +703,7 @@ class Emails extends Component
 
                 file_put_contents($tempPath, $renderedPdf);
 
-                $fileName = $view->renderObjectTemplate((string)$pdf->fileNameFormat, $order);
+                $fileName = $view->renderObjectTemplate($pdf->fileNameFormat, $order);
                 if (!$fileName) {
                     $fileName = $pdf->handle . '-' . $order->number;
                 }
