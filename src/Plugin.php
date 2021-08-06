@@ -140,7 +140,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->_setPluginComponents();
@@ -292,7 +292,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s twig extensions
      */
-    private function _addTwigExtensions()
+    private function _addTwigExtensions(): void
     {
         Craft::$app->view->registerTwigExtension(new Extension);
     }
@@ -300,7 +300,7 @@ class Plugin extends BasePlugin
     /**
      * Register links to product in the redactor rich text field
      */
-    private function _registerRedactorLinkOptions()
+    private function _registerRedactorLinkOptions(): void
     {
         if (!class_exists(RedactorField::class)) {
             return;
@@ -339,7 +339,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s permissions
      */
-    private function _registerPermissions()
+    private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
             $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
@@ -381,7 +381,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s project config event listeners
      */
-    private function _registerProjectConfigEventListeners()
+    private function _registerProjectConfigEventListeners(): void
     {
         $projectConfigService = Craft::$app->getProjectConfig();
 
@@ -438,7 +438,7 @@ class Plugin extends BasePlugin
     /**
      * Register general event listeners
      */
-    private function _registerCraftEventListeners()
+    private function _registerCraftEventListeners(): void
     {
         if (!Craft::$app->getRequest()->isConsoleRequest) {
             Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
@@ -455,7 +455,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s fields
      */
-    private function _registerFieldTypes()
+    private function _registerFieldTypes(): void
     {
         Event::on(Fields::class, Fields::EVENT_REGISTER_FIELD_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = Products::class;
@@ -466,7 +466,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s widgets.
      */
-    private function _registerWidgets()
+    private function _registerWidgets(): void
     {
         Event::on(Dashboard::class, Dashboard::EVENT_REGISTER_WIDGET_TYPES, function(RegisterComponentTypesEvent $event) {
             $event->types[] = AverageOrderTotal::class;
@@ -486,7 +486,7 @@ class Plugin extends BasePlugin
     /**
      * Register Commerce’s template variable.
      */
-    private function _registerVariables()
+    private function _registerVariables(): void
     {
         Event::on(CraftVariable::class, CraftVariable::EVENT_INIT, function(Event $event) {
             /** @var CraftVariable $variable */
@@ -498,7 +498,7 @@ class Plugin extends BasePlugin
     /**
      * Register for FK restore plugin
      */
-    private function _registerForeignKeysRestore()
+    private function _registerForeignKeysRestore(): void
     {
         if (!class_exists(RestoreController::class)) {
             return;
@@ -513,7 +513,7 @@ class Plugin extends BasePlugin
     /**
      * Register the powered-by header
      */
-    private function _registerPoweredByHeader()
+    private function _registerPoweredByHeader(): void
     {
         if (!Craft::$app->request->isConsoleRequest) {
             $headers = Craft::$app->getResponse()->getHeaders();
@@ -531,7 +531,7 @@ class Plugin extends BasePlugin
     /**
      * Register the element types supplied by Craft Commerce
      */
-    private function _registerElementTypes()
+    private function _registerElementTypes(): void
     {
         Event::on(Elements::class, Elements::EVENT_REGISTER_ELEMENT_TYPES, function(RegisterComponentTypesEvent $e) {
             $e->types[] = Variant::class;
@@ -545,7 +545,7 @@ class Plugin extends BasePlugin
     /**
      * Register the Gql interfaces
      */
-    private function _registerGqlInterfaces()
+    private function _registerGqlInterfaces(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_TYPES, function(RegisterGqlTypesEvent $event) {
             // Add my GraphQL types
@@ -559,7 +559,7 @@ class Plugin extends BasePlugin
     /**
      * Register the Gql queries
      */
-    private function _registerGqlQueries()
+    private function _registerGqlQueries(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_QUERIES, function(RegisterGqlQueriesEvent $event) {
             // Add my GraphQL queries
@@ -574,7 +574,7 @@ class Plugin extends BasePlugin
     /**
      * Register the Gql permissions
      */
-    private function _registerGqlComponents()
+    private function _registerGqlComponents(): void
     {
         Event::on(Gql::class, Gql::EVENT_REGISTER_GQL_SCHEMA_COMPONENTS, function(RegisterGqlSchemaComponentsEvent $event) {
             $queryComponents = [];
@@ -597,7 +597,7 @@ class Plugin extends BasePlugin
         });
     }
 
-    private function _registerGqlEagerLoadableFields()
+    private function _registerGqlEagerLoadableFields(): void
     {
         Event::on(ElementQueryConditionBuilder::class, ElementQueryConditionBuilder::EVENT_REGISTER_GQL_EAGERLOADABLE_FIELDS, function(RegisterGqlEagerLoadableFields $event) {
             $event->fieldList['variants'] = [Products::class];
@@ -608,7 +608,7 @@ class Plugin extends BasePlugin
     /**
      * Register the cache types
      */
-    private function _registerCacheTypes()
+    private function _registerCacheTypes(): void
     {
         // create the directory if it doesn't exist
 
@@ -644,7 +644,7 @@ class Plugin extends BasePlugin
      *
      * @since 2.2
      */
-    private function _registerGarbageCollection()
+    private function _registerGarbageCollection(): void
     {
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
             // Deletes carts that meet the purge settings
@@ -661,7 +661,7 @@ class Plugin extends BasePlugin
      *
      * @since 2.2
      */
-    private function _registerElementExports()
+    private function _registerElementExports(): void
     {
         Event::on(Order::class, Order::EVENT_REGISTER_EXPORTERS, function(RegisterElementExportersEvent $e) {
             $e->exporters[] = OrderExport::class;
@@ -674,7 +674,7 @@ class Plugin extends BasePlugin
      *
      * @since 3.2.0
      */
-    private function _defineFieldLayoutElements()
+    private function _defineFieldLayoutElements(): void
     {
         Event::on(FieldLayout::class, FieldLayout::EVENT_DEFINE_STANDARD_FIELDS, function(DefineFieldLayoutFieldsEvent $e) {
             /** @var FieldLayout $fieldLayout */
@@ -694,7 +694,7 @@ class Plugin extends BasePlugin
     /**
      * Defines the `resave/products` command.
      */
-    private function _defineResaveCommand()
+    private function _defineResaveCommand(): void
     {
         Event::on(ResaveController::class, ConsoleController::EVENT_DEFINE_ACTIONS, function(DefineConsoleActionsEvent $e) {
             $e->actions['products'] = [
@@ -745,7 +745,7 @@ class Plugin extends BasePlugin
      *
      * @since 2.2
      */
-    private function _registerTemplateHooks()
+    private function _registerTemplateHooks(): void
     {
         if ($this->getSettings()->showCustomerInfoTab) {
             Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
