@@ -18,10 +18,10 @@ class CommerceOrderAsset extends CommerceUiAsset
     /**
      * @inheritdoc
      */
-    protected $appJs = 'order.js';
+    protected string $appJs = 'order.js';
 
     /**
      * @inheritdoc
      */
-    protected $appCss = 'order.css';
+    protected string $appCss = 'order.css';
 }
