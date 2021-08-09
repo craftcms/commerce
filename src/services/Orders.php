@@ -18,6 +18,7 @@ use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\helpers\UrlHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Orders service.
@@ -34,8 +35,9 @@ class Orders extends Component
      * Handle field layout change
      *
      * @param ConfigEvent $event
+     * @throws Exception
      */
-    public function handleChangedFieldLayout(ConfigEvent $event)
+    public function handleChangedFieldLayout(ConfigEvent $event): void
     {
         $data = $event->newValue;
 
@@ -62,7 +64,7 @@ class Orders extends Component
      *
      * @param FieldEvent $event
      */
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
         /** @var Field $field */
         $field = $event->field;
@@ -88,7 +90,7 @@ class Orders extends Component
      *
      * @param ConfigEvent $event
      */
-    public function handleDeletedFieldLayout(ConfigEvent $event)
+    public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Order::class);
     }
@@ -99,7 +101,7 @@ class Orders extends Component
      * @param int $id
      * @return Order|null
      */
-    public function getOrderById(int $id)
+    public function getOrderById(int $id): ?Order
     {
         if (!$id) {
             return null;
@@ -118,7 +120,7 @@ class Orders extends Component
      * @param string $number
      * @return Order|null
      */
-    public function getOrderByNumber(string $number)
+    public function getOrderByNumber(string $number): ?Order
     {
         $query = Order::find();
         $query->number($number);
@@ -132,7 +134,7 @@ class Orders extends Component
      * @param int|Customer $customer
      * @return Order[]|null
      */
-    public function getOrdersByCustomer($customer)
+    public function getOrdersByCustomer($customer): ?array
     {
         if (!$customer) {
             return null;
@@ -156,7 +158,7 @@ class Orders extends Component
      * @param string $email
      * @return Order[]|null
      */
-    public function getOrdersByEmail(string $email)
+    public function getOrdersByEmail(string $email): ?array
     {
         $query = Order::find();
         $query->email($email);

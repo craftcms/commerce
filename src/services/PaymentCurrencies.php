@@ -20,12 +20,14 @@ use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Payment currency service.
  *
  * @property PaymentCurrency[]|array $allPaymentCurrencies
  * @property PaymentCurrency|null $primaryPaymentCurrency the primary currency all prices are entered as
+ * @property-read \craft\commerce\models\PaymentCurrency[] $nonPrimaryPaymentCurrencies
  * @property string $primaryPaymentCurrencyIso the primary currencies ISO code as a string
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -33,14 +35,14 @@ use yii\base\InvalidConfigException;
 class PaymentCurrencies extends Component
 {
     /**
-     * @var PaymentCurrency[]
+     * @var PaymentCurrency[]|null
      */
-    private $_allCurrenciesByIso;
+    private ?array $_allCurrenciesByIso;
 
     /**
-     * @var PaymentCurrency[]
+     * @var PaymentCurrency[]|null
      */
-    private $_allCurrenciesById;
+    private ?array $_allCurrenciesById;
 
     /**
      * Get payment currency by its ID.
@@ -49,7 +51,7 @@ class PaymentCurrencies extends Component
      * @return PaymentCurrency|null
      * @throws InvalidConfigException if currency has invalid iso code defined
      */
-    public function getPaymentCurrencyById($id)
+    public function getPaymentCurrencyById(int $id): ?PaymentCurrency
     {
         if ($this->_allCurrenciesById === null) {
             try {
@@ -67,6 +69,7 @@ class PaymentCurrencies extends Component
      *
      * @return PaymentCurrency[]
      * @throws CurrencyException if currency does not exist with the given ISO code
+     * @throws InvalidConfigException
      */
     public function getAllPaymentCurrencies(): array
     {
@@ -100,8 +103,9 @@ class PaymentCurrencies extends Component
      * @param string $iso
      * @return PaymentCurrency|null
      * @throws CurrencyException if currency does not exist with tat iso code
+     * @throws InvalidConfigException
      */
-    public function getPaymentCurrencyByIso($iso)
+    public function getPaymentCurrencyByIso(string $iso): ?PaymentCurrency
     {
         if ($this->_allCurrenciesByIso === null) {
             $this->getAllPaymentCurrencies();
@@ -128,8 +132,10 @@ class PaymentCurrencies extends Component
      * Returns the primary currency all prices are entered as.
      *
      * @return PaymentCurrency|null
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
-    public function getPrimaryPaymentCurrency()
+    public function getPrimaryPaymentCurrency(): ?PaymentCurrency
     {
         foreach ($this->getAllPaymentCurrencies() as $currency) {
             if ($currency->primary) {
@@ -144,8 +150,10 @@ class PaymentCurrencies extends Component
      * Returns the non primary payment currencies
      *
      * @return PaymentCurrency[]
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
-    public function getNonPrimaryPaymentCurrencies()
+    public function getNonPrimaryPaymentCurrencies(): array
     {
         return ArrayHelper::where($this->getAllPaymentCurrencies(), function(PaymentCurrency $paymentCurrency) {
             return !$paymentCurrency->primary;
@@ -159,6 +167,7 @@ class PaymentCurrencies extends Component
      * @param string $currency
      * @return float
      * @throws CurrencyException if currency not found by its ISO code
+     * @throws InvalidConfigException
      */
     public function convert(float $amount, string $currency): float
     {
@@ -180,6 +189,7 @@ class PaymentCurrencies extends Component
      * @param bool $round
      * @return float
      * @throws CurrencyException if currency not found by its ISO code
+     * @throws InvalidConfigException
      */
     public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, $round = false): float
     {
@@ -269,6 +279,8 @@ class PaymentCurrencies extends Component
      *
      * @param $id
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
     public function deletePaymentCurrencyById($id): bool
     {
@@ -294,7 +306,7 @@ class PaymentCurrencies extends Component
      *
      * @param PaymentCurrency $paymentCurrency
      */
-    private function _memoizePaymentCurrency(PaymentCurrency $paymentCurrency)
+    private function _memoizePaymentCurrency(PaymentCurrency $paymentCurrency): void
     {
         $this->_allCurrenciesByIso[$paymentCurrency->iso] = $paymentCurrency;
         $this->_allCurrenciesById[$paymentCurrency->id] = $paymentCurrency;

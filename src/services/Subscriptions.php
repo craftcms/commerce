@@ -357,8 +357,9 @@ class Subscriptions extends Component
      * Handle field layout change
      *
      * @param ConfigEvent $event
+     * @throws Exception
      */
-    public function handleChangedFieldLayout(ConfigEvent $event)
+    public function handleChangedFieldLayout(ConfigEvent $event): void
     {
         $data = $event->newValue;
 
@@ -384,7 +385,7 @@ class Subscriptions extends Component
      *
      * @param FieldEvent $event
      */
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
         /** @var Field $field */
         $field = $event->field;
@@ -410,7 +411,7 @@ class Subscriptions extends Component
      *
      * @param ConfigEvent $event
      */
-    public function handleDeletedFieldLayout(ConfigEvent $event)
+    public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
     }
@@ -420,7 +421,7 @@ class Subscriptions extends Component
      *
      * @param ModelEvent $event the event.
      */
-    public function beforeDeleteUserHandler(ModelEvent $event)
+    public function beforeDeleteUserHandler(ModelEvent $event): void
     {
         /** @var User $user */
         $user = $event->sender;
@@ -435,8 +436,10 @@ class Subscriptions extends Component
      * Expire a subscription.
      *
      * @param Subscription $subscription subscription to expire
-     * @param DateTime $dateTime expiry date time
+     * @param DateTime|null $dateTime expiry date time
      * @return bool whether successfully expired subscription
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws Throwable if cannot expire subscription
      */
     public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
@@ -490,8 +493,11 @@ class Subscriptions extends Component
      * @param SubscriptionForm $parameters array of additional parameters to use
      * @param array $fieldValues array of content field values to set
      * @return Subscription the subscription
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
+     * @throws Throwable
      */
     public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters, array $fieldValues = []): Subscription
     {
@@ -611,8 +617,10 @@ class Subscriptions extends Component
      * @param Plan $plan the plan to change the subscription to
      * @param SwitchPlansForm $parameters additional parameters to use
      * @return bool
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws InvalidConfigException
-     * @throws SubscriptionException
+     * @throws Throwable
      */
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): bool
     {

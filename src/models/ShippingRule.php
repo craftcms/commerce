@@ -30,9 +30,9 @@ use DateTime;
 class ShippingRule extends Model implements ShippingRuleInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id;
 
     /**
      * @var string Name

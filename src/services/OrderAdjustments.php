@@ -22,10 +22,13 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Order adjustment service.
  *
+ * @property-read array $discountAdjusters
  * @property AdjusterInterface[] $adjusters
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -76,6 +79,7 @@ class OrderAdjustments extends Component
      * Get all order adjusters.
      *
      * @return string[]
+     * @throws InvalidConfigException
      */
     public function getAdjusters(): array
     {
@@ -111,7 +115,7 @@ class OrderAdjustments extends Component
      * @param int $id
      * @return OrderAdjustment|null
      */
-    public function getOrderAdjustmentById(int $id)
+    public function getOrderAdjustmentById(int $id): ?OrderAdjustment
     {
         $row = $this->_createOrderAdjustmentQuery()
             ->where(['id' => $id])
@@ -133,7 +137,7 @@ class OrderAdjustments extends Component
      * @param int $orderId
      * @return OrderAdjustment[]
      */
-    public function getAllOrderAdjustmentsByOrderId($orderId): array
+    public function getAllOrderAdjustmentsByOrderId(int $orderId): array
     {
         $rows = $this->_createOrderAdjustmentQuery()
             ->where(['orderId' => $orderId])
@@ -205,8 +209,9 @@ class OrderAdjustments extends Component
      *
      * @param int $orderId
      * @return bool
+     * @noinspection PhpUnused
      */
-    public function deleteAllOrderAdjustmentsByOrderId($orderId): bool
+    public function deleteAllOrderAdjustmentsByOrderId(int $orderId): bool
     {
         return OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
     }
@@ -216,8 +221,11 @@ class OrderAdjustments extends Component
      *
      * @param int $adjustmentId
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
+     * @noinspection PhpUnused
      */
-    public function deleteOrderAdjustmentByAdjustmentId($adjustmentId): bool
+    public function deleteOrderAdjustmentByAdjustmentId(int $adjustmentId): bool
     {
         $orderAdjustment = OrderAdjustmentRecord::findOne($adjustmentId);
 

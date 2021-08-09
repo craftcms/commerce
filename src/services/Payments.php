@@ -28,7 +28,12 @@ use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
+use yii\base\ExitException;
+use yii\base\InvalidConfigException;
 
 /**
  * Payments service.
@@ -237,7 +242,7 @@ class Payments extends Component
      * @throws PaymentException if the payment was unsuccessful
      * @throws Throwable if reasons
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));
@@ -298,7 +303,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return null;
+                return;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -465,6 +470,11 @@ class Payments extends Component
      * @param RequestResponseInterface $response
      * @param                          $redirect
      * @return mixed
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws \yii\base\Exception
+     * @throws ExitException
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
@@ -517,6 +527,7 @@ class Payments extends Component
      * @param Transaction $parent
      * @return Transaction
      * @throws TransactionException if unable to save transaction
+     * @throws InvalidConfigException
      */
     private function _capture(Transaction $parent): Transaction
     {
@@ -591,7 +602,7 @@ class Payments extends Component
      * @param Transaction $child
      * @throws TransactionException
      */
-    private function _saveTransaction($child)
+    private function _saveTransaction($child): void
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
             throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
@@ -604,7 +615,7 @@ class Payments extends Component
      * @param Transaction $transaction
      * @param RequestResponseInterface $response
      */
-    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response): void
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;

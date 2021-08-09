@@ -15,8 +15,11 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
 use craft\db\Query;
+use craft\errors\MissingComponentException;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Order history service.
@@ -55,14 +58,13 @@ class OrderHistories extends Component
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
-
     /**
      * Get order history by its ID.
      *
      * @param int $id
      * @return OrderHistory|null
      */
-    public function getOrderHistoryById($id)
+    public function getOrderHistoryById(int $id): ?OrderHistory
     {
         $result = $this->_createOrderHistoryQuery()
             ->where(['id' => $id])
@@ -77,7 +79,7 @@ class OrderHistories extends Component
      * @param int $id orderId
      * @return OrderHistory[]
      */
-    public function getAllOrderHistoriesByOrderId($id): array
+    public function getAllOrderHistoriesByOrderId(int $id): array
     {
         $rows = $this->_createOrderHistoryQuery()
             ->where(['orderId' => $id])
@@ -99,8 +101,11 @@ class OrderHistories extends Component
      * @param Order $order
      * @param int $oldStatusId
      * @return bool
+     * @throws Exception
+     * @throws MissingComponentException
+     * @throws InvalidConfigException
      */
-    public function createOrderHistoryFromOrder(Order $order, $oldStatusId): bool
+    public function createOrderHistoryFromOrder(Order $order, int $oldStatusId): bool
     {
         $orderHistoryModel = new OrderHistory();
         $orderHistoryModel->orderId = $order->id;
@@ -183,10 +188,13 @@ class OrderHistories extends Component
     /**
      * Delete an order history by its ID.
      *
-     * @param $id
+     * @param int $id
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
+     * @noinspection PhpUnused
      */
-    public function deleteOrderHistoryById($id): bool
+    public function deleteOrderHistoryById(int $id): bool
     {
         $orderHistory = OrderHistoryRecord::findOne($id);
 

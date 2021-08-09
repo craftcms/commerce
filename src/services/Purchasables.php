@@ -146,6 +146,8 @@ class Purchasables extends Component
      *
      * @param int $purchasableId
      * @return bool
+     * @throws \Throwable
+     * @noinspection PhpUnused
      */
     public function deletePurchasableById(int $purchasableId): bool
     {
@@ -158,7 +160,7 @@ class Purchasables extends Component
      * @param int $purchasableId
      * @return ElementInterface|null
      */
-    public function getPurchasableById(int $purchasableId)
+    public function getPurchasableById(int $purchasableId): ?ElementInterface
     {
         return Craft::$app->getElements()->getElementById($purchasableId);
     }

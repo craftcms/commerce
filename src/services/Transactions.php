@@ -11,6 +11,8 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\events\TransactionEvent;
 use craft\commerce\helpers\Currency;
@@ -18,8 +20,13 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
+use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Transaction service.
@@ -166,11 +173,13 @@ class Transactions extends Component
     /**
      * Create a transaction either from an order or a parent transaction. At least one must be present.
      *
-     * @param Order $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
-     * @param Transaction $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
-     * @param string $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
+     * @param Order|null $order Order that the transaction is a part of. Ignored, if `$parentTransaction` is specified.
+     * @param Transaction|null $parentTransaction Parent transaction, if this transaction is a child. Required, if `$order` is not specified.
+     * @param null $typeOverride The type of transaction. If set, this overrides the type of the parent transaction, or sets the type when no parentTransaction is passed.
      * @return Transaction
      * @throws TransactionException if neither `$order` or `$parentTransaction` is specified.
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
     public function createTransaction(Order $order = null, Transaction $parentTransaction = null, $typeOverride = null): Transaction
     {
@@ -243,8 +252,8 @@ class Transactions extends Component
      *
      * @param Transaction $transaction the transaction to delete
      * @return bool
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteTransaction(Transaction $transaction): bool
     {
@@ -260,8 +269,9 @@ class Transactions extends Component
     /**
      * @param int $orderId the order's ID
      * @return array|Transaction[]
+     * @noinspection PhpUnused
      */
-    public function getAllTopLevelTransactionsByOrderId($orderId)
+    public function getAllTopLevelTransactionsByOrderId($orderId): array
     {
         $transactions = $this->getAllTransactionsByOrderId($orderId);
 
@@ -323,7 +333,7 @@ class Transactions extends Component
      * @param string $hash the hash of transaction
      * @return Transaction|null
      */
-    public function getTransactionByHash(string $hash)
+    public function getTransactionByHash(string $hash): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(['hash' => $hash])
@@ -339,7 +349,7 @@ class Transactions extends Component
      * @param string $status the transaction status
      * @return Transaction|null
      */
-    public function getTransactionByReferenceAndStatus(string $reference, string $status)
+    public function getTransactionByReferenceAndStatus(string $reference, string $status): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(compact('reference', 'status'))
@@ -354,7 +364,7 @@ class Transactions extends Component
      * @param int $id the ID of transaction
      * @return Transaction|null
      */
-    public function getTransactionById(int $id)
+    public function getTransactionById(int $id): ?Transaction
     {
         $result = $this->_createTransactionQuery()
             ->where(['id' => $id])
@@ -390,7 +400,11 @@ class Transactions extends Component
      * @param Transaction $model the transaction model
      * @param bool $runValidation should we validate this transaction before saving.
      * @return bool
+     * @throws Throwable
      * @throws TransactionException if an attempt is made to modify an existing transaction
+     * @throws OrderStatusException
+     * @throws ElementNotFoundException
+     * @throws Exception
      */
     public function saveTransaction(Transaction $model, bool $runValidation = true): bool
     {

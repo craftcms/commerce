@@ -17,9 +17,11 @@ use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\caching\TagDependency;
+use yii\db\StaleObjectException;
 
 /**
  * Tax zone service.
@@ -33,13 +35,12 @@ class TaxZones extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllTaxZones = false;
+    private bool $_fetchedAllTaxZones = false;
 
     /**
      * @var TaxAddressZone[]
      */
-    private $_allTaxZones;
-
+    private array $_allTaxZones;
 
     /**
      * Get all tax zones.
@@ -68,7 +69,7 @@ class TaxZones extends Component
      * @param int $id
      * @return TaxAddressZone|null
      */
-    public function getTaxZoneById($id)
+    public function getTaxZoneById(int $id): ?TaxAddressZone
     {
         if (isset($this->_allTaxZones[$id])) {
             return $this->_allTaxZones[$id];
@@ -199,10 +200,12 @@ class TaxZones extends Component
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteTaxZoneById($id): bool
+    public function deleteTaxZoneById(int $id): bool
     {
         $record = TaxZoneRecord::findOne($id);
 
@@ -212,7 +215,6 @@ class TaxZones extends Component
 
         return false;
     }
-
 
     /**
      * Returns a Query object prepped for retrieving tax zones.

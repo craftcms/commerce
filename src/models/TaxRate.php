@@ -29,9 +29,9 @@ use DateTime;
 class TaxRate extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id;
 
     /**
      * @var string Name

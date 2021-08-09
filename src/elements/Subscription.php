@@ -106,9 +106,9 @@ class Subscription extends Element
     public bool $isCanceled;
 
     /**
-     * @var DateTime Time when subscription was canceled
+     * @var DateTime|null Time when subscription was canceled
      */
-    public DateTime $dateCanceled;
+    public ?DateTime $dateCanceled;
 
     /**
      * @var bool Whether the subscription has expired

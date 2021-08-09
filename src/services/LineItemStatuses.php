@@ -59,22 +59,22 @@ class LineItemStatuses extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllStatuses = false;
+    private bool $_fetchedAllStatuses = false;
 
     /**
      * @var LineItemStatus[]
      */
-    private $_lineItemStatusesById = [];
+    private array $_lineItemStatusesById = [];
 
     /**
      * @var LineItemStatus[]
      */
-    private $_lineItemStatusesByHandle = [];
+    private array $_lineItemStatusesByHandle = [];
 
     /**
-     * @var LineItemStatus
+     * @var LineItemStatus|null
      */
-    private $_defaultLineItemStatus;
+    private ?LineItemStatus $_defaultLineItemStatus;
 
     /**
      * Get line item status by its handle.
@@ -82,7 +82,7 @@ class LineItemStatuses extends Component
      * @param string $handle
      * @return LineItemStatus|null
      */
-    public function getLineItemStatusByHandle($handle)
+    public function getLineItemStatusByHandle(string $handle): ?LineItemStatus
     {
         if (isset($this->_lineItemStatusesByHandle[$handle])) {
             return $this->_lineItemStatusesByHandle[$handle];
@@ -109,8 +109,9 @@ class LineItemStatuses extends Component
      * Get default lineItem status ID from the DB
      *
      * @return int|null
+     * @noinspection PhpUnused
      */
-    public function getDefaultLineItemStatusId()
+    public function getDefaultLineItemStatusId(): ?int
     {
         $defaultStatus = $this->getDefaultLineItemStatus();
 
@@ -126,7 +127,7 @@ class LineItemStatuses extends Component
      *
      * @return LineItemStatus|null
      */
-    public function getDefaultLineItemStatus()
+    public function getDefaultLineItemStatus(): ?LineItemStatus
     {
         if ($this->_defaultLineItemStatus !== null) {
             return $this->_defaultLineItemStatus;
@@ -149,7 +150,7 @@ class LineItemStatuses extends Component
      * @param LineItem $lineItem
      * @return LineItemStatus|null
      */
-    public function getDefaultLineItemStatusForLineItem(LineItem $lineItem)
+    public function getDefaultLineItemStatusForLineItem(LineItem $lineItem): ?LineItemStatus
     {
         $lineItemStatus = $this->getDefaultLineItemStatus();
 
@@ -222,7 +223,7 @@ class LineItemStatuses extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedLineItemStatus(ConfigEvent $event)
+    public function handleChangedLineItemStatus(ConfigEvent $event): void
     {
         $statusUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -277,7 +278,7 @@ class LineItemStatuses extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleArchivedLineItemStatus(ConfigEvent $event)
+    public function handleArchivedLineItemStatus(ConfigEvent $event): void
     {
         $lineItemStatusUid = $event->tokenMatches[0];
 
@@ -328,7 +329,7 @@ class LineItemStatuses extends Component
      * @param int $id
      * @return LineItemStatus|null
      */
-    public function getLineItemStatusById($id)
+    public function getLineItemStatusById(int $id): ?LineItemStatus
     {
         if (isset($this->_lineItemStatusesById[$id])) {
             return $this->_lineItemStatusesById[$id];
@@ -385,7 +386,7 @@ class LineItemStatuses extends Component
      *
      * @param LineItemStatus $lineItemStatus
      */
-    private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus)
+    private function _memoizeLineItemStatus(LineItemStatus $lineItemStatus): void
     {
         $this->_lineItemStatusesById[$lineItemStatus->id] = $lineItemStatus;
         $this->_lineItemStatusesByHandle[$lineItemStatus->handle] = $lineItemStatus;
@@ -433,7 +434,7 @@ class LineItemStatuses extends Component
      *
      * @since 3.2.5
      */
-    public function _clearCaches()
+    public function _clearCaches(): void
     {
         $this->_defaultLineItemStatus = null;
         $this->_fetchedAllStatuses = false;
