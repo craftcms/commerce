@@ -632,14 +632,26 @@ class Address extends Model implements AddressInterface
      * @return string
      * @sinice 4.0
      */
-    public function getAddressFormatHtml(): string
+    public function getAddressHtml(): string
     {
         $addressFormatRepository = new AddressFormatRepository();
         $countryRepository = new CountryRepository();
         $subdivisionRepository = new SubdivisionRepository();
         $formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
-        
+
         return $formatter->format($this);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAddressFormat(): string
+    {
+        $addressFormatRepository = new AddressFormatRepository();
+        
+        $format = $addressFormatRepository->get($this->countryIso);
+        
+        return $format->getFormat();
     }
 
     /**

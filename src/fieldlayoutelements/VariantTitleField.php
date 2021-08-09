@@ -36,7 +36,7 @@ class VariantTitleField extends TitleField
     /**
      * @inheritdoc
      */
-    public function inputHtml(ElementInterface $element = null, bool $static = false)
+    public function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Variant) {
             throw new InvalidArgumentException('VariantTitleField can only be used in variant field layouts.');

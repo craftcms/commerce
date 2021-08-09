@@ -25,11 +25,11 @@
             {% from "_includes/forms" import checkboxField %}
 
             {% set hasVariantsInstructions %}
-                {%- spaceless %}
+                {%- apply spaceless %}
                     {% if productType.id and productType.hasVariants %}
                         <span class="error">{{ "Careful—your existing variant data will be deleted if you change this." }}</span>
                     {% endif %}
-                {% endspaceless -%}
+                {% endapply -%}
             {% endset %}
 
             {{ checkboxField({

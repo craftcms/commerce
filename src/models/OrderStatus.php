@@ -36,19 +36,19 @@ class OrderStatus extends Model
     }
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public string $name;
+    public string $name = '';
 
     /**
      * @var string Handle
      */
-    public string $handle;
+    public string $handle = '';
 
     /**
      * @var string Color
@@ -58,27 +58,27 @@ class OrderStatus extends Model
     /**
      * @var string Description
      */
-    public ?string $description;
+    public ?string $description = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public int $sortOrder;
-
-    /**
-     * @var bool Default status
-     */
-    public bool $default;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
      */
-    public ?bool $dateDeleted;
+    public ?bool $default = null;
+
+    /**
+     * @var bool Default status
+     */
+    public ?bool $dateDeleted = null;
 
     /**
      * @var string UID
      */
-    public string $uid;
+    public string $uid = '';
 
     /**
      * @return array

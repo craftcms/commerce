@@ -43,29 +43,29 @@ use craft\validators\UniqueValidator;
 class ProductType extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public string $name;
+    public string $name = '';
 
     /**
      * @var string Handle
      */
-    public string $handle;
+    public string $handle = '';
 
     /**
      * @var bool Has dimension
      */
-    public bool $hasDimensions;
+    public ?bool $hasDimensions = null;
 
     /**
      * @var bool Has variants
      */
-    public bool $hasVariants;
+    public ?bool $hasVariants = null;
 
     /**
      * @var bool Has variant title field
@@ -91,12 +91,12 @@ class ProductType extends Model
     /**
      * @var string SKU format
      */
-    public string $skuFormat;
+    public string $skuFormat = '';
 
     /**
      * @var string Description format
      */
-    public string $descriptionFormat;
+    public string $descriptionFormat = '';
 
     /**
      * @var string Line item format
@@ -111,12 +111,12 @@ class ProductType extends Model
     /**
      * @var int Field layout ID
      */
-    public int $fieldLayoutId;
+    public ?int $fieldLayoutId = null;
 
     /**
      * @var int Variant layout ID
      */
-    public ?int $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId = null;
 
     /**
      * @var string UID
@@ -126,12 +126,12 @@ class ProductType extends Model
     /**
      * @var TaxCategory[]
      */
-    private array $_taxCategories;
+    private array $_taxCategories = [];
 
     /**
      * @var ShippingCategory[]
      */
-    private array $_shippingCategories;
+    private array $_shippingCategories = [];
 
     /**
      * @var ProductTypeSite[]
