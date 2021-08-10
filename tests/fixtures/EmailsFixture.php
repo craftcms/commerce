@@ -33,12 +33,12 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveEmail';
+    public string $saveMethod = 'saveEmail';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteEmailById';
+    public string $deleteMethod = 'deleteEmailById';
 
     /**
      * @inheritDoc

@@ -26,12 +26,12 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deletePaymentCurrencyById';
+    public string $deleteMethod = 'deletePaymentCurrencyById';
 
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'savePaymentCurrency';
+    public string $saveMethod = 'savePaymentCurrency';
 
     /**
      * @inheritDoc

@@ -13,7 +13,7 @@ use craft\test\fixtures\FieldLayoutFixture as BaseFieldLayoutFixture;
  */
 class FieldLayoutFixture extends BaseFieldLayoutFixture
 {
-    public $dataFile = __DIR__ . '/data/field-layout.php';
+    public string $dataFile = __DIR__ . '/data/field-layout.php';
 
-    public $modelClass = FieldLayout::class;
+    public string $modelClass = FieldLayout::class;
 }

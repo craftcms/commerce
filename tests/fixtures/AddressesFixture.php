@@ -21,12 +21,12 @@ class AddressesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__ . '/data/addresses.php';
+    public string $dataFile = __DIR__ . '/data/addresses.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = Address::class;
+    public string $modelClass = Address::class;
 
-    public $depends = [CustomerFixture::class];
+    public array $depends = [CustomerFixture::class];
 }

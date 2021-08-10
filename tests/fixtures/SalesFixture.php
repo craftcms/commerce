@@ -36,12 +36,12 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveSale';
+    public string $saveMethod = 'saveSale';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteSaleById';
+    public string $deleteMethod = 'deleteSaleById';
 
     /**
      * @inheritDoc

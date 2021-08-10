@@ -23,12 +23,12 @@ class ProductFixture extends BaseProductFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/products.php';
+    public string $dataFile = __DIR__.'/data/products.php';
 
     /**
      * @inheritdoc
      */
-    public $depends = [ProductTypeFixture::class];
+    public array $depends = [ProductTypeFixture::class];
 
     /**
      * @inheritdoc

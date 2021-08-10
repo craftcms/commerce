@@ -22,10 +22,10 @@ class CustomerFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/customers.php';
+    public string $dataFile = __DIR__.'/data/customers.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = Customer::class;
+    public string $modelClass = Customer::class;
 }

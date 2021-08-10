@@ -33,12 +33,12 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveOrderStatus';
+    public string $saveMethod = 'saveOrderStatus';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteOrderStatusById';
+    public string $deleteMethod = 'deleteOrderStatusById';
 
     /**
      * @inheritDoc

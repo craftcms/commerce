@@ -30,14 +30,14 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
      *
      * @var string
      */
-    public $deleteMethod;
+    public string $deleteMethod;
 
     /**
      * Name of the save method in the service.
      *
      * @var string
      */
-    public $saveMethod;
+    public string $saveMethod;
 
     /**
      * Instance of the service used for saving and deleting model data.
@@ -47,17 +47,17 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
     /**
      * @var array the data rows. Each array element represents one row of data (column name => column value).
      */
-    public $data = [];
+    public array $data = [];
 
     /**
      * @var array
      */
-    protected $ids = [];
+    protected array $ids = [];
 
     /**
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -73,7 +73,7 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
     /**
      * @inheritDoc
      */
-    public function load()
+    public function load(): void
     {
         $this->data = [];
         $saveMethod = $this->saveMethod;
@@ -104,7 +104,7 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
     /**
      * @inheritDoc
      */
-    public function unload()
+    public function unload(): void
     {
         $deleteMethod = $this->deleteMethod;
 
