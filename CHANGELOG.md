@@ -3,14 +3,14 @@
 ## Unreleased
 
 ### Changed
+- Discount condition formulas now allow `|date` filters. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+- Orders now include billing and shipping addresses in search their keywords.
 - The `registerUserOnOrderComplete` order parameter is now honored when completing an order from the control panel. ([#2503](https://github.com/craftcms/commerce/issues/2503))
 
 ### Fixed
-- Whitelisted date twig filter on discount condition formula to allow condition operator on date attributes and fields. ([#2505](https://github.com/craftcms/commerce/issues/2505))
-- Fixed a bug where attempting to pay for an order with a zero value payment amount in an alternative currency would be ingored in favor of the outstanding balance. ([#2501](https://github.com/craftcms/commerce/issues/2501))
-- Fixed a bug where billing and shipping `addressLines` weren’t being added to the Order’s search index.
-- Fixed a bug where it wasn’t possible to modify the address query in the `PurgeAddressesEvent`.
-- Fixed a bug where `craft\commerce\services\Formulas::validateFormulaSyntax()` wasn’t calling the correct method.
+- Fixed a bug where zero-value payment amounts would be ignored in favor of the outstanding balance, if using an alternative currency. ([#2501](https://github.com/craftcms/commerce/issues/2501))
+- Fixed a bug where it wasn't possible to modify the address query from `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES` event handlers.
+- Fixed a bug where `craft\commerce\services\Formulas::validateFormulaSyntax()` wasn't working properly.
 
 ## 3.4.1 - 2021-07-26
 
