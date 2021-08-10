@@ -42,6 +42,9 @@
 {% endblock %}
 
 {% block content %}
+
+  {{ craft.commerce.addresses.buildAddressForm(address)|raw }}
+
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',

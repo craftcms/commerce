@@ -19,6 +19,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Template;
 use LitEmoji\LitEmoji;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -585,5 +586,50 @@ class Addresses extends Component
                 'addresses.zipCode',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
+    }
+
+    /**
+     * @param Address $address
+     * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
+     */
+    public function buildAddressForm(Address $address): string
+    {
+        $addressFormat = $address->getAddressFormat();
+
+        $format = nl2br($addressFormat->getFormat());
+        
+        $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
+            return static::buildAdministrativeArea($address);
+        }, $format);
+        
+        return $form;
+    }
+
+    /**
+     * @param $address
+     * @return string
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \yii\base\Exception
+     */
+    private function buildAdministrativeArea($address): string
+    {
+        $states = Plugin::getInstance()->getStates()->getStatesByCountryId($address->countryId);
+        
+        $options = [];
+        foreach ($states as $id => $state) {
+            $options[$id]['label'] = $state->name;
+            $options[$id]['value'] = $state->id;
+        }
+        
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
+            'address' => $address,
+            'options' => $options
+        ]);
     }
 }

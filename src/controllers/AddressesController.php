@@ -53,11 +53,21 @@ class AddressesController extends BaseCpController
 
         if (!$variables['address']) {
             $variables['address'] = null;
-
+            
             if ($variables['addressId']) {
                 $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
             } elseif ($variables['customerId']) {
                 $variables['address'] = new AddressModel();
+                
+                $countryId = Plugin::getInstance()->getCountries()->getCountryByIso(AddressModel::DEFAULT_COUNTRY_ISO)->id;
+                
+                $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
+                
+                if ($storeLocation->id !== null) {
+                    $countryId = $storeLocation->countryId;
+                }
+                
+                $variables['address']->countryId = $countryId;
             }
 
             if (!$variables['address']) {

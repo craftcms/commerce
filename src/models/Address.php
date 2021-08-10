@@ -7,6 +7,7 @@
 
 namespace craft\commerce\models;
 
+use CommerceGuys\Addressing\AddressFormat\AddressFormat;
 use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\AddressInterface;
 use CommerceGuys\Addressing\Country\CountryRepository;
@@ -23,6 +24,7 @@ use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
+use function PHPUnit\Framework\returnArgument;
 
 /**
  * Address Model
@@ -48,7 +50,10 @@ class Address extends Model implements AddressInterface
      * @since 3.2.0
      */
     const EVENT_DEFINE_ADDRESS_LINES = 'defineAddressLines';
-
+    
+    /** @since 4.0 */
+    const DEFAULT_COUNTRY_ISO = 'US';
+    
     /**
      * @var int Address ID
      */
@@ -645,13 +650,11 @@ class Address extends Model implements AddressInterface
     /**
      * @return string
      */
-    public function getAddressFormat(): string
+    public function getAddressFormat(): AddressFormat
     {
         $addressFormatRepository = new AddressFormatRepository();
         
-        $format = $addressFormatRepository->get($this->countryIso);
-        
-        return $format->getFormat();
+        return $addressFormatRepository->get($this->countryIso);
     }
 
     /**

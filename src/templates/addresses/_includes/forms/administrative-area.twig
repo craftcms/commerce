@@ -1,0 +1,8 @@
+{% from "_includes/forms" import select %}
+
+<strong>{{ address.getAddressFormat.administrativeAreaType|capitalize }}</strong>: {{ select({
+      id: 'administrativeArea',
+      name: 'administrativeArea',
+      value: address.administrativeArea,
+      options: options
+  }) }}
