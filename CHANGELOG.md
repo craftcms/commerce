@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 3.4.2 - 2021-08-11
+
+### Changed
+- Discount condition formulas now allow `|date` filters. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+- Orders now include billing and shipping addresses in search their keywords.
+- The `registerUserOnOrderComplete` order parameter is now honored when completing an order from the control panel. ([#2503](https://github.com/craftcms/commerce/issues/2503))
+
+### Fixed
+- Fixed a bug where zero-value payment amounts would be ignored in favor of the outstanding balance, if using an alternative currency. ([#2501](https://github.com/craftcms/commerce/issues/2501))
+- Fixed a bug where it wasn't possible to modify the address query from `craft\commerce\services\Addresses::EVENT_BEFORE_PURGE_ADDRESSES` event handlers.
+- Fixed a bug where `craft\commerce\services\Formulas::validateFormulaSyntax()` wasn't working properly.
+
 ## 3.4.1 - 2021-07-26
 
 ### Changed
@@ -30,7 +42,7 @@
 
 ### Added
 - Added the ability to download multiple orders’ PDFs as a single, combined PDF from the Orders index page. ([#1785](https://github.com/craftcms/commerce/issues/1785))
-- Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/18813))
+- Added the ability to disable included tax removal. ([#1881](https://github.com/craftcms/commerce/issues/1881))
 - Added the “Revenue Options” setting to the Top Products widget. ([#1919](https://github.com/craftcms/commerce/issues/1919))
 - Added the ability to bulk-delete discounts from the Discounts index page. ([#2172](https://github.com/craftcms/commerce/issues/2172))
 - Added the ability to bulk-delete sales from the Sales index page.
