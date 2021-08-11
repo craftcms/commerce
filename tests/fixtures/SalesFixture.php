@@ -21,17 +21,17 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/sales.php';
+    public string $dataFile = __DIR__.'/data/sales.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = Sale::class;
+    public string $modelClass = Sale::class;
 
     /**
      * @var string[]
      */
-    public $depends = [ProductFixture::class, CategoriesFixture::class, UserGroupsFixture::class];
+    public array $depends = [ProductFixture::class, CategoriesFixture::class, UserGroupsFixture::class];
 
     /**
      * @inheritDoc
@@ -46,24 +46,24 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $service = 'sales';
+    public string $service = 'sales';
 
     /**
      * @var array|null
      */
-    private $_purchasableIds;
+    private ?array $_purchasableIds;
 
     /**
      * @var array|null
      */
-    private $_categoryIds;
+    private ?array $_categoryIds;
 
     /**
      * @var array|null
      */
-    private $_userGroupIds;
+    private ?array $_userGroupIds;
 
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 

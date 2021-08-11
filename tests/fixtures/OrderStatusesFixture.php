@@ -23,12 +23,12 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/order-statuses.php';
+    public string $dataFile = __DIR__.'/data/order-statuses.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = OrderStatus::class;
+    public string $modelClass = OrderStatus::class;
 
     /**
      * @inheritDoc
@@ -43,12 +43,12 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $service = 'orderStatuses';
+    public string $service = 'orderStatuses';
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 
@@ -58,7 +58,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function unload()
+    public function unload(): void
     {
         if (!empty($this->ids)) {
             foreach ($this->ids as $id) {

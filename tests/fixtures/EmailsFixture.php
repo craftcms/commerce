@@ -23,12 +23,12 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/emails.php';
+    public string $dataFile = __DIR__.'/data/emails.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = Email::class;
+    public string $modelClass = Email::class;
 
     /**
      * @inheritDoc
@@ -43,14 +43,17 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $service = 'emails';
+    public string $service = 'emails';
 
-    private $_muteEvents;
+    /**
+     * @var bool
+     */
+    private bool $_muteEvents;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 
@@ -60,7 +63,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function beforeUnload()
+    public function beforeUnload(): void
     {
         parent::beforeUnload();
 
@@ -72,7 +75,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function afterUnload()
+    public function afterUnload(): void
     {
         parent::afterUnload();
 

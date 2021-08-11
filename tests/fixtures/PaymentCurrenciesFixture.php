@@ -21,7 +21,7 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $modelClass = PaymentCurrency::class;
+    public string $modelClass = PaymentCurrency::class;
 
     /**
      * @inheritDoc
@@ -36,17 +36,17 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $service = 'paymentCurrencies';
+    public string $service = 'paymentCurrencies';
 
     /**
      * @inheritDoc
      */
-    public $dataFile = __DIR__.'/data/payment-currencies.php';
+    public string $dataFile = __DIR__.'/data/payment-currencies.php';
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 

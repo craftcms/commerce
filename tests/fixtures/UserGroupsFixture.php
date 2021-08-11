@@ -24,12 +24,12 @@ class UserGroupsFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modelClass = UserGroup::class;
+    public string $modelClass = UserGroup::class;
 
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__ . '/data/user-groups.php';
+    public string $dataFile = __DIR__ . '/data/user-groups.php';
 
     /**
      * @inheritdoc
