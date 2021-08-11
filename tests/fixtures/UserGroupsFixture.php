@@ -29,7 +29,7 @@ class UserGroupsFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__ . '/data/user-groups.php';
+    public $dataFile = __DIR__ . '/data/user-groups.php';
 
     /**
      * @inheritdoc

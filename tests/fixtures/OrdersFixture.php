@@ -28,12 +28,12 @@ class OrdersFixture extends BaseElementFixture
     /**
      * @inheritDoc
      */
-    public string $dataFile = __DIR__.'/data/orders.php';
+    public $dataFile = __DIR__.'/data/orders.php';
 
     /**
      * @inheritdoc
      */
-    public array $depends = [
+    public $depends = [
         ProductFixture::class,
         CustomersAddressesFixture::class,
         OrderStatusesFixture::class,

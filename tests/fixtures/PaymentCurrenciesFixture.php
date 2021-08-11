@@ -41,7 +41,7 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public string $dataFile = __DIR__.'/data/payment-currencies.php';
+    public $dataFile = __DIR__.'/data/payment-currencies.php';
 
     /**
      * @inheritDoc

@@ -22,7 +22,7 @@ class CustomerFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__.'/data/customers.php';
+    public $dataFile = __DIR__.'/data/customers.php';
 
     /**
      * @inheritdoc

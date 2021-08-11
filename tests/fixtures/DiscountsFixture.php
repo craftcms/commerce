@@ -22,7 +22,7 @@ class DiscountsFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__.'/data/discounts.php';
+    public $dataFile = __DIR__.'/data/discounts.php';
 
     /**
      * @inheritdoc

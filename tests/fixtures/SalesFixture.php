@@ -21,7 +21,7 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__.'/data/sales.php';
+    public $dataFile = __DIR__.'/data/sales.php';
 
     /**
      * @inheritdoc
@@ -31,7 +31,7 @@ class SalesFixture extends BaseModelFixture
     /**
      * @var string[]
      */
-    public array $depends = [ProductFixture::class, CategoriesFixture::class, UserGroupsFixture::class];
+    public $depends = [ProductFixture::class, CategoriesFixture::class, UserGroupsFixture::class];
 
     /**
      * @inheritDoc

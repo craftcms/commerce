@@ -21,7 +21,7 @@ class ProductTypeFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__.'/data/product-types.php';
+    public $dataFile = __DIR__.'/data/product-types.php';
 
     /**
      * @inheritdoc
@@ -31,5 +31,5 @@ class ProductTypeFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public array $depends = [ProductTypeSitesFixture::class];
+    public $depends = [ProductTypeSitesFixture::class];
 }

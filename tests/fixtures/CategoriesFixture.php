@@ -19,9 +19,9 @@ class CategoriesFixture extends CategoryFixture
     /**
      * @inheritdoc
      */
-    public string $dataFile = __DIR__ . '/data/categories.php';
+    public $dataFile = __DIR__ . '/data/categories.php';
 
-    public array $depends = [FieldLayoutFixture::class, ProductFixture::class];
+    public $depends = [FieldLayoutFixture::class, ProductFixture::class];
 
     public function init(): void
     {
