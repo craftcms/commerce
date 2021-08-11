@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.2 - 2021-08-11
 
 ### Changed
 - Discount condition formulas now allow `|date` filters. ([#2505](https://github.com/craftcms/commerce/issues/2505))
