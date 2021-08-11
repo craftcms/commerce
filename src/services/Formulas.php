@@ -68,7 +68,7 @@ class Formulas extends Component
     public function validateFormulaSyntax($formula, $params): bool
     {
         try {
-            $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
         } catch (\Exception $exception) {
             return false;
         }
