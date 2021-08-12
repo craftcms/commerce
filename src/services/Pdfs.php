@@ -49,7 +49,7 @@ class Pdfs extends Component
     /**
      * @var Pdf[]|null
      */
-    private ?array $_allPdfs;
+    private ?array $_allPdfs = null;
 
     /**
      * @event PdfSaveEvent The event that is triggered before an pdf is saved.
