@@ -28,7 +28,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public string $modelClass = OrderStatus::class;
+    public $modeClass = OrderStatus::class;
 
     /**
      * @inheritDoc

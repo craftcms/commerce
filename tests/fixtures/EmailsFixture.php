@@ -28,7 +28,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public string $modelClass = Email::class;
+    public $modeClass = Email::class;
 
     /**
      * @inheritDoc

@@ -26,7 +26,7 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritdoc
      */
-    public string $modelClass = Sale::class;
+    public $modeClass = Sale::class;
 
     /**
      * @var string[]

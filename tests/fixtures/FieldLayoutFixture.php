@@ -15,5 +15,5 @@ class FieldLayoutFixture extends BaseFieldLayoutFixture
 {
     public $dataFile = __DIR__ . '/data/field-layout.php';
 
-    public string $modelClass = FieldLayout::class;
+    public $modeClass = FieldLayout::class;
 }

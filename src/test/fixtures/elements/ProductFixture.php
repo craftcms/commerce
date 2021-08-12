@@ -30,12 +30,12 @@ class ProductFixture extends BaseElementFixture
     /**
      * @var array
      */
-    protected $productTypeIds = [];
+    protected array $productTypeIds = [];
 
     /**
      * {@inheritdoc}
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -52,7 +52,7 @@ class ProductFixture extends BaseElementFixture
     /**
      * @inheritdoc
      */
-    public function afterLoad()
+    public function afterLoad(): void
     {
         $this->productTypeIds = $this->_getProductTypeIds();
     }

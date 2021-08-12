@@ -27,5 +27,5 @@ class DiscountsFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $modelClass = Discount::class;
+    public $modeClass = Discount::class;
 }

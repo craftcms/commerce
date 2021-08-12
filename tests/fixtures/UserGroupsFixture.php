@@ -24,7 +24,7 @@ class UserGroupsFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public string $modelClass = UserGroup::class;
+    public $modeClass = UserGroup::class;
 
     /**
      * @inheritdoc
