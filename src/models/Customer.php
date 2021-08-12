@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use DateTime;
 use Exception;
 
 /**
@@ -56,10 +57,53 @@ class Customer extends Model
     public $primaryShippingAddressId;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @var User $_user
      */
     private $_user;
 
+    /**
+     * @return null|string
+     */
+    public static function displayName(): string
+    {
+        return Craft::t('commerce', 'Customer');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function lowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'customer');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralDisplayName(): string
+    {
+        return Craft::t('commerce', 'Customers');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function pluralLowerDisplayName(): string
+    {
+        return Craft::t('commerce', 'customers');
+    }
 
     /**
      * Returns the email address of the customer as the string output.

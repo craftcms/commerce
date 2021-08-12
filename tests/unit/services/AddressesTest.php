@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
@@ -53,44 +53,59 @@ class AddressesTest extends Unit
         ];
     }
 
+    /**
+     *
+     */
     public function testGetAddressById()
     {
-        $this->assertNull($this->addresses->getAddressById(999));
+        self::assertNull($this->addresses->getAddressById(999));
 
         $address = $this->addresses->getAddressById(1000);
-        $this->assertInstanceOf(Address::class, $address);
-        $this->assertSame('1640 Riverside Drive', $address->address1);
+        self::assertInstanceOf(Address::class, $address);
+        self::assertSame('1640 Riverside Drive', $address->address1);
     }
 
+    /**
+     *
+     */
     public function testGetAddressesByCustomerId()
     {
         $address = $this->addresses->getAddressById(1000);
         $customerAddresses = $this->addresses->getAddressesByCustomerId(88);
 
-        $this->assertIsArray($customerAddresses);
-        $this->assertNotEmpty($customerAddresses);
-        $this->assertEquals($address, $customerAddresses[0]);
+        self::assertIsArray($customerAddresses);
+        self::assertNotEmpty($customerAddresses);
+        self::assertEquals($address, $customerAddresses[0]);
     }
 
+    /**
+     *
+     */
     public function testGetAddressByIdAndCustomerId()
     {
         $customerAddress = $this->addresses->getAddressById(1000);
         $noAddress = $this->addresses->getAddressByIdAndCustomerId(999,88);
-        $this->assertNull($noAddress);
+        self::assertNull($noAddress);
 
         $address = $this->addresses->getAddressByIdAndCustomerId(1000, 88);
-        $this->assertEquals($customerAddress, $address);
+        self::assertEquals($customerAddress, $address);
     }
 
+    /**
+     *
+     */
     public function testGetStoreLocationAddress()
     {
-        $storeAddress = $this->addresses->getAddressById(123);
+        $storeAddress = $this->addresses->getAddressById(1123);
         $address = $this->addresses->getStoreLocationAddress();
 
-        $this->assertIsObject($address);
-        $this->assertEquals($storeAddress, $address);
+        self::assertIsObject($address);
+        self::assertEquals($storeAddress, $address);
     }
 
+    /**
+     * @throws \yii\db\Exception
+     */
     public function testSaveAddress()
     {
         $address = $this->addresses->getAddressById(1000);
@@ -98,30 +113,36 @@ class AddressesTest extends Unit
 
         $saveResult = $this->addresses->saveAddress($address);
 
-        $this->assertTrue($saveResult);
-        $this->assertFalse($address->hasErrors());
-        $this->assertSame('Great Scott!', $address->address2);
+        self::assertTrue($saveResult);
+        self::assertFalse($address->hasErrors());
+        self::assertSame('Great Scott!', $address->address2);
 
         $address2 = (new Query())
             ->select(['address2'])
             ->from(Table::ADDRESSES)
             ->where(['id' => 1000])
             ->scalar();
-        $this->assertSame('Great Scott!', $address2);
+        self::assertSame('Great Scott!', $address2);
     }
 
+    /**
+     *
+     */
     public function testDeleteAddressById()
     {
         $result = $this->addresses->deleteAddressById(1000);
 
-        $this->assertTrue($result);
+        self::assertTrue($result);
         $addressExists = (new Query())
             ->from(Table::ADDRESSES)
             ->where(['id' => 1000])
             ->exists();
-        $this->assertFalse($addressExists);
+        self::assertFalse($addressExists);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function testAddressWithinZone()
     {
         $addressSuccess = $this->addresses->getAddressById(1000);
@@ -133,10 +154,10 @@ class AddressesTest extends Unit
                 return true;
             },
             'getCountryIds' => function() {
-                return ['233'];
+                return ['236'];
             },
         ]);
-        $this->assertFalse($this->addresses->addressWithinZone($addressFail, $zoneCountry));
+        self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneCountry));
 
         /** @var ShippingAddressZone $zoneState */
         $zoneState = $this->make(ShippingAddressZone::class, [
@@ -149,13 +170,13 @@ class AddressesTest extends Unit
             'id' => '26',
             'name' => 'California',
             'abbreviation' => 'CA',
-            'countryId' => '233',
+            'countryId' => '236',
         ]);
         $zoneState->setStates([$state]);
-        $this->assertFalse($this->addresses->addressWithinZone($addressFail, $zoneState));
+        self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneState));
 
-        $this->assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneCountry));
-        $this->assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneState));
+        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneCountry));
+        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneState));
 
         /** @var ShippingAddressZone $zoneZipCodeCondition */
         $zoneZipCodeCondition = $this->make(ShippingAddressZone::class, [
@@ -163,23 +184,27 @@ class AddressesTest extends Unit
                 return true;
             },
             'getCountryIds' => function() {
-                return ['233'];
+                return ['236'];
             },
         ]);
         $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "12345"';
-        $this->assertFalse($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
+        self::assertFalse($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
 
         $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "88"';
-        $this->assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
+        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
     }
 
+    /**
+     * @throws \yii\base\ExitException
+     * @throws \yii\db\Exception
+     */
     public function testPurgeOrphanedAddresses()
     {
         $count = (new Query())
             ->from(Table::ADDRESSES)
             ->count();
 
-        $this->assertEquals(3, $count);
+        self::assertEquals(4, $count);
 
         $this->addresses->purgeOrphanedAddresses();
 
@@ -187,10 +212,13 @@ class AddressesTest extends Unit
             ->from(Table::ADDRESSES)
             ->count();
 
-        $this->assertNotEquals($count, $newCount);
-        $this->assertEquals(2, $newCount);
+        self::assertNotEquals($count, $newCount);
+        self::assertEquals(3, $newCount);
     }
 
+    /**
+     *
+     */
     public function testRemoveReadOnlyAttributesFromArray()
     {
         $address = $this->addresses->getAddressById(1000);
@@ -224,17 +252,22 @@ class AddressesTest extends Unit
             'custom3',
             'custom4',
             'isEstimated',
+            'dateCreated',
+            'dateUpdated',
             'stateValue',
         ];
         $keys = array_keys($this->addresses->removeReadOnlyAttributesFromArray($addressArray));
 
-        $this->assertNotEquals(array_keys($addressArray), $keys);
-        $this->assertEquals($keysThatShouldExist, $keys);
-        $this->assertNotContains('countryText', $keys);
-        $this->assertNotContains('stateText', $keys);
-        $this->assertNotContains('abbreviationText', $keys);
+        self::assertNotEquals(array_keys($addressArray), $keys);
+        self::assertEquals($keysThatShouldExist, $keys);
+        self::assertNotContains('countryText', $keys);
+        self::assertNotContains('stateText', $keys);
+        self::assertNotContains('abbreviationText', $keys);
     }
 
+    /**
+     *
+     */
     protected function _before()
     {
         parent::_before();

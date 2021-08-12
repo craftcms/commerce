@@ -9,9 +9,6 @@ namespace craftcommercetests\fixtures;
 
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
-use craft\commerce\records\Sale as SaleRecord;
-use craft\test\Fixture;
-use yii\base\InvalidArgumentException;
 
 /**
  * Sales Fixture
@@ -19,7 +16,7 @@ use yii\base\InvalidArgumentException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.1.4
  */
-class SalesFixture extends Fixture
+class SalesFixture extends BaseModelFixture
 {
     /**
      * @inheritdoc
@@ -39,61 +36,83 @@ class SalesFixture extends Fixture
     /**
      * @inheritDoc
      */
-    public function load()
+    public $saveMethod = 'saveSale';
+
+    /**
+     * @inheritDoc
+     */
+    public $deleteMethod = 'deleteSaleById';
+
+    /**
+     * @inheritDoc
+     */
+    public $service = 'sales';
+
+    /**
+     * @var array|null
+     */
+    private $_purchasableIds;
+
+    /**
+     * @var array|null
+     */
+    private $_categoryIds;
+
+    /**
+     * @var array|null
+     */
+    private $_userGroupIds;
+
+    public function init()
     {
-        $this->data = [];
+        $this->service = Plugin::getInstance()->get($this->service);
 
-        foreach ($this->getData() as $key => $data) {
-            $purchasableIds = $data['_purchasableIds'] ?? null;
-            if ($purchasableIds !== null) {
-                unset($data['_purchasableIds']);
-            }
-
-            $categoryIds = $data['_categoryIds'] ?? null;
-            if ($categoryIds !== null) {
-                unset($data['_categoryIds']);
-            }
-
-            $userGroupIds = $data['_userGroupIds'] ?? null;
-            if ($userGroupIds !== null) {
-                unset($data['_userGroupIds']);
-            }
-
-            /**
-             * @var $model Sale
-             */
-            $model = new $this->modelClass($data);
-
-            if ($purchasableIds !== null) {
-                $model->setPurchasableIds($purchasableIds);
-            }
-
-            if ($categoryIds !== null) {
-                $model->setCategoryIds($categoryIds);
-            }
-
-            if ($userGroupIds !== null) {
-                $model->setUserGroupIds($userGroupIds);
-            }
-
-            if (!Plugin::getInstance()->getSales()->saveSale($model)) {
-                throw new InvalidArgumentException('Unable to save sale.');
-            }
-
-            $this->data[$key] = array_merge($data, ['id' => $model->id]);
-            $this->ids[] = $model->id;
-        }
+        parent::init();
     }
 
     /**
      * @inheritDoc
      */
-    public function unload()
+    protected function prepData($data)
     {
-        foreach ($this->data as $key => $data) {
-            if (isset($data['id'])) {
-                Plugin::getInstance()->getSales()->deleteSaleById($data['id']);
-            }
+        $this->_purchasableIds = $data['_purchasableIds'] ?? null;
+        if ($this->_purchasableIds !== null) {
+            unset($data['_purchasableIds']);
         }
+
+        $this->_categoryIds = $data['_categoryIds'] ?? null;
+        if ($this->_categoryIds !== null) {
+            unset($data['_categoryIds']);
+        }
+
+        $this->_userGroupIds = $data['_userGroupIds'] ?? null;
+        if ($this->_userGroupIds !== null) {
+            unset($data['_userGroupIds']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function prepModel($model, $data)
+    {
+        if ($this->_purchasableIds !== null) {
+            $model->setPurchasableIds($this->_purchasableIds);
+            $this->_purchasableIds = null;
+        }
+
+        if ($this->_categoryIds !== null) {
+            $model->setCategoryIds($this->_categoryIds);
+            $this->_categoryIds = null;
+        }
+
+        if ($this->_userGroupIds !== null) {
+            $model->setUserGroupIds($this->_userGroupIds);
+            $this->_userGroupIds = null;
+        }
+
+        return $model;
     }
 }

@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\StringValidator;
+use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
@@ -188,6 +189,18 @@ class Address extends Model
     public $isEstimated = false;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @var int|string Can be a State ID or State Name
      */
     private $_stateValue;
@@ -302,7 +315,7 @@ class Address extends Model
 
         $rules[] = [
             ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
-                return (!$model->countryId || is_int($model->countryId)) && (!$model->stateId || is_int($model->stateId));
+                return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
             }
         ];
 
@@ -323,6 +336,7 @@ class Address extends Model
             'zipCode',
             'phone',
             'alternativePhone',
+            'businessId',
             'businessName',
             'stateName',
             'stateValue',
@@ -519,6 +533,7 @@ class Address extends Model
             'label' => $this->label,
             'notes' => $this->notes,
             'businessName' => $this->businessName,
+            'businessTaxId' => $this->businessTaxId,
             'stateText' => $this->stateText,
             'countryText' => $this->countryText,
             'custom1' => $this->custom1,
@@ -537,7 +552,7 @@ class Address extends Model
         $this->trigger(self::EVENT_DEFINE_ADDRESS_LINES, $event);
 
         if ($sanitize) {
-            array_walk($event->addressLines, function(&$value, &$key) {
+            array_walk($event->addressLines, function(&$value) {
                 $value = Craft::$app->getFormatter()->asText($value);
             });
         }

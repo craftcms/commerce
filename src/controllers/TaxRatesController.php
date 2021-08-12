@@ -158,6 +158,8 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
@@ -174,10 +176,10 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Tax rate saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Tax rate saved.'));
             $this->redirectToPostedUrl($taxRate);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save tax rate.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save tax rate.'));
         }
 
         // Send the model back to the template

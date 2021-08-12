@@ -10,11 +10,13 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\commerce\records\Order;
 use craft\commerce\records\PaymentCurrency as PaymentCurrencyRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -40,7 +42,6 @@ class PaymentCurrencies extends Component
      */
     private $_allCurrenciesById;
 
-
     /**
      * Get payment currency by its ID.
      *
@@ -65,7 +66,7 @@ class PaymentCurrencies extends Component
      * Get all payment currencies.
      *
      * @return PaymentCurrency[]
-     * @throws CurrencyException if currency does not exist with tat iso code
+     * @throws CurrencyException if currency does not exist with the given ISO code
      */
     public function getAllPaymentCurrencies(): array
     {
@@ -140,7 +141,19 @@ class PaymentCurrencies extends Component
     }
 
     /**
-     * Convert an amount in site's primary currency to a different currecny by its ISO code.
+     * Returns the non primary payment currencies
+     *
+     * @return PaymentCurrency[]
+     */
+    public function getNonPrimaryPaymentCurrencies()
+    {
+        return ArrayHelper::where($this->getAllPaymentCurrencies(), function(PaymentCurrency $paymentCurrency) {
+            return !$paymentCurrency->primary;
+        }, true, true, true);
+    }
+
+    /**
+     * Convert an amount in site's primary currency to a different currency by its ISO code.
      *
      * @param float $amount This is the unit of price in the primary store currency
      * @param string $currency
@@ -151,8 +164,50 @@ class PaymentCurrencies extends Component
     {
         $destinationCurrency = $this->getPaymentCurrencyByIso($currency);
 
-        return $amount * $destinationCurrency->rate;
+        if (!$destinationCurrency) {
+            throw new CurrencyException('No payment currency found with ISO code: ' . $currency);
+        }
+
+        return $this->convertCurrency($amount, $this->getPrimaryPaymentCurrencyIso(), $currency);
     }
+
+    /**
+     * Convert an amount between currencies based on rates configured.
+     *
+     * @param float $amount
+     * @param string $fromCurrency
+     * @param string $toCurrency
+     * @param bool $round
+     * @return float
+     * @throws CurrencyException if currency not found by its ISO code
+     */
+    public function convertCurrency(float $amount, string $fromCurrency, string $toCurrency, $round = false): float
+    {
+        $fromCurrency = $this->getPaymentCurrencyByIso($fromCurrency);
+        $toCurrency = $this->getPaymentCurrencyByIso($toCurrency);
+
+        if (!$fromCurrency) {
+            throw new CurrencyException('Currency not found: ' . $fromCurrency);
+        }
+
+        if (!$toCurrency) {
+            throw new CurrencyException('Currency not found: ' . $toCurrency);
+        }
+
+        if ($this->getPrimaryPaymentCurrency()->iso != $fromCurrency) {
+            // now the amount is in the primary currency
+            $amount /= $fromCurrency->rate;
+        }
+
+        $result = $amount * $toCurrency->rate;
+
+        if ($round) {
+            return CurrencyHelper::round($result, $toCurrency);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Save a payment currency.
@@ -202,6 +257,10 @@ class PaymentCurrencies extends Component
             PaymentCurrencyRecord::updateAll(['primary' => 0], ['not', ['id' => $record->id]]);
         }
 
+        // Clear cache
+        $this->_allCurrenciesByIso = null;
+        $this->_allCurrenciesById = null;
+
         return true;
     }
 
@@ -215,11 +274,18 @@ class PaymentCurrencies extends Component
     {
         $paymentCurrency = PaymentCurrencyRecord::findOne($id);
 
-        if ($paymentCurrency) {
-            return $paymentCurrency->delete();
+        if (!$paymentCurrency) {
+            return false;
         }
 
-        return false;
+        $success = $paymentCurrency->delete();
+
+        if ($success) {
+            // Clear cache
+            $this->_allCurrenciesByIso = null;
+            $this->_allCurrenciesById = null;
+        }
+        return $success;
     }
 
 
@@ -247,6 +313,8 @@ class PaymentCurrencies extends Component
                 'iso',
                 'primary',
                 'rate',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::PAYMENTCURRENCIES]);
     }

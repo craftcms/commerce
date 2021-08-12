@@ -56,8 +56,8 @@ class AverageOrderTotal extends Widget
 
         $this->_stat = new AverageOrderTotalStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 

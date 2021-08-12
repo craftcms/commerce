@@ -149,7 +149,7 @@ class Pdfs extends Component
 
     /**
      * @event PdfRenderOptionsEvent The event that allows additional setting of pdf render options.
-     * @since 3.x
+     * @since 3.2.10
      *
      * ```php
      * use craft\commerce\events\PdfRenderOptionsEvent;
@@ -312,6 +312,14 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
+
+            /** @var Plugin $plugin */
+            $projectConfig = Craft::$app->getProjectConfig();
+            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
+            if (version_compare($schemaVersion, '3.2.13', '>=')) {
+                $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
+            }
+
             $pdfRecord->uid = $pdfUid;
 
             $pdfRecord->save(false);
@@ -429,6 +437,7 @@ class Pdfs extends Component
             return $event->pdf;
         }
 
+        $variables = $event->variables;
         $variables['order'] = $event->order;
         $variables['option'] = $event->option;
 
@@ -543,7 +552,7 @@ class Pdfs extends Component
      */
     private function _createPdfsQuery(): Query
     {
-        return (new Query())
+        $query = (new Query())
             ->select([
                 'id',
                 'name',
@@ -559,5 +568,12 @@ class Pdfs extends Component
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
+
+        $schemaVersion = Plugin::getInstance()->schemaVersion;
+        if (version_compare($schemaVersion, '3.2.13', '>=')) {
+            $query->addSelect(['language']);
+        }
+
+        return $query;
     }
 }

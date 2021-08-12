@@ -175,7 +175,7 @@ class Plans extends Component
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
-        return ArrayHelper::firstWhere($this->_getAllPlans(), 'planInformationId', $entryId);
+        return ArrayHelper::where($this->_getAllPlans(), 'planInformationId', $entryId);
     }
 
     /**
@@ -310,7 +310,9 @@ class Plans extends Component
                 'isArchived',
                 'dateArchived',
                 'sortOrder',
-                'uid'
+                'dateCreated',
+                'dateUpdated',
+                'uid',
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::PLANS]);

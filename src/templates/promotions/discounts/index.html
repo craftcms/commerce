@@ -4,13 +4,20 @@
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
     'Code',
-    'Duration',
-    'Times Used',
-    'Stops Processing?',
-    'Ignore Sales?',
-    'Discounts reordered.',
     'Couldn’t reorder discounts.',
+    'Delete',
+    'Disabled',
+    'Discounts reordered.',
+    'Duration',
+    'Enabled',
+    'Ignore Sales?',
+    'Name',
     'No discounts exist yet.',
+    'No',
+    'Set status',
+    'Stops Processing?',
+    'Times Used',
+    'Yes',
 ]) %}
 
 {% block actionButton %}
@@ -19,7 +26,10 @@
 
 
 {% block content %}
+    <p>{{ 'Discounts are rules that modify the price of items within a cart.'|t('commerce') }}</p>
     <div id="discounts-vue-admin-table"></div>
+
+    {% hook "cp.commerce.discounts.index" %}
 {% endblock %}
 
 {% set tableData = [] %}
@@ -48,35 +58,40 @@
 {% js %}
     var actions = [
         {
-            label: Craft.t('app', 'Set Status'),
+            label: Craft.t('commerce', 'Set status'),
             actions: [
                 {
-                    label: Craft.t('app', 'Enabled'),
+                    label: Craft.t('commerce', 'Enabled'),
                     action: 'commerce/discounts/update-status',
                     param: 'status',
                     value: 'enabled',
                     status: 'enabled'
                 },
                 {
-                    label: Craft.t('app', 'Disabled'),
+                    label: Craft.t('commerce', 'Disabled'),
                     action: 'commerce/discounts/update-status',
                     param: 'status',
                     value: 'disabled',
                     status: 'disabled'
                 }
             ]
+        },
+        {
+            label: Craft.t('commerce', 'Delete'),
+            action: 'commerce/discounts/delete',
+            error: true,
         }
     ];
 
     var columns = [
-        { name: '__slot:title', title: Craft.t('app', 'Name') },
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
         { name: 'duration', title: Craft.t('commerce', 'Duration') },
         { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
         { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
 
                 return '';
@@ -85,7 +100,7 @@
         { name: 'ignore', title: Craft.t('commerce', 'Ignore Sales?'),
             callback: function(value) {
                 if (value) {
-                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('app', 'Yes'))+'"></span>';
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
                 }
 
                 return '';

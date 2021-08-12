@@ -85,7 +85,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         // Shared attributes
         $currency->id = Craft::$app->getRequest()->getBodyParam('currencyId');
         $currency->iso = Craft::$app->getRequest()->getBodyParam('iso');
-        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate');
+        $currency->rate = Craft::$app->getRequest()->getBodyParam('rate', 1);
         $currency->primary = (bool)Craft::$app->getRequest()->getBodyParam('primary');
 
         // Check to see if the primary currency is being changed
@@ -97,7 +97,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
 
         // Save it
         if (Plugin::getInstance()->getPaymentCurrencies()->savePaymentCurrency($currency)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Currency saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Currency saved.'));
 
             // Delete all carts if primary currency is being changed
             if ($changingPrimaryCurrency) {
@@ -115,7 +115,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
             }
             $this->redirectToPostedUrl($currency);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save currency.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save currency.'));
         }
 
         // Send the model back to the template

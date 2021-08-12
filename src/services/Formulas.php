@@ -68,7 +68,7 @@ class Formulas extends Component
     public function validateFormulaSyntax($formula, $params): bool
     {
         try {
-            $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
         } catch (\Exception $exception) {
             return false;
         }
@@ -87,7 +87,7 @@ class Formulas extends Component
      * @throws SyntaxError
      * @throws \Twig\Error\LoaderError
      */
-    public function evaluateCondition(string $formula, $params, $name = 'Evalute Condition'): bool
+    public function evaluateCondition(string $formula, $params, $name = 'Evaluate Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');
@@ -97,9 +97,11 @@ class Formulas extends Component
         $twigCode .= $formula;
         $twigCode .= ' %}TRUE{% else %}FALSE{% endif %}';
 
-        $template = $this->_twigEnv->createTemplate((string)$twigCode, $name);
+        $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        return $output == 'TRUE';
+        $success = $output == 'TRUE';
+
+        return $success;
     }
 
     /**
@@ -189,7 +191,7 @@ class Formulas extends Component
             //'currency_name',
             //'currency_symbol',
             //'data_uri',
-            //'date',
+            'date',
             //'date_modify',
             //'default',
             //'escape',

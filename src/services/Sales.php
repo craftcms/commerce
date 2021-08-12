@@ -204,6 +204,8 @@ class Sales extends Component
                 'sales.sortOrder',
                 'sales.categoryRelationshipType',
                 'sales.enabled',
+                'sales.dateCreated',
+                'sales.dateUpdated',
                 'sp.purchasableId',
                 'spt.categoryId',
                 'sug.userGroupId'
@@ -467,7 +469,7 @@ class Sales extends Component
         if ($sale->dateTo && $sale->dateTo <= $date) {
             return false;
         }
-        
+
         if ($order) {
             $user = $order->getUser();
 
@@ -492,7 +494,7 @@ class Sales extends Component
                 return false;
             }
         }
-        
+
         // Category match
         if (!$sale->allCategories) {
             $relatedTo = [$sale->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
@@ -607,7 +609,7 @@ class Sales extends Component
             foreach ($model->getPurchasableIds() as $purchasableId) {
                 $relation = new SalePurchasableRecord();
                 $relation->purchasableId = $purchasableId;
-                $purchasable = Craft::$app->getElements()->getElementById($purchasableId);
+                $purchasable = Craft::$app->getElements()->getElementById($purchasableId, null, null, ['trashed' => null]);
                 $relation->purchasableType = get_class($purchasable);
                 $relation->saleId = $model->id;
                 $relation->save();

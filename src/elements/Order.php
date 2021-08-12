@@ -17,6 +17,7 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
+use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
@@ -30,6 +31,7 @@ use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
+use craft\commerce\models\OrderNotice;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\models\PaymentSource;
 use craft\commerce\models\Settings;
@@ -40,9 +42,9 @@ use craft\commerce\Plugin;
 use craft\commerce\records\LineItem as LineItemRecord;
 use craft\commerce\records\Order as OrderRecord;
 use craft\commerce\records\OrderAdjustment as OrderAdjustmentRecord;
+use craft\commerce\records\OrderNotice as OrderNoticeRecord;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\db\Query;
-use craft\elements\exporters\Raw as CraftRaw;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\ArrayHelper;
@@ -65,46 +67,46 @@ use yii\log\Logger;
 /**
  * Order or Cart model.
  *
- * @property OrderAdjustment[] $adjustments
- * @property string $email the email for this order
- * @property LineItem[] $lineItems
- * @property Address $billingAddress
- * @property Address $shippingAddress
+ * @property OrderAdjustment[] $adjustments The order’s adjustments
+ * @property string $email The order’s email address
+ * @property LineItem[] $lineItems The order’s line items
+ * @property Address|null $billingAddress The order’s billing address
+ * @property Address|null $shippingAddress The order’s shipping address
  * @property PaymentSource|null $paymentSource
- * @property string $paymentCurrency the payment currency for this order
- * @property string $recalculationMode the mode of recalculation.
+ * @property string $paymentCurrency The payment currency for this order
+ * @property string $recalculationMode The mode of recalculation
  * @property string $origin
  * @property-read ShippingMethod[] $availableShippingMethods
- * @property-read bool $activeCart Is the current order the same as the active cart
- * @property-read Customer $customer
- * @property-read Gateway $gateway
- * @property-read OrderStatus $orderStatus
- * @property-read float $outstandingBalance The balance amount to be paid on the Order
+ * @property-read bool $activeCart Whether the order is the same as the active cart
+ * @property-read Customer $customer The order’s customer
+ * @property-read Gateway $gateway The order’s payment gateway
+ * @property-read OrderStatus $orderStatus The order status
+ * @property-read float $outstandingBalance The balance amount to be paid on the order
  * @property-read ShippingMethodInterface $shippingMethod
- * @property-read ShippingMethodInterface $shippingMethodId
+ * @property-read ShippingMethodInterface $shippingMethodId // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
  * @property-read User|null $user
  * @property-read OrderAdjustment[] $orderAdjustments
- * @property-read string $pdfUrl the URL to the order’s PDF invoice
- * @property-read float|int $adjustmentSubtotal the total of adjustments made to order
+ * @property-read string $pdfUrl The URL to the order’s PDF invoice
+ * @property-read float|int $adjustmentSubtotal The total of adjustments made to order
  * @property-read float $adjustmentsTotal
- * @property-read OrderHistory[] $histories order histories
- * @property-read bool $isPaid if the order is paid
- * @property-read bool $isUnpaid if the order is not paid
- * @property-read float $itemTotal
- * @property-read int $itemSubtotal the total of all line item subtotals
- * @property-read bool $isActiveCart the order has the same ID as the current sessions cart
- * @property-read bool $isEmpty the order has no line items with any qty
- * @property-read null|Transaction $lastTransaction The last transaction on the order.
- * @property-read Transaction[] $nestedTransactions transactions for the order that have child transactions set on them
- * @property-read string $paidStatus the order’s paid status
- * @property-read string $paidStatusHtml the order’s paid status as HTML
+ * @property-read OrderHistory[] $histories Order histories
+ * @property-read bool $isPaid Whether the order is paid
+ * @property-read bool $isUnpaid Whether the order is not paid
+ * @property-read float $itemTotal The sum of each line item’s total
+ * @property-read int $itemSubtotal The total of all line item subtotals
+ * @property-read bool $isActiveCart Whether the order has the same ID as the current session’s cart
+ * @property-read bool $isEmpty Whether the order has no line items with any qty
+ * @property-read null|Transaction $lastTransaction The last transaction on the order
+ * @property-read Transaction[] $nestedTransactions Order transactions that have child transactions set on them
+ * @property-read string $paidStatus The order’s paid status
+ * @property-read string $paidStatusHtml The order’s paid status as HTML
  * @property-read string $shortNumber
- * @property-read float $totalPaid the total `purchase` and `captured` transactions belonging to this order
- * @property-read float $total
- * @property-read float $totalPrice
- * @property-read int $totalSaleAmount the total sale amount
+ * @property-read float $totalPaid The total `purchase` and `captured` transactions belonging to this order
+ * @property-read float $total The sum of `itemSubtotal` and `adjustmentsTotal`
+ * @property-read float $totalPrice The total order price with a minimum enforced by the `minimumTotalPriceStrategy` setting
+ * @property-read int $totalSaleAmount The total sale amount
  * @property-read float $totalTaxablePrice
- * @property-read int $totalQty the total number of items
+ * @property-read int $totalQty The total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
  * @property-read string $customerLinkHtml
@@ -147,6 +149,7 @@ class Order extends Element
     use OrderValidatorsTrait;
     use OrderDeprecatedTrait;
     use OrderElementTrait;
+    use OrderNoticesTrait;
 
     /**
      * Payments exceed order total.
@@ -204,19 +207,17 @@ class Order extends Element
      * ```php
      * use craft\commerce\elements\Order;
      * use craft\commerce\models\LineItem;
-     * use craft\commerce\events\LineItemEvent;
+     * use craft\commerce\events\AddLineItemEvent;
      * use yii\base\Event;
      *
      * Event::on(
      *     Order::class,
      *     Order::EVENT_BEFORE_ADD_LINE_ITEM,
-     *     function(LineItemEvent $event) {
+     *     function(AddLineItemEvent $event) {
      *         // @var LineItem $lineItem
      *         $lineItem = $event->lineItem;
      *         // @var bool $isNew
      *         $isNew = $event->isNew;
-     *         // @var bool $isValid
-     *         $isValid = $event->isValid;
      *         // ...
      *     }
      * );
@@ -956,13 +957,13 @@ class Order extends Element
     private $_billingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedShippingAddress;
 
     /**
-     * @var Address
+     * @var Address|null
      * @since 2.2
      */
     private $_estimatedBillingAddress;
@@ -1057,6 +1058,20 @@ class Order extends Element
      * ```
      */
     private $_customer;
+
+    /**
+     * @var float
+     * @see Order::setPaymentAmount() To set the order payment amount
+     * @see Order::getPaymentAmount() To get the order payment amount
+     * ---
+     * ```php
+     * echo $order->paymentAmount;
+     * ```
+     * ```twig
+     * {{ order.paymentAmount }}
+     * ```
+     */
+    private $_paymentAmount;
 
     /**
      * @inheritdoc
@@ -1257,6 +1272,7 @@ class Order extends Element
         $names[] = 'adjustmentSubtotal';
         $names[] = 'adjustmentsTotal';
         $names[] = 'paymentCurrency';
+        $names[] = 'paymentAmount';
         $names[] = 'email';
         $names[] = 'isPaid';
         $names[] = 'itemSubtotal';
@@ -1290,6 +1306,7 @@ class Order extends Element
         $attributes[] = 'itemSubtotal';
         $attributes[] = 'itemTotal';
         $attributes[] = 'outstandingBalance';
+        $attributes[] = 'paymentAmount';
         $attributes[] = 'totalPaid';
         $attributes[] = 'total';
         $attributes[] = 'totalPrice';
@@ -1362,7 +1379,9 @@ class Order extends Element
         $names[] = 'customer';
         $names[] = 'gateway';
         $names[] = 'histories';
+        $names[] = 'loadCartUrl';
         $names[] = 'nestedTransactions';
+        $names[] = 'notices';
         $names[] = 'orderStatus';
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
@@ -1430,6 +1449,8 @@ class Order extends Element
         $justPaid = $paidInFull && $this->datePaid == null;
         $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
 
+        $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
+
         // If it is no longer paid in full, set datePaid to null
         if (!$paidInFull) {
             $this->datePaid = null;
@@ -1460,7 +1481,7 @@ class Order extends Element
         // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalAuthorized = $this->getTotalAuthorized();
-            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull) {
+            if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull || $canComplete) {
                 // We need to remove the payment source from the order now that it's paid
                 // This means the order needs new payment details for future payments: https://github.com/craftcms/commerce/issues/891
                 // Payment information is still stored in the transactions.
@@ -1573,6 +1594,7 @@ class Order extends Element
         // Completed orders should no longer recalculate anything by default
         $this->setRecalculationMode(static::RECALCULATION_MODE_NONE);
 
+        $this->clearNotices(); // Customer notices are assessed as being delivered once the customer decides to complete the order.
         $success = Craft::$app->getElements()->saveElement($this, false);
 
         if (!$success) {
@@ -1715,8 +1737,49 @@ class Order extends Element
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
             $lineItemRemoved = false;
-            foreach ($this->getLineItems() as $item) {
-                if (!$item->refreshFromPurchasable()) {
+            foreach ($this->getLineItems() as $key => $item) {
+                $originalSalePrice = $item->getSalePrice();
+                $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
+                if ($item->refreshFromPurchasable()) {
+                    if ($originalSalePrice > $item->salePrice) {
+                        $message = Craft::t('commerce', 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
+                    }
+
+                    if ($originalSalePrice < $item->salePrice) {
+                        $message = Craft::t('commerce', 'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}', ['originalSalePriceAsCurrency' => $originalSalePriceAsCurrency, 'newSalePriceAsCurrency' => $item->salePriceAsCurrency, 'description' => $item->getDescription()]);
+                        /** @var OrderNotice $notice */
+                        $notice = Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'lineItemSalePriceChanged',
+                                'attribute' => "lineItems.{$item->id}.salePrice",
+                                'message' => $message,
+                            ]
+                        ]);
+                        $this->addNotice($notice);
+                    }
+                } else {
+                    $message = Craft::t('commerce', '{description} is no longer available.', ['description' => $item->getDescription()]);
+                    /** @var OrderNotice $notice */
+                    $notice = Craft::createObject([
+                        'class' => OrderNotice::class,
+                        'attributes' => [
+                            'message' => $message,
+                            'type' => 'lineItemRemoved',
+                            'attribute' => 'lineItems'
+                        ]
+                    ]);
+                    $this->addNotice($notice);
                     $this->removeLineItem($item);
                     $lineItemRemoved = true;
                 }
@@ -1740,46 +1803,70 @@ class Order extends Element
 
             foreach (Plugin::getInstance()->getOrderAdjustments()->getAdjusters() as $adjuster) {
                 /** @var AdjusterInterface $adjuster */
-                $adjuster = new $adjuster();
+                $adjuster = Craft::createObject($adjuster);
                 $adjustments = $adjuster->adjust($this);
                 $this->setAdjustments(array_merge($this->getAdjustments(), $adjustments));
             }
         }
 
-        // Since shipping adjusters run on the original price, pre discount, let's recalculate
-        // if the currently selected shipping method is now not available after adjustments have run.
-        $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-        if ($this->shippingMethodHandle) {
-            if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
-                $this->shippingMethodHandle = null;
-                $this->recalculate();
-
-                return;
+        if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {        // Since shipping adjusters run on the original price, pre discount, let's recalculate
+            // if the currently selected shipping method is now not available after adjustments have run.
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            if ($this->shippingMethodHandle) {
+                if (!isset($availableMethodOptions[$this->shippingMethodHandle]) || empty($availableMethodOptions)) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                    $message = Craft::t('commerce', 'The previously-selected shipping method is no longer available.');
+                    $this->addNotice(
+                        Craft::createObject([
+                            'class' => OrderNotice::class,
+                            'attributes' => [
+                                'type' => 'shippingMethodChanged',
+                                'attribute' => 'shippingMethodHandle',
+                                'message' => $message,
+                            ]
+                        ])
+                    );
+                    $this->recalculate();
+                    return;
+                }
             }
         }
     }
 
     /**
      * @return ShippingMethodOption[]
+     *
      * @since 3.1
      */
     public function getAvailableShippingMethodOptions(): array
     {
-        $methods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+        $allMethods = Plugin::getInstance()->getShippingMethods()->getAllShippingMethods();
+        $availableMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
+
         $options = [];
         $attributes = (new ShippingMethod())->attributes();
 
-        foreach ($methods as $method) {
-
-            $option = new ShippingMethodOption();
+        foreach ($availableMethods as $method) {
+            $option = new ShippingMethodOption($method->getAttributes($attributes));
             $option->setOrder($this);
-            foreach ($attributes as $attribute) {
-                $option->$attribute = $method->$attribute;
-            }
-
+            $option->matchesOrder = true;
             $option->price = $method->getPriceForOrder($this);
+            $options[$option->getHandle()] = $option;
+        }
 
-            $options[$option->handle] = $option;
+        // If the order is completed add all other shipping methods
+        if ($this->isCompleted) {
+            // Add any additional method
+            foreach ($allMethods as $method) {
+                // If they are not in the existing available matching shipping method options
+                if (!ArrayHelper::keyExists($method->getHandle(), $options)) {
+                    $option = new ShippingMethodOption($method->getAttributes($attributes));
+                    $option->setOrder($this);
+                    $option->matchesOrder = false;
+                    $option->price = $method->getPriceForOrder($this);
+                    $options[$option->getHandle()] = $option;
+                }
+            }
         }
 
         return $options;
@@ -1787,13 +1874,12 @@ class Order extends Element
 
     public function beforeSave(bool $isNew): bool
     {
-
-        if (null === $this->shippingMethodHandle) {
+        if (!$this->shippingMethodHandle) {
             // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
         } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
             // Update shipping method name if there is a handle and we can retrieve the method
-            $this->shippingMethodName = $shippingMethod->name;
+            $this->shippingMethodName = $shippingMethod->getName();
         }
 
         return parent::beforeSave($isNew);
@@ -1961,8 +2047,8 @@ class Order extends Element
         }
 
         $this->_saveAdjustments();
-
         $this->_saveLineItems();
+        $this->_saveNotices();
 
         if ($this->isCompleted) {
             //creating order history record
@@ -1980,7 +2066,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
@@ -2019,15 +2105,39 @@ class Order extends Element
      */
     public function getPdfUrl($option = null, $pdfHandle = null)
     {
-        $path = "commerce/downloads/pdf?number={$this->number}" . ($option ? "&option={$option}" : '');
+        $path = "commerce/downloads/pdf";
+        $params = [];
+        $params['number'] = $this->number;
 
-        if ($pdfHandle !== null) {
-            $path .= '&pdfHandle=' . $pdfHandle;
+        if ($option) {
+            $params['option'] = $option;
         }
 
-        $url = UrlHelper::actionUrl(trim($path, '/'));
+        if ($pdfHandle !== null) {
+            $params['pdfHandle'] = $pdfHandle;
+        }
 
-        return $url;
+        return UrlHelper::actionUrl($path, $params);
+    }
+
+    /**
+     * Returns the URL to the cart’s load action url
+     *
+     * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @throws Exception
+     */
+    public function getLoadCartUrl()
+    {
+        if ($this->isCompleted) {
+            return null;
+        }
+
+        $path = 'commerce/cart/load-cart';
+
+        $params = [];
+        $params['number'] = $this->number;
+
+        return UrlHelper::actionUrl($path, $params);
     }
 
     /**
@@ -2140,6 +2250,34 @@ class Order extends Element
     }
 
     /**
+     * Returns the paymentAmount for this order.
+     *
+     * @return float
+     */
+    public function getPaymentAmount(): float
+    {
+        $outstandingBalanceInPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getOutstandingBalance(), $this->currency, $this->paymentCurrency);
+
+        if (isset($this->_paymentAmount) && $this->_paymentAmount >= 0 && $this->_paymentAmount <= $outstandingBalanceInPaymentCurrency) {
+            return $this->_paymentAmount;
+        }
+
+        return $outstandingBalanceInPaymentCurrency;
+    }
+
+    /**
+     * Sets the orders payment amount in the order's currency. This amount is not persisted.
+     *
+     * @param float $amount
+     */
+    public function setPaymentAmount($amount)
+    {
+        $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
+        $amount = Currency::round($amount, $paymentCurrency);
+        $this->_paymentAmount = $amount;
+    }
+
+    /**
      * What is the status of the orders payment
      *
      * @return string
@@ -2154,7 +2292,7 @@ class Order extends Element
             return self::PAID_STATUS_PAID;
         }
 
-        if ($this->totalPaid > 0) {
+        if ($this->getTotalPaid() > 0) {
             return self::PAID_STATUS_PARTIAL;
         }
 
@@ -2275,9 +2413,25 @@ class Order extends Element
     }
 
     /**
+     * @return bool
+     * @since 3.4
+     */
+    public function hasShippableItems(): bool
+    {
+        foreach ($this->getLineItems() as $item) {
+            if ($item->getIsShippable()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the difference between the order amount and amount paid.
      *
      * @return float
+     *
      */
     public function getOutstandingBalance(): float
     {
@@ -2664,7 +2818,7 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array $address
+     * @param Address|array|null $address
      */
     public function setShippingAddress($address)
     {
@@ -2831,14 +2985,14 @@ class Order extends Element
         $this->_estimatedBillingAddress = null;
     }
 
-
     /**
      * @return int|null
+     * // TODO: Remove in Commerce 4 (use shippingMethodHandle only)
      */
     public function getShippingMethodId()
     {
-        if ($this->getShippingMethod()) {
-            return $this->getShippingMethod()->getId();
+        if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+            return $shippingMethod->getId();
         }
 
         return null;
@@ -2849,27 +3003,7 @@ class Order extends Element
      */
     public function getShippingMethod()
     {
-        $shippingMethods = Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this);
-
-        // Do we have a shipping method available based on the current selection?
-        if ($shippingMethod = ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle)) {
-            return $shippingMethod;
-        }
-
-        $handles = [];
-        foreach ($shippingMethods as $method) {
-            $handles[] = $method->getHandle();
-        }
-
-        if (!empty($handles)) {
-            /** @var ShippingMethod $firstAvailable */
-            $firstAvailable = array_values($shippingMethods)[0];
-            if (!$this->shippingMethodHandle || !in_array($this->shippingMethodHandle, $handles, false)) {
-                $this->shippingMethodHandle = $firstAvailable->getHandle();
-            }
-        }
-
-        return ArrayHelper::firstWhere($shippingMethods, 'handle', $this->shippingMethodHandle);
+        return ArrayHelper::firstWhere(Plugin::getInstance()->getShippingMethods()->getAvailableShippingMethods($this), 'handle', $this->shippingMethodHandle);
     }
 
     /**
@@ -3085,6 +3219,35 @@ class Order extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = [];
+
+        if ($this->isCompleted) {
+            $metadata[Craft::t('commerce', 'Reference')] = $this->reference;
+            $metadata[Craft::t('commerce', 'Date Ordered')] = Craft::$app->getFormatter()->asDatetime($this->dateOrdered, 'short');
+        }
+
+        $metadata[Craft::t('commerce', 'Coupon Code')] = $this->couponCode;
+
+        $orderSite = $this->getOrderSite();
+        $metadata[Craft::t('commerce', 'Order Site')] = $orderSite->getName() ?? '';
+
+        $metadata[Craft::t('commerce', 'Shipping Method')] = $this->shippingMethodName ?? '';
+
+        $metadata[Craft::t('app', 'ID')] = $this->id;
+        $metadata[Craft::t('commerce', 'Short Number')] = $this->getShortNumber();
+        $metadata[Craft::t('commerce', 'Paid Status')] = $this->getPaidStatusHtml();
+        $metadata[Craft::t('commerce', 'Total Price')] = $this->totalPriceAsCurrency;
+        $metadata[Craft::t('commerce', 'Paid Amount')] = $this->totalPaidAsCurrency;
+        $metadata[Craft::t('commerce', 'Origin')] = $this->origin;
+
+        return array_merge($metadata, parent::getMetadata());
+    }
+
+    /**
      * Updates the adjustments, including deleting the old ones.
      *
      * @return null
@@ -3114,6 +3277,33 @@ class Order extends Element
         }
 
         return null;
+    }
+
+
+    /**
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    private function _saveNotices()
+    {
+        // Line items that are currently in the DB
+        $previousNotices = OrderNoticeRecord::find()
+            ->where(['orderId' => $this->id])
+            ->all();
+
+        foreach ($previousNotices as $notice) {
+            $notice->delete();
+        }
+
+
+        foreach ($this->getNotices() as $notice) {
+            $noticeRecord = new OrderNoticeRecord();
+            $noticeRecord->orderId = $notice->orderId;
+            $noticeRecord->type = $notice->type;
+            $noticeRecord->attribute = $notice->attribute;
+            $noticeRecord->message = $notice->message;
+            $noticeRecord->save(false);
+        }
     }
 
     /**

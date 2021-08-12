@@ -7,8 +7,8 @@
                 type="button"
                 class="btn submit"
                 :value="$options.filters.t('Update order', 'commerce')"
-                :class="{ disabled: !hasCustomer || draft.order.lineItems.length == 0 || recalculateLoading }"
-                :disabled="!hasCustomer || draft.order.lineItems.length == 0 || recalculateLoading"
+                :class="{ disabled: !hasCustomer || recalculateLoading }"
+                :disabled="!hasCustomer || recalculateLoading"
                 @click="save()"
             />
 
@@ -29,6 +29,15 @@
                         </li>
                     </ul>
                 </template>
+                <template v-if="draft && !draft.order.isCompleted">
+                    <ul>
+                        <li>
+                            <a href="#" @click.prevent="copy()">
+                                {{ 'Share cart…'|t('commerce') }}
+                            </a>
+                        </li>
+                    </ul>
+                </template>
 
                 <template v-if="canDelete">
                     <template v-if="editing && hasCustomer && hasAddresses">
@@ -45,7 +54,7 @@
 </template>
 
 <script>
-    /* global Garnish, $ */
+    /* global Garnish, $, Craft */
 
     import {mapGetters, mapState} from 'vuex'
     import OptionShortcutLabel from './OptionShortcutLabel'
@@ -104,6 +113,19 @@
                                 this.returnToOrders()
                             })
                 }
+            },
+
+            copy() {
+                if (!this.draft || !this.draft.order || !this.draft.order.loadCartUrl) {
+                    this.$store.dispatch('displayError', this.$options.filters.t('Unable to retrieve load cart URL', 'commerce'));
+                } else {
+                    Craft.ui.createCopyTextPrompt({
+                        label: this.$options.filters.t('Copy the URL', 'commerce'),
+                        instructions: this.$options.filters.t('This URL will load the cart into the user’s session, making it the active cart.', 'commerce'),
+                        value: this.draft.order.loadCartUrl,
+                    });
+                }
+
             },
 
             returnToOrders() {

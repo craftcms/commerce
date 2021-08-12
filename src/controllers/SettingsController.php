@@ -58,24 +58,23 @@ class SettingsController extends BaseAdminController
         $settings->dimensionUnits = $data['dimensionUnits'] ?? key($settings->getDimensionUnits());
         $settings->minimumTotalPriceStrategy = $data['minimumTotalPriceStrategy'] ?? Settings::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT;
         $settings->freeOrderPaymentStrategy = $data['freeOrderPaymentStrategy'] ?? Settings::FREE_ORDER_PAYMENT_STRATEGY_COMPLETE;
-        $settings->orderPdfFilenameFormat = $data['orderPdfFilenameFormat'] ?? $settings->orderPdfFilenameFormat;
         $settings->orderReferenceFormat = $data['orderReferenceFormat'] ?? $settings->orderReferenceFormat;
         $settings->updateBillingDetailsUrl = $data['updateBillingDetailsUrl'] ?? $settings->updateBillingDetailsUrl;
         $settings->defaultView = $data['defaultView'] ?? $settings->defaultView;
 
         if (!$settings->validate()) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
         }
 
         $pluginSettingsSaved = Craft::$app->getPlugins()->savePluginSettings(Plugin::getInstance(), $settings->toArray());
 
         if (!$pluginSettingsSaved) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save settings.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
             return $this->renderTemplate('commerce/settings/general/index', compact('settings'));
         }
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Settings saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Settings saved.'));
 
         return $this->redirectToPostedUrl();
     }
@@ -95,7 +94,7 @@ class SettingsController extends BaseAdminController
 
         Craft::$app->getProjectConfig()->set(Subscriptions::CONFIG_FIELDLAYOUT_KEY, $configData);
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Subscription fields saved.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Subscription fields saved.'));
 
         return $this->redirectToPostedUrl();
     }

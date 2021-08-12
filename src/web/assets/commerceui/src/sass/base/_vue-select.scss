@@ -88,6 +88,7 @@ $vs-state-active-color: $textColor;
     }
 
     .vs__actions {
+      padding-right: 11px;
       .spinner-wrapper, .vs__spinner {
         position: relative;
         width: 24px;
@@ -103,8 +104,24 @@ $vs-state-active-color: $textColor;
       }
 
       .vs__open-indicator {
-        width: 24px;
+        width: 10px;
+
+        &::after {
+          display: block;
+          content: '.';
+          font-size: 0;
+          width: 5px;
+          height: 5px;
+          border: solid #596673;
+          border-width: 0 2px 2px 0;
+          transform: rotate(45deg);
+          position: relative;
+        }
       }
     }
   }
+}
+
+.vs--open .vs__open-indicator {
+  transform: rotate(0deg);
 }

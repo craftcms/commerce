@@ -68,6 +68,9 @@ class Transaction extends Model
     public $currency;
 
     /**
+     * The the payment amount in the payment currency.
+     * Multiplying this by the `paymentRate`, give you the `amount`.
+     *
      * @var float Payment Amount
      */
     public $paymentAmount;
@@ -88,6 +91,8 @@ class Transaction extends Model
     public $type;
 
     /**
+     * The amount in the currency (which is the currency of the order)
+     *
      * @var float Amount
      */
     public $amount;
@@ -156,7 +161,7 @@ class Transaction extends Model
     /**
      * @inheritdoc
      */
-    public function __construct($attributes = null)
+    public function __construct($attributes = [])
     {
         // generate unique hash
         $this->hash = md5(uniqid(mt_rand(), true));
@@ -249,7 +254,7 @@ class Transaction extends Model
      */
     public function getParent()
     {
-        if (null === $this->_parentTransaction) {
+        if (null === $this->_parentTransaction && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 

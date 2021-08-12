@@ -32,7 +32,7 @@ use yii\db\Schema;
  * @method Order|array|null nth(int $n, Connection $db = null)
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * @doc-path dev/element-queries/order-queries.md
+ * @doc-path orders-carts.md
  * @replace {element} order
  * @replace {elements} orders
  * @replace {twig-method} craft.orders()
@@ -1181,6 +1181,8 @@ class OrderQuery extends ElementQuery
             if ($this->withAddresses === true || $this->withAll) {
                 $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
             }
+
+            $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
         }
 
         return $orders;
@@ -1326,11 +1328,11 @@ class OrderQuery extends ElementQuery
         }
 
         if ($this->orderLanguage) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderStatusId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderLanguage', $this->orderLanguage));
         }
 
         if ($this->orderSiteId) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderStatusId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderSiteId));
         }
 
         if ($this->customerId) {

@@ -8,8 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
+use craft\commerce\records\Pdf as PdfRecord;
 use craft\helpers\Json;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -44,6 +46,12 @@ class PdfsController extends BaseAdminController
     {
         $variables = compact('pdf', 'id');
 
+        $pdfLanguageOptions = [
+            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+        ];
+        
+        $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
+        
         if (!$variables['pdf']) {
             if ($variables['id']) {
                 $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id']);
@@ -94,13 +102,14 @@ class PdfsController extends BaseAdminController
         $pdf->fileNameFormat = Craft::$app->getRequest()->getBodyParam('fileNameFormat');
         $pdf->enabled = Craft::$app->getRequest()->getBodyParam('enabled');
         $pdf->isDefault = Craft::$app->getRequest()->getBodyParam('isDefault');
+        $pdf->language = Craft::$app->getRequest()->getBodyParam('language');
 
         // Save it
         if ($pdfsService->savePdf($pdf)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'PDF saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'PDF saved.'));
             return $this->redirectToPostedUrl($pdf);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save PDF.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save PDF.'));
         }
 
         // Send the model back to the template

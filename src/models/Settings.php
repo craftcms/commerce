@@ -46,12 +46,13 @@ class Settings extends Model
     const VIEW_URI_SUBSCRIPTIONS = 'commerce/subscriptions';
 
     /**
-     * @var mixed How long a cart should go without being updated before it’s considered inactive. (Defaults to one day.)
+     * @var mixed How long a cart should go without being updated before it’s considered inactive.
      *
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
      * @since 2.2
+     * @defaultAlt 1 hour
      */
     public $activeCartDuration = 3600;
 
@@ -67,6 +68,22 @@ class Settings extends Model
      * @since 2.2
      */
     public $allowEmptyCartOnCheckout = false;
+
+    /**
+     * @var bool Whether carts are can be marked as completed without a payment.
+     * @group Cart
+     * @since 3.3
+     */
+    public $allowCheckoutWithoutPayment = false;
+
+    /**
+     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     *
+     * The default `false` does not allow partial payments on the front end.
+     *
+     * @group Payments
+     */
+    public $allowPartialPaymentOnCheckout = false;
 
     /**
      * @var string Key to be used when returning cart information in a response.
@@ -213,20 +230,6 @@ class Settings extends Model
     public $minimumTotalPriceStrategy = 'default';
 
     /**
-     * @var string Filename format to be used for order PDFs.
-     * @group Orders
-     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
-     */
-    public $orderPdfFilenameFormat = 'Order-{number}';
-
-    /**
-     * @var string Path to the template to be used for order PDFs.
-     * @group Orders
-     * @deprecated in 3.2.0. Use [Default PDF](pdfs.md) instead.
-     */
-    public $orderPdfPath = 'shop/special/receipt';
-
-    /**
      * @var string Human-friendly reference number format for orders. Result must be unique.
      *
      * See [Order Numbers](orders.md#order-numbers).
@@ -285,6 +288,7 @@ class Settings extends Model
      * See [craft\helpers\ConfigHelper::durationInSeconds()](craft3:craft\helpers\ConfigHelper::durationInSeconds()) for a list of supported value types.
      *
      * @group Cart
+     * @defaultAlt 90 days
      */
     public $purgeInactiveCartsDuration = 7776000;
 
@@ -381,6 +385,34 @@ class Settings extends Model
      * @since 3.0.12
      */
     public $validateCartCustomFieldsOnSubmission = false;
+
+    /**
+     * @todo remove in 4.0
+     */
+    private $_orderPdfFilenameFormat;
+
+    /**
+     * @todo remove in 4.0
+     */
+    public $_orderPdfPath;
+
+    /**
+     * @inheritdoc
+     */
+    public function attributes()
+    {
+        $names = parent::attributes();
+
+        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
+
+        // We only want to mass set or retrieve these prior to 3.2
+        if ($commerce && version_compare($commerce['version'], '3.2.0', '<')) {
+            $names[] = 'orderPdfFilenameFormat'; // @todo remove in 4.0
+            $names[] = 'orderPdfPath'; // @todo remove in 4.0
+        }
+
+        return $names;
+    }
 
     /**
      * Returns a key-value array of weight unit options and labels.
@@ -486,8 +518,62 @@ class Settings extends Model
     {
         $rules = parent::defineRules();
 
-        $rules [] = [['weightUnits', 'dimensionUnits', 'orderPdfPath', 'orderPdfFilenameFormat', 'orderReferenceFormat'], 'required'];
+        $rules [] = [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'];
 
         return $rules;
+    }
+
+    /**
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function setOrderPdfFilenameFormat($value)
+    {
+        $this->_orderPdfFilenameFormat = $value;
+    }
+
+    /**
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function setOrderPdfPath($value)
+    {
+        $this->_orderPdfPath = $value;
+    }
+
+    /**
+     * @param bool $fromSettings For use in migration only
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function getOrderPdfFilenameFormat($fromSettings = false)
+    {
+        if ($fromSettings) {
+            return $this->_orderPdfFilenameFormat ?? '';
+        }
+
+        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        /** @var Pdf $pdf */
+        $pdf = ArrayHelper::firstValue($pdfs);
+
+        return $pdf->fileNameFormat ?? '';
+    }
+
+    /**
+     * @param bool $fromSettings For use in migration only
+     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
+     */
+    public function getOrderPdfPath($fromSettings = false)
+    {
+        if ($fromSettings) {
+            return $this->_orderPdfPath ?? '';
+        }
+
+        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
+
+        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
+        /** @var Pdf $pdf */
+        $pdf = ArrayHelper::firstValue($pdfs);
+
+        return $pdf->templatePath ?? '';
     }
 }

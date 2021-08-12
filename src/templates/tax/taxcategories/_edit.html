@@ -11,6 +11,21 @@
 
 {% import "_includes/forms" as forms %}
 
+{% block details %}
+    {% if taxCategory and taxCategory.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ taxCategory.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ taxCategory.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-categories/save">
     {{ redirectInput('commerce/tax/taxcategories') }}

@@ -20,6 +20,7 @@ use craft\commerce\services\LineItems;
 use craft\commerce\services\LineItemStatuses;
 use craft\commerce\services\OrderAdjustments;
 use craft\commerce\services\OrderHistories;
+use craft\commerce\services\OrderNotices;
 use craft\commerce\services\Orders;
 use craft\commerce\services\OrderStatuses;
 use craft\commerce\services\PaymentCurrencies;
@@ -57,10 +58,11 @@ use craft\commerce\services\Webhooks;
  * @property Discounts $discounts the discounts service
  * @property Emails $emails the emails service
  * @property Gateways $gateways the gateways service
- * @property LineItems $lineItems the lineItems service
- * @property OrderAdjustments $orderAdjustments the orderAdjustments service
- * @property OrderHistories $orderHistories the orderHistories service
+ * @property LineItems $lineItems the line items service
+ * @property OrderAdjustments $orderAdjustments the order adjustments service
+ * @property OrderHistories $orderHistories the order histories service
  * @property Orders $orders the orders service
+ * @property OrderStatuses $orderNotices the order notices service
  * @property OrderStatuses $orderStatuses the orderStatuses service
  * @property PaymentCurrencies $paymentCurrencies the paymentCurrencies service
  * @property Payments $payments the payments service
@@ -68,14 +70,14 @@ use craft\commerce\services\Webhooks;
  * @property Pdfs $pdf the pdf service
  * @property Plans $plans the plans service
  * @property Products $products the products service
- * @property ProductTypes $productTypes the productTypes service
+ * @property ProductTypes $productTypes the product types service
  * @property Purchasables $purchasables the purchasables service
  * @property Sales $sales the sales service
- * @property ShippingMethods $shippingMethods the shippingCategories service
- * @property ShippingRules $shippingRules the shippingRules service
- * @property ShippingRuleCategories $shippingRuleCategories the shippingRules service
- * @property ShippingCategories $shippingCategories the shippingCategories service
- * @property ShippingZones $shippingZones the shippingZones service
+ * @property ShippingMethods $shippingMethods the shipping methods service
+ * @property ShippingRules $shippingRules the shipping rules service
+ * @property ShippingRuleCategories $shippingRuleCategories the shipping rule categories service
+ * @property ShippingCategories $shippingCategories the shipping categories service
+ * @property ShippingZones $shippingZones the shipping zones service
  * @property States $states the states service
  * @property Subscriptions $subscriptions the subscriptions service
  * @property TaxCategories $taxCategories the taxCategories service
@@ -230,9 +232,19 @@ trait Services
     }
 
     /**
-     * Returns the orderStatuses service
+     * Returns the OrderNotices service
      *
-     * @return OrderStatuses The orderStatuses service
+     * @return OrderNotices The OrderNotices service
+     */
+    public function getOrderNotices(): OrderNotices
+    {
+        return $this->get('orderNotices');
+    }
+
+    /**
+     * Returns the OrderStatuses service
+     *
+     * @return OrderStatuses The OrderStatuses service
      */
     public function getOrderStatuses(): OrderStatuses
     {
@@ -528,6 +540,9 @@ trait Services
             ],
             'orders' => [
                 'class' => Orders::class,
+            ],
+            'orderNotices' => [
+                'class' => OrderNotices::class,
             ],
             'orderStatuses' => [
                 'class' => OrderStatuses::class,

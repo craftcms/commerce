@@ -1,5 +1,12 @@
 {% extends "commerce/_layouts/cp" %}
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Couldn’t reorder rules.',
+    'Description',
+    'No shipping rules exist yet.',
+    'Rules reordered.',
+    'Shipping Rule',
+]) %}
 
 {% set crumbs = [
     { label: "Shipping"|t('commerce'), url: url('commerce/shipping') },
@@ -15,6 +22,31 @@
 {% block saveButton %}
     <input type="submit" class="btn submit"
            value="{{ shippingMethod.id ? 'Save and set rules'|t('commerce') :'Save'|t('commerce') }}">
+{% endblock %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.lightSwitchField({
+            label: "Enable this shipping method on the front end"|t('commerce'),
+            id: 'enabled',
+            name: 'enabled',
+            on: shippingMethod.enabled,
+            errors: shippingMethod.getErrors('enabled')
+        }) }}
+    </div>
+
+    {% if shippingMethod and shippingMethod.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ shippingMethod.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ shippingMethod.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block content %}
@@ -48,14 +80,6 @@
             required: true,
         }) }}
 
-        {{ forms.lightSwitchField({
-            label: "Enable this shipping method on the front end"|t('commerce'),
-            id: 'enabled',
-            name: 'enabled',
-            on: shippingMethod.enabled,
-            errors: shippingMethod.getErrors('enabled')
-        }) }}
-
 {% if shippingMethod.id %}
 <div class="vue-admin-table vue-admin-table-padded">
 
@@ -76,13 +100,13 @@
 
   {% set details %}
     <h4>Conditions</h4>
-    <strong>{{ "Shipping Zone"|t('commerce') }}</strong> {{ shippingRule.shippingZone.name ?? 'Anywhere' }}<span><br>
-    {% if shippingRule.minQty > 0 %}<strong>{{ "Minimum Order Quantity"|t('commerce') }}</strong> {{shippingRule.minQty}}<br>{% endif %}
-    {% if shippingRule.maxQty > 0 %}<strong>{{ "Maximum Order Quantity"|t('commerce') }}</strong> {{shippingRule.maxQty}}<br>{% endif %}
-    {% if shippingRule.minTotal > 0 %}<strong>{{ "Minimum Order Total Value"|t('commerce') }}</strong> {{shippingRule.minTotal}}<br>{% endif %}
-    {% if shippingRule.maxTotal > 0 %}<strong>{{ "Maximum Order Total Value"|t('commerce') }}</strong> {{shippingRule.maxTotal}}<br>{% endif %}
-    {% if shippingRule.minWeight > 0 %}<strong>{{ "Minimum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.minWeight}}<br>{% endif %}
-    {% if shippingRule.maxWeight > 0 %}<strong>{{ "Maximum Order Total Weight"|t('commerce') }}</strong> {{shippingRule.maxWeight}}<br>{% endif %}
+    <strong>{{ "Shipping Zone"|t('commerce') }}:</strong> {{ shippingRule.shippingZone.name ?? 'Anywhere'|t('commerce') }}<span><br>
+    {% if shippingRule.minQty > 0 %}<strong>{{ "Minimum Order Quantity"|t('commerce') }}:</strong> {{shippingRule.minQty}}<br>{% endif %}
+    {% if shippingRule.maxQty > 0 %}<strong>{{ "Maximum Order Quantity"|t('commerce') }}:</strong> {{shippingRule.maxQty}}<br>{% endif %}
+    {% if shippingRule.minTotal > 0 %}<strong>{{ "Minimum Order Total Value"|t('commerce') }}:</strong> {{shippingRule.minTotal}}<br>{% endif %}
+    {% if shippingRule.maxTotal > 0 %}<strong>{{ "Maximum Order Total Value"|t('commerce') }}:</strong> {{shippingRule.maxTotal}}<br>{% endif %}
+    {% if shippingRule.minWeight > 0 %}<strong>{{ "Minimum Order Total Weight"|t('commerce') }}:</strong> {{shippingRule.minWeight}}<br>{% endif %}
+    {% if shippingRule.maxWeight > 0 %}<strong>{{ "Maximum Order Total Weight"|t('commerce') }}:</strong> {{shippingRule.maxWeight}}<br>{% endif %}
     {% if shippingRule.baseRate > 0 or
       shippingRule.minRate > 0 or
       shippingRule.maxRate > 0 or
@@ -91,12 +115,12 @@
       shippingRule.percentageRate > 0  %}
       <h4>Costs</h4>
     {% endif %}
-    {% if shippingRule.baseRate > 0 %}<strong>{{ "Base Rate"|t('commerce') }}</strong> {{shippingRule.baseRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.minRate > 0 %}<strong>{{ "Minimum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.minRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.maxRate > 0 %}<strong>{{ "Maximum Total Shipping Cost"|t('commerce') }}</strong> {{shippingRule.maxRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.perItemRate > 0 %}<strong>{{ "Default Per Item Rate"|t('commerce') }}</strong> {{shippingRule.perItemRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.weightRate > 0 %}<strong>{{ "Default Weight Rate"|t('commerce') }}</strong> {{shippingRule.weightRate|commerceCurrency}}<br>{% endif %}
-    {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}</strong> {{shippingRule.percentageRate|trim('0', 'right')}}<br>{% endif %}
+    {% if shippingRule.baseRate > 0 %}<strong>{{ "Base Rate"|t('commerce') }}:</strong> {{shippingRule.baseRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.minRate > 0 %}<strong>{{ "Minimum Total Shipping Cost"|t('commerce') }}:</strong> {{shippingRule.minRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.maxRate > 0 %}<strong>{{ "Maximum Total Shipping Cost"|t('commerce') }}:</strong> {{shippingRule.maxRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.perItemRate > 0 %}<strong>{{ "Default Per Item Rate"|t('commerce') }}:</strong> {{shippingRule.perItemRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.weightRate > 0 %}<strong>{{ "Default Weight Rate"|t('commerce') }}:</strong> {{shippingRule.weightRate|commerceCurrency}}<br>{% endif %}
+    {% if shippingRule.percentageRate > 0 %}<strong>{{ "Default Percentage Rate"|t('commerce') }}:</strong> {{shippingRule.percentageRate|trim('0', 'right')}}<br>{% endif %}
   {% endset %}
 
 	{% set tableData = tableData|merge([{
@@ -114,7 +138,7 @@
 
     var columns = [
         { name: '__slot:title', title: Craft.t('commerce', 'Shipping Rule') },
-        { name: 'description', title: Craft.t('app', 'Description') },
+        { name: 'description', title: Craft.t('commerce', 'Description') },
         { name: '__slot:detail', title: '', titleClass: 'thin' },
     ];
 

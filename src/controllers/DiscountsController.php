@@ -12,6 +12,7 @@ use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
 use craft\commerce\models\Discount;
+use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\elements\Category;
@@ -21,6 +22,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\i18n\Locale;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -67,6 +69,7 @@ class DiscountsController extends BaseCpController
     public function actionEdit(int $id = null, Discount $discount = null): Response
     {
         $variables = compact('id', 'discount');
+        $variables['isNewDiscount'] = false;
 
         if (!$variables['discount']) {
             if ($variables['id']) {
@@ -77,6 +80,7 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['isNewDiscount'] = true;
             }
         }
 
@@ -116,7 +120,8 @@ class DiscountsController extends BaseCpController
         $discount->baseDiscountType = $request->getBodyParam('baseDiscountType') ?: DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
-
+        $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
+            
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
@@ -167,18 +172,25 @@ class DiscountsController extends BaseCpController
         $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
-        if (!$groups) {
+
+        if($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE)
+        {
             $groups = [];
         }
+
         $discount->setUserGroupIds($groups);
 
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
         ) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discount saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
             $this->redirectToPostedUrl($discount);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save discount.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
+
+            // Set back to original input value of the text field to prevent negative value.
+            $discount->baseDiscount = $baseDiscount;
+            $discount->perItemDiscount = $perItemDiscount;
         }
 
         // Send the model back to the template
@@ -212,13 +224,30 @@ class DiscountsController extends BaseCpController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $ids = Craft::$app->getRequest()->getBodyParam('ids');
 
-        Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
 
-        return $this->asJson(['success' => true]);
+        if ($id) {
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        foreach ($ids as $id) {
+            Plugin::getInstance()->getDiscounts()->deleteDiscountById($id);
+        }
+
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Discounts deleted.'));
+
+        return $this->redirect($this->request->getReferrer());
     }
 
     /**
@@ -268,7 +297,7 @@ class DiscountsController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t update status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -283,7 +312,46 @@ class DiscountsController extends BaseCpController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Discounts updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Discounts updated.'));
+    }
+
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     */
+    public function actionGetDiscountsByPurchasableId(): Response
+    {
+        $this->requirePostRequest();
+        $this->requireAcceptsJson();
+        $request = Craft::$app->getRequest();
+        $id = $request->getParam('id', null);
+
+        if (!$id) {
+            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+        }
+
+        $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
+
+        if (!$purchasable) {
+            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+        }
+
+        $discounts = [];
+        $purchasableDiscounts = Plugin::getInstance()->getDiscounts()->getDiscountsRelatedToPurchasable($purchasable);
+        foreach ($purchasableDiscounts as $discount) {
+            if (!ArrayHelper::firstWhere($discounts, 'id', $discount->id)) {
+                /** @var Sale $discount */
+                $discountArray = $discount->toArray();
+                $discountArray['cpEditUrl'] = $discount->getCpEditUrl();
+                $discounts[] = $discountArray;
+            }
+        }
+
+        return $this->asJson([
+            'success' => true,
+            'discounts' => $discounts,
+        ]);
     }
 
     /**
@@ -297,7 +365,7 @@ class DiscountsController extends BaseCpController
             $variables['title'] = Craft::t('commerce', 'Create a Discount');
         }
 
-        //getting user groups map
+        // getting user groups map
         if (Craft::$app->getEdition() == Craft::Pro) {
             $groups = Craft::$app->getUserGroups()->getAllGroups();
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');

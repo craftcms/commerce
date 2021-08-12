@@ -2,7 +2,7 @@
 
 {{ forms.textField({
     first: true,
-    label: "Name"|t('app'),
+    label: "Name"|t('commerce'),
     instructions: "What this tax category will be called in the control panel."|t('commerce'),
     id: 'name',
     name: 'name',
@@ -13,7 +13,7 @@
 }) }}
 
 {{ forms.textField({
-    label: "Handle"|t('app'),
+    label: "Handle"|t('commerce'),
     instructions: "How you’ll refer to this tax category in the templates."|t('commerce'),
     id: 'handle',
     class: 'code',
@@ -24,7 +24,7 @@
 }) }}
 
 {{ forms.textField({
-    label: "Description"|t('app'),
+    label: "Description"|t('commerce'),
     id: 'description',
     name: 'description',
     value: taxCategory is defined ? taxCategory.description,

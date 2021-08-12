@@ -153,6 +153,7 @@
 
         methods: {
             ...mapActions([
+                'clearRecentlyAddedLineItems',
                 'recalculateOrder',
             ]),
 
@@ -166,11 +167,9 @@
 
                 this.updateLineItems(lineItems)
                     .then(() => {
-                        this.$store.commit('updateLastPurchasableIds', purchasableIds)
-
                         setTimeout(function() {
-                            this.$store.commit('updateLastPurchasableIds', [])
-                        }.bind(this), 4000)
+                            this.clearRecentlyAddedLineItems()
+                        }.bind(this), 2500)
                     })
             },
 

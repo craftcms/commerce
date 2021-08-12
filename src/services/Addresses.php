@@ -12,6 +12,7 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
+use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
@@ -132,11 +133,37 @@ class Addresses extends Component
      */
     const EVENT_AFTER_DELETE_ADDRESS = 'afterDeleteAddress';
 
+    /**
+     * @event AddressEvent The event that is triggered before purgeable addresses are deleted.
+     *
+     * ```php
+     * use craft\commerce\events\PurgeAddressesEvent;
+     * use craft\commerce\services\Addresses;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     Addresses::class,
+     *     Addresses::EVENT_BEFORE_PURGE_ADDRESSES,
+     *     function(PurgeAddressesEvent $event) {
+     *         // @var Query $addressQuery
+     *         $addressQuery = $event->addressQuery;
+     *
+     *         // Add an `$addressQuery->andWhere(..)` to change the addresses that will be purged query
+     *         // $event->addressQuery = $addressQuery
+     *     }
+     * );
+     */
+    const EVENT_BEFORE_PURGE_ADDRESSES = 'beforePurgeAddresses';
 
     /**
      * @var Address[]
      */
     private $_addressesById = [];
+
+    /**
+     * @var Address|null
+     */
+    private $_storeLocationAddress;
 
 
     /**
@@ -205,15 +232,17 @@ class Addresses extends Component
      */
     public function getStoreLocationAddress(): Address
     {
+        if ($this->_storeLocationAddress !== null) {
+            return $this->_storeLocationAddress;
+        }
+
         $result = $this->_createAddressQuery()
             ->where(['isStoreLocation' => true])
             ->one();
 
-        if (!$result) {
-            return new Address();
-        }
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
 
-        return new Address($result);
+        return $this->_storeLocationAddress;
     }
 
     /**
@@ -233,7 +262,7 @@ class Addresses extends Component
             $addressRecord = AddressRecord::findOne($addressModel->id);
 
             if (!$addressRecord) {
-                throw new InvalidArgumentException('No address exists with the ID “{id}”', ['id' => $addressModel->id]);
+                throw new InvalidArgumentException(Craft::t('commerce', 'No address exists with the ID “{id}”', ['id' => $addressModel->id]));
             }
         } else {
             $addressRecord = new AddressRecord();
@@ -297,6 +326,9 @@ class Addresses extends Component
                 'isNew' => $isNewAddress
             ]));
         }
+
+        // Clear cache
+        $this->_storeLocationAddress = null;
 
         return true;
     }
@@ -424,19 +456,28 @@ class Addresses extends Component
                     '[[c.addressId]]' => null,
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
-                    '[[addresses.isStoreLocation]]' => 0,
+                    '[[addresses.isStoreLocation]]' => false,
                 ]
             ]);
 
-        //TODO: allow modification of orphaned addresses query in an event https://github.com/craftcms/commerce/issues/1627
+        $event = new PurgeAddressesEvent([
+            'addressesQuery' => $addresses
+        ]);
 
-        foreach ($addresses->batch(500) as $address) {
-            $ids = ArrayHelper::getColumn($address, 'id', false);
+        //Raise the beforePurgeDeleteAddresses event
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_PURGE_ADDRESSES)) {
+            $this->trigger(self::EVENT_BEFORE_PURGE_ADDRESSES, $event);
+        }
 
-            if (!empty($ids)) {
-                Craft::$app->getDb()->createCommand()
-                    ->delete(Table::ADDRESSES, ['id' => $ids])
-                    ->execute();
+        if ($event->isValid) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
+                $ids = ArrayHelper::getColumn($address, 'id', false);
+
+                if (!empty($ids)) {
+                    Craft::$app->getDb()->createCommand()
+                        ->delete(Table::ADDRESSES, ['id' => $ids])
+                        ->execute();
+                }
             }
         }
     }
@@ -479,11 +520,13 @@ class Addresses extends Component
         $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
         $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
         $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
-        $addresses = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
 
-        foreach ($addresses as $result) {
+        $addressesData = $this->_createAddressQuery()->andWhere(['id' => $ids])->all();
+
+        $addresses = [];
+        foreach ($addressesData as $result) {
             $address = new Address($result);
-            $addresses[$address->id] = $addresses[$address->id] ?? $address ?? null;
+            $addresses[$address->id] = $address;
         }
 
         foreach ($orders as $key => $order) {
@@ -493,7 +536,7 @@ class Addresses extends Component
             }
 
             if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
-               $order->setBillingAddress($addresses[$order['billingAddressId']]);
+                $order->setBillingAddress($addresses[$order['billingAddressId']]);
             }
 
             $orders[$key] = $order;
@@ -537,7 +580,9 @@ class Addresses extends Component
                 'addresses.custom3',
                 'addresses.custom4',
                 'addresses.isEstimated',
-                'addresses.isStoreLocation'
+                'addresses.isStoreLocation',
+                'addresses.dateCreated',
+                'addresses.dateUpdated',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

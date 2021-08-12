@@ -8,7 +8,7 @@ You can learn all about it at [craftcms.com/commerce](https://craftcms.com/comme
 
 ## Requirements
 
-This plugin requires Craft CMS 3.5.4 or later.
+This plugin requires Craft CMS 3.7.0 or later.
 
 ## Installation
 
@@ -30,7 +30,10 @@ cd /path/to/my-project.test
 composer require craftcms/commerce
 
 # tell Craft to install the plugin
-./craft install/plugin commerce
+php craft install/plugin commerce
+
+# optional: copy the Craft Commerce example templates to your project’s templates folder
+php craft commerce/example-templates
 ```
 
 ## Resources

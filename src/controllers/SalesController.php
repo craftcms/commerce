@@ -18,6 +18,7 @@ use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use Exception;
 use Throwable;
@@ -119,19 +120,16 @@ class SalesController extends BaseCpController
         $sale->stopProcessing = $request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
+        $applyAmount = Localization::normalizeNumber($applyAmount);
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
-            $localeData = Craft::$app->getLocale();
-            $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-            if (strpos($applyAmount, $percentSign) || (float)$applyAmount >= 1) {
+            if ((float)$applyAmount >= 1) {
                 $sale->applyAmount = (float)$applyAmount / -100;
-            } else {
-                $sale->applyAmount = (float)$applyAmount * -1;
+            }else{
+                $sale->applyAmount = -(float)$applyAmount;
             }
         } else {
             $sale->applyAmount = (float)$applyAmount * -1;
         }
-
 
         $purchasables = [];
         $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
@@ -160,10 +158,10 @@ class SalesController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
-            Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sale saved.'));
+            $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
             $this->redirectToPostedUrl($sale);
         } else {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t save sale.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
         $variables = [
@@ -200,12 +198,30 @@ class SalesController extends BaseCpController
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $ids = Craft::$app->getRequest()->getBodyParam('ids');
 
-        Plugin::getInstance()->getSales()->deleteSaleById($id);
-        return $this->asJson(['success' => true]);
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
+
+        if ($id) {
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        foreach ($ids as $id) {
+            Plugin::getInstance()->getSales()->deleteSaleById($id);
+        }
+
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales deleted.'));
+
+        return $this->redirect($this->request->getReferrer());
     }
 
     /**
@@ -354,7 +370,7 @@ class SalesController extends BaseCpController
         $status = Craft::$app->getRequest()->getRequiredBodyParam('status');
 
         if (empty($ids)) {
-            Craft::$app->getSession()->setError(Craft::t('commerce', 'Couldn’t updated sales status.'));
+            $this->setFailFlash(Craft::t('commerce', 'Couldn’t updated sales status.'));
         }
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -369,7 +385,7 @@ class SalesController extends BaseCpController
         }
         $transaction->commit();
 
-        Craft::$app->getSession()->setNotice(Craft::t('commerce', 'Sales updated.'));
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales updated.'));
     }
 
 
@@ -394,6 +410,20 @@ class SalesController extends BaseCpController
             $variables['groups'] = ArrayHelper::map($groups, 'id', 'name');
         } else {
             $variables['groups'] = [];
+        }
+
+        $localeData = Craft::$app->getLocale();
+        $variables['percentSymbol'] = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $variables['currencySymbol'] = $localeData->getCurrencySymbol($primaryCurrencyIso);
+
+        if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
+            if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
+                $amount = -(float)$variables['sale']->applyAmount * 100;
+                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal($amount);
+            } else {
+                $variables['sale']->applyAmount = Craft::$app->getFormatter()->asDecimal(-(float)$variables['sale']->applyAmount);
+            }
         }
 
         $variables['categoryElementType'] = Category::class;
