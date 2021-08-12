@@ -41,8 +41,9 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
 
     /**
      * Instance of the service used for saving and deleting model data.
+     * @var mixed
      */
-    public string $service;
+    public $service;
 
     /**
      * @var array the data rows. Each array element represents one row of data (column name => column value).

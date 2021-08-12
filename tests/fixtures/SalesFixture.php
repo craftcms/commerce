@@ -46,7 +46,7 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public string $service = 'sales';
+    public $service = 'sales';
 
     /**
      * @var array|null

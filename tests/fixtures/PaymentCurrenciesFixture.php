@@ -36,7 +36,7 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public string $service = 'paymentCurrencies';
+    public $service = 'paymentCurrencies';
 
     /**
      * @inheritDoc

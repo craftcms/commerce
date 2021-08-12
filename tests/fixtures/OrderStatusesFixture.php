@@ -43,7 +43,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public string $service = 'orderStatuses';
+    public $service = 'orderStatuses';
 
     /**
      * @inheritDoc

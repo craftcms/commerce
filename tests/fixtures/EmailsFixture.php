@@ -43,7 +43,7 @@ class EmailsFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public string $service = 'emails';
+    public $service = 'emails';
 
     /**
      * @var bool
