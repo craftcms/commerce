@@ -21,6 +21,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Order|null $order
  * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
+ * @property-read string $currency
  * @property-read string $amountAsCurrency
  * @method void typecastAttributes()
  *
@@ -30,9 +31,9 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderAdjustment extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name

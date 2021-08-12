@@ -35,9 +35,9 @@ use yii\base\InvalidConfigException;
 class TaxAddressZone extends Model implements AddressZoneInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name

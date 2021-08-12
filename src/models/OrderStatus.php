@@ -16,6 +16,7 @@ use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+use DateTime;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -36,19 +37,19 @@ class OrderStatus extends Model
     }
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Color
@@ -58,7 +59,7 @@ class OrderStatus extends Model
     /**
      * @var string|null Description
      */
-    public ?string $description;
+    public ?string $description = null;
 
     /**
      * @var int Sort order
@@ -68,12 +69,12 @@ class OrderStatus extends Model
     /**
      * @var bool Default status
      */
-    public bool $default;
+    public bool $default = false;
 
     /**
-     * @var bool|null Default status
+     * @var DateTime|null Date deleted
      */
-    public ?bool $dateDeleted;
+    public ?DateTime $dateDeleted = null;
 
     /**
      * @var string UID
@@ -85,22 +86,7 @@ class OrderStatus extends Model
      */
     public function behaviors(): array
     {
-        $behaviors = $this->softDeleteBehaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'handle' => AttributeTypecastBehavior::TYPE_STRING,
-                'color' => AttributeTypecastBehavior::TYPE_STRING,
-                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
-        return $behaviors;
+        return $this->softDeleteBehaviors();
     }
 
     /**

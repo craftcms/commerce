@@ -39,7 +39,7 @@ class Customer extends Model
     /**
      * @var int|null Customer ID
      */
-    public ?int $id;
+    public ?int $id = null;
 
     /**
      * @var int|null The user ID
@@ -71,7 +71,7 @@ class Customer extends Model
     /**
      * @var User|null $_user
      */
-    private ?User $_user;
+    private ?User $_user = null;
 
     /**
      * @return null|string

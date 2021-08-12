@@ -33,9 +33,9 @@ use DateTime;
 class Discount extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name of the discount

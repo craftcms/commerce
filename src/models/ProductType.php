@@ -43,9 +43,9 @@ use craft\validators\UniqueValidator;
 class ProductType extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name

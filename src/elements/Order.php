@@ -502,7 +502,7 @@ class Order extends Element
     /**
      * The currency of the order (ISO code)
      *
-     * @var string Currency
+     * @var string|null Currency
      * ---
      * ```php
      * echo $order->currency;
@@ -511,7 +511,7 @@ class Order extends Element
      * {{ order.currency }}
      * ```
      */
-    public string $currency;
+    public ?string $currency = null;
 
     /**
      * The current gateway ID to identify the gateway the order should use when accepting payments.
@@ -605,7 +605,7 @@ class Order extends Element
     /**
      * The language the cart was created in.
      *
-     * @var string The language the order was made in.
+     * @var string|null The language the order was made in.
      * ---
      * ```php
      * echo $order->orderLanguage;
@@ -614,7 +614,7 @@ class Order extends Element
      * {{ order.orderLanguage }}
      * ```
      */
-    public string $orderLanguage;
+    public ?string $orderLanguage = null;
 
     /**
      * The site the order was created in.
@@ -628,14 +628,14 @@ class Order extends Element
      * {{ order.orderSiteId }}
      * ```
      */
-    public ?int $orderSiteId;
+    public ?int $orderSiteId = null;
 
 
     /**
      * The origin of the order when it was first created.
      * Values can be 'web', 'cp', or 'api'
      *
-     * @var string Order origin
+     * @var string|null Order origin
      * ---
      * ```php
      * echo $order->origin;
@@ -644,7 +644,7 @@ class Order extends Element
      * {{ order.origin }}
      * ```
      */
-    public string $origin;
+    public ?string $origin = null;
 
     /**
      * The current billing address ID
@@ -658,7 +658,7 @@ class Order extends Element
      * {{ order.billingAddressId }}
      * ```
      */
-    public ?int $billingAddressId;
+    public ?int $billingAddressId = null;
 
     /**
      * The current shipping address ID
@@ -676,7 +676,7 @@ class Order extends Element
 
 
     /**
-     * Whether or not the shipping address should be made the primary address of the
+     * Whether the shipping address should be made the primary address of the
      * order‘s customer. This is not persisted on the order, and is only used during the
      * update order request.
      *
@@ -906,7 +906,7 @@ class Order extends Element
 
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setRecalculationMode() To set the current recalculation mode
      * @see Order::getRecalculationMode() To get the current recalculation mode
      * ---
@@ -917,7 +917,7 @@ class Order extends Element
      * {{ order.recalculationMode }}
      * ```
      */
-    private string $_recalculationMode;
+    private ?string $_recalculationMode = null;
 
     /**
      * @var Address|null
@@ -953,19 +953,19 @@ class Order extends Element
      * {% endif %}
      * ```
      */
-    private ?Address $_billingAddress;
+    private ?Address $_billingAddress = null;
 
     /**
      * @var Address|null
      * @since 2.2
      */
-    private ?Address $_estimatedShippingAddress;
+    private ?Address $_estimatedShippingAddress = null;
 
     /**
      * @var Address|null
      * @since 2.2
      */
-    private ?Address $_estimatedBillingAddress;
+    private ?Address $_estimatedBillingAddress = null;
 
     /**
      * @var LineItem[]
@@ -1004,7 +1004,7 @@ class Order extends Element
     private array $_orderAdjustments;
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setPaymentCurrency() To set the payment currency
      * @see Order::getPaymentCurrency() To get the payment currency
      * ---
@@ -1015,7 +1015,7 @@ class Order extends Element
      * {{ order.paymentCurrency }}
      * ```
      */
-    private string $_paymentCurrency;
+    private ?string $_paymentCurrency = null;
 
     /**
      * @var string
@@ -1056,7 +1056,7 @@ class Order extends Element
      * {{ order.customer }}
      * ```
      */
-    private ?Customer $_customer;
+    private ?Customer $_customer = null;
 
     /**
      * @var float
@@ -2003,12 +2003,12 @@ class Order extends Element
         $updateCustomer = false;
 
         if ($customer) {
-            if ($this->makePrimaryBillingAddress || empty($existingAddresses) || !$customer->primaryBillingAddressId) {
+            if ((isset($this->makePrimaryBillingAddress) && $this->makePrimaryBillingAddress) || empty($existingAddresses) || !$customer->primaryBillingAddressId) {
                 $customer->primaryBillingAddressId = $orderRecord->billingAddressId;
                 $updateCustomer = true;
             }
 
-            if ($this->makePrimaryShippingAddress || empty($existingAddresses) || !$customer->primaryShippingAddressId) {
+            if ((isset($this->makePrimaryShippingAddress) && $this->makePrimaryShippingAddress) || empty($existingAddresses) || !$customer->primaryShippingAddressId) {
                 $customer->primaryShippingAddressId = $orderRecord->shippingAddressId;
                 $updateCustomer = true;
             }

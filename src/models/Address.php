@@ -47,7 +47,7 @@ class Address extends Model
     /**
      * @var int|null Address ID
      */
-    public ?int $id;
+    public ?int $id = null;
 
     /**
      * @var bool Is this the store location.

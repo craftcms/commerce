@@ -29,7 +29,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @var int|null ID
      */
-    public ?int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name

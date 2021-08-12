@@ -33,9 +33,9 @@ use yii\behaviors\AttributeTypecastBehavior;
 class Transaction extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var int Order ID

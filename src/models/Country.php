@@ -23,9 +23,9 @@ use DateTime;
 class Country extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name

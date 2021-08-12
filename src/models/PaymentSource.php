@@ -26,9 +26,9 @@ use craft\validators\UniqueValidator;
 class PaymentSource extends Model
 {
     /**
-     * @var int Payment source ID
+     * @var int|null Payment source ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var int The user ID
