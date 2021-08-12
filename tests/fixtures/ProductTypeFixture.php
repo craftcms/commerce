@@ -26,7 +26,7 @@ class ProductTypeFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modeClass = ProductType::class;
+    public $modelClass = ProductType::class;
 
     /**
      * @inheritdoc

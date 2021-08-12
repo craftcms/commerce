@@ -27,5 +27,5 @@ class CustomerFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modeClass = Customer::class;
+    public $modelClass = Customer::class;
 }

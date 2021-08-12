@@ -21,7 +21,7 @@ class PaymentCurrenciesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $modeClass = PaymentCurrency::class;
+    public $modelClass = PaymentCurrency::class;
 
     /**
      * @inheritDoc

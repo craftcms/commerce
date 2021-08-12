@@ -26,7 +26,7 @@ class AddressesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modeClass = Address::class;
+    public $modelClass = Address::class;
 
     public $depends = [CustomerFixture::class];
 }

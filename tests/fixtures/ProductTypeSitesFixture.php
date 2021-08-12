@@ -26,5 +26,5 @@ class ProductTypeSitesFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modeClass = ProductTypeSite::class;
+    public $modelClass = ProductTypeSite::class;
 }
