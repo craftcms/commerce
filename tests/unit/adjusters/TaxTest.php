@@ -26,19 +26,19 @@ use craft\commerce\Plugin;
 class TaxTest extends Unit
 {
     /**
-     *
+     * @var Plugin|null
      */
-    public $pluginInstance;
+    public ?Plugin $pluginInstance;
 
     /**
-     *
+     * @var string
      */
-    public $originalEdition;
+    public string $originalEdition;
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -50,9 +50,9 @@ class TaxTest extends Unit
     }
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 
@@ -62,7 +62,7 @@ class TaxTest extends Unit
     /**
      * @dataProvider dataCases
      */
-    public function testAdjust($addressData, $lineItemData, $taxRateData, $expected)
+    public function testAdjust($addressData, $lineItemData, $taxRateData, $expected): void
     {
         $order = new Order();
 
@@ -143,7 +143,7 @@ class TaxTest extends Unit
     /**
      * @return array[]
      */
-    public function dataCases()
+    public function dataCases(): array
     {
         return [
 

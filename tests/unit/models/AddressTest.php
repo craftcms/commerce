@@ -30,7 +30,8 @@ class AddressTest extends Unit
     /**
      *
      */
-    public function testGetCpEditUrl() {
+    public function testGetCpEditUrl(): void
+    {
         $address = new Address(['id' => '1001']);
         self::assertSame('http://test.craftcms.test/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
     }
@@ -43,7 +44,8 @@ class AddressTest extends Unit
      * @param $errors
      * @throws \yii\base\InvalidConfigException
      */
-    public function testValidateState($addressModel, $hasErrors, $errors) {
+    public function testValidateState($addressModel, $hasErrors, $errors): void
+    {
         $countries = $this->make(Countries::class, [
             'getCountryById' => function($id) {
                 return new Country([
@@ -84,7 +86,8 @@ class AddressTest extends Unit
      * @param $validateBusinessTaxIdAsVatId
      * @throws \yii\base\InvalidConfigException
      */
-    public function testValidateBusinessTaxId($businessTaxId, $hasErrors, $errors, $validateBusinessTaxIdAsVatId) {
+    public function testValidateBusinessTaxId($businessTaxId, $hasErrors, $errors, $validateBusinessTaxIdAsVatId): void
+    {
         $cache = $this->make(DummyCache::class, [
             'exists' => static function($key) {
                 return $key == 'commerce:validVatId:exists';
@@ -116,7 +119,7 @@ class AddressTest extends Unit
      * @param $countryText
      * @throws \Exception
      */
-    public function testGetCountryText($countryId, $countryText)
+    public function testGetCountryText($countryId, $countryText): void
     {
         /** @var Address $address */
         $address = $this->make(Address::class, [
@@ -135,7 +138,8 @@ class AddressTest extends Unit
      * @param $country
      * @throws \yii\base\InvalidConfigException
      */
-    public function testGetCountry($address, $country) {
+    public function testGetCountry($address, $country): void
+    {
         $countries = $this->make(Countries::class, [
             'getCountryById' => function($id) {
                 if ($id == 9000) {
@@ -158,7 +162,8 @@ class AddressTest extends Unit
      * @param $countryIso
      * @throws \Exception
      */
-    public function testGetCountryIso($countryId, $countryIso) {
+    public function testGetCountryIso($countryId, $countryIso): void
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getCountry' => $countryId === 9000 ? new Country(['iso' => 'XX']) : null,
@@ -177,7 +182,8 @@ class AddressTest extends Unit
      * @param $stateText
      * @throws \Exception
      */
-    public function testGetStateText($stateId, $stateName, $stateText) {
+    public function testGetStateText($stateId, $stateName, $stateText): void
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getState' => $stateId === 1111 ? new State(['name' => 'Oregon']) : null,
@@ -196,7 +202,8 @@ class AddressTest extends Unit
      * @param $abbreviationText
      * @throws \Exception
      */
-    public function testGetAbbreviationText($stateId, $abbreviationText) {
+    public function testGetAbbreviationText($stateId, $abbreviationText): void
+    {
         /** @var Address $address */
         $address = $this->make(Address::class, [
             'getState' => $stateId === 1111 ? new State(['abbreviation' => 'OR']) : null,
@@ -214,7 +221,8 @@ class AddressTest extends Unit
      * @param $state
      * @throws \yii\base\InvalidConfigException
      */
-    public function testGetState($address, $state) {
+    public function testGetState($address, $state): void
+    {
         $states = $this->make(States::class, [
             'getStateById' => function($id) {
                 if ($id == 1111) {
@@ -236,7 +244,8 @@ class AddressTest extends Unit
      * @param Address $address
      * @param $stateValue
      */
-    public function testGetStateValue($address, $stateValue) {
+    public function testGetStateValue($address, $stateValue): void
+    {
         self::assertSame($stateValue, $address->getStateValue());
     }
 
@@ -248,7 +257,8 @@ class AddressTest extends Unit
      * @param $stateName
      * @throws \yii\base\InvalidConfigException
      */
-    public function testSetStateValue($value, $stateId, $stateName) {
+    public function testSetStateValue($value, $stateId, $stateName): void
+    {
         $states = $this->make(States::class, [
             'getStateById' => function($id) {
                 if ($id == 1111) {
@@ -274,7 +284,7 @@ class AddressTest extends Unit
      * @param bool $sanitize
      * @param array $expected
      */
-    public function testGetAddressLines(array $address, bool $sanitize, array $expected)
+    public function testGetAddressLines(array $address, bool $sanitize, array $expected): void
     {
         $addressModel = new Address($address);
 

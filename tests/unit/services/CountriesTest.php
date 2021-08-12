@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Countries;
 use craft\db\Query;
 use UnitTester;
+use yii\base\Exception;
 
 /**
  * CountriesTest
@@ -26,27 +27,27 @@ class CountriesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Countries $countries
      */
-    protected $countries;
+    protected Countries $countries;
 
     /**
      * @var null|Country
      */
-    private $_country;
+    private ?Country $_country;
 
     /**
      * @var int
      */
-    private $_usCountryId = 236;
+    private int $_usCountryId = 236;
 
     /**
      *
      */
-    public function testGetCountryById()
+    public function testGetCountryById(): void
     {
         $country = $this->countries->getCountryById(999);
         self::assertNull($country);
@@ -61,7 +62,7 @@ class CountriesTest extends Unit
     /**
      *
      */
-    public function testGetCountryByIso()
+    public function testGetCountryByIso(): void
     {
         $country = $this->countries->getCountryByIso('XX');
         self::assertNull($country);
@@ -76,7 +77,7 @@ class CountriesTest extends Unit
     /**
      *
      */
-    public function testGetAllCountries()
+    public function testGetAllCountries(): void
     {
         $countriesCount = (new Query())
             ->from(Table::COUNTRIES)
@@ -88,9 +89,9 @@ class CountriesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testSaveCountry()
+    public function testSaveCountry(): void
     {
         // Force memoization for testing
         $this->countries->getAllCountries();
@@ -122,7 +123,7 @@ class CountriesTest extends Unit
     /**
      *
      */
-    public function testGetAllCountriesAsList()
+    public function testGetAllCountriesAsList(): void
     {
         $countriesAsList = $this->countries->getAllCountriesAsList();
 
@@ -132,9 +133,9 @@ class CountriesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testGetAllEnabledCountriesAsList()
+    public function testGetAllEnabledCountriesAsList(): void
     {
         $this->_createCountry();
         $enabledCountriesAsList = $this->countries->getAllEnabledCountriesAsList();
@@ -148,9 +149,9 @@ class CountriesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testGetAllEnabledCountries()
+    public function testGetAllEnabledCountries(): void
     {
         $this->_createCountry();
         $enabledCountries = $this->countries->getAllEnabledCountries();
@@ -166,9 +167,9 @@ class CountriesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testDeleteCountryById()
+    public function testDeleteCountryById(): void
     {
         $this->_createCountry();
         $id = $this->_country->id;
@@ -195,7 +196,7 @@ class CountriesTest extends Unit
     /**
      * @throws \yii\db\Exception
      */
-    public function testReorderCountries()
+    public function testReorderCountries(): void
     {
         $countriesAsList = $this->countries->getAllCountriesAsList();
         $countriesOrder = array_keys($countriesAsList);
@@ -218,7 +219,7 @@ class CountriesTest extends Unit
     /**
      *
      */
-    public function _before()
+    public function _before(): void
     {
         parent::_before();
 
@@ -227,9 +228,9 @@ class CountriesTest extends Unit
 
     /**
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    private function _createCountry()
+    private function _createCountry(): bool
     {
         $this->_country = new Country();
         $this->_country->name = 'Krakozhia';
@@ -242,8 +243,8 @@ class CountriesTest extends Unit
     /**
      * @return bool
      */
-    private function _destroyCountry()
+    private function _destroyCountry(): void
     {
-        return $this->countries->deleteCountryById($this->_country->id);
+        $this->countries->deleteCountryById($this->_country->id);
     }
 }

@@ -18,6 +18,8 @@ use craft\db\Query;
 use craftcommercetests\fixtures\AddressesFixture;
 use craftcommercetests\fixtures\CustomersAddressesFixture;
 use UnitTester;
+use yii\base\ExitException;
+use yii\db\Exception;
 
 /**
  * AddressesTest
@@ -30,13 +32,12 @@ class AddressesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Addresses $addresses
      */
-    protected $addresses;
-
+    protected Addresses $addresses;
 
     /**
      * @return array
@@ -56,7 +57,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetAddressById()
+    public function testGetAddressById(): void
     {
         self::assertNull($this->addresses->getAddressById(999));
 
@@ -68,7 +69,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetAddressesByCustomerId()
+    public function testGetAddressesByCustomerId(): void
     {
         $address = $this->addresses->getAddressById(1000);
         $customerAddresses = $this->addresses->getAddressesByCustomerId(88);
@@ -81,7 +82,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetAddressByIdAndCustomerId()
+    public function testGetAddressByIdAndCustomerId(): void
     {
         $customerAddress = $this->addresses->getAddressById(1000);
         $noAddress = $this->addresses->getAddressByIdAndCustomerId(999,88);
@@ -94,7 +95,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetStoreLocationAddress()
+    public function testGetStoreLocationAddress(): void
     {
         $storeAddress = $this->addresses->getAddressById(1123);
         $address = $this->addresses->getStoreLocationAddress();
@@ -104,9 +105,9 @@ class AddressesTest extends Unit
     }
 
     /**
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
-    public function testSaveAddress()
+    public function testSaveAddress(): void
     {
         $address = $this->addresses->getAddressById(1000);
         $address->address2 = 'Great Scott!';
@@ -128,7 +129,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testDeleteAddressById()
+    public function testDeleteAddressById(): void
     {
         $result = $this->addresses->deleteAddressById(1000);
 
@@ -143,7 +144,7 @@ class AddressesTest extends Unit
     /**
      * @throws \Exception
      */
-    public function testAddressWithinZone()
+    public function testAddressWithinZone(): void
     {
         $addressSuccess = $this->addresses->getAddressById(1000);
         $addressFail = $this->addresses->getAddressById(1001);
@@ -195,10 +196,9 @@ class AddressesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\ExitException
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
-    public function testPurgeOrphanedAddresses()
+    public function testPurgeOrphanedAddresses(): void
     {
         $count = (new Query())
             ->from(Table::ADDRESSES)
@@ -219,7 +219,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testRemoveReadOnlyAttributesFromArray()
+    public function testRemoveReadOnlyAttributesFromArray(): void
     {
         $address = $this->addresses->getAddressById(1000);
         $addressArray = $address->toArray();
@@ -268,7 +268,7 @@ class AddressesTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
