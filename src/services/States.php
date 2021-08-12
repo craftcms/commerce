@@ -306,7 +306,8 @@ class States extends Component
         $record->abbreviation = $model->abbreviation;
         $record->countryId = $model->countryId;
         $record->enabled = (bool)$model->enabled;
-
+        $record->sortOrder = $model->sortOrder;
+        
         // Save it!
         $record->save(false);
 

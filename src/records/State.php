@@ -19,6 +19,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $countryId
  * @property int $id
  * @property string $name
+ * @property int $sortOrder
  * @property bool $enabled
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

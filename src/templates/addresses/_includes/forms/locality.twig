@@ -1,0 +1,9 @@
+{% from "_includes/forms" import textField %}
+
+{{ textField({
+      id: 'locality',
+      label: address.getAddressFormat.localityType|capitalize,
+      name: 'locality',
+      fieldClass: 'field-inline-block',
+      value: address.locality,
+}) }}

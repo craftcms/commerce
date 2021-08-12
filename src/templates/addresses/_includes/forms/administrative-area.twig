@@ -1,8 +1,10 @@
-{% from "_includes/forms" import select %}
+{% from "_includes/forms" import selectField %}
 
-<strong>{{ address.getAddressFormat.administrativeAreaType|capitalize }}</strong>: {{ select({
+{{ selectField({
       id: 'administrativeArea',
+      label: address.getAddressFormat.administrativeAreaType|capitalize,
       name: 'administrativeArea',
+      fieldClass: 'field-inline-block',
       value: address.administrativeArea,
       options: options
-  }) }}
+}) }}

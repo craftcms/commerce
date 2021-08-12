@@ -599,25 +599,41 @@ class Addresses extends Component
     public function buildAddressForm(Address $address): string
     {
         $addressFormat = $address->getAddressFormat();
-
+        
         $format = nl2br($addressFormat->getFormat());
         
         $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
             return static::buildAdministrativeArea($address);
-        }, $format);
+        }, $format);        
+        
+        $form = preg_replace_callback('/%postalCode/', function ($matches) use ($address) {
+            return static::buildPostalCode($address);
+        }, $form);        
+        
+        $form = preg_replace_callback('/%locality/', function ($matches) use ($address) {
+            return static::buildLocality($address);
+        }, $form);        
+        
+        $form = preg_replace_callback('/%addressLine1/', function ($matches) use ($address) {
+            return static::buildAddress1($address);
+        }, $form);        
+        
+        $form = preg_replace_callback('/%addressLine2/', function ($matches) use ($address) {
+            return static::buildAddress2($address);
+        }, $form);
         
         return $form;
     }
 
     /**
-     * @param $address
+     * @param Address $address
      * @return string
      * @throws \Twig\Error\LoaderError
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
-    private function buildAdministrativeArea($address): string
+    private function buildAdministrativeArea(Address $address): string
     {
         $states = Plugin::getInstance()->getStates()->getStatesByCountryId($address->countryId);
         
@@ -630,6 +646,34 @@ class Addresses extends Component
         return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
             'address' => $address,
             'options' => $options
+        ]);
+    }
+
+    private static function buildPostalCode(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/postal-code', [
+            'address' => $address,
+        ]);
+    }    
+    
+    private static function buildLocality(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/locality', [
+            'address' => $address,
+        ]);
+    }    
+    
+    private static function buildAddress1(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/address-line-1', [
+            'address' => $address,
+        ]);
+    }    
+    
+    private static function buildAddress2(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/address-line-2', [
+            'address' => $address,
         ]);
     }
 }

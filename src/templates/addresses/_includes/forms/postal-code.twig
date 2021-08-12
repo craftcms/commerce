@@ -1,0 +1,9 @@
+{% from "_includes/forms" import textField %}
+
+{{ textField({
+      id: 'postalCode',
+      label: address.getAddressFormat.postalCodeType|capitalize,
+      name: 'postalCode',
+      fieldClass: 'field-inline-block',
+      value: address.postalCode,
+}) }}

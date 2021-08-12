@@ -51,6 +51,7 @@ class AddressDataController extends Controller
             $subdivisions = $subdivisionRepository->getAll([$this->countryIso]);
             
             $statesService = Plugin::getInstance()->getStates();
+            $sortCount = 1;
             foreach ($subdivisions as $subdivision) {
                 
                 $subdivisionName = $subdivision->getName();
@@ -69,6 +70,8 @@ class AddressDataController extends Controller
                 $state->abbreviation = $subdivision->getIsoCode() ?: $subdivision->getCode();
                 $state->countryId = $country->id;
                 $state->enabled = 1;
+                $state->sortOrder = $sortCount;
+                $sortCount++;
                 
                 if ($statesService->saveState($state) === true) {
                     $this->stdout(' Subdivision ' . $subdivisionName . ' ' . ($stateRecord !== null ? 'updated' : 'added' ) . ' to the country ' . $country->name . PHP_EOL);

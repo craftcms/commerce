@@ -299,3 +299,9 @@ var selectedStateId = {{ address.stateId ?: 'null' }};
   $('select#country').trigger('change');
 
 {% endjs %}
+{% css %}
+  .field-inline-block {
+    display: inline-block;
+    margin-bottom: 0;
+  }
+{% endcss %}
