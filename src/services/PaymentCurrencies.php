@@ -37,12 +37,12 @@ class PaymentCurrencies extends Component
     /**
      * @var PaymentCurrency[]|null
      */
-    private ?array $_allCurrenciesByIso;
+    private ?array $_allCurrenciesByIso = null;
 
     /**
      * @var PaymentCurrency[]|null
      */
-    private ?array $_allCurrenciesById;
+    private ?array $_allCurrenciesById = null;
 
     /**
      * Get payment currency by its ID.

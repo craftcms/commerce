@@ -91,7 +91,7 @@ class Plans extends Component
      * @var Plan[]|null
      * @since 3.2.8
      */
-    private ?array $_allPlans;
+    private ?array $_allPlans = null;
 
     /**
      * Returns all subscription plans

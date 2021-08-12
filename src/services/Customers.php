@@ -54,9 +54,9 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer';
 
     /**
-     * @var Customer
+     * @var Customer|null
      */
-    private Customer $_customer;
+    private ?Customer $_customer = null;
 
     /**
      * @event CustomerEvent The event that is triggered before customer details is saved.

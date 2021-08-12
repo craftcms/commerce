@@ -107,24 +107,24 @@ class ProductTypes extends Component
     private bool $_fetchedAllProductTypes = false;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private array $_productTypesById;
+    private ?array $_productTypesById = null;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private array $_productTypesByHandle;
+    private ?array $_productTypesByHandle = null;
 
     /**
-     * @var int[]
+     * @var int[]|null
      */
-    private array $_allProductTypeIds;
+    private ?array $_allProductTypeIds = null;
 
     /**
-     * @var int[]
+     * @var int[]|null
      */
-    private array $_editableProductTypeIds;
+    private ?array $_editableProductTypeIds = null;
 
     /**
      * @var ProductTypeSite[][]

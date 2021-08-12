@@ -50,12 +50,12 @@ class Gateways extends Component
     /**
      * @var array|null Gateway setting overrides
      */
-    private ?array $_overrides;
+    private ?array $_overrides = null;
 
     /**
      * @var array|null All gateways
      */
-    private ?array $_allGateways;
+    private ?array $_allGateways = null;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.

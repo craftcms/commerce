@@ -79,12 +79,12 @@ class OrderStatuses extends Component
     /**
      * @var OrderStatus[]|null
      */
-    private ?array $_orderStatusesWithTrashed;
+    private ?array $_orderStatusesWithTrashed = null;
 
     /**
      * @var OrderStatus[]|null
      */
-    private ?array $_orderStatuses;
+    private ?array $_orderStatuses = null;
 
     /**
      * Returns all Order Statuses
@@ -272,8 +272,8 @@ class OrderStatuses extends Component
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
                 'description' => $orderStatus->description,
-                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
-                'default' => (bool)$orderStatus->default,
+                'sortOrder' => isset($orderStatus->sortOrder) ? $orderStatus->sortOrder : 99,
+                'default' => $orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
         }
