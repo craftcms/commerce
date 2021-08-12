@@ -476,7 +476,7 @@ class Discounts extends Component
                 return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
             }
 
-            $key = $discount->id . ':' . $purchasable->getId() . ':' . implode('', $discount->getCategoryIds());
+            $key = $discount->id . ':' . $purchasable->getId() . 'categories:' . implode('|', $discount->getCategoryIds());
 
             $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
