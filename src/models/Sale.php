@@ -108,28 +108,28 @@ class Sale extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int[] Product Ids
+     * @var int[]|null Product Ids
      */
-    private array $_purchasableIds;
+    private ?array $_purchasableIds = null;
 
     /**
-     * @var int[] Product Type IDs
+     * @var int[]|null Product Type IDs
      */
-    private array $_categoryIds;
+    private ?array $_categoryIds = null;
 
     /**
-     * @var int[] Group IDs
+     * @var int[]|null Group IDs
      */
-    private array $_userGroupIds;
+    private ?array $_userGroupIds = null;
 
     /**
      * @inheritdoc

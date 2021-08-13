@@ -197,29 +197,29 @@ class Variant extends Purchasable
     public int $sortOrder;
 
     /**
-     * @var int $width
+     * @var int|null $width
      */
-    public int $width;
+    public ?int $width = null;
 
     /**
-     * @var int $height
+     * @var int|null $height
      */
-    public int $height;
+    public ?int $height = null;
 
     /**
-     * @var int $length
+     * @var int|null $length
      */
-    public int $length;
+    public ?int $length = null;
 
     /**
-     * @var int $weight
+     * @var int|null $weight
      */
-    public int $weight;
+    public ?int $weight = null;
 
     /**
-     * @var int $stock
+     * @var int|null $stock
      */
-    public int $stock;
+    public ?int $stock = null;
 
     /**
      * @var bool $hasUnlimitedStock

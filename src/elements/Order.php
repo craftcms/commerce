@@ -986,7 +986,7 @@ class Order extends Element
     private array $_lineItems;
 
     /**
-     * @var OrderAdjustment[]
+     * @var OrderAdjustment[]|null
      * @see Order::setAdjustments() To set the order adjustments
      * @see Order::setAdjustments() To get the order adjustments
      * ---
@@ -1001,7 +1001,7 @@ class Order extends Element
      * {% endfor %}
      * ```
      */
-    private array $_orderAdjustments;
+    private ?array $_orderAdjustments = null;
 
     /**
      * @var string|null
@@ -2694,15 +2694,20 @@ class Order extends Element
     }
 
     /**
-     * @return OrderAdjustment[]
+     * @return OrderAdjustment[]|null
+     * @throws InvalidConfigException
      */
-    public function getAdjustments(): array
+    public function getAdjustments(): ?array
     {
-        if (!isset($this->_orderAdjustments)) {
+        if (null !== $this->_orderAdjustments) {
+            return $this->_orderAdjustments;
+        }
+
+        if ($this->id) {
             $this->setAdjustments(Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id));
         }
 
-        return $this->_orderAdjustments;
+        return $this->_orderAdjustments ?? [];
     }
 
     /**

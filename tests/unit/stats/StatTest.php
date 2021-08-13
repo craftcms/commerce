@@ -179,7 +179,7 @@ class StatTest extends Unit
                 Stat::DATE_RANGE_THISMONTH,
                 (new DateTime('now', $tz))->setDate($today->format('Y'), $today->format('n'), 1)->setTime(0, 0),
                 clone $today,
-                $today->format('t'),
+                (int)$today->format('t'),
             ],
             [
                 Stat::DATE_RANGE_THISWEEK,

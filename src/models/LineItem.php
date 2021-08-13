@@ -121,14 +121,14 @@ class LineItem extends Model
     private string $_sku;
 
     /**
-     * @var string Note
+     * @var string|null Note
      */
-    public string $note;
+    public ?string $note = null;
 
     /**
-     * @var string Private Note
+     * @var string|null Private Note
      */
-    public string $privateNote;
+    public ?string $privateNote = null;
 
     /**
      * @var int|null Purchasable ID
@@ -146,9 +146,9 @@ class LineItem extends Model
     public ?int $lineItemStatusId;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public int $taxCategoryId;
+    public ?int $taxCategoryId;
 
     /**
      * @var int Shipping category ID
@@ -175,12 +175,12 @@ class LineItem extends Model
     /**
      * @var PurchasableInterface|null Purchasable
      */
-    private ?PurchasableInterface $_purchasable;
+    private ?PurchasableInterface $_purchasable = null;
 
     /**
      * @var Order|null
      */
-    private ?Order $_order;
+    private ?Order $_order = null;
 
     /**
      * @var LineItemStatus|null Line item status
@@ -241,12 +241,12 @@ class LineItem extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
-        if (!isset($this->_order) && isset($this->orderId)) {
-            $orderService = Plugin::getInstance()->getOrders();
-            $this->_order = $orderService->getOrderById($this->orderId);
+        if (null === $this->_order && isset($this->orderId) && $this->orderId) {
+            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
         return $this->_order;
@@ -263,6 +263,7 @@ class LineItem extends Model
 
     /**
      * @return LineItemStatus|null
+     * @throws InvalidConfigException
      */
     public function getLineItemStatus(): ?LineItemStatus
     {
@@ -636,7 +637,7 @@ class LineItem extends Model
      */
     public function getPurchasable(): ?PurchasableInterface
     {
-        if (!isset($this->_purchasable) && isset($this->purchasableId)) {
+        if (null === $this->_purchasable && isset($this->purchasableId) && $this->purchasableId !== null) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
 

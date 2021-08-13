@@ -41,7 +41,7 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
 
     /**
      * Instance of the service used for saving and deleting model data.
-     * @var mixed
+     * @var string|null|object
      */
     public $service;
 
@@ -89,7 +89,7 @@ abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate,
             $model = $this->prepModel($model, $data);
 
             if (!$this->service->$saveMethod($model)) {
-                throw new InvalidArgumentException('Unable to save model.');
+                throw new InvalidArgumentException('Unable to save model ' . get_class($model) . '.');
             }
 
             $this->data[$key] = array_merge($data, ['id' => $model->id]);

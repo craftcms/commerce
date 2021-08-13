@@ -89,9 +89,9 @@ class ProductType extends Model
     public string $productTitleFormat = '';
 
     /**
-     * @var string SKU format
+     * @var string|null SKU format
      */
-    public string $skuFormat;
+    public ?string $skuFormat = null;
 
     /**
      * @var string Description format
@@ -109,9 +109,9 @@ class ProductType extends Model
     public string $template;
 
     /**
-     * @var int Field layout ID
+     * @var int|null Field layout ID
      */
-    public int $fieldLayoutId;
+    public ?int $fieldLayoutId = null;
 
     /**
      * @var int|null Variant layout ID

@@ -41,7 +41,7 @@ class OrderStatusesFixture extends BaseModelFixture
     public string $deleteMethod = 'deleteOrderStatusById';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public $service = 'orderStatuses';
 

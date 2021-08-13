@@ -43,7 +43,7 @@ class Carts extends Component
     /**
      * @var Order|null
      */
-    private ?Order $_cart;
+    private ?Order $_cart = null;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.

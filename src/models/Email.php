@@ -47,9 +47,9 @@ class Email extends Model
     public string $recipientType;
 
     /**
-     * @var string To
+     * @var string|null To
      */
-    public string $to;
+    public ?string $to = null;
 
     /**
      * @var string Bcc

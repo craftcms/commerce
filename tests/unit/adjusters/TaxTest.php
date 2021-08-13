@@ -102,6 +102,7 @@ class TaxTest extends Unit
             $rate->isVat = $item['isVat'];
             $rate->removeVatIncluded = $item['removeVatIncluded'] ?? false;
             $rate->taxable = $item['taxable'];
+            $rate->taxCategoryId = $item['taxCategoryId'];
             $taxRates[] = $rate;
         }
 
@@ -110,6 +111,7 @@ class TaxTest extends Unit
             $lineItem = new LineItem();
             $lineItem->qty = $item['qty'];
             $lineItem->salePrice = $item['salePrice'];
+            $lineItem->taxCategoryId = 1;
             $lineItems[] = $lineItem;
         }
 
@@ -159,6 +161,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => false,
@@ -196,6 +199,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
                         'isVat' => false,
@@ -232,6 +236,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Netherlands',
                         'code' => 'NLVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -273,6 +278,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
                         'isVat' => false,
@@ -303,6 +309,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Netherlands',
                         'code' => 'NLVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'removeIncluded' => true,
@@ -343,6 +350,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -383,6 +391,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -416,6 +425,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,

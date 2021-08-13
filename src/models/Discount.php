@@ -77,12 +77,12 @@ class Discount extends Model
     /**
      * @var DateTime|null Date the discount is valid from
      */
-    public ?DateTime $dateFrom;
+    public ?DateTime $dateFrom = null;
 
     /**
      * @var DateTime|null Date the discount is valid to
      */
-    public ?DateTime $dateTo;
+    public ?DateTime $dateTo = null;
 
     /**
      * @var float Total minimum spend on matching items
@@ -92,7 +92,7 @@ class Discount extends Model
     /**
      * @var string|null Condition that must match to match the order, null or empty string means match all
      */
-    public ?string $orderConditionFormula;
+    public ?string $orderConditionFormula = null;
 
     /**
      * @var int Total minimum qty of matching items
@@ -127,37 +127,37 @@ class Discount extends Model
     /**
      * @var string Whether the discount is off the original price, or the already discount price.
      */
-    public string $percentageOffSubject;
+    public string $percentageOffSubject = DiscountRecord::TYPE_DISCOUNTED_SALEPRICE;
 
     /**
-     * @var bool Exclude the “On Sale” Purchasables
+     * @var bool|null Exclude the “On Sale” Purchasables
      */
-    public bool $excludeOnSale;
+    public ?bool $excludeOnSale = null;
 
     /**
-     * @var bool Matching products have free shipping.
+     * @var bool|null Matching products have free shipping.
      */
-    public bool $hasFreeShippingForMatchingItems;
+    public ?bool $hasFreeShippingForMatchingItems = null;
 
     /**
      * @var bool The whole order has free shipping.
      */
-    public bool $hasFreeShippingForOrder;
+    public ?bool $hasFreeShippingForOrder = null;
 
     /**
-     * @var string Type of user group condition that should match the discount. (See getUserConditions().)
+     * @var string|null Type of user group condition that should match the discount. (See getUserConditions().)
      */
-    public string $userGroupsCondition;
+    public ?string $userGroupsCondition = null;
 
     /**
-     * @var bool Match all products
+     * @var bool|null Match all products
      */
-    public bool $allPurchasables;
+    public ?bool $allPurchasables;
 
     /**
-     * @var bool Match all product types
+     * @var bool|null Match all product types
      */
-    public bool $allCategories;
+    public ?bool $allCategories;
 
     /**
      * @var string Type of relationship between Categories and Products
@@ -172,22 +172,22 @@ class Discount extends Model
     /**
      * @var bool stopProcessing
      */
-    public bool $stopProcessing;
+    public bool $stopProcessing = false;
 
     /**
      * @var int sortOrder
      */
-    public int $sortOrder;
+    public int $sortOrder = 999999;
 
     /**
      * @var DateTime|null
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Discount ignores sales

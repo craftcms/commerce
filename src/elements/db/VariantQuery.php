@@ -85,9 +85,9 @@ class VariantQuery extends ElementQuery
     public $productId;
 
     /**
-     * @var string the SKU of the variant
+     * @var mixed the SKU of the variant
      */
-    public string $sku;
+    public $sku;
 
     /**
      * @var mixed
@@ -587,7 +587,7 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
-        if (isset($this->isDefault) !== null) {
+        if (isset($this->isDefault) && $this->isDefault !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault, '=', false, Schema::TYPE_BOOLEAN));
         }
 
