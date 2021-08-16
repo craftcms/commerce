@@ -808,7 +808,7 @@ class Order extends Element
 
 
     /**
-     * @var float The total price as stored in the database from last retrieval
+     * @var float|null The total price as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalPrice;
@@ -817,10 +817,10 @@ class Order extends Element
      * {{ order.storedTotalPrice }}
      * ```
      */
-    public float $storedTotalPrice;
+    public ?float $storedTotalPrice = null;
 
     /**
-     * @var float The total paid as stored in the database from last retrieval
+     * @var float|null The total paid as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalPaid;
@@ -829,10 +829,10 @@ class Order extends Element
      * {{ order.storedTotalPaid }}
      * ```
      */
-    public float $storedTotalPaid;
+    public ?float $storedTotalPaid = null;
 
     /**
-     * @var float The item total as stored in the database from last retrieval
+     * @var float|null The item total as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedItemTotal;
@@ -841,10 +841,10 @@ class Order extends Element
      * {{ order.storedItemTotal }}
      * ```
      */
-    public float $storedItemTotal;
+    public ?float $storedItemTotal = null;
 
     /**
-     * @var float The item subtotal as stored in the database from last retrieval
+     * @var float|null The item subtotal as stored in the database from last retrieval
      * @since 3.2.4
      * ---
      * ```php
@@ -854,10 +854,10 @@ class Order extends Element
      * {{ order.storedItemSubtotal }}
      * ```
      */
-    public float $storedItemSubtotal;
+    public ?float $storedItemSubtotal = null;
 
     /**
-     * @var float The total shipping cost adjustments as stored in the database from last retrieval
+     * @var float|null The total shipping cost adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalShippingCost;
@@ -866,10 +866,10 @@ class Order extends Element
      * {{ order.storedTotalShippingCost }}
      * ```
      */
-    public float $storedTotalShippingCost;
+    public ?float $storedTotalShippingCost = null;
 
     /**
-     * @var float The total of discount adjustments as stored in the database from last retrieval
+     * @var float|null The total of discount adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalDiscount;
@@ -878,10 +878,10 @@ class Order extends Element
      * {{ order.storedTotalDiscount }}
      * ```
      */
-    public float $storedTotalDiscount;
+    public ?float $storedTotalDiscount = null;
 
     /**
-     * @var float The total tax adjustments as stored in the database from last retrieval
+     * @var float|null The total tax adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalTax;
@@ -890,10 +890,10 @@ class Order extends Element
      * {{ order.storedTotalTax }}
      * ```
      */
-    public float $storedTotalTax;
+    public ?float $storedTotalTax = null;
 
     /**
-     * @var float The total tax included  adjustments as stored in the database from last retrieval
+     * @var float|null The total tax included  adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalTaxIncluded;
@@ -902,7 +902,7 @@ class Order extends Element
      * {{ order.storedTotalTaxIncluded }}
      * ```
      */
-    public float $storedTotalTaxIncluded;
+    public ?float $storedTotalTaxIncluded = null;
 
 
     /**
