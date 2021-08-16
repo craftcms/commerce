@@ -135,9 +135,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
-     * @var bool Is lite shipping rule
+     * @var bool|null Is lite shipping rule
      */
-    public bool $isLite = false;
+    public ?bool $isLite = false;
 
     /**
      * @var DateTime|null
