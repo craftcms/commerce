@@ -170,14 +170,14 @@ class Discount extends Model
     public bool $enabled = true;
 
     /**
-     * @var bool stopProcessing
+     * @var bool|null stopProcessing
      */
-    public bool $stopProcessing = false;
+    public ?bool $stopProcessing = false;
 
     /**
-     * @var int sortOrder
+     * @var int|null sortOrder
      */
-    public int $sortOrder = 999999;
+    public ?int $sortOrder = 999999;
 
     /**
      * @var DateTime|null
