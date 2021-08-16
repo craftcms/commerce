@@ -165,8 +165,7 @@ class Addresses extends Component
      * @var Address|null
      */
     private $_storeLocationAddress;
-
-
+    
     /**
      * Returns an address by its ID.
      *
@@ -602,9 +601,11 @@ class Addresses extends Component
         
         $format = nl2br($addressFormat->getFormat());
         
+        $form = static::renderCountry($address) . $format;
+        
         $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
             return static::buildAdministrativeArea($address);
-        }, $format);        
+        }, $form);        
         
         $form = preg_replace_callback('/%postalCode/', function ($matches) use ($address) {
             return static::buildPostalCode($address);
@@ -620,9 +621,30 @@ class Addresses extends Component
         
         $form = preg_replace_callback('/%addressLine2/', function ($matches) use ($address) {
             return static::buildAddress2($address);
-        }, $form);
+        }, $form);        
         
-        return $form;
+        $form = preg_replace_callback('/%organization/', function ($matches) use ($address) {
+            return static::buildBusinessName($address);
+        }, $form);        
+        
+        $form = preg_replace_callback('/%givenName/', function ($matches) use ($address) {
+            return static::buildFirstName($address);
+        }, $form);        
+        
+        return preg_replace_callback('/%familyName/', function ($matches) use ($address) {
+            return static::buildLastName($address);
+        }, $form);
+    }
+    
+    public function renderCountry(Address $address): string
+    {
+        $options = [];
+        
+        
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/country', [
+            'address' => $address,
+            'options' => $options
+        ]);
     }
 
     /**
@@ -673,6 +695,27 @@ class Addresses extends Component
     private static function buildAddress2(Address $address): string
     {
         return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/address-line-2', [
+            'address' => $address,
+        ]);
+    }
+    
+    private static function buildBusinessName(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/business-name', [
+            'address' => $address,
+        ]);
+    }    
+    
+    private static function buildFirstName(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/first-name', [
+            'address' => $address,
+        ]);
+    }    
+    
+    private static function buildLastName(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/last-name', [
             'address' => $address,
         ]);
     }

@@ -1,0 +1,9 @@
+{% from "_includes/forms" import textField %}
+
+{{ textField({
+      id: 'businessName',
+      label: 'Business Name'|t('commerce'),
+      name: 'businessName',
+      fieldClass: 'field-inline-block',
+      value: address.businessName,
+}) }}
