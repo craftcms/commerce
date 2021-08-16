@@ -143,7 +143,7 @@ class LineItem extends Model
     /**
      * @var int|null Line Item Status ID
      */
-    public ?int $lineItemStatusId;
+    public ?int $lineItemStatusId = null;
 
     /**
      * @var int|null Tax category ID

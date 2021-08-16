@@ -192,9 +192,9 @@ class Variant extends Purchasable
     public float $price;
 
     /**
-     * @var int $sortOrder
+     * @var int|null $sortOrder
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var int|null $width

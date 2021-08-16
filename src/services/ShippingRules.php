@@ -34,7 +34,7 @@ class ShippingRules extends Component
     /**
      * @var null|ShippingRule[]
      */
-    private ?array $_allShippingRules;
+    private ?array $_allShippingRules = null;
 
     /**
      * Get all shipping rules.
