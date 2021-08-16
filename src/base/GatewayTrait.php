@@ -43,9 +43,9 @@ trait GatewayTrait
     public bool $isArchived = false;
 
     /**
-     * @var DateTime Archived Date
+     * @var DateTime|null Archived Date
      */
-    public DateTime $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
      * @var int|null Sort order

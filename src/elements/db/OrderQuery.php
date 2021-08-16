@@ -145,32 +145,32 @@ class OrderQuery extends ElementQuery
     /**
      * @var bool Eager loads all relational data (addresses, adjustments, customers, line items, transactions) for the resulting orders.
      */
-    public bool $withAll;
+    public bool $withAll = false;
 
     /**
      * @var bool Eager loads the shipping and billing addressees on the resulting orders.
      */
-    public bool $withAddresses;
+    public bool $withAddresses = false;
 
     /**
      * @var bool Eager loads the order adjustments on the resulting orders.
      */
-    public bool $withAdjustments;
+    public bool $withAdjustments = false;
 
     /**
      * @var bool Eager load the customer (and related user) on to the order.
      */
-    public bool $withCustomer;
+    public bool $withCustomer = false;
 
     /**
      * @var bool Eager loads the line items on the resulting orders.
      */
-    public bool $withLineItems;
+    public bool $withLineItems = false;
 
     /**
      * @var bool Eager loads the transactions on the resulting orders.
      */
-    public bool $withTransactions;
+    public bool $withTransactions = false;
 
     /**
      * @inheritdoc
