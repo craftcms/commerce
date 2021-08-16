@@ -108,9 +108,9 @@ class OrderQuery extends ElementQuery
     public ?string $origin;
 
     /**
-     * @var bool|null The customer ID that the resulting orders must have.
+     * @var int|null The customer ID that the resulting orders must have.
      */
-    public ?bool $customerId;
+    public ?int $customerId;
 
     /**
      * @var int|null The gateway ID that the resulting orders must have.
