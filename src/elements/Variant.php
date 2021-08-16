@@ -189,7 +189,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public float $price;
+    public ?float $price = null;
 
     /**
      * @var int|null $sortOrder
@@ -224,7 +224,7 @@ class Variant extends Purchasable
     /**
      * @var bool $hasUnlimitedStock
      */
-    public bool $hasUnlimitedStock;
+    public bool $hasUnlimitedStock = false;
 
     /**
      * @var int|null $minQty
@@ -263,14 +263,6 @@ class Variant extends Purchasable
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
