@@ -37,14 +37,14 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
@@ -52,22 +52,22 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     public bool $default = false;
 
     /**
-     * @var string The code to match the zip code.
+     * @var string|null The code to match the zip code.
      * @since 2.2
      */
-    public string $zipCodeConditionFormula;
+    public ?string $zipCodeConditionFormula = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Country based
@@ -75,14 +75,14 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     private bool $_isCountryBased = true;
 
     /**
-     * @var Country[]
+     * @var Country[]|null
      */
-    private array $_countries;
+    private ?array $_countries = null;
 
     /**
-     * @var State[]
+     * @var State[]|null
      */
-    private array $_states;
+    private ?array $_states = null;
 
 
     /**
@@ -178,10 +178,10 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      * @since 2.2
      */
-    public function getZipCodeConditionFormula(): string
+    public function getZipCodeConditionFormula(): ?string
     {
         return $this->zipCodeConditionFormula;
     }

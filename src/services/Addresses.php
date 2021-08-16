@@ -167,7 +167,7 @@ class Addresses extends Component
     /**
      * @var Address|null
      */
-    private ?Address $_storeLocationAddress;
+    private ?Address $_storeLocationAddress = null;
 
     /**
      * Returns an address by its ID.
