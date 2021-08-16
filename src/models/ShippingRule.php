@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -45,9 +46,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public string $description;
 
     /**
-     * @var int Shipping zone ID
+     * @var int|null Shipping zone ID
      */
-    public int $shippingZoneId;
+    public ?int $shippingZoneId = null;
 
     /**
      * @var int Shipping method ID
@@ -65,9 +66,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public bool $enabled = true;
 
     /**
-     * @var string Order Condition Formula
+     * @var string|null Order Condition Formula
      */
-    public string $orderConditionFormula = '';
+    public ?string $orderConditionFormula = '';
 
     /**
      * @var int Minimum Quantity
@@ -159,6 +160,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @param Order $order
      * @return array
+     * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
@@ -412,9 +414,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @return ShippingAddressZone|null
+     * @throws InvalidConfigException
      */
     public function getShippingZone(): ?ShippingAddressZone
     {
+        if ($this->shippingZoneId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getShippingZones()->getShippingZoneById($this->shippingZoneId);
     }
 

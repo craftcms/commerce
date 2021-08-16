@@ -3150,10 +3150,11 @@ class Order extends Element
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
     public function getOrderStatus(): ?OrderStatus
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId) : null;
     }
 
     /**

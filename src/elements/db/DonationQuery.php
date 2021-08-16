@@ -24,9 +24,9 @@ use yii\db\Connection;
 class DonationQuery extends ElementQuery
 {
     /**
-     * @var string The sku of the donation purchasable
+     * @var string|null The sku of the donation purchasable
      */
-    public string $sku;
+    public ?string $sku = null;
 
     /**
      * Narrows the query results based on the sku.

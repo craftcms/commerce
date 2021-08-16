@@ -74,7 +74,7 @@ class LineItemStatuses extends Component
     /**
      * @var LineItemStatus|null
      */
-    private ?LineItemStatus $_defaultLineItemStatus;
+    private ?LineItemStatus $_defaultLineItemStatus = null;
 
     /**
      * Get line item status by its handle.

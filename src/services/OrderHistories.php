@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
+use craft\helpers\DateTimeHelper;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -180,7 +181,7 @@ class OrderHistories extends Component
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
-        $model->dateCreated = $record->dateCreated;
+        $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
 
         return true;
     }

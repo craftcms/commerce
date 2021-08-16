@@ -52,19 +52,19 @@ class Email extends Model
     public ?string $to = null;
 
     /**
-     * @var string Bcc
+     * @var string|null Bcc
      */
-    public string $bcc;
+    public ?string $bcc = null;
 
     /**
-     * @var string Cc
+     * @var string|null Cc
      */
-    public string $cc;
+    public ?string $cc = null;
 
     /**
-     * @var string Reply to
+     * @var string|null Reply to
      */
-    public string $replyTo;
+    public ?string $replyTo = null;
 
     /**
      * @var bool Is Enabled
