@@ -12,6 +12,7 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping Category model.
@@ -30,19 +31,19 @@ class ShippingCategory extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
@@ -50,21 +51,21 @@ class ShippingCategory extends Model
     public bool $default;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private array $_productTypes;
+    private ?array $_productTypes = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * Returns the name of this shipping category.
@@ -73,7 +74,7 @@ class ShippingCategory extends Model
      */
     public function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
@@ -94,10 +95,11 @@ class ShippingCategory extends Model
 
     /**
      * @return ProductType[]
+     * @throws InvalidConfigException
      */
     public function getProductTypes(): array
     {
-        if (!isset($this->_productTypes)) {
+        if (null === $this->_productTypes) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 
@@ -108,6 +110,7 @@ class ShippingCategory extends Model
      * Helper method to just get the product type IDs
      *
      * @return int[]
+     * @throws InvalidConfigException
      */
     public function getProductTypeIds(): array
     {

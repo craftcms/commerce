@@ -46,9 +46,9 @@ class Tax extends Component implements AdjusterInterface
     private Order $_order;
 
     /**
-     * @var Address
+     * @var Address|null
      */
-    private Address $_address;
+    private ?Address $_address = null;
 
     /**
      * @var TaxRate[]

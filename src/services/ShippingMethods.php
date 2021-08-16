@@ -57,7 +57,7 @@ class ShippingMethods extends Component
     /**
      * @var null|ShippingMethod[]
      */
-    private ?array $_allShippingMethods;
+    private ?array $_allShippingMethods = null;
 
     /**
      * Returns the Commerce managed shipping methods stored in the database.

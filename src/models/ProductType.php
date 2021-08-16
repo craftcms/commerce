@@ -124,19 +124,19 @@ class ProductType extends Model
     public string $uid;
 
     /**
-     * @var TaxCategory[]
+     * @var TaxCategory[]|null
      */
-    private array $_taxCategories;
+    private ?array $_taxCategories = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private array $_shippingCategories;
+    private ?array $_shippingCategories = null;
 
     /**
-     * @var ProductTypeSite[]
+     * @var ProductTypeSite[]|null
      */
-    private array $_siteSettings;
+    private ?array $_siteSettings = null;
 
     /**
      * @return null|string

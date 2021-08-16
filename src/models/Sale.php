@@ -65,14 +65,14 @@ class Sale extends Model
     public float $applyAmount;
 
     /**
-     * @var bool ignore the previous sales that affect the purchasable
+     * @var bool|null ignore the previous sales that affect the purchasable
      */
-    public bool $ignorePrevious;
+    public ?bool $ignorePrevious = null;
 
     /**
-     * @var bool should the sales system stop processing other sales after this one
+     * @var bool|null should the sales system stop processing other sales after this one
      */
-    public bool $stopProcessing;
+    public ?bool $stopProcessing = null;
 
     /**
      * @var bool Match all groups
@@ -100,9 +100,9 @@ class Sale extends Model
     public bool $enabled = true;
 
     /**
-     * @var int The order index of the application of the sale
+     * @var int|null The order index of the application of the sale
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var DateTime|null

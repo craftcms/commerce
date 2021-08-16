@@ -150,12 +150,12 @@ class Sales extends Component
     /**
      * @var Sale[]|null
      */
-    private ?array $_allSales;
+    private ?array $_allSales = null;
 
     /**
      * @var Sale[]|null
      */
-    private ?array $_allActiveSales;
+    private ?array $_allActiveSales = null;
 
     /**
      * @var array

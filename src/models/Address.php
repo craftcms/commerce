@@ -18,6 +18,7 @@ use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
+use yii\base\InvalidConfigException;
 
 /**
  * Address Model
@@ -491,6 +492,7 @@ class Address extends Model
      * Sets the stateId or stateName based on the value parameter.
      *
      * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
+     * @throws InvalidConfigException
      */
     public function setStateValue($value): void
     {

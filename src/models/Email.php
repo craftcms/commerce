@@ -82,9 +82,9 @@ class Email extends Model
     public string $plainTextTemplatePath;
 
     /**
-     * @var int The PDF UID.
+     * @var int|null The PDF UID.
      */
-    public int $pdfId;
+    public ?int $pdfId = null;
 
     /**
      * @var string The language.

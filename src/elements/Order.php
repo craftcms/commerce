@@ -417,7 +417,7 @@ class Order extends Element
      * This is the reference number generated once the order was completed.
      * While the order is a cart, this is null.
      *
-     * @var string Reference
+     * @var string|null Reference
      * ---
      * ```php
      * echo $order->reference;
@@ -426,7 +426,7 @@ class Order extends Element
      * {{ order.reference }}
      * ```
      */
-    public string $reference;
+    public ?string $reference = null;
 
     /**
      * This is the currently applied coupon code.
@@ -527,7 +527,7 @@ class Order extends Element
      * {{ order.gatewayId }}
      * ```
      */
-    public ?int $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
      * The last IP address of the user building the order before it was marked as complete.
@@ -541,7 +541,7 @@ class Order extends Element
      * {{ order.lastIp }}
      * ```
      */
-    public ?string $lastIp;
+    public ?string $lastIp = null;
 
     /**
      * The current message set on the order when having it’s order status being changed.
@@ -561,7 +561,7 @@ class Order extends Element
      * The current URL the order should return to after successful payment.
      * This is stored on the order as we may be redirected off-site for payments.
      *
-     * @var string Return URL
+     * @var string|null Return URL
      * ---
      * ```php
      * echo $order->returnUrl;
@@ -570,13 +570,13 @@ class Order extends Element
      * {{ order.returnUrl }}
      * ```
      */
-    public string $returnUrl;
+    public ?string $returnUrl = null;
 
     /**
      * The current URL the order should return to if the customer cancels payment off-site.
      * This is stored on the order as we may be redirected off-site for payments.
      *
-     * @var string Cancel URL
+     * @var string|null Cancel URL
      * ---
      * ```php
      * echo $order->cancelUrl;
@@ -585,7 +585,7 @@ class Order extends Element
      * {{ order.cancelUrl }}
      * ```
      */
-    public string $cancelUrl;
+    public ?string $cancelUrl = null;
 
     /**
      * The current order status ID. This will be null if the order is not complete
@@ -689,7 +689,7 @@ class Order extends Element
      * {{ order.makePrimaryShippingAddress }}
      * ```
      */
-    public bool $makePrimaryShippingAddress;
+    public ?bool $makePrimaryShippingAddress = null;
 
     /**
      * Whether the billing address should be made the primary address of the
@@ -705,7 +705,7 @@ class Order extends Element
      * {{ order.makePrimaryBillingAddress }}
      * ```
      */
-    public bool $makePrimaryBillingAddress;
+    public ?bool $makePrimaryBillingAddress = null;
 
     /**
      * Whether the shipping address should be the same address as the order’s
@@ -713,7 +713,7 @@ class Order extends Element
      * update order request. Can not be set to `true` at the same time as setting
      * `billingSameAsShipping` to true, or an error will be raised.
      *
-     * @var bool Make this the shipping address the same as the billing address
+     * @var bool|null Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->shippingSameAsBilling;
@@ -722,7 +722,7 @@ class Order extends Element
      * {{ order.shippingSameAsBilling }}
      * ```
      */
-    public bool $shippingSameAsBilling;
+    public ?bool $shippingSameAsBilling = null;
 
     /**
      * Whether the billing address should be the same address as the order’s
@@ -730,7 +730,7 @@ class Order extends Element
      * update order request. Can not be set to `true` at the same time as setting
      * `shippingSameAsBilling` to true, or an error will be raised.
      *
-     * @var bool Make this the shipping address the same as the billing address
+     * @var bool|null Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->billingSameAsShipping;
@@ -739,7 +739,7 @@ class Order extends Element
      * {{ order.billingSameAsShipping }}
      * ```
      */
-    public bool $billingSameAsShipping;
+    public ?bool $billingSameAsShipping = null;
 
     /**
      * @var int|null Estimated Billing address ID
@@ -754,10 +754,10 @@ class Order extends Element
     public ?int $estimatedShippingAddressId = null;
 
     /**
-     * @var bool Whether estimated billing address should be set to the same address as estimated shipping
+     * @var bool|null Whether estimated billing address should be set to the same address as estimated shipping
      * @since 2.2
      */
-    public bool $estimatedBillingSameAsShipping;
+    public ?bool $estimatedBillingSameAsShipping = null;
 
     /**
      * @var string Shipping Method Handle
@@ -765,10 +765,10 @@ class Order extends Element
     public string $shippingMethodHandle = '';
 
     /**
-     * @var string Shipping Method Name
+     * @var string|null Shipping Method Name
      * @since 3.2.0
      */
-    public string $shippingMethodName;
+    public ?string $shippingMethodName = null;
 
     /**
      * @var int|null Customer ID
@@ -788,7 +788,7 @@ class Order extends Element
      * {{ order.registerUserOnOrderComplete }}
      * ```
      */
-    public bool $registerUserOnOrderComplete;
+    public bool $registerUserOnOrderComplete = false;
 
     /**
      * The current payment source that should be used to make payments on the
@@ -804,7 +804,7 @@ class Order extends Element
      * {{ order.paymentSourceId }}
      * ```
      */
-    public ?bool $paymentSourceId;
+    public ?bool $paymentSourceId = null;
 
 
     /**
@@ -1018,7 +1018,7 @@ class Order extends Element
     private ?string $_paymentCurrency = null;
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setEmail() To set the order email
      * @see Order::getEmail() To get the email
      * ---
@@ -1029,7 +1029,7 @@ class Order extends Element
      * {{ order.email }}
      * ```
      */
-    private string $_email;
+    private ?string $_email = null;
 
     /**
      * @var Transaction[]|null
@@ -1042,7 +1042,7 @@ class Order extends Element
      * {{ order.transactions }}
      * ```
      */
-    private ?array $_transactions;
+    private ?array $_transactions = null;
 
     /**
      * @var Customer|null
@@ -1059,7 +1059,7 @@ class Order extends Element
     private ?Customer $_customer = null;
 
     /**
-     * @var float
+     * @var float|null
      * @see Order::setPaymentAmount() To set the order payment amount
      * @see Order::getPaymentAmount() To get the order payment amount
      * ---
@@ -1070,7 +1070,7 @@ class Order extends Element
      * {{ order.paymentAmount }}
      * ```
      */
-    private float $_paymentAmount;
+    private ?float $_paymentAmount = null;
 
     /**
      * @inheritdoc

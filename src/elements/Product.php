@@ -65,39 +65,39 @@ class Product extends Element
     const STATUS_EXPIRED = 'expired';
 
     /**
-     * @var DateTime Post date
+     * @var DateTime|null Post date
      */
-    public DateTime $postDate;
+    public ?DateTime $postDate = null;
 
     /**
-     * @var DateTime Expiry date
+     * @var DateTime|null Expiry date
      */
-    public DateTime $expiryDate;
+    public ?DateTime $expiryDate = null;
 
     /**
-     * @var int Product type ID
+     * @var int|null Product type ID
      */
-    public int $typeId;
+    public ?int $typeId = null;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public int $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Shipping category ID
+     * @var int|null Shipping category ID
      */
-    public int $shippingCategoryId;
+    public ?int $shippingCategoryId = null;
 
     /**
-     * @var bool Whether the product is promotable
+     * @var bool|null Whether the product is promotable
      */
-    public bool $promotable;
+    public ?bool $promotable = null;
 
     /**
-     * @var bool Whether the product has free shipping
+     * @var bool|null Whether the product has free shipping
      */
-    public bool $freeShipping;
+    public ?bool $freeShipping = null;
 
     /**
      * @var bool Is this product available to be purchased
@@ -105,59 +105,59 @@ class Product extends Element
     public bool $availableForPurchase = true;
 
     /**
-     * @var int defaultVariantId
+     * @var int|null defaultVariantId
      */
-    public int $defaultVariantId;
+    public ?int $defaultVariantId = null;
 
     /**
-     * @var string Default SKU
+     * @var string|null Default SKU
      */
-    public string $defaultSku;
+    public ?string $defaultSku = null;
 
     /**
-     * @var float Default price
+     * @var float|null Default price
      */
-    public float $defaultPrice;
+    public ?float $defaultPrice = null;
 
     /**
-     * @var float Default height
+     * @var float|null Default height
      */
-    public float $defaultHeight;
+    public ?float $defaultHeight = null;
 
     /**
-     * @var float Default length
+     * @var float|null Default length
      */
-    public float $defaultLength;
+    public ?float $defaultLength = null;
 
     /**
-     * @var float Default width
+     * @var float|null Default width
      */
-    public float $defaultWidth;
+    public ?float $defaultWidth = null;
 
     /**
-     * @var float Default weight
+     * @var float|null Default weight
      */
-    public float $defaultWeight;
+    public ?float $defaultWeight = null;
 
     /**
-     * @var TaxCategory Tax category
+     * @var TaxCategory|null Tax category
      */
-    public TaxCategory $taxCategory;
+    public ?TaxCategory $taxCategory = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var Variant[] This product’s variants
+     * @var Variant[]|null This product’s variants
      */
-    private array $_variants;
+    private ?array $_variants = null;
 
     /**
-     * @var Variant This product's cheapest variant
+     * @var Variant|null This product's cheapest variant
      */
-    private Variant $_cheapestVariant;
+    private ?Variant $_cheapestVariant = null;
 
     /**
      * @return array

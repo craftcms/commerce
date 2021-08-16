@@ -177,9 +177,9 @@ class Variant extends Purchasable
 
 
     /**
-     * @var int $productId
+     * @var int|null $productId
      */
-    public int $productId;
+    public ?int $productId = null;
 
     /**
      * @var bool $isDefault
@@ -227,14 +227,14 @@ class Variant extends Purchasable
     public bool $hasUnlimitedStock;
 
     /**
-     * @var int $minQty
+     * @var int|null $minQty
      */
-    public int $minQty;
+    public ?int $minQty = null;
 
     /**
-     * @var int $maxQty
+     * @var int|null $maxQty
      */
-    public int $maxQty;
+    public ?int $maxQty = null;
 
     /**
      * @var bool|null Whether the variant was deleted along with its product
@@ -243,21 +243,22 @@ class Variant extends Purchasable
     public ?bool $deletedWithProduct = false;
 
     /**
-     * @var Product The product that this variant is associated with.
+     * @var Product|null The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
-    private Product $_product;
+    private ?Product $_product = null;
 
     /**
      * @var string SKU
      * @see getSku()
      * @see setSku()
      */
-    private string $_sku;
+    private string $_sku = '';
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
@@ -398,7 +399,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?FieldLayout
     {
         $fieldLayout = parent::getFieldLayout();
 
