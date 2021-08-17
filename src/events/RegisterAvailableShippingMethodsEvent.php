@@ -22,10 +22,10 @@ class RegisterAvailableShippingMethodsEvent extends Event
     /**
      * @var Order The order the shipping method should be available for
      */
-    public $order;
+    public Order $order;
 
     /**
      * @var ShippingMethodInterface[] The shipping methods available to the order.
      */
-    public $shippingMethods = [];
+    public array $shippingMethods = [];
 }

@@ -21,6 +21,7 @@ use craft\helpers\StringHelper;
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -51,12 +52,12 @@ class TotalRevenue extends Widget
     /**
      * @var TotalRevenueStat
      */
-    private $_stat;
+    private TotalRevenueStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
@@ -101,7 +102,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -117,7 +118,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();

@@ -21,10 +21,10 @@ class PdfSaveEvent extends Event
     /**
      * @var Pdf
      */
-    public $pdf;
+    public Pdf $pdf;
 
     /**
      * @var bool Is the PDF new
      */
-    public $isNew;
+    public bool $isNew;
 }

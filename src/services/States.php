@@ -13,14 +13,20 @@ use craft\commerce\models\State;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * State service.
  *
  * @property State[] $allStates an array of all states
  * @property array $allStatesAsList
+ * @property-read array $allEnabledStatesAsList
+ * @property-read State[] $allEnabledStates
+ * @property-read array[]|array $allEnabledStatesAsListGroupedByCountryId
+ * @property-read array[]|array $allStatesAsListGroupedByCountryId
  * @property array $statesGroupedByCountries all states grouped by countries
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -30,37 +36,37 @@ class States extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllStates = false;
+    private bool $_fetchedAllStates = false;
 
     /**
      * @var State[]
      */
-    private $_statesById = [];
+    private array $_statesById = [];
 
     /**
      * @var State[]
      */
-    private $_enabledStatesById = [];
+    private array $_enabledStatesById = [];
 
     /**
      * @var State[]
      */
-    private $_statesAsOrdered = [];
+    private array $_statesAsOrdered = [];
 
     /**
      * @var State[]
      */
-    private $_enabledStatesAsOrdered = [];
+    private array $_enabledStatesAsOrdered = [];
 
     /**
      * @var State[][]
      */
-    private $_statesByTaxZoneId = [];
+    private array $_statesByTaxZoneId = [];
 
     /**
      * @var State[][]
      */
-    private $_statesByShippingZoneId = [];
+    private array $_statesByShippingZoneId = [];
 
 
     /**
@@ -69,7 +75,7 @@ class States extends Component
      * @param int $id the state's ID
      * @return State|null
      */
-    public function getStateById(int $id)
+    public function getStateById(int $id): ?State
     {
         if (isset($this->_statesById[$id])) {
             return $this->_statesById[$id];
@@ -96,8 +102,9 @@ class States extends Component
      * @param int $countryId the state's country ID
      * @param string $abbreviation the state's abbreviation
      * @return State|null
+     * @noinspection PhpUnused
      */
-    public function getStateByAbbreviation(int $countryId, string $abbreviation)
+    public function getStateByAbbreviation(int $countryId, string $abbreviation): ?State
     {
         $result = $this->_createStatesQuery()
             ->where(compact('countryId', 'abbreviation'))
@@ -110,6 +117,7 @@ class States extends Component
      * Returns all states indexed by ID
      *
      * @return array
+     * @noinspection PhpUnused
      */
     public function getAllStatesAsList(): array
     {
@@ -122,6 +130,7 @@ class States extends Component
      *
      * @return array 2D array of states indexed by their ids grouped by country ids.
      * @since 3.0
+     * @noinspection PhpUnused
      */
     public function getAllStatesAsListGroupedByCountryId(): array
     {
@@ -255,7 +264,7 @@ class States extends Component
      * @param int $shippingZoneId the shipping zone's ID
      * @return State[] Array of states in the matched shipping zone.
      */
-    public function getStatesByShippingZoneId($shippingZoneId): array
+    public function getStatesByShippingZoneId(int $shippingZoneId): array
     {
         if (!isset($this->_statesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createStatesQuery()
@@ -321,6 +330,8 @@ class States extends Component
      *
      * @param int $id the state's ID
      * @return bool whether the state was deleted successfully
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteStateById(int $id): bool
     {

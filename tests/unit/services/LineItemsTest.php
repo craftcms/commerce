@@ -26,17 +26,17 @@ class LineItemsTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var LineItems
      */
-    protected $service;
+    protected LineItems $service;
 
     /**
      * @var OrdersFixture
      */
-    protected $fixtureData;
+    protected OrdersFixture $fixtureData;
 
     /**
      * @return array
@@ -50,7 +50,7 @@ class LineItemsTest extends Unit
         ];
     }
 
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -58,7 +58,7 @@ class LineItemsTest extends Unit
         $this->fixtureData = $this->tester->grabFixture('orders');
     }
 
-    public function testGetAllLineItemsByOrderId()
+    public function testGetAllLineItemsByOrderId(): void
     {
         $lineItems = $this->service->getAllLineItemsByOrderId(9999);
 
@@ -71,7 +71,7 @@ class LineItemsTest extends Unit
         self::assertCount(2, $lineItems);
     }
 
-    public function testResolveLineItemExisting()
+    public function testResolveLineItemExisting(): void
     {
         $order = $this->fixtureData->getElement('completed-new');
         /** @var LineItem $orderLineItem */
@@ -88,7 +88,7 @@ class LineItemsTest extends Unit
         self::assertEquals($orderLineItem->orderId, $resolvedLineItem->orderId);
     }
 
-    public function testResolveLineItemNew()
+    public function testResolveLineItemNew(): void
     {
         $lineItem = $this->fixtureData->getElement('completed-new')->getLineItems()[1];
         $variant = Variant::find()->id($lineItem->purchasableId)->one();
@@ -99,7 +99,7 @@ class LineItemsTest extends Unit
         self::assertEquals($variant->getPrice(), $resolvedLineItem->getPrice());
     }
 
-    public function testGetLineItemById()
+    public function testGetLineItemById(): void
     {
         $lineItems = $this->fixtureData->getElement('completed-new')->getLineItems();
         $lineItem = $this->service->getLineItemById($lineItems[0]->id);
@@ -108,7 +108,7 @@ class LineItemsTest extends Unit
         self::assertEquals($lineItems[0]->qty, $lineItem->qty);
     }
 
-    public function testCreateLineItem()
+    public function testCreateLineItem(): void
     {
         $lineItem = $this->fixtureData->getElement('completed-new')->getLineItems()[0];
         $qty = 4;

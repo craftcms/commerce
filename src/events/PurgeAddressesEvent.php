@@ -21,5 +21,5 @@ class PurgeAddressesEvent extends CancelableEvent
     /**
      * @var Query|null The query to get the purgable addresses
      */
-    public $addressesQuery;
+    public ?Query $addressesQuery;
 }

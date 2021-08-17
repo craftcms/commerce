@@ -15,7 +15,7 @@ namespace craft\commerce\controllers;
  */
 class PromotionsController extends BaseCpController
 {
-    public function actionIndex()
+    public function actionIndex(): void
     {
         $this->redirect('commerce/promotions/sales');
     }

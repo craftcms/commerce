@@ -15,6 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use Throwable;
@@ -36,22 +37,22 @@ class CartController extends BaseFrontEndController
     /**
      * @var Order The cart element
      */
-    protected $_cart;
+    protected Order $_cart;
 
     /**
      * @var string the name of the cart variable
      */
-    protected $_cartVariable;
+    protected string $_cartVariable;
 
     /**
      * @var User|null
      */
-    protected $_currentUser;
+    protected ?User $_currentUser;
 
     /**
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
         $this->_currentUser = Craft::$app->getUser()->getIdentity();
@@ -61,8 +62,10 @@ class CartController extends BaseFrontEndController
 
     /**
      * Returns the cart as JSON
+     *
+     * @throws BadRequestHttpException
      */
-    public function actionGetCart()
+    public function actionGetCart(): Response
     {
         $this->requireAcceptsJson();
 
@@ -74,9 +77,14 @@ class CartController extends BaseFrontEndController
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
-     * @throws InvalidConfigException
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws NotFoundHttpException
+     * @throws Throwable
      */
-    public function actionUpdateCart()
+    public function actionUpdateCart(): ?Response
     {
         $this->requirePostRequest();
         $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
@@ -88,7 +96,7 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear notices when updating the cart
-        if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
+        if ($this->request->getParam('clearNotices') !== null) {
             $this->_cart->clearNotices();
         }
 
@@ -240,9 +248,12 @@ class CartController extends BaseFrontEndController
 
     /**
      * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws MissingComponentException
      * @since 3.1
      */
-    public function actionLoadCart()
+    public function actionLoadCart(): ?Response
     {
         $number = $this->request->getParam('number');
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
@@ -287,9 +298,15 @@ class CartController extends BaseFrontEndController
 
     /**
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws HttpException
+     * @throws NotFoundHttpException
+     * @throws Throwable
      * @since 3.3
      */
-    public function actionComplete()
+    public function actionComplete(): ?Response
     {
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
@@ -338,9 +355,6 @@ class CartController extends BaseFrontEndController
 
 
         if (empty($errors)) {
-
-            $completedSuccess = false;
-
             try {
                 $completedSuccess = $this->_cart->markAsComplete();
             } catch (\Exception $exception) {
@@ -356,10 +370,10 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @param $lineItemId |nulls
+     * @param $lineItemId|null
      * @return LineItem|null
      */
-    private function _getCartLineItemById($lineItemId)
+    private function _getCartLineItemById(?int $lineItemId): ?LineItem
     {
         $lineItem = null;
 
@@ -379,7 +393,7 @@ class CartController extends BaseFrontEndController
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    private function _returnCart()
+    private function _returnCart(): ?Response
     {
         // Allow validation of custom fields when passing this param
         $validateCustomFields = Plugin::getInstance()->getSettings()->validateCartCustomFieldsOnSubmission;
@@ -453,10 +467,8 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    private function _getCart($forceSave = false)
+    private function _getCart(bool $forceSave = false): ?Order
     {
-        $cart = null;
-
         // TODO Remove `orderNumber` param in 4.0 #COM-33
         $orderNumber = $this->request->getBodyParam('orderNumber');
         $orderNumber = $this->request->getBodyParam('number', $orderNumber);
@@ -481,7 +493,7 @@ class CartController extends BaseFrontEndController
     /**
      * Set addresses on the cart.
      */
-    private function _setAddresses()
+    private function _setAddresses(): void
     {
         // Address updating
 

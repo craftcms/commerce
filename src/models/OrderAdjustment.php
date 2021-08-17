@@ -21,6 +21,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property Order|null $order
  * @property LineItem|null $lineItem
  * @property array $sourceSnapshot
+ * @property-read string $currency
  * @property-read string $amountAsCurrency
  * @method void typecastAttributes()
  *
@@ -30,34 +31,34 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderAdjustment extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var string Type
      */
-    public $type;
+    public string $type;
 
     /**
      * @var float Amount
      */
-    public $amount;
+    public float $amount;
 
     /**
      * @var bool Included
      */
-    public $included = false;
+    public bool $included = false;
 
     /**
      * @var mixed Adjuster options
@@ -65,29 +66,29 @@ class OrderAdjustment extends Model
     private $_sourceSnapshot = [];
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
-     * @var int Line item ID this adjustment belongs to
+     * @var int|null Line item ID this adjustment belongs to
      */
-    public $lineItemId;
+    public ?int $lineItemId;
 
     /**
      * @var bool Whether the adjustment is based of estimated data
      */
-    public $isEstimated = false;
+    public bool $isEstimated = false;
 
     /**
      * @var LineItem|null The line item this adjustment belongs to
      */
-    private $_lineItem;
+    private ?LineItem $_lineItem = null;
 
     /**
      * @var Order|null The order this adjustment belongs to
      */
-    private $_order;
+    private ?Order $_order;
 
 
     public function behaviors(): array
@@ -184,7 +185,7 @@ class OrderAdjustment extends Model
      *
      * @param array|string $snapshot
      */
-    public function setSourceSnapshot($snapshot)
+    public function setSourceSnapshot($snapshot): void
     {
         if (is_string($snapshot)) {
             $snapshot = Json::decode($snapshot);
@@ -200,9 +201,9 @@ class OrderAdjustment extends Model
     /**
      * @return LineItem|null
      */
-    public function getLineItem()
+    public function getLineItem(): ?LineItem
     {
-        if ($this->_lineItem === null && $this->lineItemId) {
+        if ($this->_lineItem === null && isset($this->lineItemId) && $this->lineItemId) {
             $this->_lineItem = Plugin::getInstance()->getLineItems()->getLineItemById($this->lineItemId);
         }
 
@@ -213,7 +214,7 @@ class OrderAdjustment extends Model
      * @param LineItem $lineItem
      * @return void
      */
-    public function setLineItem(LineItem $lineItem)
+    public function setLineItem(LineItem $lineItem): void
     {
         $this->_lineItem = $lineItem;
     }
@@ -221,9 +222,9 @@ class OrderAdjustment extends Model
     /**
      * @return Order|null
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if ($this->_order === null && $this->orderId) {
+        if (!isset($this->_order) && isset($this->orderId) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -234,7 +235,7 @@ class OrderAdjustment extends Model
      * @param Order $order
      * @return void
      */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
         $this->orderId = $order->id;

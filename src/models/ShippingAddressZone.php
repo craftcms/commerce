@@ -32,57 +32,57 @@ use DateTime;
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
      */
-    public $default = false;
+    public bool $default = false;
 
     /**
-     * @var string The code to match the zip code.
+     * @var string|null The code to match the zip code.
      * @since 2.2
      */
-    public $zipCodeConditionFormula;
+    public ?string $zipCodeConditionFormula = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Country based
      */
-    private $_isCountryBased = true;
+    private bool $_isCountryBased = true;
 
     /**
-     * @var Country[]
+     * @var Country[]|null
      */
-    private $_countries;
+    private ?array $_countries = null;
 
     /**
-     * @var State[]
+     * @var State[]|null
      */
-    private $_states;
+    private ?array $_states = null;
 
 
     /**
@@ -132,8 +132,8 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getCountries(): array
     {
-        if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId((int)$this->id);
+        if (!isset($this->_countries)) {
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId($this->id);
         }
 
         return $this->_countries;
@@ -144,7 +144,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      *
      * @param Country[] $countries
      */
-    public function setCountries($countries)
+    public function setCountries(array $countries): void
     {
         $this->_countries = $countries;
     }
@@ -170,7 +170,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getStates(): array
     {
-        if ($this->_states === null) {
+        if (!isset($this->_states)) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
         }
 
@@ -178,12 +178,12 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      * @since 2.2
      */
-    public function getZipCodeConditionFormula(): string
+    public function getZipCodeConditionFormula(): ?string
     {
-        return (string)$this->zipCodeConditionFormula;
+        return $this->zipCodeConditionFormula;
     }
 
     /**
@@ -191,7 +191,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      *
      * @param State[] $states
      */
-    public function setStates($states)
+    public function setStates(array $states): void
     {
         $this->_states = $states;
     }
@@ -221,7 +221,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     {
         $states = [];
 
-        /** @var State $state */
         foreach ($this->getStates() as $state) {
             $states[] = $state->getLabel();
         }

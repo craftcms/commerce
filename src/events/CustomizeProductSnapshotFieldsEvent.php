@@ -21,10 +21,10 @@ class CustomizeProductSnapshotFieldsEvent extends Event
     /**
      * @var Product The product
      */
-    public $product;
+    public Product $product;
 
     /**
      * @var array|null The fields to be captured
      */
-    public $fields;
+    public ?array $fields;
 }

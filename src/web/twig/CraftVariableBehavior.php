@@ -30,9 +30,9 @@ class CraftVariableBehavior extends Behavior
     /**
      * @var Plugin
      */
-    public $commerce;
+    public Plugin $commerce;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 

@@ -21,10 +21,10 @@ class ProductEvent extends CancelableEvent
     /**
      * @var Product The address model
      */
-    public $product;
+    public Product $product;
 
     /**
      * @var bool If this is a new product
      */
-    public $isNew;
+    public bool $isNew;
 }

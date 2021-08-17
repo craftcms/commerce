@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 use craft\web\Request;
+use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -31,6 +32,7 @@ class Product
      * @param               $variant
      * @param               $key
      * @return Variant
+     * @throws InvalidConfigException
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {

@@ -24,34 +24,34 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderNotice extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Type
      */
-    public $type;
+    public string $type;
 
     /**
      * @var string Attribute
      */
-    public $attribute;
+    public string $attribute;
 
     /**
      * @var string Message
      */
-    public $message;
+    public string $message;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
      * @var Order|null The order this notice belongs to
      */
-    private $_order;
+    private ?Order $_order;
 
     /**
      * @return string
@@ -102,7 +102,7 @@ class OrderNotice extends Model
      * @param Order $order
      * @return void
      */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
         $this->orderId = $order->id;
@@ -111,9 +111,9 @@ class OrderNotice extends Model
     /**
      * @return Order|null
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if ($this->_order === null && $this->orderId) {
+        if (!isset($this->_order) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 

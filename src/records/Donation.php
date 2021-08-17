@@ -35,7 +35,7 @@ class Donation extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [['sku'], 'unique']

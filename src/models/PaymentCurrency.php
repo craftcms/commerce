@@ -29,41 +29,41 @@ use DateTime;
 class PaymentCurrency extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string ISO code
      */
-    public $iso;
+    public string $iso;
 
     /**
      * @var bool Is primary currency
      */
-    public $primary;
+    public bool $primary;
 
     /**
      * @var float Exchange rate vs primary currency
      */
-    public $rate;
+    public float $rate;
 
     /**
      * @var Currency
      */
-    private $_currency;
+    private Currency $_currency;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
 
     /**
      * @return string
@@ -98,9 +98,9 @@ class PaymentCurrency extends Model
     /**
      * @return string|null
      */
-    public function getAlphabeticCode()
+    public function getAlphabeticCode(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->alphabeticCode;
         }
 
@@ -110,9 +110,9 @@ class PaymentCurrency extends Model
     /**
      * @return int|null
      */
-    public function getNumericCode()
+    public function getNumericCode(): ?int
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->numericCode;
         }
 
@@ -122,9 +122,9 @@ class PaymentCurrency extends Model
     /**
      * @return string|null
      */
-    public function getEntity()
+    public function getEntity(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->entity;
         }
 
@@ -134,9 +134,9 @@ class PaymentCurrency extends Model
     /**
      * @return int|null
      */
-    public function getMinorUnit()
+    public function getMinorUnit(): ?int
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->minorUnit;
         }
 
@@ -148,7 +148,7 @@ class PaymentCurrency extends Model
      *
      * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->getCurrency();
     }
@@ -156,9 +156,9 @@ class PaymentCurrency extends Model
     /**
      * @return string|null
      */
-    public function getCurrency()
+    public function getCurrency(): ?string
     {
-        if ($this->_currency !== null) {
+        if (isset($this->_currency)) {
             return $this->_currency->currency;
         }
 
@@ -170,7 +170,7 @@ class PaymentCurrency extends Model
      *
      * @param $currency
      */
-    public function setCurrency(Currency $currency)
+    public function setCurrency(Currency $currency): void
     {
         $this->_currency = $currency;
     }

@@ -15,7 +15,6 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
-use craft\commerce\elements\traits\OrderDeprecatedTrait;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
@@ -138,6 +137,10 @@ use yii\log\Logger;
  * @property float $totalTax
  * @property float $totalShippingCost
  * @property ShippingMethodOption[] $availableShippingMethodOptions
+ * @property-read float|int $totalAuthorized
+ * @property float $paymentAmount
+ * @property-read null|string $loadCartUrl
+ * @property-read array $metadata
  * @property-read Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -145,7 +148,6 @@ use yii\log\Logger;
 class Order extends Element
 {
     use OrderValidatorsTrait;
-    use OrderDeprecatedTrait;
     use OrderElementTrait;
     use OrderNoticesTrait;
 
@@ -409,13 +411,13 @@ class Order extends Element
      * {{ order.number }}
      * ```
      */
-    public $number;
+    public string $number;
 
     /**
-     * This is the the reference number generated once the order was completed.
+     * This is the reference number generated once the order was completed.
      * While the order is a cart, this is null.
      *
-     * @var string Reference
+     * @var string|null Reference
      * ---
      * ```php
      * echo $order->reference;
@@ -424,7 +426,7 @@ class Order extends Element
      * {{ order.reference }}
      * ```
      */
-    public $reference;
+    public ?string $reference = null;
 
     /**
      * This is the currently applied coupon code.
@@ -438,7 +440,7 @@ class Order extends Element
      * {{ order.couponCode }}
      * ```
      */
-    public $couponCode;
+    public ?string $couponCode = null;
 
     /**
      * Is this order completed (no longer a cart).
@@ -452,12 +454,12 @@ class Order extends Element
      * {{ order.isCompleted }}
      * ```
      */
-    public $isCompleted = false;
+    public bool $isCompleted = false;
 
     /**
      * The date and time this order was completed
      *
-     * @var DateTime Date ordered
+     * @var DateTime|null Date ordered
      * ---
      * ```php
      * echo $order->dateOrdered;
@@ -466,12 +468,12 @@ class Order extends Element
      * {{ order.dateOrdered }}
      * ```
      */
-    public $dateOrdered;
+    public ?DateTime $dateOrdered = null;
 
     /**
      * The date and time this order was paid in full.
      *
-     * @var DateTime Date paid
+     * @var DateTime|null Date paid
      * ---
      * ```php
      * echo $order->datePaid;
@@ -480,13 +482,13 @@ class Order extends Element
      * {{ order.datePaid }}
      * ```
      */
-    public $datePaid;
+    public ?DateTime $datePaid = null;
 
     /**
      * The date and time this order was authorized in full.
      * This may the same date as datePaid if the order was paid immediately.
      *
-     * @var DateTime Date authorized
+     * @var DateTime|null Date authorized
      * ---
      * ```php
      * echo $order->dateAuthorized;
@@ -495,12 +497,12 @@ class Order extends Element
      * {{ order.dateAuthorized }}
      * ```
      */
-    public $dateAuthorized;
+    public ?DateTime $dateAuthorized = null;
 
     /**
      * The currency of the order (ISO code)
      *
-     * @var string Currency
+     * @var string|null Currency
      * ---
      * ```php
      * echo $order->currency;
@@ -509,7 +511,7 @@ class Order extends Element
      * {{ order.currency }}
      * ```
      */
-    public $currency;
+    public ?string $currency = null;
 
     /**
      * The current gateway ID to identify the gateway the order should use when accepting payments.
@@ -525,7 +527,7 @@ class Order extends Element
      * {{ order.gatewayId }}
      * ```
      */
-    public $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
      * The last IP address of the user building the order before it was marked as complete.
@@ -539,7 +541,7 @@ class Order extends Element
      * {{ order.lastIp }}
      * ```
      */
-    public $lastIp;
+    public ?string $lastIp = null;
 
     /**
      * The current message set on the order when having it’s order status being changed.
@@ -553,13 +555,13 @@ class Order extends Element
      * {{ order.message }}
      * ```
      */
-    public $message;
+    public ?string $message = null;
 
     /**
      * The current URL the order should return to after successful payment.
      * This is stored on the order as we may be redirected off-site for payments.
      *
-     * @var string Return URL
+     * @var string|null Return URL
      * ---
      * ```php
      * echo $order->returnUrl;
@@ -568,13 +570,13 @@ class Order extends Element
      * {{ order.returnUrl }}
      * ```
      */
-    public $returnUrl;
+    public ?string $returnUrl = null;
 
     /**
      * The current URL the order should return to if the customer cancels payment off-site.
      * This is stored on the order as we may be redirected off-site for payments.
      *
-     * @var string Cancel URL
+     * @var string|null Cancel URL
      * ---
      * ```php
      * echo $order->cancelUrl;
@@ -583,7 +585,7 @@ class Order extends Element
      * {{ order.cancelUrl }}
      * ```
      */
-    public $cancelUrl;
+    public ?string $cancelUrl = null;
 
     /**
      * The current order status ID. This will be null if the order is not complete
@@ -598,12 +600,12 @@ class Order extends Element
      * {{ order.orderStatusId }}
      * ```
      */
-    public $orderStatusId;
+    public ?int $orderStatusId = null;
 
     /**
      * The language the cart was created in.
      *
-     * @var string The language the order was made in.
+     * @var string|null The language the order was made in.
      * ---
      * ```php
      * echo $order->orderLanguage;
@@ -612,7 +614,7 @@ class Order extends Element
      * {{ order.orderLanguage }}
      * ```
      */
-    public $orderLanguage;
+    public ?string $orderLanguage = null;
 
     /**
      * The site the order was created in.
@@ -626,14 +628,14 @@ class Order extends Element
      * {{ order.orderSiteId }}
      * ```
      */
-    public $orderSiteId;
+    public ?int $orderSiteId = null;
 
 
     /**
      * The origin of the order when it was first created.
      * Values can be 'web', 'cp', or 'api'
      *
-     * @var string Order origin
+     * @var string|null Order origin
      * ---
      * ```php
      * echo $order->origin;
@@ -642,7 +644,7 @@ class Order extends Element
      * {{ order.origin }}
      * ```
      */
-    public $origin;
+    public ?string $origin = null;
 
     /**
      * The current billing address ID
@@ -656,7 +658,7 @@ class Order extends Element
      * {{ order.billingAddressId }}
      * ```
      */
-    public $billingAddressId;
+    public ?int $billingAddressId = null;
 
     /**
      * The current shipping address ID
@@ -670,11 +672,11 @@ class Order extends Element
      * {{ order.shippingAddressId }}
      * ```
      */
-    public $shippingAddressId;
+    public ?int $shippingAddressId = null;
 
 
     /**
-     * Whether or not the shipping address should be made the primary address of the
+     * Whether the shipping address should be made the primary address of the
      * order‘s customer. This is not persisted on the order, and is only used during the
      * update order request.
      *
@@ -687,10 +689,10 @@ class Order extends Element
      * {{ order.makePrimaryShippingAddress }}
      * ```
      */
-    public $makePrimaryShippingAddress;
+    public ?bool $makePrimaryShippingAddress = null;
 
     /**
-     * Whether or not the billing address should be made the primary address of the
+     * Whether the billing address should be made the primary address of the
      * order‘s customer. This is not persisted on the order, and is only used during the
      * update order request.
      *
@@ -703,15 +705,15 @@ class Order extends Element
      * {{ order.makePrimaryBillingAddress }}
      * ```
      */
-    public $makePrimaryBillingAddress;
+    public ?bool $makePrimaryBillingAddress = null;
 
     /**
-     * Whether or not the shipping address should be the same address as the order’s
+     * Whether the shipping address should be the same address as the order’s
      * billing address. This is not persisted on the order, and is only used during the
      * update order request. Can not be set to `true` at the same time as setting
      * `billingSameAsShipping` to true, or an error will be raised.
      *
-     * @var bool Make this the shipping address the same as the billing address
+     * @var bool|null Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->shippingSameAsBilling;
@@ -720,15 +722,15 @@ class Order extends Element
      * {{ order.shippingSameAsBilling }}
      * ```
      */
-    public $shippingSameAsBilling;
+    public ?bool $shippingSameAsBilling = null;
 
     /**
-     * Whether or not the billing address should be the same address as the order’s
+     * Whether the billing address should be the same address as the order’s
      * shipping address. This is not persisted on the order, and is only used during the
      * update order request. Can not be set to `true` at the same time as setting
      * `shippingSameAsBilling` to true, or an error will be raised.
      *
-     * @var bool Make this the shipping address the same as the billing address
+     * @var bool|null Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->billingSameAsShipping;
@@ -737,44 +739,44 @@ class Order extends Element
      * {{ order.billingSameAsShipping }}
      * ```
      */
-    public $billingSameAsShipping;
+    public ?bool $billingSameAsShipping = null;
 
     /**
-     * @var int Estimated Billing address ID
+     * @var int|null Estimated Billing address ID
      * @since 2.2
      */
-    public $estimatedBillingAddressId;
+    public ?int $estimatedBillingAddressId = null;
 
     /**
-     * @var int Estimated Shipping address ID
+     * @var int|null Estimated Shipping address ID
      * @since 2.2
      */
-    public $estimatedShippingAddressId;
+    public ?int $estimatedShippingAddressId = null;
 
     /**
-     * @var bool Whether estimated billing address should be set to the same address as estimated shipping
+     * @var bool|null Whether estimated billing address should be set to the same address as estimated shipping
      * @since 2.2
      */
-    public $estimatedBillingSameAsShipping;
+    public ?bool $estimatedBillingSameAsShipping = null;
 
     /**
      * @var string Shipping Method Handle
      */
-    public $shippingMethodHandle;
+    public string $shippingMethodHandle = '';
 
     /**
-     * @var string Shipping Method Name
+     * @var string|null Shipping Method Name
      * @since 3.2.0
      */
-    public $shippingMethodName;
+    public ?string $shippingMethodName = null;
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
-    public $customerId;
+    public ?int $customerId = null;
 
     /**
-     * Whether the the email address on the order should be used to register
+     * Whether the email address on the order should be used to register
      * as a user account when the order is complete.
      *
      * @var bool Register user on order complete
@@ -786,14 +788,14 @@ class Order extends Element
      * {{ order.registerUserOnOrderComplete }}
      * ```
      */
-    public $registerUserOnOrderComplete;
+    public bool $registerUserOnOrderComplete = false;
 
     /**
      * The current payment source that should be used to make payments on the
      * order. If this is set, the `gatewayId` will also be set to the related
      * gateway.
      *
-     * @var bool Payment source ID
+     * @var bool|null Payment source ID
      * ---
      * ```php
      * echo $order->paymentSourceId;
@@ -802,11 +804,11 @@ class Order extends Element
      * {{ order.paymentSourceId }}
      * ```
      */
-    public $paymentSourceId;
+    public ?bool $paymentSourceId = null;
 
 
     /**
-     * @var float The total price as stored in the database from last retrieval
+     * @var float|null The total price as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalPrice;
@@ -815,10 +817,10 @@ class Order extends Element
      * {{ order.storedTotalPrice }}
      * ```
      */
-    public $storedTotalPrice;
+    public ?float $storedTotalPrice = null;
 
     /**
-     * @var float The total paid as stored in the database from last retrieval
+     * @var float|null The total paid as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalPaid;
@@ -827,10 +829,10 @@ class Order extends Element
      * {{ order.storedTotalPaid }}
      * ```
      */
-    public $storedTotalPaid;
+    public ?float $storedTotalPaid = null;
 
     /**
-     * @var float The item total as stored in the database from last retrieval
+     * @var float|null The item total as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedItemTotal;
@@ -839,10 +841,10 @@ class Order extends Element
      * {{ order.storedItemTotal }}
      * ```
      */
-    public $storedItemTotal;
+    public ?float $storedItemTotal = null;
 
     /**
-     * @var float The item subtotal as stored in the database from last retrieval
+     * @var float|null The item subtotal as stored in the database from last retrieval
      * @since 3.2.4
      * ---
      * ```php
@@ -852,10 +854,10 @@ class Order extends Element
      * {{ order.storedItemSubtotal }}
      * ```
      */
-    public $storedItemSubtotal;
+    public ?float $storedItemSubtotal = null;
 
     /**
-     * @var float The total shipping cost adjustments as stored in the database from last retrieval
+     * @var float|null The total shipping cost adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalShippingCost;
@@ -864,10 +866,10 @@ class Order extends Element
      * {{ order.storedTotalShippingCost }}
      * ```
      */
-    public $storedTotalShippingCost;
+    public ?float $storedTotalShippingCost = null;
 
     /**
-     * @var float The total of discount adjustments as stored in the database from last retrieval
+     * @var float|null The total of discount adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalDiscount;
@@ -876,10 +878,10 @@ class Order extends Element
      * {{ order.storedTotalDiscount }}
      * ```
      */
-    public $storedTotalDiscount;
+    public ?float $storedTotalDiscount = null;
 
     /**
-     * @var float The total tax adjustments as stored in the database from last retrieval
+     * @var float|null The total tax adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalTax;
@@ -888,10 +890,10 @@ class Order extends Element
      * {{ order.storedTotalTax }}
      * ```
      */
-    public $storedTotalTax;
+    public ?float $storedTotalTax = null;
 
     /**
-     * @var float The total tax included  adjustments as stored in the database from last retrieval
+     * @var float|null The total tax included  adjustments as stored in the database from last retrieval
      * ---
      * ```php
      * echo $order->storedTotalTaxIncluded;
@@ -900,11 +902,11 @@ class Order extends Element
      * {{ order.storedTotalTaxIncluded }}
      * ```
      */
-    public $storedTotalTaxIncluded;
+    public ?float $storedTotalTaxIncluded = null;
 
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setRecalculationMode() To set the current recalculation mode
      * @see Order::getRecalculationMode() To get the current recalculation mode
      * ---
@@ -915,7 +917,7 @@ class Order extends Element
      * {{ order.recalculationMode }}
      * ```
      */
-    private $_recalculationMode;
+    private ?string $_recalculationMode = null;
 
     /**
      * @var Address|null
@@ -933,7 +935,7 @@ class Order extends Element
      * {% endif %}
      * ```
      */
-    private $_shippingAddress;
+    private ?Address $_shippingAddress = null;
 
     /**
      * @var Address|null
@@ -951,19 +953,19 @@ class Order extends Element
      * {% endif %}
      * ```
      */
-    private $_billingAddress;
+    private ?Address $_billingAddress = null;
 
     /**
      * @var Address|null
      * @since 2.2
      */
-    private $_estimatedShippingAddress;
+    private ?Address $_estimatedShippingAddress = null;
 
     /**
      * @var Address|null
      * @since 2.2
      */
-    private $_estimatedBillingAddress;
+    private ?Address $_estimatedBillingAddress = null;
 
     /**
      * @var LineItem[]
@@ -981,10 +983,10 @@ class Order extends Element
      * {% endfor %}
      * ```
      */
-    private $_lineItems;
+    private array $_lineItems;
 
     /**
-     * @var OrderAdjustment[]
+     * @var OrderAdjustment[]|null
      * @see Order::setAdjustments() To set the order adjustments
      * @see Order::setAdjustments() To get the order adjustments
      * ---
@@ -999,10 +1001,10 @@ class Order extends Element
      * {% endfor %}
      * ```
      */
-    private $_orderAdjustments;
+    private ?array $_orderAdjustments = null;
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setPaymentCurrency() To set the payment currency
      * @see Order::getPaymentCurrency() To get the payment currency
      * ---
@@ -1013,10 +1015,10 @@ class Order extends Element
      * {{ order.paymentCurrency }}
      * ```
      */
-    private $_paymentCurrency;
+    private ?string $_paymentCurrency = null;
 
     /**
-     * @var string
+     * @var string|null
      * @see Order::setEmail() To set the order email
      * @see Order::getEmail() To get the email
      * ---
@@ -1027,10 +1029,10 @@ class Order extends Element
      * {{ order.email }}
      * ```
      */
-    private $_email;
+    private ?string $_email = null;
 
     /**
-     * @var string
+     * @var Transaction[]|null
      * @see Order::getTransactions()
      * ---
      * ```php
@@ -1040,10 +1042,10 @@ class Order extends Element
      * {{ order.transactions }}
      * ```
      */
-    private $_transactions;
+    private ?array $_transactions = null;
 
     /**
-     * @var Customer
+     * @var Customer|null
      * @see Order::getCustomer()
      * @see Order::setCustomer()
      * ---
@@ -1054,10 +1056,10 @@ class Order extends Element
      * {{ order.customer }}
      * ```
      */
-    private $_customer;
+    private ?Customer $_customer = null;
 
     /**
-     * @var float
+     * @var float|null
      * @see Order::setPaymentAmount() To set the order payment amount
      * @see Order::getPaymentAmount() To get the order payment amount
      * ---
@@ -1068,7 +1070,7 @@ class Order extends Element
      * {{ order.paymentAmount }}
      * ```
      */
-    private $_paymentAmount;
+    private ?float $_paymentAmount = null;
 
     /**
      * @inheritdoc
@@ -1326,7 +1328,7 @@ class Order extends Element
         $fields = parent::fields();
 
         foreach ($this->datetimeAttributes() as $attribute) {
-            $fields[$attribute] = function($model, $attribute) {
+            $fields[$attribute] = static function($model, $attribute) {
                 if (!empty($model->$attribute)) {
                     $formatter = Craft::$app->getFormatter();
 
@@ -1393,7 +1395,7 @@ class Order extends Element
             ['billingAddress', 'shippingAddress'], 'validateAddress'
         ]; // from OrderValidatorTrait
 
-        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+        // Do the addresses belong to the customer of the order (only checked if the order is a cart)
         $rules[] = [
             ['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'
         ]; // from OrderValidatorTrait
@@ -1631,7 +1633,7 @@ class Order extends Element
      *
      * @param LineItem $lineItem
      */
-    public function addLineItem($lineItem): void
+    public function addLineItem(LineItem $lineItem): void
     {
         $lineItems = $this->getLineItems();
         $isNew = ($lineItem->id === null);
@@ -1654,7 +1656,7 @@ class Order extends Element
         }
 
         if (!$replaced) {
-            ArrayHelper::prepend($lineItems, $lineItem);
+            array_unshift($lineItems, $lineItem);
         }
 
         $this->setLineItems($lineItems);
@@ -1710,7 +1712,7 @@ class Order extends Element
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
             $lineItemRemoved = false;
-            foreach ($this->getLineItems() as $key => $item) {
+            foreach ($this->getLineItems() as $item) {
                 $originalSalePrice = $item->getSalePrice();
                 $originalSalePriceAsCurrency = $item->salePriceAsCurrency;
                 if ($item->refreshFromPurchasable()) {
@@ -1801,7 +1803,6 @@ class Order extends Element
 
                     $this->addNotice($orderNotice);
                     $this->recalculate();
-                    return;
                 }
             }
         }
@@ -1832,7 +1833,7 @@ class Order extends Element
             $option->price = $method->getPriceForOrder($this);
 
             // Add all methods if completed, and only the matching methods when it is not completed.
-            if ($this->isCompleted || (!$this->isCompleted && $option->matchesOrder)) {
+            if ($this->isCompleted || $option->matchesOrder) {
                 $options[$option->handle] = $option;
             }
         }
@@ -1845,7 +1846,6 @@ class Order extends Element
      */
     public function beforeSave(bool $isNew): bool
     {
-
         if (null === $this->shippingMethodHandle) {
             // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
@@ -2003,12 +2003,12 @@ class Order extends Element
         $updateCustomer = false;
 
         if ($customer) {
-            if ($this->makePrimaryBillingAddress || empty($existingAddresses) || !$customer->primaryBillingAddressId) {
+            if ((isset($this->makePrimaryBillingAddress) && $this->makePrimaryBillingAddress) || empty($existingAddresses) || !$customer->primaryBillingAddressId) {
                 $customer->primaryBillingAddressId = $orderRecord->billingAddressId;
                 $updateCustomer = true;
             }
 
-            if ($this->makePrimaryShippingAddress || empty($existingAddresses) || !$customer->primaryShippingAddressId) {
+            if ((isset($this->makePrimaryShippingAddress) && $this->makePrimaryShippingAddress) || empty($existingAddresses) || !$customer->primaryShippingAddressId) {
                 $customer->primaryShippingAddressId = $orderRecord->shippingAddressId;
                 $updateCustomer = true;
             }
@@ -2095,6 +2095,7 @@ class Order extends Element
      * Returns the URL to the cart’s load action url
      *
      * @return string|null The URL to the order’s load cart URL, or null if the cart is an order
+     * @noinspection PhpUnused
      */
     public function getLoadCartUrl(): ?string
     {
@@ -2134,9 +2135,9 @@ class Order extends Element
      * @param Customer|null $customer
      * @since 3.1.11
      */
-    public function setCustomer($customer): void
+    public function setCustomer(?Customer $customer): void
     {
-        if ($customer !== null && $customer instanceof Customer) {
+        if ($customer instanceof Customer) {
             if (!$customer->id) {
                 throw new InvalidCallException('Customer must have an ID');
             }
@@ -2211,6 +2212,7 @@ class Order extends Element
 
     /**
      * @return bool
+     * @noinspection PhpUnused
      */
     public function getIsUnpaid(): bool
     {
@@ -2221,6 +2223,7 @@ class Order extends Element
      * Returns the paymentAmount for this order.
      *
      * @return float
+     * @throws CurrencyException
      */
     public function getPaymentAmount(): float
     {
@@ -2234,9 +2237,11 @@ class Order extends Element
     }
 
     /**
-     * Sets the orders payment amount in the order's currency. This amount is not persisted.
+     * Sets the order's payment amount in the order's currency. This amount is not persisted.
      *
      * @param float $amount
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
     public function setPaymentAmount(float $amount): void
     {
@@ -2511,6 +2516,7 @@ class Order extends Element
 
     /**
      * @return bool
+     * @noinspection PhpUnused
      */
     public function hasLineItems(): bool
     {
@@ -2537,7 +2543,7 @@ class Order extends Element
      */
     public function getLineItems(): array
     {
-        if (null === $this->_lineItems) {
+        if (!isset($this->_lineItems)) {
             $lineItems = $this->id ? Plugin::getInstance()->getLineItems()->getAllLineItemsByOrderId($this->id) : [];
             foreach ($lineItems as $lineItem) {
                 $lineItem->setOrder($this);
@@ -2545,7 +2551,7 @@ class Order extends Element
             $this->_lineItems = $lineItems;
         }
 
-        return $this->_lineItems;
+        return array_filter($this->_lineItems);
     }
 
     /**
@@ -2576,7 +2582,7 @@ class Order extends Element
      * @param bool $included
      * @return float|int
      */
-    public function _getAdjustmentsTotalByType($types, $included = false)
+    public function _getAdjustmentsTotalByType($types, bool $included = false)
     {
         $amount = 0;
 
@@ -2627,6 +2633,7 @@ class Order extends Element
 
     /**
      * @return float
+     * @noinspection PhpUnused
      */
     public function getTotalWeight(): float
     {
@@ -2672,6 +2679,7 @@ class Order extends Element
      * Returns the total of adjustments made to order.
      *
      * @return float|int
+     * @noinspection PhpUnused
      */
     public function getAdjustmentSubtotal(): float
     {
@@ -2686,15 +2694,20 @@ class Order extends Element
     }
 
     /**
-     * @return OrderAdjustment[]
+     * @return OrderAdjustment[]|null
+     * @throws InvalidConfigException
      */
-    public function getAdjustments(): array
+    public function getAdjustments(): ?array
     {
-        if (null === $this->_orderAdjustments) {
+        if (null !== $this->_orderAdjustments) {
+            return $this->_orderAdjustments;
+        }
+
+        if ($this->id) {
             $this->setAdjustments(Plugin::getInstance()->getOrderAdjustments()->getAllOrderAdjustmentsByOrderId($this->id));
         }
 
-        return $this->_orderAdjustments;
+        return $this->_orderAdjustments ?? [];
     }
 
     /**
@@ -2978,8 +2991,6 @@ class Order extends Element
      * Returns the current payment currency, and defaults to the primary currency if not set.
      *
      * @return string
-     * @throws InvalidConfigException
-     * @throws CurrencyException
      */
     public function getPaymentCurrency(): string
     {
@@ -2993,7 +3004,7 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency($value): void
+    public function setPaymentCurrency(string $value): void
     {
         $this->_paymentCurrency = $value;
     }
@@ -3097,6 +3108,7 @@ class Order extends Element
 
     /**
      * @return Transaction|null
+     * @noinspection PhpUnused
      */
     public function getLastTransaction(): ?Transaction
     {
@@ -3138,10 +3150,11 @@ class Order extends Element
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
     public function getOrderStatus(): ?OrderStatus
     {
-        return Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId);
+        return $this->orderStatusId !== null ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($this->orderStatusId) : null;
     }
 
     /**

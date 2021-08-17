@@ -91,6 +91,7 @@ class ProductType extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getVariantFieldLayout(): ActiveQueryInterface
     {

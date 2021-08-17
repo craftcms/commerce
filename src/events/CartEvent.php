@@ -22,10 +22,10 @@ class CartEvent extends CancelableEvent
     /**
      * @var LineItem The line item model.
      */
-    public $lineItem;
+    public LineItem $lineItem;
 
     /**
      * @var Order The order element
      */
-    public $order;
+    public Order $order;
 }

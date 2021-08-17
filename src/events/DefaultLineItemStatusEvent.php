@@ -22,10 +22,10 @@ class DefaultLineItemStatusEvent extends Event
     /**
      * @var LineItemStatus|null The default line item status based on the line item
      */
-    public $lineItemStatus;
+    public ?LineItemStatus $lineItemStatus;
 
     /**
      * @var LineItem The line item used to determine the line item status.
      */
-    public $lineItem;
+    public LineItem $lineItem;
 }

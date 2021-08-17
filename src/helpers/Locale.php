@@ -9,6 +9,7 @@ namespace craft\commerce\helpers;
 
 use Craft;
 use craft\helpers\ArrayHelper;
+use yii\base\InvalidConfigException;
 
 /**
  * Locale Helper
@@ -23,9 +24,9 @@ class Locale
      *
      * @param $toLanguage
      * @return void
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
-    public static function switchAppLanguage($toLanguage)
+    public static function switchAppLanguage($toLanguage): void
     {
         Craft::$app->language = $toLanguage;
         Craft::$app->set('locale', Craft::$app->getI18n()->getLocaleById($toLanguage));
@@ -33,10 +34,11 @@ class Locale
 
     /**
      * Get the created sites languages and all languages.
-     * 
+     *
      * @return array
+     * @throws \yii\base\Exception
      */
-    public static function getSiteAndOtherLanguages()
+    public static function getSiteAndOtherLanguages(): array
     {
         $pdfLanguageOptions['siteLanguages']['optgroup'] = Craft::t('commerce', 'Site Languages');
 

@@ -23,20 +23,20 @@ class PurchasableShippableEvent extends Event
     /**
      * @var Order|null The order element.
      */
-    public $order;
+    public ?Order $order;
 
     /**
      * @var PurchasableInterface The purchasable element.
      */
-    public $purchasable;
+    public PurchasableInterface $purchasable;
 
     /**
      * @var User|null The user performing the check.
      */
-    public $currentUser;
+    public ?User $currentUser;
 
     /**
      * @var bool Is this purchasable shippable within the order and current user. Default is: $event->purchasable->getIsShippable()
      */
-    public $isShippable;
+    public bool $isShippable;
 }

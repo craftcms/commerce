@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Order History Class
@@ -26,53 +27,54 @@ use DateTime;
 class OrderHistory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public $message;
+    public ?string $message = null;
 
     /**
      * @var int Order ID
      */
-    public $orderId;
+    public int $orderId;
 
     /**
      * @var int Previous Status ID
      */
-    public $prevStatusId;
+    public int $prevStatusId;
 
     /**
-     * @var int New status ID
+     * @var int|null New status ID
      */
-    public $newStatusId;
+    public ?int $newStatusId;
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
-    public $customerId;
+    public ?int $customerId;
 
     /**
      * @var Datetime|null
      */
-    public $dateCreated;
-
+    public ?DateTime $dateCreated = null;
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         return Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
     }
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
-    public function getPrevStatus()
+    public function getPrevStatus(): ?OrderStatus
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->prevStatusId);
@@ -80,8 +82,9 @@ class OrderHistory extends Model
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
-    public function getNewStatus()
+    public function getNewStatus(): ?OrderStatus
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses(true);
         return ArrayHelper::firstWhere($orderStatuses, 'id', $this->newStatusId);
@@ -89,8 +92,9 @@ class OrderHistory extends Model
 
     /**
      * @return Customer|null
+     * @throws InvalidConfigException
      */
-    public function getCustomer()
+    public function getCustomer(): ?Customer
     {
         return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
     }

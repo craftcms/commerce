@@ -72,9 +72,10 @@ class ShippingMethodsController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws \yii\base\Exception
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
         $shippingMethod = new ShippingMethod();
@@ -115,12 +116,11 @@ class ShippingMethodsController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws MissingComponentException
-     * @throws Exception
      * @throws BadRequestHttpException
+     * @throws Exception
      * @since 3.2.9
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');

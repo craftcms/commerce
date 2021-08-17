@@ -20,40 +20,40 @@ trait GatewayTrait
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Payment Type
      */
-    public $paymentType = 'purchase';
+    public string $paymentType = 'purchase';
 
     /**
      * @var bool Enabled on the frontend
      */
-    public $isFrontendEnabled = true;
+    public bool $isFrontendEnabled = true;
 
     /**
      * @var bool Archived
      */
-    public $isArchived = false;
+    public bool $isArchived = false;
 
     /**
-     * @var DateTime Archived Date
+     * @var DateTime|null Archived Date
      */
-    public $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
      * @var int|null Sort order
      */
-    public $sortOrder;
+    public ?int $sortOrder;
 
     /**
      * @var string|null UID
      */
-    public $uid;
+    public ?string $uid;
 }

@@ -23,10 +23,8 @@ class ProductTest extends Unit
     /**
      * @group Product
      */
-    public function testProductPopulationAndValidation()
+    public function testProductPopulationAndValidation(): void
     {
-        $commerce = Plugin::getInstance();
-
         $product = new Product();
         $product->enabled = false;
         $product->title = 'test';

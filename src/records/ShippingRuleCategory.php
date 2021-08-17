@@ -32,7 +32,6 @@ class ShippingRuleCategory extends ActiveRecord
     const CONDITION_DISALLOW = 'disallow';
     const CONDITION_REQUIRE = 'require';
 
-
     /**
      * @inheritdoc
      */
@@ -43,6 +42,7 @@ class ShippingRuleCategory extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getShippingRule(): ActiveQueryInterface
     {

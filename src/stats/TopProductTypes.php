@@ -12,6 +12,7 @@ use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Table as CraftTable;
+use DateTime;
 use yii\db\Expression;
 
 /**
@@ -25,26 +26,24 @@ class TopProductTypes extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topProductTypes';
+    protected string $_handle = 'topProductTypes';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
      */
-    public $type = 'qty';
+    public string $type = 'qty';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }

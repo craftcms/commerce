@@ -27,6 +27,9 @@ use yii\behaviors\AttributeTypecastBehavior;
  */
 class ShippingMethod extends BaseShippingMethod
 {
+    /**
+     * @return array
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -56,7 +59,7 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }

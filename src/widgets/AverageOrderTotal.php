@@ -36,23 +36,21 @@ class AverageOrderTotal extends Widget
     public $endDate;
 
     /**
-     * @var string|null
+     * @var string
      */
-    public $dateRange;
+    public string $dateRange = AverageOrderTotalStat::DATE_RANGE_TODAY;
 
     /**
      * @var null|AverageOrderTotalStat
      */
-    private $_stat;
+    private ?AverageOrderTotalStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-
-        $this->dateRange = !$this->dateRange ? AverageOrderTotalStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new AverageOrderTotalStat(
             $this->dateRange,
@@ -96,7 +94,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $number = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -110,7 +108,7 @@ class AverageOrderTotal extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

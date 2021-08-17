@@ -45,7 +45,6 @@ class TaxRate extends ActiveRecord
         self::TAXABLE_ORDER_TOTAL_SHIPPING
     ];
 
-
     /**
      * @inheritdoc
      */
@@ -56,6 +55,7 @@ class TaxRate extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
     {

@@ -78,7 +78,7 @@ class Orders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $orders = $this->_getOrders();
 

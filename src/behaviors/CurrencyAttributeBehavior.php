@@ -56,17 +56,17 @@ class CurrencyAttributeBehavior extends Behavior
      * ]
      * ```
      */
-    public $currencyAttributes;
+    public array $currencyAttributes;
 
     /**
      * @var string default currency
      */
-    public $defaultCurrency;
+    public string $defaultCurrency;
 
     /**
      * @var array mapping of attribute => currency if the default is not desired
      */
-    public $attributeCurrencyMap = [];
+    public array $attributeCurrencyMap = [];
 
     /**
      * @inheritdoc
@@ -93,7 +93,7 @@ class CurrencyAttributeBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function hasMethod($name)
+    public function hasMethod($name): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
@@ -138,7 +138,7 @@ class CurrencyAttributeBehavior extends Behavior
     /**
      * @inheritdoc
      */
-    public function canGetProperty($name, $checkVars = true)
+    public function canGetProperty($name, $checkVars = true): bool
     {
         if (StringHelper::endsWith($name, 'AsCurrency', false)) {
             $attributeName = $this->_attributeNameWithoutAsCurrency($name);
@@ -151,9 +151,9 @@ class CurrencyAttributeBehavior extends Behavior
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function currencyFields()
+    public function currencyFields(): array
     {
         $fields = [];
 

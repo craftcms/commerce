@@ -16,6 +16,7 @@ use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -105,9 +106,11 @@ class StatesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws \yii\base\Exception
+     * @throws InvalidConfigException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -149,12 +152,11 @@ class StatesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws MissingComponentException
-     * @throws Exception
      * @throws BadRequestHttpException
+     * @throws Exception
      * @since 3.0
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
@@ -181,7 +183,7 @@ class StatesController extends BaseStoreSettingsController
 
     /**
      * @return Response
-     * @throws \yii\db\Exception
+     * @throws Exception
      * @throws BadRequestHttpException
      * @since 3.1
      */

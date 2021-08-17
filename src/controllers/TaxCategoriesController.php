@@ -81,10 +81,11 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
     /**
      * @return Response|null
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws Exception
      * @noinspection Duplicates
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -139,7 +140,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @throws HttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();
@@ -159,7 +160,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
      * @throws BadRequestHttpException
      * @since 3.2.9
      */
-    public function actionSetDefaultCategory()
+    public function actionSetDefaultCategory(): ?Response
     {
         $this->requirePostRequest();
 
@@ -179,5 +180,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
         }
 
         $this->setFailFlash(Craft::t('commerce', 'Unable to set default tax category.'));
+        return null;
     }
 }

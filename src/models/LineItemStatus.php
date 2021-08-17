@@ -17,6 +17,7 @@ use yii\behaviors\AttributeTypecastBehavior;
  *
  * @property string $cpEditUrl
  * @property array $emailIds
+ * @property-read array $config
  * @property string $labelHtml
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -24,49 +25,49 @@ use yii\behaviors\AttributeTypecastBehavior;
 class LineItemStatus extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Color
      */
-    public $color = 'green';
+    public string $color = 'green';
 
     /**
      * @var int Sort order
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var bool Default status
      */
-    public $default;
+    public bool $default;
 
     /**
      * @var bool Whether the order status is archived.
      */
-    public $isArchived = false;
+    public bool $isArchived = false;
 
     /**
      * @var DateTime Archived Date
      */
-    public $dateArchived;
+    public DateTime $dateArchived;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
 
     public function behaviors(): array
@@ -138,8 +139,8 @@ class LineItemStatus extends Model
             'name' => $this->name,
             'handle' => $this->handle,
             'color' => $this->color,
-            'sortOrder' => (int)$this->sortOrder ?: 9999,
-            'default' => (bool)$this->default,
+            'sortOrder' => $this->sortOrder ?: 9999,
+            'default' => $this->default,
         ];
     }
 }

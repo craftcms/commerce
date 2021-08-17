@@ -20,5 +20,5 @@ class DefineAddressLinesEvent extends Event
     /**
      * @var array keyed array of address lines
      */
-    public $addressLines;
+    public array $addressLines;
 }

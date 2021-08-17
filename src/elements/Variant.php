@@ -28,6 +28,7 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
+use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -176,99 +177,92 @@ class Variant extends Purchasable
 
 
     /**
-     * @var int $productId
+     * @var int|null $productId
      */
-    public $productId;
+    public ?int $productId = null;
 
     /**
      * @var bool $isDefault
      */
-    public $isDefault;
+    public bool $isDefault;
 
     /**
      * @inheritdoc
      */
-    public $price;
+    public ?float $price = null;
 
     /**
-     * @var int $sortOrder
+     * @var int|null $sortOrder
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var int $width
+     * @var int|null $width
      */
-    public $width;
+    public ?int $width = null;
 
     /**
-     * @var int $height
+     * @var int|null $height
      */
-    public $height;
+    public ?int $height = null;
 
     /**
-     * @var int $length
+     * @var int|null $length
      */
-    public $length;
+    public ?int $length = null;
 
     /**
-     * @var int $weight
+     * @var int|null $weight
      */
-    public $weight;
+    public ?int $weight = null;
 
     /**
-     * @var int $stock
+     * @var int|null $stock
      */
-    public $stock;
+    public ?int $stock = null;
 
     /**
      * @var bool $hasUnlimitedStock
      */
-    public $hasUnlimitedStock;
+    public bool $hasUnlimitedStock = false;
 
     /**
-     * @var int $minQty
+     * @var int|null $minQty
      */
-    public $minQty;
+    public ?int $minQty = null;
 
     /**
-     * @var int $maxQty
+     * @var int|null $maxQty
      */
-    public $maxQty;
+    public ?int $maxQty = null;
 
     /**
-     * @var bool Whether the variant was deleted along with its product
+     * @var bool|null Whether the variant was deleted along with its product
      * @see beforeDelete()
      */
-    public $deletedWithProduct = false;
+    public ?bool $deletedWithProduct = false;
 
     /**
-     * @var Product The product that this variant is associated with.
+     * @var Product|null The product that this variant is associated with.
      * @see getProduct()
      * @see setProduct()
      */
-    private $_product;
+    private ?Product $_product = null;
 
     /**
      * @var string SKU
      * @see getSku()
      * @see setSku()
      */
-    private $_sku;
+    private string $_sku = '';
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
@@ -315,9 +309,9 @@ class Variant extends Purchasable
         // Use a combined Product and Variant title, if the variant belongs to a product with other variants.
         if ($product && $product->getType()->hasVariants) {
             return "{$this->product}: {$this->title}";
-        } else {
-            return parent::__toString();
         }
+
+        return parent::__toString();
     }
 
     /**
@@ -355,7 +349,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): string
     {
         return 'variant';
     }
@@ -397,7 +391,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): ?FieldLayout
     {
         $fieldLayout = parent::getFieldLayout();
 
@@ -415,7 +409,7 @@ class Variant extends Purchasable
      * @return Product|null The product associated with this variant, or null if it isn’t known
      * @throws InvalidConfigException if the product ID is missing from the variant
      */
-    public function getProduct()
+    public function getProduct(): ?Product
     {
         if ($this->_product !== null) {
             return $this->_product;
@@ -425,10 +419,11 @@ class Variant extends Purchasable
             throw new InvalidConfigException('Variant is missing its product');
         }
 
+        /** @var Product|null $product */
         $product = Product::find()
             ->id($this->productId)
             ->siteId($this->siteId)
-            ->anyStatus()
+            ->status(null)
             ->trashed(null)
             ->one();
 
@@ -443,8 +438,9 @@ class Variant extends Purchasable
      * Sets the product associated with this variant.
      *
      * @param Product $product The product associated with this variant
+     * @throws InvalidConfigException
      */
-    public function setProduct(Product $product)
+    public function setProduct(Product $product): void
     {
         if ($product->siteId) {
             $this->siteId = $product->siteId;
@@ -490,7 +486,7 @@ class Variant extends Purchasable
      * @throws Throwable
      * @see \craft\elements\Entry::updateTitle
      */
-    public function updateTitle(Product $product)
+    public function updateTitle(Product $product): void
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
@@ -514,7 +510,7 @@ class Variant extends Purchasable
      * @param Product $product
      * @throws Throwable
      */
-    public function updateSku(Product $product)
+    public function updateSku(Product $product): void
     {
         $type = $product->getType();
         // If we have a blank SKU, generate from product type’s skuFormat
@@ -718,7 +714,7 @@ class Variant extends Purchasable
      * @param string|null $sku
      * @return void
      */
-    public function setSku(string $sku = null)
+    public function setSku(string $sku = null): void
     {
         $this->_sku = $sku;
     }
@@ -873,7 +869,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         // Since we do not have a proper stock reservation system, we need deduct stock if they have more in the cart than is available, and to do this quietly.
         // If this occurs in the payment request, the user will be notified the order has changed.
@@ -899,8 +895,6 @@ class Variant extends Purchasable
         $lineItem->height = (float)$this->height; //converting nulls
         $lineItem->length = (float)$this->length; //converting nulls
         $lineItem->width = (float)$this->width; //converting nulls
-
-        return null;
     }
 
     /**
@@ -918,7 +912,7 @@ class Variant extends Purchasable
      */
     public function getIsPromotable(): bool
     {
-        return (bool)$this->getProduct()->promotable;
+        return $this->getProduct()->promotable;
     }
 
     /**
@@ -961,7 +955,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
             if (!$isNew) {
@@ -1003,7 +997,7 @@ class Variant extends Purchasable
             $record->save(false);
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
@@ -1011,7 +1005,7 @@ class Variant extends Purchasable
      *
      * @inheritdoc
      */
-    public function afterOrderComplete(Order $order, LineItem $lineItem)
+    public function afterOrderComplete(Order $order, LineItem $lineItem): void
     {
         // Don't reduce stock of unlimited items.
         if (!$this->hasUnlimitedStock) {
@@ -1072,7 +1066,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'product') {
             $product = $elements[0] ?? null;
@@ -1119,7 +1113,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         $product = $this->getProduct();
 
@@ -1157,7 +1151,6 @@ class Variant extends Purchasable
     public function beforeSave(bool $isNew): bool
     {
         // Set the field layout
-        /** @var ProductType $productType */
         $productType = $this->getProduct()->getType();
         $this->fieldLayoutId = $productType->variantFieldLayoutId;
 
@@ -1229,7 +1222,7 @@ class Variant extends Purchasable
     /**
      * @throws \yii\db\Exception
      */
-    public function afterRestore()
+    public function afterRestore(): void
     {
         // Once restored, we no longer track if it was deleted with variant or not
         $this->deletedWithProduct = null;
@@ -1334,7 +1327,6 @@ class Variant extends Purchasable
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        /* @var $productType ProductType */
         $productType = $this->product->getType();
 
         switch ($attribute) {

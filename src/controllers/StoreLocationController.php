@@ -10,7 +10,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\web\Response;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
+use yii\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
@@ -35,8 +37,12 @@ class StoreLocationController extends BaseStoreSettingsController
 
     /**
      * Saves the store location setting
+     *
+     * @return Response
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSaveStoreLocation()
+    public function actionSaveStoreLocation(): Response
     {
         $this->requirePostRequest();
 

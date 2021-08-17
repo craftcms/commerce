@@ -13,9 +13,13 @@ use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Emails Controller
@@ -70,7 +74,7 @@ class EmailsController extends BaseAdminController
         $emailLanguageOptions = [
             EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
         ];
-        
+
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
@@ -79,8 +83,12 @@ class EmailsController extends BaseAdminController
     /**
      * @return null|Response
      * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 

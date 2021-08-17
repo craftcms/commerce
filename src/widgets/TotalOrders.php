@@ -51,7 +51,7 @@ class TotalOrders extends Widget
      */
     private $_stat;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->dateRange = !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
@@ -103,7 +103,7 @@ class TotalOrders extends Widget
         return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         if (!$this->showChart) {
             return '';
@@ -115,7 +115,7 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
@@ -147,7 +147,7 @@ class TotalOrders extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

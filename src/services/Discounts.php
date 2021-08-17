@@ -32,9 +32,13 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
 use DateTime;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 use function in_array;
 
 /**
@@ -182,24 +186,24 @@ class Discounts extends Component
     const EVENT_DISCOUNT_MATCHES_ORDER = 'discountMatchesOrder';
 
     /**
-     * @var Discount[]
+     * @var Discount[]|null
      */
-    private $_allDiscounts;
+    private ?array $_allDiscounts;
 
     /**
-     * @var Discount[]
+     * @var Discount[][]|null
      */
-    private $_activeDiscountsByKey;
+    private ?array $_activeDiscountsByKey;
 
     /**
-     * @var array
+     * @var array|null
      */
-    private $_matchingDiscountsToOrder;
+    private ?array $_matchingDiscountsToOrder;
 
     /**
-     * @var array
+     * @var array|null
      */
-    private $_matchingDiscountsToLineItem;
+    private ?array $_matchingDiscountsToLineItem;
 
     /**
      * Get a discount by its ID.
@@ -207,7 +211,7 @@ class Discounts extends Component
      * @param int $id
      * @return Discount|null
      */
-    public function getDiscountById($id)
+    public function getDiscountById($id): ?Discount
     {
         if (!$id) {
             return null;
@@ -248,7 +252,7 @@ class Discounts extends Component
      * @throws \Exception
      * @since 2.2.14
      */
-    public function getAllActiveDiscounts($order = null)
+    public function getAllActiveDiscounts(Order $order = null): array
     {
         // Date condition for use with key
         if ($order && $order->dateOrdered) {
@@ -317,7 +321,7 @@ class Discounts extends Component
      * @param Order $order
      * @param string|null $explanation
      * @return bool
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      * @throws \Exception
      */
     public function orderCouponAvailable(Order $order, string &$explanation = null): bool
@@ -381,7 +385,7 @@ class Discounts extends Component
      * @return Discount|null
      * @throws \Exception
      */
-    public function getDiscountByCode($code)
+    public function getDiscountByCode(string $code): ?Discount
     {
         if (!$code) {
             return null;
@@ -440,6 +444,7 @@ class Discounts extends Component
      * @param Discount $discount
      * @param bool $matchOrder
      * @return bool
+     * @throws \Exception
      */
     public function matchLineItem(LineItem $lineItem, Discount $discount, bool $matchOrder = false): bool
     {
@@ -732,8 +737,10 @@ class Discounts extends Component
      *
      * @param int $id
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
-    public function deleteDiscountById($id): bool
+    public function deleteDiscountById(int $id): bool
     {
         $discountRecord = DiscountRecord::findOne($id);
 
@@ -766,7 +773,7 @@ class Discounts extends Component
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function clearCustomerUsageHistoryById(int $id)
+    public function clearCustomerUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
@@ -784,7 +791,7 @@ class Discounts extends Component
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function clearEmailUsageHistoryById(int $id)
+    public function clearEmailUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
@@ -804,7 +811,7 @@ class Discounts extends Component
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function clearDiscountUsesById(int $id)
+    public function clearDiscountUsesById(int $id): void
     {
         $db = Craft::$app->getDb();
         $db->createCommand()
@@ -821,6 +828,7 @@ class Discounts extends Component
      *
      * @param array $ids
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderDiscounts(array $ids): bool
     {
@@ -875,8 +883,9 @@ class Discounts extends Component
      * Updates discount uses counters.
      *
      * @param Order $order
+     * @throws \yii\db\Exception
      */
-    public function orderCompleteHandler($order)
+    public function orderCompleteHandler(Order $order): void
     {
         $discountAdjustments = $order->getAdjustmentsByType(DiscountAdjuster::ADJUSTMENT_TYPE);
 
@@ -998,6 +1007,9 @@ class Discounts extends Component
      * @param Order $order
      * @param Discount $discount
      * @return bool
+     * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws SyntaxError
      */
     private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
     {
@@ -1017,6 +1029,7 @@ class Discounts extends Component
      * @param Discount $discount
      * @param $user
      * @return bool
+     * @throws InvalidConfigException
      */
     public function isDiscountUserGroupValid(Discount $discount, $user): bool
     {
@@ -1096,7 +1109,6 @@ class Discounts extends Component
      * @param Discount $discount
      * @param Order $order
      * @return bool
-     * @throws \yii\base\InvalidConfigException
      */
     private function _isDiscountEmailRequirementValid(Discount $discount, Order $order): bool
     {
@@ -1111,7 +1123,6 @@ class Discounts extends Component
      * @param Discount $discount
      * @param Order $order
      * @return bool
-     * @throws \yii\base\InvalidConfigException
      */
     private function _isDiscountPerEmailLimitValid(Discount $discount, Order $order): bool
     {

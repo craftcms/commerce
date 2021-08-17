@@ -9,13 +9,17 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax Category model.
  *
  * @property string $cpEditUrl
+ * @property ProductType[] $productTypes
+ * @property-read int[] $productTypeIds
  * @property array|TaxRate[] $taxRates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -23,46 +27,46 @@ use DateTime;
 class TaxCategory extends Model
 {
     /**
-     * @var int ID;
+     * @var int|null ID;
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
      */
-    public $default;
+    public bool $default;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var array Product Types
+     * @var array|null Product Types
      */
-    private $_productTypes;
+    private ?array $_productTypes = null;
 
 
     /**
@@ -77,14 +81,13 @@ class TaxCategory extends Model
 
     /**
      * @return TaxRate[]
+     * @throws InvalidConfigException
      */
     public function getTaxRates(): array
     {
-        $allTaxRates = Plugin::getInstance()->getTaxRates()->getAllTaxRates();
         $taxRates = [];
 
-        /** @var TaxRate $rate */
-        foreach ($allTaxRates as $rate) {
+        foreach (Plugin::getInstance()->getTaxRates()->getAllTaxRates() as $rate) {
             if ($this->id === $rate->taxCategoryId) {
                 $taxRates[] = $rate;
             }
@@ -104,13 +107,14 @@ class TaxCategory extends Model
     /**
      * @param ProductType[] $productTypes
      */
-    public function setProductTypes($productTypes)
+    public function setProductTypes(array $productTypes): void
     {
         $this->_productTypes = $productTypes;
     }
 
     /**
      * @return ProductType[]
+     * @throws InvalidConfigException
      */
     public function getProductTypes(): array
     {
@@ -125,15 +129,11 @@ class TaxCategory extends Model
      * Helper method to just get the product type IDs
      *
      * @return int[]
+     * @throws InvalidConfigException
      */
     public function getProductTypeIds(): array
     {
-        $ids = [];
-        foreach ($this->getProductTypes() as $productType) {
-            $ids[] = $productType->id;
-        }
-
-        return $ids;
+        return ArrayHelper::getColumn($this->getProductTypes(), 'id');
     }
 
     /**

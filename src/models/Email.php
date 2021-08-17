@@ -27,74 +27,74 @@ use yii\base\InvalidArgumentException;
 class Email extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Subject
      */
-    public $subject;
+    public string $subject;
 
     /**
      * @var string Recipient Type
      */
-    public $recipientType;
+    public string $recipientType;
 
     /**
-     * @var string To
+     * @var string|null To
      */
-    public $to;
+    public ?string $to = null;
 
     /**
-     * @var string Bcc
+     * @var string|null Bcc
      */
-    public $bcc;
+    public ?string $bcc = null;
 
     /**
-     * @var string Cc
+     * @var string|null Cc
      */
-    public $cc;
+    public ?string $cc = null;
 
     /**
-     * @var string Reply to
+     * @var string|null Reply to
      */
-    public $replyTo;
+    public ?string $replyTo = null;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var string Template path
      */
-    public $templatePath;
+    public string $templatePath;
 
     /**
      * @var string Plain Text Template path
      */
-    public $plainTextTemplatePath;
+    public string $plainTextTemplatePath;
 
     /**
-     * @var int The PDF UID.
+     * @var int|null The PDF UID.
      */
-    public $pdfId;
+    public ?int $pdfId = null;
 
     /**
      * @var string The language.
      */
-    public $language;
+    public string $language;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
      * Determines the language this pdf, if
@@ -137,7 +137,7 @@ class Email extends Model
     /**
      * @return Pdf|null
      */
-    public function getPdf()
+    public function getPdf(): ?Pdf
     {
         if (!$this->pdfId) {
             return null;

@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -30,54 +31,54 @@ use DateTime;
 class ShippingRule extends Model implements ShippingRuleInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
-     * @var int Shipping zone ID
+     * @var int|null Shipping zone ID
      */
-    public $shippingZoneId;
+    public ?int $shippingZoneId = null;
 
     /**
      * @var int Shipping method ID
      */
-    public $methodId;
+    public int $methodId;
 
     /**
      * @var int Priority
      */
-    public $priority = 0;
+    public int $priority = 0;
 
     /**
      * @var bool Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
-     * @var string Order Condition Formula
+     * @var string|null Order Condition Formula
      */
-    public $orderConditionFormula = '';
+    public ?string $orderConditionFormula = '';
 
     /**
      * @var int Minimum Quantity
      */
-    public $minQty = 0;
+    public int $minQty = 0;
 
     /**
      * @var int Maximum Quantity
      */
-    public $maxQty = 0;
+    public int $maxQty = 0;
 
     /**
      * @var float Minimum total
@@ -90,9 +91,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxTotal = 0;
 
     /**
-     * @var float Minimum type rule
+     * @var string Minimum type rule
      */
-    public $minMaxTotalType = 'salePrice';
+    public string $minMaxTotalType = ShippingRuleRecord::TYPE_MIN_MAX_TOTAL_SALEPRICE;
 
     /**
      * @var float Minimum Weight
@@ -135,31 +136,37 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
-     * @var bool Is lite shipping rule
+     * @var bool|null Is lite shipping rule
      */
-    public $isLite = 0;
+    public ?bool $isLite = false;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated;
+
+    /**
+     * @var ShippingCategory[]
+     */
+    private array $_shippingRuleCategories;
 
     /**
      * @param Order $order
      * @return array
+     * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
         $orderShippingCategories = [];
         foreach ($order->lineItems as $lineItem) {
-            // Dont' look at the shipping category of non shippable products.
+            // Don't look at the shipping category of non-shippable products.
             if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
             }
@@ -187,12 +194,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
         }
         return [$disallowedCategories, $requiredCategories];
     }
-
-    /**
-     * @var ShippingCategory[]
-     */
-    private $_shippingRuleCategories;
-
 
     /**
      * @inheritdoc
@@ -396,8 +397,8 @@ class ShippingRule extends Model implements ShippingRuleInterface
      */
     public function getShippingRuleCategories(): array
     {
-        if (null === $this->_shippingRuleCategories) {
-            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId((int)$this->id);
+        if (!isset($this->_shippingRuleCategories)) {
+            $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId($this->id);
         }
 
         return $this->_shippingRuleCategories;
@@ -406,16 +407,21 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @param ShippingRuleCategory[] $models
      */
-    public function setShippingRuleCategories(array $models)
+    public function setShippingRuleCategories(array $models): void
     {
         $this->_shippingRuleCategories = $models;
     }
 
     /**
-     * @return mixed
+     * @return ShippingAddressZone|null
+     * @throws InvalidConfigException
      */
-    public function getShippingZone()
+    public function getShippingZone(): ?ShippingAddressZone
     {
+        if ($this->shippingZoneId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getShippingZones()->getShippingZoneById($this->shippingZoneId);
     }
 
@@ -430,7 +436,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getPercentageRate($shippingCategoryId = null): float
+    public function getPercentageRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('percentageRate', $shippingCategoryId);
     }
@@ -438,7 +444,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getPerItemRate($shippingCategoryId = null): float
+    public function getPerItemRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('perItemRate', $shippingCategoryId);
     }
@@ -446,7 +452,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
-    public function getWeightRate($shippingCategoryId = null): float
+    public function getWeightRate(?int $shippingCategoryId = null): float
     {
         return $this->_getRate('weightRate', $shippingCategoryId);
     }
@@ -483,10 +489,10 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param $attribute
+     * @param string $attribute
      * @since 3.2.7
      */
-    public function validateShippingRuleCategories($attribute)
+    public function validateShippingRuleCategories(string $attribute): void
     {
         $ruleCategories = $this->$attribute;
 

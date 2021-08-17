@@ -23,20 +23,20 @@ class PurchasableAvailableEvent extends Event
     /**
      * @var Order|null The order element.
      */
-    public $order;
+    public ?Order $order;
 
     /**
      * @var PurchasableInterface The purchasable element.
      */
-    public $purchasable;
+    public PurchasableInterface $purchasable;
 
     /**
      * @var User|null The user performing the check.
      */
-    public $currentUser;
+    public ?User $currentUser;
 
     /**
      * @var bool Is this purchasable available to the order and current user. Default is: $event->purchasable->getIsAvailable()
      */
-    public $isAvailable;
+    public bool $isAvailable;
 }

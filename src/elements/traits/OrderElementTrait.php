@@ -20,6 +20,8 @@ use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\models\FieldLayout;
+use Exception;
 
 trait OrderElementTrait
 {
@@ -43,7 +45,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
@@ -156,7 +158,6 @@ trait OrderElementTrait
             {
                 $miniTable = [];
 
-                /** @var Order $this */
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Items'),
@@ -239,6 +240,7 @@ trait OrderElementTrait
 
     /**
      * @inheritdoc
+     * @noinspection PhpUnused
      */
     public function getSearchKeywords(string $attribute): string
     {
@@ -277,6 +279,7 @@ trait OrderElementTrait
 
     /**
      * @inheritdoc
+     * @throws Exception
      */
     protected static function defineSources(string $context = null): array
     {
@@ -504,7 +507,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         /** @var OrderQuery $elementQuery */
 
@@ -613,14 +616,13 @@ trait OrderElementTrait
     }
 
     /**
-     * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
+     * @param array $miniTable Expects an array with rows of 'label', 'value' keys values.
      *
      * @return string
      */
-    private function _miniTable($miniTable)
+    private function _miniTable(array $miniTable): string
     {
-        $output = '';
-        $output .= '<table style="padding: 0; width: 100%">';
+        $output = '<table style="padding: 0; width: 100%">';
         foreach ($miniTable as $row) {
             $output .= '<tr style="padding: 0">';
             $output .= '<td style="text-align: left; padding: 0px">' . $row['label'] . '</td>';

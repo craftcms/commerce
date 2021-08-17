@@ -17,63 +17,65 @@ use yii\base\InvalidArgumentException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2
+ *
+ * @property-read array $config
  */
 class Pdf extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
      */
-    public $name;
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public $handle;
+    public string $handle;
 
     /**
      * @var string Subject
      */
-    public $description;
+    public string $description;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var bool Is default PDF for order
      */
-    public $isDefault;
+    public bool $isDefault;
 
     /**
      * @var string Template path
      */
-    public $templatePath;
+    public string $templatePath;
 
     /**
      * @var string Filename format
      */
-    public $fileNameFormat;
+    public string $fileNameFormat;
 
     /**
      * @var int Sort order
      */
-    public $sortOrder;
+    public int $sortOrder;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
      * @var string locale language
      */
-    public $language;
+    public string $language;
 
     /**
      * @inheritdoc
@@ -121,9 +123,9 @@ class Pdf extends Model
             'description' => $this->description,
             'templatePath' => $this->templatePath,
             'fileNameFormat' => $this->fileNameFormat,
-            'enabled' => (bool)$this->enabled,
-            'sortOrder' => (int)$this->sortOrder ?: 9999,
-            'isDefault' => (bool)$this->isDefault,
+            'enabled' => $this->enabled,
+            'sortOrder' => $this->sortOrder ?: 9999,
+            'isDefault' => $this->isDefault,
             'language' => $this->language
         ];
     }

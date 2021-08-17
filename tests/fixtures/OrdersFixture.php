@@ -13,6 +13,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\BaseElementFixture;
+use DateTime;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -40,20 +42,21 @@ class OrdersFixture extends BaseElementFixture
     /**
      * @var array
      */
-    private $_lineItems = [];
+    private array $_lineItems = [];
 
     /**
      * @var bool
      */
-    private $_markAsComplete = false;
+    private bool $_markAsComplete = false;
 
     /**
      * Ability to manually set the dateOrdered attribute
-     * @var bool|null|\DateTime
+     *
+     * @var bool|null|DateTime
      */
     private $_dateOrdered = false;
 
-    public function init()
+    public function init(): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
 
@@ -114,8 +117,9 @@ class OrdersFixture extends BaseElementFixture
      *
      * @param Order $order
      * @param $lineItems
+     * @throws InvalidConfigException
      */
-    private function _setLineItems(Order $order, $lineItems)
+    private function _setLineItems(Order $order, $lineItems): void
     {
         if (empty($lineItems)) {
             return;

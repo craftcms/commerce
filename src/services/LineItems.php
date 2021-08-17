@@ -143,7 +143,7 @@ class LineItems extends Component
     /**
      * @var LineItem[]
      */
-    private $_lineItemsByOrderId = [];
+    private array $_lineItemsByOrderId = [];
 
 
     /**
@@ -183,6 +183,7 @@ class LineItems extends Component
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
      * @return LineItem
+     * @throws \Exception
      */
     public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
     {
@@ -323,7 +324,7 @@ class LineItems extends Component
      * @param int $id the line item ID
      * @return LineItem|null Line item or null, if not found.
      */
-    public function getLineItemById($id)
+    public function getLineItemById($id): ?LineItem
     {
         $result = $this->_createLineItemQuery()
             ->where(['id' => $id])
@@ -436,7 +437,7 @@ class LineItems extends Component
      * @throws Throwable
      * @since 3.2.5
      */
-    public function orderCompleteHandler(LineItem $lineItem, Order $order)
+    public function orderCompleteHandler(LineItem $lineItem, Order $order): void
     {
         // Called the after order complete method for the purchasable if there is one
         if ($lineItem->getPurchasable()) {
