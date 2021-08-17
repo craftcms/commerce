@@ -48,7 +48,7 @@ class ShippingCategory extends Model
     /**
      * @var bool Default
      */
-    public bool $default;
+    public bool $default = false;
 
     /**
      * @var ProductType[]|null
@@ -99,11 +99,11 @@ class ShippingCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if (null === $this->_productTypes) {
+        if (null === $this->_productTypes && $this->id) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 
-        return $this->_productTypes;
+        return $this->_productTypes ?? [];
     }
 
     /**
