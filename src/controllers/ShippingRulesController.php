@@ -96,7 +96,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        if ($variables['shippingRule'] && $variables['shippingRule'] instanceof ShippingRule) {
+        if ($variables['shippingRule'] instanceof ShippingRule) {
             $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
             // Localize numbers
             $localizeAttributes = [

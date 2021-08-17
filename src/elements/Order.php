@@ -402,7 +402,7 @@ class Order extends Element
     /**
      * This is the unique number (hash) generated for the order when it was first created.
      *
-     * @var string Number
+     * @var string|null Number
      * ---
      * ```php
      * echo $order->number;
@@ -411,7 +411,7 @@ class Order extends Element
      * {{ order.number }}
      * ```
      */
-    public string $number;
+    public ?string $number = null;
 
     /**
      * This is the reference number generated once the order was completed.

@@ -44,7 +44,7 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
     /**
      * @var bool Enabled
      */
-    public bool $enabled;
+    public bool $enabled = true;
 
     /**
      * @var DateTime|null

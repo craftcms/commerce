@@ -36,14 +36,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var int|null Shipping zone ID
@@ -144,18 +144,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private array $_shippingRuleCategories;
+    private ?array $_shippingRuleCategories = null;
 
     /**
      * @param Order $order
@@ -394,14 +394,15 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @return ShippingRuleCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingRuleCategories(): array
     {
-        if (!isset($this->_shippingRuleCategories)) {
+        if ($this->_shippingRuleCategories === null && $this->id) {
             $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId($this->id);
         }
 
-        return $this->_shippingRuleCategories;
+        return $this->_shippingRuleCategories ?? [];
     }
 
     /**
