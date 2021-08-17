@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
+use craft\commerce\models\Address as AddressModel;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
@@ -598,14 +599,12 @@ class Addresses extends Component
     public function buildAddressForm(Address $address): string
     {
         $addressFormat = $address->getAddressFormat();
-        
+
         $format = nl2br($addressFormat->getFormat());
-        
-        $form = static::renderCountry($address) . $format;
         
         $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
             return static::buildAdministrativeArea($address);
-        }, $form);        
+        }, $format);        
         
         $form = preg_replace_callback('/%postalCode/', function ($matches) use ($address) {
             return static::buildPostalCode($address);
@@ -634,17 +633,6 @@ class Addresses extends Component
         return preg_replace_callback('/%familyName/', function ($matches) use ($address) {
             return static::buildLastName($address);
         }, $form);
-    }
-    
-    public function renderCountry(Address $address): string
-    {
-        $options = [];
-        
-        
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/country', [
-            'address' => $address,
-            'options' => $options
-        ]);
     }
 
     /**

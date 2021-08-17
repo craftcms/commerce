@@ -58,22 +58,14 @@ class AddressesController extends BaseCpController
                 $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
             } elseif ($variables['customerId']) {
                 $variables['address'] = new AddressModel();
-                
-                $countryId = Plugin::getInstance()->getCountries()->getCountryByIso(AddressModel::DEFAULT_COUNTRY_ISO)->id;
-                
-                $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
-                
-                if ($storeLocation->id !== null) {
-                    $countryId = $storeLocation->countryId;
-                }
-                
-                $variables['address']->countryId = $countryId;
             }
 
             if (!$variables['address']) {
                 throw new NotFoundHttpException('Address not found.');
             }
         }
+
+        $variables['address']->countryId = $this->getCountryId($variables['address']);
 
         $variables['title'] = $variables['addressId']
             ? Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']])
@@ -370,5 +362,32 @@ class AddressesController extends BaseCpController
             'success' => true,
             'address' => $address,
         ]);
+    }
+
+    /**
+     * @param AddressModel $address
+     * @return int
+     */
+    private function getCountryId(AddressModel $address): int
+    {
+        $countryId = $address->countryId;
+        
+        if ($countryId === null) {
+            $countryIdParam = Craft::$app->getRequest()->getParam('countryId');
+            
+            if ($countryIdParam === null) {
+                $countryId = Plugin::getInstance()->getCountries()->getCountryByIso(AddressModel::DEFAULT_COUNTRY_ISO)->id;
+
+                $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
+
+                if ($storeLocation->id !== null) {
+                    $countryId = $storeLocation->countryId;
+                }
+            } else {
+                $countryId = $countryIdParam;
+            }
+        }
+        
+        return $countryId;
     }
 }
