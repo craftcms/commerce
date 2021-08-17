@@ -14,6 +14,7 @@ use craft\commerce\records\ShippingZone as ShippingZoneRecord;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping zone model.
@@ -129,14 +130,15 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns all countries in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountries(): array
     {
-        if (!isset($this->_countries)) {
+        if ($this->_countries === null && $this->id) {
             $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId($this->id);
         }
 
-        return $this->_countries;
+        return $this->_countries ?? [];
     }
 
     /**
@@ -167,14 +169,15 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns all states in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStates(): array
     {
-        if (!isset($this->_states)) {
+        if ($this->_states === null && $this->id) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
         }
 
-        return $this->_states;
+        return $this->_states ?? [];
     }
 
     /**
@@ -200,6 +203,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns the names of all countries in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountriesNames(): array
     {
