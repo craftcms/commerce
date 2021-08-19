@@ -34,19 +34,19 @@ class PaymentCurrency extends Model
     public ?int $id = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public string $iso;
+    public ?string $iso = null;
 
     /**
      * @var bool Is primary currency
      */
-    public bool $primary;
+    public bool $primary = false;
 
     /**
      * @var float Exchange rate vs primary currency
      */
-    public float $rate;
+    public float $rate = 1;
 
     /**
      * @var Currency
@@ -57,13 +57,13 @@ class PaymentCurrency extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @return string
@@ -168,7 +168,7 @@ class PaymentCurrency extends Model
     /**
      * Sets the Currency Model data on the Payment Currency
      *
-     * @param $currency
+     * @param Currency $currency
      */
     public function setCurrency(Currency $currency): void
     {
