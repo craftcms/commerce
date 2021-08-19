@@ -139,6 +139,13 @@
 
         new Craft.VueAdminTable({
             actions: actions,
+            buttons: [
+                {
+                    href: '{{ url('commerce/store-settings/states/new') ~ (country.id ? '?countryId='~country.id : '') }}',
+                    icon: 'plus',
+                    label: '{{ 'New state'|t('commerce')|e('js') }}',
+                }
+            ],
             checkboxes: true,
             columns: columns,
             container: '#states-vue-admin-table',
@@ -152,9 +159,4 @@
             reorderSuccessMessage: Craft.t('commerce', 'States reordered.'),
         });
     {% endjs %}
-
-    <div style="padding-top: 20px;">
-        {% set newStateUrl = country.id ? '?countryId='~country.id : '' %}
-        <a href="{{ url('commerce/store-settings/states/new') ~ newStateUrl }}" class="btn add icon">{{ 'New state'|t('commerce') }}</a>
-    </div>
 {% endblock %}
