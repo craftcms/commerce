@@ -18,14 +18,14 @@ use DateTime;
 trait GatewayTrait
 {
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Payment Type
@@ -50,10 +50,10 @@ trait GatewayTrait
     /**
      * @var int|null Sort order
      */
-    public ?int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var string|null UID
      */
-    public ?string $uid;
+    public ?string $uid = null;
 }
