@@ -49,6 +49,7 @@ class SalesController extends BaseCpController
 
     /**
      * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -89,7 +90,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave(): void
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -117,8 +118,8 @@ class SalesController extends BaseCpController
 
         $applyAmount = $request->getBodyParam('applyAmount');
         $sale->sortOrder = $request->getBodyParam('sortOrder');
-        $sale->ignorePrevious = $request->getBodyParam('ignorePrevious');
-        $sale->stopProcessing = $request->getBodyParam('stopProcessing');
+        $sale->ignorePrevious = (bool)$request->getBodyParam('ignorePrevious');
+        $sale->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
@@ -160,7 +161,7 @@ class SalesController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
-            $this->redirectToPostedUrl($sale);
+            return $this->redirectToPostedUrl($sale);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
