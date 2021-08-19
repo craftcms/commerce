@@ -48,24 +48,24 @@ class ProductType extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var bool Has dimension
      */
-    public bool $hasDimensions;
+    public bool $hasDimensions = false;
 
     /**
      * @var bool Has variants
      */
-    public bool $hasVariants;
+    public bool $hasVariants = false;
 
     /**
      * @var bool Has variant title field
@@ -96,7 +96,7 @@ class ProductType extends Model
     /**
      * @var string Description format
      */
-    public string $descriptionFormat;
+    public string $descriptionFormat = '{product.title} - {title}';
 
     /**
      * @var string Line item format
@@ -104,9 +104,9 @@ class ProductType extends Model
     public string $lineItemFormat;
 
     /**
-     * @var string Template
+     * @var string|null Template
      */
-    public string $template;
+    public ?string $template = null;
 
     /**
      * @var int|null Field layout ID
@@ -116,12 +116,12 @@ class ProductType extends Model
     /**
      * @var int|null Variant layout ID
      */
-    public ?int $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var TaxCategory[]|null
@@ -143,7 +143,7 @@ class ProductType extends Model
      */
     public function __toString()
     {
-        return $this->handle;
+        return (string)$this->handle;
     }
 
     /**
