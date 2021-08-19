@@ -130,12 +130,12 @@ class Transaction extends Model
     /**
      * @var DateTime|null The date that the transaction was created
      */
-    public ?DateTime $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null The date that the transaction was last updated
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
      * @var Gateway|null
