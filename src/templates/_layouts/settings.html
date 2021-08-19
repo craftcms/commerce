@@ -30,7 +30,7 @@
 
 
 {% macro configWarning(setting, file) -%}
-    {%- spaceless %}
+    {%- apply spaceless %}
         {% set config = craft.app.config.getConfigFromFile(file) %}
         {% if config[setting] is defined %}
             {{ "This is being overridden by the {setting} config setting in `config/{file}.php`."|t('commerce', {
@@ -40,7 +40,7 @@
         {% else %}
             {{ false }}
         {% endif %}
-    {% endspaceless -%}
+    {% endapply -%}
 {%- endmacro %}
 
 {% block sidebar %}
