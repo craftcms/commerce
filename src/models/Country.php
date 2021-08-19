@@ -11,6 +11,7 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Country Model
@@ -28,14 +29,14 @@ class Country extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public string $iso;
+    public ?string $iso = null;
 
     /**
      * @var bool|null State Required
@@ -51,13 +52,13 @@ class Country extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
      * @return string
@@ -69,6 +70,7 @@ class Country extends Model
 
     /**
      * @return array
+     * @throws InvalidConfigException
      * @since 3.1
      */
     public function getStates(): array
