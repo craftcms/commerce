@@ -81,7 +81,7 @@ class OrderStatusesController extends BaseAdminController
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
-        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
+        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id) : false;
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();

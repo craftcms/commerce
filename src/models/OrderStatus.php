@@ -62,9 +62,9 @@ class OrderStatus extends Model
     public ?string $description = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
@@ -77,9 +77,9 @@ class OrderStatus extends Model
     public ?DateTime $dateDeleted = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @return array
