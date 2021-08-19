@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Email model.
@@ -32,19 +33,19 @@ class Email extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Subject
+     * @var string|null Subject
      */
-    public string $subject;
+    public ?string $subject = null;
 
     /**
      * @var string Recipient Type
      */
-    public string $recipientType;
+    public string $recipientType = EmailRecord::TYPE_CUSTOMER;
 
     /**
      * @var string|null To
@@ -72,14 +73,14 @@ class Email extends Model
     public bool $enabled = true;
 
     /**
-     * @var string Template path
+     * @var string|null Template path
      */
-    public string $templatePath;
+    public ?string $templatePath = null;
 
     /**
-     * @var string Plain Text Template path
+     * @var string|null Plain Text Template path
      */
-    public string $plainTextTemplatePath;
+    public ?string $plainTextTemplatePath = null;
 
     /**
      * @var int|null The PDF UID.
@@ -89,12 +90,12 @@ class Email extends Model
     /**
      * @var string The language.
      */
-    public string $language;
+    public string $language = EmailRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * Determines the language this pdf, if
@@ -136,6 +137,7 @@ class Email extends Model
 
     /**
      * @return Pdf|null
+     * @throws InvalidConfigException
      */
     public function getPdf(): ?Pdf
     {
@@ -149,6 +151,7 @@ class Email extends Model
      * Returns the field layout config for this email.
      *
      * @return array
+     * @throws InvalidConfigException
      * @since 3.2.0
      */
     public function getConfig(): array
