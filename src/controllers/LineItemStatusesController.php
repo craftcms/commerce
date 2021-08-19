@@ -81,7 +81,7 @@ class LineItemStatusesController extends BaseAdminController
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
-        $lineItemStatus = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id);
+        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id) : false;
 
         if (!$lineItemStatus) {
             $lineItemStatus = new LineItemStatus();

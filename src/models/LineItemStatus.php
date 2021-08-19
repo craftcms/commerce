@@ -30,14 +30,14 @@ class LineItemStatus extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Color
@@ -45,14 +45,14 @@ class LineItemStatus extends Model
     public string $color = 'green';
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
      */
-    public bool $default;
+    public bool $default = false;
 
     /**
      * @var bool Whether the order status is archived.
@@ -60,36 +60,14 @@ class LineItemStatus extends Model
     public bool $isArchived = false;
 
     /**
-     * @var DateTime Archived Date
+     * @var DateTime|null Archived Date
      */
-    public DateTime $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
-
-
-    public function behaviors(): array
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'handle' => AttributeTypecastBehavior::TYPE_STRING,
-                'color' => AttributeTypecastBehavior::TYPE_STRING,
-                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
-        return $behaviors;
-    }
+    public ?string $uid = null;
 
     /**
      * @return string
