@@ -28,19 +28,19 @@ class Pdf extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Subject
+     * @var string|null Subject
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var bool Is Enabled
@@ -50,32 +50,32 @@ class Pdf extends Model
     /**
      * @var bool Is default PDF for order
      */
-    public bool $isDefault;
+    public bool $isDefault = false;
 
     /**
-     * @var string Template path
+     * @var string|null Template path
      */
-    public string $templatePath;
+    public ?string $templatePath = null;
 
     /**
-     * @var string Filename format
+     * @var string|null Filename format
      */
-    public string $fileNameFormat;
+    public ?string $fileNameFormat = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var string locale language
      */
-    public string $language;
+    public string $language = PdfRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
      * @inheritdoc
