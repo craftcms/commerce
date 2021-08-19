@@ -534,6 +534,7 @@ class OrdersController extends Controller
     /**
      * @param null $query
      * @return Response
+     * @throws InvalidConfigException
      */
     public function actionCustomerSearch($query = null): Response
     {
@@ -657,6 +658,7 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      * @since 3.0.11
      */
     public function actionGetIndexSourcesBadgeCounts(): Response

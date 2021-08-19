@@ -23,7 +23,7 @@ trait Routes
     /**
      * @since 3.1.10
      */
-    private function _registerSiteRoutes()
+    private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
@@ -33,7 +33,7 @@ trait Routes
     /**
      * @since 2.0
      */
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];

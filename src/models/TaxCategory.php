@@ -12,12 +12,13 @@ use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax Category model.
  *
  * @property string $cpEditUrl
- * @property \craft\commerce\models\ProductType[] $productTypes
+ * @property ProductType[] $productTypes
  * @property-read int[] $productTypeIds
  * @property array|TaxRate[] $taxRates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
@@ -26,24 +27,24 @@ use DateTime;
 class TaxCategory extends Model
 {
     /**
-     * @var int ID;
+     * @var int|null ID;
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
@@ -54,18 +55,18 @@ class TaxCategory extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var array Product Types
+     * @var array|null Product Types
      */
-    private array $_productTypes;
+    private ?array $_productTypes = null;
 
 
     /**
@@ -75,11 +76,12 @@ class TaxCategory extends Model
      */
     public function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
      * @return TaxRate[]
+     * @throws InvalidConfigException
      */
     public function getTaxRates(): array
     {
@@ -105,17 +107,18 @@ class TaxCategory extends Model
     /**
      * @param ProductType[] $productTypes
      */
-    public function setProductTypes($productTypes): void
+    public function setProductTypes(array $productTypes): void
     {
         $this->_productTypes = $productTypes;
     }
 
     /**
      * @return ProductType[]
+     * @throws InvalidConfigException
      */
     public function getProductTypes(): array
     {
-        if (!isset($this->_productTypes)) {
+        if ($this->_productTypes === null) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByTaxCategoryId($this->id);
         }
 
@@ -126,6 +129,7 @@ class TaxCategory extends Model
      * Helper method to just get the product type IDs
      *
      * @return int[]
+     * @throws InvalidConfigException
      */
     public function getProductTypeIds(): array
     {

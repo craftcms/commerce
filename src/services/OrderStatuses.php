@@ -38,6 +38,7 @@ use function count;
  *
  * @property OrderStatus|null $defaultOrderStatus default order status from the DB
  * @property OrderStatus[]|array $allOrderStatuses all Order Statuses
+ * @property-read array $orderCountByStatus
  * @property null|int $defaultOrderStatusId default order status ID from the DB
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -75,16 +76,15 @@ class OrderStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
+    /**
+     * @var OrderStatus[]|null
+     */
+    private ?array $_orderStatusesWithTrashed = null;
 
     /**
      * @var OrderStatus[]|null
      */
-    private $_orderStatusesWithTrashed;
-
-    /**
-     * @var OrderStatus[]|null
-     */
-    private $_orderStatuses;
+    private ?array $_orderStatuses = null;
 
     /**
      * Returns all Order Statuses
@@ -93,7 +93,7 @@ class OrderStatuses extends Component
      * @return OrderStatus[]
      * @since 2.2
      */
-    public function getAllOrderStatuses($withTrashed = false): array
+    public function getAllOrderStatuses(bool $withTrashed = false): array
     {
 
         if ($this->_orderStatuses !== null && !$withTrashed) {
@@ -133,7 +133,7 @@ class OrderStatuses extends Component
      * @param int $id
      * @return OrderStatus|null
      */
-    public function getOrderStatusById($id)
+    public function getOrderStatusById(int $id): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'id', $id);
     }
@@ -144,7 +144,7 @@ class OrderStatuses extends Component
      * @param string $handle
      * @return OrderStatus|null
      */
-    public function getOrderStatusByHandle($handle)
+    public function getOrderStatusByHandle(string $handle): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'handle', $handle, false);
     }
@@ -154,7 +154,7 @@ class OrderStatuses extends Component
      *
      * @return OrderStatus|null
      */
-    public function getDefaultOrderStatus()
+    public function getDefaultOrderStatus(): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'default', true, false);
     }
@@ -163,12 +163,13 @@ class OrderStatuses extends Component
      * Get default order status ID from the DB
      *
      * @return int|null
+     * @noinspection PhpUnused
      */
-    public function getDefaultOrderStatusId()
+    public function getDefaultOrderStatusId(): ?int
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
-        return $orderStatus ? $orderStatus->id : null;
+        return $orderStatus->id ?? null;
     }
 
 
@@ -178,7 +179,7 @@ class OrderStatuses extends Component
      * @param Order $order
      * @return OrderStatus|null
      */
-    public function getDefaultOrderStatusForOrder(Order $order)
+    public function getDefaultOrderStatusForOrder(Order $order): ?OrderStatus
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
@@ -198,7 +199,7 @@ class OrderStatuses extends Component
      * @return array
      * @since 3.0.11
      */
-    public function getOrderCountByStatus()
+    public function getOrderCountByStatus(): array
     {
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
@@ -271,8 +272,8 @@ class OrderStatuses extends Component
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
                 'description' => $orderStatus->description,
-                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
-                'default' => (bool)$orderStatus->default,
+                'sortOrder' => isset($orderStatus->sortOrder) ? $orderStatus->sortOrder : 99,
+                'default' => $orderStatus->default,
                 'emails' => array_combine($emails, $emails)
             ];
         }

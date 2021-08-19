@@ -24,6 +24,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use Throwable;
@@ -35,6 +36,7 @@ use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 use yii\web\UserEvent;
 
 /**
@@ -52,9 +54,9 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer';
 
     /**
-     * @var Customer
+     * @var Customer|null
      */
-    private $_customer;
+    private ?Customer $_customer = null;
 
     /**
      * @event CustomerEvent The event that is triggered before customer details is saved.
@@ -155,7 +157,7 @@ class Customers extends Component
      * @param int $id
      * @return Customer|null
      */
-    public function getCustomerById(int $id)
+    public function getCustomerById(int $id): ?Customer
     {
         $row = $this->_createCustomerQuery()
             ->where(['id' => $id])
@@ -333,6 +335,7 @@ class Customers extends Component
      *
      * @param $customerId
      * @return array
+     * @throws InvalidConfigException
      */
     public function getAddressIds($customerId): array
     {
@@ -354,8 +357,10 @@ class Customers extends Component
      *
      * @param Customer $customer
      * @return mixed
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteCustomer($customer)
+    public function deleteCustomer(Customer $customer)
     {
         $customer = CustomerRecord::findOne($customer->id);
 
@@ -371,7 +376,7 @@ class Customers extends Component
      *
      * @since 2.2
      */
-    public function purgeOrphanedCustomers()
+    public function purgeOrphanedCustomers(): void
     {
         $customers = (new Query())
             ->select(['[[customers.id]] id'])
@@ -394,8 +399,13 @@ class Customers extends Component
      * When a user logs in, consolidate all his/her orders.
      *
      * @param UserEvent $event
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws MissingComponentException
      */
-    public function loginHandler(UserEvent $event)
+    public function loginHandler(UserEvent $event): void
     {
         // Remove the old customer from the session.
         $this->forgetCustomer();
@@ -412,7 +422,7 @@ class Customers extends Component
     /**
      * Forgets a Customer by deleting the customer from session and request.
      */
-    public function forgetCustomer()
+    public function forgetCustomer(): void
     {
         $this->_customer = null;
 
@@ -428,6 +438,7 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
+     * @throws Throwable
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
@@ -488,7 +499,7 @@ class Customers extends Component
      * @param $id
      * @return Customer|null
      */
-    public function getCustomerByUserId($id)
+    public function getCustomerByUserId($id): ?Customer
     {
         $row = $this->_createCustomerQuery()
             ->where(['userId' => $id])
@@ -521,10 +532,12 @@ class Customers extends Component
      * Handle the user logout.
      *
      * @param UserEvent $event
+     * @throws InvalidConfigException
+     * @throws MissingComponentException
      */
-    public function logoutHandler(UserEvent $event)
+    public function logoutHandler(UserEvent $event): void
     {
-        // Reset the sessions customer.
+        // Reset the session's customer.
         Plugin::getInstance()->getCarts()->forgetCart();
         $this->forgetCustomer();
     }
@@ -538,9 +551,12 @@ class Customers extends Component
      * customers address book.
      *
      * @param Order $order
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws Throwable
      * @throws \yii\db\Exception
      */
-    public function orderCompleteHandler($order)
+    public function orderCompleteHandler(Order $order): void
     {
         // Create a user account if requested
 
@@ -599,7 +615,7 @@ class Customers extends Component
      * @return Query
      * @since 3.1
      */
-    public function getCustomersQuery($search = null): Query
+    public function getCustomersQuery(string $search = null): Query
     {
         $customersQuery = (new Query())
             ->select([
@@ -671,10 +687,11 @@ class Customers extends Component
      *
      * @param string $email
      * @param Order|null $order
+     * @throws InvalidConfigException
      * @throws \yii\db\Exception
      * @since 3.1.4
      */
-    public function consolidateGuestOrdersByEmail(string $email, Order $order = null)
+    public function consolidateGuestOrdersByEmail(string $email, Order $order = null): void
     {
         // Consolidation customer for this email
         $customerId = null;
@@ -784,7 +801,7 @@ class Customers extends Component
      * @throws Throwable
      * @throws ElementNotFoundException
      */
-    private function _createUserFromOrder(Order $order)
+    private function _createUserFromOrder(Order $order): void
     {
         // Only do this if requested
         if (!$order->registerUserOnOrderComplete) {
@@ -863,7 +880,7 @@ class Customers extends Component
      * @param array $context
      * @since 2.2
      */
-    public function addEditUserCustomerInfoTab(array &$context)
+    public function addEditUserCustomerInfoTab(array &$context): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
@@ -907,7 +924,7 @@ class Customers extends Component
      * @param ModelEvent $event
      * @throws Exception
      */
-    public function afterSaveUserHandler(ModelEvent $event)
+    public function afterSaveUserHandler(ModelEvent $event): void
     {
         $user = $event->sender;
         $customer = $this->getCustomerByUserId($user->id);
@@ -980,11 +997,11 @@ class Customers extends Component
     }
 
     /**
-     * @param $customerId
-     * @param $email
+     * @param int $customerId
+     * @param string $email
      * @throws \yii\db\Exception
      */
-    private function _updatePreviousOrderEmails(int $customerId, string $email)
+    private function _updatePreviousOrderEmails(int $customerId, string $email): void
     {
         $orderIds = (new Query())
             ->select(['orders.id'])

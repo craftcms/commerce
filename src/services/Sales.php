@@ -27,6 +27,7 @@ use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use function get_class;
 use function in_array;
@@ -146,22 +147,20 @@ class Sales extends Component
      */
     const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
 
+    /**
+     * @var Sale[]|null
+     */
+    private ?array $_allSales = null;
 
     /**
-     * @var Sale[]
+     * @var Sale[]|null
      */
-    private $_allSales;
-
-    /**
-     * @var Sale[]
-     */
-    private $_allActiveSales;
+    private ?array $_allActiveSales = null;
 
     /**
      * @var array
      */
-    private $_purchasableSaleMatch = [];
-
+    private array $_purchasableSaleMatch = [];
 
     /**
      * Get a sale by its ID.
@@ -169,7 +168,7 @@ class Sales extends Component
      * @param int $id
      * @return Sale|null
      */
-    public function getSaleById($id)
+    public function getSaleById(int $id): ?Sale
     {
         foreach ($this->getAllSales() as $sale) {
             if ($sale->id == $id) {
@@ -262,7 +261,7 @@ class Sales extends Component
      * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
      * // TODO Removed when completing #COM-58
      */
-    public function populateSaleRelations(Sale $sale)
+    public function populateSaleRelations(Sale $sale): void
     {
         $rows = (new Query())->select(
             'sp.purchasableId,
@@ -304,6 +303,7 @@ class Sales extends Component
      * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @return Sales[]
+     * @throws InvalidConfigException
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
     {
@@ -420,8 +420,9 @@ class Sales extends Component
      *
      * @param PurchasableInterface $purchasable
      * @param Sale $sale
-     * @param Order $order
+     * @param Order|null $order
      * @return bool
+     * @throws InvalidConfigException
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
@@ -642,6 +643,7 @@ class Sales extends Component
      *
      * @param $ids
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderSales($ids): bool
     {
@@ -718,7 +720,7 @@ class Sales extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         $this->_allActiveSales = null;
         $this->_allSales = null;

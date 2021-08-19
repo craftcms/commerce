@@ -50,22 +50,22 @@ class ProductType extends Model
     /**
      * @var string Name
      */
-    public string $name = '';
+    public string $name;
 
     /**
      * @var string Handle
      */
-    public string $handle = '';
+    public string $handle;
 
     /**
      * @var bool Has dimension
      */
-    public ?bool $hasDimensions = null;
+    public bool $hasDimensions;
 
     /**
      * @var bool Has variants
      */
-    public ?bool $hasVariants = null;
+    public bool $hasVariants;
 
     /**
      * @var bool Has variant title field
@@ -89,14 +89,14 @@ class ProductType extends Model
     public string $productTitleFormat = '';
 
     /**
-     * @var string SKU format
+     * @var string|null SKU format
      */
-    public string $skuFormat = '';
+    public ?string $skuFormat = null;
 
     /**
      * @var string Description format
      */
-    public string $descriptionFormat = '';
+    public string $descriptionFormat;
 
     /**
      * @var string Line item format
@@ -109,14 +109,14 @@ class ProductType extends Model
     public string $template;
 
     /**
-     * @var int Field layout ID
+     * @var int|null Field layout ID
      */
     public ?int $fieldLayoutId = null;
 
     /**
-     * @var int Variant layout ID
+     * @var int|null Variant layout ID
      */
-    public ?int $variantFieldLayoutId = null;
+    public ?int $variantFieldLayoutId;
 
     /**
      * @var string UID
@@ -124,19 +124,19 @@ class ProductType extends Model
     public string $uid;
 
     /**
-     * @var TaxCategory[]
+     * @var TaxCategory[]|null
      */
-    private array $_taxCategories = [];
+    private ?array $_taxCategories = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private array $_shippingCategories = [];
+    private ?array $_shippingCategories = null;
 
     /**
-     * @var ProductTypeSite[]
+     * @var ProductTypeSite[]|null
      */
-    private array $_siteSettings;
+    private ?array $_siteSettings = null;
 
     /**
      * @return null|string

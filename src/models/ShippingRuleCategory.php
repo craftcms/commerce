@@ -21,9 +21,9 @@ use craft\commerce\Plugin;
 class ShippingRuleCategory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var int Shipping rule ID
@@ -36,19 +36,19 @@ class ShippingRuleCategory extends Model
     public int $shippingCategoryId;
 
     /**
-     * @var float Per item rate
+     * @var float|null Per item rate
      */
-    public float $perItemRate;
+    public ?float $perItemRate;
 
     /**
-     * @var float Weight rate
+     * @var float|null Weight rate
      */
-    public float $weightRate;
+    public ?float $weightRate;
 
     /**
-     * @var float Percentage rate
+     * @var float|null Percentage rate
      */
-    public float $percentageRate;
+    public ?float $percentageRate;
 
     /**
      * @var string Condition

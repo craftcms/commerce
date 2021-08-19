@@ -65,99 +65,99 @@ class Product extends Element
     const STATUS_EXPIRED = 'expired';
 
     /**
-     * @var DateTime Post date
+     * @var DateTime|null Post date
      */
-    public $postDate;
+    public ?DateTime $postDate = null;
 
     /**
-     * @var DateTime Expiry date
+     * @var DateTime|null Expiry date
      */
-    public $expiryDate;
+    public ?DateTime $expiryDate = null;
 
     /**
-     * @var int Product type ID
+     * @var int|null Product type ID
      */
-    public $typeId;
+    public ?int $typeId = null;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Shipping category ID
+     * @var int|null Shipping category ID
      */
-    public $shippingCategoryId;
+    public ?int $shippingCategoryId = null;
 
     /**
-     * @var bool Whether the product is promotable
+     * @var bool|null Whether the product is promotable
      */
-    public $promotable;
+    public ?bool $promotable = null;
 
     /**
-     * @var bool Whether the product has free shipping
+     * @var bool|null Whether the product has free shipping
      */
-    public $freeShipping;
+    public ?bool $freeShipping = null;
 
     /**
      * @var bool Is this product available to be purchased
      */
-    public $availableForPurchase = true;
+    public bool $availableForPurchase = true;
 
     /**
-     * @var int defaultVariantId
+     * @var int|null defaultVariantId
      */
-    public $defaultVariantId;
+    public ?int $defaultVariantId = null;
 
     /**
-     * @var string Default SKU
+     * @var string|null Default SKU
      */
-    public $defaultSku;
+    public ?string $defaultSku = null;
 
     /**
-     * @var float Default price
+     * @var float|null Default price
      */
-    public $defaultPrice;
+    public ?float $defaultPrice = null;
 
     /**
-     * @var float Default height
+     * @var float|null Default height
      */
-    public $defaultHeight;
+    public ?float $defaultHeight = null;
 
     /**
-     * @var float Default length
+     * @var float|null Default length
      */
-    public $defaultLength;
+    public ?float $defaultLength = null;
 
     /**
-     * @var float Default width
+     * @var float|null Default width
      */
-    public $defaultWidth;
+    public ?float $defaultWidth = null;
 
     /**
-     * @var float Default weight
+     * @var float|null Default weight
      */
-    public $defaultWeight;
+    public ?float $defaultWeight = null;
 
     /**
-     * @var TaxCategory Tax category
+     * @var TaxCategory|null Tax category
      */
-    public $taxCategory;
+    public ?TaxCategory $taxCategory = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var Variant[] This product’s variants
+     * @var Variant[]|null This product’s variants
      */
-    private $_variants;
+    private ?array $_variants = null;
 
     /**
-     * @var Variant This product's cheapest variant
+     * @var Variant|null This product's cheapest variant
      */
-    private $_cheapestVariant;
+    private ?Variant $_cheapestVariant = null;
 
     /**
      * @return array
@@ -390,9 +390,11 @@ class Product extends Element
      * Returns the shipping category.
      *
      * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
     {
+        $shippingCategory = null;
         if ($this->shippingCategoryId) {
             $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
@@ -427,6 +429,7 @@ class Product extends Element
      * Returns the default variant.
      *
      * @return null|Variant
+     * @throws InvalidConfigException
      */
     public function getDefaultVariant(): ?Variant
     {
@@ -441,6 +444,8 @@ class Product extends Element
      * Return the cheapest variant.
      *
      * @return Variant
+     * @throws InvalidConfigException
+     * @noinspection PhpUnused
      */
     public function getCheapestVariant(): Variant
     {
@@ -475,21 +480,19 @@ class Product extends Element
             return $this->_variants;
         }
 
-        if (null === $this->_variants) {
-            if ($this->id) {
-                if ($this->getType()->hasVariants) {
-                    $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
-                } else {
-                    $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
-                    if ($variants) {
-                        $variants[0]->isDefault = true;
-                        $this->setVariants([$variants[0]]);
-                    }
+        if (null === $this->_variants && $this->id) {
+            if ($this->getType()->hasVariants) {
+                $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
+            } else {
+                $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
+                if ($variants) {
+                    $variants[0]->isDefault = true;
+                    $this->setVariants([$variants[0]]);
                 }
             }
         }
 
-        if (empty($this->_variants) || null === $this->_variants) {
+        if (empty($this->_variants)) {
             $variant = new Variant();
             $variant->isDefault = true;
             $this->setVariants([$variant]);
@@ -502,9 +505,9 @@ class Product extends Element
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param Variant[]|array $variants
+     * @param array|Variant[] $variants
      */
-    public function setVariants($variants): void
+    public function setVariants(array $variants): void
     {
         $this->_variants = [];
 
@@ -556,6 +559,8 @@ class Product extends Element
 
     /**
      * @return int
+     * @throws InvalidConfigException
+     * @noinspection PhpUnused
      */
     public function getTotalStock(): int
     {
@@ -573,6 +578,7 @@ class Product extends Element
      * Returns whether at least one variant has unlimited stock.
      *
      * @return bool
+     * @throws InvalidConfigException
      */
     public function getHasUnlimitedStock(): bool
     {
@@ -807,7 +813,6 @@ class Product extends Element
                 ->where(['productId' => $this->id])
                 ->column();
 
-            /** @var Variant $variant */
             foreach ($this->getVariants() as $variant) {
                 if ($isNew) {
                     $variant->productId = $this->id;
@@ -1286,7 +1291,7 @@ class Product extends Element
 
         return [
             'templates/render', [
-                'template' => (string)$productTypeSiteSettings[$siteId]->template,
+                'template' => $productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
                 ]
@@ -1299,7 +1304,6 @@ class Product extends Element
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        /* @var $productType ProductType */
         $productType = $this->getType();
 
         switch ($attribute) {
@@ -1331,7 +1335,7 @@ class Product extends Element
             {
                 $stock = 0;
                 $hasUnlimited = false;
-                /** @var Variant $variant */
+
                 foreach ($this->getVariants() as $variant) {
                     $stock += $variant->stock;
                     if ($variant->hasUnlimitedStock) {

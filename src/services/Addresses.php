@@ -22,11 +22,15 @@ use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Template;
 use LitEmoji\LitEmoji;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\caching\TagDependency;
 use yii\db\Exception;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 
 /**
  * Address service.
@@ -160,20 +164,20 @@ class Addresses extends Component
     /**
      * @var Address[]
      */
-    private $_addressesById = [];
+    private array $_addressesById = [];
 
     /**
      * @var Address|null
      */
-    private $_storeLocationAddress;
-    
+    private ?Address $_storeLocationAddress = null;
+
     /**
      * Returns an address by its ID.
      *
      * @param int $addressId the address' ID
      * @return Address|null the matched address or null if not found
      */
-    public function getAddressById(int $addressId)
+    public function getAddressById(int $addressId): ?Address
     {
         if (array_key_exists($addressId, $this->_addressesById)) {
             return $this->_addressesById[$addressId];
@@ -212,10 +216,10 @@ class Addresses extends Component
      * Returns an address by an address id and customer id.
      *
      * @param int $addressId the address id
-     * @param int $customerId the customer's ID
+     * @param int|null $customerId the customer's ID
      * @return Address|null the matched address or null if not found
      */
-    public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
+    public function getAddressByIdAndCustomerId(int $addressId, ?int $customerId = null): ?Address
     {
         $result = $this->_createAddressQuery()
             ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
@@ -339,6 +343,8 @@ class Addresses extends Component
      *
      * @param int $id the address' ID
      * @return bool whether the address was deleted successfully
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
     public function deleteAddressById(int $id): bool
     {
@@ -374,10 +380,13 @@ class Addresses extends Component
 
     /**
      * @param Address $address
-     * @param $zone
+     * @param AddressZoneInterface $zone
      * @return bool
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws InvalidConfigException
      */
-    public function addressWithinZone($address, AddressZoneInterface $zone): bool
+    public function addressWithinZone(Address $address, AddressZoneInterface $zone): bool
     {
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
@@ -392,7 +401,7 @@ class Addresses extends Component
             $countries = [];
             $stateNames = [];
             $stateAbbr = [];
-            /** @var State $state */
+
             foreach ($zone->getStates() as $state) {
                 $states[] = $state->id;
                 $countries[] = $state->countryId;
@@ -436,10 +445,9 @@ class Addresses extends Component
      * Deletes all addresses not related to a customer, cart or order
      *
      * @throws Exception
-     * @throws \yii\base\ExitException
      * @since 3.0.4
      */
-    public function purgeOrphanedAddresses()
+    public function purgeOrphanedAddresses(): void
     {
         $select = new Expression('DISTINCT [[addresses.id]] id');
         $addresses = (new Query())

@@ -50,7 +50,7 @@ class Product extends ElementResolver
             }
         }
 
-        $pairs = GqlHelper::extractAllowedEntitiesFromSchema('read');
+        $pairs = GqlHelper::extractAllowedEntitiesFromSchema();
 
         if (!GqlHelper::canQueryProducts()) {
             return [];

@@ -25,24 +25,24 @@ use yii\base\InvalidConfigException;
 class State extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
      * @var string|null Abbreviation
      */
-    public ?string $abbreviation = '';
+    public ?string $abbreviation = null;
 
     /**
-     * @var int Country ID
+     * @var int|null Country ID
      */
-    public int $countryId;
+    public ?int $countryId = null;
 
     /**
      * @var bool Is Enabled
@@ -52,19 +52,19 @@ class State extends Model
     /**
      * @var int|null Ordering
      */
-    public ?int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @inheritdoc

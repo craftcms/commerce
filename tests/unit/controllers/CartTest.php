@@ -12,9 +12,14 @@ use Craft;
 use craft\commerce\controllers\CartController;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craft\errors\ElementNotFoundException;
+use craft\errors\InvalidPluginException;
 use craft\web\Request;
 use craftcommercetests\fixtures\SalesFixture;
+use Throwable;
 use UnitTester;
+use yii\base\Exception;
+use yii\base\InvalidRouteException;
 use yii\web\Response;
 
 /**
@@ -28,17 +33,17 @@ class CartTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var CartController
      */
-    protected $cartController;
+    protected CartController $cartController;
 
     /**
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * @return array
@@ -55,7 +60,7 @@ class CartTest extends Unit
     /**
      * @inheritDoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -65,9 +70,10 @@ class CartTest extends Unit
     }
 
     /**
-     * @throws \yii\base\InvalidRouteException
+     * @throws InvalidRouteException
      */
-    public function testGetCart() {
+    public function testGetCart(): void
+    {
         $this->request->headers->set('Accept', 'application/json');
         $return = $this->cartController->runAction('get-cart');
 
@@ -80,12 +86,12 @@ class CartTest extends Unit
     }
 
     /**
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidRouteException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidRouteException
      */
-    public function testAddSinglePurchasable()
+    public function testAddSinglePurchasable(): void
     {
         $this->request->headers->set('Accept', 'application/json');
         $this->request->headers->set('X-Http-Method-Override', 'POST');
@@ -105,12 +111,12 @@ class CartTest extends Unit
     }
 
     /**
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidRouteException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidRouteException
      */
-    public function testAddMultiplePurchasablesLite()
+    public function testAddMultiplePurchasablesLite(): void
     {
         $this->request->headers->set('X-Http-Method-Override', 'POST');
 
@@ -138,13 +144,13 @@ class CartTest extends Unit
     }
 
     /**
-     * @throws \Throwable
-     * @throws \craft\errors\ElementNotFoundException
-     * @throws \craft\errors\InvalidPluginException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidRouteException
+     * @throws Throwable
+     * @throws ElementNotFoundException
+     * @throws InvalidPluginException
+     * @throws Exception
+     * @throws InvalidRouteException
      */
-    public function testAddMultiplePurchasables()
+    public function testAddMultiplePurchasables(): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
         $this->request->headers->set('X-Http-Method-Override', 'POST');

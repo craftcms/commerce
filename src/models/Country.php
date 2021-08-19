@@ -23,9 +23,9 @@ use DateTime;
 class Country extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
@@ -40,7 +40,7 @@ class Country extends Model
     /**
      * @var bool|null State Required
      */
-    public ?bool $isStateRequired;
+    public ?bool $isStateRequired = false;
 
     /**
      * @var bool Is Enabled
@@ -58,7 +58,7 @@ class Country extends Model
      * @since 3.4
      */
     public ?DateTime $dateUpdated = null;
-
+    
     /**
      * @return string
      */

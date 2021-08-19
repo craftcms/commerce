@@ -27,9 +27,9 @@ use yii\base\InvalidArgumentException;
 class Email extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
@@ -47,24 +47,24 @@ class Email extends Model
     public string $recipientType;
 
     /**
-     * @var string To
+     * @var string|null To
      */
-    public string $to;
+    public ?string $to = null;
 
     /**
-     * @var string Bcc
+     * @var string|null Bcc
      */
-    public string $bcc;
+    public ?string $bcc = null;
 
     /**
-     * @var string Cc
+     * @var string|null Cc
      */
-    public string $cc;
+    public ?string $cc = null;
 
     /**
-     * @var string Reply to
+     * @var string|null Reply to
      */
-    public string $replyTo;
+    public ?string $replyTo = null;
 
     /**
      * @var bool Is Enabled
@@ -82,9 +82,9 @@ class Email extends Model
     public string $plainTextTemplatePath;
 
     /**
-     * @var int The PDF UID.
+     * @var int|null The PDF UID.
      */
-    public int $pdfId;
+    public ?int $pdfId = null;
 
     /**
      * @var string The language.

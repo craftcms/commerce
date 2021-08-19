@@ -9,6 +9,9 @@ return [
         'hasVariants' => false,
         'descriptionFormat' => '{product.title}',
         'titleFormat' => '{product.title}',
+        'productTitleFormat' => '',
+        'hasProductTitleField' => true,
+        'hasVariantTitleField' => false,
     ],
     [
         'id' => '2001',
@@ -18,5 +21,8 @@ return [
         'hasVariants' => true,
         'descriptionFormat' => '{product.title} - {title}',
         'titleFormat' => '{product.title}',
+        'productTitleFormat' => '',
+        'hasProductTitleField' => true,
+        'hasVariantTitleField' => false,
     ]
 ];

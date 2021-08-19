@@ -120,7 +120,7 @@ class Settings extends Model
      *
      * @group System
      */
-    public string $emailSenderAddress = '';
+    public string $emailSenderAddress;
 
     /**
      * @var string Placeholder value displayed for the sender address control panel settings field.
@@ -138,7 +138,7 @@ class Settings extends Model
      *
      * @group System
      */
-    public string $emailSenderName = '';
+    public string $emailSenderName;
 
     /**
      * @var string Placeholder value displayed for the sender name control panel settings field.

@@ -12,6 +12,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Order History Class
@@ -26,14 +27,14 @@ use DateTime;
 class OrderHistory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public string $message;
+    public ?string $message = null;
 
     /**
      * @var int Order ID
@@ -46,23 +47,23 @@ class OrderHistory extends Model
     public int $prevStatusId;
 
     /**
-     * @var int New status ID
+     * @var int|null New status ID
      */
-    public int $newStatusId;
+    public ?int $newStatusId;
 
     /**
-     * @var int Customer ID
+     * @var int|null Customer ID
      */
-    public int $customerId;
+    public ?int $customerId;
 
     /**
      * @var Datetime|null
      */
-    public ?DateTime $dateCreated;
-
+    public ?DateTime $dateCreated = null;
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
@@ -71,6 +72,7 @@ class OrderHistory extends Model
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
     public function getPrevStatus(): ?OrderStatus
     {
@@ -80,6 +82,7 @@ class OrderHistory extends Model
 
     /**
      * @return OrderStatus|null
+     * @throws InvalidConfigException
      */
     public function getNewStatus(): ?OrderStatus
     {
@@ -89,6 +92,7 @@ class OrderHistory extends Model
 
     /**
      * @return Customer|null
+     * @throws InvalidConfigException
      */
     public function getCustomer(): ?Customer
     {

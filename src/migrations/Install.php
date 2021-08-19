@@ -54,13 +54,19 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-    private $_variantFieldLayoutId;
-    private $_productFieldLayoutId;
+    /**
+     * @var int
+     */
+    private int $_variantFieldLayoutId;
+    /**
+     * @var int
+     */
+    private int $_productFieldLayoutId;
 
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): bool
     {
         $this->createTables();
         $this->createIndexes();
@@ -73,7 +79,7 @@ class Install extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->dropForeignKeys();
         $this->dropTables();
@@ -89,7 +95,7 @@ class Install extends Migration
     /**
      * Creates the tables for Craft Commerce
      */
-    public function createTables()
+    public function createTables(): void
     {
         $this->createTable(Table::ADDRESSES, [
             'id' => $this->primaryKey(),
@@ -875,7 +881,7 @@ class Install extends Migration
     /**
      * Drop the tables
      */
-    public function dropTables()
+    public function dropTables(): void
     {
         $this->dropTableIfExists(Table::ADDRESSES);
         $this->dropTableIfExists(Table::COUNTRIES);
@@ -928,14 +934,12 @@ class Install extends Migration
         $this->dropTableIfExists(Table::TAXZONES);
         $this->dropTableIfExists(Table::TRANSACTIONS);
         $this->dropTableIfExists(Table::VARIANTS);
-
-        return null;
     }
 
     /**
      * Deletes the project config entry.
      */
-    public function dropProjectConfig()
+    public function dropProjectConfig(): void
     {
         Craft::$app->projectConfig->remove('commerce');
     }
@@ -943,7 +947,7 @@ class Install extends Migration
     /**
      * Creates the indexes.
      */
-    public function createIndexes()
+    public function createIndexes(): void
     {
         $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
         $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
@@ -1060,7 +1064,7 @@ class Install extends Migration
     /**
      * Adds the foreign keys.
      */
-    public function addForeignKeys()
+    public function addForeignKeys(): void
     {
         $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
@@ -1155,7 +1159,7 @@ class Install extends Migration
     /**
      * Removes the foreign keys.
      */
-    public function dropForeignKeys()
+    public function dropForeignKeys(): void
     {
         $tables = [
             Table::ADDRESSES,
@@ -1206,7 +1210,7 @@ class Install extends Migration
     /**
      * Insert the default data.
      */
-    public function insertDefaultData()
+    public function insertDefaultData(): void
     {
         // The following defaults are not stored in the project config.
         $this->_defaultCountries();
@@ -1233,7 +1237,7 @@ class Install extends Migration
     /**
      * Insert default countries data.
      */
-    private function _defaultCountries()
+    private function _defaultCountries(): void
     {
         $countries = [
             ['AF', 'Afghanistan'],
@@ -1500,7 +1504,7 @@ class Install extends Migration
     /**
      * Add default States.
      */
-    private function _defaultStates()
+    private function _defaultStates(): void
     {
         $states = [
             'AU' => [
@@ -1605,7 +1609,7 @@ class Install extends Migration
     /**
      * Make USD the default currency.
      */
-    private function _defaultCurrency()
+    private function _defaultCurrency(): void
     {
         $data = [
             'iso' => 'USD',
@@ -1618,7 +1622,7 @@ class Install extends Migration
     /**
      * Add a default shipping method and rule.
      */
-    private function _defaultShippingMethod()
+    private function _defaultShippingMethod(): void
     {
         $data = [
             'name' => 'Free Shipping',
@@ -1639,7 +1643,7 @@ class Install extends Migration
     /**
      * Add a default Tax category.
      */
-    private function _defaultTaxCategories()
+    private function _defaultTaxCategories(): void
     {
         $data = [
             'name' => 'General',
@@ -1652,7 +1656,7 @@ class Install extends Migration
     /**
      * Add a default shipping category.
      */
-    private function _defaultShippingCategories()
+    private function _defaultShippingCategories(): void
     {
         $data = [
             'name' => 'General',
@@ -1665,7 +1669,7 @@ class Install extends Migration
     /**
      * Add the donation purchasable
      */
-    public function _defaultDonationPurchasable()
+    public function _defaultDonationPurchasable(): void
     {
         $donation = new Donation();
         $donation->sku = 'DONATION-CC3';
@@ -1678,7 +1682,7 @@ class Install extends Migration
      *
      * @throws Exception
      */
-    private function _defaultOrderSettings()
+    private function _defaultOrderSettings(): void
     {
         $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
 
@@ -1697,7 +1701,7 @@ class Install extends Migration
      *
      * @throws Exception
      */
-    private function _defaultProductTypes()
+    private function _defaultProductTypes(): void
     {
         $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
         $this->_productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
@@ -1746,7 +1750,7 @@ class Install extends Migration
      *
      * @throws Exception
      */
-    private function _defaultProducts()
+    private function _defaultProducts(): void
     {
         $productTypeId = (new Query())
             ->select(['id'])
@@ -1887,7 +1891,7 @@ class Install extends Migration
     /**
      * Add a payment method.
      */
-    private function _defaultGateways()
+    private function _defaultGateways(): void
     {
         $data = [
             'name' => 'Dummy',
@@ -1922,7 +1926,7 @@ class Install extends Migration
      * @param $tableName
      * @throws NotSupportedException
      */
-    private function _dropForeignKeyToAndFromTable($tableName)
+    private function _dropForeignKeyToAndFromTable($tableName): void
     {
         if ($this->_tableExists($tableName)) {
             MigrationHelper::dropAllForeignKeysToTable($tableName, $this);

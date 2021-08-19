@@ -14,8 +14,11 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Tax rate service.
@@ -30,16 +33,16 @@ class TaxRates extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllTaxRates = false;
+    private bool $_fetchedAllTaxRates = false;
 
     /**
      * @var TaxRate[]
      */
-    private $_allTaxRates = [];
+    private array $_allTaxRates = [];
 
 
     /**
-     * Returns an array of all of the existing tax rates.
+     * Returns an array of all existing tax rates.
      *
      * @return TaxRate[]
      */
@@ -59,7 +62,7 @@ class TaxRates extends Component
     }
 
     /**
-     * Returns an array of all of the rates belonging to the zone
+     * Returns an array of all rates belonging to the zone
      *
      * @param TaxAddressZone $zone
      *
@@ -86,7 +89,7 @@ class TaxRates extends Component
      * @param int $id
      * @return TaxRate|null
      */
-    public function getTaxRateById($id)
+    public function getTaxRateById(int $id): ?TaxRate
     {
         if (isset($this->_allTaxRates[$id])) {
             return $this->_allTaxRates[$id];
@@ -195,6 +198,7 @@ class TaxRates extends Component
 
     /**
      * @return TaxRate
+     * @throws InvalidConfigException
      */
     public function getLiteTaxRate(): TaxRate
     {
@@ -221,8 +225,10 @@ class TaxRates extends Component
      *
      * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteTaxRateById($id): bool
+    public function deleteTaxRateById(int $id): bool
     {
         $record = TaxRateRecord::findOne($id);
 

@@ -24,6 +24,7 @@ use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
+use yii\base\InvalidConfigException;
 
 /**
  * Address Model
@@ -54,7 +55,7 @@ class Address extends Model implements AddressInterface
     const DEFAULT_COUNTRY_ISO = 'US';
     
     /**
-     * @var int Address ID
+     * @var int|null Address ID
      */
     public ?int $id = null;
 
@@ -64,92 +65,98 @@ class Address extends Model implements AddressInterface
     public bool $isStoreLocation = false;
 
     /**
-     * @var string Attention
+     * @var string|null Attention
      */
-    public string $attention = '';
+    public ?string $attention = null;
 
     /**
-     * @var string Title
+     * @var string|null Title
      */
-    public string $title = '';
+    public ?string $title = null;
+
 
     /**
-     * @var string First Name
+     * @var string|null First Name
      */
-    public string $firstName = '';
+    public ?string $firstName = null;
+
 
     /**
-     * @var string Last Name
+     * @var string|null Last Name
      */
-    public string $lastName = '';
+    public ?string $lastName = null;
 
     /**
-     * @var string Full Name
+     * @var string|null Full Name
      * @since 2.2
      */
-    public string $fullName = '';
+    public ?string $fullName = null;
 
     /**
-     * @var string Address Line 1
+     * @var string|null Address Line 1
      */
-    public string $address1 = '';
-
+    public ?string $address1 = null;
+    
     /**
-     * @var string Address Line 2
+     * @var string|null Address Line 2
      */
-    public string $address2 = '';
+    public ?string $address2 = null;
+
 
     /**
-     * @var string Address Line 3
+     * @var string|null Address Line 3
      * @since 2.2
      */
-    public string $address3 = '';
+    public ?string $address3 = null;
+
 
     /**
-     * @var string City
+     * @var string|null City
      */
-    public string $city = '';
+    public ?string $city = null;
+
 
     /**
-     * @var string Zip
+     * @var string|null Zip
      */
-    public string $zipCode = '';
+    public ?string $zipCode = null;
+
 
     /**
-     * @var string Phone
+     * @var string|null Phone
      */
-    public string $phone = '';
+    public ?string $phone = null;
 
     /**
-     * @var string Alternative Phone
+     * @var string|null Alternative Phone
      */
-    public string $alternativePhone = '';
+    public ?string $alternativePhone = null;
 
     /**
-     * @var string Label
+     * @var string|null Label
      * @since 2.2
      */
-    public string $label = '';
+    public ?string $label = null;
+    
+    /**
+     * @var string|null Business Name
+     */
+    public ?string $businessName = null;
+    
+    /**
+     * @var string|null Business Tax ID
+     */
+    public ?string $businessTaxId = null;
 
     /**
-     * @var string Business Name
+     * @var string|null Business ID
      */
-    public string $businessName = '';
-
-    /**
-     * @var string Business Tax ID
-     */
-    public string $businessTaxId = '';
-
-    /**
-     * @var string Business ID
-     */
-    public string $businessId = '';
+    public ?string $businessId = null;
 
     /**
      * @var string|null State Name
      */
-    public ?string $stateName = '';
+    public ?string $stateName = null;
 
     /**
      * @var int|null Country ID
@@ -162,34 +169,34 @@ class Address extends Model implements AddressInterface
     public ?int $stateId = null;
 
     /**
-     * @var string Notes, only field that can contain Emoji
+     * @var string|null Notes, only field that can contain Emoji
      * @since 2.2
      */
-    public string $notes = '';
+    public ?string $notes = null;
+    
+    /**
+     * @var string|null Custom Field 1
+     * @since 2.2
+     */
+    public ?string $custom1 = null;
+    
+    /**
+     * @var string|null Custom Field 2
+     * @since 2.2
+     */
+    public ?string $custom2 = null;
 
     /**
-     * @var string Custom Field 1
+     * @var string|null Custom Field 3
      * @since 2.2
      */
-    public string $custom1 = '';
+    public ?string $custom3 = null;
 
     /**
-     * @var string Custom Field 2
+     * @var string|null Custom Field 4
      * @since 2.2
      */
-    public string $custom2 = '';
-
-    /**
-     * @var string Custom Field 3
-     * @since 2.2
-     */
-    public string $custom3 = '';
-
-    /**
-     * @var string Custom Field 4
-     * @since 2.2
-     */
-    public string $custom4 = '';
+    public ?string $custom4 = null;
 
     /**
      * @var bool If this address is used for estimated values
@@ -201,18 +208,18 @@ class Address extends Model implements AddressInterface
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int|string Can be a State ID or State Name
+     * @var int|string|null Can be a State ID or State Name
      */
-    private $_stateValue;
+    private $_stateValue = null;
 
     /**
      * @var
@@ -560,6 +567,7 @@ class Address extends Model implements AddressInterface
      * Sets the stateId or stateName based on the value parameter.
      *
      * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
+     * @throws InvalidConfigException
      */
     public function setStateValue($value): void
     {
@@ -724,7 +732,8 @@ class Address extends Model implements AddressInterface
      */
     private function _getVatValidator(): Validator
     {
-        if (!isset($this->_vatValidator)) {
+        if (null === $this->_vatValidator) {
+
             $this->_vatValidator = new Validator();
         }
 

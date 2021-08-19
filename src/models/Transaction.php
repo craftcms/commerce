@@ -33,9 +33,9 @@ use yii\behaviors\AttributeTypecastBehavior;
 class Transaction extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var int Order ID
@@ -45,7 +45,7 @@ class Transaction extends Model
     /**
      * @var int Parent transaction ID
      */
-    public ?int $parentId;
+    public int $parentId;
 
     /**
      * @var int User ID
@@ -170,26 +170,36 @@ class Transaction extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        $primaryCurrency =  Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        if (!isset($this->currency)) {
+            $this->currency = $primaryCurrency;
+        }
+
+        if (!isset($this->paymentCurrency)) {
+            $this->paymentCurrency = $primaryCurrency;
+        }
+
+        parent::init();
+    }
+
+    /**
      * @return array
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'hash' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->currency,
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => [
-                'paymentAmount' => $this->paymentCurrency
+                'paymentAmount' => $this->paymentCurrency,
             ]
         ];
 

@@ -44,6 +44,7 @@ class TaxZoneState extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
     {

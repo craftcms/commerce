@@ -9,7 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
-use craft\web\twig\Environment;
+use Twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
 /**
@@ -23,12 +24,12 @@ class Formulas extends Component
     /**
      * @var Environment
      */
-    private $_twigEnv;
+    private Environment $_twigEnv;
 
     /**
      * Initialize formulas
      */
-    public function init()
+    public function init(): void
     {
         $tags = $this->_getTags();
         $filters = $this->_getFilters();
@@ -45,11 +46,11 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula The condition which will be tested for correct syntax
-     * @oaram array $params data passed into the formula
+     * @param string $condition The condition which will be tested for correct syntax
+     * @param array $params data passed into the formula
      * @return bool
      */
-    public function validateConditionSyntax($condition, $params): bool
+    public function validateConditionSyntax(string $condition, array $params): bool
     {
         try {
             $this->evaluateCondition($condition, $params, Craft::t('commerce', 'Validating condition syntax'));
@@ -61,11 +62,11 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula The formula which will be tested for correct syntax
-     * @oaram array $params data passed into the formula
+     * @param string $formula The formula which will be tested for correct syntax
+     * @param array $params data passed into the formula
      * @return bool
      */
-    public function validateFormulaSyntax($formula, $params): bool
+    public function validateFormulaSyntax(string $formula, array $params): bool
     {
         try {
             $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
@@ -77,17 +78,14 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula
-     * @oaram array $params data passed into the condition
-     * @oaram string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @param string $formula
-     * @param $params
-     * @param string $name
+     * @param array $params data passed into the condition
+     * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      * @throws SyntaxError
-     * @throws \Twig\Error\LoaderError
+     * @throws LoaderError
      */
-    public function evaluateCondition(string $formula, $params, $name = 'Evaluate Condition'): bool
+    public function evaluateCondition(string $formula, array $params, string $name = 'Evaluate Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');
@@ -111,7 +109,7 @@ class Formulas extends Component
      * @oaram string|null $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      * @throws SyntaxError
-     * @throws \Twig\Error\LoaderError
+     * @throws LoaderError
      */
     public function evaluateFormula(string $formula, $params, $setType = null, $name = 'Inline formula'): bool
     {
@@ -136,7 +134,7 @@ class Formulas extends Component
      * @param array $disallowedStrings
      * @return bool
      */
-    private function _hasDisallowedStrings(string $code, $disallowedStrings = [])
+    private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
         foreach ($disallowedStrings as $disallowedString) {
             if (stripos($code, $disallowedString) !== false) {

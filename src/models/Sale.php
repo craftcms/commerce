@@ -30,9 +30,9 @@ use DateTime;
 class Sale extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
@@ -65,14 +65,14 @@ class Sale extends Model
     public float $applyAmount;
 
     /**
-     * @var bool ignore the previous sales that affect the purchasable
+     * @var bool|null ignore the previous sales that affect the purchasable
      */
-    public bool $ignorePrevious;
+    public ?bool $ignorePrevious = null;
 
     /**
-     * @var bool should the sales system stop processing other sales after this one
+     * @var bool|null should the sales system stop processing other sales after this one
      */
-    public bool $stopProcessing;
+    public ?bool $stopProcessing = null;
 
     /**
      * @var bool Match all groups
@@ -100,36 +100,36 @@ class Sale extends Model
     public bool $enabled = true;
 
     /**
-     * @var int The order index of the application of the sale
+     * @var int|null The order index of the application of the sale
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int[] Product Ids
+     * @var int[]|null Product Ids
      */
-    private array $_purchasableIds;
+    private ?array $_purchasableIds = null;
 
     /**
-     * @var int[] Product Type IDs
+     * @var int[]|null Product Type IDs
      */
-    private array $_categoryIds;
+    private ?array $_categoryIds = null;
 
     /**
-     * @var int[] Group IDs
+     * @var int[]|null Group IDs
      */
-    private array $_userGroupIds;
+    private ?array $_userGroupIds = null;
 
     /**
      * @inheritdoc

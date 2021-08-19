@@ -29,9 +29,9 @@ use DateTime;
 class TaxRate extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
      * @var string Name
@@ -77,31 +77,31 @@ class TaxRate extends Model
     public string $taxable = 'price';
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public int $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Is this the tax rate for the lite edition
+     * @var bool Is this the tax rate for the lite edition
      */
-    public int $isLite;
+    public bool $isLite = false;
 
     /**
-     * @var int Tax zone ID
+     * @var int|null Tax zone ID
      */
-    public int $taxZoneId;
-
-    /**
-     * @var DateTime|null
-     * @since 3.4
-     */
-    public ?DateTime $dateCreated;
+    public ?int $taxZoneId = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var TaxCategory

@@ -27,39 +27,39 @@ use DateTime;
 abstract class ShippingMethod extends BaseModel implements ShippingMethodInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var bool Enabled
      */
-    public bool $enabled;
+    public bool $enabled = true;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var bool Is this the shipping method for the lite edition.
+     * @var bool|null Is this the shipping method for the lite edition.
      */
     public ?bool $isLite = false;
 

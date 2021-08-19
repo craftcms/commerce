@@ -33,12 +33,12 @@ class Donation extends Purchasable
     /**
      * @var bool Is the product available for purchase.
      */
-    public $availableForPurchase;
+    public bool $availableForPurchase;
 
     /**
      * @var string The SKU
      */
-    private $_sku;
+    private string $_sku;
 
     /**
      * @return array
@@ -75,7 +75,7 @@ class Donation extends Purchasable
     {
         $fields = parent::fields();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event  #COM-27
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -186,7 +186,7 @@ class Donation extends Purchasable
     /**
      * @param string|null $value
      */
-    public function setSku($value)
+    public function setSku(?string $value): void
     {
         $this->_sku = $value;
     }
@@ -264,7 +264,7 @@ class Donation extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        return (bool)$this->availableForPurchase;
+        return $this->availableForPurchase;
     }
 
     /**

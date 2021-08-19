@@ -23,7 +23,7 @@ class SaleTest extends Unit
     /**
      * @todo Remove when populateSaleRelations is removed #COM-58
      */
-    public function testLoadRelationsCalledOnce()
+    public function testLoadRelationsCalledOnce(): void
     {
         $populateSaleRelationsRunCount = 0;
         $sale = new Sale();
@@ -47,7 +47,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testSetCategoryIds()
+    public function testSetCategoryIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -61,7 +61,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testSetPurchasableIds()
+    public function testSetPurchasableIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -75,7 +75,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testSetUserGroupIds()
+    public function testSetUserGroupIds(): void
     {
         $sale = new Sale();
         $ids = [1, 2, 3, 4, 1];
@@ -89,7 +89,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testGetApplyAmountAsPercent()
+    public function testGetApplyAmountAsPercent(): void
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1000';
@@ -100,7 +100,7 @@ class SaleTest extends Unit
     /**
      *
      */
-    public function testGetApplyAmountAsFlat()
+    public function testGetApplyAmountAsFlat(): void
     {
         $sale = new Sale();
         $sale->applyAmount = '-0.1500';

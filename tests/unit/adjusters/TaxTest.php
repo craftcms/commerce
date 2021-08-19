@@ -26,19 +26,19 @@ use craft\commerce\Plugin;
 class TaxTest extends Unit
 {
     /**
-     *
+     * @var Plugin|null
      */
-    public $pluginInstance;
+    public ?Plugin $pluginInstance;
 
     /**
-     *
+     * @var string
      */
-    public $originalEdition;
+    public string $originalEdition;
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -50,9 +50,9 @@ class TaxTest extends Unit
     }
 
     /**
-     *
+     * @inheritdoc
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 
@@ -62,7 +62,7 @@ class TaxTest extends Unit
     /**
      * @dataProvider dataCases
      */
-    public function testAdjust($addressData, $lineItemData, $taxRateData, $expected)
+    public function testAdjust($addressData, $lineItemData, $taxRateData, $expected): void
     {
         $order = new Order();
 
@@ -102,6 +102,7 @@ class TaxTest extends Unit
             $rate->isVat = $item['isVat'];
             $rate->removeVatIncluded = $item['removeVatIncluded'] ?? false;
             $rate->taxable = $item['taxable'];
+            $rate->taxCategoryId = $item['taxCategoryId'];
             $taxRates[] = $rate;
         }
 
@@ -110,6 +111,7 @@ class TaxTest extends Unit
             $lineItem = new LineItem();
             $lineItem->qty = $item['qty'];
             $lineItem->salePrice = $item['salePrice'];
+            $lineItem->taxCategoryId = 1;
             $lineItems[] = $lineItem;
         }
 
@@ -143,7 +145,7 @@ class TaxTest extends Unit
     /**
      * @return array[]
      */
-    public function dataCases()
+    public function dataCases(): array
     {
         return [
 
@@ -159,6 +161,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => false,
@@ -196,6 +199,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
                         'isVat' => false,
@@ -232,6 +236,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Netherlands',
                         'code' => 'NLVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -273,6 +278,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Australia',
                         'code' => 'GST',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => false,
                         'isVat' => false,
@@ -303,6 +309,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'Netherlands',
                         'code' => 'NLVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'removeIncluded' => true,
@@ -343,6 +350,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -383,6 +391,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,
@@ -416,6 +425,7 @@ class TaxTest extends Unit
                     [
                         'name' => 'CZ Vat',
                         'code' => 'CZVAT',
+                        'taxCategoryId' => 1,
                         'rate' => 0.1,
                         'include' => true,
                         'isVat' => true,

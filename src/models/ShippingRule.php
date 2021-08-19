@@ -16,6 +16,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -30,24 +31,24 @@ use DateTime;
 class ShippingRule extends Model implements ShippingRuleInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public int $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
-     * @var int Shipping zone ID
+     * @var int|null Shipping zone ID
      */
-    public int $shippingZoneId;
+    public ?int $shippingZoneId = null;
 
     /**
      * @var int Shipping method ID
@@ -65,9 +66,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public bool $enabled = true;
 
     /**
-     * @var string Order Condition Formula
+     * @var string|null Order Condition Formula
      */
-    public string $orderConditionFormula = '';
+    public ?string $orderConditionFormula = '';
 
     /**
      * @var int Minimum Quantity
@@ -135,30 +136,31 @@ class ShippingRule extends Model implements ShippingRuleInterface
     public $maxRate = 0;
 
     /**
-     * @var bool Is lite shipping rule
+     * @var bool|null Is lite shipping rule
      */
-    public bool $isLite = false;
+    public ?bool $isLite = false;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private array $_shippingRuleCategories;
+    private ?array $_shippingRuleCategories = null;
 
     /**
      * @param Order $order
      * @return array
+     * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
@@ -392,14 +394,15 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @return ShippingRuleCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingRuleCategories(): array
     {
-        if (!isset($this->_shippingRuleCategories)) {
+        if ($this->_shippingRuleCategories === null && $this->id) {
             $this->_shippingRuleCategories = Plugin::getInstance()->getShippingRuleCategories()->getShippingRuleCategoriesByRuleId($this->id);
         }
 
-        return $this->_shippingRuleCategories;
+        return $this->_shippingRuleCategories ?? [];
     }
 
     /**
@@ -412,9 +415,14 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @return ShippingAddressZone|null
+     * @throws InvalidConfigException
      */
     public function getShippingZone(): ?ShippingAddressZone
     {
+        if ($this->shippingZoneId === null) {
+            return null;
+        }
+
         return Plugin::getInstance()->getShippingZones()->getShippingZoneById($this->shippingZoneId);
     }
 

@@ -21,6 +21,8 @@ use yii\base\Exception;
  *
  * @property Country[]|array $allCountries an array of all countries
  * @property array $allCountriesAsList
+ * @property-read array $allEnabledCountriesAsList
+ * @property-read Country[] $allEnabledCountries
  * @property Country[]|array $allCountriesListData all country names, indexed by ID
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -30,28 +32,27 @@ class Countries extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllCountries = false;
+    private bool $_fetchedAllCountries = false;
 
     /**
      * @var Country[]
      */
-    private $_countriesById = [];
+    private array $_countriesById = [];
 
     /**
      * @var Country[]
      */
-    private $_enabledCountriesById = [];
+    private array $_enabledCountriesById = [];
 
     /**
      * @var Country[][]
      */
-    private $_countriesByTaxZoneId = [];
+    private array $_countriesByTaxZoneId = [];
 
     /**
      * @var Country[][]
      */
-    private $_countriesByShippingZoneId = [];
-
+    private array $_countriesByShippingZoneId = [];
 
     /**
      * Returns a country by its ID.
@@ -59,7 +60,7 @@ class Countries extends Component
      * @param int $id the country's ID
      * @return Country|null
      */
-    public function getCountryById(int $id)
+    public function getCountryById(int $id): ?Country
     {
         if (isset($this->_countriesById[$id])) {
             return $this->_countriesById[$id];
@@ -86,7 +87,7 @@ class Countries extends Component
      * @param string $iso the country's ISO code
      * @return Country|null
      */
-    public function getCountryByIso(string $iso)
+    public function getCountryByIso(string $iso): ?Country
     {
         $result = $this->_createCountryQuery()
             ->where(['iso' => $iso])
@@ -290,7 +291,7 @@ class Countries extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         // Clear all caches
         // TODO refactor memoization (Not using _fetchedAllCountries anymore) #COM-48

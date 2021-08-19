@@ -22,10 +22,10 @@ class CancelSubscriptionEvent extends CancelableEvent
     /**
      * @var Subscription Subscription
      */
-    public $subscription;
+    public Subscription $subscription;
 
     /**
      * @var CancelSubscriptionForm parameters
      */
-    public $parameters;
+    public CancelSubscriptionForm $parameters;
 }

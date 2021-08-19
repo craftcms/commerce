@@ -12,6 +12,7 @@ use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
 use craft\errors\MissingComponentException;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -27,6 +28,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
 {
     /**
      * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -39,6 +41,7 @@ class ShippingMethodsController extends BaseShippingSettingsController
      * @param ShippingMethod|null $shippingMethod
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, ShippingMethod $shippingMethod = null): Response
     {
@@ -64,9 +67,9 @@ class ShippingMethodsController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
         }
 
-        $shippingRules = Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id);
-
-        $variables['shippingRules'] = $shippingRules;
+        $variables['shippingRules'] = $variables['shippingMethod']->id !== null
+            ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)
+            : [];
 
         return $this->renderTemplate('commerce/shipping/shippingmethods/_edit', $variables);
     }
