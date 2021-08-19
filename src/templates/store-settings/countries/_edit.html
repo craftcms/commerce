@@ -95,7 +95,7 @@
 
     <div id="states-vue-admin-table"></div>
     {% set tableData = [] %}
-    {% for state in states if state.countryId == country.id %}
+    {% for state in states|filter(item => item.countryId == country.id) %}
       {% set tableData = tableData|merge([{
             id: state.id,
             title: state.name|t('site'),
