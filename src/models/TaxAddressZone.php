@@ -40,14 +40,14 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
@@ -64,13 +64,13 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Country based
@@ -78,14 +78,14 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     private bool $_isCountryBased = true;
 
     /**
-     * @var Country[] $_countries
+     * @var Country[]|null $_countries
      */
-    private array $_countries;
+    private ?array $_countries = null;
 
     /**
-     * @var State[] $_states
+     * @var State[]|null $_states
      */
-    private array $_states;
+    private ?array $_states = null;
 
 
     /**
@@ -143,14 +143,15 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * Returns all countries in this Tax Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountries(): array
     {
-        if (!isset($this->_countries)) {
+        if ($this->_countries === null && $this->id) {
             $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId($this->id);
         }
 
-        return $this->_countries;
+        return $this->_countries ?? [];
     }
 
     /**
@@ -181,14 +182,15 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * Returns all states in this Tax Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStates(): array
     {
-        if (!isset($this->_states)) {
+        if ($this->_states === null && $this->id) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId($this->id);
         }
 
-        return $this->_states;
+        return $this->_states ?? [];
     }
 
     /**

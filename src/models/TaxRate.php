@@ -34,15 +34,15 @@ class TaxRate extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Code
+     * @var string|null Code
      * @since 2.2
      */
-    public string $code;
+    public ?string $code = null;
 
     /**
      * @var float Rate
@@ -52,19 +52,19 @@ class TaxRate extends Model
     /**
      * @var bool Include
      */
-    public bool $include;
+    public bool $include = false;
 
     /**
      * @var bool Remove the included tax rate
      * @since 3.4
      */
-    public bool $removeIncluded;
+    public bool $removeIncluded = false;
 
     /**
      * @var bool Remove the included vat tax rate
      * @since 3.4
      */
-    public bool $removeVatIncluded;
+    public bool $removeVatIncluded = false;
 
     /**
      * @var bool Is VAT
@@ -104,14 +104,14 @@ class TaxRate extends Model
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var TaxCategory
+     * @var TaxCategory|null
      */
-    private TaxCategory $_taxCategory;
+    private ?TaxCategory $_taxCategory = null;
 
     /**
-     * @var TaxAddressZone
+     * @var TaxAddressZone|null
      */
-    private TaxAddressZone $_taxZone;
+    private ?TaxAddressZone $_taxZone = null;
 
 
     /**
@@ -154,7 +154,7 @@ class TaxRate extends Model
      */
     public function getTaxZone(): ?TaxAddressZone
     {
-        if (!isset($this->_taxZone) && $this->taxZoneId) {
+        if ($this->_taxZone === null && $this->taxZoneId) {
             $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
         }
 
@@ -166,7 +166,7 @@ class TaxRate extends Model
      */
     public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory) {
+        if (null === $this->_taxCategory && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 
