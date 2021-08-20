@@ -11,14 +11,18 @@ use Codeception\Stub;
 use Codeception\Test\Unit;
 use Craft;
 use craft\base\Model;
+use craft\commerce\events\ShowAllFormAttributesEvent;
+use craft\commerce\helpers\Address as AddressHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
+use craft\commerce\services\Addresses;
 use craft\commerce\services\Countries;
 use craft\commerce\services\States;
 use DvK\Vat\Validator;
 use Exception;
+use yii\base\Event;
 use yii\base\InvalidConfigException;
 use yii\caching\DummyCache;
 
@@ -298,16 +302,7 @@ class AddressTest extends Unit
 
     public function testAddressFormat()
     {
-        $mockCountriesService = $this->make(Countries::class, [
-            'getCountryById' => function($id) {
-                $country = new Country();
-                $country->iso = 'US';
-
-                return $country;
-            }
-        ]);
-
-        Plugin::getInstance()->set('countries', $mockCountriesService);
+        $this->_mockCountryService();
 
         $expectedFormat = trim("
 %givenName %familyName
@@ -322,6 +317,34 @@ class AddressTest extends Unit
         $format = $address->getAddressFormat();
 
         self::assertEquals($expectedFormat, $format->getFormat());
+    }
+    
+    public function testAddressFormAttributesAll()
+    {
+        Event::on(Address::class, Address::EVENT_SHOW_ALL_FORM_ATTRIBUTES, function (ShowAllFormAttributesEvent $event) {
+            $event->all = true;
+        });
+        
+        $this->_mockCountryService();
+        
+        $address = new Address();
+        $address->countryId = 1;
+        
+        $this->assertEquals($address->attributes(), $address->formAttributes());
+    }    
+    
+    public function testAddressFormAttributesDefault()
+    {
+        $this->_mockCountryService();
+        
+        $address = new Address();
+        $address->countryId = 1;
+
+        $format = $address->getAddressFormat();
+        
+        $attributes = array_merge($format->getUsedFields(), $address->getImportantAttributes());
+        
+        $this->assertEquals($attributes, $address->formAttributes());
     }
 
     /**
@@ -506,5 +529,19 @@ class AddressTest extends Unit
             [1112, null, '1112'],
             ['Somewhere', null, 'Somewhere'],
         ];
+    }
+    
+    private function _mockCountryService()
+    {
+        $mockCountriesService = $this->make(Countries::class, [
+            'getCountryById' => function($id) {
+                $country = new Country();
+                $country->iso = 'US';
+
+                return $country;
+            }
+        ]);
+
+        Plugin::getInstance()->set('countries', $mockCountriesService);
     }
 }

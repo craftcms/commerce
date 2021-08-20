@@ -17,6 +17,9 @@ use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\events\DefineAddressLinesEvent;
+use craft\commerce\events\ModifyFormAttributesEvent;
+use craft\commerce\events\ShowAllFormAttributesEvent;
+use craft\commerce\helpers\Address as AddressHelper;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
@@ -25,6 +28,7 @@ use DateTime;
 use DvK\Vat\Validator;
 use Exception;
 use LitEmoji\LitEmoji;
+use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 
 /**
@@ -54,7 +58,16 @@ class Address extends Model implements AddressInterface
     
     /** @since 4.0 */
     const DEFAULT_COUNTRY_ISO = 'US';
-    const MODIFY_FORM_ATTRIBUTES = [];
+
+    /**
+     * @event ModifyFormAttributesEvent
+     * @see formAttributes()
+     * @since 4.0
+     */
+    const EVENT_MODIFY_FORM_ATTRIBUTES = 'modifyFormAttributes';
+    
+    
+    const EVENT_SHOW_ALL_FORM_ATTRIBUTES = 'showFormAttributes';
 
     /**
      * @var int|null Address ID
@@ -821,12 +834,37 @@ class Address extends Model implements AddressInterface
 
     public function formAttributes(): array
     {
+        $showEvent = new ShowAllFormAttributesEvent();
+        
+        if ($this->hasEventHandlers(self::EVENT_SHOW_ALL_FORM_ATTRIBUTES)) {
+            $this->trigger(self::EVENT_SHOW_ALL_FORM_ATTRIBUTES, $showEvent);
+        }
+        
         $attributes = $this->attributes();
-        // show all 
-        // create form attributes event model. 2 properties : form attributes from the formatter and all
-        // add mapping
-        //$this->trigger(self::MODIFY_FORM_ATTRIBUTES, $attributes);
-        // Removed all of the ones in address format. Store the attributes to an array based on the address format order.
-        return $attributes;
+       
+        if ($showEvent->all === false) {
+            if ($this->countryIso === null) {
+                $this->countryIso = AddressHelper::getDefaultCountry()->iso;
+            }
+            
+            $format = $this->getAddressFormat();
+
+            $attributes = array_merge($format->getUsedFields(), $this->getImportantAttributes());
+        }
+
+        $modifyEvent = new ModifyFormAttributesEvent([
+            'attributes' => $attributes
+        ]);
+        
+        $this->trigger(self::EVENT_MODIFY_FORM_ATTRIBUTES, $modifyEvent);
+
+        return $modifyEvent->attributes;
+    }
+    
+    public function getImportantAttributes(): array
+    {
+        return [
+          'phone'  
+        ];
     }
 }
