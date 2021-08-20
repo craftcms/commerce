@@ -53,8 +53,10 @@
     class: 'selectize fullwidth'
   }) }}
   <form method="post" {{ attr(mainFormAttributes) }}>
-  {{ craft.commerce.addresses.buildAddressForm(address)|raw }}
-
+    {% namespace 'address' %}
+        {% include 'addresses/_form' %}
+      {% endnamespace %}
+      
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
     name: 'attention',

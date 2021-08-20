@@ -21,6 +21,7 @@ use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Template;
+use craft\web\View;
 use LitEmoji\LitEmoji;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -604,12 +605,12 @@ class Addresses extends Component
      * @throws \Twig\Error\SyntaxError
      * @throws \yii\base\Exception
      */
-    public function buildAddressForm(Address $address): string
+    public function buildAddressForm(Address $address, $namespace = 'address'): string
     {
         $addressFormat = $address->getAddressFormat();
 
         $format = nl2br($addressFormat->getFormat());
-        
+       
         $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
             return static::buildAdministrativeArea($address);
         }, $format);        
@@ -628,6 +629,10 @@ class Addresses extends Component
         
         $form = preg_replace_callback('/%addressLine2/', function ($matches) use ($address) {
             return static::buildAddress2($address);
+        }, $form);            
+        
+        $form = preg_replace_callback('/%dependentLocality/', function ($matches) use ($address) {
+            return static::buildDependentLocality($address);
         }, $form);        
         
         $form = preg_replace_callback('/%organization/', function ($matches) use ($address) {
@@ -660,8 +665,12 @@ class Addresses extends Component
             $options[$id]['label'] = $state->name;
             $options[$id]['value'] = $state->id;
         }
+        $currentMode = Craft::$app->getView()->getTemplateMode();
         
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
+        Craft::$app->getView()->setTemplateMode(View::TEMPLATE_MODE_CP);
+        
+        
+         return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
             'address' => $address,
             'options' => $options
         ]);
@@ -677,6 +686,13 @@ class Addresses extends Component
     private static function buildLocality(Address $address): string
     {
         return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/locality', [
+            'address' => $address,
+        ]);
+    }
+    
+    private static function buildDependentLocality(Address $address): string
+    {
+        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/dependent-locality', [
             'address' => $address,
         ]);
     }    

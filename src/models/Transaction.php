@@ -38,14 +38,14 @@ class Transaction extends Model
     public ?int $id = null;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public int $orderId;
+    public ?int $orderId = null;
 
     /**
-     * @var int Parent transaction ID
+     * @var int|null Parent transaction ID
      */
-    public int $parentId;
+    public ?int $parentId = null;
 
     /**
      * @var int User ID

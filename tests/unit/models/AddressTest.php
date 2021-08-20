@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\models;
 use Codeception\Stub;
 use Codeception\Test\Unit;
 use Craft;
+use craft\base\Model;
 use craft\commerce\models\Address;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
@@ -293,6 +294,34 @@ class AddressTest extends Unit
         $addressLines = $addressModel->getAddressLines($sanitize);
 
         self::assertEquals($expected, $addressLines);
+    }
+
+    public function testAddressFormat()
+    {
+        $mockCountriesService = $this->make(Countries::class, [
+            'getCountryById' => function($id) {
+                $country = new Country();
+                $country->iso = 'US';
+
+                return $country;
+            }
+        ]);
+
+        Plugin::getInstance()->set('countries', $mockCountriesService);
+
+        $expectedFormat = trim("
+%givenName %familyName
+%organization
+%addressLine1
+%addressLine2
+%locality, %administrativeArea %postalCode
+        ");
+        $expectedFormat = preg_replace('/[ \t]+/', ' ', preg_replace('/[\r\n]+/', "\n", $expectedFormat));
+        $address = new Address();
+        $address->countryId = 1;
+        $format = $address->getAddressFormat();
+
+        self::assertEquals($expectedFormat, $format->getFormat());
     }
 
     /**

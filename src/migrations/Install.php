@@ -124,7 +124,7 @@ class Install extends Migration
             'custom2' => $this->string(),
             'custom3' => $this->string(),
             'custom4' => $this->string(),
-            'administrativeArea' => $this->string(),
+            'administrativeAreaName' => $this->string(),
             'locality' => $this->string(),
             'dependentLocality' => $this->string(),
             'postalCode' => $this->string(),

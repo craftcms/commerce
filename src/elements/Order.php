@@ -788,7 +788,7 @@ class Order extends Element
      * {{ order.registerUserOnOrderComplete }}
      * ```
      */
-    public bool $registerUserOnOrderComplete = false;
+    public ?bool $registerUserOnOrderComplete = false;
 
     /**
      * The current payment source that should be used to make payments on the

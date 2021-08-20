@@ -1,10 +1,22 @@
-{% from "_includes/forms" import selectField %}
-
-{{ selectField({
-      id: 'administrativeArea',
-      label: address.getAddressFormat.administrativeAreaType|capitalize,
-      name: 'administrativeArea',
-      fieldClass: 'field-inline-block',
-      value: address.administrativeArea,
-      options: options
-}) }}
+{% if options|length  %}
+      {% from "_includes/forms" import selectField %}
+      
+      {{ selectField({
+            id: 'administrativeArea',
+            label: address.getAddressFormat.administrativeAreaType|capitalize,
+            name: 'administrativeArea',
+            fieldClass: 'field-inline-block',
+            value: address.administrativeArea,
+            options: options
+      }) }}
+{% else %}
+      {% from "_includes/forms" import textField %}
+      
+      {{ textField({
+            id: 'administrativeArea',
+            label: address.getAddressFormat.administrativeAreaType|capitalize,
+            name: 'administrativeArea',
+            fieldClass: 'field-inline-block',
+            value: address.administrativeArea,
+      }) }}
+{% endif %}

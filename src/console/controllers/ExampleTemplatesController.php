@@ -28,7 +28,7 @@ class ExampleTemplatesController extends Controller
     /**
      * @inheritdoc
      */
-    public string $defaultAction = 'generate';
+    public $defaultAction = 'generate';
 
     /**
      * @var string Name of the folder the templates will copy into

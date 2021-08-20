@@ -12,6 +12,7 @@ use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\AddressInterface;
 use CommerceGuys\Addressing\Country\CountryRepository;
 use CommerceGuys\Addressing\Formatter\DefaultFormatter;
+use CommerceGuys\Addressing\Formatter\PostalLabelFormatter;
 use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;
 use Craft;
 use craft\commerce\base\Model;
@@ -53,7 +54,8 @@ class Address extends Model implements AddressInterface
     
     /** @since 4.0 */
     const DEFAULT_COUNTRY_ISO = 'US';
-    
+    const MODIFY_FORM_ATTRIBUTES = [];
+
     /**
      * @var int|null Address ID
      */
@@ -593,7 +595,7 @@ class Address extends Model implements AddressInterface
      * @param bool $sanitize
      * @return array
      * @since 3.2.0
-     * @deprecated in 4.0 use [[getAddressFormat]]
+     * @deprecated in 4.0 use [[getAddressHtml]]
      */
     public function getAddressLines(bool $sanitize = false): array
     {
@@ -644,12 +646,23 @@ class Address extends Model implements AddressInterface
      * @return string
      * @sinice 4.0
      */
-    public function getAddressHtml(): string
+    public function getAddressHtml($formatter = 'default'): string
     {
+        // based display in formAttributes
         $addressFormatRepository = new AddressFormatRepository();
         $countryRepository = new CountryRepository();
         $subdivisionRepository = new SubdivisionRepository();
-        $formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
+        
+        switch ($formatter) {
+            case 'postal':
+                $formatter = new PostalLabelFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository, [
+                    'origin_country' => 'US'
+                ]);
+                break;
+                
+            default:
+                $formatter = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
+        }
 
         return $formatter->format($this);
     }
@@ -804,5 +817,16 @@ class Address extends Model implements AddressInterface
     {
         $countryRepository = new CountryRepository();
         return $countryRepository->get($this->countryIso)->getLocale();
+    }
+
+    public function formAttributes(): array
+    {
+        $attributes = $this->attributes();
+        // show all 
+        // create form attributes event model. 2 properties : form attributes from the formatter and all
+        // add mapping
+        //$this->trigger(self::MODIFY_FORM_ATTRIBUTES, $attributes);
+        // Removed all of the ones in address format. Store the attributes to an array based on the address format order.
+        return $attributes;
     }
 }

@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\Address;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -64,8 +65,8 @@ class AddressesController extends BaseCpController
                 throw new NotFoundHttpException('Address not found.');
             }
         }
-
-        $variables['address']->countryId = $this->getCountryId($variables['address']);
+        $countryIdParam = Craft::$app->getRequest()->getParam('countryId');
+        $variables['address']->countryId = Address::getCountryIdByParam($variables['address'], $countryIdParam);
 
         $variables['title'] = $variables['addressId']
             ? Craft::t('commerce', 'Edit Address', ['id' => $variables['addressId']])
@@ -128,35 +129,9 @@ class AddressesController extends BaseCpController
 
         // @TODO namespace inputs, and use setAttributes on the model #COM-30
         // Shared attributes
-        $attributes = [
-            'attention',
-            'title',
-            'firstName',
-            'lastName',
-            'fullName',
-            'address1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'label',
-            'notes',
-            'businessName',
-            'businessTaxId',
-            'businessId',
-            'countryId',
-            'stateValue',
-            'custom1',
-            'custom2',
-            'custom3',
-            'custom4',
-        ];
-        foreach ($attributes as $attr) {
-            $address->$attr = Craft::$app->getRequest()->getParam($attr);
-        }
-
+        
+        $address->load(Craft::$app->getRequest()->getBodyParams(), 'address');
+        
         // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
         $result = $customer ? Plugin::getInstance()->getCustomers()->saveAddress($address, $customer) : Plugin::getInstance()->getAddresses()->saveAddress($address);
 
@@ -362,32 +337,5 @@ class AddressesController extends BaseCpController
             'success' => true,
             'address' => $address,
         ]);
-    }
-
-    /**
-     * @param AddressModel $address
-     * @return int
-     */
-    private function getCountryId(AddressModel $address): int
-    {
-        $countryId = $address->countryId;
-        
-        if ($countryId === null) {
-            $countryIdParam = Craft::$app->getRequest()->getParam('countryId');
-            
-            if ($countryIdParam === null) {
-                $countryId = Plugin::getInstance()->getCountries()->getCountryByIso(AddressModel::DEFAULT_COUNTRY_ISO)->id;
-
-                $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
-
-                if ($storeLocation->id !== null) {
-                    $countryId = $storeLocation->countryId;
-                }
-            } else {
-                $countryId = $countryIdParam;
-            }
-        }
-        
-        return $countryId;
     }
 }
