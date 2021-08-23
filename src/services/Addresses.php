@@ -607,45 +607,26 @@ class Addresses extends Component
      */
     public function buildAddressForm(Address $address, $namespace = 'address'): string
     {
-        $addressFormat = $address->getAddressFormat();
+        $currentMode = Craft::$app->getView()->getTemplateMode();
 
-        $format = nl2br($addressFormat->getFormat());
-       
-        $form = preg_replace_callback('/%administrativeArea/', function ($matches) use ($address) {
-            return static::buildAdministrativeArea($address);
-        }, $format);        
+        Craft::$app->getView()->setTemplateMode(View::TEMPLATE_MODE_CP);
         
-        $form = preg_replace_callback('/%postalCode/', function ($matches) use ($address) {
-            return static::buildPostalCode($address);
-        }, $form);        
+        $states = Plugin::getInstance()->getStates()->getStatesByCountryId($address->countryId);
+
+        $options = [];
+        foreach ($states as $id => $state) {
+            $options[$id]['label'] = $state->name;
+            $options[$id]['value'] = $state->id;
+        }
+
+        $html = Craft::$app->getView()->renderTemplate('commerce/addresses/_form', [
+            'address' => $address,
+            'options' => $options
+        ]);
         
-        $form = preg_replace_callback('/%locality/', function ($matches) use ($address) {
-            return static::buildLocality($address);
-        }, $form);        
+        Craft::$app->getView()->setTemplateMode($currentMode);
         
-        $form = preg_replace_callback('/%addressLine1/', function ($matches) use ($address) {
-            return static::buildAddress1($address);
-        }, $form);        
-        
-        $form = preg_replace_callback('/%addressLine2/', function ($matches) use ($address) {
-            return static::buildAddress2($address);
-        }, $form);            
-        
-        $form = preg_replace_callback('/%dependentLocality/', function ($matches) use ($address) {
-            return static::buildDependentLocality($address);
-        }, $form);        
-        
-        $form = preg_replace_callback('/%organization/', function ($matches) use ($address) {
-            return static::buildBusinessName($address);
-        }, $form);        
-        
-        $form = preg_replace_callback('/%givenName/', function ($matches) use ($address) {
-            return static::buildFirstName($address);
-        }, $form);        
-        
-        return preg_replace_callback('/%familyName/', function ($matches) use ($address) {
-            return static::buildLastName($address);
-        }, $form);
+        return $html;
     }
 
     /**
@@ -665,10 +646,6 @@ class Addresses extends Component
             $options[$id]['label'] = $state->name;
             $options[$id]['value'] = $state->id;
         }
-        $currentMode = Craft::$app->getView()->getTemplateMode();
-        
-        Craft::$app->getView()->setTemplateMode(View::TEMPLATE_MODE_CP);
-        
         
          return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
             'address' => $address,
