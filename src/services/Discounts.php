@@ -188,7 +188,7 @@ class Discounts extends Component
     /**
      * @var Discount[]|null
      */
-    private ?array $_allDiscounts;
+    private ?array $_allDiscounts = null;
 
     /**
      * @var Discount[][]|null
