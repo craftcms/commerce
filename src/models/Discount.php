@@ -40,7 +40,7 @@ class Discount extends Model
     /**
      * @var string Name of the discount
      */
-    public string $name;
+    public string $name = '';
 
     /**
      * @var string|null The description of this discount
