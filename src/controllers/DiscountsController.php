@@ -106,7 +106,7 @@ class DiscountsController extends BaseCpController
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
-        $discount->percentDiscount = $request->getBodyParam('percentDiscount');
+        $discount->percentDiscount = (float)$request->getBodyParam('percentDiscount');
         $discount->percentageOffSubject = $request->getBodyParam('percentageOffSubject');
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
