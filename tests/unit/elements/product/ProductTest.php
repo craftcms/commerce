@@ -11,6 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
 use craft\commerce\Plugin;
+use craftcommercetests\fixtures\ProductFixture;
+use craftcommercetests\fixtures\SalesFixture;
 
 /**
  * ProductTest
@@ -21,6 +23,17 @@ use craft\commerce\Plugin;
 class ProductTest extends Unit
 {
     /**
+     * @return array
+     */
+    public function _fixtures(): array
+    {
+        return [
+            'products' => [
+                'class' => ProductFixture::class,
+            ]
+        ];
+    }
+    /**
      * @group Product
      */
     public function testProductPopulationAndValidation(): void
@@ -28,7 +41,7 @@ class ProductTest extends Unit
         $product = new Product();
         $product->enabled = false;
         $product->title = 'test';
-        $product->typeId = 1;
+        $product->typeId = 2000;
 
         $variant = new Variant();
         $variant->title = 'variant 1';
