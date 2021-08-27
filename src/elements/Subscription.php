@@ -96,9 +96,9 @@ class Subscription extends Element
     public int $trialDays;
 
     /**
-     * @var DateTime Date of next payment
+     * @var DateTime|null Date of next payment
      */
-    public DateTime $nextPaymentDate;
+    public ?DateTime $nextPaymentDate = null;
 
     /**
      * @var bool Whether the subscription is canceled
@@ -108,7 +108,7 @@ class Subscription extends Element
     /**
      * @var DateTime|null Time when subscription was canceled
      */
-    public ?DateTime $dateCanceled;
+    public ?DateTime $dateCanceled = null;
 
     /**
      * @var bool Whether the subscription has expired
@@ -116,9 +116,9 @@ class Subscription extends Element
     public bool $isExpired;
 
     /**
-     * @var DateTime Time when subscription expired
+     * @var DateTime|null Time when subscription expired
      */
-    public DateTime $dateExpired;
+    public ?DateTime $dateExpired = null;
 
     /**
      * @var bool Whether the subscription has started
@@ -131,9 +131,9 @@ class Subscription extends Element
     public bool $isSuspended;
 
     /**
-     * @var DateTime Time when subscription was put on hold
+     * @var DateTime|null Time when subscription was put on hold
      */
-    public DateTime $dateSuspended;
+    public ?DateTime $dateSuspended = null;
 
     /**
      * @var SubscriptionGatewayInterface|null
@@ -285,10 +285,10 @@ class Subscription extends Element
     /**
      * Returns the datetime of trial expiry.
      *
-     * @return DateTime
+     * @return DateTime|null
      * @throws Exception
      */
-    public function getTrialExpires(): DateTIme
+    public function getTrialExpires(): ?DateTIme
     {
         $created = clone $this->dateCreated;
         return $created->add(new DateInterval('P' . $this->trialDays . 'D'));
