@@ -18,6 +18,7 @@
     "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
+  "minimum-stability": "dev",
   "require": {
     "craftcms/cms": "^4.0.0-alpha",
     "dompdf/dompdf": "^1.0.2",
