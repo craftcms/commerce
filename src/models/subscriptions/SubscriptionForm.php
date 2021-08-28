@@ -27,12 +27,10 @@ class SubscriptionForm extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['trialDays'], 'integer', 'integerOnly' => true, 'min' => 0];
-
-        return $rules;
+        return [
+            [['trialDays'], 'integer', 'integerOnly' => true, 'min' => 0],
+        ];
     }
 }
