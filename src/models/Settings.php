@@ -514,13 +514,11 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules [] = [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'];
-
-        return $rules;
+        return [
+            [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
+        ];
     }
 
     /**

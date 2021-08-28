@@ -347,68 +347,69 @@ class Discount extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [
+        return [
+            [['name'], 'required'],
             [
-                'perUserLimit',
-                'perEmailLimit',
-                'totalDiscountUseLimit',
-                'totalDiscountUses',
-                'purchaseTotal',
-                'purchaseQty',
-                'maxPurchaseQty',
-                'baseDiscount',
-                'perItemDiscount',
-                'percentDiscount'
-            ], 'number', 'skipOnEmpty' => false
-        ];
-        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' =>
                 [
+                    'perUserLimit',
+                    'perEmailLimit',
+                    'totalDiscountUseLimit',
+                    'totalDiscountUses',
+                    'purchaseTotal',
+                    'purchaseQty',
+                    'maxPurchaseQty',
+                    'baseDiscount',
+                    'perItemDiscount',
+                    'percentDiscount'
+                ], 'number', 'skipOnEmpty' => false
+            ],
+            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [
+                ['categoryRelationshipType'],
+                'in', 'range' => [
                     DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
                     DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
                     DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-                ]
-        ];
-        $rules[] = [
-            ['appliedTo'], 'in', 'range' =>
-                [
+                ],
+            ],
+            [
+                ['appliedTo'],
+                'in',
+                'range' => [
                     DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS,
                     DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS
-                ]
-        ];
-        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
-        $rules[] = [
-            'hasFreeShippingForOrder', function($attribute, $params, $validator) {
-                if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
-                    $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
-                }
-            }
-        ];
-        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
-        $rules[] = [
-            'orderConditionFormula', function($attribute, $params, $validator) {
-                if ($this->{$attribute}) {
-                    $order = Order::find()->one();
-                    if (!$order) {
-                        $order = new Order();
+                ],
+            ],
+            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [
+                'hasFreeShippingForOrder',
+                function($attribute, $params, $validator) {
+                    if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
+                        $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
                     }
-                    $orderDiscountConditionParams = [
-                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                    ];
-                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
-                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                },
+            ],
+            [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [
+                'orderConditionFormula',
+                function($attribute, $params, $validator) {
+                    if ($this->{$attribute}) {
+                        $order = Order::find()->one();
+                        if (!$order) {
+                            $order = new Order();
+                        }
+                        $orderDiscountConditionParams = [
+                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                        ];
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+                            $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                        }
                     }
-                }
-            }
+                },
+            ],
         ];
-
-        return $rules;
     }
 
     /**

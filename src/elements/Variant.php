@@ -357,25 +357,23 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['sku'], 'string', 'max' => 255];
-        $rules[] = [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE];
-        $rules[] = [['price', 'weight', 'width', 'height', 'length'], 'number'];
-        $rules[] = [
-            ['stock'],
-            'required',
-            'when' => static function($model) {
-                /** @var Variant $model */
-                return !$model->hasUnlimitedStock;
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-        $rules[] = [['stock'], 'number'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['sku'], 'string', 'max' => 255],
+            [['sku', 'price'], 'required', 'on' => self::SCENARIO_LIVE],
+            [['price', 'weight', 'width', 'height', 'length'], 'number'],
+            [
+                ['stock'],
+                'required',
+                'when' => static function($model) {
+                    /** @var Variant $model */
+                    return !$model->hasUnlimitedStock;
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [['stock'], 'number'],
+        ]);
     }
 
     /**

@@ -19,7 +19,7 @@ use craft\events\CancelableEvent;
 class PurgeAddressesEvent extends CancelableEvent
 {
     /**
-     * @var Query|null The query to get the purgable addresses
+     * @var Query|null The query to get the purgeable addresses
      */
     public ?Query $addressesQuery;
 }

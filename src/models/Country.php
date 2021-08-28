@@ -81,14 +81,12 @@ class Country extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['iso', 'name'], 'required'];
-        $rules[] = [['iso'], 'string', 'length' => [2]];
-
-        return $rules;
+        return [
+            [['iso', 'name'], 'required'],
+            [['iso'], 'string', 'length' => [2]],
+        ];
     }
 
     /**

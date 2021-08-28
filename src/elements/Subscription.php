@@ -548,13 +548,11 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'],
+        ]);
     }
 
     /**

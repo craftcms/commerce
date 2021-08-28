@@ -941,54 +941,49 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
-        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                if (empty($this->getVariants())) {
-                    $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
-                }
-            },
-            'skipOnEmpty' => false,
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    if (isset($skus[$variant->sku])) {
-                        $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
-                        break;
+        return array_merge(parent::defineRules(), [
+            [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true],
+            [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [
+                ['variants'],
+                function() {
+                    if (empty($this->getVariants())) {
+                        $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
-                    $skus[$variant->sku] = true;
-                }
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                foreach ($this->getVariants() as $i => $variant) {
-                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
-                        $variant->setScenario(self::SCENARIO_LIVE);
+                },
+                'skipOnEmpty' => false,
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    $skus = [];
+                    foreach ($this->getVariants() as $variant) {
+                        if (isset($skus[$variant->sku])) {
+                            $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
+                            break;
+                        }
+                        $skus[$variant->sku] = true;
                     }
-                    if (!$variant->validate()) {
-                        $this->addModelErrors($variant, "variants[$i]");
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants() as $i => $variant) {
+                        if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                            $variant->setScenario(self::SCENARIO_LIVE);
+                        }
+                        if (!$variant->validate()) {
+                            $this->addModelErrors($variant, "variants[$i]");
+                        }
                     }
-                }
-            },
-        ];
-
-        return $rules;
+                },
+            ],
+        ]);
     }
 
     /**
