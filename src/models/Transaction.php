@@ -343,12 +343,10 @@ class Transaction extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['type', 'status', 'orderId'], 'required'];
-
-        return $rules;
+        return [
+            [['type', 'status', 'orderId'], 'required'],
+        ];
     }
 }
