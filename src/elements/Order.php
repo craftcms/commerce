@@ -1394,46 +1394,42 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
+        return array_merge(parent::defineRules(), [
+            // Address models are valid
+            [['billingAddress', 'shippingAddress'], 'validateAddress'],
 
-        // Address models are valid
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddress'
-        ]; // from OrderValidatorTrait
+            // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+            [['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'],
 
-        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'
-        ]; // from OrderValidatorTrait
+            // Are the addresses both being set to each other.
+            [
+                ['billingAddress', 'shippingAddress'],
+                'validateAddressReuse',
+                'when' => function($model) {
+                    /** @var Order $model */
+                    return !$model->isCompleted;
+                },
+            ],
 
-        // Are the addresses both being set to each other.
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressReuse', 'when' => function($model) {
-                /** @var Order $model */
-                return !$model->isCompleted;
-            }
-        ]; // from OrderValidatorTrait
+            // Line items are valid?
+            [['lineItems'], 'validateLineItems'],
 
-        // Line items are valid?
-        $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
+            // Coupon Code valid?
+            [['couponCode'], 'validateCouponCode'],
 
-        // Coupon Code valid?
-        $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
+            [['gatewayId'], 'number', 'integerOnly' => true],
+            [['gatewayId'], 'validateGatewayId'],
+            [['shippingAddressId'], 'number', 'integerOnly' => true],
+            [['billingAddressId'], 'number', 'integerOnly' => true],
 
-        $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
-        $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
-        $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
+            [['paymentCurrency'], 'validatePaymentCurrency'],
 
-        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
-
-        $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
-        $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
-        $rules[] = [['email'], 'email'];
-
-        return $rules;
+            [['paymentSourceId'], 'number', 'integerOnly' => true],
+            [['paymentSourceId'], 'validatePaymentSourceId'],
+            [['email'], 'email'],
+        ]);
     }
 
     /**

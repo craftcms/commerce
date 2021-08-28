@@ -78,12 +78,11 @@ class Pdf extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle', 'templatePath', 'language'], 'required'];
-        return $rules;
+        return [
+            [['name', 'handle', 'templatePath', 'language'], 'required'],
+        ];
     }
 
     /**

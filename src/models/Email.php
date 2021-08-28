@@ -120,18 +120,19 @@ class Email extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['subject', 'name', 'templatePath', 'language'], 'required'];
-        $rules[] = [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]];
-        $rules[] = [
-            ['to'], 'required', 'when' => static function($model) {
-                return $model->recipientType == EmailRecord::TYPE_CUSTOM;
-            }
+        return [
+            [['subject', 'name', 'templatePath', 'language'], 'required'],
+            [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
+            [
+                ['to'],
+                'required',
+                'when' => static function($model) {
+                    return $model->recipientType == EmailRecord::TYPE_CUSTOM;
+                },
+            ],
         ];
-        return $rules;
     }
 
     /**

@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
+
 ## 3.4.2 - 2021-08-11
 
 ### Changed

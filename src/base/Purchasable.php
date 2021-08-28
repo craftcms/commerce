@@ -180,19 +180,17 @@ abstract class Purchasable extends Element implements PurchasableInterface
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['sku'],
-            UniqueValidator::class,
-            'targetClass' => PurchasableRecord::class,
-            'caseInsensitive' => true,
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [
+                ['sku'],
+                UniqueValidator::class,
+                'targetClass' => PurchasableRecord::class,
+                'caseInsensitive' => true,
+                'on' => self::SCENARIO_LIVE,
+            ]
+        ]);
     }
 
     /**

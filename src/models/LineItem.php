@@ -443,29 +443,29 @@ class LineItem extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
+        $rules = [
             [
-                'optionsSignature',
-                'price',
-                'salePrice',
-                'saleAmount',
-                'weight',
-                'length',
-                'height',
-                'width',
-                'qty',
-                'snapshot',
-                'taxCategoryId',
-                'shippingCategoryId'
-            ], 'required'
+                [
+                    'optionsSignature',
+                    'price',
+                    'salePrice',
+                    'saleAmount',
+                    'weight',
+                    'length',
+                    'height',
+                    'width',
+                    'qty',
+                    'snapshot',
+                    'taxCategoryId',
+                    'shippingCategoryId'
+                ], 'required'
+            ],
+            [['qty'], 'integer', 'min' => 1],
+            [['shippingCategoryId', 'taxCategoryId'], 'integer'],
+            [['price', 'salePrice'], 'number'],
         ];
-        $rules[] = [['qty'], 'integer', 'min' => 1];
-        $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
-        $rules[] = [['price', 'salePrice'], 'number'];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */

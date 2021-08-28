@@ -305,22 +305,19 @@ class Address extends Model
     /**
      * @inheritDoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')
-        ];
-
-        $rules[] = [
-            ['stateId'], 'validateState', 'skipOnEmpty' => false, 'when' => function($model) {
-                return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
-            }
-        ];
-
-        $rules[] = [
-            ['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true
+        $rules = [
+            [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')],
+            [
+                ['stateId'],
+                'validateState',
+                'skipOnEmpty' => false,
+                'when' => function($model) {
+                    return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
+                },
+            ],
+            [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true],
         ];
 
         $textAttributes = [

@@ -121,23 +121,14 @@ class OrderAdjustment extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            [
-                'type',
-                'amount',
-                'sourceSnapshot',
-                'orderId'
-            ], 'required'
+        return [
+            [['type', 'amount', 'sourceSnapshot', 'orderId'], 'required'],
+            [['amount'], 'number'],
+            [['orderId'], 'integer'],
+            [['lineItemId'], 'integer'],
         ];
-        $rules[] = [['amount'], 'number'];
-        $rules[] = [['orderId'], 'integer'];
-        $rules[] = [['lineItemId'], 'integer'];
-
-        return $rules;
     }
 
     /**
