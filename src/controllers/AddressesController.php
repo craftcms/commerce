@@ -12,6 +12,8 @@ use craft\commerce\db\Table;
 use craft\commerce\helpers\Address;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use craft\commerce\web\assets\commerceui\CommerceAddressAsset;
+use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
@@ -30,6 +32,7 @@ use yii\web\Response;
  */
 class AddressesController extends BaseCpController
 {
+    protected $allowAnonymous = ['get-countries'];
     /**
      * @inheritdoc
      * @throws ForbiddenHttpException
@@ -91,7 +94,7 @@ class AddressesController extends BaseCpController
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
             $variables['redirect'] = $redirect;
         }
-
+        Craft::$app->getView()->registerAssetBundle(CommerceAddressAsset::class);
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
 
@@ -129,7 +132,6 @@ class AddressesController extends BaseCpController
 
         // @TODO namespace inputs, and use setAttributes on the model #COM-30
         // Shared attributes
-        
         $address->load(Craft::$app->getRequest()->getBodyParams(), 'address');
         
         // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
@@ -337,5 +339,14 @@ class AddressesController extends BaseCpController
             'success' => true,
             'address' => $address,
         ]);
+    }
+    
+    public function actionGetCountries()
+    {
+        return $this->asJson(['records' => [
+            'nz' => 'New Zealand',
+            'au' => 'Australia',
+            'jp' => 'Japan',
+        ]]);
     }
 }

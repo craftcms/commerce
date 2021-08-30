@@ -13,7 +13,6 @@ import BtnLink from '../base/components/BtnLink'
 import OrderBlock from './components/OrderBlock'
 import OrderTitle from './components/OrderTitle'
 
-
 Vue.config.productionTip = false
 if (process.env.NODE_ENV === 'development') {
     Vue.config.devtools = true

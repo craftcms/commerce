@@ -45,7 +45,7 @@ abstract class CommerceUiAsset extends AssetBundle
             VueAsset::class,
             TimepickerAsset::class,
         ];
-
+   
         if ($devServer = self::getDevServer()) {
             $this->js[] = $devServer . '/' . $this->appJs;
         } else {
@@ -75,8 +75,9 @@ abstract class CommerceUiAsset extends AssetBundle
             }
 
             $devServer = rtrim($vueCliServer, '/') . '/';
-
+     
             $vueCliLoopbackServer = getenv('COMMERCE_VUE_CLI_LOOPBACK_SERVER');
+         
             if ($vueCliLoopbackServer) {
                 try {
                     $contents = file_get_contents($vueCliLoopbackServer);
@@ -85,6 +86,7 @@ abstract class CommerceUiAsset extends AssetBundle
                 }
             }
         }
+    
         return $devServer;
     }
 }

@@ -3,10 +3,12 @@ let publicPath = null
 let craftAssetsPath = (process.env.CRAFT_ASSETS_PATH ? process.env.CRAFT_ASSETS_PATH : './../../../../../cms/src/web/assets/')
 
 if (process.env.NODE_ENV === 'development') {
-    publicPath = (process.env.DEV_SERVER_PUBLIC_PATH ? process.env.DEV_SERVER_PUBLIC_PATH : 'http://localhost:' + devServerPort + '/')
+    publicPath = (process.env.DEV_SERVER_PUBLIC_PATH ? process.env.DEV_SERVER_PUBLIC_PATH : 'https://localhost:' + devServerPort + '/')
 } else {
     publicPath = '/'
 }
+
+
 const path = require('path');
 
 module.exports = {
@@ -28,7 +30,8 @@ module.exports = {
     devServer: {
         headers: {"Access-Control-Allow-Origin": "*"},
         disableHostCheck: true,
-        port: devServerPort
+        port: devServerPort,
+        host: '0.0.0.0'
     },
     chainWebpack: config => {
         // Remove the standard entry point
@@ -38,6 +41,9 @@ module.exports = {
         config
             .entry('order')
             .add('./src/js/order/app.js')
+            .end()
+            .entry('address')
+            .add('./src/js/address/app.js')
             .end()
     }
 }

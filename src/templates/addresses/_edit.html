@@ -42,8 +42,6 @@
 {% endblock %}
 
 {% block content %}
-    
-
   <form method="post" {{ attr(mainFormAttributes) }}>
  
     {{ craft.commerce.addresses.buildAddressForm(address)|raw }}
@@ -61,7 +59,7 @@
 
   var url = "{{ craft.app.request.fullUri }}";
   var queryParams = '{{ craft.app.request.queryParams|json_encode|raw }}';
-  $('#country').selectize({
+  $('#address-country').selectize({
     onItemAdd: function(value, isOnInitialize) {
       var params = JSON.parse(queryParams);
       params = {...params, ...{ countryId: value }}

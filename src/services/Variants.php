@@ -40,13 +40,7 @@ class Variants extends Component
      */
     public function getAllVariantsByProductId(int $productId, int $siteId = null): array
     {
-        $variants = Variant::find()->productId($productId)->anyStatus()->limit(null)->siteId($siteId)->all();
-
-        foreach ($variants as $variant) {
-            $variant->typecastAttributes();
-        }
-
-        return $variants;
+        return Variant::find()->productId($productId)->anyStatus()->limit(null)->siteId($siteId)->all();
     }
 
     /**
