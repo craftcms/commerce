@@ -350,30 +350,33 @@ class Plugin extends BasePlugin
                 $productTypePermissions['commerce-manageProductType' . $suffix] = ['label' => Craft::t('commerce', 'Manage “{type}” products', ['type' => $productType->name])];
             }
 
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')] = [
-                'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
-                'commerce-manageOrders' => [
-                    'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
-                        'commerce-editOrders' => [
-                            'label' => Craft::t('commerce', 'Edit orders')
-                        ],
-                        'commerce-deleteOrders' => [
-                            'label' => Craft::t('commerce', 'Delete orders')
-                        ],
-                        'commerce-capturePayment' => [
-                            'label' => Craft::t('commerce', 'Capture payment')
-                        ],
-                        'commerce-refundPayment' => [
-                            'label' => Craft::t('commerce', 'Refund payment')
-                        ],
-                    ]
-                ],
-                'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
-                'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
-                'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
-                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
-                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
-                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+            $event->permissions[] = [
+                'heading' => Craft::t('commerce', 'Craft Commerce'),
+                'permissions' => [
+                    'commerce-manageProducts' => ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
+                    'commerce-manageOrders' => [
+                        'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
+                            'commerce-editOrders' => [
+                                'label' => Craft::t('commerce', 'Edit orders')
+                            ],
+                            'commerce-deleteOrders' => [
+                                'label' => Craft::t('commerce', 'Delete orders')
+                            ],
+                            'commerce-capturePayment' => [
+                                'label' => Craft::t('commerce', 'Capture payment')
+                            ],
+                            'commerce-refundPayment' => [
+                                'label' => Craft::t('commerce', 'Refund payment')
+                            ],
+                        ]
+                    ],
+                    'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
+                    'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
+                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                    'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
+                    'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
+                    'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+                ]
             ];
         });
     }
