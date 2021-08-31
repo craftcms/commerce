@@ -243,7 +243,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfById($id): ?Pdf
+    public function getPdfById(int $id): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
     }
