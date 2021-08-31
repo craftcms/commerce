@@ -80,8 +80,8 @@ class OrdersControllerTest extends Unit
         self::assertArrayHasKey('pagination', $response->data);
         self::assertArrayHasKey('data', $response->data);
 
-        self::assertSame(10, $response->data['pagination']['total']);
-        self::assertCount(10, $response->data['data']);
+        self::assertSame(4, $response->data['pagination']['total']);
+        self::assertCount(4, $response->data['data']);
 
         $purchasable = array_pop($response->data['data']);
 
@@ -105,7 +105,7 @@ class OrdersControllerTest extends Unit
 
         $purchasable = array_pop($response->data['data']);
 
-        self::assertEquals('ANT-001', $purchasable['sku']);
+        self::assertEquals('DONATION-CC4', $purchasable['sku']);
     }
 
     public function testCustomerSearch(): void

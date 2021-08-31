@@ -1659,7 +1659,7 @@ class Install extends Migration
     public function _defaultDonationPurchasable(): void
     {
         $donation = new Donation();
-        $donation->sku = 'DONATION-CC3';
+        $donation->sku = 'DONATION-CC4';
         $donation->availableForPurchase = false;
         Craft::$app->getElements()->saveElement($donation);
     }
