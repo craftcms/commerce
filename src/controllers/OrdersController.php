@@ -502,7 +502,7 @@ class OrdersController extends Controller
         }
 
         // Do not return any purchasables with temp SKUs
-        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
         // Do not return soft deleted purchasables
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);
