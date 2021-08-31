@@ -488,13 +488,13 @@ class Variant extends Purchasable
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
-        if (!$type->hasVariantTitleField && $type->hasVariants && $type->titleFormat) {
+        if (!$type->hasVariantTitleField && $type->hasVariants && $type->variantTitleFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
             // Set Craft to the products's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->titleFormat, $this);
+            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
 

@@ -114,7 +114,7 @@ class ProjectConfigData
                 'name',
                 'productTitleFormat',
                 'skuFormat',
-                'titleFormat',
+                'variantTitleFormat',
                 'uid',
                 'variantFieldLayoutId',
             ])
