@@ -45,9 +45,9 @@ class DownloadOrderPdfAction extends ElementAction
     }
 
     /**
-     * @var int
+     * @var int|null
      */
-    public int $pdfId;
+    public ?int $pdfId = null;
 
     /**
      * @var string
