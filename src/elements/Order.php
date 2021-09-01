@@ -795,7 +795,7 @@ class Order extends Element
      * order. If this is set, the `gatewayId` will also be set to the related
      * gateway.
      *
-     * @var bool|null Payment source ID
+     * @var int|null Payment source ID
      * ---
      * ```php
      * echo $order->paymentSourceId;
@@ -804,7 +804,7 @@ class Order extends Element
      * {{ order.paymentSourceId }}
      * ```
      */
-    public ?bool $paymentSourceId = null;
+    public ?int $paymentSourceId = null;
 
 
     /**
