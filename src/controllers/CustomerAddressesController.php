@@ -143,7 +143,7 @@ class CustomerAddressesController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $errorMsg,
-                    'errors' => $address->errors
+                    'errors' => $address->errors,
                 ]);
             }
 

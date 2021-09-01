@@ -51,7 +51,7 @@ class Donation extends Purchasable
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -64,7 +64,7 @@ class Donation extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
@@ -246,8 +246,8 @@ class Donation extends Purchasable
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
-                }
-            ]
+                },
+            ],
         ];
     }
 

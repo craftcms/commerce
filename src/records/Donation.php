@@ -38,7 +38,7 @@ class Donation extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['sku'], 'unique']
+            [['sku'], 'unique'],
         ];
     }
 

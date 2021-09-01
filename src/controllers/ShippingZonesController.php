@@ -32,7 +32,7 @@ class ShippingZonesController extends BaseShippingSettingsController
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
         return $this->renderTemplate('commerce/shipping/shippingzones/index', [
-            'shippingZones' => $shippingZones
+            'shippingZones' => $shippingZones,
         ]);
     }
 
@@ -112,7 +112,7 @@ class ShippingZonesController extends BaseShippingSettingsController
         if (!$shippingZone->validate() || !Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'errors' => $shippingZone->getErrors()
+                    'errors' => $shippingZone->getErrors(),
                 ]);
             }
 

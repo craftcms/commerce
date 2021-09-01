@@ -75,7 +75,7 @@ class DonationQuery extends ElementQuery
         $this->query->select([
             'commerce_donations.id',
             'commerce_donations.sku',
-            'commerce_donations.availableForPurchase'
+            'commerce_donations.availableForPurchase',
         ]);
 
         if ($this->sku) {

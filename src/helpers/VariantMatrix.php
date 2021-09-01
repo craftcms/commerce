@@ -49,7 +49,7 @@ class VariantMatrix
             'id' => $id,
             'name' => $name,
             'variants' => $product->getVariants(),
-            'product' => $product
+            'product' => $product,
         ]);
 
         // Namespace the name/ID for JS
@@ -105,7 +105,7 @@ class VariantMatrix
         $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
             'namespace' => Html::namespaceInputName('__VARIANT__', $namespace),
             'variant' => $variant,
-            'product' => $product
+            'product' => $product,
         ]);
 
         $footHtml = $templatesService->clearJsBuffer();

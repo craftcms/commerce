@@ -64,7 +64,7 @@ class TopProductTypes extends Stat
                 '[[pt.id]] as id',
                 '[[pt.name]]',
                 $selectTotalQty,
-                $selectTotalRevenue
+                $selectTotalRevenue,
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')

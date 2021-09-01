@@ -190,7 +190,7 @@ abstract class Purchasable extends Element implements PurchasableInterface
                 'targetClass' => PurchasableRecord::class,
                 'caseInsensitive' => true,
                 'on' => self::SCENARIO_LIVE,
-            ]
+            ],
         ]);
     }
 

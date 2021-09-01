@@ -268,7 +268,7 @@ class Pdfs extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfSaveEvent([
                 'pdf' => $pdf,
-                'isNew' => $isNewPdf
+                'isNew' => $isNewPdf,
             ]));
         }
 
@@ -338,7 +338,7 @@ class Pdfs extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
             $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfSaveEvent([
                 'pdf' => $this->getPdfById($pdfRecord->id),
-                'isNew' => $isNewPdf
+                'isNew' => $isNewPdf,
             ]));
         }
 
@@ -434,7 +434,7 @@ class Pdfs extends Component
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
-            'variables' => $variables
+            'variables' => $variables,
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
@@ -505,7 +505,7 @@ class Pdfs extends Component
         // Set additional rener options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
-                'options' => $options
+                'options' => $options,
             ]));
         }
 

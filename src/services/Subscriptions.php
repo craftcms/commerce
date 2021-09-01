@@ -456,7 +456,7 @@ class Subscriptions extends Component
         // fire an 'expireSubscription' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -510,7 +510,7 @@ class Subscriptions extends Component
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
-                'plan' => (string)$plan
+                'plan' => (string)$plan,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -547,7 +547,7 @@ class Subscriptions extends Component
         // Fire an 'afterCreateSubscription' event.
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -600,7 +600,7 @@ class Subscriptions extends Component
             // Fire a 'afterReactivateSubscription' event.
             if ($this->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
                 $this->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, new SubscriptionEvent([
-                    'subscription' => $subscription
+                    'subscription' => $subscription,
                 ]));
             }
 
@@ -641,14 +641,14 @@ class Subscriptions extends Component
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
             'newPlan' => $plan,
-            'parameters' => $parameters
+            'parameters' => $parameters,
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Could not switch “{reference}” to “{plan}”.', [
                 'reference' => $subscription->reference,
-                'plan' => $plan->reference
+                'plan' => $plan->reference,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -672,7 +672,7 @@ class Subscriptions extends Component
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
                 'newPlan' => $plan,
-                'parameters' => $parameters
+                'parameters' => $parameters,
             ]));
         }
 
@@ -757,7 +757,7 @@ class Subscriptions extends Component
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 

@@ -273,7 +273,7 @@ class Emails extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_EMAIL)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_EMAIL, new EmailEvent([
                 'email' => $email,
-                'isNew' => $isNewEmail
+                'isNew' => $isNewEmail,
             ]));
         }
 
@@ -346,7 +346,7 @@ class Emails extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_EMAIL)) {
             $this->trigger(self::EVENT_AFTER_SAVE_EMAIL, new EmailEvent([
                 'email' => $this->getEmailById($emailRecord->id),
-                'isNew' => $isNewEmail
+                'isNew' => $isNewEmail,
             ]));
         }
     }
@@ -398,7 +398,7 @@ class Emails extends Component
         // Fire a 'beforeDeleteEmail' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_EMAIL)) {
             $this->trigger(self::EVENT_AFTER_DELETE_EMAIL, new EmailEvent([
-                'email' => $email
+                'email' => $email,
             ]));
         }
     }
@@ -484,7 +484,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -523,7 +523,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -551,7 +551,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -573,7 +573,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -594,7 +594,7 @@ class Emails extends Component
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -614,7 +614,7 @@ class Emails extends Component
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -631,7 +631,7 @@ class Emails extends Component
                 'templatePath' => $email->templatePath,
                 'templateParsedPath' => $templatePath,
                 'email' => $email->name,
-                'order' => $order->getShortNumber()
+                'order' => $order->getShortNumber(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -651,7 +651,7 @@ class Emails extends Component
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -668,7 +668,7 @@ class Emails extends Component
                 'templatePath' => $email->plainTextTemplatePath,
                 'templateParsedPath' => $plainTextTemplatePath,
                 'email' => $email->name,
-                'order' => $order->getShortNumber()
+                'order' => $order->getShortNumber(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -685,7 +685,7 @@ class Emails extends Component
                 $error = Craft::t('commerce', 'Email PDF template does not exist at “{templatePath}” for email “{email}”. Order: “{order}”.', [
                     'templatePath' => $pdf->templatePath,
                     'email' => $email->name,
-                    'order' => $order->getShortNumber()
+                    'order' => $order->getShortNumber(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -717,7 +717,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -739,7 +739,7 @@ class Emails extends Component
                 'order' => $order->getShortNumber(),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
-                'line' => $e->getLine()
+                'line' => $e->getLine(),
             ]);
             Craft::error($error, __METHOD__);
 
@@ -761,7 +761,7 @@ class Emails extends Component
                     'order' => $order->getShortNumber(),
                     'message' => $e->getMessage(),
                     'file' => $e->getFile(),
-                    'line' => $e->getLine()
+                    'line' => $e->getLine(),
                 ]);
                 Craft::error($error, __METHOD__);
 
@@ -780,14 +780,14 @@ class Emails extends Component
                 'commerceEmail' => $email,
                 'order' => $order,
                 'orderHistory' => $orderHistory,
-                'orderData' => $orderData
+                'orderData' => $orderData,
             ]);
             $this->trigger(self::EVENT_BEFORE_SEND_MAIL, $event);
 
             if (!$event->isValid) {
                 $notice = Craft::t('commerce', 'Email “{email}” for order {order} was cancelled.', [
                     'email' => $email->name,
-                    'order' => $order->getShortNumber()
+                    'order' => $order->getShortNumber(),
                 ]);
 
                 Craft::info($notice, __METHOD__);
@@ -806,7 +806,7 @@ class Emails extends Component
             if (!Craft::$app->getMailer()->send($newEmail)) {
                 $error = Craft::t('commerce', 'Commerce email “{email}” could not be sent for order “{order}”.', [
                     'email' => $email->name,
-                    'order' => $order->getShortNumber()
+                    'order' => $order->getShortNumber(),
                 ]);
 
                 Craft::error($error, __METHOD__);
@@ -823,7 +823,7 @@ class Emails extends Component
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'email' => $email->name,
-                'order' => $order->getShortNumber()
+                'order' => $order->getShortNumber(),
             ]);
 
             Craft::error($error, __METHOD__);
@@ -842,7 +842,7 @@ class Emails extends Component
                 'commerceEmail' => $email,
                 'order' => $order,
                 'orderHistory' => $orderHistory,
-                'orderData' => $orderData
+                'orderData' => $orderData,
             ]));
         }
 

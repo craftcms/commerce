@@ -226,14 +226,14 @@ class LineItem extends Model
                 'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
-            ]
+                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -448,8 +448,8 @@ class LineItem extends Model
                     'qty',
                     'snapshot',
                     'taxCategoryId',
-                    'shippingCategoryId'
-                ], 'required'
+                    'shippingCategoryId',
+                ], 'required',
             ],
             [['qty'], 'integer', 'min' => 1],
             [['shippingCategoryId', 'taxCategoryId'], 'integer'],
@@ -689,7 +689,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -703,7 +703,7 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
-                'isNew' => !$this->id
+                'isNew' => !$this->id,
             ]));
         }
     }

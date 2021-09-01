@@ -72,7 +72,7 @@ class ShippingRuleCategory extends Model
                     'weightRate',
                     'percentageRate',
                 ],
-                'safe'
+                'safe',
             ],
         ];
     }

@@ -173,8 +173,7 @@ class DiscountsController extends BaseCpController
 
         $groups = $request->getBodyParam('groups', []);
 
-        if($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE)
-        {
+        if ($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
             $groups = [];
         }
 
@@ -195,7 +194,7 @@ class DiscountsController extends BaseCpController
 
         // Send the model back to the template
         $variables = [
-            'discount' => $discount
+            'discount' => $discount,
         ];
         $this->_populateVariables($variables);
 
@@ -452,7 +451,7 @@ class DiscountsController extends BaseCpController
 
         $variables['appliedTo'] = [
             DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS => Craft::t('commerce', 'Discount the matching items only'),
-            DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS => Craft::t('commerce', 'Discount all line items')
+            DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS => Craft::t('commerce', 'Discount all line items'),
         ];
 
         $variables['purchasables'] = null;
@@ -492,7 +491,7 @@ class DiscountsController extends BaseCpController
         foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
                 'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
+                'elementType' => $purchasableType,
             ];
         }
     }

@@ -92,7 +92,7 @@ class PaymentSourcesController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'paymentSource' => $paymentSource
+                'paymentSource' => $paymentSource,
             ]);
         }
 

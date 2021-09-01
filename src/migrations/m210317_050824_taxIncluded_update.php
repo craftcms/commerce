@@ -16,11 +16,11 @@ class m210317_050824_taxIncluded_update extends Migration
     {
         $this->update('{{%commerce_orderadjustments}}', [
             'type' => 'tax',
-            'included' => true
+            'included' => true,
         ], [
-            'type' => 'taxIncluded'
+            'type' => 'taxIncluded',
         ]);
-        
+
         return true;
     }
 
