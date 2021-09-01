@@ -178,7 +178,7 @@ class Transaction extends Model
             'attributeTypes' => [
                 'id' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'hash' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
@@ -186,8 +186,8 @@ class Transaction extends Model
             'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => [
-                'paymentAmount' => $this->paymentCurrency
-            ]
+                'paymentAmount' => $this->paymentCurrency,
+            ],
         ];
 
         return $behaviors;
@@ -201,7 +201,7 @@ class Transaction extends Model
         return [
             'amount',
             'paymentAmount',
-            'refundableAmount'
+            'refundableAmount',
         ];
     }
 

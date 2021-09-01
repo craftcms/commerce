@@ -174,9 +174,9 @@ abstract class Plan extends Model implements PlanInterface
                 ['handle'],
                 UniqueValidator::class,
                 'targetClass' => PlanRecord::class,
-                'targetAttribute' => ['handle']
+                'targetAttribute' => ['handle'],
             ],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required'],
         ];
     }
 }

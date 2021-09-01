@@ -60,7 +60,7 @@ class BaseFrontEndController extends BaseController
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
-            'notices'
+            'notices',
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);
@@ -73,7 +73,7 @@ class BaseFrontEndController extends BaseController
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
-            'cart' => $cart
+            'cart' => $cart,
         ]);
 
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);

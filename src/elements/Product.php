@@ -168,14 +168,14 @@ class Product extends Element
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -187,7 +187,7 @@ class Product extends Element
     public function currencyAttributes(): array
     {
         return [
-            'defaultPrice'
+            'defaultPrice',
         ];
     }
 
@@ -642,7 +642,7 @@ class Product extends Element
 
             return [
                 'elementType' => Variant::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -670,7 +670,7 @@ class Product extends Element
             self::STATUS_LIVE => Craft::t('commerce', 'Live'),
             self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
         ];
     }
 
@@ -689,7 +689,7 @@ class Product extends Element
             'label' => Craft::t('commerce', 'Enabled'),
             'id' => 'enabled',
             'name' => 'enabled',
-            'on' =>  $this->enabled,
+            'on' => $this->enabled,
         ]);
 
         // Multi site enabled
@@ -698,7 +698,7 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'Enabled for site'),
                 'id' => 'enabledForSite',
                 'name' => 'enabledForSite',
-                'on' =>  $this->enabledForSite,
+                'on' => $this->enabledForSite,
             ]);
         }
 
@@ -1055,10 +1055,10 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'All products'),
                 'criteria' => [
                     'typeId' => $productTypeIds,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ],
-                'defaultSort' => ['postDate', 'desc']
-            ]
+                'defaultSort' => ['postDate', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
@@ -1072,9 +1072,9 @@ class Product extends Element
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts
+                    'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
             ];
         }
 
@@ -1115,7 +1115,7 @@ class Product extends Element
 
         // Copy Reference Tag
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => CopyReferenceTag::class
+            'type' => CopyReferenceTag::class,
         ]);
 
         // Restore
@@ -1185,7 +1185,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce', 'Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')],
         ];
     }
 
@@ -1283,8 +1283,8 @@ class Product extends Element
                 'template' => (string)$productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 

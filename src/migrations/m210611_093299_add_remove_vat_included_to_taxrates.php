@@ -3,8 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use Craft;
 
 /**
  * m210611_093299_add_remove_vat_included_to_taxrates migration.

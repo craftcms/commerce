@@ -361,7 +361,7 @@ class Install extends Migration
         ]);
 
         $this->createTable(Table::ORDERNOTICES, [
-            'id' =>  $this->primaryKey(),
+            'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'type' => $this->string(),
             'attribute' => $this->string(),
@@ -1184,7 +1184,7 @@ class Install extends Migration
             Table::TAXZONE_COUNTRIES,
             Table::TAXZONE_STATES,
             Table::TRANSACTIONS,
-            Table::VARIANTS
+            Table::VARIANTS,
         ];
 
         foreach ($tables as $table) {
@@ -1599,7 +1599,7 @@ class Install extends Migration
         $data = [
             'iso' => 'USD',
             'rate' => 1,
-            'primary' => true
+            'primary' => true,
         ];
         $this->insert(PaymentCurrency::tableName(), $data);
     }
@@ -1612,7 +1612,7 @@ class Install extends Migration
         $data = [
             'name' => 'Free Shipping',
             'handle' => 'freeShipping',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingMethod::tableName(), $data);
 
@@ -1620,7 +1620,7 @@ class Install extends Migration
             'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
             'description' => 'All countries, free shipping',
             'name' => 'Free Everywhere',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingRule::tableName(), $data);
     }
@@ -1633,7 +1633,7 @@ class Install extends Migration
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(TaxCategory::tableName(), $data);
     }
@@ -1646,7 +1646,7 @@ class Install extends Migration
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(ShippingCategory::tableName(), $data);
     }
@@ -1675,7 +1675,7 @@ class Install extends Migration
             'name' => 'New',
             'handle' => 'new',
             'color' => 'green',
-            'default' => true
+            'default' => true,
         ];
         $orderStatus = new OrderStatusModel($data);
         Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
@@ -1702,7 +1702,7 @@ class Install extends Migration
             'fieldLayoutId' => $this->_productFieldLayoutId,
             'skuFormat' => '',
             'descriptionFormat' => '',
-            'variantFieldLayoutId' => $this->_variantFieldLayoutId
+            'variantFieldLayoutId' => $this->_variantFieldLayoutId,
         ];
 
         $productType = new ProductTypeModel($data);
@@ -1773,7 +1773,7 @@ class Install extends Migration
                 'type' => Product::class,
                 'enabled' => 1,
                 'archived' => 0,
-                'fieldLayoutId' => $this->_productFieldLayoutId
+                'fieldLayoutId' => $this->_productFieldLayoutId,
             ];
             $this->insert(Element::tableName(), $productElementData);
             $productId = $this->db->getLastInsertID(Element::tableName());
@@ -1783,7 +1783,7 @@ class Install extends Migration
                 'type' => Variant::class,
                 'enabled' => 1,
                 'archived' => 0,
-                'fieldLayoutId' => $this->_variantFieldLayoutId
+                'fieldLayoutId' => $this->_variantFieldLayoutId,
             ];
             $this->insert(Element::tableName(), $variantElementData);
             $variantId = $this->db->getLastInsertID(Element::tableName());
@@ -1801,14 +1801,14 @@ class Install extends Migration
                     'siteId' => $siteId,
                     'slug' => ElementHelper::normalizeSlug($product['sku']),
                     'uri' => null,
-                    'enabled' => true
+                    'enabled' => true,
                 ];
                 $this->insert(Element_SiteSettings::tableName(), $productI18nData);
 
                 $contentData = [
                     'elementId' => $productId,
                     'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($product['title'])
+                    'title' => StringHelper::toTitleCase($product['title']),
                 ];
                 $this->insert('{{%content}}', $contentData);
 
@@ -1818,14 +1818,14 @@ class Install extends Migration
                     'siteId' => $siteId,
                     'slug' => ElementHelper::normalizeSlug($product['sku']),
                     'uri' => null,
-                    'enabled' => true
+                    'enabled' => true,
                 ];
                 $this->insert(Element_SiteSettings::tableName(), $variantI18nData);
 
                 $contentData = [
                     'elementId' => $variantId,
                     'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($product['title'])
+                    'title' => StringHelper::toTitleCase($product['title']),
                 ];
                 $this->insert('{{%content}}', $contentData);
             }
@@ -1839,7 +1839,7 @@ class Install extends Migration
                 'sku' => $product['sku'],
                 'price' => 10 * $count,
                 'hasUnlimitedStock' => true,
-                'isDefault' => true
+                'isDefault' => true,
             ];
 
             $productData = [
@@ -1862,14 +1862,14 @@ class Install extends Migration
             $purchasableData = [
                 'id' => $variantId,
                 'sku' => $variantData['sku'],
-                'price' => $variantData['price']
+                'price' => $variantData['price'],
             ];
             $this->insert(PurchasableRecord::tableName(), $purchasableData);
         }
 
         // Generate URIs etc.
         Craft::$app->getQueue()->push(new ResaveElements([
-            'elementType' => Product::class
+            'elementType' => Product::class,
         ]));
     }
 

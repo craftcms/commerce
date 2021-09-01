@@ -424,7 +424,7 @@ class Settings extends Model
         return [
             'g' => Craft::t('commerce', 'Grams (g)'),
             'kg' => Craft::t('commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'Pounds (lb)')
+            'lb' => Craft::t('commerce', 'Pounds (lb)'),
         ];
     }
 
@@ -454,7 +454,7 @@ class Settings extends Model
         return [
             self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
         ];
     }
 

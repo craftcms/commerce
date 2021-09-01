@@ -84,7 +84,7 @@ class LineItemStatus extends Model
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         return $behaviors;

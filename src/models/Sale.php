@@ -157,7 +157,7 @@ class Sale extends Model
                 'range' => [
                     SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
                     SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
                 ],
             ],
             [['enabled'], 'boolean'],

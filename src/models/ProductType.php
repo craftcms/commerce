@@ -389,12 +389,12 @@ class ProductType extends Model
             'productFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId'
+                'idAttribute' => 'fieldLayoutId',
             ],
             'variantFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId'
+                'idAttribute' => 'variantFieldLayoutId',
             ],
         ];
     }

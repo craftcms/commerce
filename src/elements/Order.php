@@ -1161,14 +1161,14 @@ class Order extends Element
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -1342,7 +1342,7 @@ class Order extends Element
 
                     return [
                         'date' => $formatter->asDate($model->$attribute, Locale::LENGTH_SHORT),
-                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT)
+                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT),
                     ];
                 }
 
@@ -1686,7 +1686,7 @@ class Order extends Element
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
-                'isNew' => !$replaced
+                'isNew' => !$replaced,
             ]));
         }
     }
@@ -1746,7 +1746,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1760,7 +1760,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1772,8 +1772,8 @@ class Order extends Element
                         'attributes' => [
                             'message' => $message,
                             'type' => 'lineItemRemoved',
-                            'attribute' => 'lineItems'
-                        ]
+                            'attribute' => 'lineItems',
+                        ],
                     ]);
                     $this->addNotice($notice);
                     $this->removeLineItem($item);
@@ -1819,7 +1819,7 @@ class Order extends Element
                                 'type' => 'shippingMethodChanged',
                                 'attribute' => 'shippingMethodHandle',
                                 'message' => $message,
-                            ]
+                            ],
                         ])
                     );
                     $this->recalculate();
@@ -1873,7 +1873,7 @@ class Order extends Element
         if (!$this->shippingMethodHandle) {
             // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
-        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+        } else if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
             // Update shipping method name if there is a handle and we can retrieve the method
             $this->shippingMethodName = $shippingMethod->getName();
         }
@@ -3329,7 +3329,7 @@ class Order extends Element
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $lineItem
+                        'lineItem' => $lineItem,
                     ]));
                 }
             }
@@ -3351,7 +3351,7 @@ class Order extends Element
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
                         'lineItem' => $lineItem,
-                        'isNew' => true
+                        'isNew' => true,
                     ]));
                 }
             }

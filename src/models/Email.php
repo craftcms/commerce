@@ -179,7 +179,7 @@ class Email extends Model
             'enabled' => (bool)$this->enabled,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'templatePath' => $this->templatePath ?: null,
-            'language' => $this->language
+            'language' => $this->language,
         ];
 
         if ($pdf = $this->getPdf()) {

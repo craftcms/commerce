@@ -231,7 +231,7 @@ class Plugin extends BasePlugin
         if (Craft::$app->getUser()->checkPermission('commerce-manageOrders')) {
             $ret['subnav']['orders'] = [
                 'label' => Craft::t('commerce', 'Orders'),
-                'url' => 'commerce/orders'
+                'url' => 'commerce/orders',
             ];
         }
 
@@ -239,7 +239,7 @@ class Plugin extends BasePlugin
         if ($hasEditableProductTypes && Craft::$app->getUser()->checkPermission('commerce-manageProducts')) {
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
-                'url' => 'commerce/products'
+                'url' => 'commerce/products',
             ];
         }
 
@@ -253,14 +253,14 @@ class Plugin extends BasePlugin
         if (Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions') && Plugin::getInstance()->getPlans()->getAllPlans()) {
             $ret['subnav']['subscriptions'] = [
                 'label' => Craft::t('commerce', 'Subscriptions'),
-                'url' => 'commerce/subscriptions'
+                'url' => 'commerce/subscriptions',
             ];
         }
 
         if (Craft::$app->getUser()->checkPermission('commerce-managePromotions')) {
             $ret['subnav']['promotions'] = [
                 'label' => Craft::t('commerce', 'Promotions'),
-                'url' => 'commerce/promotions'
+                'url' => 'commerce/promotions',
             ];
         }
 
@@ -268,14 +268,14 @@ class Plugin extends BasePlugin
             if (Craft::$app->getUser()->checkPermission('commerce-manageShipping')) {
                 $ret['subnav']['shipping'] = [
                     'label' => Craft::t('commerce', 'Shipping'),
-                    'url' => 'commerce/shipping'
+                    'url' => 'commerce/shipping',
                 ];
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-manageTaxes')) {
                 $ret['subnav']['tax'] = [
                     'label' => Craft::t('commerce', 'Tax'),
-                    'url' => 'commerce/tax'
+                    'url' => 'commerce/tax',
                 ];
             }
         }
@@ -283,14 +283,14 @@ class Plugin extends BasePlugin
         if (Craft::$app->getUser()->checkPermission('commerce-manageStoreSettings')) {
             $ret['subnav']['store-settings'] = [
                 'label' => Craft::t('commerce', 'Store Settings'),
-                'url' => 'commerce/store-settings'
+                'url' => 'commerce/store-settings',
             ];
         }
 
         if (Craft::$app->getUser()->getIsAdmin() && Craft::$app->getConfig()->getGeneral()->allowAdminChanges) {
             $ret['subnav']['settings'] = [
                 'label' => Craft::t('commerce', 'System Settings'),
-                'url' => 'commerce/settings'
+                'url' => 'commerce/settings',
             ];
         }
 
@@ -340,14 +340,14 @@ class Plugin extends BasePlugin
                     'optionTitle' => Craft::t('commerce', 'Link to a product'),
                     'elementType' => Product::class,
                     'refHandle' => Product::refHandle(),
-                    'sources' => $productSources
+                    'sources' => $productSources,
                 ];
 
                 $event->linkOptions[] = [
                     'optionTitle' => Craft::t('commerce', 'Link to a variant'),
                     'elementType' => Variant::class,
                     'refHandle' => Variant::refHandle(),
-                    'sources' => $productSources
+                    'sources' => $productSources,
                 ];
             }
         });
@@ -372,18 +372,18 @@ class Plugin extends BasePlugin
                 'commerce-manageOrders' => [
                     'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                         'commerce-editOrders' => [
-                            'label' => Craft::t('commerce', 'Edit orders')
+                            'label' => Craft::t('commerce', 'Edit orders'),
                         ],
                         'commerce-deleteOrders' => [
-                            'label' => Craft::t('commerce', 'Delete orders')
+                            'label' => Craft::t('commerce', 'Delete orders'),
                         ],
                         'commerce-capturePayment' => [
-                            'label' => Craft::t('commerce', 'Capture payment')
+                            'label' => Craft::t('commerce', 'Capture payment'),
                         ],
                         'commerce-refundPayment' => [
-                            'label' => Craft::t('commerce', 'Refund payment')
+                            'label' => Craft::t('commerce', 'Refund payment'),
                         ],
-                    ]
+                    ],
                 ],
                 'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
                 'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
@@ -651,7 +651,7 @@ class Plugin extends BasePlugin
                     if (file_exists($path)) {
                         FileHelper::clearDirectory($path);
                     }
-                }
+                },
             ];
         });
     }

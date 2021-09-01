@@ -105,14 +105,14 @@ class OrderAdjustment extends Model
                 'type' => AttributeTypecastBehavior::TYPE_STRING,
                 'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'description' => AttributeTypecastBehavior::TYPE_STRING
-            ]
+                'description' => AttributeTypecastBehavior::TYPE_STRING,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;

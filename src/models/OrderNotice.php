@@ -72,8 +72,8 @@ class OrderNotice extends Model
                 'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'type' => AttributeTypecastBehavior::TYPE_STRING,
                 'attribute' => AttributeTypecastBehavior::TYPE_STRING,
-                'message' => AttributeTypecastBehavior::TYPE_STRING
-            ]
+                'message' => AttributeTypecastBehavior::TYPE_STRING,
+            ],
         ];
         return $behaviors;
     }

@@ -97,7 +97,7 @@ class OrderStatus extends Model
                 'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         return $behaviors;

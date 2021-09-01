@@ -342,7 +342,7 @@ class Address extends Model
             'custom3',
             'custom4',
             'notes',
-            'label'
+            'label',
         ];
 
         // Trim all text attributes

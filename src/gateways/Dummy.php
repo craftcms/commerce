@@ -54,7 +54,7 @@ class Dummy extends SubscriptionGateway
         }
 
         $defaults = [
-            'paymentForm' => $paymentFormModel
+            'paymentForm' => $paymentFormModel,
         ];
 
         $params = array_merge($defaults, $params);
@@ -155,9 +155,9 @@ class Dummy extends SubscriptionGateway
     {
         $form = new DummyPaymentForm();
 
-        if($transaction->note != 'fail'){
+        if ($transaction->note != 'fail') {
             $form->number = '4242424242424242';
-        }else{
+        } else {
             $form->number = '378282246310005';
         }
 

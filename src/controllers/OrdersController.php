@@ -214,7 +214,7 @@ class OrdersController extends Controller
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
-                'order' => $order
+                'order' => $order,
             ]);
 
             return null;
@@ -495,7 +495,7 @@ class OrdersController extends Controller
             $sqlQuery->where([
                 'or',
                 [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
-                [$likeOperator, 'sku', $query]
+                [$likeOperator, 'sku', $query],
             ]);
         }
 
@@ -534,7 +534,7 @@ class OrdersController extends Controller
             ->select(['purchasables.id', 'purchasables.price', 'purchasables.description', 'purchasables.sku'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
-                '[[elements.id]] = [[purchasables.id]]'
+                '[[elements.id]] = [[purchasables.id]]',
             ])
             ->where(['elements.enabled' => true])
             ->from(['purchasables' => Table::PURCHASABLES]);
@@ -544,7 +544,7 @@ class OrdersController extends Controller
             $sqlQuery->andwhere([
                 'or',
                 [$likeOperator, 'purchasables.description', '%' . str_replace(' ', '%', $search) . '%', false],
-                [$likeOperator, 'purchasables.sku', $search]
+                [$likeOperator, 'purchasables.sku', $search],
             ]);
         }
 
@@ -776,14 +776,14 @@ class OrdersController extends Controller
 
             $paymentFormHtml = $gateway->getPaymentFormHtml([
                 'paymentForm' => $paymentFormModel,
-                'order' => $order
+                'order' => $order,
             ]);
 
             $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
                 'formHtml' => $paymentFormHtml,
                 'gateway' => $gateway,
                 'paymentForm' => $paymentFormModel,
-                'order' => $order
+                'order' => $order,
             ]);
 
             $formHtml .= $paymentFormHtml;
@@ -827,11 +827,11 @@ class OrdersController extends Controller
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                 $child->order->updateOrderPaidInformation();
                 $this->setSuccessFlash(Craft::t('commerce', 'Transaction captured successfully: {message}', [
-                    'message' => $message
+                    'message' => $message,
                 ]));
             } else {
                 $this->setFailFlash(Craft::t('commerce', 'Couldn’t capture transaction: {message}', [
-                    'message' => $message
+                    'message' => $message,
                 ]));
             }
         } else {
@@ -894,11 +894,11 @@ class OrdersController extends Controller
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
-                        'message' => $message
+                        'message' => $message,
                     ]));
                 } else {
                     $this->setFailFlash(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
-                        'message' => $message
+                        'message' => $message,
                     ]));
                 }
             } catch (RefundException $exception) {
@@ -945,7 +945,7 @@ class OrdersController extends Controller
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-            'message' => $message
+            'message' => $message,
         ]);
     }
 
@@ -987,7 +987,7 @@ class OrdersController extends Controller
         $variables['tabs']['order-details'] = [
             'label' => Craft::t('commerce', 'Order Details'),
             'url' => '#orderDetailsTab',
-            'class' => null
+            'class' => null,
         ];
 
         foreach ($staticForm->getTabMenu() as $tabId => $tab) {
@@ -1003,13 +1003,13 @@ class OrdersController extends Controller
         $variables['tabs']['order-transactions'] = [
             'label' => Craft::t('commerce', 'Transactions'),
             'url' => '#transactionsTab',
-            'class' => null
+            'class' => null,
         ];
 
         $variables['tabs']['order-history'] = [
             'label' => Craft::t('commerce', 'Status History'),
             'url' => '#orderHistoryTab',
-            'class' => null
+            'class' => null,
         ];
 
         $variables['fullPageForm'] = true;
@@ -1112,7 +1112,7 @@ class OrdersController extends Controller
         foreach ($pdfs as $pdf) {
             $pdfUrls[] = [
                 'name' => $pdf->name,
-                'url' => $variables['order']->getPdfUrl(null, $pdf->handle)
+                'url' => $variables['order']->getPdfUrl(null, $pdf->handle),
             ];
         }
 
@@ -1167,7 +1167,7 @@ class OrdersController extends Controller
         foreach ($orderRequestData['order']['notices'] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => $notice
+                'attributes' => $notice,
             ]);
         }
         $order->addNotices($notices);
@@ -1439,7 +1439,7 @@ class OrdersController extends Controller
                     ],
                     'status' => [
                         'key' => $transaction->status,
-                        'label' => Html::encode(Craft::t('commerce', StringHelper::toTitleCase($transaction->status)))
+                        'label' => Html::encode(Craft::t('commerce', StringHelper::toTitleCase($transaction->status))),
                     ],
                     'paymentAmount' => $transaction->paymentAmountAsCurrency,
                     'amount' => $transaction->amountAsCurrency,

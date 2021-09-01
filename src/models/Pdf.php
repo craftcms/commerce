@@ -123,7 +123,7 @@ class Pdf extends Model
             'enabled' => (bool)$this->enabled,
             'sortOrder' => (int)$this->sortOrder ?: 9999,
             'isDefault' => (bool)$this->isDefault,
-            'language' => $this->language
+            'language' => $this->language,
         ];
     }
 }
