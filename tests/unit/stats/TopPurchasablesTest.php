@@ -70,7 +70,7 @@ class TopPurchasablesTest extends Unit
             foreach ($testKeys as $testKey) {
                 self::assertArrayHasKey($testKey, $topPurchasable);
 
-                self::assertEquals($purchasableData[$testKey], $topPurchasable[$testKey]);
+                self::assertEquals($purchasableData[$testKey], $topPurchasable[$testKey], 'Assert ' . $testKey);
             }
         }
     }
@@ -82,7 +82,7 @@ class TopPurchasablesTest extends Unit
     public function getDataDataProvider(): array
     {
         return [
-            [
+            'date-today' => [
                 TopPurchasables::DATE_RANGE_TODAY,
                 'qty',
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
@@ -101,7 +101,7 @@ class TopPurchasablesTest extends Unit
                     ];
                 }
             ],
-            [
+            'date-custom' => [
                 TopPurchasables::DATE_RANGE_CUSTOM,
                 'qty',
                 (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
