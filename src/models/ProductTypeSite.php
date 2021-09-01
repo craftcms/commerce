@@ -41,7 +41,7 @@ class ProductTypeSite extends Model
     /**
      * @var bool Has Urls
      */
-    public bool $hasUrls;
+    public bool $hasUrls = false;
 
     /**
      * @var string URL Format
