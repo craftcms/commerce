@@ -14,7 +14,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;

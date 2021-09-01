@@ -16,7 +16,6 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
-use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use Throwable;
 use yii\base\Exception;
@@ -370,7 +369,7 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @param $lineItemId|null
+     * @param $lineItemId |null
      * @return LineItem|null
      */
     private function _getCartLineItemById(?int $lineItemId): ?LineItem

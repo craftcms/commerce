@@ -8,9 +8,7 @@
 namespace craft\commerce\queue\jobs;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use craft\db\Query;
 use craft\queue\BaseJob;
 
 /**

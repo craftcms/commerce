@@ -15,7 +15,6 @@ use craft\commerce\events\EmailEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
@@ -185,7 +184,7 @@ class OrderStatuses extends Component
 
         $event = new DefaultOrderStatusEvent([
             'orderStatus' => $orderStatus,
-            'order' => $order
+            'order' => $order,
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
@@ -217,7 +216,7 @@ class OrderStatuses extends Component
                 $countGroupedByStatusId[$status->id] = [
                     'orderStatusId' => $status->id,
                     'handle' => $status->handle,
-                    'orderCount' => 0
+                    'orderCount' => 0,
                 ];
             }
 
@@ -274,7 +273,7 @@ class OrderStatuses extends Component
                 'description' => $orderStatus->description,
                 'sortOrder' => isset($orderStatus->sortOrder) ? $orderStatus->sortOrder : 99,
                 'default' => $orderStatus->default,
-                'emails' => array_combine($emails, $emails)
+                'emails' => array_combine($emails, $emails),
             ];
         }
 
@@ -337,7 +336,7 @@ class OrderStatuses extends Component
                     $connection->createCommand()
                         ->insert(Table::ORDERSTATUS_EMAILS, [
                             'orderStatusId' => $statusRecord->id,
-                            'emailId' => $emailId
+                            'emailId' => $emailId,
                         ])
                         ->execute();
                 }
@@ -446,7 +445,7 @@ class OrderStatuses extends Component
                             'orderId' => $order->id,
                             'commerceEmailId' => $email->id,
                             'orderHistoryId' => $orderHistory->id,
-                            'orderData' => $order->toArray()
+                            'orderData' => $order->toArray(),
                         ]), 100);
                     }
                 }

@@ -217,7 +217,7 @@ class TaxCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-            ]
+            ],
         ]));
     }
 

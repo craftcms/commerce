@@ -7,7 +7,6 @@
 
 namespace craft\commerce\elements\db;
 
-use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;

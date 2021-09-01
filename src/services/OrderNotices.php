@@ -42,7 +42,7 @@ class OrderNotices extends Component
             /** @var OrderNotice $notice */
             $notice = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => $result
+                'attributes' => $result,
             ]);
 
             $orderNotices[$notice->orderId] = $orderNotices[$notice->orderId] ?? [];

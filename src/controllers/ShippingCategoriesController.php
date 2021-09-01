@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
-use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;

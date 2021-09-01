@@ -32,7 +32,6 @@ use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 use yii\db\Expression;
 use yii\validators\Validator;
 
@@ -267,7 +266,7 @@ class Variant extends Purchasable
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -280,7 +279,7 @@ class Variant extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
@@ -599,7 +598,7 @@ class Variant extends Purchasable
         $productFields = [];
         $productFieldsEvent = new CustomizeProductSnapshotFieldsEvent([
             'product' => $this->getProduct(),
-            'fields' => $productFields
+            'fields' => $productFields,
         ]);
 
         // Allow plugins to modify Product fields to be fetched
@@ -627,12 +626,12 @@ class Variant extends Purchasable
 
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => $data['product']
+                'fieldData' => $data['product'],
             ]);
         } else {
             $productDataEvent = new CustomizeProductSnapshotDataEvent([
                 'product' => $this->getProduct(),
-                'fieldData' => []
+                'fieldData' => [],
             ]);
         }
 
@@ -647,7 +646,7 @@ class Variant extends Purchasable
         $variantFields = [];
         $variantFieldsEvent = new CustomizeVariantSnapshotFieldsEvent([
             'variant' => $this,
-            'fields' => $variantFields
+            'fields' => $variantFields,
         ]);
 
         // Allow plugins to modify fields to be fetched
@@ -673,7 +672,7 @@ class Variant extends Purchasable
 
         $variantDataEvent = new CustomizeVariantSnapshotDataEvent([
             'variant' => $this,
-            'fieldData' => $variantData
+            'fieldData' => $variantData,
         ]);
 
         // Allow plugins to modify captured Variant data
@@ -769,7 +768,7 @@ class Variant extends Purchasable
             foreach ($lineItem->getOrder()->getLineItems() as $item) {
                 if ($item->id !== null && $item->id == $lineItem->id) {
                     $qty += $lineItem->qty;
-                } elseif ($item->purchasableId == $lineItem->purchasableId) {
+                } else if ($item->purchasableId == $lineItem->purchasableId) {
                     $qty += $item->qty;
                 }
             }
@@ -786,7 +785,7 @@ class Variant extends Purchasable
                     if ($purchasable->getStatus() != Element::STATUS_ENABLED) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'The item is not enabled for sale.'));
                     }
-                }
+                },
             ],
             [
                 'qty',
@@ -812,7 +811,7 @@ class Variant extends Purchasable
                     }
                 },
             ],
-            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false]
+            [['qty'], 'integer', 'min' => 1, 'skipOnError' => false],
         ];
     }
 
@@ -857,7 +856,7 @@ class Variant extends Purchasable
                 'map' => $map,
                 'criteria' => [
                     'status' => null,
-                ]
+                ],
             ];
         }
 
@@ -882,7 +881,7 @@ class Variant extends Purchasable
                         'type' => 'lineItemSalePriceChanged',
                         'attribute' => "lineItems.{$lineItem->id}.qty",
                         'message' => $message,
-                    ]
+                    ],
                 ]);
                 $order->addNotice($notice);
                 $lineItem->qty = $this->stock;
@@ -1271,7 +1270,7 @@ class Variant extends Purchasable
             'length' => Craft::t('commerce', 'Length ({unit})', ['unit' => Plugin::getInstance()->getSettings()->dimensionUnits]),
             'weight' => Craft::t('commerce', 'Weight ({unit})', ['unit' => Plugin::getInstance()->getSettings()->weightUnits]),
             'stock' => Craft::t('commerce', 'Stock'),
-            'minQty' => Craft::t('commerce', 'Quantities')
+            'minQty' => Craft::t('commerce', 'Quantities'),
         ];
     }
 

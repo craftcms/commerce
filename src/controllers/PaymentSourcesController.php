@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
-use craft\errors\MissingComponentException;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;

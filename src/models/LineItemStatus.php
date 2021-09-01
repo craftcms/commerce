@@ -10,7 +10,6 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\helpers\UrlHelper;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order status model.
