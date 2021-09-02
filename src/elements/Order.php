@@ -689,7 +689,7 @@ class Order extends Element
      * {{ order.makePrimaryShippingAddress }}
      * ```
      */
-    public ?bool $makePrimaryShippingAddress = null;
+    public bool $makePrimaryShippingAddress = false;
 
     /**
      * Whether the billing address should be made the primary address of the
@@ -705,7 +705,7 @@ class Order extends Element
      * {{ order.makePrimaryBillingAddress }}
      * ```
      */
-    public ?bool $makePrimaryBillingAddress = null;
+    public bool $makePrimaryBillingAddress = false;
 
     /**
      * Whether the shipping address should be the same address as the order’s
@@ -713,7 +713,7 @@ class Order extends Element
      * update order request. Can not be set to `true` at the same time as setting
      * `billingSameAsShipping` to true, or an error will be raised.
      *
-     * @var bool|null Make this the shipping address the same as the billing address
+     * @var bool Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->shippingSameAsBilling;
@@ -722,7 +722,7 @@ class Order extends Element
      * {{ order.shippingSameAsBilling }}
      * ```
      */
-    public ?bool $shippingSameAsBilling = null;
+    public bool $shippingSameAsBilling = false;
 
     /**
      * Whether the billing address should be the same address as the order’s
@@ -730,7 +730,7 @@ class Order extends Element
      * update order request. Can not be set to `true` at the same time as setting
      * `shippingSameAsBilling` to true, or an error will be raised.
      *
-     * @var bool|null Make this the shipping address the same as the billing address
+     * @var bool Make this the shipping address the same as the billing address
      * ---
      * ```php
      * echo $order->billingSameAsShipping;
@@ -739,7 +739,7 @@ class Order extends Element
      * {{ order.billingSameAsShipping }}
      * ```
      */
-    public ?bool $billingSameAsShipping = null;
+    public bool $billingSameAsShipping = false;
 
     /**
      * @var int|null Estimated Billing address ID
@@ -754,10 +754,10 @@ class Order extends Element
     public ?int $estimatedShippingAddressId = null;
 
     /**
-     * @var bool|null Whether estimated billing address should be set to the same address as estimated shipping
+     * @var bool Whether estimated billing address should be set to the same address as estimated shipping
      * @since 2.2
      */
-    public ?bool $estimatedBillingSameAsShipping = null;
+    public bool $estimatedBillingSameAsShipping = false;
 
     /**
      * @var string Shipping Method Handle
@@ -795,7 +795,7 @@ class Order extends Element
      * order. If this is set, the `gatewayId` will also be set to the related
      * gateway.
      *
-     * @var bool|null Payment source ID
+     * @var int|null Payment source ID
      * ---
      * ```php
      * echo $order->paymentSourceId;
@@ -804,7 +804,7 @@ class Order extends Element
      * {{ order.paymentSourceId }}
      * ```
      */
-    public ?bool $paymentSourceId = null;
+    public ?int $paymentSourceId = null;
 
 
     /**

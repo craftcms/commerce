@@ -130,19 +130,19 @@ class Discount extends Model
     public string $percentageOffSubject = DiscountRecord::TYPE_DISCOUNTED_SALEPRICE;
 
     /**
-     * @var bool|null Exclude the “On Sale” Purchasables
+     * @var bool Exclude the “On Sale” Purchasables
      */
-    public ?bool $excludeOnSale = null;
+    public bool $excludeOnSale = false;
 
     /**
-     * @var bool|null Matching products have free shipping.
+     * @var bool Matching products have free shipping.
      */
-    public ?bool $hasFreeShippingForMatchingItems = null;
+    public bool $hasFreeShippingForMatchingItems = false;
 
     /**
      * @var bool The whole order has free shipping.
      */
-    public ?bool $hasFreeShippingForOrder = null;
+    public bool $hasFreeShippingForOrder = false;
 
     /**
      * @var string|null Type of user group condition that should match the discount. (See getUserConditions().)
@@ -150,14 +150,14 @@ class Discount extends Model
     public ?string $userGroupsCondition = null;
 
     /**
-     * @var bool|null Match all products
+     * @var bool Match all products
      */
-    public ?bool $allPurchasables;
+    public bool $allPurchasables = false;
 
     /**
-     * @var bool|null Match all product types
+     * @var bool Match all product types
      */
-    public ?bool $allCategories;
+    public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
@@ -170,9 +170,9 @@ class Discount extends Model
     public bool $enabled = true;
 
     /**
-     * @var bool|null stopProcessing
+     * @var bool stopProcessing
      */
-    public ?bool $stopProcessing = false;
+    public bool $stopProcessing = false;
 
     /**
      * @var int|null sortOrder
