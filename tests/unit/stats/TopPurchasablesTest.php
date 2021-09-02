@@ -84,20 +84,20 @@ class TopPurchasablesTest extends Unit
         return [
             'date-today' => [
                 TopPurchasables::DATE_RANGE_TODAY,
-                'qty',
+                'revenue',
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
                 function(VariantQuery $query) {
                     /** @var Purchasable $purchasable */
-                    $variant = $query->sku('hct-white')->one();
+                    $variant = $query->sku('hct-blue')->one();
 
                     return [
                         'purchasableId' => $variant->id ?? null,
                         'description' => $variant ? $variant->getDescription() : null,
-                        'sku' => 'hct-white',
+                        'sku' => 'hct-blue',
                         'qty' => 2,
-                        'revenue' => 39.98,
+                        'revenue' => 43.98,
                     ];
                 }
             ],
