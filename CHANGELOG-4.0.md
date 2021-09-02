@@ -19,6 +19,7 @@
 - Deprecated `craft\commerce\services\Customers::deleteCustomer()`. Use `deletedCustomerbyId()` instead.
 - Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getPlansByGatewayId()` instead.
 - Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
+- Deprecated `craft\commerce\services\Subscriptions::doesUserHaveAnySubscriptions()`. Use `doesUserHaveSubscriptions()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.

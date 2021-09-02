@@ -427,7 +427,7 @@ class Subscriptions extends Component
         $user = $event->sender;
 
         // If there are any subscriptions, make sure that this is not allowed.
-        if ($this->doesUserHaveAnySubscriptions($user->id)) {
+        if ($this->doesUserHaveSubscriptions($user->id)) {
             $event->isValid = false;
         }
     }
@@ -492,9 +492,21 @@ class Subscriptions extends Component
      * @param int $userId
      * @return bool
      */
-    public function doesUserHaveAnySubscriptions(int $userId): bool
+    public function doesUserHaveSubscriptions(int $userId): bool
     {
         return (bool)SubscriptionRecord::find()->where(['userId' => $userId])->count();
+    }
+
+    /**
+     * Return true if the user has any subscriptions at all, even expired ones.
+     *
+     * @param int $userId
+     * @return bool
+     * @deprecated in 4.0. Use [[doesUserHaveSubscriptions]] instead.
+     */
+    public function doesUserHaveAnySubscriptions(int $userId): bool
+    {
+        return $this->doesUserHaveSubscriptions($userId);
     }
 
     /**
