@@ -337,10 +337,10 @@ class Discount extends Model
     public function getUserGroupsConditions(): array
     {
         return [
-          DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
-          DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:')
+            DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
+            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
+            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
+            DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:'),
         ];
     }
 
@@ -362,24 +362,24 @@ class Discount extends Model
                     'maxPurchaseQty',
                     'baseDiscount',
                     'perItemDiscount',
-                    'percentDiscount'
-                ], 'number', 'skipOnEmpty' => false
+                    'percentDiscount',
+                ], 'number', 'skipOnEmpty' => false,
             ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
             [
                 ['categoryRelationshipType'],
                 'in', 'range' => [
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-                ],
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+            ],
             ],
             [
                 ['appliedTo'],
                 'in',
                 'range' => [
                     DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS,
-                    DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS
+                    DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS,
                 ],
             ],
             [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
@@ -401,7 +401,7 @@ class Discount extends Model
                             $order = new Order();
                         }
                         $orderDiscountConditionParams = [
-                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
+                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
                         ];
                         if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));

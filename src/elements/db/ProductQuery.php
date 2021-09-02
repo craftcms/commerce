@@ -767,7 +767,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
             'commerce_products.taxCategoryId',
-            'commerce_products.shippingCategoryId'
+            'commerce_products.shippingCategoryId',
         ]);
 
         if (isset($this->availableForPurchase) && $this->availableForPurchase !== null) {
@@ -830,14 +830,14 @@ class ProductQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['<=', 'commerce_products.postDate', $currentTimeDb],
                     [
                         'or',
                         ['commerce_products.expiryDate' => null],
-                        ['>', 'commerce_products.expiryDate', $currentTimeDb]
-                    ]
+                        ['>', 'commerce_products.expiryDate', $currentTimeDb],
+                    ],
                 ];
             case Product::STATUS_PENDING:
                 return [
@@ -846,17 +846,17 @@ class ProductQuery extends ElementQuery
                         'elements.enabled' => true,
                         'elements_sites.enabled' => true,
                     ],
-                    ['>', 'commerce_products.postDate', $currentTimeDb]
+                    ['>', 'commerce_products.postDate', $currentTimeDb],
                 ];
             case Product::STATUS_EXPIRED:
                 return [
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['not', ['commerce_products.expiryDate' => null]],
-                    ['<=', 'commerce_products.expiryDate', $currentTimeDb]
+                    ['<=', 'commerce_products.expiryDate', $currentTimeDb],
                 ];
             default:
                 return parent::statusCondition($status);
@@ -900,7 +900,7 @@ class ProductQuery extends ElementQuery
 
         // Limit the query to only the sections the user has permission to edit
         $this->subQuery->andWhere([
-            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
+            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(),
         ]);
     }
 
@@ -915,7 +915,7 @@ class ProductQuery extends ElementQuery
 
         if ($this->hasVariant instanceof VariantQuery) {
             $variantQuery = $this->hasVariant;
-        } elseif (is_array($this->hasVariant)) {
+        } else if (is_array($this->hasVariant)) {
             $query = Variant::find();
             $variantQuery = Craft::configure($query, $this->hasVariant);
         } else {
@@ -955,7 +955,7 @@ class ProductQuery extends ElementQuery
                     $condition[] = [
                         'and',
                         Db::parseParam('commerce_producttypes.handle', $parts[0]),
-                        Db::parseParam('elements_sites.slug', $parts[1])
+                        Db::parseParam('elements_sites.slug', $parts[1]),
                     ];
                     $joinSections = true;
                 }

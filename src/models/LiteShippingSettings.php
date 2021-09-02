@@ -37,7 +37,7 @@ class LiteShippingSettings extends Model
     {
         return [
             'shippingBaseRate',
-            'shippingPerItemRate'
+            'shippingPerItemRate',
         ];
     }
 }

@@ -38,7 +38,7 @@ class ShippingZoneState extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['shippingZoneId', 'stateId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'stateId']]
+            [['shippingZoneId', 'stateId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'stateId']],
         ];
     }
 

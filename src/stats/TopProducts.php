@@ -13,7 +13,6 @@ use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use DateTime;
 use yii\db\Expression;
 
 /**
@@ -132,7 +131,7 @@ class TopProducts extends Stat
             new Expression('SUM([[li.qty]]) as qty'),
             new Expression('SUM([[li.total]]) as revenue'),
             new Expression('SUM([[li.subtotal]]) as revenue_subtotal'),
-            $this->getAdjustmentsSelect()
+            $this->getAdjustmentsSelect(),
         ];
 
         $topProducts = $this->_createStatQuery()
@@ -227,7 +226,7 @@ class TopProducts extends Stat
     {
         $types = [];
         foreach ($this->revenueOptions as $revenueOption) {
-            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax'  : $revenueOption;
+            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax' : $revenueOption;
         }
         $types = array_unique($types);
 

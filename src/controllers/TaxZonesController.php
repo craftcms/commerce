@@ -121,7 +121,7 @@ class TaxZonesController extends BaseTaxSettingsController
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'errors' => $taxZone->getErrors()
+                    'errors' => $taxZone->getErrors(),
                 ]);
             }
 

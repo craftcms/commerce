@@ -84,8 +84,8 @@ class ProductTypesController extends BaseAdminController
             'variantFields' => [
                 'label' => Craft::t('commerce', 'Variant Fields'),
                 'url' => '#variant-fields',
-                'class' => ($variables['productType']->hasVariants ? '' : 'hidden')
-            ]
+                'class' => ($variables['productType']->hasVariants ? '' : 'hidden'),
+            ],
         ];
 
         $variables['tabs'] = $tabs;
@@ -171,7 +171,7 @@ class ProductTypesController extends BaseAdminController
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'productType' => $productType
+            'productType' => $productType,
         ]);
     }
 

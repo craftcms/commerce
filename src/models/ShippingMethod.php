@@ -41,8 +41,8 @@ class ShippingMethod extends BaseShippingMethod
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
                 'handle' => AttributeTypecastBehavior::TYPE_STRING,
                 'enabled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN
-            ]
+                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
         ];
 
         return $behaviors;

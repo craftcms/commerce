@@ -12,7 +12,6 @@ use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
-use DateTime;
 use yii\db\Expression;
 
 /**

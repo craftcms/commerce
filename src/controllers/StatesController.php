@@ -13,7 +13,6 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
-use craft\errors\MissingComponentException;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use yii\base\InvalidConfigException;
@@ -133,7 +132,7 @@ class StatesController extends BaseStoreSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'state' => $state
+            'state' => $state,
         ]);
     }
 

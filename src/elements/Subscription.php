@@ -454,8 +454,8 @@ class Subscription extends Element
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
-                'defaultSort' => ['dateCreated', 'desc']
-            ]
+                'defaultSort' => ['dateCreated', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
@@ -467,9 +467,9 @@ class Subscription extends Element
                 'key' => $key,
                 'label' => $plan->name,
                 'data' => [
-                    'handle' => $plan->handle
+                    'handle' => $plan->handle,
                 ],
-                'criteria' => ['planId' => $plan->id]
+                'criteria' => ['planId' => $plan->id],
             ];
         }
 
@@ -518,7 +518,7 @@ class Subscription extends Element
 
             return [
                 'elementType' => User::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -680,7 +680,7 @@ class Subscription extends Element
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
-            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
+            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')],
         ];
     }
 

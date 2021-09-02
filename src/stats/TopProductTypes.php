@@ -12,7 +12,6 @@ use craft\commerce\base\Stat;
 use craft\commerce\db\Table;
 use craft\commerce\Plugin;
 use craft\db\Table as CraftTable;
-use DateTime;
 use yii\db\Expression;
 
 /**
@@ -64,7 +63,7 @@ class TopProductTypes extends Stat
                 '[[pt.id]] as id',
                 '[[pt.name]]',
                 $selectTotalQty,
-                $selectTotalRevenue
+                $selectTotalRevenue,
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')

@@ -136,7 +136,7 @@ class OrderHistories extends Component
         if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
             $this->trigger(self::EVENT_ORDER_STATUS_CHANGE, new OrderStatusEvent([
                 'orderHistory' => $orderHistoryModel,
-                'order' => $order
+                'order' => $order,
             ]));
         }
 

@@ -68,7 +68,7 @@ class SubscriptionsController extends BaseController
         $variables['tabs'][] = [
             'label' => Craft::t('commerce', 'Manage'),
             'url' => '#subscriptionManageTab',
-            'class' => null
+            'class' => null,
         ];
 
         foreach ($fieldLayout->getTabs() as $index => $tab) {
@@ -87,7 +87,7 @@ class SubscriptionsController extends BaseController
             $variables['tabs'][] = [
                 'label' => Craft::t('commerce', $tab->name),
                 'url' => '#tab' . ($index + 1),
-                'class' => $hasErrors ? 'error' : null
+                'class' => $hasErrors ? 'error' : null,
             ];
         }
 
@@ -126,7 +126,7 @@ class SubscriptionsController extends BaseController
         if (!Craft::$app->getElements()->saveElement($subscription)) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save subscription.'));
             Craft::$app->getUrlManager()->setRouteParams([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]);
             return null;
         }
@@ -243,7 +243,7 @@ class SubscriptionsController extends BaseController
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]);
         }
 
@@ -301,7 +301,7 @@ class SubscriptionsController extends BaseController
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]);
         }
 
@@ -377,7 +377,7 @@ class SubscriptionsController extends BaseController
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]);
         }
 
@@ -450,7 +450,7 @@ class SubscriptionsController extends BaseController
         if ($request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]);
         }
 
