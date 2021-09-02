@@ -15,6 +15,7 @@
 - Subscription plans are no longer accessible via old Control Panel URLs.
 
 ### Deprecated
+- Deprecated `craft\commerce\services\Customers::getAddressIds()`. Use `getAddressIdsByCustomerId()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
