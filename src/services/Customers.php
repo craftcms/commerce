@@ -368,16 +368,36 @@ class Customers extends Component
      * @return mixed
      * @throws Throwable
      * @throws StaleObjectException
+     * @deprecated in 4.0. Use [[deleteCustomerById()]] instead.
      */
     public function deleteCustomer(Customer $customer)
     {
         $customer = CustomerRecord::findOne($customer->id);
 
-        if ($customer) {
-            return $customer->delete();
+        if (null === $customer) {
+            return null;
         }
 
-        return null;
+        return $this->deleteCustomerById($customer->id);
+    }
+
+    /**
+     * Deletes a customer by its ID
+     *
+     * @param int $id
+     * @return bool
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    public function deleteCustomerById(int $id): bool
+    {
+        $customer = CustomerRecord::findOne($id);
+
+        if ($customer) {
+            return $customer->delete() !== false;
+        }
+
+        return false;
     }
 
     /**
