@@ -120,7 +120,7 @@ class Plans extends Component
      * @param int $gatewayId
      * @return Plan[]
      */
-    public function getAllPlansByGatewayId(int $gatewayId): array
+    public function getPlansByGatewayId(int $gatewayId): array
     {
         return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
     }
@@ -134,7 +134,7 @@ class Plans extends Component
      */
     public function getAllGatewayPlans(int $gatewayId): array
     {
-        return $this->getAllPlansByGatewayId($gatewayId);
+        return $this->getPlansByGatewayId($gatewayId);
     }
 
     /**

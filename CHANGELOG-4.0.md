@@ -17,7 +17,7 @@
 ### Deprecated
 - Deprecated `craft\commerce\services\Customers::getAddressIds()`. Use `getAddressIdsByCustomerId()` instead.
 - Deprecated `craft\commerce\services\Customers::deleteCustomer()`. Use `deletedCustomerbyId()` instead.
-- Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getAllPlansByGatewayId()` instead.
+- Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getPlansByGatewayId()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
