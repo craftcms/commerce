@@ -227,7 +227,7 @@ class ShippingCategories extends Component
      * @throws Throwable
      * @throws StaleObjectException
      */
-    public function deleteShippingCategoryById($id): bool
+    public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
         if (count($all) === 1) {
