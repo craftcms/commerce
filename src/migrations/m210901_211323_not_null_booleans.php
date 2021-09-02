@@ -4,6 +4,11 @@ namespace craft\commerce\migrations;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\services\Emails;
+use craft\commerce\services\Gateways;
+use craft\commerce\services\OrderStatuses;
+use craft\commerce\services\Pdfs;
+use craft\commerce\services\ProductTypes;
 use craft\db\Migration;
 
 /**
@@ -14,7 +19,14 @@ class m210901_211323_not_null_booleans extends Migration
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): bool
+    {
+        $this->updateColumns();
+        $this->updateProjectConfig();
+        return true;
+    }
+
+    private function updateColumns(): void
     {
         $columns = [
             Table::COUNTRIES => [
@@ -140,6 +152,54 @@ class m210901_211323_not_null_booleans extends Migration
                 }
             }
         }
+    }
+
+    private function updateProjectConfig(): void
+    {
+        $projectConfig = Craft::$app->getProjectConfig();
+
+        // Don't make the same config changes twice
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+            return;
+        }
+
+        $projectConfig->muteEvents = true;
+
+        $keys = [
+            Gateways::CONFIG_GATEWAY_KEY => [
+                'isFrontendEnabled',
+                'isArchived',
+            ],
+            ProductTypes::CONFIG_PRODUCTTYPES_KEY => [
+                'hasDimensions',
+                'hasVariants',
+                'hasVariantTitleField',
+                'hasProductTitleField',
+            ],
+            OrderStatuses::CONFIG_STATUSES_KEY => [
+                'default',
+            ],
+            Emails::CONFIG_EMAILS_KEY => [
+                'enabled',
+            ],
+            Pdfs::CONFIG_PDFS_KEY => [
+                'enabled',
+                'isDefault',
+            ],
+        ];
+
+        foreach ($keys as $basePath => $itemKeys) {
+            $items = $projectConfig->get($basePath) ?? [];
+            foreach ($items as $uid => $item) {
+                foreach ($itemKeys as $key) {
+                    $item[$key] = (bool)($item[$key] ?? false);
+                }
+                $projectConfig->set("$basePath.$uid", $item);
+            }
+        }
+
+        $projectConfig->muteEvents = false;
     }
 
     /**
