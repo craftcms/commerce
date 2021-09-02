@@ -36,9 +36,9 @@ class Countries extends Component
     private ?array $_countriesById = null;
 
     /**
-     * @var Country[]
+     * @var Country[]|null
      */
-    private array $_enabledCountriesById = [];
+    private ?array $_enabledCountriesById = null;
 
     /**
      * @var Country[][]|null
@@ -110,10 +110,6 @@ class Countries extends Component
             foreach ($results as $row) {
                 $country = new Country($row);
                 $this->_countriesById[$country->id] = $country;
-
-                if ($country->enabled) {
-                    $this->_enabledCountriesById[$country->id] = $country;
-                }
             }
         }
 
@@ -128,8 +124,13 @@ class Countries extends Component
      */
     public function getAllEnabledCountries(): array
     {
-        $this->getAllCountries();
-        return $this->_enabledCountriesById;
+        $countries = $this->getAllCountries();
+
+        if (null === $this->_enabledCountriesById) {
+            $this->_enabledCountriesById = ArrayHelper::where($countries , 'enabled', true);
+        }
+
+        return $this->_enabledCountriesById ?? [];
     }
 
     /**
@@ -284,9 +285,9 @@ class Countries extends Component
     {
         // Clear all caches
         $this->_countriesById = null;
-        $this->_countriesByShippingZoneId = [];
+        $this->_countriesByShippingZoneId = null;
         $this->_countriesByTaxZoneId = null;
-        $this->_enabledCountriesById = [];
+        $this->_enabledCountriesById = null;
     }
 
     /**
