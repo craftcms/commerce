@@ -40,7 +40,7 @@ class ResetDataController extends Controller
                 }
 
                 return true;
-            }
+            },
         ]);
 
         if ($reset == 'yes') {

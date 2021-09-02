@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
@@ -24,8 +23,6 @@ use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;
 use Twig\Error\LoaderError;
@@ -338,7 +335,7 @@ class Payments extends Component
         // Raise 'beforeCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -347,7 +344,7 @@ class Payments extends Component
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -444,7 +441,7 @@ class Payments extends Component
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
             $this->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -619,9 +616,9 @@ class Payments extends Component
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isProcessing()) {
+        } else if ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
-        } elseif ($response->isRedirect()) {
+        } else if ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
         } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;

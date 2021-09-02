@@ -51,7 +51,7 @@ class PdfsController extends BaseAdminController
         $variables = compact('pdf', 'id');
 
         $pdfLanguageOptions = [
-            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
 
         $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());

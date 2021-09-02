@@ -37,7 +37,7 @@ class TaxCategory extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['handle'], 'required']
+            [['handle'], 'required'],
         ];
     }
 }

@@ -18,50 +18,49 @@ use Craft;
 class CreditCardPaymentForm extends BasePaymentForm
 {
     /**
-     * @var string First name
+     * @var string|null First name
      */
-    public string $firstName;
+    public ?string $firstName = null;
 
     /**
-     * @var string Last name
+     * @var string|null Last name
      */
-    public string $lastName;
+    public ?string $lastName = null;
 
     /**
-     * @var int Card number
+     * @var int|null Card number
      */
-    public int $number;
+    public ?int $number = null;
 
     /**
-     * @var int Expiry month
+     * @var int|null Expiry month
      */
-    public int $month;
+    public ?int $month = null;
 
     /**
-     * @var int Expiry year
+     * @var int|null Expiry year
      */
-    public int $year;
+    public ?int $year = null;
 
     /**
-     * @var int CVV number
+     * @var int|null CVV number
      */
-    public int $cvv;
+    public ?int $cvv = null;
 
     /**
-     * @var string Token
+     * @var string|null Token
      */
-    public string $token;
+    public ?string $token = null;
 
     /**
-     * @var string Expiry date
+     * @var string|null Expiry date
      */
-    public string $expiry;
+    public ?string $expiry = null;
 
     /**
      * @var bool
      */
     public bool $threeDSecure = false;
-
 
     /**
      * @inheritdoc

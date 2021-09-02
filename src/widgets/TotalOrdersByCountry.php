@@ -174,7 +174,7 @@ class TotalOrdersByCountry extends Widget
             'id' => $id,
             'namespaceId' => $namespaceId,
             'widget' => $this,
-            'typeOptions' => $this->_typeOptions
+            'typeOptions' => $this->_typeOptions,
         ]);
     }
 }

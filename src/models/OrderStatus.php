@@ -17,7 +17,6 @@ use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order status model.

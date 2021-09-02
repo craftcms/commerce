@@ -13,12 +13,13 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\helpers\StringHelper;
 use craft\helpers\UrlHelper;
+use DateTime;
 
 /**
  * Class Gateway
  *
  * @property string $cpEditUrl
- * @property bool $dateArchived
+ * @property DateTime|null $dateArchived
  * @property bool $isFrontendEnabled
  * @property bool $isArchived
  * @property string $name
@@ -41,6 +42,16 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     public function __toString()
     {
         return (string)$this->name;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function datetimeAttributes(): array
+    {
+        return array_merge(parent::datetimeAttributes(), [
+            'dateArchived',
+        ]);
     }
 
     /**

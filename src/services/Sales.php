@@ -207,7 +207,7 @@ class Sales extends Component
                 'sales.dateUpdated',
                 'sp.purchasableId',
                 'spt.categoryId',
-                'sug.userGroupId'
+                'sug.userGroupId',
             ])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
@@ -565,7 +565,7 @@ class Sales extends Component
             'stopProcessing',
             'ignorePrevious',
             'categoryRelationshipType',
-            'enabled'
+            'enabled',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -579,7 +579,7 @@ class Sales extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
                 'sale' => $model,
-                'isNew' => $isNewSale
+                'isNew' => $isNewSale,
             ]));
         }
 
@@ -627,7 +627,7 @@ class Sales extends Component
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
                     'sale' => $model,
-                    'isNew' => $isNewSale
+                    'isNew' => $isNewSale,
                 ]));
             }
 
@@ -684,7 +684,7 @@ class Sales extends Component
         if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_SALE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_SALE, new SaleEvent([
                 'sale' => $sale,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 

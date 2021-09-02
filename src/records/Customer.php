@@ -39,7 +39,7 @@ class Customer extends ActiveRecord
                 'primaryBillingAddressId',
                 'primaryShippingAddressId',
                 'userId',
-            ], 'safe']
+            ], 'safe'],
         ];
     }
 

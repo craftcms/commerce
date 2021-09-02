@@ -55,7 +55,7 @@ class Products extends Component
                 'criteria' => [
                     'siteId' => $siteId,
                     'status' => null,
-                ]
+                ],
             ]));
         }
     }

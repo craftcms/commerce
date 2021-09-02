@@ -273,7 +273,7 @@ abstract class Stat implements StatInterface
                 $date = $this->_getEndDate($dateRange);
                 $interval = new \DateInterval('P1Y');
                 $date->sub($interval);
-                $date->add(new \DateInterval('P1M'));
+                $date->modify('first day of next month');
                 break;
             }
         }

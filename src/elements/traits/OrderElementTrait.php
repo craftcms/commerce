@@ -12,7 +12,6 @@ use craft\commerce\elements\actions\CopyLoadCartUrl;
 use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
-use craft\commerce\elements\Order;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
@@ -161,42 +160,42 @@ trait OrderElementTrait
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Items'),
-                        'value' => $this->itemSubtotalAsCurrency
+                        'value' => $this->itemSubtotalAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalDiscount > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Discounts'),
-                        'value' => $this->storedTotalDiscountAsCurrency
+                        'value' => $this->storedTotalDiscountAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalShippingCost > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Shipping'),
-                        'value' => $this->storedTotalShippingCostAsCurrency
+                        'value' => $this->storedTotalShippingCostAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalTaxIncluded > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Tax (inc)'),
-                        'value' => $this->storedTotalTaxIncludedAsCurrency
+                        'value' => $this->storedTotalTaxIncludedAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalTax > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Tax'),
-                        'value' => $this->storedTotalTaxAsCurrency
+                        'value' => $this->storedTotalTaxAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalPrice > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Price'),
-                        'value' => $this->storedTotalPriceAsCurrency
+                        'value' => $this->storedTotalPriceAsCurrency,
                     ];
                 }
 
@@ -299,7 +298,7 @@ trait OrderElementTrait
                 'data' => [
                     'date-attr' => 'dateOrdered',
                 ],
-            ]
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
@@ -318,7 +317,7 @@ trait OrderElementTrait
                 'data' => [
                     'handle' => $orderStatus->handle,
                     'date-attr' => 'dateOrdered',
-                ]
+                ],
             ];
         }
 
@@ -338,7 +337,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsActive',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
@@ -352,7 +351,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsInactive',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
 
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
@@ -364,7 +363,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsAttemptedPayment',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
 
         return $sources;
@@ -400,7 +399,7 @@ trait OrderElementTrait
                 $isStatus = strpos($source, 'orderStatus:');
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
-                        'type' => UpdateOrderStatus::class
+                        'type' => UpdateOrderStatus::class,
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }
@@ -408,7 +407,7 @@ trait OrderElementTrait
                 $isStatus = strpos($source, 'carts:');
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
-                        'type' => CopyLoadCartUrl::class
+                        'type' => CopyLoadCartUrl::class,
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }

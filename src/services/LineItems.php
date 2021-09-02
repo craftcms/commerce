@@ -193,7 +193,7 @@ class LineItems extends Component
             ->where([
                 'orderId' => $orderId,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
             ->one();
 

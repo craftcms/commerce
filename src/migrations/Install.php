@@ -16,34 +16,19 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
-use craft\commerce\models\ProductType as ProductTypeModel;
-use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\PaymentCurrency;
-use craft\commerce\records\Product as ProductRecord;
-use craft\commerce\records\ProductType;
-use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
 use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
-use craft\commerce\records\Variant as VariantRecord;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\ElementHelper;
 use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
-use craft\queue\jobs\ResaveElements;
-use craft\records\Element;
-use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
-use craft\records\Site;
 use Exception;
-use RuntimeException;
 use yii\base\NotSupportedException;
 
 /**
@@ -298,7 +283,6 @@ class Install extends Migration
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
             'isFrontendEnabled' => $this->boolean(),
-            'sendCartInfo' => $this->boolean(),
             'isArchived' => $this->boolean(),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
@@ -367,7 +351,7 @@ class Install extends Migration
         ]);
 
         $this->createTable(Table::ORDERNOTICES, [
-            'id' =>  $this->primaryKey(),
+            'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'type' => $this->string(),
             'attribute' => $this->string(),
@@ -1188,7 +1172,7 @@ class Install extends Migration
             Table::TAXZONE_COUNTRIES,
             Table::TAXZONE_STATES,
             Table::TRANSACTIONS,
-            Table::VARIANTS
+            Table::VARIANTS,
         ];
 
         foreach ($tables as $table) {
@@ -1601,7 +1585,7 @@ class Install extends Migration
         $data = [
             'iso' => 'USD',
             'rate' => 1,
-            'primary' => true
+            'primary' => true,
         ];
         $this->insert(PaymentCurrency::tableName(), $data);
     }
@@ -1614,7 +1598,7 @@ class Install extends Migration
         $data = [
             'name' => 'Free Shipping',
             'handle' => 'freeShipping',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingMethod::tableName(), $data);
 
@@ -1622,7 +1606,7 @@ class Install extends Migration
             'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
             'description' => 'All countries, free shipping',
             'name' => 'Free Everywhere',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingRule::tableName(), $data);
     }
@@ -1635,7 +1619,7 @@ class Install extends Migration
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(TaxCategory::tableName(), $data);
     }
@@ -1648,7 +1632,7 @@ class Install extends Migration
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(ShippingCategory::tableName(), $data);
     }
@@ -1659,7 +1643,7 @@ class Install extends Migration
     public function _defaultDonationPurchasable(): void
     {
         $donation = new Donation();
-        $donation->sku = 'DONATION-CC3';
+        $donation->sku = 'DONATION-CC4';
         $donation->availableForPurchase = false;
         Craft::$app->getElements()->saveElement($donation);
     }
@@ -1677,7 +1661,7 @@ class Install extends Migration
             'name' => 'New',
             'handle' => 'new',
             'color' => 'green',
-            'default' => true
+            'default' => true,
         ];
         $orderStatus = new OrderStatusModel($data);
         Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);

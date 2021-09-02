@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
-use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\db\Query;
@@ -177,7 +176,7 @@ trait OrderValidatorsTrait
                     'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
                         'explanation' => $explanation,
                     ]),
-                ]
+                ],
             ]);
             $this->addNotice($notice);
             $this->$attribute = null;

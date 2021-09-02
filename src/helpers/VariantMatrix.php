@@ -13,7 +13,6 @@ use craft\commerce\elements\Variant;
 use craft\commerce\web\assets\variantmatrix\VariantMatrixAsset;
 use craft\helpers\Html;
 use craft\helpers\Json;
-use craft\web\View;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -49,7 +48,7 @@ class VariantMatrix
             'id' => $id,
             'name' => $name,
             'variants' => $product->getVariants(),
-            'product' => $product
+            'product' => $product,
         ]);
 
         // Namespace the name/ID for JS
@@ -105,7 +104,7 @@ class VariantMatrix
         $bodyHtml = $templatesService->renderTemplate('commerce/products/_variant_matrix_fields', [
             'namespace' => Html::namespaceInputName('__VARIANT__', $namespace),
             'variant' => $variant,
-            'product' => $product
+            'product' => $product,
         ]);
 
         $footHtml = $templatesService->clearJsBuffer();

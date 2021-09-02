@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
-use craft\errors\MissingComponentException;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;

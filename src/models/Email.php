@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
@@ -168,7 +167,7 @@ class Email extends Model
             'enabled' => (bool)$this->enabled,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'templatePath' => $this->templatePath ?: null,
-            'language' => $this->language
+            'language' => $this->language,
         ];
 
         if ($pdf = $this->getPdf()) {

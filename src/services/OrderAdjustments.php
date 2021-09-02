@@ -99,7 +99,7 @@ class OrderAdjustments extends Component
         }
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $adjusters
+            'types' => $adjusters,
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
@@ -295,7 +295,7 @@ class OrderAdjustments extends Component
     public function getDiscountAdjusters(): array
     {
         $discountEvent = new RegisterComponentTypesEvent([
-            'types' => []
+            'types' => [],
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {

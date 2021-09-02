@@ -18,9 +18,8 @@
     "docs": "https://craftcms.com/docs/commerce/3.x/",
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
-  "minimum-stability": "dev",
   "require": {
-    "craftcms/cms": "^4.0.0-alpha",
+    "craftcms/cms": "^4.0.0-alpha@dev",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",

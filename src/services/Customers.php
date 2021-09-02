@@ -32,7 +32,6 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Component;
-use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
@@ -231,7 +230,7 @@ class Customers extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                 'address' => $address,
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -243,7 +242,7 @@ class Customers extends Component
         if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
-                'addressId' => $address->id
+                'addressId' => $address->id,
             ])->one();
 
             if (!$customerAddress) {
@@ -258,7 +257,7 @@ class Customers extends Component
                 if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS)) {
                     $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                         'address' => $address,
-                        'customer' => $customer
+                        'customer' => $customer,
                     ]));
                 }
 
@@ -282,7 +281,7 @@ class Customers extends Component
         // Fire a 'beforeSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -323,7 +322,7 @@ class Customers extends Component
         // Fire a 'afterSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -654,7 +653,7 @@ class Customers extends Component
             ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                ['not', ['customers.userId' => null]]
+                ['not', ['customers.userId' => null]],
             ]);
 
         if ($search) {
@@ -731,7 +730,7 @@ class Customers extends Component
         $orders = (new Query())
             ->select([
                 'id' => 'orders.id',
-                'userId' => 'customers.userId'
+                'userId' => 'customers.userId',
             ])
             ->where(['and', ['[[orders.email]]' => $email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
             ->leftJoin(Table::CUSTOMERS . ' customers', '[[orders.customerId]] = [[customers.id]]')
@@ -881,7 +880,7 @@ class Customers extends Component
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
                 'label' => Craft::t('commerce', 'Customer Info'),
-                'url' => '#customerInfo'
+                'url' => '#customerInfo',
             ];
         }
     }
