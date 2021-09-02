@@ -469,9 +469,21 @@ class Subscriptions extends Component
      * @param int $planId
      * @return int
      */
-    public function getSubscriptionCountForPlanById(int $planId): int
+    public function getSubscriptionCountByPlanId(int $planId): int
     {
         return SubscriptionRecord::find()->where(['planId' => $planId])->count();
+    }
+
+    /**
+     * Returns subscription count for a plan.
+     *
+     * @param int $planId
+     * @return int
+     * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.
+     */
+    public function getSubscriptionCountForPlanById(int $planId): int
+    {
+        return $this->getSubscriptionCountByPlanId($planId);
     }
 
     /**
