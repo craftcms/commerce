@@ -332,23 +332,33 @@ class Customers extends Component
     /**
      * Get all address IDs for a customer by its ID.
      *
-     * @param $customerId
+     * @param int $customerId
      * @return array
      * @throws InvalidConfigException
      */
-    public function getAddressIds($customerId): array
+    public function getAddressIdsByCustomerId(int $customerId): array
     {
         $ids = [];
 
         if ($customerId) {
             $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
-
-            foreach ($addresses as $address) {
-                $ids[] = $address->id;
-            }
+            $ids = ArrayHelper::getColumn($addresses, 'id');
         }
 
         return $ids;
+    }
+
+    /**
+     * Get all address IDs for a customer by its ID.
+     *
+     * @param $customerId
+     * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getAddressIdsByCustomerId()]] instead.
+     */
+    public function getAddressIds($customerId): array
+    {
+        return $this->getAddressIdsByCustomerId($customerId);
     }
 
     /**
