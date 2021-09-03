@@ -56,7 +56,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
- * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -118,14 +117,14 @@ class LineItem extends Model
     private string $_sku;
 
     /**
-     * @var string|null Note
+     * @var string Note
      */
-    public ?string $note = null;
+    public string $note = '';
 
     /**
-     * @var string|null Private Note
+     * @var string Private Note
      */
-    public ?string $privateNote = null;
+    public string $privateNote = '';
 
     /**
      * @var int|null Purchasable ID
@@ -143,9 +142,9 @@ class LineItem extends Model
     public ?int $lineItemStatusId = null;
 
     /**
-     * @var int|null Tax category ID
+     * @var int Tax category ID
      */
-    public ?int $taxCategoryId;
+    public int $taxCategoryId;
 
     /**
      * @var int Shipping category ID
@@ -206,26 +205,6 @@ class LineItem extends Model
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'note' => AttributeTypecastBehavior::TYPE_STRING,
-                'privateNote' => AttributeTypecastBehavior::TYPE_STRING,
-                'width' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'height' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'length' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ],
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
@@ -719,10 +698,6 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        if (null === $this->taxCategoryId) {
-            throw new InvalidConfigException('Line Item is missing its tax category ID');
-        }
-
         return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 
