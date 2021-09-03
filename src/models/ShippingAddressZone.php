@@ -114,6 +114,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountryIds(): array
     {
@@ -153,6 +154,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStateIds(): array
     {

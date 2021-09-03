@@ -415,7 +415,7 @@ class Discount extends Model
     /**
      * Loads the related purchasable IDs into this discount
      */
-    private function _loadPurchasableRelations()
+    private function _loadPurchasableRelations(): void
     {
         $purchasableIds = (new Query())->select(['dp.purchasableId'])
             ->from(Table::DISCOUNTS . ' discounts')
@@ -429,7 +429,7 @@ class Discount extends Model
     /**
      * Loads the related category IDs into this discount
      */
-    private function _loadCategoryRelations()
+    private function _loadCategoryRelations(): void
     {
         $categoryIds = (new Query())->select(['dpt.categoryId'])
             ->from(Table::DISCOUNTS . ' discounts')
@@ -443,7 +443,7 @@ class Discount extends Model
     /**
      * Loads the related user group IDs into this discount
      */
-    private function _loadUserGroupRelations()
+    private function _loadUserGroupRelations(): void
     {
         $userGroupIds = (new Query())->select(['dug.userGroupId'])
             ->from(Table::DISCOUNTS . ' discounts')

@@ -17,6 +17,7 @@ use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Order status model.
@@ -135,6 +136,7 @@ class OrderStatus extends Model
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getEmailIds(): array
     {
@@ -143,6 +145,7 @@ class OrderStatus extends Model
 
     /**
      * @return Email[]
+     * @throws InvalidConfigException
      */
     public function getEmails(): array
     {
