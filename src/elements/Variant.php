@@ -183,7 +183,7 @@ class Variant extends Purchasable
     /**
      * @var bool $isDefault
      */
-    public bool $isDefault;
+    public bool $isDefault = false;
 
     /**
      * @inheritdoc
@@ -236,10 +236,10 @@ class Variant extends Purchasable
     public ?int $maxQty = null;
 
     /**
-     * @var bool|null Whether the variant was deleted along with its product
+     * @var bool Whether the variant was deleted along with its product
      * @see beforeDelete()
      */
-    public ?bool $deletedWithProduct = false;
+    public bool $deletedWithProduct = false;
 
     /**
      * @var Product|null The product that this variant is associated with.

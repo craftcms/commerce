@@ -149,7 +149,7 @@ class Formulas extends Component
      */
     private function _getTags(): array
     {
-        $tags = [
+        return [
             //'apply',
             //'autoescape',
             //'block',
@@ -170,7 +170,6 @@ class Formulas extends Component
             //'verbatim',
             //'with',
         ];
-        return $tags;
     }
 
     /**
@@ -178,7 +177,7 @@ class Formulas extends Component
      */
     private function _getFilters(): array
     {
-        $filters = [
+        return [
             //'abs',
             //'batch',
             'capitalize',
@@ -232,7 +231,6 @@ class Formulas extends Component
             'upper',
             //'url_encode',
         ];
-        return $filters;
     }
 
     /**
@@ -240,7 +238,7 @@ class Formulas extends Component
      */
     private function _getFunctions(): array
     {
-        $functions = [
+        return [
             //'attribute',
             //'block',
             //'constant',
@@ -257,7 +255,6 @@ class Formulas extends Component
             //'source',
             //'template_from_string',
         ];
-        return $functions;
     }
 
     /**
@@ -265,8 +262,7 @@ class Formulas extends Component
      */
     private function _getMethods(): array
     {
-        $methods = [];
-        return $methods;
+        return [];
     }
 
     /**
@@ -274,7 +270,6 @@ class Formulas extends Component
      */
     private function _getProperties(): array
     {
-        $properties = [];
-        return $properties;
+        return [];
     }
 }

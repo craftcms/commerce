@@ -33,7 +33,7 @@ class Donation extends Purchasable
     /**
      * @var bool Is the product available for purchase.
      */
-    public bool $availableForPurchase;
+    public bool $availableForPurchase = false;
 
     /**
      * @var string The SKU

@@ -231,7 +231,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfByHandle($handle): ?Pdf
+    public function getPdfByHandle(string $handle): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
     }
@@ -352,7 +352,7 @@ class Pdfs extends Component
      * @return bool
      * @since 3.2
      */
-    public function deletePdfById($id): bool
+    public function deletePdfById(int $id): bool
     {
         $pdf = PdfRecord::findOne($id);
 

@@ -210,7 +210,7 @@ class Discounts extends Component
      * @param int $id
      * @return Discount|null
      */
-    public function getDiscountById($id): ?Discount
+    public function getDiscountById(int $id): ?Discount
     {
         if (!$id) {
             return null;
