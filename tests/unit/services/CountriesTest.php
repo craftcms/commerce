@@ -221,7 +221,7 @@ class CountriesTest extends Unit
     /**
      * @throws Exception
      */
-    public function testMemorization(): void
+    public function testMemoization(): void
     {
         $countries = $this->countries->getAllCountries();
         $name = 'New Country Name';

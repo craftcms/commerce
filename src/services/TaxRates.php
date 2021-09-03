@@ -25,21 +25,16 @@ use yii\db\StaleObjectException;
  * Tax rate service.
  *
  * @property TaxRate $liteTaxRate the lite tax rate
- * @property TaxRate[] $allTaxRates an array of all of the existing tax rates
+ * @property TaxRate[] $allTaxRates an array of all the existing tax rates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class TaxRates extends Component
 {
     /**
-     * @var bool
+     * @var TaxRate[]|null
      */
-    private bool $_fetchedAllTaxRates = false;
-
-    /**
-     * @var TaxRate[]
-     */
-    private array $_allTaxRates = [];
+    private ?array $_allTaxRates = null;
 
 
     /**
@@ -49,17 +44,15 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(): array
     {
-        if (!$this->_fetchedAllTaxRates) {
+        if (null === $this->_allTaxRates) {
             $rows = $this->_createTaxRatesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxRates[$row['id']] = new TaxRate($row);
             }
-
-            $this->_fetchedAllTaxRates = true;
         }
 
-        return $this->_allTaxRates;
+        return $this->_allTaxRates ?? [];
     }
 
     /**
@@ -72,16 +65,7 @@ class TaxRates extends Component
      */
     public function getTaxRatesForZone(TaxAddressZone $zone): array
     {
-        $allTaxRates = $this->getAllTaxRates();
-        $taxRates = [];
-
-        foreach ($allTaxRates as $rate) {
-            if ($zone->id === $rate->taxZoneId) {
-                $taxRates[] = $rate;
-            }
-        }
-
-        return $taxRates;
+        return ArrayHelper::where($this->getAllTaxRates(), 'taxZoneId', $zone->id);
     }
 
     /**
@@ -106,23 +90,7 @@ class TaxRates extends Component
      */
     public function getTaxRateById(int $id): ?TaxRate
     {
-        if (isset($this->_allTaxRates[$id])) {
-            return $this->_allTaxRates[$id];
-        }
-
-        if ($this->_fetchedAllTaxRates) {
-            return null;
-        }
-
-        $result = $this->_createTaxRatesQuery()
-            ->andWhere(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allTaxRates[$id] = new TaxRate($result);
+        return ArrayHelper::firstWhere($this->getAllTaxRates(), 'id', $id);
     }
 
     /**
