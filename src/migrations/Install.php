@@ -516,7 +516,7 @@ class Install extends Migration
 
             // Variant title stuff
             'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
-            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0 #COM-44
+            'variantTitleFormat' => $this->string()->notNull(),
 
             // Product title stuff
             'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
