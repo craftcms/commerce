@@ -36,7 +36,6 @@ class TaxRates extends Component
      */
     private ?array $_allTaxRates = null;
 
-
     /**
      * Returns an array of all existing tax rates.
      *
@@ -65,7 +64,7 @@ class TaxRates extends Component
      */
     public function getTaxRatesForZone(TaxAddressZone $zone): array
     {
-        return ArrayHelper::where($this->getAllTaxRates(), 'taxZoneId', $zone->id);
+        return $this->getTaxRatesByTaxZoneId($zone->id);
     }
 
     /**
@@ -77,9 +76,7 @@ class TaxRates extends Component
      */
     public function getTaxRatesByTaxZoneId(int $taxZoneId): array
     {
-        $allTaxRates = $this->getAllTaxRates();
-
-        return ArrayHelper::where($allTaxRates, 'taxZoneId', $taxZoneId);
+        return ArrayHelper::where($this->getAllTaxRates(), 'taxZoneId', $taxZoneId);
     }
 
     /**
