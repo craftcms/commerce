@@ -11,6 +11,7 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -158,13 +159,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getStateIds(): array
     {
-        $states = [];
-
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->id;
-        }
-
-        return $states;
+        return ArrayHelper::getColumn($this->getStates(), 'id');
     }
 
     /**
@@ -209,13 +204,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getCountriesNames(): array
     {
-        $countries = [];
-
-        foreach ($this->getCountries() as $country) {
-            $countries[] = $country->name;
-        }
-
-        return $countries;
+        return ArrayHelper::getColumn($this->getCountries(), 'name');
     }
 
     /**
