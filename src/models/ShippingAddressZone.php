@@ -211,16 +211,23 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns the names of all states in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getStatesLabels]] instead.
      */
     public function getStatesNames(): array
     {
-        $states = [];
+        return $this->getStatesLabels();
+    }
 
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->getLabel();
-        }
-
-        return $states;
+    /**
+     * Returns the labels of all states in this Shipping Zone.
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getStatesLabels(): array
+    {
+        return ArrayHelper::getColumn($this->getStates(), 'label');
     }
 
     /**

@@ -29,7 +29,7 @@
         url: url('commerce/shipping/shippingzones/'~shippingZone.id),
         description: shippingZone.description|t('site')|e,
         type: shippingZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
-        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ')|e : shippingZone.getStatesNames()|join(', ')|e,
+        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ')|e : shippingZone.getStatesLabels()|join(', ')|e,
         zipCondition: shippingZone.zipCodeConditionFormula ? true : false,
     }]) %}
 {% endfor %}
