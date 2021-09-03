@@ -130,7 +130,7 @@ class AddressTest extends Unit
 
         $address->countryId = $countryId;
 
-        self::assertSame($countryText, $address->getCountryText());
+        self::assertSame($countryName, $address->getCountryName());
     }
 
     /**
@@ -194,7 +194,7 @@ class AddressTest extends Unit
         $address->stateId = $stateId;
         $address->stateName = $stateName;
 
-        self::assertSame($stateText, $address->getStateText());
+        self::assertSame($stateText, $address->getStateName());
     }
 
     /**
@@ -213,7 +213,7 @@ class AddressTest extends Unit
 
         $address->stateId = $stateId;
 
-        self::assertSame($abbreviationText, $address->getAbbreviationText());
+        self::assertSame($abbreviationText, $address->getStateAbbreviation());
     }
 
     /**

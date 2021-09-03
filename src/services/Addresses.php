@@ -407,8 +407,8 @@ class Addresses extends Component
             }
 
             $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
-            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
             $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateName()), array_map('strtolower', $stateNames), false));
+            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateAbbreviation()), array_map('strtolower', $stateAbbr), false));
 
             if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
                 return false;

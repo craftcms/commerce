@@ -463,11 +463,29 @@ class Address extends Model
 
     /**
      * @return string
+     * @deprecated in 4.0. Use [[getStateName]] instead.
      */
-    public function getAbbreviationText(): string
+    public function getStateText(): string
+    {
+        return $this->getStateName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getStateAbbreviation(): string
     {
         $state = $this->getState();
         return $state->abbreviation ?? '';
+    }
+
+    /**
+     * @return string
+     * @deprecated in 4.0. Use [[getStateAbbreviation]] instead.
+     */
+    public function getAbbreviationText(): string
+    {
+        return $this->getStateAbbreviation();
     }
 
     /**
@@ -602,7 +620,7 @@ class Address extends Model
                 $this->stateValue == $otherAddress->stateValue
             ) &&
             (
-                (!empty($this->getCountryText()) && $this->getCountryText() == $otherAddress->getCountryText()) ||
+                (!empty($this->getCountryName()) && $this->getCountryName() == $otherAddress->getCountryName()) ||
                 $this->getCountryIso() == $otherAddress->getCountryIso()
             ) &&
             $this->custom1 == $otherAddress->custom1 &&
