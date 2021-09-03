@@ -411,10 +411,19 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getCountryText(): string
+    public function getCountryName(): string
     {
         $country = $this->getCountry();
         return $country->name ?? '';
+    }
+
+    /**
+     * @return string
+     * @deprecated in 4.0. Use [[getCountryName]] instead.
+     */
+    public function getCountryText(): string
+    {
+        return $this->getCountryName();
     }
 
     /**
@@ -589,7 +598,7 @@ class Address extends Model
             $this->notes == $otherAddress->notes &&
             $this->businessName == $otherAddress->businessName &&
             (
-                (!empty($this->getStateText()) && $this->getStateText() == $otherAddress->getStateText()) ||
+                (!empty($this->getStateName()) && $this->getStateName() == $otherAddress->getStateName()) ||
                 $this->stateValue == $otherAddress->stateValue
             ) &&
             (

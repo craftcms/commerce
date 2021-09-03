@@ -117,11 +117,11 @@ class AddressTest extends Unit
     /**
      * @dataProvider getCountryTextDataProvider
      *
-     * @param $countryId
-     * @param $countryText
+     * @param int|null $countryId
+     * @param string $countryName
      * @throws Exception
      */
-    public function testGetCountryText($countryId, $countryText): void
+    public function testGetCountryText(?int $countryId, string $countryName): void
     {
         /** @var Address $address */
         $address = $this->make(Address::class, [
