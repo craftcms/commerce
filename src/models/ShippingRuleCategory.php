@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -79,6 +80,7 @@ class ShippingRuleCategory extends Model
 
     /**
      * @return ShippingRule
+     * @throws InvalidConfigException
      */
     public function getRule(): ShippingRule
     {
@@ -87,6 +89,7 @@ class ShippingRuleCategory extends Model
 
     /**
      * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getCategory(): ShippingCategory
     {

@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -41,17 +42,11 @@ class ShippingMethodOption extends ShippingMethod
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-            ],
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
@@ -91,10 +86,10 @@ class ShippingMethodOption extends ShippingMethod
     }
 
     /**
-     * @param $order
+     * @param Order $order
      * @since 3.1.10
      */
-    public function setOrder($order): void
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
     }

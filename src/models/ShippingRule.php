@@ -499,8 +499,9 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $attribute
-     * @param $shippingCategoryId
+     * @param null $shippingCategoryId
      * @return mixed
+     * @throws InvalidConfigException
      */
     private function _getRate($attribute, $shippingCategoryId = null)
     {

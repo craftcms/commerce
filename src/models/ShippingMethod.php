@@ -93,7 +93,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getIsEnabled(): bool
     {
-        return (bool)$this->enabled;
+        return $this->enabled;
     }
 
     /**
