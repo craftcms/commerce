@@ -357,7 +357,7 @@ class Emails extends Component
      * @param int $id
      * @return bool
      */
-    public function deleteEmailById($id): bool
+    public function deleteEmailById(int $id): bool
     {
         $email = EmailRecord::findOne($id);
 

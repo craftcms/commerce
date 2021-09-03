@@ -103,7 +103,7 @@ class Subscription extends Element
     /**
      * @var bool Whether the subscription is canceled
      */
-    public bool $isCanceled;
+    public bool $isCanceled = false;
 
     /**
      * @var DateTime|null Time when subscription was canceled
@@ -113,7 +113,7 @@ class Subscription extends Element
     /**
      * @var bool Whether the subscription has expired
      */
-    public bool $isExpired;
+    public bool $isExpired = false;
 
     /**
      * @var DateTime|null Time when subscription expired

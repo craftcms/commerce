@@ -183,7 +183,7 @@ class Variant extends Purchasable
     /**
      * @var bool $isDefault
      */
-    public bool $isDefault;
+    public bool $isDefault = false;
 
     /**
      * @inheritdoc
@@ -236,10 +236,10 @@ class Variant extends Purchasable
     public ?int $maxQty = null;
 
     /**
-     * @var bool|null Whether the variant was deleted along with its product
+     * @var bool Whether the variant was deleted along with its product
      * @see beforeDelete()
      */
-    public ?bool $deletedWithProduct = false;
+    public bool $deletedWithProduct = false;
 
     /**
      * @var Product|null The product that this variant is associated with.
@@ -487,13 +487,13 @@ class Variant extends Purchasable
     {
         $type = $product->getType();
         // Use the product type's titleFormat if the title field is not shown
-        if (!$type->hasVariantTitleField && $type->hasVariants && $type->titleFormat) {
+        if (!$type->hasVariantTitleField && $type->hasVariants && $type->variantTitleFormat) {
             // Make sure that the locale has been loaded in case the title format has any Date/Time fields
             Craft::$app->getLocale();
             // Set Craft to the products's site's language, in case the title format has any static translations
             $language = Craft::$app->language;
             Craft::$app->language = $this->getSite()->language;
-            $this->title = Craft::$app->getView()->renderObjectTemplate($type->titleFormat, $this);
+            $this->title = Craft::$app->getView()->renderObjectTemplate($type->variantTitleFormat, $this);
             Craft::$app->language = $language;
         }
 

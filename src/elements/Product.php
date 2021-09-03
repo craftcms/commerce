@@ -90,14 +90,14 @@ class Product extends Element
     public ?int $shippingCategoryId = null;
 
     /**
-     * @var bool|null Whether the product is promotable
+     * @var bool Whether the product is promotable
      */
-    public ?bool $promotable = null;
+    public bool $promotable = false;
 
     /**
-     * @var bool|null Whether the product has free shipping
+     * @var bool Whether the product has free shipping
      */
-    public ?bool $freeShipping = null;
+    public bool $freeShipping = false;
 
     /**
      * @var bool Is this product available to be purchased
