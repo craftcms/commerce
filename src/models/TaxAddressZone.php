@@ -119,14 +119,16 @@ class TaxAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return TaxRate[]
+     * @throws InvalidConfigException
      */
     public function getTaxRates(): array
     {
-        return Plugin::getInstance()->getTaxRates()->getTaxRatesForZone($this);
+        return Plugin::getInstance()->getTaxRates()->getTaxRatesByTaxZoneId($this->id);
     }
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountryIds(): array
     {

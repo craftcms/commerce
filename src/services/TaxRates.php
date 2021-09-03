@@ -14,6 +14,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -67,13 +68,13 @@ class TaxRates extends Component
      * @param TaxAddressZone $zone
      *
      * @return TaxRate[]
+     * @deprecated in 4.0. Use [[getTaxRatesByTaxZoneId]] instead.
      */
     public function getTaxRatesForZone(TaxAddressZone $zone): array
     {
         $allTaxRates = $this->getAllTaxRates();
         $taxRates = [];
 
-        /** @var TaxRate $rate */
         foreach ($allTaxRates as $rate) {
             if ($zone->id === $rate->taxZoneId) {
                 $taxRates[] = $rate;
@@ -81,6 +82,20 @@ class TaxRates extends Component
         }
 
         return $taxRates;
+    }
+
+    /**
+     * Returns an array of all rates belonging to the zone
+     *
+     * @param int $taxZoneId
+     *
+     * @return TaxRate[]
+     */
+    public function getTaxRatesByTaxZoneId(int $taxZoneId): array
+    {
+        $allTaxRates = $this->getAllTaxRates();
+
+        return ArrayHelper::where($allTaxRates, 'taxZoneId', $taxZoneId);
     }
 
     /**
