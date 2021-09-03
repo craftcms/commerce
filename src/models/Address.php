@@ -447,7 +447,7 @@ class Address extends Model
     /**
      * @return string
      */
-    public function getStateText(): string
+    public function getStateName(): string
     {
         $state = $this->getState();
         if ($this->stateName) {
