@@ -271,7 +271,7 @@ class Transactions extends Component
      * @return array|Transaction[]
      * @noinspection PhpUnused
      */
-    public function getAllTopLevelTransactionsByOrderId($orderId): array
+    public function getAllTopLevelTransactionsByOrderId(int $orderId): array
     {
         $transactions = $this->getAllTransactionsByOrderId($orderId);
 
