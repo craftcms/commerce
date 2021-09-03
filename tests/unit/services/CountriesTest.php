@@ -13,8 +13,10 @@ use craft\commerce\models\Country;
 use craft\commerce\Plugin;
 use craft\commerce\services\Countries;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use UnitTester;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * CountriesTest
@@ -217,6 +219,26 @@ class CountriesTest extends Unit
     }
 
     /**
+     * @throws Exception
+     */
+    public function testMemorization(): void
+    {
+        $countries = $this->countries->getAllCountries();
+        $name = 'New Country Name';
+
+        /** @var Country $country */
+        $country = ArrayHelper::firstValue($countries);
+        $country->name = $name;
+
+        $this->countries->saveCountry($country);
+
+        // Retrieve the countries again
+        $countries = $this->countries->getAllCountries();
+        $country = ArrayHelper::firstValue($countries);
+        self::assertSame($name, $country->name);
+    }
+
+    /**
      *
      */
     public function _before(): void
@@ -241,7 +263,9 @@ class CountriesTest extends Unit
     }
 
     /**
-     * @return bool
+     * @return void
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
     private function _destroyCountry(): void
     {
