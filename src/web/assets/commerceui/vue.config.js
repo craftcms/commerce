@@ -42,8 +42,5 @@ module.exports = {
             .entry('order')
             .add('./src/js/order/app.js')
             .end()
-            .entry('address')
-            .add('./src/js/address/app.js')
-            .end()
     }
 }
