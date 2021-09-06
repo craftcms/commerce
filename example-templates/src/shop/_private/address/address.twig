@@ -1,7 +1,5 @@
 {% set boldKeys = ['attention', 'name', 'businessName'] %}
 <!-- Template: {{ _self }}.twig -->
-
-{{ address.getAddressHtml()|raw }}
 <ul>
     {% for key, line in address.addressLines %}
         <li>

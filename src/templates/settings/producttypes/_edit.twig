@@ -81,7 +81,7 @@
                 </div>
         {% endmacro %}
 
-        {% macro titleFormatField(productType) %}
+        {% macro variantTitleFormatField(productType) %}
             {% from "_includes/forms" import textField, checkboxField %}
 
             <div id="variant-settings"{% if not productType.hasVariants %} class="hidden"{% endif %}>

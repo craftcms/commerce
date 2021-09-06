@@ -42,7 +42,7 @@
 
 {% if currentUser.can('commerce-manageOrders') %}
   <h2>{{ 'Orders'|t('commerce') }}</h2>
-  {% include 'commerce/customers/_includes/_ordersTable.html' with { customer: customer } %}
+  {% include 'commerce/customers/_includes/_ordersTable' with { customer: customer } %}
 
   <hr>
 
