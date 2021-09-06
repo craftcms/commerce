@@ -254,6 +254,7 @@ class Transactions extends Component
      * @return bool
      * @throws Throwable
      * @throws StaleObjectException
+     * @deprecated in 4.0. Use [[deleteTransactionById]] instead.
      */
     public function deleteTransaction(Transaction $transaction): bool
     {
@@ -267,11 +268,30 @@ class Transactions extends Component
     }
 
     /**
+     * Delete a transaction by id.
+     *
+     * @param int $id the transaction ID
+     * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
+     */
+    public function deleteTransactionById(int $id): bool
+    {
+        $record = TransactionRecord::findOne($id);
+
+        if ($record) {
+            return (bool)$record->delete();
+        }
+
+        return false;
+    }
+
+    /**
      * @param int $orderId the order's ID
      * @return array|Transaction[]
      * @noinspection PhpUnused
      */
-    public function getAllTopLevelTransactionsByOrderId($orderId): array
+    public function getAllTopLevelTransactionsByOrderId(int $orderId): array
     {
         $transactions = $this->getAllTransactionsByOrderId($orderId);
 

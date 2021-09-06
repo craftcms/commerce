@@ -559,6 +559,7 @@ class LineItem extends Model
      * Returns the Purchasable’s sale price multiplied by the quantity of the line item, plus any adjustment belonging to this lineitem.
      *
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTotal(): float
     {
@@ -590,6 +591,7 @@ class LineItem extends Model
 
     /**
      * @return bool False when no related purchasable exists
+     * @throws InvalidConfigException
      */
     public function refreshFromPurchasable(): bool
     {
@@ -631,7 +633,7 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     *
+     * @throws InvalidConfigException
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
@@ -716,6 +718,7 @@ class LineItem extends Model
 
     /**
      * @return OrderAdjustment[]
+     * @throws InvalidConfigException
      */
     public function getAdjustments(): array
     {
@@ -736,6 +739,7 @@ class LineItem extends Model
     /**
      * @param bool $included
      * @return float
+     * @throws InvalidConfigException
      */
     public function getAdjustmentsTotal(bool $included = false): float
     {
@@ -753,6 +757,7 @@ class LineItem extends Model
      * @param string $type
      * @param bool $included
      * @return float|int
+     * @throws InvalidConfigException
      */
     private function _getAdjustmentsTotalByType(string $type, bool $included = false)
     {
@@ -795,6 +800,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTax(): float
     {
@@ -803,6 +809,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTaxIncluded(): float
     {
@@ -811,6 +818,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getShippingCost(): float
     {
@@ -819,6 +827,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getDiscount(): float
     {

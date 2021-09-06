@@ -332,23 +332,33 @@ class Customers extends Component
     /**
      * Get all address IDs for a customer by its ID.
      *
-     * @param $customerId
+     * @param int $customerId
      * @return array
      * @throws InvalidConfigException
      */
-    public function getAddressIds($customerId): array
+    public function getAddressIdsByCustomerId(int $customerId): array
     {
         $ids = [];
 
         if ($customerId) {
             $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
-
-            foreach ($addresses as $address) {
-                $ids[] = $address->id;
-            }
+            $ids = ArrayHelper::getColumn($addresses, 'id');
         }
 
         return $ids;
+    }
+
+    /**
+     * Get all address IDs for a customer by its ID.
+     *
+     * @param $customerId
+     * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getAddressIdsByCustomerId()]] instead.
+     */
+    public function getAddressIds($customerId): array
+    {
+        return $this->getAddressIdsByCustomerId($customerId);
     }
 
     /**
@@ -358,16 +368,36 @@ class Customers extends Component
      * @return mixed
      * @throws Throwable
      * @throws StaleObjectException
+     * @deprecated in 4.0. Use [[deleteCustomerById()]] instead.
      */
     public function deleteCustomer(Customer $customer)
     {
         $customer = CustomerRecord::findOne($customer->id);
 
-        if ($customer) {
-            return $customer->delete();
+        if (null === $customer) {
+            return null;
         }
 
-        return null;
+        return $this->deleteCustomerById($customer->id);
+    }
+
+    /**
+     * Deletes a customer by its ID
+     *
+     * @param int $id
+     * @return bool
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    public function deleteCustomerById(int $id): bool
+    {
+        $customer = CustomerRecord::findOne($id);
+
+        if ($customer) {
+            return $customer->delete() !== false;
+        }
+
+        return false;
     }
 
     /**

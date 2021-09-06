@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -101,6 +102,7 @@ class OrderNotice extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {

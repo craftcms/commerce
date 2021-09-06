@@ -14,6 +14,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment source model
@@ -94,6 +95,7 @@ class PaymentSource extends Model
      * Returns the gateway associated with this payment source.
      *
      * @return GatewayInterface|null
+     * @throws InvalidConfigException
      */
     public function getGateway()
     {

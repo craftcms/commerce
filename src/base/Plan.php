@@ -119,7 +119,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function getSubscriptionCount(): int
     {
-        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
+        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountByPlanId($this->id);
     }
 
     /**

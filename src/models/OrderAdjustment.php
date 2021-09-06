@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -191,6 +192,7 @@ class OrderAdjustment extends Model
 
     /**
      * @return LineItem|null
+     * @throws InvalidConfigException
      */
     public function getLineItem(): ?LineItem
     {
@@ -212,6 +214,7 @@ class OrderAdjustment extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {

@@ -22,6 +22,7 @@ use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Product type model.
@@ -197,6 +198,7 @@ class ProductType extends Model
      * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]
+     * @throws InvalidConfigException
      */
     public function getSiteSettings(): array
     {
@@ -229,6 +231,7 @@ class ProductType extends Model
 
     /**
      * @return ShippingCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingCategories(): array
     {
@@ -241,6 +244,7 @@ class ProductType extends Model
 
     /**
      * @param int[]|ShippingCategory[] $shippingCategories
+     * @throws InvalidConfigException
      */
     public function setShippingCategories(array $shippingCategories): void
     {
@@ -263,6 +267,7 @@ class ProductType extends Model
 
     /**
      * @return TaxCategory[]
+     * @throws InvalidConfigException
      */
     public function getTaxCategories(): array
     {
@@ -275,6 +280,7 @@ class ProductType extends Model
 
     /**
      * @param int[]|TaxCategory[] $taxCategories
+     * @throws InvalidConfigException
      */
     public function setTaxCategories(array $taxCategories): void
     {
@@ -299,6 +305,7 @@ class ProductType extends Model
 
     /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
     {
@@ -370,6 +377,7 @@ class ProductType extends Model
 
     /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout
     {
