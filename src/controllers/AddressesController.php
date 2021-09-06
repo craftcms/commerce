@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\helpers\Address;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
-use craft\commerce\web\assets\commerceui\CommerceAddressAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
@@ -94,7 +93,7 @@ class AddressesController extends BaseCpController
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
             $variables['redirect'] = $redirect;
         }
-        Craft::$app->getView()->registerAssetBundle(CommerceAddressAsset::class);
+
         return $this->renderTemplate('commerce/addresses/_edit', $variables);
     }
 
