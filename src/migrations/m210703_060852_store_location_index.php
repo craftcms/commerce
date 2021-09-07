@@ -21,8 +21,8 @@ class m210703_060852_store_location_index extends Migration
         MigrationHelper::dropAllIndexesOnTable('{{%commerce_addresses}}', $this);
 
         // Same as before
-        $this->addForeignKey(null, '{{%commerce_addresses}}', ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, '{{%commerce_addresses}}', ['stateId'], Table::STATES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%commerce_addresses}}', ['countryId'], '{{%commerce_countries}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, '{{%commerce_addresses}}', ['stateId'], '{{%commerce_states}}', ['id'], 'SET NULL');
 
         // Same as before
         $this->createIndex(null, '{{%commerce_addresses}}', 'countryId', false);
