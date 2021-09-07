@@ -11,6 +11,7 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -114,6 +115,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountryIds(): array
     {
@@ -153,16 +155,11 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStateIds(): array
     {
-        $states = [];
-
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->id;
-        }
-
-        return $states;
+        return ArrayHelper::getColumn($this->getStates(), 'id');
     }
 
     /**
@@ -207,53 +204,55 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      */
     public function getCountriesNames(): array
     {
-        $countries = [];
-
-        foreach ($this->getCountries() as $country) {
-            $countries[] = $country->name;
-        }
-
-        return $countries;
+        return ArrayHelper::getColumn($this->getCountries(), 'name');
     }
 
     /**
      * Returns the names of all states in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getStatesLabels]] instead.
      */
     public function getStatesNames(): array
     {
-        $states = [];
+        return $this->getStatesLabels();
+    }
 
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->getLabel();
-        }
-
-        return $states;
+    /**
+     * Returns the labels of all states in this Shipping Zone.
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getStatesLabels(): array
+    {
+        return ArrayHelper::getColumn($this->getStates(), 'label');
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
-
-        $rules[] = [
-            ['states'], 'required', 'when' => static function($model) {
-                return !$model->isCountryBased;
-            }
+        return [
+            [['name'], 'required'],
+            [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'],
+                'required',
+                'when' => static function($model) {
+                    return !$model->isCountryBased;
+                },
+            ],
+            [
+                ['countries'],
+                'required',
+                'when' => static function($model) {
+                    return $model->isCountryBased;
+                },
+            ],
         ];
-        $rules[] = [
-            ['countries'], 'required', 'when' => static function($model) {
-                return $model->isCountryBased;
-            }
-        ];
-
-        return $rules;
     }
 }

@@ -39,7 +39,7 @@ class SaleCategory extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['saleId', 'categoryId'], 'unique', 'targetAttribute' => ['saleId', 'categoryId']]
+            [['saleId', 'categoryId'], 'unique', 'targetAttribute' => ['saleId', 'categoryId']],
         ];
     }
 

@@ -14,14 +14,11 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\Address as AddressModel;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
-use craft\helpers\Template;
-use craft\web\View;
 use LitEmoji\LitEmoji;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
@@ -411,8 +408,8 @@ class Addresses extends Component
             }
 
             $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
-            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
-            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
+            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateName()), array_map('strtolower', $stateNames), false));
+            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateAbbreviation()), array_map('strtolower', $stateAbbr), false));
 
             if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
                 return false;
@@ -480,7 +477,7 @@ class Addresses extends Component
         }
 
         if ($event->isValid) {
-            foreach ($addresses->batch(500) as $address) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
                 $ids = ArrayHelper::getColumn($address, 'id', false);
 
                 if (!empty($ids)) {
@@ -595,117 +592,5 @@ class Addresses extends Component
                 'addresses.zipCode',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
-    }
-
-    /**
-     * @param Address $address
-     * @return string
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     * @throws \yii\base\Exception
-     */
-    public function buildAddressForm(Address $address, $namespace = 'address'): string
-    {
-        $currentMode = Craft::$app->getView()->getTemplateMode();
-
-        Craft::$app->getView()->setTemplateMode(View::TEMPLATE_MODE_CP);
-        
-        $states = Plugin::getInstance()->getStates()->getStatesByCountryId($address->countryId);
-
-        $options = [];
-        foreach ($states as $id => $state) {
-            $options[$id]['label'] = $state->name;
-            $options[$id]['value'] = $state->id;
-        }
-
-        $html = Craft::$app->getView()->renderTemplate('commerce/addresses/_form', [
-            'address' => $address,
-            'options' => $options
-        ]);
-        
-        Craft::$app->getView()->setTemplateMode($currentMode);
-        
-        return $html;
-    }
-
-    /**
-     * @param Address $address
-     * @return string
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     * @throws \yii\base\Exception
-     */
-    private function buildAdministrativeArea(Address $address): string
-    {
-        $states = Plugin::getInstance()->getStates()->getStatesByCountryId($address->countryId);
-        
-        $options = [];
-        foreach ($states as $id => $state) {
-            $options[$id]['label'] = $state->name;
-            $options[$id]['value'] = $state->id;
-        }
-        
-         return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/administrative-area', [
-            'address' => $address,
-            'options' => $options
-        ]);
-    }
-
-    private static function buildPostalCode(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/postal-code', [
-            'address' => $address,
-        ]);
-    }    
-    
-    private static function buildLocality(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/locality', [
-            'address' => $address,
-        ]);
-    }
-    
-    private static function buildDependentLocality(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/dependent-locality', [
-            'address' => $address,
-        ]);
-    }    
-    
-    private static function buildAddress1(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/address-line-1', [
-            'address' => $address,
-        ]);
-    }    
-    
-    private static function buildAddress2(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/address-line-2', [
-            'address' => $address,
-        ]);
-    }
-    
-    private static function buildBusinessName(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/business-name', [
-            'address' => $address,
-        ]);
-    }    
-    
-    private static function buildFirstName(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/first-name', [
-            'address' => $address,
-        ]);
-    }    
-    
-    private static function buildLastName(Address $address): string
-    {
-        return Craft::$app->getView()->renderTemplate('commerce/addresses/_includes/forms/last-name', [
-            'address' => $address,
-        ]);
     }
 }

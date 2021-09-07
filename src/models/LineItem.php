@@ -19,9 +19,6 @@ use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\Orders;
-use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
@@ -59,7 +56,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
- * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -121,14 +117,14 @@ class LineItem extends Model
     private string $_sku;
 
     /**
-     * @var string|null Note
+     * @var string Note
      */
-    public ?string $note = null;
+    public string $note = '';
 
     /**
-     * @var string|null Private Note
+     * @var string Private Note
      */
-    public ?string $privateNote = null;
+    public string $privateNote = '';
 
     /**
      * @var int|null Purchasable ID
@@ -146,9 +142,9 @@ class LineItem extends Model
     public ?int $lineItemStatusId = null;
 
     /**
-     * @var int|null Tax category ID
+     * @var int Tax category ID
      */
-    public ?int $taxCategoryId;
+    public int $taxCategoryId;
 
     /**
      * @var int Shipping category ID
@@ -210,30 +206,10 @@ class LineItem extends Model
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'note' => AttributeTypecastBehavior::TYPE_STRING,
-                'privateNote' => AttributeTypecastBehavior::TYPE_STRING,
-                'width' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'height' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'length' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -432,29 +408,29 @@ class LineItem extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
+        $rules = [
             [
-                'optionsSignature',
-                'price',
-                'salePrice',
-                'saleAmount',
-                'weight',
-                'length',
-                'height',
-                'width',
-                'qty',
-                'snapshot',
-                'taxCategoryId',
-                'shippingCategoryId'
-            ], 'required'
+                [
+                    'optionsSignature',
+                    'price',
+                    'salePrice',
+                    'saleAmount',
+                    'weight',
+                    'length',
+                    'height',
+                    'width',
+                    'qty',
+                    'snapshot',
+                    'taxCategoryId',
+                    'shippingCategoryId',
+                ], 'required',
+            ],
+            [['qty'], 'integer', 'min' => 1],
+            [['shippingCategoryId', 'taxCategoryId'], 'integer'],
+            [['price', 'salePrice'], 'number'],
         ];
-        $rules[] = [['qty'], 'integer', 'min' => 1];
-        $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
-        $rules[] = [['price', 'salePrice'], 'number'];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
@@ -583,6 +559,7 @@ class LineItem extends Model
      * Returns the Purchasable’s sale price multiplied by the quantity of the line item, plus any adjustment belonging to this lineitem.
      *
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTotal(): float
     {
@@ -614,6 +591,7 @@ class LineItem extends Model
 
     /**
      * @return bool False when no related purchasable exists
+     * @throws InvalidConfigException
      */
     public function refreshFromPurchasable(): bool
     {
@@ -655,7 +633,7 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     *
+     * @throws InvalidConfigException
      */
     public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
@@ -689,7 +667,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -703,7 +681,7 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
-                'isNew' => !$this->id
+                'isNew' => !$this->id,
             ]));
         }
     }
@@ -722,10 +700,6 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        if (null === $this->taxCategoryId) {
-            throw new InvalidConfigException('Line Item is missing its tax category ID');
-        }
-
         return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 
@@ -744,6 +718,7 @@ class LineItem extends Model
 
     /**
      * @return OrderAdjustment[]
+     * @throws InvalidConfigException
      */
     public function getAdjustments(): array
     {
@@ -764,6 +739,7 @@ class LineItem extends Model
     /**
      * @param bool $included
      * @return float
+     * @throws InvalidConfigException
      */
     public function getAdjustmentsTotal(bool $included = false): float
     {
@@ -781,6 +757,7 @@ class LineItem extends Model
      * @param string $type
      * @param bool $included
      * @return float|int
+     * @throws InvalidConfigException
      */
     private function _getAdjustmentsTotalByType(string $type, bool $included = false)
     {
@@ -823,6 +800,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTax(): float
     {
@@ -831,6 +809,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTaxIncluded(): float
     {
@@ -839,6 +818,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getShippingCost(): float
     {
@@ -847,6 +827,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getDiscount(): float
     {

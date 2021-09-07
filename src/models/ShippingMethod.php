@@ -41,8 +41,8 @@ class ShippingMethod extends BaseShippingMethod
                 'name' => AttributeTypecastBehavior::TYPE_STRING,
                 'handle' => AttributeTypecastBehavior::TYPE_STRING,
                 'enabled' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN
-            ]
+                'isLite' => AttributeTypecastBehavior::TYPE_BOOLEAN,
+            ],
         ];
 
         return $behaviors;
@@ -93,7 +93,7 @@ class ShippingMethod extends BaseShippingMethod
      */
     public function getIsEnabled(): bool
     {
-        return (bool)$this->enabled;
+        return $this->enabled;
     }
 
     /**
@@ -107,14 +107,12 @@ class ShippingMethod extends BaseShippingMethod
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class];
-
-        return $rules;
+        return [
+            [['name', 'handle'], 'required'],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+            [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
+        ];
     }
 }

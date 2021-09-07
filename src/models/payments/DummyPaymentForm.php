@@ -28,14 +28,12 @@ class DummyPaymentForm extends CreditCardPaymentForm
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
         if ($this->token) {
             return []; //No validation of form if using a token
         }
 
-        return $rules;
+        return parent::defineRules();
     }
 }

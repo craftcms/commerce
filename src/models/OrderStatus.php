@@ -17,7 +17,7 @@ use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
+use yii\base\InvalidConfigException;
 
 /**
  * Order status model.
@@ -62,9 +62,9 @@ class OrderStatus extends Model
     public ?string $description = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public int $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
@@ -77,9 +77,9 @@ class OrderStatus extends Model
     public ?DateTime $dateDeleted = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @return array
@@ -113,19 +113,17 @@ class OrderStatus extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        return [
+            [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [
+                ['handle'],
+                HandleValidator::class,
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new'],
+            ],
         ];
-
-        return $rules;
     }
 
     /**
@@ -138,6 +136,7 @@ class OrderStatus extends Model
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getEmailIds(): array
     {
@@ -146,6 +145,7 @@ class OrderStatus extends Model
 
     /**
      * @return Email[]
+     * @throws InvalidConfigException
      */
     public function getEmails(): array
     {

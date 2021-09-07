@@ -35,44 +35,44 @@ class Sale extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var DateTime|null Date From
      */
-    public ?DateTime $dateFrom;
+    public ?DateTime $dateFrom = null;
 
     /**
      * @var DateTime|null Date To
      */
-    public ?DateTime $dateTo;
+    public ?DateTime $dateTo = null;
 
     /**
      * @var string How the sale should be applied
      */
-    public string $apply;
+    public string $apply = SaleRecord::APPLY_BY_PERCENT;
 
     /**
-     * @var float The amount field used by the apply option
+     * @var float|null The amount field used by the apply option
      */
-    public float $applyAmount;
+    public ?float $applyAmount = null;
 
     /**
-     * @var bool|null ignore the previous sales that affect the purchasable
+     * @var bool ignore the previous sales that affect the purchasable
      */
-    public ?bool $ignorePrevious = null;
+    public bool $ignorePrevious = false;
 
     /**
-     * @var bool|null should the sales system stop processing other sales after this one
+     * @var bool should the sales system stop processing other sales after this one
      */
-    public ?bool $stopProcessing = null;
+    public bool $stopProcessing = false;
 
     /**
      * @var bool Match all groups
@@ -134,31 +134,22 @@ class Sale extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['apply'],
-            'in',
-            'range' => [
-                'toPercent',
-                'toFlat',
-                'byPercent',
-                'byFlat'
-            ]
+        return [
+            [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
+            [
+                ['categoryRelationshipType'],
+                'in',
+                'range' => [
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                ],
+            ],
+            [['enabled'], 'boolean'],
+            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' => [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-            ]
-        ];
-        $rules[] = [['enabled'], 'boolean'];
-        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
-
-        return $rules;
     }
 
     /**

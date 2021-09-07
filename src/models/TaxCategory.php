@@ -49,7 +49,7 @@ class TaxCategory extends Model
     /**
      * @var bool Default
      */
-    public bool $default;
+    public bool $default = false;
 
     /**
      * @var DateTime|null
@@ -118,11 +118,11 @@ class TaxCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if ($this->_productTypes === null) {
+        if ($this->_productTypes === null && $this->id) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByTaxCategoryId($this->id);
         }
 
-        return $this->_productTypes;
+        return $this->_productTypes ?? [];
     }
 
     /**
@@ -139,12 +139,10 @@ class TaxCategory extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['handle'], 'required'];
-
-        return $rules;
+        return [
+            [['handle'], 'required'],
+        ];
     }
 }

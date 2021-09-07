@@ -91,7 +91,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => null
+                        $this->_cartVariableName => null,
                     ]);
                 }
 
@@ -122,7 +122,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -137,7 +137,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -152,7 +152,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -167,7 +167,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -202,7 +202,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -244,7 +244,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -303,7 +303,7 @@ class PaymentsController extends BaseFrontEndController
                         return $this->asJson([
                             'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
-                            $this->_cartVariableName => $this->cartArray($order)
+                            $this->_cartVariableName => $this->cartArray($order),
                         ]);
                     }
 
@@ -331,7 +331,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -348,7 +348,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -402,7 +402,7 @@ class PaymentsController extends BaseFrontEndController
                     return $this->asJson([
                         'error' => $error,
                         'paymentFormErrors' => $paymentForm->getErrors(),
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -463,7 +463,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -477,7 +477,7 @@ class PaymentsController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             $response = [
                 'success' => true,
-                $this->_cartVariableName => $this->cartArray($order)
+                $this->_cartVariableName => $this->cartArray($order),
             ];
 
             if ($redirect) {

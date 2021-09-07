@@ -152,7 +152,7 @@ class ProductsController extends BaseController
                         'typeId' => $variables['productType']->id,
                         'productId' => $product->id,
                         'siteId' => $product->siteId,
-                    ]
+                    ],
                 ]) . ');');
 
             $variables['showPreviewBtn'] = true;
@@ -165,7 +165,7 @@ class ProductsController extends BaseController
                 } else {
                     $variables['shareUrl'] = UrlHelper::actionUrl('commerce/products-preview/share-product', [
                         'productId' => $product->id,
-                        'siteId' => $product->siteId
+                        'siteId' => $product->siteId,
                     ]);
                 }
             }
@@ -204,7 +204,7 @@ class ProductsController extends BaseController
 
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete product.'));
             Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product
+                'product' => $product,
             ]);
         }
 
@@ -278,7 +278,7 @@ class ProductsController extends BaseController
                     // Send the original product back to the template, with any validation errors on the clone
                     $oldProduct->addErrors($clone->getErrors());
                     Craft::$app->getUrlManager()->setRouteParams([
-                        'product' => $oldProduct
+                        'product' => $oldProduct,
                     ]);
 
                     return null;
@@ -324,7 +324,7 @@ class ProductsController extends BaseController
                     $oldProduct->addErrors($product->getErrors());
                 }
                 Craft::$app->getUrlManager()->setRouteParams([
-                    'product' => $oldProduct
+                    'product' => $oldProduct,
                 ]);
 
                 return null;
@@ -343,7 +343,7 @@ class ProductsController extends BaseController
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl()
+                'cpEditUrl' => $product->getCpEditUrl(),
             ]);
         }
 

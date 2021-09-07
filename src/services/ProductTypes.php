@@ -323,7 +323,7 @@ class ProductTypes extends Component
         // If the product type does not have variants, default the title format.
         if (!$isNewProductType && !$productType->hasVariants) {
             $productType->hasVariantTitleField = false;
-            $productType->titleFormat = '{product.title}';
+            $productType->variantTitleFormat = '{product.title}';
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -335,7 +335,7 @@ class ProductTypes extends Component
 
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
-            'titleFormat' => $productType->titleFormat,
+            'variantTitleFormat' => $productType->variantTitleFormat,
 
             // Prouduct title field
             'hasProductTitleField' => $productType->hasProductTitleField,
@@ -343,7 +343,7 @@ class ProductTypes extends Component
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
-            'siteSettings' => []
+            'siteSettings' => [],
         ];
 
         $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
@@ -434,16 +434,16 @@ class ProductTypes extends Component
 
             // Variant title fields
             $hasVariantTitleField = $data['hasVariantTitleField'];
-            $titleFormat = $data['titleFormat'] ?? '{product.title}';
-            if ($productTypeRecord->titleFormat != $titleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
+            $variantTitleFormat = $data['variantTitleFormat'] ?? '{product.title}';
+            if ($productTypeRecord->variantTitleFormat != $variantTitleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
                 $shouldResaveProducts = true;
             }
-            $productTypeRecord->titleFormat = $titleFormat;
+            $productTypeRecord->variantTitleFormat = $variantTitleFormat;
             $productTypeRecord->hasVariantTitleField = $hasVariantTitleField;
 
             // Product title fields
             $hasProductTitleField = $data['hasProductTitleField'];
-            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';
             if ($productTypeRecord->productTitleFormat != $productTitleFormat || $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
                 $shouldResaveProducts = true;
             }
@@ -619,7 +619,7 @@ class ProductTypes extends Component
                         'siteId' => '*',
                         'status' => null,
                         'typeId' => $productTypeRecord->id,
-                    ]
+                    ],
                 ]));
             }
         } catch (Throwable $e) {
@@ -952,7 +952,7 @@ class ProductTypes extends Component
                 'productTypes.name',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
-                'productTypes.titleFormat',
+                'productTypes.variantTitleFormat',
                 'productTypes.uid',
                 'productTypes.variantFieldLayoutId',
             ])

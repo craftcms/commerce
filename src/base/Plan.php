@@ -36,24 +36,24 @@ abstract class Plan extends Model implements PlanInterface
     /**
      * @var SubscriptionGatewayInterface|null the gateway
      */
-    private ?SubscriptionGatewayInterface $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
      * @var mixed the plan data.
      */
-    private $_data;
+    private $_data = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * Returns the billing plan friendly name
@@ -62,7 +62,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
@@ -119,7 +119,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function getSubscriptionCount(): int
     {
-        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
+        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountByPlanId($this->id);
     }
 
     /**
@@ -173,9 +173,9 @@ abstract class Plan extends Model implements PlanInterface
                 ['handle'],
                 UniqueValidator::class,
                 'targetClass' => PlanRecord::class,
-                'targetAttribute' => ['handle']
+                'targetAttribute' => ['handle'],
             ],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required'],
         ];
     }
 }

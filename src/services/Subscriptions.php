@@ -427,7 +427,7 @@ class Subscriptions extends Component
         $user = $event->sender;
 
         // If there are any subscriptions, make sure that this is not allowed.
-        if ($this->doesUserHaveAnySubscriptions($user->id)) {
+        if ($this->doesUserHaveSubscriptions($user->id)) {
             $event->isValid = false;
         }
     }
@@ -456,7 +456,7 @@ class Subscriptions extends Component
         // fire an 'expireSubscription' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -469,9 +469,21 @@ class Subscriptions extends Component
      * @param int $planId
      * @return int
      */
-    public function getSubscriptionCountForPlanById(int $planId): int
+    public function getSubscriptionCountByPlanId(int $planId): int
     {
         return SubscriptionRecord::find()->where(['planId' => $planId])->count();
+    }
+
+    /**
+     * Returns subscription count for a plan.
+     *
+     * @param int $planId
+     * @return int
+     * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.
+     */
+    public function getSubscriptionCountForPlanById(int $planId): int
+    {
+        return $this->getSubscriptionCountByPlanId($planId);
     }
 
     /**
@@ -480,9 +492,21 @@ class Subscriptions extends Component
      * @param int $userId
      * @return bool
      */
-    public function doesUserHaveAnySubscriptions(int $userId): bool
+    public function doesUserHaveSubscriptions(int $userId): bool
     {
         return (bool)SubscriptionRecord::find()->where(['userId' => $userId])->count();
+    }
+
+    /**
+     * Return true if the user has any subscriptions at all, even expired ones.
+     *
+     * @param int $userId
+     * @return bool
+     * @deprecated in 4.0. Use [[doesUserHaveSubscriptions]] instead.
+     */
+    public function doesUserHaveAnySubscriptions(int $userId): bool
+    {
+        return $this->doesUserHaveSubscriptions($userId);
     }
 
     /**
@@ -510,7 +534,7 @@ class Subscriptions extends Component
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
-                'plan' => (string)$plan
+                'plan' => (string)$plan,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -547,7 +571,7 @@ class Subscriptions extends Component
         // Fire an 'afterCreateSubscription' event.
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -600,7 +624,7 @@ class Subscriptions extends Component
             // Fire a 'afterReactivateSubscription' event.
             if ($this->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
                 $this->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, new SubscriptionEvent([
-                    'subscription' => $subscription
+                    'subscription' => $subscription,
                 ]));
             }
 
@@ -641,14 +665,14 @@ class Subscriptions extends Component
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
             'newPlan' => $plan,
-            'parameters' => $parameters
+            'parameters' => $parameters,
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Could not switch “{reference}” to “{plan}”.', [
                 'reference' => $subscription->reference,
-                'plan' => $plan->reference
+                'plan' => $plan->reference,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -672,7 +696,7 @@ class Subscriptions extends Component
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
                 'newPlan' => $plan,
-                'parameters' => $parameters
+                'parameters' => $parameters,
             ]));
         }
 
@@ -757,7 +781,7 @@ class Subscriptions extends Component
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 

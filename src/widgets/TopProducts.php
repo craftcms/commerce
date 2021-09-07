@@ -217,7 +217,7 @@ class TopProducts extends Widget
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
             'revenueOptions' => $this->_revenueCheckboxOptions,
-            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE
+            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE,
         ]);
     }
 }

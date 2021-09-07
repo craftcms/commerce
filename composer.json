@@ -19,12 +19,11 @@
     "rss": "https://github.com/craftcms/commerce/releases.atom"
   },
   "require": {
-    "craftcms/cms": "4.0.0-alpha",
+    "craftcms/cms": "4.0.x-dev",
     "dompdf/dompdf": "^1.0.2",
     "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",
-    "iio/libmergepdf": "^4.0",
-    "commerceguys/addressing": "^1.2"
+    "iio/libmergepdf": "^4.0"
   },
   "autoload": {
     "psr-4": {
@@ -34,7 +33,7 @@
   },
   "extra": {
     "handle": "commerce",
-    "version": "3.4.1",
+    "version": "3.4.2",
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",

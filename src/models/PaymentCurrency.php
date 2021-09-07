@@ -34,19 +34,19 @@ class PaymentCurrency extends Model
     public ?int $id = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public string $iso;
+    public ?string $iso = null;
 
     /**
      * @var bool Is primary currency
      */
-    public bool $primary;
+    public bool $primary = false;
 
     /**
      * @var float Exchange rate vs primary currency
      */
-    public float $rate;
+    public float $rate = 1;
 
     /**
      * @var Currency
@@ -57,13 +57,13 @@ class PaymentCurrency extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @return string
@@ -168,7 +168,7 @@ class PaymentCurrency extends Model
     /**
      * Sets the Currency Model data on the Payment Currency
      *
-     * @param $currency
+     * @param Currency $currency
      */
     public function setCurrency(Currency $currency): void
     {
@@ -178,14 +178,12 @@ class PaymentCurrency extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['iso'], 'required'];
-        $rules[] = [['rate'], 'required'];
-        $rules[] = [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']];
-
-        return $rules;
+        return [
+            [['iso'], 'required'],
+            [['rate'], 'required'],
+            [['iso'], UniqueValidator::class, 'targetClass' => PaymentCurrencyRecord::class, 'targetAttribute' => ['iso']],
+        ];
     }
 }

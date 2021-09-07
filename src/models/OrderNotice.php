@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -72,8 +73,8 @@ class OrderNotice extends Model
                 'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'type' => AttributeTypecastBehavior::TYPE_STRING,
                 'attribute' => AttributeTypecastBehavior::TYPE_STRING,
-                'message' => AttributeTypecastBehavior::TYPE_STRING
-            ]
+                'message' => AttributeTypecastBehavior::TYPE_STRING,
+            ],
         ];
         return $behaviors;
     }
@@ -81,21 +82,12 @@ class OrderNotice extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            [
-                'type',
-                'message',
-                'attribute',
-                'orderId'
-            ], 'required'
+        return [
+            [['type', 'message', 'attribute', 'orderId'], 'required'],
+            [['orderId'], 'integer'],
         ];
-        $rules[] = [['orderId'], 'integer'];
-
-        return $rules;
     }
 
     /**
@@ -110,6 +102,7 @@ class OrderNotice extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {

@@ -96,29 +96,29 @@ class Subscription extends Element
     public int $trialDays;
 
     /**
-     * @var DateTime Date of next payment
+     * @var DateTime|null Date of next payment
      */
-    public DateTime $nextPaymentDate;
+    public ?DateTime $nextPaymentDate = null;
 
     /**
      * @var bool Whether the subscription is canceled
      */
-    public bool $isCanceled;
+    public bool $isCanceled = false;
 
     /**
      * @var DateTime|null Time when subscription was canceled
      */
-    public ?DateTime $dateCanceled;
+    public ?DateTime $dateCanceled = null;
 
     /**
      * @var bool Whether the subscription has expired
      */
-    public bool $isExpired;
+    public bool $isExpired = false;
 
     /**
-     * @var DateTime Time when subscription expired
+     * @var DateTime|null Time when subscription expired
      */
-    public DateTime $dateExpired;
+    public ?DateTime $dateExpired = null;
 
     /**
      * @var bool Whether the subscription has started
@@ -131,9 +131,9 @@ class Subscription extends Element
     public bool $isSuspended;
 
     /**
-     * @var DateTime Time when subscription was put on hold
+     * @var DateTime|null Time when subscription was put on hold
      */
-    public DateTime $dateSuspended;
+    public ?DateTime $dateSuspended = null;
 
     /**
      * @var SubscriptionGatewayInterface|null
@@ -285,10 +285,10 @@ class Subscription extends Element
     /**
      * Returns the datetime of trial expiry.
      *
-     * @return DateTime
+     * @return DateTime|null
      * @throws Exception
      */
-    public function getTrialExpires(): DateTIme
+    public function getTrialExpires(): ?DateTIme
     {
         $created = clone $this->dateCreated;
         return $created->add(new DateInterval('P' . $this->trialDays . 'D'));
@@ -356,7 +356,7 @@ class Subscription extends Element
      */
     public function getAlternativePlans(): array
     {
-        $plans = Plugin::getInstance()->getPlans()->getAllGatewayPlans($this->gatewayId);
+        $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
         /** @var Plan $currentPlan */
         $currentPlan = $this->getPlan();
@@ -454,8 +454,8 @@ class Subscription extends Element
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
-                'defaultSort' => ['dateCreated', 'desc']
-            ]
+                'defaultSort' => ['dateCreated', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
@@ -467,9 +467,9 @@ class Subscription extends Element
                 'key' => $key,
                 'label' => $plan->name,
                 'data' => [
-                    'handle' => $plan->handle
+                    'handle' => $plan->handle,
                 ],
-                'criteria' => ['planId' => $plan->id]
+                'criteria' => ['planId' => $plan->id],
             ];
         }
 
@@ -518,7 +518,7 @@ class Subscription extends Element
 
             return [
                 'elementType' => User::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -548,13 +548,11 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'],
+        ]);
     }
 
     /**
@@ -682,7 +680,7 @@ class Subscription extends Element
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
-            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
+            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')],
         ];
     }
 

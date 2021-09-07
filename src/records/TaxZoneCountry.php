@@ -38,7 +38,7 @@ class TaxZoneCountry extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['taxZoneId', 'countryId'], 'unique', 'targetAttribute' => ['taxZoneId', 'countryId']]
+            [['taxZoneId', 'countryId'], 'unique', 'targetAttribute' => ['taxZoneId', 'countryId']],
         ];
     }
 

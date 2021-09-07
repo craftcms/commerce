@@ -28,19 +28,19 @@ class Country extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public string $iso;
+    public ?string $iso = null;
 
     /**
-     * @var bool|null State Required
+     * @var bool State Required
      */
-    public ?bool $isStateRequired = false;
+    public bool $isStateRequired = false;
 
     /**
      * @var bool Is Enabled
@@ -51,14 +51,14 @@ class Country extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated = null;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated = null;
-    
+    public ?DateTIme $dateUpdated = null;
+
     /**
      * @return string
      */
@@ -79,14 +79,12 @@ class Country extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['iso', 'name'], 'required'];
-        $rules[] = [['iso'], 'string', 'length' => [2]];
-
-        return $rules;
+        return [
+            [['iso', 'name'], 'required'],
+            [['iso'], 'string', 'length' => [2]],
+        ];
     }
 
     /**

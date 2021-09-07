@@ -120,9 +120,21 @@ class Plans extends Component
      * @param int $gatewayId
      * @return Plan[]
      */
-    public function getAllGatewayPlans(int $gatewayId): array
+    public function getPlansByGatewayId(int $gatewayId): array
     {
         return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
+    }
+
+    /**
+     * Return all subscription plans for a gateway.
+     *
+     * @param int $gatewayId
+     * @return Plan[]
+     * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
+     */
+    public function getAllGatewayPlans(int $gatewayId): array
+    {
+        return $this->getPlansByGatewayId($gatewayId);
     }
 
     /**

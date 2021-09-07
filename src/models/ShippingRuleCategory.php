@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -58,42 +59,28 @@ class ShippingRuleCategory extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] =
+        return [
+            [['condition'], 'in', 'range' => ['allow', 'disallow', 'require']],
+            [['perItemRate', 'weightRate', 'percentageRate'], 'number', 'skipOnEmpty' => true],
             [
-                ['condition'],
-                'in',
-                'range' => [
-                    'allow',
-                    'disallow',
-                    'require'
+                [
+                    'shippingRuleId',
+                    'shippingCategoryId',
+                    'condition',
+                    'perItemRate',
+                    'weightRate',
+                    'percentageRate',
                 ],
-
-            ];
-
-        $rules[] = [[
-            'perItemRate',
-            'weightRate',
-            'percentageRate',
-        ], 'number', 'skipOnEmpty' => true];
-
-        $rules[] = [[
-            'shippingRuleId',
-            'shippingCategoryId',
-            'condition',
-            'perItemRate',
-            'weightRate',
-            'percentageRate',
-        ], 'safe'];
-
-        return $rules;
+                'safe',
+            ],
+        ];
     }
 
     /**
      * @return ShippingRule
+     * @throws InvalidConfigException
      */
     public function getRule(): ShippingRule
     {
@@ -102,6 +89,7 @@ class ShippingRuleCategory extends Model
 
     /**
      * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getCategory(): ShippingCategory
     {

@@ -290,7 +290,7 @@ class States extends Component
      * @param State $model The state to be saved.
      * @param bool $runValidation should we validate this state before saving.
      * @return bool Whether the state was saved successfully.
-     * @throws Exception if the sate does not exist.
+     * @throws Exception if the state does not exist.
      */
     public function saveState(State $model, bool $runValidation = true): bool
     {

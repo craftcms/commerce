@@ -122,11 +122,11 @@ class AddressTest extends Unit
     /**
      * @dataProvider getCountryTextDataProvider
      *
-     * @param $countryId
-     * @param $countryText
+     * @param int|null $countryId
+     * @param string $countryName
      * @throws Exception
      */
-    public function testGetCountryText($countryId, $countryText): void
+    public function testGetCountryText(?int $countryId, string $countryName): void
     {
         /** @var Address $address */
         $address = $this->make(Address::class, [
@@ -135,7 +135,7 @@ class AddressTest extends Unit
 
         $address->countryId = $countryId;
 
-        self::assertSame($countryText, $address->getCountryText());
+        self::assertSame($countryName, $address->getCountryName());
     }
 
     /**
@@ -199,7 +199,7 @@ class AddressTest extends Unit
         $address->stateId = $stateId;
         $address->stateName = $stateName;
 
-        self::assertSame($stateText, $address->getStateText());
+        self::assertSame($stateText, $address->getStateName());
     }
 
     /**
@@ -218,7 +218,7 @@ class AddressTest extends Unit
 
         $address->stateId = $stateId;
 
-        self::assertSame($abbreviationText, $address->getAbbreviationText());
+        self::assertSame($abbreviationText, $address->getStateAbbreviation());
     }
 
     /**

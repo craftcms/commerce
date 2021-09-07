@@ -8,6 +8,7 @@
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
+- `craft\commerce\modela\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
@@ -15,6 +16,17 @@
 - Subscription plans are no longer accessible via old Control Panel URLs.
 
 ### Deprecated
+- Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
+- Deprecated `craft\commerce\models\Address::getStateText()`. Use `getStateName()` instead.
+- Deprecated `craft\commerce\models\Address::getAbbreviationText()`. Use `getStateAbbreviation()` instead.
+- Deprecated `craft\commerce\models\ShippingAddressZone::getStatesNames()`. Use `getStatesLabels()` instead.
+- Deprecated `craft\commerce\services\Customers::getAddressIds()`. Use `getAddressIdsByCustomerId()` instead.
+- Deprecated `craft\commerce\services\Customers::deleteCustomer()`. Use `deletedCustomerbyId()` instead.
+- Deprecated `craft\commerce\services\Plans::getAllGatewayPlans()`. Use `getPlansByGatewayId()` instead.
+- Deprecated `craft\commerce\services\Subscriptions::getSubscriptionCountForPlanById()`. Use `getSubscriptionCountByPlanId()` instead.
+- Deprecated `craft\commerce\services\Subscriptions::doesUserHaveAnySubscriptions()`. Use `doesUserHaveSubscriptions()` instead.
+- Deprecated `craft\commerce\services\TaxRates::getTaxRatesForZone()`. Use `getTaxRatesByTaxZoneId()` instead.
+- Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.

@@ -60,13 +60,13 @@ class Customer extends Model
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
      * @var User|null $_user

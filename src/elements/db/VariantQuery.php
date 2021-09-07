@@ -565,7 +565,7 @@ class VariantQuery extends ElementQuery
             'commerce_variants.stock',
             'commerce_variants.hasUnlimitedStock',
             'commerce_variants.minQty',
-            'commerce_variants.maxQty'
+            'commerce_variants.maxQty',
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
@@ -643,7 +643,7 @@ class VariantQuery extends ElementQuery
 
         if (isset($this->hasUnlimitedStock)) {
             $this->subQuery->andWhere([
-                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock
+                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock,
             ]);
         }
 
@@ -722,7 +722,7 @@ class VariantQuery extends ElementQuery
                         ['not', ['dateTo' => null]],
                         ['<=', 'dateFrom', Db::prepareDateForDb($now)],
                         ['>=', 'dateTo', Db::prepareDateForDb($now)],
-                    ]
+                    ],
                 ])
                 ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
@@ -808,7 +808,7 @@ class VariantQuery extends ElementQuery
                             'categoryRelationshipType' => [
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_TARGET,
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_BOTH,
-                            ]
+                            ],
                         ]);
 
                         // Source relationships
@@ -925,7 +925,7 @@ class VariantQuery extends ElementQuery
 
         if ($this->hasProduct instanceof ProductQuery) {
             $productQuery = $this->hasProduct;
-        } elseif (is_array($this->hasProduct)) {
+        } else if (is_array($this->hasProduct)) {
             $query = Product::find();
             $productQuery = Craft::configure($query, $this->hasProduct);
         } else {

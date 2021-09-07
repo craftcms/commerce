@@ -7,7 +7,6 @@
 
 namespace craft\commerce\elements\db;
 
-use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
@@ -1348,7 +1347,7 @@ class OrderQuery extends ElementQuery
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
-                    ->andWhere(['lineitems.purchasableId' => $purchasableIds])
+                    ->andWhere(['lineitems.purchasableId' => $purchasableIds]),
             ]);
         }
 
@@ -1358,7 +1357,7 @@ class OrderQuery extends ElementQuery
                 $this->hasTransactions ? 'exists' : 'not exists',
                 (new Query())
                     ->from(['transactions' => Table::TRANSACTIONS])
-                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]'))
+                    ->where(new Expression('[[transactions.orderId]] = [[elements.id]]')),
             ]);
         }
 
@@ -1368,7 +1367,7 @@ class OrderQuery extends ElementQuery
                 $this->hasLineItems ? 'exists' : 'not exists',
                 (new Query())
                     ->from(['lineitems' => Table::LINEITEMS])
-                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]'))
+                    ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
             ]);
         }
 

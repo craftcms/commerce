@@ -95,20 +95,18 @@
 
     <div id="states-vue-admin-table"></div>
     {% set tableData = [] %}
-    {% for state in states %}
-        {% if state.countryId == country.id %}
-          {% set tableData = tableData|merge([{
-                id: state.id,
-                title: state.name|t('site'),
-                url: url('commerce/store-settings/states/'~state.id),
-                status: state.enabled ? true : false,
-                abbreviation: state.abbreviation|e,
-                country: {
-                    status: state.country.enabled ? true : false,
-                    country: state.country.name|t('site')|e
-                }
-            }]) %}
-        {% endif %}
+    {% for state in states|filter(item => item.countryId == country.id) %}
+      {% set tableData = tableData|merge([{
+            id: state.id,
+            title: state.name|t('site'),
+            url: url('commerce/store-settings/states/'~state.id),
+            status: state.enabled ? true : false,
+            abbreviation: state.abbreviation|e,
+            country: {
+                status: state.country.enabled ? true : false,
+                country: state.country.name|t('site')|e
+            }
+        }]) %}
     {% endfor %}
 
     {% js %}
@@ -141,6 +139,13 @@
 
         new Craft.VueAdminTable({
             actions: actions,
+            buttons: [
+                {
+                    href: '{{ url('commerce/store-settings/states/new') ~ (country.id ? '?countryId='~country.id : '') }}',
+                    icon: 'plus',
+                    label: '{{ 'New state'|t('commerce')|e('js') }}',
+                }
+            ],
             checkboxes: true,
             columns: columns,
             container: '#states-vue-admin-table',
@@ -154,9 +159,4 @@
             reorderSuccessMessage: Craft.t('commerce', 'States reordered.'),
         });
     {% endjs %}
-
-    <div style="padding-top: 20px;">
-        {% set newStateUrl = country.id ? '?countryId='~country.id : '' %}
-        <a href="{{ url('commerce/store-settings/states/new') ~ newStateUrl }}" class="btn add icon">{{ 'New state'|t('commerce') }}</a>
-    </div>
 {% endblock %}

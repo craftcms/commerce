@@ -87,7 +87,7 @@ class m181206_120000_remaining_project_config_support extends Migration
                 'titleFormat',
                 'skuFormat',
                 'descriptionFormat',
-                'uid'
+                'uid',
             ])
             ->from(['{{%commerce_producttypes}} productTypes'])
             ->all();
@@ -167,7 +167,7 @@ class m181206_120000_remaining_project_config_support extends Migration
                 'emails.enabled',
                 'emails.templatePath',
                 'emails.attachPdf',
-                'emails.pdfTemplatePath'
+                'emails.pdfTemplatePath',
             ])
             ->orderBy('name')
             ->from(['{{%commerce_emails}} emails'])

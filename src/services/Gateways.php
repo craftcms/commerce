@@ -90,11 +90,11 @@ class Gateways extends Component
     {
         $gatewayTypes = [
             Dummy::class,
-            Manual::class
+            Manual::class,
         ];
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $gatewayTypes
+            'types' => $gatewayTypes,
         ]);
         $this->trigger(self::EVENT_REGISTER_GATEWAY_TYPES, $event);
 
@@ -167,7 +167,7 @@ class Gateways extends Component
             ->update(Table::ORDERS,
                 [
                     'gatewayId' => null,
-                    'paymentSourceId' => null
+                    'paymentSourceId' => null,
                 ],
                 [
                     'and',

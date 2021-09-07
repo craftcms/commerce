@@ -22,6 +22,7 @@ use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Product type model.
@@ -48,24 +49,24 @@ class ProductType extends Model
     public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public string $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public string $handle;
+    public ?string $handle = null;
 
     /**
      * @var bool Has dimension
      */
-    public bool $hasDimensions;
+    public bool $hasDimensions = false;
 
     /**
      * @var bool Has variants
      */
-    public bool $hasVariants;
+    public bool $hasVariants = false;
 
     /**
      * @var bool Has variant title field
@@ -74,9 +75,8 @@ class ProductType extends Model
 
     /**
      * @var string Variant title format
-     * TODO: Rename to variantTitleFormat in 4.0 #COM-44
      */
-    public string $titleFormat = '{product.title}';
+    public string $variantTitleFormat = '{product.title}';
 
     /**
      * @var bool Has product title field?
@@ -96,7 +96,7 @@ class ProductType extends Model
     /**
      * @var string Description format
      */
-    public string $descriptionFormat;
+    public string $descriptionFormat = '{product.title} - {title}';
 
     /**
      * @var string Line item format
@@ -104,9 +104,9 @@ class ProductType extends Model
     public string $lineItemFormat;
 
     /**
-     * @var string Template
+     * @var string|null Template
      */
-    public string $template;
+    public ?string $template = null;
 
     /**
      * @var int|null Field layout ID
@@ -116,12 +116,12 @@ class ProductType extends Model
     /**
      * @var int|null Variant layout ID
      */
-    public ?int $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public string $uid;
+    public ?string $uid = null;
 
     /**
      * @var TaxCategory[]|null
@@ -143,38 +143,39 @@ class ProductType extends Model
      */
     public function __toString()
     {
-        return $this->handle;
+        return (string)$this->handle;
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [
-            ['titleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasVariantTitleField && $model->hasVariants;
-            }
+        return [
+            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
+            [['name', 'handle'], 'required'],
+            [
+                ['variantTitleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasVariantTitleField && $model->hasVariants;
+                },
+            ],
+            [
+                ['productTitleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasProductTitleField;
+                },
+            ],
+            [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
+            [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
+            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            ['fieldLayout', 'validateFieldLayout'],
+            ['variantFieldLayout', 'validateVariantFieldLayout'],
         ];
-        $rules[] = [
-            ['productTitleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasProductTitleField;
-            }
-        ];
-        $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
-        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
-
-        $rules[] = ['fieldLayout', 'validateFieldLayout'];
-        $rules[] = ['variantFieldLayout', 'validateVariantFieldLayout'];
-
-        return $rules;
     }
 
     /**
@@ -197,6 +198,7 @@ class ProductType extends Model
      * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]
+     * @throws InvalidConfigException
      */
     public function getSiteSettings(): array
     {
@@ -229,6 +231,7 @@ class ProductType extends Model
 
     /**
      * @return ShippingCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingCategories(): array
     {
@@ -241,6 +244,7 @@ class ProductType extends Model
 
     /**
      * @param int[]|ShippingCategory[] $shippingCategories
+     * @throws InvalidConfigException
      */
     public function setShippingCategories(array $shippingCategories): void
     {
@@ -263,6 +267,7 @@ class ProductType extends Model
 
     /**
      * @return TaxCategory[]
+     * @throws InvalidConfigException
      */
     public function getTaxCategories(): array
     {
@@ -275,6 +280,7 @@ class ProductType extends Model
 
     /**
      * @param int[]|TaxCategory[] $taxCategories
+     * @throws InvalidConfigException
      */
     public function setTaxCategories(array $taxCategories): void
     {
@@ -299,6 +305,7 @@ class ProductType extends Model
 
     /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
     {
@@ -370,6 +377,7 @@ class ProductType extends Model
 
     /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout
     {
@@ -387,12 +395,12 @@ class ProductType extends Model
             'productFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId'
+                'idAttribute' => 'fieldLayoutId',
             ],
             'variantFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId'
+                'idAttribute' => 'variantFieldLayoutId',
             ],
         ];
     }

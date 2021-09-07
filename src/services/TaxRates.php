@@ -14,6 +14,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -24,22 +25,16 @@ use yii\db\StaleObjectException;
  * Tax rate service.
  *
  * @property TaxRate $liteTaxRate the lite tax rate
- * @property TaxRate[] $allTaxRates an array of all of the existing tax rates
+ * @property TaxRate[] $allTaxRates an array of all the existing tax rates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class TaxRates extends Component
 {
     /**
-     * @var bool
+     * @var TaxRate[]|null
      */
-    private bool $_fetchedAllTaxRates = false;
-
-    /**
-     * @var TaxRate[]
-     */
-    private array $_allTaxRates = [];
-
+    private ?array $_allTaxRates = null;
 
     /**
      * Returns an array of all existing tax rates.
@@ -48,17 +43,15 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(): array
     {
-        if (!$this->_fetchedAllTaxRates) {
+        if (null === $this->_allTaxRates) {
             $rows = $this->_createTaxRatesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxRates[$row['id']] = new TaxRate($row);
             }
-
-            $this->_fetchedAllTaxRates = true;
         }
 
-        return $this->_allTaxRates;
+        return $this->_allTaxRates ?? [];
     }
 
     /**
@@ -67,20 +60,23 @@ class TaxRates extends Component
      * @param TaxAddressZone $zone
      *
      * @return TaxRate[]
+     * @deprecated in 4.0. Use [[getTaxRatesByTaxZoneId]] instead.
      */
     public function getTaxRatesForZone(TaxAddressZone $zone): array
     {
-        $allTaxRates = $this->getAllTaxRates();
-        $taxRates = [];
+        return $this->getTaxRatesByTaxZoneId($zone->id);
+    }
 
-        /** @var TaxRate $rate */
-        foreach ($allTaxRates as $rate) {
-            if ($zone->id === $rate->taxZoneId) {
-                $taxRates[] = $rate;
-            }
-        }
-
-        return $taxRates;
+    /**
+     * Returns an array of all rates belonging to the zone
+     *
+     * @param int $taxZoneId
+     *
+     * @return TaxRate[]
+     */
+    public function getTaxRatesByTaxZoneId(int $taxZoneId): array
+    {
+        return ArrayHelper::where($this->getAllTaxRates(), 'taxZoneId', $taxZoneId);
     }
 
     /**
@@ -91,23 +87,7 @@ class TaxRates extends Component
      */
     public function getTaxRateById(int $id): ?TaxRate
     {
-        if (isset($this->_allTaxRates[$id])) {
-            return $this->_allTaxRates[$id];
-        }
-
-        if ($this->_fetchedAllTaxRates) {
-            return null;
-        }
-
-        $result = $this->_createTaxRatesQuery()
-            ->andWhere(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allTaxRates[$id] = new TaxRate($result);
+        return ArrayHelper::firstWhere($this->getAllTaxRates(), 'id', $id);
     }
 
     /**
@@ -141,7 +121,7 @@ class TaxRates extends Component
         $record->rate = $model->rate;
 
         // if not an included tax, then can not be removed.
-        $record->include = (bool) $model->include;
+        $record->include = (bool)$model->include;
         $record->isVat = $model->isVat;
         $record->removeIncluded = !$record->include ? false : $model->removeIncluded;
         $record->removeVatIncluded = (!$record->include || !$record->isVat) ? false : $model->removeVatIncluded;

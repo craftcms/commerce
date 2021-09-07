@@ -89,26 +89,26 @@
                 {{ checkboxField({
                     label: "Show the Title field for variants"|t('commerce'),
                     name: 'hasVariantTitleField',
-                    reverseToggle: '#titleFormat-container, .fld-variant-title-field-icon',
+                    reverseToggle: '#variantTitleFormat-container, .fld-variant-title-field-icon',
                     checked: productType.hasVariantTitleField
                 }) }}
 
-                <div id="titleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
+                <div id="variantTitleFormat-container"{% if productType.hasVariantTitleField %} class="hidden"{% endif %}>
                     {{ textField({
                         label: "Variant Title Format"|t('commerce'),
                         instructions: "What the auto-generated variant titles should look like. You can include tags that output variant properties, such as {ex1} or {ex2}. All custom fields used must be set to required."|t('commerce', { ex1: '<code>{sku}</code>', ex2: '<code>{myVariantsCustomField}</code>' }),
-                        id: 'titleFormat',
+                        id: 'variantTitleFormat',
                         class: 'code ltr',
-                        name: 'titleFormat',
-                        value: productType.titleFormat,
-                        errors: productType.getErrors('titleFormat')
+                        name: 'variantTitleFormat',
+                        value: productType.variantTitleFormat,
+                        errors: productType.getErrors('variantTitleFormat')
                     }) }}
                 </div>
 
             </div>
         {% endmacro %}
 
-        {% from _self import hasVariantsField, titleFormatField, productTitleFormatField, uriFormatText %}
+        {% from _self import hasVariantsField, variantTitleFormatField, productTitleFormatField, uriFormatText %}
 
 
         {{ forms.textField({
@@ -167,7 +167,7 @@
         <hr>
         {{ hasVariantsField(productType) }}
 
-        {{ titleFormatField(productType) }}
+        {{ variantTitleFormatField(productType) }}
         <hr>
 
         {% set siteRows = [] %}

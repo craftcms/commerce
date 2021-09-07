@@ -165,7 +165,6 @@ class LineItems extends Component
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
                 $lineItem = new LineItem($result);
-                $lineItem->typecastAttributes();
                 $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
@@ -193,13 +192,12 @@ class LineItems extends Component
             ->where([
                 'orderId' => $orderId,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
             ->one();
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
         } else {
             $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
         }
@@ -263,7 +261,7 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
-        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote ?? '');
+        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
@@ -332,7 +330,6 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             return $lineItem;
         }
 
@@ -415,7 +412,6 @@ class LineItems extends Component
         foreach ($lineItemsResults as $result) {
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
             $lineItems[$lineItem->orderId][] = $lineItem;
         }

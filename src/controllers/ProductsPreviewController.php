@@ -82,7 +82,7 @@ class ProductsPreviewController extends Controller
 
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId]
+            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId],
         ]);
 
         $url = UrlHelper::urlWithToken($product->getUrl(), $token);
@@ -151,7 +151,7 @@ class ProductsPreviewController extends Controller
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product
+                'product' => $product,
             ]);
 
             return null;
@@ -164,7 +164,7 @@ class ProductsPreviewController extends Controller
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl()
+                'cpEditUrl' => $product->getCpEditUrl(),
             ]);
         }
 
@@ -222,7 +222,7 @@ class ProductsPreviewController extends Controller
         $this->getView()->getTwig()->disableStrictVariables();
 
         return $this->renderTemplate($siteSettings[$product->siteId]->template, [
-            'product' => $product
+            'product' => $product,
         ]);
     }
 }

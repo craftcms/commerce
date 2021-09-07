@@ -313,7 +313,6 @@ class LineItemStatuses extends Component
 
             foreach ($results as $row) {
                 $status = new LineItemStatus($row);
-                $status->typecastAttributes();
                 $this->_memoizeLineItemStatus($status);
             }
 
@@ -324,7 +323,7 @@ class LineItemStatuses extends Component
     }
 
     /**
-     * Get an line item status by ID
+     * Get a line item status by ID
      *
      * @param int $id
      * @return LineItemStatus|null

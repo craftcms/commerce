@@ -14,7 +14,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Class Transaction
@@ -130,12 +129,12 @@ class Transaction extends Model
     /**
      * @var DateTime|null The date that the transaction was created
      */
-    public ?DateTime $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null The date that the transaction was last updated
      */
-    public ?DateTime $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
      * @var Gateway|null
@@ -174,7 +173,7 @@ class Transaction extends Model
      */
     public function init(): void
     {
-        $primaryCurrency =  Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
 
         if (!isset($this->currency)) {
             $this->currency = $primaryCurrency;
@@ -200,7 +199,7 @@ class Transaction extends Model
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => [
                 'paymentAmount' => $this->paymentCurrency,
-            ]
+            ],
         ];
 
         return $behaviors;
@@ -214,7 +213,7 @@ class Transaction extends Model
         return [
             'amount',
             'paymentAmount',
-            'refundableAmount'
+            'refundableAmount',
         ];
     }
 
@@ -356,12 +355,10 @@ class Transaction extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['type', 'status', 'orderId'], 'required'];
-
-        return $rules;
+        return [
+            [['type', 'status', 'orderId'], 'required'],
+        ];
     }
 }
