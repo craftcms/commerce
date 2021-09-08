@@ -16,8 +16,8 @@ class m210901_222634_drop_column extends Migration
      */
     public function safeUp()
     {
-        if ($this->db->columnExists(Table::GATEWAYS, 'sendCartInfo')) {
-            $this->dropColumn(Table::GATEWAYS, 'sendCartInfo');
+        if ($this->db->columnExists('{{%commerce_gateways}}', 'sendCartInfo')) {
+            $this->dropColumn('{{%commerce_gateways}}', 'sendCartInfo');
         }
     }
 

@@ -24,7 +24,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property array $sourceSnapshot
  * @property-read string $currency
  * @property-read string $amountAsCurrency
- * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -95,21 +94,6 @@ class OrderAdjustment extends Model
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'lineItemId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'included' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'isEstimated' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'type' => AttributeTypecastBehavior::TYPE_STRING,
-                'amount' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'description' => AttributeTypecastBehavior::TYPE_STRING,
-            ],
-        ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,

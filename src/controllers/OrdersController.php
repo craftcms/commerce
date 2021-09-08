@@ -424,9 +424,6 @@ class OrdersController extends Controller
             }
         }
 
-        // Typecast order attributes
-        $order->typeCastAttributes();
-
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
