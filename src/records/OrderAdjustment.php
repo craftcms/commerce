@@ -15,7 +15,7 @@ use yii\db\ActiveQueryInterface;
  * Order adjustment record.
  *
  * @property float $amount
- * @property string $description
+ * @property string|null $description
  * @property int $id
  * @property bool $included
  * @property int|null $lineItemId
