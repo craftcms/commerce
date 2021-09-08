@@ -446,7 +446,6 @@ trait OrderElementTrait
     protected static function defineTableAttributes(): array
     {
         return [
-            'order' => ['label' => Craft::t('commerce', 'Order')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],

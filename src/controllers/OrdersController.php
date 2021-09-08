@@ -1206,9 +1206,8 @@ class OrdersController extends Controller
             $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
             $billingAddress['isEstimated'] = false;
 
+            $billingAddress['id'] = ($billingAddressId == 'new') ? null : $billingAddress['id'];
             $billingAddress = new Address($billingAddress);
-
-            $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
 
             Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
             $billingAddressId = $billingAddress->id;
@@ -1218,9 +1217,8 @@ class OrdersController extends Controller
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
 
+            $shippingAddress['id'] = ($shippingAddressId == 'new') ? null : $shippingAddress['id'];
             $shippingAddress = new Address($shippingAddress);
-
-            $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
 
             Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
             $shippingAddressId = $shippingAddress->id;
