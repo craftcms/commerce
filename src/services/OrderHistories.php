@@ -100,13 +100,13 @@ class OrderHistories extends Component
      * Create an order history from an order.
      *
      * @param Order $order
-     * @param int $oldStatusId
+     * @param int|null $oldStatusId
      * @return bool
      * @throws Exception
-     * @throws MissingComponentException
      * @throws InvalidConfigException
+     * @throws MissingComponentException
      */
-    public function createOrderHistoryFromOrder(Order $order, int $oldStatusId): bool
+    public function createOrderHistoryFromOrder(Order $order, ?int $oldStatusId): bool
     {
         $orderHistoryModel = new OrderHistory();
         $orderHistoryModel->orderId = $order->id;
