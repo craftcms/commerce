@@ -243,7 +243,7 @@
 
         methods: {
             countryHasStates(countryId) {
-                return (Object.keys(this.states).indexOf(countryId) !== -1);
+                return (this.states[countryId] !== undefined);
             },
 
             handleCountryChange(option) {
@@ -306,6 +306,12 @@
 
             validate(address) {
                 this.$emit('updateValidating', true);
+
+                // Remove 'new' from id prop as this is only for JS use.
+                if (address.id === 'new') {
+                    address.id = null;
+                }
+
                 this.$store.dispatch('validateAddress', address).then((data) => {
                     if (!data.success && data.errors) {
                         this.errors = data.errors;
@@ -362,7 +368,7 @@
             },
 
             hasStates() {
-                return (this.country && Object.keys(this.states).indexOf(this.country.id) !== -1);
+                return (this.country && this.states[this.country.id] !== undefined);
             },
         },
 
