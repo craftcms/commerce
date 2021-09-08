@@ -75,7 +75,7 @@ class ShippingMethods extends Component
 
         foreach ($results as $result) {
             $shippingMethod = new ShippingMethod($result);
-            $shippingMethod->typecastAttributes();
+
             $this->_allShippingMethods[] = $shippingMethod;
         }
 
