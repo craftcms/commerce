@@ -53,7 +53,7 @@ class AddressesController extends BaseCpController
 
             if ($variables['addressId']) {
                 $variables['address'] = Plugin::getInstance()->getAddresses()->getAddressById($variables['addressId']);
-            } elseif ($variables['customerId']) {
+            } else if ($variables['customerId']) {
                 $variables['address'] = new AddressModel();
             }
 
@@ -161,7 +161,7 @@ class AddressesController extends BaseCpController
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => Craft::t('commerce', 'Couldn’t save address.'),
-                    'errors' => $address->errors
+                    'errors' => $address->errors,
                 ]);
             }
 

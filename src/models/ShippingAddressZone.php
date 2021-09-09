@@ -232,25 +232,26 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
-
-        $rules[] = [
-            ['states'], 'required', 'when' => static function($model) {
-                return !$model->isCountryBased;
-            }
+        return [
+            [['name'], 'required'],
+            [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'],
+                'required',
+                'when' => static function($model) {
+                    return !$model->isCountryBased;
+                },
+            ],
+            [
+                ['countries'],
+                'required',
+                'when' => static function($model) {
+                    return $model->isCountryBased;
+                },
+            ],
         ];
-        $rules[] = [
-            ['countries'], 'required', 'when' => static function($model) {
-                return $model->isCountryBased;
-            }
-        ];
-
-        return $rules;
     }
 }

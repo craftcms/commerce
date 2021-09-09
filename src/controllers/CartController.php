@@ -131,7 +131,7 @@ class CartController extends BaseFrontEndController
                 $purchasable['id'] = $purchasableId;
                 $purchasable['options'] = is_array($options) ? $options : [];
                 $purchasable['note'] = $note;
-                $purchasable['qty'] = (int) $qty;
+                $purchasable['qty'] = (int)$qty;
 
                 $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
                 if (isset($purchasablesByKey[$key])) {
@@ -168,7 +168,7 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = (int) $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->qty = (int)$this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
                     $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 
@@ -410,12 +410,12 @@ class CartController extends BaseFrontEndController
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     'message' => $message,
-                    $this->_cartVariable => $this->cartArray($this->_cart)
+                    $this->_cartVariable => $this->cartArray($this->_cart),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
-                $this->_cartVariable => $this->_cart
+                $this->_cartVariable => $this->_cart,
             ]);
 
             $this->setFailFlash($error);
@@ -436,14 +436,14 @@ class CartController extends BaseFrontEndController
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
                 $this->_cartVariable => $this->cartArray($this->_cart),
-                'message' => $message
+                'message' => $message,
             ]);
         }
 
         $this->setSuccessFlash($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
-            $this->_cartVariable => $this->_cart
+            $this->_cartVariable => $this->_cart,
         ]);
 
         return $this->redirectToPostedUrl();

@@ -50,7 +50,7 @@ class Variant extends ActiveRecord
     public function rules()
     {
         return [
-            [['sku'], 'unique']
+            [['sku'], 'unique'],
         ];
     }
 

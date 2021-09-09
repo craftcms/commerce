@@ -13,7 +13,6 @@ use craft\commerce\elements\Order;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\elements\db\ElementQueryInterface;
-use craft\helpers\ArrayHelper;
 use craft\helpers\FileHelper;
 use craft\helpers\Json;
 use craft\helpers\StringHelper;
@@ -76,7 +75,7 @@ class DownloadOrderPdfAction extends ElementAction
 
         $typeOptions = Json::encode([
             ['label' => Craft::t('commerce', 'ZIP file'), 'value' => self::TYPE_ZIP_ARCHIVE],
-            ['label' => Craft::t('commerce', 'Collated PDF'), 'value' => self::TYPE_PDF_COLLATED]
+            ['label' => Craft::t('commerce', 'Collated PDF'), 'value' => self::TYPE_PDF_COLLATED],
         ]);
 
         if (count($allPdfs) > 0) {

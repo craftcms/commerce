@@ -172,7 +172,7 @@ trait OrderValidatorsTrait
                         'message' => Craft::t('commerce', 'Coupon removed: {explanation}', [
                             'explanation' => $explanation,
                         ]),
-                    ]
+                    ],
                 ])
             );
             $this->$attribute = null;

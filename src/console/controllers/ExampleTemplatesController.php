@@ -120,7 +120,7 @@ class ExampleTemplatesController extends Controller
 
         // Add the string replacement data to be swapped out in templates
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[folderName]]' => $folderName
+            '[[folderName]]' => $folderName,
         ]);
         $this->_addCssClassesToReplacementData();
         $this->_addTranslationsToReplacementData();
@@ -137,7 +137,7 @@ class ExampleTemplatesController extends Controller
 
             // Find all text files we want to replace [[ ]] notation in.
             $files = FileHelper::findFiles($tempDestination, [
-                'only' => ['*.twig', '*.html', '*.svg', '*.css']
+                'only' => ['*.twig', '*.html', '*.svg', '*.css'],
             ]);
             // Set the [[ ]] notion variables and write our the files.
             foreach ($files as $file) {
@@ -272,7 +272,7 @@ class ExampleTemplatesController extends Controller
         }
 
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[tailwindCssTag]]' => $tag
+            '[[tailwindCssTag]]' => $tag,
         ]);
     }
 

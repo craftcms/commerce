@@ -35,7 +35,7 @@ class m180818_161907_fix_orderPaidWithAddresses extends Migration
                 ->where([
                     'orderId' => $id,
                     'status' => 'success',
-                    'type' => ['purchase', 'capture']
+                    'type' => ['purchase', 'capture'],
                 ])
                 ->orderBy(['dateUpdated' => SORT_DESC])
                 ->scalar();

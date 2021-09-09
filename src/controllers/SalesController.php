@@ -104,7 +104,7 @@ class SalesController extends BaseCpController
 
         $dateFields = [
             'dateFrom',
-            'dateTo'
+            'dateTo',
         ];
         foreach ($dateFields as $field) {
             if (($date = $request->getBodyParam($field)) !== false) {
@@ -124,7 +124,7 @@ class SalesController extends BaseCpController
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             if ((float)$applyAmount >= 1) {
                 $sale->applyAmount = (float)$applyAmount / -100;
-            }else{
+            } else {
                 $sale->applyAmount = -(float)$applyAmount;
             }
         } else {
@@ -165,7 +165,7 @@ class SalesController extends BaseCpController
         }
 
         $variables = [
-            'sale' => $sale
+            'sale' => $sale,
         ];
         $this->_populateVariables($variables);
 
@@ -486,7 +486,7 @@ class SalesController extends BaseCpController
         foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
                 'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
+                'elementType' => $purchasableType,
             ];
         }
     }

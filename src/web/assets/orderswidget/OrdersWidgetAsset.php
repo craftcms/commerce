@@ -30,7 +30,7 @@ class OrdersWidgetAsset extends AssetBundle
         $this->depends = [
             CpAsset::class,
             StatWidgetsAsset::class,
-            AdminTableAsset::class
+            AdminTableAsset::class,
         ];
         $this->js[] = 'js/OrdersWidgetSettings.js';
 

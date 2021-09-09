@@ -308,12 +308,12 @@ class Discounts extends Component
             ->andWhere([
                 'or',
                 ['dateFrom' => null],
-                ['<=', 'dateFrom', Db::prepareDateForDb($date)]
+                ['<=', 'dateFrom', Db::prepareDateForDb($date)],
             ])
             ->andWhere([
                 'or',
                 ['dateTo' => null],
-                ['>=', 'dateTo', Db::prepareDateForDb($date)]
+                ['>=', 'dateTo', Db::prepareDateForDb($date)],
             ]);
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
@@ -323,7 +323,7 @@ class Discounts extends Component
                     [
                         'or',
                         ['code' => null],
-                        ['ilike', 'code', $order->couponCode]
+                        ['ilike', 'code', $order->couponCode],
                     ]
                 );
             } else {
@@ -331,7 +331,7 @@ class Discounts extends Component
                     [
                         'or',
                         ['code' => null],
-                        ['code' => $order->couponCode]
+                        ['code' => $order->couponCode],
                     ]
                 );
             }
@@ -552,7 +552,7 @@ class Discounts extends Component
                 return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
             }
 
-            $key = 'type:'.$discount->categoryRelationshipType.'element:' . $purchasable->getId() . 'categories:' . implode('|', $discount->getCategoryIds());
+            $key = 'type:' . $discount->categoryRelationshipType . 'element:' . $purchasable->getId() . 'categories:' . implode('|', $discount->getCategoryIds());
 
             $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
@@ -830,7 +830,7 @@ class Discounts extends Component
         if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_DISCOUNT)) {
             $this->trigger(self::EVENT_AFTER_DELETE_DISCOUNT, new DiscountEvent([
                 'discount' => $discount,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -996,10 +996,10 @@ class Discounts extends Component
                 } else {
                     Craft::$app->getDb()->createCommand()
                         ->update(Table::CUSTOMER_DISCOUNTUSES, [
-                            'uses' => new Expression('[[uses]] + 1')
+                            'uses' => new Expression('[[uses]] + 1'),
                         ], [
                             'customerId' => $order->customerId,
-                            'discountId' => $discount['discountUseId']
+                            'discountId' => $discount['discountUseId'],
                         ])
                         ->execute();
                 }
@@ -1016,10 +1016,10 @@ class Discounts extends Component
             } else {
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::EMAIL_DISCOUNTUSES, [
-                        'uses' => new Expression('[[uses]] + 1')
+                        'uses' => new Expression('[[uses]] + 1'),
                     ], [
                         'email' => $order->getEmail(),
-                        'discountId' => $discount['discountUseId']
+                        'discountId' => $discount['discountUseId'],
                     ])
                     ->execute();
             }
@@ -1027,9 +1027,9 @@ class Discounts extends Component
             // Update the total uses
             Craft::$app->getDb()->createCommand()
                 ->update(Table::DISCOUNTS, [
-                    'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1')
+                    'totalDiscountUses' => new Expression('[[totalDiscountUses]] + 1'),
                 ], [
-                    'id' => $discount['discountUseId']
+                    'id' => $discount['discountUseId'],
                 ])
                 ->execute();
 
@@ -1085,7 +1085,7 @@ class Discounts extends Component
             $fieldsAsArray = $order->getSerializedFieldValues();
             $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
             $orderConditionParams = [
-                'order' => array_merge($orderAsArray, $fieldsAsArray)
+                'order' => array_merge($orderAsArray, $fieldsAsArray),
             ];
             return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
         }

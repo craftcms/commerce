@@ -102,15 +102,15 @@ trait OrderNoticesTrait
     {
         if ($type === null && $attribute === null) {
             $this->_notices = [];
-        } elseif ($type !== null && $attribute === null) {
+        } else if ($type !== null && $attribute === null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type) {
                 return $notice->type != $type;
             }, true, true, true);
-        } elseif ($type === null && $attribute !== null) {
+        } else if ($type === null && $attribute !== null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($attribute) {
                 return $notice->attribute != $attribute;
             }, true, true, true);
-        } elseif ($type !== null && $attribute !== null) {
+        } else if ($type !== null && $attribute !== null) {
             $this->_notices = ArrayHelper::where($this->_notices, function(OrderNotice $notice) use ($type, $attribute) {
                 return $notice->type == $type && $notice->attribute == $attribute;
             }, false, true, true);

@@ -42,7 +42,7 @@ class Product extends ElementResolver
         foreach ($arguments as $key => $value) {
             if (method_exists($query, $key)) {
                 $query->$key($value);
-            } elseif (property_exists($query, $key)) {
+            } else if (property_exists($query, $key)) {
                 $query->$key = $value;
             } else {
                 // Catch custom field queries

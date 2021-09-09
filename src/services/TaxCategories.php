@@ -215,7 +215,7 @@ class TaxCategories extends Component
                 'unique' => true,
                 'status' => null,
                 'enabledForSite' => false,
-            ]
+            ],
         ]));
     }
 

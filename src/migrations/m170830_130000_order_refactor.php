@@ -105,7 +105,7 @@ class m170830_130000_order_refactor extends Migration
                             'Shipping costs',
                             Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Shipping']]),
                             $lineItem['shippingCost'],
-                            false
+                            false,
                         ];
                     }
 
@@ -119,7 +119,7 @@ class m170830_130000_order_refactor extends Migration
                             'Tax',
                             Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Tax']]),
                             $lineItem['tax'],
-                            false
+                            false,
                         ];
                     }
 
@@ -133,7 +133,7 @@ class m170830_130000_order_refactor extends Migration
                             'Tax Included',
                             Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Tax']]),
                             $lineItem['taxIncluded'],
-                            true
+                            true,
                         ];
                     }
 
@@ -147,7 +147,7 @@ class m170830_130000_order_refactor extends Migration
                             'Discount',
                             Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Discount']]),
                             $lineItem['discount'],
-                            false
+                            false,
                         ];
                     }
                 }
@@ -164,7 +164,7 @@ class m170830_130000_order_refactor extends Migration
                         'Order shipping costs',
                         Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Shipping']]),
                         $order['baseShippingCost'],
-                        false
+                        false,
                     ];
                 }
 
@@ -178,7 +178,7 @@ class m170830_130000_order_refactor extends Migration
                         'Order tax',
                         Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Tax']]),
                         $order['baseTax'],
-                        false
+                        false,
                     ];
                 }
 
@@ -192,7 +192,7 @@ class m170830_130000_order_refactor extends Migration
                         'Order tax included',
                         Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Tax']]),
                         $order['baseTaxIncluded'],
-                        true
+                        true,
                     ];
                 }
 
@@ -206,7 +206,7 @@ class m170830_130000_order_refactor extends Migration
                         'Discount',
                         Json::encode(['OldAdjustments' => $adjustmentsToDeleteByType['Discount']]),
                         $order['baseDiscount'],
-                        false
+                        false,
                     ];
                 }
 
@@ -220,7 +220,7 @@ class m170830_130000_order_refactor extends Migration
                         'description',
                         'sourceSnapshot',
                         'amount',
-                        'included'
+                        'included',
                     ], $newAdjustments);
                 }
             }
