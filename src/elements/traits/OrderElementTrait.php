@@ -225,6 +225,7 @@ trait OrderElementTrait
             'billingPhone',
             'billingAddressLines',
             'email',
+            'id',
             'number',
             'shippingFirstName',
             'shippingLastName',
