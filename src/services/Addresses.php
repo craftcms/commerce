@@ -289,7 +289,7 @@ class Addresses extends Component
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
         $addressRecord->fullName = $addressModel->fullName;
-        $addressRecord->address1 = $addressModel->address1;
+        $addressRecord->address1 = $addressModel->addressLine1;
         $addressRecord->address2 = $addressModel->address2;
         $addressRecord->address3 = $addressModel->address3;
         $addressRecord->city = $addressModel->city;
@@ -561,7 +561,7 @@ class Addresses extends Component
     {
         return (new Query())
             ->select([
-                'addresses.address1',
+                'addresses.addressLine1',
                 'addresses.address2',
                 'addresses.address3',
                 'addresses.alternativePhone',

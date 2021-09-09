@@ -49,7 +49,7 @@ class StatesController extends BaseStoreSettingsController
         $variables = compact('id', 'state');
         if (!$variables['state']) {
             if ($variables['id']) {
-                $variables['state'] = Plugin::getInstance()->getStates()->getStateById($variables['id']);
+                $variables['state'] = Plugin::getInstance()->getStates()->getAdministrativeAreaById($variables['id']);
 
                 if (!$variables['state']) {
                     throw new HttpException(404);

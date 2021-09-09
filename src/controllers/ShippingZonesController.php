@@ -101,7 +101,7 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         $states = [];
         foreach ($stateIds as $id) {
-            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
+            $state = $id ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($id) : null;
             if ($state) {
                 $states[] = $state;
             }

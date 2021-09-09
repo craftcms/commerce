@@ -10,12 +10,16 @@
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - `craft\commerce\modela\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
 
+### Changed (Changed in 4.0, not previously deprecated)
+- Removed `craft\commerce\services\States::getStateById()`. Use `craft\commerce\services\AdministrativeArea::getAdministrativeAreaById()` instead.
+
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
 
 ### Deprecated
+- Deprecated `craft\commerce\models\Address::getCity()`. Use `getLocality()` instead.
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
 - Deprecated `craft\commerce\models\Address::getStateText()`. Use `getStateName()` instead.
 - Deprecated `craft\commerce\models\Address::getAbbreviationText()`. Use `getStateAbbreviation()` instead.

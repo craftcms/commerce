@@ -63,7 +63,7 @@ class AddressesTest extends Unit
 
         $address = $this->addresses->getAddressById(1000);
         self::assertInstanceOf(Address::class, $address);
-        self::assertSame('1640 Riverside Drive', $address->address1);
+        self::assertSame('1640 Riverside Drive', $address->addressLine1);
     }
 
     /**

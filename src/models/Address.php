@@ -110,7 +110,7 @@ class Address extends Model implements AddressInterface
     /**
      * @var string|null Address Line 1
      */
-    public ?string $address1 = null;
+    public ?string $addressLine1 = null;
     
     /**
      * @var string|null Address Line 2
@@ -270,11 +270,6 @@ class Address extends Model implements AddressInterface
      * @var string Sorting code
      */
     public $sortingCode;
-
-    /**
-     * @var string Address line 1
-     */
-    public $addressLine1;
 
     /**
      * @var string Address line 2
@@ -461,7 +456,7 @@ class Address extends Model implements AddressInterface
     public function validateState($attribute, $params, $validator): void
     {
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
-        $state = $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
+        $state = $this->stateId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->stateId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
             $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
@@ -583,7 +578,7 @@ class Address extends Model implements AddressInterface
      */
     public function getState(): ?State
     {
-        return $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
+        return $this->stateId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->stateId) : null;
     }
 
     /**
@@ -611,7 +606,7 @@ class Address extends Model implements AddressInterface
     public function setStateValue($value): void
     {
         if ($value) {
-            if (Plugin::getInstance()->getStates()->getStateById((int)$value)) {
+            if (Plugin::getInstance()->getStates()->getAdministrativeAreaById((int)$value)) {
                 $this->stateId = $value;
             } else {
                 $this->stateId = null;
@@ -640,7 +635,7 @@ class Address extends Model implements AddressInterface
             'attention' => $this->attention,
             'name' => trim($this->title . ' ' . $this->firstName . ' ' . $this->lastName),
             'fullName' => $this->fullName,
-            'address1' => $this->address1,
+            'address1' => $this->addressLine1,
             'address2' => $this->address2,
             'address3' => $this->address3,
             'city' => $this->city,
@@ -733,7 +728,7 @@ class Address extends Model implements AddressInterface
             $this->firstName == $otherAddress->firstName &&
             $this->lastName == $otherAddress->lastName &&
             $this->fullName == $otherAddress->fullName &&
-            $this->address1 == $otherAddress->address1 &&
+            $this->addressLine1 == $otherAddress->addressLine1 &&
             $this->address2 == $otherAddress->address2 &&
             $this->address3 == $otherAddress->address3 &&
             $this->city == $otherAddress->city &&
@@ -822,7 +817,7 @@ class Address extends Model implements AddressInterface
 
     public function getAddressLine1()
     {
-        return $this->address1;
+        return $this->addressLine1;
     }
 
     public function getAddressLine2()
@@ -890,5 +885,10 @@ class Address extends Model implements AddressInterface
         return [
           'phone'  
         ];
+    }
+    
+    public function getAddress1()
+    {
+        return $this->addressLine1;
     }
 }

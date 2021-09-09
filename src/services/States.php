@@ -41,7 +41,7 @@ class States extends Component
     /**
      * @var State[]
      */
-    private array $_statesById = [];
+    private array $_administrativeAreaById = [];
 
     /**
      * @var State[]
@@ -75,10 +75,10 @@ class States extends Component
      * @param int $id the state's ID
      * @return State|null
      */
-    public function getStateById(int $id): ?State
+    public function getAdministrativeAreaById(int $id): ?State
     {
-        if (isset($this->_statesById[$id])) {
-            return $this->_statesById[$id];
+        if (isset($this->_administrativeAreaById[$id])) {
+            return $this->_administrativeAreaById[$id];
         }
 
         if ($this->_fetchedAllStates) {
@@ -93,7 +93,7 @@ class States extends Component
             return null;
         }
 
-        return $this->_statesById[$id] = new State($result);
+        return $this->_administrativeAreaById[$id] = new State($result);
     }
 
     /**
@@ -195,7 +195,7 @@ class States extends Component
                 unset($row['countryEnabled']);
 
                 $state = new State($row);
-                $this->_statesById[$row['id']] = $state;
+                $this->_administrativeAreaById[$row['id']] = $state;
                 $this->_statesAsOrdered[] = $state;
 
                 if ($state->enabled && $countryEnabled) {
