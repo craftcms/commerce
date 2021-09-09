@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
 - Fixed a bug where new Commerce intalls were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
+- Fixed a bug where cart doesn't recalculate if product is out of stock.
 
 ## 3.4.2 - 2021-08-11
 
