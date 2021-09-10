@@ -14,7 +14,7 @@ use yii\db\ActiveQueryInterface;
 /**
  * Address record.
  *
- * @property string $address1
+ * @property string $addressLine1
  * @property string $address2
  * @property string $address3
  * @property string $alternativePhone

@@ -71,7 +71,7 @@ class CustomerAddressesController extends BaseFrontEndController
             'firstName',
             'lastName',
             'fullName',
-            'address1',
+            'addressLine1',
             'address2',
             'address3',
             'city',

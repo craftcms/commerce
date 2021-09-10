@@ -648,7 +648,7 @@ class Customers extends Component
     {
         $customersQuery = (new Query())
             ->select([
-                'billing.address1 as billingAddress',
+                'billing.addressLine1 as billingAddress',
                 'billing.firstName as billingFirstName',
                 'billing.fullName as billingFullName',
                 'billing.lastName as billingLastName',
@@ -656,7 +656,7 @@ class Customers extends Component
                 'email' => new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END'),
                 'primaryBillingAddressId',
                 'primaryShippingAddressId',
-                'shipping.address1 as shippingAddress',
+                'shipping.addressLine1 as shippingAddress',
                 'shipping.firstName as shippingFirstName',
                 'shipping.fullName as shippingFullName',
                 'shipping.lastName as shippingLastName',
@@ -673,11 +673,11 @@ class Customers extends Component
                 'billing.firstName',
                 'billing.lastName',
                 'billing.fullName',
-                'billing.address1',
+                'billing.addressLine1',
                 'shipping.firstName',
                 'shipping.lastName',
                 'shipping.fullName',
-                'shipping.address1',
+                'shipping.addressLine1',
                 'users.email',
             ])
             ->andWhere([
@@ -690,14 +690,14 @@ class Customers extends Component
             $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
             $customersQuery->andWhere([
                 'or',
-                [$likeOperator, '[[billing.address1]]', $search],
+                [$likeOperator, '[[billing.addressLine1]]', $search],
                 [$likeOperator, '[[billing.firstName]]', $search],
                 [$likeOperator, '[[billing.fullName]]', $search],
                 [$likeOperator, '[[billing.lastName]]', $search],
                 [$likeOperator, '[[orders.email]]', $search],
                 [$likeOperator, '[[orders.reference]]', $search],
                 [$likeOperator, '[[orders.number]]', $search],
-                [$likeOperator, '[[shipping.address1]]', $search],
+                [$likeOperator, '[[shipping.addressLine1]]', $search],
                 [$likeOperator, '[[shipping.firstName]]', $search],
                 [$likeOperator, '[[shipping.fullName]]', $search],
                 [$likeOperator, '[[shipping.lastName]]', $search],

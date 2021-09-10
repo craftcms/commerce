@@ -72,7 +72,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Only show the map button if we have an address
         if (this.address.id) {
-            var address = [this.address.address1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
+            var address = [this.address.addressLine1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
             var addressStr = address.join(' ');
             $("<a class='small btn right' style='margin:2px' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
         }
@@ -130,8 +130,8 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='alternativePhone'>" + this.address.alternativePhone + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.address1) {
-            $("<span class='address1'>" + this.address.address1 + "<br></span>").appendTo(this.$address);
+        if (this.address.addressLine1) {
+            $("<span class='addressLine1'>" + this.address.addressLine1 + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.address2) {
@@ -307,7 +307,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                     type: 'Text'
                 },
                 {field: 'fullName', label: Craft.t('commerce', 'Full Name'), type: 'Text'},
-                {field: 'address1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
+                {field: 'addressLine1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
                 {field: 'address2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
                 {field: 'address3', label: Craft.t('commerce', 'Address 3'), type: 'Text'},
                 {field: 'city', label: Craft.t('commerce', 'City'), type: 'Text'},
@@ -410,7 +410,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'firstName': this.$form.find('input[name=' + this.id + 'firstName]').val(),
                 'lastName': this.$form.find('input[name=' + this.id + 'lastName]').val(),
                 'fullName': this.$form.find('input[name=' + this.id + 'fullName]').val(),
-                'address1': this.$form.find('input[name=' + this.id + 'address1]').val(),
+                'addressLine1': this.$form.find('input[name=' + this.id + 'addressLine1]').val(),
                 'address2': this.$form.find('input[name=' + this.id + 'address2]').val(),
                 'address3': this.$form.find('input[name=' + this.id + 'address3]').val(),
                 'city': this.$form.find('input[name=' + this.id + 'city]').val(),

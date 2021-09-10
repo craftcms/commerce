@@ -289,7 +289,7 @@ class Addresses extends Component
         $addressRecord->firstName = $addressModel->firstName;
         $addressRecord->lastName = $addressModel->lastName;
         $addressRecord->fullName = $addressModel->fullName;
-        $addressRecord->address1 = $addressModel->addressLine1;
+        $addressRecord->addressLine1 = $addressModel->addressLine1;
         $addressRecord->address2 = $addressModel->address2;
         $addressRecord->address3 = $addressModel->address3;
         $addressRecord->city = $addressModel->city;
@@ -562,14 +562,14 @@ class Addresses extends Component
         return (new Query())
             ->select([
                 'addresses.addressLine1',
-                'addresses.address2',
-                'addresses.address3',
+                'addresses.addressLine2',
+                'addresses.addressLine3',
                 'addresses.alternativePhone',
                 'addresses.attention',
                 'addresses.businessId',
                 'addresses.businessName',
                 'addresses.businessTaxId',
-                'addresses.city',
+                'addresses.locality',
                 'addresses.countryId',
                 'addresses.custom1',
                 'addresses.custom2',
@@ -577,19 +577,19 @@ class Addresses extends Component
                 'addresses.custom4',
                 'addresses.dateCreated',
                 'addresses.dateUpdated',
-                'addresses.firstName',
+                'addresses.givenName',
                 'addresses.fullName',
                 'addresses.id',
                 'addresses.isEstimated',
                 'addresses.isStoreLocation',
                 'addresses.label',
-                'addresses.lastName',
+                'addresses.familyName',
                 'addresses.notes',
                 'addresses.phone',
-                'addresses.stateId',
-                'addresses.stateName',
+                'addresses.administrativeAreaId',
+                'addresses.administrativeAreaName',
                 'addresses.title',
-                'addresses.zipCode',
+                'addresses.postalCode',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

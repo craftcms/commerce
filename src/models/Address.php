@@ -365,7 +365,7 @@ class Address extends Model implements AddressInterface
         $labels['fullName'] = Craft::t('commerce', 'Full Name');
         $labels['attention'] = Craft::t('commerce', 'Attention');
         $labels['title'] = Craft::t('commerce', 'Title');
-        $labels['address1'] = Craft::t('commerce', 'Address 1');
+        $labels['addressLine1'] = Craft::t('commerce', 'Address 1');
         $labels['address2'] = Craft::t('commerce', 'Address 2');
         $labels['address3'] = Craft::t('commerce', 'Address 3');
         $labels['city'] = Craft::t('commerce', 'City');
@@ -412,7 +412,7 @@ class Address extends Model implements AddressInterface
             'fullName',
             'attention',
             'title',
-            'address1',
+            'addressLine1',
             'address2',
             'address3',
             'city',
@@ -635,7 +635,7 @@ class Address extends Model implements AddressInterface
             'attention' => $this->attention,
             'name' => trim($this->title . ' ' . $this->firstName . ' ' . $this->lastName),
             'fullName' => $this->fullName,
-            'address1' => $this->addressLine1,
+            'addressLine1' => $this->addressLine1,
             'address2' => $this->address2,
             'address3' => $this->address3,
             'city' => $this->city,

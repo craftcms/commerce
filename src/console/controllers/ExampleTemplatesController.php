@@ -31,10 +31,10 @@ class ExampleTemplatesController extends Controller
     public $defaultAction = 'generate';
 
     /**
-     * @var string Name of the folder the templates will copy into
+     * @var string|null Name of the folder the templates will copy into
      * @since 3.3
      */
-    public string $folderName;
+    public ?string $folderName = null;
 
     /**
      * @var bool Whether to overwrite an existing folder. Must be passed if a folder with that name already exists.
@@ -43,10 +43,10 @@ class ExampleTemplatesController extends Controller
     public bool $overwrite = false;
 
     /**
-     * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
+     * @var bool|null Whether to use CDN linked assets, or copy them inline for tailwind etc
      * @since 3.3
      */
-    public bool $cdnAssets;
+    public ?bool $cdnAssets = null;
 
     /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
@@ -55,10 +55,10 @@ class ExampleTemplatesController extends Controller
     public bool $devBuild = false;
 
     /**
-     * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
+     * @var string|null The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
      * Possible values are: blue, red
      */
-    public string $baseColor;
+    public ?string $baseColor = null;
 
     /**
      * @var array

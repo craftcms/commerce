@@ -82,7 +82,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                     type: 'Text'
                 },
                 {field: 'fullName', label: Craft.t('commerce', 'Full Name'), type: 'Text'},
-                {field: 'address1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
+                {field: 'addressLine1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
                 {field: 'address2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
                 {field: 'address3', label: Craft.t('commerce', 'Address 3'), type: 'Text'},
                 {field: 'city', label: Craft.t('commerce', 'City'), type: 'Text'},
@@ -185,7 +185,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'firstName': this.$form.find('input[name=' + this.id + 'firstName]').val(),
                 'lastName': this.$form.find('input[name=' + this.id + 'lastName]').val(),
                 'fullName': this.$form.find('input[name=' + this.id + 'fullName]').val(),
-                'address1': this.$form.find('input[name=' + this.id + 'address1]').val(),
+                'addressLine1': this.$form.find('input[name=' + this.id + 'addressLine1]').val(),
                 'address2': this.$form.find('input[name=' + this.id + 'address2]').val(),
                 'address3': this.$form.find('input[name=' + this.id + 'address3]').val(),
                 'city': this.$form.find('input[name=' + this.id + 'city]').val(),

@@ -210,7 +210,7 @@
 
             <div class="flex -mx-4 mt-3">
                 <div class="flex-1 mx-4">
-                    <label for="{{ modelName }}-city">City</label>
+                    <label for="{{ modelName }}-city">Locality</label>
                     <input type="text"
                            id="{{ modelName }}-city"
                            name="{{ modelName }}[city]"
@@ -221,7 +221,7 @@
                     {% endif %}
                 </div>
                 <div class="flex-1 mx-4">
-                    <label for="{{ modelName }}-zipCode">Zip Code</label>
+                    <label for="{{ modelName }}-zipCode">Postal Code</label>
                     <input type="text"
                            id="{{ modelName }}-zipCode"
                            name="{{ modelName }}[zipCode]"
@@ -274,7 +274,7 @@
                     {% endif %}
                 </div>
                 <div class="flex-1 mx-4">
-                    <label for="{{ modelName }}-state">State</label>
+                    <label for="{{ modelName }}-state">Administrative Area</label>
                     {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
                     <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}"
                             class="js-address-stateId w-full [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"

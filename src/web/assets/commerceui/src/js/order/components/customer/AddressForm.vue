@@ -35,8 +35,8 @@
 
     <div class="order-address-form-row order-flex">
       <div class="w-full">
-        <field :label="$options.filters.t('Address 1', 'commerce')" :errors="getErrors('address1')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address1') }" v-model="address.address1" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 1', 'commerce')" :errors="getErrors('addressLine1')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('addressLine1') }" v-model="address.addressLine1" @input="update($event, self())" />
         </field>
       </div>
     </div>
