@@ -73,12 +73,14 @@
 
     <div class="mt-3 pt-3 border-t border-gray-300">
         <div class="flex w-full justify-end items-center text-xs text-gray-500">
-            <div class="pr-2">
-                Shipping:
-            </div>
-            <div>
-                {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}
-            </div>
+            {% if cart.shippingMethod %}
+                <div class="pr-2">
+                    Shipping:
+                </div>
+                <div>
+                    {{ cart.totalShippingCost|commerceCurrency(cart.currency) }}
+                </div>
+            {% endif %}
         </div>
         <div class="flex w-full justify-end items-center text-xs text-gray-500">
             <div class="pr-2">
