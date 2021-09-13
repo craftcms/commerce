@@ -85,7 +85,7 @@ class Install extends Migration
         $this->createTable(Table::ADDRESSES, [
             'id' => $this->primaryKey(),
             'countryId' => $this->integer(),
-            'administrativeAreaId' => $this->integer(),
+            'administrativeAreaId' => $this->integer(), // previously stateId
             'isStoreLocation' => $this->boolean()->notNull()->defaultValue(false),
             'attention' => $this->string(),
             'title' => $this->string(),
@@ -100,17 +100,17 @@ class Install extends Migration
             'custom2' => $this->string(),
             'custom3' => $this->string(),
             'custom4' => $this->string(),
-            'administrativeAreaValue' => $this->string(), // previous stateValue
-            'locality' => $this->string(),
+            'administrativeAreaValue' => $this->string(), // previously stateValue
+            'locality' => $this->string(), // previously city
             'dependentLocality' => $this->string(),
-            'postalCode' => $this->string(),
+            'postalCode' => $this->string(), // previously zipCode
             'sortingCode' => $this->string(),
-            'addressLine1' => $this->string(),
-            'addressLine2' => $this->string(),
+            'addressLine1' => $this->string(), // previously address1
+            'addressLine2' => $this->string(), // previously address2
             'addressLine3' => $this->string(),
             'organization' => $this->string(),
-            'givenName' => $this->string(),
-            'familyName' => $this->string(),
+            'givenName' => $this->string(), // previously firstName
+            'familyName' => $this->string(), // previously lastName
             'additionalName' => $this->string(),
             'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),

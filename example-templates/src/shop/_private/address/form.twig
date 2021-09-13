@@ -15,7 +15,7 @@
                 <input type="text"
                        id="{{ modelName }}-attention"
                        name="{{ modelName }}[attention]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.attention : '' }}">
                 {% if model and model.getErrors('attention') %}
                     <div class="text-red-700">{{ model.getErrors('attention')|join }}</div>
@@ -27,7 +27,7 @@
                 <input type="text"
                        id="{{ modelName }}-title"
                        name="{{ modelName }}[title]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.title : '' }}">
                 {% if model and model.getErrors('title') %}
                     <span class="text-red-700">{{ model.getErrors('title')|join }}</span>
@@ -35,26 +35,26 @@
             </div>
 
             <div class="mt-3">
-                <label for="{{ modelName }}-firstName">First Name</label>
+                <label for="{{ modelName }}-givenName">Given Name</label>
                 <input type="text"
-                       id="{{ modelName }}-firstName"
-                       name="{{ modelName }}[firstName]"
-                       class="w-full [[classes.input]]"
-                       value="{{ model ? model.firstName : '' }}">
-                {% if model and model.getErrors('firstName') %}
-                    <div class="text-red-700">{{ model.getErrors('firstName')|join }}</div>
+                       id="{{ modelName }}-givenName"
+                       name="{{ modelName }}[givenName]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                       value="{{ model ? model.givenName : '' }}">
+                {% if model and model.getErrors('givenName') %}
+                    <div class="text-red-700">{{ model.getErrors('givenName')|join }}</div>
                 {% endif %}
             </div>
 
             <div class="mt-3">
-                <label for="{{ modelName }}-lastName">Last Name</label>
+                <label for="{{ modelName }}-familyName">Family Name</label>
                 <input type="text"
-                       id="{{ modelName }}-lastName"
-                       name="{{ modelName }}[lastName]"
-                       class="w-full [[classes.input]]"
-                       value="{{ model ? model.lastName : '' }}">
-                {% if model and model.getErrors('lastName') %}
-                    <div class="text-red-700">{{ model.getErrors('lastName')|join }}</div>
+                       id="{{ modelName }}-familyName"
+                       name="{{ modelName }}[familyName]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                       value="{{ model ? model.familyName : '' }}">
+                {% if model and model.getErrors('familyName') %}
+                    <div class="text-red-700">{{ model.getErrors('familyName')|join }}</div>
                 {% endif %}
             </div>
 
@@ -63,7 +63,7 @@
                 <input type="text"
                        id="{{ modelName }}-fullName"
                        name="{{ modelName }}[fullName]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.fullName : '' }}">
                 {% if model and model.getErrors('fullName') %}
                     <div class="text-red-700">{{ model.getErrors('fullName')|join }}</div>
@@ -75,7 +75,7 @@
                 <input type="text"
                        id="{{ modelName }}-label"
                        name="{{ modelName }}[label]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.label : '' }}">
                 {% if model and model.getErrors('label') %}
                     <div class="text-red-700">{{ model.getErrors('label')|join }}</div>
@@ -87,7 +87,7 @@
                 <input type="text"
                        id="{{ modelName }}-businessName"
                        name="{{ modelName }}[businessName]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.businessName : '' }}">
                 {% if model and model.getErrors('businessName') %}
                     <div class="text-red-700">{{ model.getErrors('businessName')|join }}</div>
@@ -100,7 +100,7 @@
                     <input type="text"
                            id="{{ modelName }}-businessTaxId"
                            name="{{ modelName }}[businessTaxId]"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            value="{{ model ? model.businessTaxId : '' }}">
                     {% if model and model.getErrors('businessTaxId') %}
                         <div class="text-red-700">{{ model.getErrors('businessTaxId')|join }}</div>
@@ -111,7 +111,7 @@
                     <input type="text"
                            id="{{ modelName }}-businessId"
                            name="{{ modelName }}[businessId]"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            value="{{ model ? model.businessId : '' }}">
                     {% if model and model.getErrors('businessId') %}
                         <div class="text-red-700">{{ model.getErrors('businessId')|join }}</div>
@@ -125,7 +125,7 @@
                     <input type="text"
                            id="{{ modelName }}-custom1"
                            name="{{ modelName }}[custom1]"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            value="{{ model ? model.custom1 : '' }}">
                     {% if model and model.getErrors('custom1') %}
                         <div class="text-red-700">{{ model.getErrors('custom1')|join }}</div>
@@ -136,7 +136,7 @@
                     <input type="text"
                            id="{{ modelName }}-custom2"
                            name="{{ modelName }}[custom2]"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            value="{{ model ? model.custom2 : '' }}">
                     {% if model and model.getErrors('custom2') %}
                         <div class="text-red-700">{{ model.getErrors('custom2')|join }}</div>
@@ -150,7 +150,7 @@
                     <input type="text"
                            id="{{ modelName }}-custom3"
                            name="{{ modelName }}[custom3]"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            value="{{ model ? model.custom3 : '' }}">
                     {% if model and model.getErrors('custom3') %}
                         <div class="text-red-700">{{ model.getErrors('custom3')|join }}</div>
@@ -160,7 +160,7 @@
                     <label for="{{ modelName }}-custom4">Custom 4</label>
                     <input type="text"
                            id="{{ modelName }}-custom4"
-                           class="w-full [[classes.input]]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            name="{{ modelName }}[custom4]"
                            value="{{ model ? model.custom4 : '' }}">
                     {% if model and model.getErrors('custom4') %}
@@ -173,62 +173,62 @@
         <div class="flex-1 mx-4">
 
             <div class="mt-3">
-                <label for="{{ modelName }}-address1">Address 1</label>
+                <label for="{{ modelName }}-addressLine1">Address 1</label>
                 <input type="text"
-                       id="{{ modelName }}-address1"
-                       name="{{ modelName }}[address1]"
-                       class="w-full [[classes.input]]"
-                       value="{{ model ? model.address1 : '' }}">
-                {% if model and model.getErrors('address1') %}
-                    <div class="text-red-700">{{ model.getErrors('address1')|join }}</div>
+                       id="{{ modelName }}-addressLine1"
+                       name="{{ modelName }}[addressLine1]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                       value="{{ model ? model.addressLine1 : '' }}">
+                {% if model and model.getErrors('addressLine1') %}
+                    <div class="text-red-700">{{ model.getErrors('addressLine1')|join }}</div>
                 {% endif %}
             </div>
 
             <div class="mt-3">
-                <label for="{{ modelName }}-address2">Address 2</label>
+                <label for="{{ modelName }}-addressLine2">Address 2</label>
                 <input type="text"
-                       id="{{ modelName }}-address2"
-                       name="{{ modelName }}[address2]"
-                       class="w-full [[classes.input]]"
-                       value="{{ model ? model.address2 : '' }}">
-                {% if model and model.getErrors('address2') %}
-                    <div class="text-red-700">{{ model.getErrors('address2')|join }}</div>
+                       id="{{ modelName }}-addressLine2"
+                       name="{{ modelName }}[addressLine2]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                       value="{{ model ? model.addressLine2 : '' }}">
+                {% if model and model.getErrors('addressLine2') %}
+                    <div class="text-red-700">{{ model.getErrors('addressLine2')|join }}</div>
                 {% endif %}
             </div>
 
             <div class="mt-3">
-                <label for="{{ modelName }}-address3">Address 3</label>
+                <label for="{{ modelName }}-addressLine3">Address 3</label>
                 <input type="text"
-                       id="{{ modelName }}-address3"
-                       name="{{ modelName }}[address3]"
-                       class="w-full [[classes.input]]"
-                       value="{{ model ? model.address3 : '' }}">
-                {% if model and model.getErrors('address3') %}
-                    <div class="text-red-700">{{ model.getErrors('address3')|join }}</div>
+                       id="{{ modelName }}-addressLine3"
+                       name="{{ modelName }}[addressLine3]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                       value="{{ model ? model.addressLine3 : '' }}">
+                {% if model and model.getErrors('addressLine3') %}
+                    <div class="text-red-700">{{ model.getErrors('addressLine3')|join }}</div>
                 {% endif %}
             </div>
 
             <div class="flex -mx-4 mt-3">
                 <div class="flex-1 mx-4">
-                    <label for="{{ modelName }}-city">Locality</label>
+                    <label for="{{ modelName }}-locality">Locality</label>
                     <input type="text"
-                           id="{{ modelName }}-city"
-                           name="{{ modelName }}[city]"
-                           class="w-full [[classes.input]]"
-                           value="{{ model ? model.city : '' }}">
-                    {% if model and model.getErrors('city') %}
-                        <div class="text-red-700">{{ model.getErrors('city')|join }}</div>
+                           id="{{ modelName }}-locality"
+                           name="{{ modelName }}[locality]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                           value="{{ model ? model.locality : '' }}">
+                    {% if model and model.getErrors('locality') %}
+                        <div class="text-red-700">{{ model.getErrors('locality')|join }}</div>
                     {% endif %}
                 </div>
                 <div class="flex-1 mx-4">
-                    <label for="{{ modelName }}-zipCode">Postal Code</label>
+                    <label for="{{ modelName }}-postalCode">Postal Code</label>
                     <input type="text"
-                           id="{{ modelName }}-zipCode"
-                           name="{{ modelName }}[zipCode]"
-                           class="w-full [[classes.input]]"
-                           value="{{ model ? model.zipCode : '' }}">
-                    {% if model and model.getErrors('zipCode') %}
-                        <div class="text-red-700">{{ model.getErrors('zipCode')|join }}</div>
+                           id="{{ modelName }}-postalCode"
+                           name="{{ modelName }}[postalCode]"
+                           class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
+                           value="{{ model ? model.postalCode : '' }}">
+                    {% if model and model.getErrors('postalCode') %}
+                        <div class="text-red-700">{{ model.getErrors('postalCode')|join }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -238,7 +238,7 @@
                 <input type="text"
                        id="{{ modelName }}-phone"
                        name="{{ modelName }}[phone]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.phone : '' }}">
                 {% if model and model.getErrors('phone') %}
                     <span class="text-red-700">{{ model.getErrors('phone')|join }}</span>
@@ -250,7 +250,7 @@
                 <input type="text"
                        id="{{ modelName }}-alternativePhone"
                        name="{{ modelName }}[alternativePhone]"
-                       class="w-full [[classes.input]]"
+                       class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                        value="{{ model ? model.alternativePhone : '' }}">
                 {% if model and model.getErrors('alternativePhone') %}
                     <div class="text-red-700">{{ model.getErrors('alternativePhone')|join }}</div>
@@ -262,7 +262,7 @@
                     <label for="{{ modelName }}-countryId">Country *</label>
                     <select id="{{ modelName }}-countryId"
                             name="{{ modelName }}[countryId]"
-                            class="js-address-country w-full [[classes.input]]">
+                            class="js-address-country w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded">
                         <option value="">Select Country...</option>
                         {% for key, option in countries %}
                             {% set optionValue = (model ? model.countryId : '') %}
@@ -277,7 +277,7 @@
                     <label for="{{ modelName }}-state">Administrative Area</label>
                     {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
                     <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}"
-                            class="js-address-stateId w-full [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
+                            class="js-address-stateId w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded {% if options|length == 0 %}hidden{% endif %}"
                             name="{{ modelName }}[stateValue]">
                         <option>Select Country...</option>
                         {% for key, option in options %}
@@ -290,7 +290,7 @@
                     <input type="text"
                            id="{{ modelName }}-stateName"
                            data-modelname="{{ modelName }}"
-                           class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full [[classes.input]]"
+                           class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
                            {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %}
                            value="{{ model ? model.stateName : '' }}"
                     >
@@ -302,7 +302,7 @@
 
             <div class="mt-3">
                 <label for="{{ modelName }}-notes">Notes</label>
-                <textarea id="{{ modelName }}-notes" class="w-full [[classes.input]]" name="{{ modelName }}[notes]"
+                <textarea id="{{ modelName }}-notes" class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded" name="{{ modelName }}[notes]"
                           cols="30" rows="10">{{ model ? model.notes : '' }}</textarea>
                 {% if model and model.getErrors('notes') %}
                     <div class="text-red-700">{{ model.getErrors('notes')|join }}</div>
