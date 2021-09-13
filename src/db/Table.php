@@ -18,15 +18,11 @@ abstract class Table
     const ADDRESSES = '{{%commerce_addresses}}';
     const CHARGES = '{{%commerce_charges}}';
     const COUNTRIES = '{{%commerce_countries}}';
-    const CUSTOMER_DISCOUNTUSES = '{{%commerce_customer_discountuses}}';
-    const CUSTOMERS = '{{%commerce_customers}}';
-    const CUSTOMERS_ADDRESSES = '{{%commerce_customers_addresses}}';
     const DISCOUNT_CATEGORIES = '{{%commerce_discount_categories}}';
     const DISCOUNT_PURCHASABLES = '{{%commerce_discount_purchasables}}';
     const DISCOUNT_USERGROUPS = '{{%commerce_discount_usergroups}}';
     const DISCOUNTS = '{{%commerce_discounts}}';
     const DONATIONS = '{{%commerce_donations}}';
-    const EMAIL_DISCOUNTUSES = '{{%commerce_email_discountuses}}';
     const EMAILS = '{{%commerce_emails}}';
     const GATEWAYS = '{{%commerce_gateways}}';
     const LINEITEMS = '{{%commerce_lineitems}}';
@@ -66,5 +62,8 @@ abstract class Table
     const TAXZONE_STATES = '{{%commerce_taxzone_states}}';
     const TAXZONES = '{{%commerce_taxzones}}';
     const TRANSACTIONS = '{{%commerce_transactions}}';
+    const USERS_ADDRESSES = '{{%commerce_users_addresses}}';
+    const USER_DISCOUNTUSES = '{{%commerce_user_discountuses}}';
+    const USERS = '{{%commerce_users}}';
     const VARIANTS = '{{%commerce_variants}}';
 }
