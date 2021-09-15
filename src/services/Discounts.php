@@ -225,12 +225,7 @@ class Discounts extends Component
     /**
      * @var array
      */
-    private $_matchingDiscountsToOrder;
-
-    /**
-     * @var array
-     */
-    private $_matchingDiscountsToLineItem;
+    private $_matchingLineItemCategoryCondition;
 
     /**
      * Get a discount by its ID.
@@ -523,43 +518,38 @@ class Discounts extends Component
             return false;
         }
 
-        $matchCacheKey = spl_object_hash($lineItem) . ':' . spl_object_hash($discount);
-
-        if (isset($this->_matchingDiscountsToLineItem[$matchCacheKey])) {
-            return $this->_matchingDiscountsToLineItem[$matchCacheKey];
-        }
-
         if ($lineItem->getOnSale() && $discount->excludeOnSale) {
-            return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
+            return false;
         }
 
         // can't match something not promotable
         if (!$lineItem->getPurchasable() || !$lineItem->getPurchasable()->getIsPromotable()) {
-            return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
+            return false;
         }
 
         if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
             if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
-                return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
+                return false;
             }
         }
 
-        if ($discount->getCategoryIds() && !$discount->allCategories && $lineItem->getPurchasable()) {
-            $purchasable = $lineItem->getPurchasable();
-
-            if (!$purchasable) {
-                return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
-            }
+        if ($discount->getCategoryIds() && !$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
 
             $key = 'type:' . $discount->categoryRelationshipType . 'element:' . $purchasable->getId() . 'categories:' . implode('|', $discount->getCategoryIds());
+
+            if (isset($this->_matchingLineItemCategoryCondition[$key]) && $this->_matchingLineItemCategoryCondition[$key] === false) {
+                return false;
+            }
 
             $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
             $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
             $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
             if (!$purchasableIsRelateToOneOrMoreCategories) {
-                return $this->_matchingDiscountsToLineItem[$matchCacheKey] = false;
+                return $this->_matchingLineItemCategoryCondition[$key] = false;
             }
+
+            $this->_matchingLineItemCategoryCondition[$key] = true;
         }
 
         $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
@@ -572,7 +562,7 @@ class Discounts extends Component
             $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
         }
 
-        return $this->_matchingDiscountsToLineItem[$matchCacheKey] = $event->isValid;
+        return $event->isValid;
     }
 
     /**
@@ -583,61 +573,55 @@ class Discounts extends Component
      */
     public function matchOrder(Order $order, Discount $discount): bool
     {
-        $matchCacheKey = $order->number . ':' . spl_object_hash($discount);
-
-        if (isset($this->_matchingDiscountsToOrder[$matchCacheKey])) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey];
-        }
-
         if (!$discount->enabled) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountCouponCodeValid($order, $discount)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountDateValid($order, $discount)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         $customer = $order->getCustomer();
         $user = $customer ? $customer->getUser() : null;
 
         if (!$this->isDiscountUserGroupValid($discount, $user)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountTotalUseLimitValid($discount)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountEmailRequirementValid($discount, $order)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountPerEmailLimitValid($discount, $order)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (!$this->_isDiscountConditionFormulaValid($order, $discount)) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         if (($discount->allPurchasables && $discount->allCategories) && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
-            return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+            return false;
         }
 
         // Check to see if we need to match on data related to the lineItems
@@ -655,19 +639,19 @@ class Discounts extends Component
             }
 
             if (!$lineItemMatch) {
-                return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+                return false;
             }
 
             if ($discount->purchaseTotal > 0 && $matchingTotal < $discount->purchaseTotal) {
-                return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+                return false;
             }
 
             if ($discount->purchaseQty > 0 && $matchingQty < $discount->purchaseQty) {
-                return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+                return false;
             }
 
             if ($discount->maxPurchaseQty > 0 && $matchingQty > $discount->maxPurchaseQty) {
-                return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
+                return false;
             }
         }
 
@@ -678,7 +662,7 @@ class Discounts extends Component
             $this->trigger(self::EVENT_DISCOUNT_MATCHES_ORDER, $event);
         }
 
-        return $this->_matchingDiscountsToOrder[$matchCacheKey] = $event->isValid;
+        return $event->isValid;
     }
 
 
@@ -797,7 +781,7 @@ class Discounts extends Component
             // Reset internal cache
             $this->_allDiscounts = null;
             $this->_activeDiscountsByKey = null;
-            $this->_matchingDiscountsToLineItem = null;
+            $this->_matchingLineItemCategoryCondition = null;
             $this->_matchingDiscountsToOrder = null;
 
             return true;
