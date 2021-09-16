@@ -25,14 +25,14 @@ use craft\helpers\Json;
 class UpdateOrderStatus extends ElementAction
 {
     /**
-     * @var int
+     * @var int|null
      */
-    public int $orderStatusId;
+    public ?int $orderStatusId = null;
 
     /**
      * @var string
      */
-    public string $message;
+    public string $message = '';
 
 
     /**
