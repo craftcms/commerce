@@ -42,7 +42,7 @@
 
 {% if currentUser.can('commerce-manageOrders') %}
   <h2>{{ 'Orders'|t('commerce') }}</h2>
-  {% include 'commerce/customers/_includes/_ordersTable' with { user: user } %}
+  {% include 'commerce/_includes/users/ordersTable' with { userId: user.id } %}
 
   <hr>
 
@@ -186,7 +186,7 @@
       new Craft.VueAdminTable({
         columns: cartColumns,
         container: '#active-vue-admin-table',
-        emptyMessage: Craft.t('commerce', 'No active carts exist for this customer.'),
+        emptyMessage: Craft.t('commerce', 'No active carts exist for this user.'),
         padded: true,
         tableData: {{ activeTableData|json_encode|raw }}
       });
@@ -198,7 +198,7 @@
       new Craft.VueAdminTable({
         columns: cartColumns,
         container: '#inactive-vue-admin-table',
-        emptyMessage: Craft.t('commerce', 'No inactive carts exist for this customer.'),
+        emptyMessage: Craft.t('commerce', 'No inactive carts exist for this user.'),
         padded: true,
         tableData: {{ inactiveTableData|json_encode|raw }}
       });

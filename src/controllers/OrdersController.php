@@ -333,20 +333,20 @@ class OrdersController extends Controller
         $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
 
-        $customerId = $request->getQueryParam('customerId', null);
+        $userId = $request->getQueryParam('userId', null);
 
-        if (!$customerId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Customer ID is required.'));
+        if (!$userId) {
+            return $this->asErrorJson(Craft::t('commerce', 'User ID is required.'));
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+        $user = Craft::$app->getUsers()->getUserById($userId);
 
-        if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+        if (!$user) {
+            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve user.'));
         }
 
         $orderQuery = Order::find()
-            ->customer($customer)
+            ->user($user)
             ->withAll() // eager-load all related data
             ->isCompleted();
 

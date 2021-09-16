@@ -26,7 +26,7 @@ new Craft.VueAdminTable({
     emptyMessage: Craft.t('commerce', 'No orders exist.'),
     padded: true,
     perPage: 10,
-    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?customerId={{ customer.id }}'),
+    tableDataEndpoint: Craft.getActionUrl('commerce/orders/user-orders-table?userId={{ userId }}'),
     search: true,
     searchPlaceholder: Craft.t('commerce', 'Search orders')
   });
