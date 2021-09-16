@@ -311,11 +311,11 @@ class Settings extends Model
     public bool $requireShippingMethodSelectionAtCheckout = false;
 
     /**
-     * @var bool Whether the [customer info tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
+     * @var bool Whether the [Commerce Tab](customers.md#user-customer-info-tab) should be shown when viewing users in the control panel.
      * @group System
-     * @since 3.0
+     * @since 4.0
      */
-    public bool $showCustomerInfoTab = true;
+    public bool $showEditUserCommerceTab = true;
 
     /**
      * @var string URL for a user to resolve billing issues with their subscription.

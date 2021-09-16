@@ -44,6 +44,7 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
+use craft\commerce\services\Users;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Webhooks;
 use yii\base\InvalidConfigException;
@@ -140,6 +141,7 @@ trait Services
      *
      * @return Customers The customers service
      * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getUsers()]] instead.
      */
     public function getCustomers(): Customers
     {
@@ -500,6 +502,17 @@ trait Services
     }
 
     /**
+     * Returns the users service
+     *
+     * @return Users The users service
+     * @throws InvalidConfigException
+     */
+    public function getUsers(): Users
+    {
+        return $this->get('users');
+    }
+
+    /**
      * Returns the variants service
      *
      * @return Variants The variants service
@@ -642,6 +655,9 @@ trait Services
             ],
             'transactions' => [
                 'class' => Transactions::class,
+            ],
+            'users' => [
+                'class' => Users::class,
             ],
             'variants' => [
                 'class' => Variants::class,

@@ -30,6 +30,7 @@
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.

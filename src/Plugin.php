@@ -749,9 +749,9 @@ class Plugin extends BasePlugin
      */
     private function _registerTemplateHooks(): void
     {
-        if ($this->getSettings()->showCustomerInfoTab) {
-            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCustomerInfoTab']);
-            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCustomerInfoTabContent']);
+        if ($this->getSettings()->showEditUserCommerceTab) {
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getUsers(), 'addEditUserCommerceTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getUsers(), 'addEditUserCommerceTabContent']);
         }
     }
 }
