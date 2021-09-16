@@ -23,6 +23,7 @@ abstract class Table
     const DISCOUNT_USERGROUPS = '{{%commerce_discount_usergroups}}';
     const DISCOUNTS = '{{%commerce_discounts}}';
     const DONATIONS = '{{%commerce_donations}}';
+    const EMAIL_DISCOUNTUSES = '{{%commerce_email_discountuses}}';
     const EMAILS = '{{%commerce_emails}}';
     const GATEWAYS = '{{%commerce_gateways}}';
     const LINEITEMS = '{{%commerce_lineitems}}';

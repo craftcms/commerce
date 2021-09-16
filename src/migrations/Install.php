@@ -138,6 +138,16 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::EMAIL_DISCOUNTUSES, [
+            'id' => $this->primaryKey(),
+            'discountId' => $this->integer()->notNull(),
+            'email' => $this->string()->notNull(),
+            'uses' => $this->integer()->notNull()->unsigned(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::USERS_ADDRESSES, [
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
@@ -870,6 +880,8 @@ class Install extends Migration
         $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
+        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
+        $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::USER_DISCOUNTUSES, ['userId', 'discountId'], true);
         $this->createIndex(null, Table::USER_DISCOUNTUSES, 'discountId', false);
         $this->createIndex(null, Table::USERS_ADDRESSES, ['userId', 'addressId'], true);
@@ -982,6 +994,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::USER_DISCOUNTUSES, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::USER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');

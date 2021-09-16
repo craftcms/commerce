@@ -77,6 +77,7 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
         array_walk($batchInsertUserIds, function(&$row) { $row = [$row]; });
         $this->batchInsert('{{%commerce_users}}', ['userId'], $batchInsertUserIds);
 
+        $this->createIndex(null, '{{%commerce_users}}', 'userId', true);
         $this->addForeignKey(null, '{{%commerce_users}}', ['userId'], '{{%users}}', ['id'], 'CASCADE', 'CASCADE');
 
         // Order Histories
@@ -110,53 +111,8 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
 
         $this->_switchCustomerIdToUserId('{{%commerce_user_discountuses}}', $allUserIdsByCustomerId);
 
-        $userDiscountUses = (new Query())->from('{{%commerce_user_discountuses}}')
-            ->select(['id', 'discountId', 'userId', 'uses', 'dateCreated', 'dateUpdated', 'uid'])
-            ->indexBy('id')
-            ->all();
-
-        $emailDiscountUses = (new Query())->from('{{%commerce_email_discountuses}}')
-            ->select(['discountId', 'email', 'uses', 'dateCreated', 'dateUpdated', 'uid'])
-            ->all();
-
-        if (!empty($emailDiscountUses)) {
-            foreach ($emailDiscountUses as $emailDiscountUse) {
-                $userId = $userIdsByEmail[$emailDiscountUse['email']] ?? null;
-                if (!$userId) {
-                    continue;
-                }
-
-                $discountId = $emailDiscountUse['discountId'];
-
-                $useRow = ArrayHelper::firstWhere($userDiscountUses, function($udu) use ($discountId, $userId) {
-                    return $udu['discountId'] == $discountId && $udu['userId'] == $userId;
-                });
-
-                if ($useRow) {
-                    $userDiscountUses[$useRow['id']]['uses'] += $emailDiscountUse['uses'];
-
-                    $userDiscountUses[$useRow['id']]['dateCreated'] = $useRow['dateCreated'] < $emailDiscountUse['dateCreated'] ? $useRow['dateCreated'] : $emailDiscountUse['dateCreated'];
-                    $userDiscountUses[$useRow['id']]['dateUpdated'] = $useRow['dateUpdated'] > $emailDiscountUse['dateUpdated'] ? $useRow['dateUpdated'] : $emailDiscountUse['dateUpdated'];
-                } else {
-                    $userDiscountUses[] = [
-                        null,
-                        $emailDiscountUse['discountId'],
-                        $userId,
-                        $emailDiscountUse['uses'],
-                        $emailDiscountUse['dateCreated'],
-                        $emailDiscountUse['dateUpdated'],
-                        $emailDiscountUse['uid'],
-                    ];
-                }
-            }
-        }
-
-        $this->truncateTable('{{%commerce_user_discountuses}}');
         $this->dropIndexIfExists('{{%commerce_user_discountuses}}', 'discountId', true);
-        $this->batchInsert('{{%commerce_user_discountuses}}', ['id', 'discountId', 'userId', 'uses', 'dateCreated', 'dateUpdated', 'uid'], $userDiscountUses, false);
         $this->createIndex(null, '{{%commerce_user_discountuses}}', ['userId', 'discountId'], true);
-
-        $this->dropTableIfExists('{{%commerce_email_discountuses}}');
 
         // Remove customers table
         $this->dropTableIfExists('{{%commerce_customers}}');
