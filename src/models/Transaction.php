@@ -37,19 +37,19 @@ class Transaction extends Model
     public ?int $id = null;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public int $orderId;
+    public ?int $orderId = null;
 
     /**
-     * @var int Parent transaction ID
+     * @var int|null Parent transaction ID
      */
-    public int $parentId;
+    public ?int $parentId = null;
 
     /**
-     * @var int User ID
+     * @var int|null User ID
      */
-    public int $userId;
+    public ?int $userId = null;
 
     /**
      * @var string Hash
@@ -57,9 +57,9 @@ class Transaction extends Model
     public string $hash;
 
     /**
-     * @var int Gateway ID
+     * @var int|null Gateway ID
      */
-    public int $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
      * @var string Currency
@@ -142,19 +142,19 @@ class Transaction extends Model
     private ?Gateway $_gateway;
 
     /**
-     * @var Transaction
+     * @var Transaction|null
      */
-    private Transaction $_parentTransaction;
+    private ?Transaction $_parentTransaction = null;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private Order $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var Transaction[]
+     * @var Transaction[]|null
      */
-    private array $_children;
+    private ?array $_children = null;
 
 
     /**
@@ -266,7 +266,7 @@ class Transaction extends Model
      */
     public function getParent(): ?Transaction
     {
-        if (!isset($this->_parentTransaction) && $this->parentId) {
+        if (null === $this->_parentTransaction && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
@@ -278,7 +278,7 @@ class Transaction extends Model
      */
     public function getOrder(): ?Order
     {
-        if (!isset($this->_order)) {
+        if (null === $this->_order) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -321,7 +321,7 @@ class Transaction extends Model
      */
     public function getChildTransactions(): array
     {
-        if (!isset($this->_children)) {
+        if (null === $this->_children) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
@@ -335,7 +335,7 @@ class Transaction extends Model
      */
     public function addChildTransaction(Transaction $transaction): void
     {
-        if (!isset($this->_children)) {
+        if (null === $this->_children) {
             $this->_children = [];
         }
 
