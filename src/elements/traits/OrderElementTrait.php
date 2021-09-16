@@ -19,6 +19,7 @@ use craft\elements\actions\Restore;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\models\FieldLayout;
 use Exception;
 
@@ -69,9 +70,9 @@ trait OrderElementTrait
             {
                 return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
-            case 'customer':
+            case 'user':
             {
-                return $this->getCustomerLinkHtml();
+                return $this->getUserLinkHtml();
             }
             case 'shippingFullName':
             {
@@ -464,7 +465,7 @@ trait OrderElementTrait
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'email' => ['label' => Craft::t('commerce', 'Email')],
-            'customer' => ['label' => Craft::t('commerce', 'Customer')],
+            'user' => ['label' => Craft::t('commerce', 'User')],
             'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
             'shippingFirstName' => ['label' => Craft::t('commerce', 'Shipping First Name')],
             'shippingLastName' => ['label' => Craft::t('commerce', 'Shipping Last Name')],
