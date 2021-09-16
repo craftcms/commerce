@@ -9,8 +9,8 @@
   'Is subscription active?',
   'New address',
   'No Addresses available.',
-  'No active carts exist for this customer.',
-  'No inactive carts exist for this customer.',
+  'No active carts exist for this user.',
+  'No inactive carts exist for this user.',
   'No subscriptions exist for this user yet.',
   'No',
   'Primary Billing Address',
@@ -26,7 +26,7 @@
   'Yes',
 ]) %}
 
-{% set addresses = customer.getAddresses() ?? null %}
+{% set addresses = user.getAddresses() ?? null %}
 {% set tableData = [] %}
 {% for address in addresses %}
   {% set tableData = tableData|merge([{
@@ -34,20 +34,20 @@
     title: address.address1 != '' ? address.address1|e : 'View address'|t('commerce'),
     url: address.cpEditUrl ~ (addressRedirect is defined and addressRedirect ? '?redirect=' ~ addressRedirect : ''),
     zipCode: address.zipCode|e,
-    billing: (customer.primaryBillingAddressId == address.id),
-    shipping: (customer.primaryShippingAddressId == address.id),
+    billing: (user.getPrimaryBillingAddressId() == address.id),
+    shipping: (user.getPrimaryShippingAddressId() == address.id),
     detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines(true)|join('<br>') }
   }]) %}
 {% endfor %}
 
 {% if currentUser.can('commerce-manageOrders') %}
   <h2>{{ 'Orders'|t('commerce') }}</h2>
-  {% include 'commerce/customers/_includes/_ordersTable' with { customer: customer } %}
+  {% include 'commerce/customers/_includes/_ordersTable' with { user: user } %}
 
   <hr>
 
   <h2>{{ 'Active Carts'|t('commerce') }}</h2>
-  {% set activeCarts = customer.getActiveCarts() %}
+  {% set activeCarts = user.getActiveCarts() %}
 
   {% set activeTableData = [] %}
 
@@ -65,7 +65,7 @@
 
   <hr>
   <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
-  {% set inactiveCarts = customer.getInactiveCarts() %}
+  {% set inactiveCarts = user.getInactiveCarts() %}
 
   {% set inactiveTableData = [] %}
   {% for order in inactiveCarts %}
@@ -83,7 +83,7 @@
 {% endif %}
 
 <hr>
-{% set newAddressParams = { customerId: customer.id } %}
+{% set newAddressParams = { userId: user.id } %}
 {% if addressRedirect is defined and addressRedirect %}
     {% set newAddressParams = newAddressParams|merge({ redirect: addressRedirect }) %}
 {% endif %}
@@ -93,7 +93,7 @@
 {% if currentUser.can('commerce-manageSubscriptions') %}
   <hr>
   <h2>{{ 'Subscriptions'|t('commerce') }}</h2>
-  {% set subscriptions = customer.subscriptions %}
+  {% set subscriptions = user.getSubscriptions() %}
 
   {% set subsTableData = [] %}
   {% for subscription in subscriptions %}

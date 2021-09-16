@@ -2,7 +2,7 @@
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
-    {% set addresses = craft.commerce.customers.customer.addresses %}
+    {% set addresses = currentUser ? currentUser.getAddresses() : [] %}
     <div class="flex -mx-8">
         <div class="w-2/3 px-8">
             <h1 class="text-xl font-bold">Where should we send your order?</h1>
