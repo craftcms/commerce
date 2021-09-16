@@ -15,7 +15,7 @@ use craft\helpers\FileHelper;
 use yii\console\ExitCode;
 
 /**
- * Allows you to create a new database backup.
+ * Console command to build example templates.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
