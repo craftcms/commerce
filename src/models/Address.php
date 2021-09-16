@@ -40,7 +40,7 @@ use yii\base\InvalidConfigException;
  * @property State $state
  * @property string $stateText
  * @property string $abbreviationText
- * @property int|string $stateValue
+ * @property int|string $administrativeValue
  * @property string $countryIso
  * @property Validator $vatValidator
  * @property-read array $addressLines
@@ -234,7 +234,7 @@ class Address extends Model implements AddressInterface
     /**
      * @var int|string|null Can be a State ID or State Name
      */
-    private $_stateValue = null;
+    private $_administrativeValue = null;
 
     /**
      * @var
@@ -322,7 +322,7 @@ class Address extends Model implements AddressInterface
     public function attributes(): array
     {
         $names = parent::attributes();
-        $names[] = 'stateValue';
+        $names[] = 'administrativeValue';
 
         return $names;
     }
@@ -378,7 +378,7 @@ class Address extends Model implements AddressInterface
         $labels['countryId'] = Craft::t('commerce', 'Country');
         $labels['stateId'] = Craft::t('commerce', 'State');
         $labels['stateName'] = Craft::t('commerce', 'State');
-        $labels['stateValue'] = Craft::t('commerce', 'State');
+        $labels['administrativeValue'] = Craft::t('commerce', 'State');
         $labels['custom1'] = Craft::t('commerce', 'Custom 1');
         $labels['custom2'] = Craft::t('commerce', 'Custom 2');
         $labels['custom3'] = Craft::t('commerce', 'Custom 3');
@@ -422,7 +422,7 @@ class Address extends Model implements AddressInterface
             'businessId',
             'businessName',
             'stateName',
-            'stateValue',
+            'administrativeValue',
             'custom1',
             'custom2',
             'custom3',
@@ -458,7 +458,7 @@ class Address extends Model implements AddressInterface
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
         $state = $this->stateId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->stateId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $this->addError('stateValue', Craft::t('commerce', 'Country requires a related state selected.'));
+            $this->addError('administrativeValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
     }
 
@@ -584,9 +584,9 @@ class Address extends Model implements AddressInterface
     /**
      * @return int|string
      */
-    public function getStateValue()
+    public function getadministrativeValue()
     {
-        if ($this->_stateValue === null) {
+        if ($this->_administrativeValue === null) {
             if ($this->stateName) {
                 return $this->stateId ?: $this->stateName;
             }
@@ -594,7 +594,7 @@ class Address extends Model implements AddressInterface
             return $this->stateId ?: '';
         }
 
-        return $this->_stateValue;
+        return $this->_administrativeValue;
     }
 
     /**
@@ -603,7 +603,7 @@ class Address extends Model implements AddressInterface
      * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      * @throws InvalidConfigException
      */
-    public function setStateValue($value): void
+    public function setAdministrativeValue($value): void
     {
         if ($value) {
             if (Plugin::getInstance()->getStates()->getAdministrativeAreaById((int)$value)) {
@@ -613,11 +613,11 @@ class Address extends Model implements AddressInterface
                 $this->stateName = $value;
             }
 
-            $this->_stateValue = $value;
+            $this->_administrativeValue = $value;
         } else {
             $this->stateId = null;
             $this->stateName = null;
-            $this->_stateValue = null;
+            $this->_administrativeValue = null;
         }
     }
 
@@ -740,7 +740,7 @@ class Address extends Model implements AddressInterface
             $this->businessName == $otherAddress->businessName &&
             (
                 (!empty($this->getStateName()) && $this->getStateName() == $otherAddress->getStateName()) ||
-                $this->stateValue == $otherAddress->stateValue
+                $this->administrativeValue == $otherAddress->administrativeValue
             ) &&
             (
                 (!empty($this->getCountryName()) && $this->getCountryName() == $otherAddress->getCountryName()) ||

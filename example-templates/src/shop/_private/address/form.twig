@@ -278,7 +278,7 @@
                     {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
                     <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}"
                             class="js-address-stateId w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded {% if options|length == 0 %}hidden{% endif %}"
-                            name="{{ modelName }}[stateValue]">
+                            name="{{ modelName }}[administrativeValue]">
                         <option>Select Country...</option>
                         {% for key, option in options %}
                             {% set optionValue = (model ? model.stateId : '') %}
@@ -291,11 +291,11 @@
                            id="{{ modelName }}-stateName"
                            data-modelname="{{ modelName }}"
                            class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
-                           {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %}
+                           {% if options|length == 0 %}name="{{ modelName }}[administrativeValue]"{% endif %}
                            value="{{ model ? model.stateName : '' }}"
                     >
-                    {% if model and model.getErrors('stateValue') %}
-                        <div class="text-red-700">{{ model.getErrors('stateValue')|join }}</div>
+                    {% if model and model.getErrors('administrativeValue') %}
+                        <div class="text-red-700">{{ model.getErrors('administrativeValue')|join }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -346,7 +346,7 @@ if ($countrySelects && $countrySelects.length) {
                     if (window.states.hasOwnProperty(cid)) {
                         // We have states for this country, show the states drop down.
                         $states.classList.remove('hidden');
-                        $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
+                        $states.setAttribute('name', $states.dataset.modelname + '[administrativeValue]');
 
                         // We have states for this country, hide the stateName input.
                         $stateName.removeAttribute('name');
@@ -369,7 +369,7 @@ if ($countrySelects && $countrySelects.length) {
 
                         // show the stateName
                         $stateName.classList.remove('hidden');
-                        $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
+                        $stateName.setAttribute('name', $stateName.dataset.modelname + '[administrativeValue]');
                     }
                 }
             }

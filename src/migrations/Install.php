@@ -100,7 +100,6 @@ class Install extends Migration
             'custom2' => $this->string(),
             'custom3' => $this->string(),
             'custom4' => $this->string(),
-            'administrativeAreaValue' => $this->string(), // previously stateValue
             'locality' => $this->string(), // previously city
             'dependentLocality' => $this->string(),
             'postalCode' => $this->string(), // previously zipCode
