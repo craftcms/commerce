@@ -467,12 +467,12 @@ class Addresses extends Component
             ->leftJoin(Table::ORDERS . ' beo', '[[addresses.id]] = [[beo.estimatedBillingAddressId]]')
             ->leftJoin(Table::ORDERS . ' so', '[[addresses.id]] = [[so.shippingAddressId]]')
             ->leftJoin(Table::ORDERS . ' seo', '[[addresses.id]] = [[seo.estimatedShippingAddressId]]')
-            ->leftJoin(Table::CUSTOMERS_ADDRESSES . ' c', '[[addresses.id]] = [[c.addressId]]')
+            ->leftJoin(Table::USERS_ADDRESSES . ' u', '[[addresses.id]] = [[u.addressId]]')
             ->where([
                 'and', [
                     '[[so.shippingAddressId]]' => null,
                     '[[seo.estimatedShippingAddressId]]' => null,
-                    '[[c.addressId]]' => null,
+                    '[[u.addressId]]' => null,
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
                     '[[addresses.isStoreLocation]]' => false,
