@@ -3,6 +3,26 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE`.
+- Added `craft\commerce\elements\db\OrderQuery::$userId`.
+- Added `craft\commerce\elements\db\OrderQuery::$withUser`.
+- Added `craft\commerce\elements\db\OrderQuery::user()`.
+- Added `craft\commerce\elements\db\OrderQuery::userId()`.
+- Added `craft\commerce\elements\Order::$userId`.
+- Added `craft\commerce\elements\Order::getUserId()`.
+- Added `craft\commerce\elements\Order::getUserLinkHtml()`.
+- Added `craft\commerce\elements\Order::setUser()`.
+- Added `craft\commerce\events\UserAddressEvent`.
+- Added `craft\commerce\models\OrderHistory::$userId`.
+- Added `craft\commerce\models\OrderHistory::getUser()`.
+- Added `craft\commerce\records\Order::getUser()`.
+- Added `craft\commerce\records\OrderHistory::getUser()`.
+- Added `craft\commerce\records\UserAddress`.
+- Added `craft\commerce\records\UserDiscountUse`.
+- Added `craft\commerce\services\Addresses::getAddressesByUserId()`.
+- Added `craft\commerce\services\Addresses::getAddressByIdAndUserId()`.
+- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -14,6 +34,7 @@
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
+- Renamed “Customer” column to “User” on Order indexes.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
@@ -29,8 +50,28 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\elements\db\OrderQuery::$customerId`. Use `$userId` instead.
+- Removed `craft\commerce\elements\db\OrderQuery::$withCustomer`. Use `$withUser` instead.
+- Removed `craft\commerce\elements\db\OrderQuery::customer()`. Use `user()` instead.
+- Removed `craft\commerce\elements\db\OrderQuery::customerId()`. Use `userId()` instead.
+- Removed `craft\commerce\elements\db\OrderQuery::withCustomer()`. Use `withUser()` instead.
+- Removed `craft\commerce\elements\Order::$customerID`. Use `getUserId()` instead.
+- Removed `craft\commerce\elements\Order::getCustomer()`. Use `getUser()` instead.
+- Removed `craft\commerce\elements\Order::getCustomerLinkHtml()`. Use `getUserLinkHtml()` instead.
+- Removed `craft\commerce\events\CustomerAddressEvent`. Use `UserAddressEvent` instead.
+- Removed `craft\commerce\models\OrderHistory::$customerId`. User `$userId` instead.
+- Removed `craft\commerce\models\OrderHistory::getCustomer()`. User `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
+- Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
+- Removed `craft\commerce\records\CustomerDiscountUse`. Use `UserDiscountUse` instead.
+- Removed `craft\commerce\records\Order::getCustomer()`. Use `getUser()` instead.
+- Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.
+- Removed `craft\commerce\services\Addresses::getAddressesByCustomerId()`. Use `getAddressesByUserId()` instead.
+- Removed `craft\commerce\services\Addresses::getAddressByIdByCustomerId()`. Use `getAddressByIdAndUserId()` instead.
+- Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
+- Removed `craft\commerce\services\Discounts::getCuustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
