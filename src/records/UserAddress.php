@@ -14,17 +14,19 @@ use craft\db\ActiveRecord;
  * Taz zone country
  *
  * @property int $addressId
- * @property int $customerId
+ * @property int $userId
+ * @property bool $isPrimaryBillingAddress
+ * @property bool $isPrimaryShippingAddress
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class CustomerAddress extends ActiveRecord
+class UserAddress extends ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::CUSTOMERS_ADDRESSES;
+        return Table::USERS_ADDRESSES;
     }
 }

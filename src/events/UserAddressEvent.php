@@ -8,16 +8,16 @@
 namespace craft\commerce\events;
 
 use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
+use craft\elements\User;
 use yii\base\Event;
 
 /**
- * Class CustomerAddressEvent
+ * Class UserAddressEvent
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.2.9
+ * @since 4.0
  */
-class CustomerAddressEvent extends Event
+class UserAddressEvent extends Event
 {
     /**
      * @var Address The address model
@@ -25,7 +25,7 @@ class CustomerAddressEvent extends Event
     public Address $address;
 
     /**
-     * @var Customer
+     * @var User
      */
-    public Customer $customer;
+    public User $user;
 }

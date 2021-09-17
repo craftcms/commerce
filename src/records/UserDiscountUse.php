@@ -9,13 +9,14 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\User;
 use yii\db\ActiveQueryInterface;
 
 /**
  * Customer discount record.
  *
- * @property Customer $customer
- * @property int $customerId
+ * @property User $user
+ * @property int $userId
  * @property Discount $discount
  * @property int $discountId
  * @property int $id
@@ -23,14 +24,14 @@ use yii\db\ActiveQueryInterface;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
-class CustomerDiscountUse extends ActiveRecord
+class UserDiscountUse extends ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::CUSTOMER_DISCOUNTUSES;
+        return Table::USER_DISCOUNTUSES;
     }
 
     /**
@@ -41,11 +42,12 @@ class CustomerDiscountUse extends ActiveRecord
         return $this->hasOne(Discount::class, ['id', 'discountId']);
     }
 
+
     /**
      * @return ActiveQueryInterface
      */
-    public function getCustomer(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id', 'customerId']);
+        return $this->hasOne(User::class, ['id', 'userId']);
     }
 }
