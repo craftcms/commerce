@@ -114,15 +114,19 @@ class OrderHistories extends Component
         $orderHistoryModel->newStatusId = $order->orderStatusId;
 
         // TODO refactor the method by which we store and work out who changed the order history #COM-51
-        $customerId = $order->customerId;
+        $userId = $order->userId;
 
         // Use to current customer's ID only if we aren't in a console request
         // and we currently have an active session
-        if (!Craft::$app->request->isConsoleRequest && !Craft::$app->getResponse()->isSent && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())) {
-            $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
+        if (!Craft::$app->request->isConsoleRequest
+            && !Craft::$app->getResponse()->isSent
+            && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())
+            && $currentUser = Craft::$app->getUser()->getIdentity()
+        ) {
+            $userId = $currentUser->id;
         }
 
-        $orderHistoryModel->customerId = $customerId;
+        $orderHistoryModel->userId = $userId;
 
         $orderHistoryModel->message = $order->message;
 
@@ -173,7 +177,7 @@ class OrderHistories extends Component
         $record->message = $model->message;
         $record->newStatusId = $model->newStatusId;
         $record->prevStatusId = $model->prevStatusId;
-        $record->customerId = $model->customerId;
+        $record->userId = $model->userId;
         $record->orderId = $model->orderId;
 
         // Save it!
