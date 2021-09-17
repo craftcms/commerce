@@ -481,7 +481,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user);
+                $userGroups = Plugin::getInstance()->getUsers()->getUserGroupIdsByUser($user);
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -491,7 +491,11 @@ class Sales extends Component
         // Are we dealing with the current session outside of any cart/order context
         if (!$order && !$sale->allGroups) {
             // User groups of the currently logged in user
-            $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser();
+            $userGroups = null;
+            if ($currentUser = Craft::$app->getUser()->getIdentity()) {
+                $userGroups = Plugin::getInstance()->getUsers()->getUserGroupIdsByUser($currentUser);
+            }
+
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                 return false;
             }
