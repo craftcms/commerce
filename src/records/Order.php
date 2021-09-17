@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\elements\User;
 use craft\records\Element;
 use DateTime;
 use yii\db\ActiveQueryInterface;
@@ -21,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $cancelUrl
  * @property string $couponCode
  * @property string $currency
- * @property ActiveQueryInterface $customer
- * @property int $customerId
+ * @property ActiveQueryInterface $user
+ * @property int $userId
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
  * @property DateTime $dateAuthorized
@@ -146,9 +147,9 @@ class Order extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getCustomer(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'userId']);
     }
 
     /**
