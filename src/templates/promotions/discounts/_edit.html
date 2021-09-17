@@ -302,8 +302,8 @@
             errors: discount.getErrors('maxPurchaseQty'),
         }) }}
 
-        {% set customerUsage = customerUsage and customerUsage|length ? customerUsage : {uses: 0, customers: 0} %}
-        {% set customerCounterMarkup %}
+        {% set userUsage = userUsage and userUsage|length ? userUsage : {uses: 0, users: 0} %}
+        {% set userCounterMarkup %}
             <div class="flex">
                 <div>
                     {{ forms.text({
@@ -315,14 +315,14 @@
                     }) }}
                 </div>
                 <div>
-                    <input id="customer-usage-counter" disabled class="text disabled fullwidth" size="30"
-                           value="{{ '{uses} uses across {customers} customers'|t('commerce', customerUsage) }}">
+                    <input id="user-usage-counter" disabled class="text disabled fullwidth" size="30"
+                           value="{{ '{uses} uses across {users} users'|t('commerce', userUsage) }}">
                 </div>
                 <div>
-                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-customer-usage-spinner"
-                         data-field="#customer-usage-counter"
-                         data-type="{{ counterTypeCustomer }}">{{ "Reset usage"|t('commerce') }}</div>
-                    <div id="clear-customer-usage-spinner" class="spinner hidden"></div>
+                    <div class="btn clear-btn discount-clear-use" data-spinner="#clear-user-usage-spinner"
+                         data-field="#user-usage-counter"
+                         data-type="{{ counterTypeUser }}">{{ "Reset usage"|t('commerce') }}</div>
+                    <div id="clear-user-usage-spinner" class="spinner hidden"></div>
                 </div>
             </div>
         {% endset %}
@@ -330,7 +330,7 @@
             label: "Per User Discount Limit"|t('commerce'),
             instructions: "How many times one user is allowed to use this discount. Setting this requires a user to be logged in to use the discount. Setting this will not allow guests to use the discount. Set to zero for unlimited use by guests or users."|t('commerce'),
             errors: discount.getErrors('perUserLimit')
-        }, customerCounterMarkup) }}
+        }, userCounterMarkup) }}
 
         {% set emailUsage = emailUsage and emailUsage|length ? emailUsage : {uses: 0, emails: 0} %}
         {% set emailCounterMarkup %}

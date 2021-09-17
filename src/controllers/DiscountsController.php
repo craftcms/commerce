@@ -39,7 +39,7 @@ class DiscountsController extends BaseCpController
 {
     const DISCOUNT_COUNTER_TYPE_TOTAL = 'total';
     const DISCOUNT_COUNTER_TYPE_EMAIL = 'email';
-    const DISCOUNT_COUNTER_TYPE_CUSTOMER = 'customer';
+    const DISCOUNT_COUNTER_TYPE_USER = 'user';
 
     /**
      * @inheritdoc
@@ -262,18 +262,18 @@ class DiscountsController extends BaseCpController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
         $type = Craft::$app->getRequest()->getBodyParam('type', 'total');
-        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
+        $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_USER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
             return $this->asErrorJson(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
         switch ($type) {
-            case self::DISCOUNT_COUNTER_TYPE_CUSTOMER:
-                Plugin::getInstance()->getDiscounts()->clearCustomerUsageHistoryById($id);
-                break;
             case self::DISCOUNT_COUNTER_TYPE_EMAIL:
                 Plugin::getInstance()->getDiscounts()->clearEmailUsageHistoryById($id);
+                break;
+            case self::DISCOUNT_COUNTER_TYPE_USER:
+                Plugin::getInstance()->getDiscounts()->clearUserUsageHistoryById($id);
                 break;
             case self::DISCOUNT_COUNTER_TYPE_TOTAL:
                 Plugin::getInstance()->getDiscounts()->clearDiscountUsesById($id);
@@ -391,15 +391,15 @@ class DiscountsController extends BaseCpController
         }
 
         $variables['counterTypeTotal'] = self::DISCOUNT_COUNTER_TYPE_TOTAL;
-        $variables['counterTypeCustomer'] = self::DISCOUNT_COUNTER_TYPE_CUSTOMER;
         $variables['counterTypeEmail'] = self::DISCOUNT_COUNTER_TYPE_EMAIL;
+        $variables['counterTypeUser'] = self::DISCOUNT_COUNTER_TYPE_USER;
 
         if ($variables['discount']->id) {
             $variables['emailUsage'] = Plugin::getInstance()->getDiscounts()->getEmailUsageStatsById($variables['discount']->id);
-            $variables['customerUsage'] = Plugin::getInstance()->getDiscounts()->getCustomerUsageStatsById($variables['discount']->id);
+            $variables['userUsage'] = Plugin::getInstance()->getDiscounts()->getUserUsageStatsById($variables['discount']->id);
         } else {
             $variables['emailUsage'] = 0;
-            $variables['customerUsage'] = 0;
+            $variables['userUsage'] = 0;
         }
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
