@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
+use craft\commerce\behaviors\UserBehavior;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -57,6 +58,7 @@ use craft\commerce\widgets\TotalRevenue;
 use craft\console\Controller as ConsoleController;
 use craft\console\controllers\ResaveController;
 use craft\elements\User as UserElement;
+use craft\events\DefineBehaviorsEvent;
 use craft\events\DefineConsoleActionsEvent;
 use craft\events\DefineFieldLayoutFieldsEvent;
 use craft\events\RebuildConfigEvent;
@@ -443,14 +445,25 @@ class Plugin extends BasePlugin
     private function _registerCraftEventListeners(): void
     {
         if (!Craft::$app->getRequest()->isConsoleRequest) {
-            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
-            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCustomers(), 'logoutHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getUsers(), 'loginHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
         }
 
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProductTypes(), 'afterSaveSiteHandler']);
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
-        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler'], null, false); // Lets run this before other plugins if we can
+
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
+
+        Event::on(
+            UserElement::class,
+            UserElement::EVENT_DEFINE_BEHAVIORS,
+            function(DefineBehaviorsEvent $event) {
+                $event->sender->attachBehaviors([
+                    UserBehavior::class,
+                ]);
+            }
+        );
+
         Event::on(Purchasable::class, Elements::EVENT_BEFORE_RESTORE_ELEMENT, [$this->getPurchasables(), 'beforeRestorePurchasableHandler']);
     }
 
