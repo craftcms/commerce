@@ -510,7 +510,10 @@ class CartController extends BaseFrontEndController
 
         // Shipping address
         if ($shippingAddressId && !$shippingIsBilling) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($shippingAddressId, $this->_cart->customerId);
+            $address = null;
+            if ($userId = $this->_cart->getUserId()) {
+                $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($shippingAddressId, $userId);
+            }
 
             $this->_cart->setShippingAddress($address);
         } else if ($shippingAddress && !$shippingIsBilling) {
@@ -519,7 +522,10 @@ class CartController extends BaseFrontEndController
 
         // Billing address
         if ($billingAddressId && !$billingIsShipping) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($billingAddressId, $this->_cart->customerId);
+            $address = null;
+            if ($userId = $this->_cart->getUserId()) {
+                $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($billingAddressId, $userId);
+            }
 
             $this->_cart->setBillingAddress($address);
         } else if ($billingAddress && !$billingIsShipping) {
