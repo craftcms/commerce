@@ -664,8 +664,6 @@ class Plugin extends BasePlugin
         Event::on(Gc::class, Gc::EVENT_RUN, function() {
             // Deletes carts that meet the purge settings
             Plugin::getInstance()->getCarts()->purgeIncompleteCarts();
-            // Deletes customers that are not related to any cart/order or user
-            Plugin::getInstance()->getCustomers()->purgeOrphanedCustomers();
             // Deletes addresses that are not related to customers, carts or orders
             Plugin::getInstance()->getAddresses()->purgeOrphanedAddresses();
         });
