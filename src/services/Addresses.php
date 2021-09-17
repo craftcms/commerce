@@ -188,43 +188,56 @@ class Addresses extends Component
     }
 
     /**
-     * Returns all of a customer's addresses, by the customer's ID.
+     * Returns all of a user's addresses, by the user's ID.
      *
-     * @param int $customerId the customer's ID
+     * @param int $userId the user's ID
      * @return Address[] an array of matched addresses
+     * @throws InvalidConfigException
      */
-    public function getAddressesByCustomerId(int $customerId): array
+    public function getAddressesByUserId(int $userId): array
     {
         $rows = $this->_createAddressQuery()
-            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
-            ->where(['customerAddresses.customerId' => $customerId])
+            ->innerJoin(Table::USERS_ADDRESSES . ' userAddresses', '[[userAddresses.addressId]] = [[addresses.id]]')
+            ->where(['userAddresses.userId' => $userId])
             ->all();
 
         $addresses = [];
 
         foreach ($rows as $row) {
-            $addresses[] = new Address($row);
+            $addresses[] = Craft::createObject(Address::class, ['config' => ['attributes' => $row]]);
         }
 
         return $addresses;
     }
 
     /**
-     * Returns an address by an address id and customer id.
+     * Returns an address by an address id and user id.
      *
      * @param int $addressId the address id
-     * @param int|null $customerId the customer's ID
+     * @param int $userId the user's ID
      * @return Address|null the matched address or null if not found
+     * @throws InvalidConfigException
      */
-    public function getAddressByIdAndCustomerId(int $addressId, ?int $customerId = null): ?Address
+    public function getAddressByIdAndUserId(int $addressId, int $userId): ?Address
     {
         $result = $this->_createAddressQuery()
-            ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
-            ->where(['customerAddresses.customerId' => $customerId])
+            ->innerJoin(Table::USERS_ADDRESSES . ' userAddresses', '[[userAddresses.addressId]] = [[addresses.id]]')
+            ->where(['userAddresses.userId' => $userId])
             ->andWhere(['addresses.id' => $addressId])
             ->one();
 
-        return $this->_addressesById[$addressId] = $result ? new Address($result) : null;
+        if (!$result) {
+            return null;
+        }
+
+        /** @var Address $address */
+        $address = Craft::createObject(Address::class, [
+            'config' => ['attributes' => $result],
+        ]);
+
+        $this->_addressesById[$addressId] = $address;
+
+        return $this->_addressesById[$addressId];
     }
 
     /**
