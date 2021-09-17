@@ -93,20 +93,20 @@ trait OrderValidatorsTrait
      */
     public function validateAddressCanBeUsed(string $attribute): void
     {
-        $customer = $this->getCustomer();
+        $user = $this->getUser();
         /** @var Address $address */
         $address = $this->$attribute;
 
         // We need to have a customer ID and an address ID
-        if ($customer && $customer->id && $address && $address->id) {
+        if ($user && $user->id && $address && $address->id) {
 
             $anotherOrdersAddress = false;
 
             // Is another customer related to this address?
             $anotherCustomerAddress = (new Query())
                 ->select('id')
-                ->from([Table::CUSTOMERS_ADDRESSES])
-                ->where(['not', ['customerId' => $customer->id]])
+                ->from([Table::USERS_ADDRESSES])
+                ->where(['not', ['userId' => $user->id]])
                 ->andWhere(['addressId' => $address->id])
                 ->all();
 
