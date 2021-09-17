@@ -275,7 +275,7 @@ class Users extends Component
         }
 
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
-        return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
+        return Craft::$app->getView()->renderTemplate('commerce/_includes/users/editUserTab', [
             'user' => $context['user'],
             'addressRedirect' => $context['user']->getCpEditUrl() . '#commerce',
         ]);
