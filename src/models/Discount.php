@@ -63,7 +63,7 @@ class Discount extends Model
     public int $perEmailLimit = 0;
 
     /**
-     * @var int Total use limit by guests or users
+     * @var int Total use limit by users
      * @since 3.0
      */
     public int $totalDiscountUseLimit = 0;
