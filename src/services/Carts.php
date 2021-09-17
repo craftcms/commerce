@@ -64,11 +64,18 @@ class Carts extends Component
     public function getCart(bool $forceSave = false): Order
     {
         $this->_getCartCount++; //useful when debugging
-        $customer = Plugin::getInstance()->getCustomers()->getCustomer();
+        $user = Craft::$app->getUser()->getIdentity();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
-            $this->_cart = new Order(['customer' => $customer]);
+            $cartAttributes = [];
+            if ($user) {
+                $cartAttributes['user'] = $user;
+            }
+
+            $this->_cart = Craft::createObject(Order::class, [
+                'config' => ['attributes' => $cartAttributes],
+            ]);
             $this->_cart->number = $this->getSessionCartNumber();
         }
 
@@ -80,24 +87,27 @@ class Carts extends Component
         $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalSiteId = $this->_cart->orderSiteId;
         $originalPaymentCurrency = $this->_cart->paymentCurrency;
-        $originalCustomerId = $this->_cart->customerId;
+        $originalUserId = $this->_cart->userId;
 
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
         $this->_cart->orderLanguage = Craft::$app->language;
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
-        $this->_cart->setCustomer($customer);
+
+        if (!$this->_cart->getUser() && $user) {
+            $this->_cart->setUser($user);
+        }
         $this->_cart->origin = Order::ORIGIN_WEB;
 
-        $changedIp = $originalIp != $this->_cart->lastIp;
-        $changedOrderLanguage = $originalOrderLanguage != $this->_cart->orderLanguage;
-        $changedOrderSiteId = $originalSiteId != $this->_cart->orderSiteId;
-        $changedPaymentCurrency = $originalPaymentCurrency != $this->_cart->paymentCurrency;
-        $changedCustomerId = $originalCustomerId != $this->_cart->customerId;
+        $hasIpChanged = $originalIp != $this->_cart->lastIp;
+        $hasOrderLanguageChanged = $originalOrderLanguage != $this->_cart->orderLanguage;
+        $hasOrderSiteIdChanged = $originalSiteId != $this->_cart->orderSiteId;
+        $hasPaymentCurrencyChanged = $originalPaymentCurrency != $this->_cart->paymentCurrency;
+        $hasUserChanged = $originalUserId != $this->_cart->userId;
 
         // Has the customer in session changed?
-        if ($changedCustomerId) {
+        if ($hasUserChanged) {
             // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
             if ($this->_cart->billingAddressId && $billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
                 $billingAddress->id = null;
@@ -110,11 +120,11 @@ class Carts extends Component
             }
         }
 
-        $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
+        $hasSomethingChangedOnCart = ($hasIpChanged || $hasOrderLanguageChanged || $hasUserChanged || $hasPaymentCurrencyChanged || $hasOrderSiteIdChanged);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
         // Manual force save only works when the order has not ID
-        if (($this->_cart->id && $somethingChangedOnTheCart) || ($forceSave && !$this->_cart->id)) {
+        if (($this->_cart->id && $hasSomethingChangedOnCart) || ($forceSave && !$this->_cart->id)) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
@@ -137,18 +147,16 @@ class Carts extends Component
             $number = $this->getSessionCartNumber();
             // Get the cart based on the number in the session.
             // It might be completed or trashed, but we still want to load it so we can determine this and forget it.
-            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->withLineItems()->withAdjustments()->one();
+            $cart = Order::find()->number($number)->trashed(null)->status(null)->withLineItems()->withAdjustments()->one();
         }
 
         // If the cart is already completed or trashed, forget the cart and start again.
         if ($cart) {
             if ($cart->isCompleted || $cart->trashed) {
                 $this->forgetCart();
-                Plugin::getInstance()->getCustomers()->forgetCustomer(); // safely forget the customer. If they are logged in the right customer will be loaded again.
                 $cart = null; // continue
             }
         }
-
 
         return $cart;
     }
