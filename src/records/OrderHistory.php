@@ -9,14 +9,15 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\User;
 use DateTime;
 use yii\db\ActiveQueryInterface;
 
 /**
  * Order history record.
  *
- * @property Customer $customer
- * @property int $customerId
+ * @property User $user
+ * @property int $userId
  * @property DateTime $dateCreated
  * @property int $id
  * @property string $message
@@ -68,8 +69,8 @@ class OrderHistory extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getCustomer(): ActiveQueryInterface
+    public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id' => 'customerId']);
+        return $this->hasOne(User::class, ['id' => 'userId']);
     }
 }

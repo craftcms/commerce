@@ -7,9 +7,11 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use DateTime;
 use yii\base\InvalidConfigException;
@@ -52,9 +54,9 @@ class OrderHistory extends Model
     public ?int $newStatusId;
 
     /**
-     * @var int|null Customer ID
+     * @var int|null User ID
      */
-    public ?int $customerId;
+    public ?int $userId;
 
     /**
      * @var Datetime|null
@@ -91,12 +93,15 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return Customer|null
-     * @throws InvalidConfigException
+     * @return User|null
      */
-    public function getCustomer(): ?Customer
+    public function getUser(): ?User
     {
-        return Plugin::getInstance()->getCustomers()->getCustomerById($this->customerId);
+        if (!$this->userId) {
+            return null;
+        }
+
+        return Craft::$app->getUsers()->getUserById($this->userId);
     }
 
     /**
@@ -105,7 +110,7 @@ class OrderHistory extends Model
     protected function defineRules(): array
     {
         return [
-            [['orderId', 'customerId'], 'required'],
+            [['orderId', 'userId'], 'required'],
         ];
     }
 }
