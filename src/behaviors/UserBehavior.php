@@ -104,6 +104,22 @@ class UserBehavior extends Behavior
     }
 
     /**
+     * Returns the completed order elements associated with this user.
+     * Orders are returned with the most recent first.
+     *
+     * @return Order[]
+     */
+    public function getOrders(): array
+    {
+        return Order::find()
+            ->user($this->owner)
+            ->isCompleted()
+            ->withAll()
+            ->orderBy('dateOrdered DESC')
+            ->all();
+    }
+
+    /**
      * Returns the subscription elements associated with this customer.
      *
      * @return Subscription[]

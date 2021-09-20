@@ -700,6 +700,7 @@ return [
     'No tax rate exists with the ID “{id}”' => 'No tax rate exists with the ID “{id}”',
     'No tax zone exists with the ID “{id}”' => 'No tax zone exists with the ID “{id}”',
     'No transactions exist.' => 'No transactions exist.',
+    'No user authenticated.' => 'No user authenticated.',
     'No' => 'No',
     'No. of Addresses' => 'No. of Addresses',
     'None' => 'None',

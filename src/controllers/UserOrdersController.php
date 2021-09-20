@@ -7,17 +7,17 @@
 
 namespace craft\commerce\controllers;
 
-use craft\commerce\Plugin;
+use Craft;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
- * Class Customer Orders Controller
+ * Class User Orders Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.2.7
+ * @since 4.0
  */
-class CustomerOrdersController extends BaseFrontEndController
+class UserOrdersController extends BaseFrontEndController
 {
     /**
      * Get customer's orders
@@ -29,8 +29,13 @@ class CustomerOrdersController extends BaseFrontEndController
     {
         $this->requireAcceptsJson();
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-        $orders = $customer->getOrders();
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if (!$user) {
+            return $this->asErrorJson(Craft::t('commerce', 'No user authenticated.'));
+        }
+
+        $orders = $user->getOrders();
 
         return $this->asJson(['success' => true, 'orders' => $orders]);
     }
