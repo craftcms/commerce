@@ -1,50 +1,50 @@
 <!-- Template: {{ _self }}.twig -->
 {% set checkoutSteps = [
-    {
-        label: "Email",
-        url: '[[folderName]]/checkout/email'
-    },
-    {
-        label: "Account",
-        url: '[[folderName]]/checkout/register-signin'
-    },
-    {
-        label: "Address",
-        url: '[[folderName]]/checkout/addresses'
-    },
-    {
-        label: "Shipping",
-        url: '[[folderName]]/checkout/shipping'
-    },
-    {
-        label: "Payment Method",
-        url: '[[folderName]]/checkout/payment-method'
-    },
-    {
-        label: "Payment",
-        url: '[[folderName]]/checkout/payment'
-    }
+  {
+    label: "Email",
+    url: '[[folderName]]/checkout/email'
+  },
+  {
+    label: "Account",
+    url: '[[folderName]]/checkout/register-signin'
+  },
+  {
+    label: "Address",
+    url: '[[folderName]]/checkout/addresses'
+  },
+  {
+    label: "Shipping",
+    url: '[[folderName]]/checkout/shipping'
+  },
+  {
+    label: "Payment Method",
+    url: '[[folderName]]/checkout/payment-method'
+  },
+  {
+    label: "Payment",
+    url: '[[folderName]]/checkout/payment'
+  }
 ] %}
 
 {% set totalSteps = checkoutSteps|length %}
 
 {% if width is not defined %}
-    {% set width = 0 %}
+  {% set width = 0 %}
 {% endif %}
 
 {% if craft.app.request.pathInfo in checkoutSteps|column('url') %}
-    <div class="container mx-auto justify-between items-center p-6 text-center text-xs">
-        <nav class="flex">
-            {% for step in checkoutSteps %}
-                {% if step.url == craft.app.request.pathInfo %}
-                    {% set width = ((loop.index) * 100 / totalSteps - 10) %}
-                {% endif %}
-                <a href="{{ url(step.url) }}"
-                   class="flex-1 text-gray-600 pb-2 {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
+  <div class="container mx-auto justify-between items-center p-6 text-center text-xs">
+    <nav class="flex">
+      {% for step in checkoutSteps %}
+        {% if step.url == craft.app.request.pathInfo %}
+          {% set width = ((loop.index) * 100 / totalSteps - 10) %}
+        {% endif %}
+        <a href="{{ url(step.url) }}"
+           class="flex-1 text-gray-600 pb-2 {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
       ">{{ step.label }}</a>
-            {% endfor %}
-        </nav>
-        <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
-        <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width:{{ width }}%;"></div>
-    </div>
+      {% endfor %}
+    </nav>
+    <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
+    <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width:{{ width }}%;"></div>
+  </div>
 {% endif %}

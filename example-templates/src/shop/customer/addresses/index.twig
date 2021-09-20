@@ -1,65 +1,65 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    {% set customer = craft.commerce.customers.customer %}
-    {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
-    {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
+  <!-- Template: {{ _self }}.twig -->
+  {% set customer = craft.commerce.customers.customer %}
+  {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
+  {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
 
-    {% if not currentUser %}
-        {% exit 404 %}
-    {% endif %}
+  {% if not currentUser %}
+    {% exit 404 %}
+  {% endif %}
 
-    <div class="flex justify-between items-center">
-        <h1 class="text-3xl block sm:inline">Addresses</h1>
-        <a class="[[classes.btn.small]] [[classes.btn.mainColor]]"
-           href="{{ url('/[[folderName]]/customer/addresses/edit') }}">
-            Add New Address
-        </a>
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl block sm:inline">Addresses</h1>
+    <a class="[[classes.btn.small]] [[classes.btn.mainColor]]"
+       href="{{ url('/[[folderName]]/customer/addresses/edit') }}">
+      Add New Address
+    </a>
+  </div>
+
+  {% if customer.addresses|length %}
+    <div class="grid mt-10 gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {% for address in customer.addresses %}
+        <div class="relative bg-gray-50 rounded p-2">
+          {{ include('[[folderName]]/_private/address/address', {address: address}) }}
+
+
+          <div>
+            {% if primaryBillingAddress and primaryBillingAddress.id == address.id %}
+              <span role="img" aria-label="Check Mark">✅</span> Primary Billing
+            {% endif %}
+          </div>
+          <div>
+            {% if primaryShippingAddress and primaryShippingAddress.id == address.id %}
+              <span role="img" aria-label="Check Mark">✅</span> Primary Shipping
+            {% endif %}
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div>
+              <a href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}"
+                 class="[[classes.btn.small]] [[classes.btn.mainColor]]">
+                Edit
+              </a>
+            </div>
+            <div>
+              <form method="post" action="">
+                {{ actionInput('commerce/customer-addresses/delete') }}
+                {{ hiddenInput('id', address.id) }}
+                {{ csrfInput() }}
+                <button type="submit" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-
-    {% if customer.addresses|length %}
-        <div class="grid mt-10 gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {% for address in customer.addresses %}
-                <div class="relative bg-gray-50 rounded p-2">
-                    {{ include('[[folderName]]/_private/address/address', {address: address}) }}
-
-
-                    <div>
-                        {% if primaryBillingAddress and primaryBillingAddress.id == address.id %}
-                            <span role="img" aria-label="Check Mark">✅</span> Primary Billing
-                        {% endif %}
-                    </div>
-                    <div>
-                        {% if primaryShippingAddress and primaryShippingAddress.id == address.id %}
-                            <span role="img" aria-label="Check Mark">✅</span> Primary Shipping
-                        {% endif %}
-                    </div>
-
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <a href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}"
-                               class="[[classes.btn.small]] [[classes.btn.mainColor]]">
-                                Edit
-                            </a>
-                        </div>
-                        <div>
-                            <form method="post" action="">
-                                {{ actionInput('commerce/customer-addresses/delete') }}
-                                {{ hiddenInput('id', address.id) }}
-                                {{ csrfInput() }}
-                                <button type="submit" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="mt-10">
-            <span>You don’t have any addresses yet.</span>
-        </div>
-    {% endif %}
+  {% else %}
+    <div class="mt-10">
+      <span>You don’t have any addresses yet.</span>
+    </div>
+  {% endif %}
 {% endblock %}

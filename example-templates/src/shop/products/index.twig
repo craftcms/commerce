@@ -1,12 +1,11 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    <h1 class="text-3xl block sm:inline">Products</h1>
+  <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-3xl block sm:inline">Products</h1>
 
-    {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
+  {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
 
-    {{ include('[[folderName]]/products/_includes/grid', { products: pageProducts }) }}
-    {{ include('[[folderName]]/products/_includes/pagination', { products: pageProducts, pageInfo: pageInfo }) }}
-
+  {{ include('[[folderName]]/products/_includes/grid', { products: pageProducts }) }}
+  {{ include('[[folderName]]/products/_includes/pagination', { products: pageProducts, pageInfo: pageInfo }) }}
 {% endblock %}

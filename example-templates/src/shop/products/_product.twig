@@ -1,58 +1,58 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    <div>
-        <div class="flex flex-wrap -mx-2">
-            <div class="w-full md:w-1/2 p-2">
-                <div class="bg-cover bg-center bg-gray-300 h-64 rounded"></div>
+  <!-- Template: {{ _self }}.twig -->
+  <div>
+    <div class="flex flex-wrap -mx-2">
+      <div class="w-full md:w-1/2 p-2">
+        <div class="bg-cover bg-center bg-gray-300 h-64 rounded"></div>
+      </div>
+      <div class="w-full md:w-1/2 p-2">
+        <h1 class="text-3xl block sm:inline">{{ product.defaultVariant.title }}</h1>
+        <h4 class="text-gray-500 mt-3">Description</h4>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+          et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+          cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+          culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <h4 class="text-gray-500 mt-3">Variants</h4>
+        <form method="post">
+          {{ actionInput('commerce/cart/update-cart') }}
+          {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
+          {{ csrfInput() }}
+          <div>
+            {% for variant in product.variants %}
+              {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
+              <div class="flex items-center justify-between w-full">
+                <div class="w-1/2">
+                  <span class="italic">{{ variant.title }}</span>
+                </div>
+                <div class="pl-2 w-1/4">
+                  <input type="text"
+                         name="purchasables[{{ loop.index }}][qty]"
+                         value="0"
+                         class="[[classes.input]] w-full"/>
+                </div>
+                <div class="pl-2 text-right w-1/4">
+                  {% if variant.onSale %}
+                    <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
+                    <br>{{ variant.salePriceAsCurrency }}
+                  {% else %}
+                    {{ variant.priceAsCurrency }}
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+            <div class="mt-3 pt-3 border-t border-gray-300 text-right">
+              <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                Add to cart
+              </button>
             </div>
-            <div class="w-full md:w-1/2 p-2">
-                <h1 class="text-3xl block sm:inline">{{ product.defaultVariant.title }}</h1>
-                <h4 class="text-gray-500 mt-3">Description</h4>
-                <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                    et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                    aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                    cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-                    culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <h4 class="text-gray-500 mt-3">Variants</h4>
-                <form method="post">
-                    {{ actionInput('commerce/cart/update-cart') }}
-                    {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
-                    {{ csrfInput() }}
-                    <div>
-                        {% for variant in product.variants %}
-                            {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
-                            <div class="flex items-center justify-between w-full">
-                                <div class="w-1/2">
-                                    <span class="italic">{{ variant.title }}</span>
-                                </div>
-                                <div class="pl-2 w-1/4">
-                                    <input type="text"
-                                           name="purchasables[{{ loop.index }}][qty]"
-                                           value="0"
-                                           class="[[classes.input]] w-full"/>
-                                </div>
-                                <div class="pl-2 text-right w-1/4">
-                                    {% if variant.onSale %}
-                                        <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
-                                        <br>{{ variant.salePriceAsCurrency }}
-                                    {% else %}
-                                        {{ variant.priceAsCurrency }}
-                                    {% endif %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                        <div class="mt-3 pt-3 border-t border-gray-300 text-right">
-                            <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                                Add to cart
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 {% endblock %}
