@@ -183,10 +183,10 @@
 
   {{ forms.textField({
     label: 'Business Name'|t('commerce'),
-    name: 'businessName',
-    id: 'businessName',
-    value : address.businessName,
-    errors: address.getErrors('businessName'),
+    name: 'organization',
+    id: 'organization',
+    value : address.organization,
+    errors: address.getErrors('organization'),
   }) }}
 
   {{ forms.textField({

@@ -80,7 +80,7 @@ class CustomerAddressesController extends BaseFrontEndController
             'alternativePhone',
             'label',
             'notes',
-            'businessName',
+            'organization',
             'businessTaxId',
             'businessId',
             'countryId',

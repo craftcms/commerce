@@ -247,9 +247,14 @@ class Address extends Model implements AddressInterface
     public $countryCode;
 
     /**
-     * @var string Administrative area
+     * @var string Administrative area id
      */
-    public $administrativeArea;
+    public $administrativeAreaId;
+    
+    /**
+     * @var string Administrative name
+     */
+    public $administrativeAreaName;
 
     /**
      * @var string Locality (City)
@@ -274,7 +279,12 @@ class Address extends Model implements AddressInterface
     /**
      * @var string Address line 2
      */
-    public $addressLine2;
+    public $addressLine2;    
+    
+    /**
+     * @var string Address line3
+     */
+    public $addressLine3;
 
     /**
      * @var string Organization
@@ -372,7 +382,7 @@ class Address extends Model implements AddressInterface
         $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
         $labels['phone'] = Craft::t('commerce', 'Phone');
         $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
-        $labels['businessName'] = Craft::t('commerce', 'Business Name');
+        $labels['organization'] = Craft::t('commerce', 'Business Name');
         $labels['businessId'] = Craft::t('commerce', 'Business ID');
         $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
         $labels['countryId'] = Craft::t('commerce', 'Country');
@@ -420,7 +430,7 @@ class Address extends Model implements AddressInterface
             'phone',
             'alternativePhone',
             'businessId',
-            'businessName',
+            'organization',
             'stateName',
             'administrativeValue',
             'custom1',
@@ -644,7 +654,7 @@ class Address extends Model implements AddressInterface
             'alternativePhone' => $this->alternativePhone,
             'label' => $this->label,
             'notes' => $this->notes,
-            'businessName' => $this->businessName,
+            'organization' => $this->organization,
             'businessTaxId' => $this->businessTaxId,
             'stateText' => $this->stateText,
             'countryText' => $this->countryText,
@@ -737,7 +747,7 @@ class Address extends Model implements AddressInterface
             $this->alternativePhone == $otherAddress->alternativePhone &&
             $this->label == $otherAddress->label &&
             $this->notes == $otherAddress->notes &&
-            $this->businessName == $otherAddress->businessName &&
+            $this->organization == $otherAddress->organization &&
             (
                 (!empty($this->getStateName()) && $this->getStateName() == $otherAddress->getStateName()) ||
                 $this->administrativeValue == $otherAddress->administrativeValue
@@ -827,7 +837,7 @@ class Address extends Model implements AddressInterface
 
     public function getOrganization()
     {
-        return $this->businessName;
+        return $this->organization;
     }
 
     public function getGivenName()

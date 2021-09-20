@@ -68,7 +68,7 @@ class StoreLocationController extends BaseStoreSettingsController
             'zipCode',
             'phone',
             'alternativePhone',
-            'businessName',
+            'organization',
             'businessTaxId',
             'businessId',
             'countryId',

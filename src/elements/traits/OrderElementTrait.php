@@ -99,11 +99,11 @@ trait OrderElementTrait
             }
             case 'shippingBusinessName':
             {
-                return $this->getShippingAddress()->businessName ?? '';
+                return $this->getShippingAddress()->organization ?? '';
             }
             case 'billingBusinessName':
             {
-                return $this->getBillingAddress()->businessName ?? '';
+                return $this->getBillingAddress()->organization ?? '';
             }
             case 'shippingMethodName':
             {

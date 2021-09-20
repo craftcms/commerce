@@ -85,7 +85,8 @@ class Install extends Migration
         $this->createTable(Table::ADDRESSES, [
             'id' => $this->primaryKey(),
             'countryId' => $this->integer(),
-            'administrativeAreaId' => $this->integer(), // previously stateId
+            'administrativeAreaId' => $this->integer(), // previously administrativeAreaId
+            'administrativeAreaName' => $this->string(), // previously stateName
             'isStoreLocation' => $this->boolean()->notNull()->defaultValue(false),
             'attention' => $this->string(),
             'title' => $this->string(),
@@ -107,7 +108,7 @@ class Install extends Migration
             'addressLine1' => $this->string(), // previously address1
             'addressLine2' => $this->string(), // previously address2
             'addressLine3' => $this->string(),
-            'organization' => $this->string(),
+            'organization' => $this->string(), // previously organization
             'givenName' => $this->string(), // previously firstName
             'familyName' => $this->string(), // previously lastName
             'additionalName' => $this->string(),
@@ -695,7 +696,7 @@ class Install extends Migration
         $this->createTable(Table::SHIPPINGZONE_STATES, [
             'id' => $this->primaryKey(),
             'shippingZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
+            'administrativeAreaId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -788,7 +789,7 @@ class Install extends Migration
         $this->createTable(Table::TAXZONE_STATES, [
             'id' => $this->primaryKey(),
             'taxZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
+            'administrativeAreaId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -925,7 +926,7 @@ class Install extends Migration
     public function createIndexes(): void
     {
         $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
-        $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
+        $this->createIndex(null, Table::ADDRESSES, 'administrativeAreaId', false);
         $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
@@ -1004,9 +1005,9 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId', 'countryId'], true);
         $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'shippingZoneId', false);
         $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId', 'stateId'], true);
+        $this->createIndex(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId', 'administrativeAreaId'], true);
         $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'stateId', false);
+        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'administrativeAreaId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
         $this->createIndex(null, Table::STATES, 'countryId', false);
         $this->createIndex(null, Table::STATES, ['countryId', 'abbreviation'], true);
@@ -1024,9 +1025,9 @@ class Install extends Migration
         $this->createIndex(null, Table::TAXZONE_COUNTRIES, ['taxZoneId', 'countryId'], true);
         $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, ['taxZoneId', 'stateId'], true);
+        $this->createIndex(null, Table::TAXZONE_STATES, ['taxZoneId', 'administrativeAreaId'], true);
         $this->createIndex(null, Table::TAXZONE_STATES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, 'stateId', false);
+        $this->createIndex(null, Table::TAXZONE_STATES, 'administrativeAreaId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
@@ -1042,7 +1043,7 @@ class Install extends Migration
     public function addForeignKeys(): void
     {
         $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ADDRESSES, ['administrativeAreaId'], Table::STATES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
@@ -1110,7 +1111,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['administrativeAreaId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::STATES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], '{{%users}}', ['id'], 'RESTRICT');
@@ -1121,7 +1122,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TAXZONE_STATES, ['administrativeAreaId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TAXZONE_STATES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');

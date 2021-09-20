@@ -370,7 +370,7 @@ class AddressTest extends Unit
                     'phone' => '555-555-5555',
                     'alternativePhone' => '',
                     'label' => 'Movies',
-                    'businessName' => '',
+                    'organization' => '',
                     'businessTaxId' => '',
                     'businessId' => '',
                     'countryId' => '236',

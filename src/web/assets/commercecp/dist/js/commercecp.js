@@ -110,8 +110,8 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='notes'>" + this.address.notes + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.businessName) {
-            $("<span class='businessName'>" + this.address.businessName + "<br></span>").appendTo(this.$address);
+        if (this.address.organization) {
+            $("<span class='organization'>" + this.address.organization + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.businessTaxId) {
@@ -316,7 +316,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 {field: 'alternativePhone', label: Craft.t('commerce', 'Phone (Alt)'), type: 'Text'},
                 {field: 'label', label: Craft.t('commerce', 'Label'), type: 'Text'},
                 {field: 'notes', label: Craft.t('commerce', 'Notes'), type: 'Textarea'},
-                {field: 'businessName', label: Craft.t('commerce', 'Business Name'), type: 'Text'},
+                {field: 'organization', label: Craft.t('commerce', 'Business Name'), type: 'Text'},
                 {field: 'businessTaxId', label: Craft.t('commerce', 'Business Tax ID'), type: 'Text'},
                 {field: 'businessId', label: Craft.t('commerce', 'Business ID'), type: 'Text'},
                 {field: 'custom1', label: Craft.t('commerce', 'Custom 1'), type: 'Text'},
@@ -419,7 +419,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'alternativePhone': this.$form.find('input[name=' + this.id + 'alternativePhone]').val(),
                 'label': this.$form.find('input[name=' + this.id + 'label]').val(),
                 'notes': this.$form.find('textarea[name=' + this.id + 'notes]').val(),
-                'businessName': this.$form.find('input[name=' + this.id + 'businessName]').val(),
+                'organization': this.$form.find('input[name=' + this.id + 'organization]').val(),
                 'businessTaxId': this.$form.find('input[name=' + this.id + 'businessTaxId]').val(),
                 'businessId': this.$form.find('input[name=' + this.id + 'businessId]').val(),
                 'stateValue': this.$form.find('select[name=' + this.id + 'stateValue]').val(),

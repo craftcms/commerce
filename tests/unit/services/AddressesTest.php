@@ -240,7 +240,7 @@ class AddressesTest extends Unit
             'phone',
             'alternativePhone',
             'label',
-            'businessName',
+            'organization',
             'businessTaxId',
             'businessId',
             'stateName',

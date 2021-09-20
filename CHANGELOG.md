@@ -3026,7 +3026,7 @@
 ## 0.9.1173 - 2015-11-09
 
 ### Added
-- Added a “Business Name” field to customer addresses (accessible via a `businessName` attribute), which replaces the “Company” field (and `company` attribute), and can be used to store customers’ businesses’ names when purchasing on behalf of their company.
+- Added a “Business Name” field to customer addresses (accessible via a `organization` attribute), which replaces the “Company” field (and `company` attribute), and can be used to store customers’ businesses’ names when purchasing on behalf of their company.
 - Added a “Business Tax ID” field to customer addresses (accessible via a `businessTaxId` attribute), which can be used to store customers’ businesses’ tax IDs (e.g. VAT) when purchasing on behalf of their company.
 - Added a `getCountriesByTaxZoneId()` method to the Tax Zones service.
 - Added a `getStatesByTaxZoneId()` method to the Tax Zones service.
@@ -3038,7 +3038,7 @@
 - The “Handle” field on Edit Tax Category pages is now automatically generated based on the “Name” field.
 - Plugin-based shipping methods are now listed in Commerce → Settings → Shipping Methods alongside the user-managed ones.
 - Orders can now be sorted by ID in the Control Panel.
-- Updated the example templates to account for the new `businessName` and `businessTaxId` address attributes.
+- Updated the example templates to account for the new `organization` and `businessTaxId` address attributes.
 
 ### Fixed
 - Fixed a PHP error that occurred when editing a product if PHP was configured to display strict errors.

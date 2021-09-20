@@ -286,25 +286,25 @@ class Addresses extends Component
 
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
-        $addressRecord->firstName = $addressModel->firstName;
-        $addressRecord->lastName = $addressModel->lastName;
+        $addressRecord->givenName = $addressModel->givenName;
+        $addressRecord->familyName = $addressModel->familyName;
         $addressRecord->fullName = $addressModel->fullName;
         $addressRecord->addressLine1 = $addressModel->addressLine1;
-        $addressRecord->address2 = $addressModel->address2;
-        $addressRecord->address3 = $addressModel->address3;
-        $addressRecord->city = $addressModel->city;
-        $addressRecord->zipCode = $addressModel->zipCode;
+        $addressRecord->addressLine2 = $addressModel->addressLine2;
+        $addressRecord->addressLine3 = $addressModel->addressLine3;
+        $addressRecord->locality = $addressModel->locality;
+        $addressRecord->postalCode = $addressModel->postalCode;
         $addressRecord->phone = $addressModel->phone;
         $addressRecord->alternativePhone = $addressModel->alternativePhone;
         $addressRecord->label = $addressModel->label;
         $addressRecord->notes = LitEmoji::unicodeToShortcode($addressModel->notes);
-        $addressRecord->businessName = $addressModel->businessName;
+        $addressRecord->organization = $addressModel->organization;
         $addressRecord->businessTaxId = $addressModel->businessTaxId;
         $addressRecord->businessId = $addressModel->businessId;
         $addressRecord->countryId = $addressModel->countryId;
         $addressRecord->isStoreLocation = $addressModel->isStoreLocation;
-        $addressRecord->stateId = $addressModel->stateId;
-        $addressRecord->stateName = $addressModel->stateName;
+        $addressRecord->administrativeAreaId = $addressModel->administrativeAreaId;
+        $addressRecord->administrativeAreaName = $addressModel->administrativeAreaName;
         $addressRecord->custom1 = $addressModel->custom1;
         $addressRecord->custom2 = $addressModel->custom2;
         $addressRecord->custom3 = $addressModel->custom3;
@@ -567,7 +567,7 @@ class Addresses extends Component
                 'addresses.alternativePhone',
                 'addresses.attention',
                 'addresses.businessId',
-                'addresses.businessName',
+                'addresses.organization',
                 'addresses.businessTaxId',
                 'addresses.locality',
                 'addresses.countryId',

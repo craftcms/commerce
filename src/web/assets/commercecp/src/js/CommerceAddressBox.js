@@ -86,8 +86,8 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='notes'>" + this.address.notes + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.businessName) {
-            $("<span class='businessName'>" + this.address.businessName + "<br></span>").appendTo(this.$address);
+        if (this.address.organization) {
+            $("<span class='organization'>" + this.address.organization + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.businessTaxId) {

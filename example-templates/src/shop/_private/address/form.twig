@@ -83,14 +83,14 @@
             </div>
 
             <div class="mt-3">
-                <label for="{{ modelName }}-businessName">Business Name</label>
+                <label for="{{ modelName }}-organization">Business Name</label>
                 <input type="text"
-                       id="{{ modelName }}-businessName"
-                       name="{{ modelName }}[businessName]"
+                       id="{{ modelName }}-organization"
+                       name="{{ modelName }}[organization]"
                        class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
-                       value="{{ model ? model.businessName : '' }}">
-                {% if model and model.getErrors('businessName') %}
-                    <div class="text-red-700">{{ model.getErrors('businessName')|join }}</div>
+                       value="{{ model ? model.organization : '' }}">
+                {% if model and model.getErrors('organization') %}
+                    <div class="text-red-700">{{ model.getErrors('organization')|join }}</div>
                 {% endif %}
             </div>
 

@@ -150,8 +150,8 @@
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-1/2 px-1">
-        <field :label="$options.filters.t('Business Name', 'commerce')" :errors="getErrors('businessName')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('businessName') }" v-model="address.businessName" @input="update($event, self())" />
+        <field :label="$options.filters.t('Business Name', 'commerce')" :errors="getErrors('organization')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('organization') }" v-model="address.organization" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/4 px-1">
