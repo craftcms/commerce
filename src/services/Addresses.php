@@ -16,6 +16,7 @@ use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
+use craft\commerce\records\UserAddress;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use LitEmoji\LitEmoji;
@@ -157,6 +158,10 @@ class Addresses extends Component
      * );
      */
     const EVENT_BEFORE_PURGE_ADDRESSES = 'beforePurgeAddresses';
+
+    const ADDRESS_TYPE_BILLING = 'billing';
+
+    const ADDRESS_TYPE_SHIPPING = 'shipping';
 
     /**
      * @var Address[]
@@ -562,6 +567,54 @@ class Addresses extends Component
         }
 
         return $orders;
+    }
+
+    /**
+     * @param int $id
+     * @param string $type
+     * @return bool
+     * @throws \Exception
+     */
+    public function setPrimaryAddressByAddressIdAndType(int $id, string $type = self::ADDRESS_TYPE_BILLING): bool
+    {
+        /** @var UserAddress $userAddressRecord */
+        $userAddressRecord = UserAddress::find()->where(['addressId' => $id])->one();
+
+        if (!$userAddressRecord) {
+            throw new \Exception(Craft::t('commerce', 'No address exists with the ID “{id}”', ['id' => $id]));
+        }
+
+        if (!Craft::$app->getUsers()->getUserById($userAddressRecord->userId)) {
+            throw new \Exception(Craft::t('commerce', 'User not found.'));
+        }
+
+        $where = ['userId' => $userAddressRecord->userId, ['not', ['addressId' => $userAddressRecord->addressId]]];
+        if ($type == self::ADDRESS_TYPE_BILLING) {
+            $userAddressRecord->isPrimaryBillingAddress = true;
+            $where = ['isPrimaryBillingAddress' => true];
+        } else if ($type == self::ADDRESS_TYPE_SHIPPING) {
+            $userAddressRecord->isPrimaryShippingAddress = true;
+            $where = ['isPrimaryShippingAddress' => true];
+        }
+
+        /** @var UserAddress $previousPrimaryAddress */
+        $previousPrimaryAddress = UserAddress::find()->where($where)->one();
+
+        if ($userAddressRecord->save()) {
+            if ($previousPrimaryAddress) {
+                if ($type == self::ADDRESS_TYPE_BILLING) {
+                    $previousPrimaryAddress->isPrimaryBillingAddress = false;
+                } else if ($type == self::ADDRESS_TYPE_SHIPPING) {
+                    $previousPrimaryAddress->isPrimaryShippingAddress = false;
+                }
+
+                $previousPrimaryAddress->save();
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

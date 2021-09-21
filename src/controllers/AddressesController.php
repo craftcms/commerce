@@ -219,41 +219,14 @@ class AddressesController extends BaseCpController
             return null;
         }
 
-        /** @var UserAddress $userAddressRecord */
-        $userAddressRecord = UserAddress::find()->where(['addressId' => $address->id])->one();
-
-        if (!$userAddressRecord || !$user = Craft::$app->getUsers()->getUserById($userAddressRecord->userId)) {
-            $this->setFailFlash(Craft::t('commerce', 'User not found.'));
-            return null;
-        }
-
-        $where = ['userId' => $user->id, ['not', ['addressId' => $userAddressRecord->id]]];
-        if ($type == 'billing') {
-            $userAddressRecord->isPrimaryBillingAddress = true;
-            $where = ['isPrimaryBillingAddress' => true];
-        } else if ($type == 'shipping') {
-            $userAddressRecord->isPrimaryShippingAddress = true;
-            $where = ['isPrimaryShippingAddress' => true];
-        }
-
-        /** @var UserAddress $previousPrimaryAddress */
-        $previousPrimaryAddress = UserAddress::find()->where($where)->one();
-
-        if ($userAddressRecord->save()) {
-
-            if ($previousPrimaryAddress) {
-                if ($type == 'billing') {
-                    $previousPrimaryAddress->isPrimaryBillingAddress = false;
-                } else if ($type == 'shipping') {
-                    $previousPrimaryAddress->isPrimaryShippingAddress = false;
-                }
-
-                $previousPrimaryAddress->save();
+        try {
+            if (Plugin::getInstance()->getAddresses()->setPrimaryAddressByAddressIdAndType($address->id, $type)) {
+                $this->setSuccessFlash(Craft::t('commerce', 'Primary address updated.'));
+            } else {
+                $this->setFailFlash(Craft::t('commerce', 'Couldn’t update primary address.'));
             }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Primary address updated.'));
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t update primary address.'));
+        } catch (\Exception $e) {
+            $this->setFailFlash($e->getMessage());
         }
 
         return $this->redirectToPostedUrl();

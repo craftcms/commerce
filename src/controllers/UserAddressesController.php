@@ -10,7 +10,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
+use craft\commerce\services\Addresses;
 use craft\errors\ElementNotFoundException;
+use craft\helpers\ArrayHelper;
 use Throwable;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -18,15 +20,15 @@ use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Customer Addresses Controller
+ * Class User Addresses Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 4.0
  */
-class CustomerAddressesController extends BaseFrontEndController
+class UserAddressesController extends BaseController
 {
     /**
-     * Add New Address
+     * Save User Address
      *
      * @return Response
      * @throws BadRequestHttpException
@@ -37,13 +39,12 @@ class CustomerAddressesController extends BaseFrontEndController
     public function actionSave(): ?Response
     {
         $this->requirePostRequest();
+        $this->requireLogin();
 
         $addressId = $this->request->getBodyParam('address.id');
 
-        $customerService = Plugin::getInstance()->getCustomers();
-        $customerId = $customerService->getCustomer()->id;
-        $addressIds = $customerService->getAddressIdsByCustomerId($customerId);
-        $customer = $customerService->getCustomerById($customerId);
+        $user = Craft::$app->getUser()->getIdentity();
+        $addressIds = ArrayHelper::getColumn($user->getAddresses(), 'id');
 
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
@@ -61,7 +62,7 @@ class CustomerAddressesController extends BaseFrontEndController
             $address = Plugin::getInstance()->getAddresses()->getAddressById($addressId);
         } else {
             // Otherwise, set up a new Address model to populate:
-            $address = new Address();
+            $address = Craft::createObject(Address::class);
         }
 
         // Attributes we want to merge into the Address model's data:
@@ -95,20 +96,17 @@ class CustomerAddressesController extends BaseFrontEndController
             $address->$attr = $this->request->getBodyParam("address.{$attr}", $address->$attr);
         }
 
-        if ($customerService->saveAddress($address)) {
-            $updatedCustomer = false;
+        if (Plugin::getInstance()->getUsers()->saveAddress($address, $user)) {
+            try {
+                if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
+                    Plugin::getInstance()->getAddresses()->setPrimaryAddressByAddressIdAndType($address->id, Addresses::ADDRESS_TYPE_BILLING);
+                }
 
-            if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
-                $customer->primaryBillingAddressId = $address->id;
-                $updatedCustomer = true;
-            }
+                if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
+                    Plugin::getInstance()->getAddresses()->setPrimaryAddressByAddressIdAndType($address->id, Addresses::ADDRESS_TYPE_SHIPPING);
+                }
 
-            if ($this->request->getBodyParam('makePrimaryShippingAddress')) {
-                $customer->primaryShippingAddressId = $address->id;
-                $updatedCustomer = true;
-            }
-
-            if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
+            } catch (\Exception $e) {
                 $error = Craft::t('commerce', 'Unable to update primary address.');
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson(['error' => $error]);
@@ -137,22 +135,22 @@ class CustomerAddressesController extends BaseFrontEndController
             $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
 
             return $this->redirectToPostedUrl($address);
-        } else {
-            $errorMsg = Craft::t('commerce', 'Could not save address.');
+        }
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $errorMsg,
-                    'errors' => $address->errors,
-                ]);
-            }
+        $errorMsg = Craft::t('commerce', 'Could not save address.');
 
-            $this->setFailFlash($errorMsg);
-
-            Craft::$app->getUrlManager()->setRouteParams([
-                'address' => $address,
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson([
+                'error' => $errorMsg,
+                'errors' => $address->errors,
             ]);
         }
+
+        $this->setFailFlash($errorMsg);
+
+        Craft::$app->getUrlManager()->setRouteParams([
+            'address' => $address,
+        ]);
 
         return null;
     }
@@ -170,9 +168,11 @@ class CustomerAddressesController extends BaseFrontEndController
     public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
+        $this->requireLogin();
 
-        $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
-        $addressIds = Plugin::getInstance()->getCustomers()->getAddressIdsByCustomerId($customerId);
+        $currentUser = Craft::$app->getUser()->getIdentity();
+
+        $addressIds = ArrayHelper::getColumn($currentUser->getAddresses(), 'id');
         $cart = Plugin::getInstance()->getCarts()->getCart(true);
 
         $id = $this->request->getRequiredBodyParam('id');
@@ -211,9 +211,9 @@ class CustomerAddressesController extends BaseFrontEndController
 
             $this->setSuccessFlash(Craft::t('commerce', 'Address removed.'));
             return $this->redirectToPostedUrl();
-        } else {
-            $error = Craft::t('commerce', 'Could not delete address.');
         }
+
+        $error = Craft::t('commerce', 'Could not delete address.');
 
         if ($this->request->getAcceptsJson()) {
             return $this->asJson(['error' => $error]);
@@ -234,10 +234,10 @@ class CustomerAddressesController extends BaseFrontEndController
     public function actionGetAddresses(): Response
     {
         $this->requireAcceptsJson();
+        $this->requireLogin();
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomer();
-        $addresses = $customer->getAddresses();
+        $currentUser = Craft::$app->getUser()->getIdentity();
 
-        return $this->asJson(['success' => true, 'addresses' => $addresses]);
+        return $this->asJson(['success' => true, 'addresses' => $currentUser->getAddresses()]);
     }
 }

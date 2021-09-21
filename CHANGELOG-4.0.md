@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\controllers\UserAddressesController`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE`.
 - Added `craft\commerce\elements\db\OrderQuery::$userId`.
 - Added `craft\commerce\elements\db\OrderQuery::$withUser`.
@@ -19,8 +20,11 @@
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\records\UserAddress`.
 - Added `craft\commerce\records\UserDiscountUse`.
+- Added `craft\commerce\services\Addresses::ADDRESS_TYPE_BILLING`.
+- Added `craft\commerce\services\Addresses::ADDRESS_TYPE_SHIPPING`.
 - Added `craft\commerce\services\Addresses::getAddressesByUserId()`.
 - Added `craft\commerce\services\Addresses::getAddressByIdAndUserId()`.
+- Added `craft\commerce\services\Addresses::setPrimaryAddressByAddressIdAndType()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
