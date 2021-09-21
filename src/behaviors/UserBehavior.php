@@ -168,8 +168,15 @@ class UserBehavior extends Behavior
      */
     public function getPrimaryBillingAddressId(): ?int
     {
-        if (null === $this->_primaryBillingAddressId) {
-            $this->setPrimaryBillingAddressId(UserAddress::find()->select(['addressId'])->where(['userId' => $this->owner->id])->andWhere(['isPrimaryBillingAddress' => true])->scalar());
+        if (null === $this->_primaryBillingAddressId && $this->owner->id) {
+            $this->setPrimaryBillingAddressId(UserAddress::find()
+                ->select(['addressId'])
+                ->where([
+                    'userId' => $this->owner->id,
+                    'isPrimaryBillingAddress' => true,
+                ])
+                ->scalar()
+            );
         }
 
         return $this->_primaryBillingAddressId;
@@ -188,8 +195,15 @@ class UserBehavior extends Behavior
      */
     public function getPrimaryShippingAddressId(): ?int
     {
-        if (null === $this->_primaryShippingAddressId) {
-            $this->setPrimaryShippingAddressId(UserAddress::find()->select(['addressId'])->where(['userId' => $this->owner->id])->andWhere(['isPrimaryShippingAddress' => true])->scalar());
+        if (null === $this->_primaryShippingAddressId && $this->owner->id) {
+            $this->setPrimaryShippingAddressId(UserAddress::find()
+                ->select(['addressId'])
+                ->where([
+                    'userId' => $this->owner->id,
+                    'isPrimaryShippingAddress' => true
+                ])
+                ->scalar()
+            );
         }
 
         return $this->_primaryShippingAddressId;

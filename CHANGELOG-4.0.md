@@ -50,6 +50,7 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Remove `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
 - Removed `craft\commerce\elements\db\OrderQuery::$customerId`. Use `$userId` instead.

@@ -276,25 +276,25 @@ class AddressesController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @since 3.1
+     * @since 4.0
      */
-    public function actionGetCustomerAddresses(): Response
+    public function actionGetUserAddresses(): Response
     {
         $this->requireAcceptsJson();
 
         $request = Craft::$app->getRequest();
-        $customerId = $request->getRequiredParam('customerId');
+        $userId = $request->getRequiredParam('userId');
         $page = $request->getParam('page', 1);
         $limit = $request->getParam('per_page', 10);
         $offset = ($page - 1) * $limit;
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+        $user = Craft::$app->getUsers()->getUserById($userId);
 
-        if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+        if (!$user) {
+            return $this->asErrorJson(Craft::t('commerce', 'User not found.'));
         }
 
-        $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
+        $addresses = $user->getAddresses();
 
         $total = count($addresses);
 
@@ -306,8 +306,8 @@ class AddressesController extends BaseCpController
                 'id' => $row->id,
                 'title' => $row->address1 ?: Craft::t('commerce', 'No Address Line 1'),
                 'zipCode' => $row->zipCode,
-                'billing' => ($row->id == $customer->primaryBillingAddressId),
-                'shipping' => ($row->id == $customer->primaryShippingAddressId),
+                'billing' => ($row->id == $user->getPrimaryBillingAddressId()),
+                'shipping' => ($row->id == $user->getPrimaryShippingAddressId()),
                 'address' => $row,
             ];
         }
