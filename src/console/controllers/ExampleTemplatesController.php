@@ -15,7 +15,7 @@ use craft\helpers\FileHelper;
 use yii\console\ExitCode;
 
 /**
- * Allows you to create a new database backup.
+ * Console command to build example templates.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
@@ -52,8 +52,8 @@ class ExampleTemplatesController extends Controller
     public $devBuild = false;
 
     /**
-     * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
-     * Possible values are: blue, red
+     * @var string The base color for the generated example templates.
+     * Possible values are: gray, red, yellow, green, blue, indigo, purple or pink.
      */
     public $baseColor;
 
