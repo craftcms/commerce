@@ -2,13 +2,13 @@
 {% do view.registerTranslations('commerce', []) %}
 
 {% set crumbs = [
-  { label: 'Customers'|t('commerce'), url: url('commerce/customers') },
+  { label: 'Users'|t('app'), url: cpUrl('users') },
 ] %}
-{% if customerId is defined and customerId %}
-  {% set crumbs = crumbs|merge([{ label: 'Customer #{id}'|t('commerce', { id: customerId }), url: cpUrl('commerce/customers/' ~ customerId) }]) %}
+{% if userId is defined and userId %}
+  {% set crumbs = crumbs|merge([{ label: 'User #{id}'|t('commerce', { id: userId }), url: cpUrl('users/' ~ userId) }]) %}
 {% endif %}
 
-{% set selectedSubnavItem = 'customers' %}
+{% set selectedSubnavItem = 'users' %}
 
 {% set fullPageForm = true %}
 
@@ -17,14 +17,14 @@
 {% block details %}
     {% if address and address.id %}
         <div class="meta read-only">
-            {% if customer and customer.userId and address.id and (customer.primaryBillingAddressId == address.id or customer.primaryShippingAddressId == address.id) %}
+            {% if isPrimaryBillingAddress or isPrimaryShippingAddress %}
                 <p><span data-icon="info"></span>
-                    {% if customer.primaryBillingAddressId == address.id and customer.primaryShippingAddressId == address.id %}
-                        {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: customer.email }) }}
-                    {% elseif customer.primaryBillingAddressId == address.id %}
-                        {{ 'This is the primary billing address for: {email}'|t('commerce', { email: customer.email }) }}
-                    {% elseif customer.primaryShippingAddressId == address.id %}
-                        {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: customer.email }) }}
+                    {% if isPrimaryBillingAddress and isPrimaryShippingAddress %}
+                        {{ 'This is the primary billing and shipping address for: {email}'|t('commerce', { email: user.email }) }}
+                    {% elseif isPrimaryBillingAddress %}
+                        {{ 'This is the primary billing address for: {email}'|t('commerce', { email: user.email }) }}
+                    {% elseif isPrimaryBillingAddress %}
+                        {{ 'This is the primary shipping address for: {email}'|t('commerce', { email: user.email }) }}
                     {% endif %}
                 </p>
             {% endif %}
@@ -239,7 +239,7 @@
 
   {# Hidden fields #}
   <input type="hidden" name="id" value="{{ address.id }}">
-  <input type="hidden" name="customerId" value="{{ customer ? customer.id|hash : null }}">
+  <input type="hidden" name="userId" value="{{ user ? user.id|hash : null }}">
   <input type="hidden" name="action" value="commerce/addresses/save">
   {% if redirect %}
     {{ redirectInput(redirect) }}

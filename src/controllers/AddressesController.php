@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
+use craft\commerce\records\UserAddress;
 use craft\db\Query;
 use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
@@ -48,8 +49,11 @@ class AddressesController extends BaseCpController
     public function actionEdit(int $addressId = null, AddressModel $address = null): Response
     {
         $variables = compact('addressId', 'address');
-        $variables['customerId'] = Craft::$app->getRequest()->getQueryParam('customerId');
-        $variables['customer'] = $variables['customerId'] ? Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']) : null;
+        $variables['isPrimaryBillingAddress'] = false;
+        $variables['isPrimaryShippingAddress'] = false;
+
+        $variables['userId'] = Craft::$app->getRequest()->getQueryParam('userId');
+        $variables['user'] = $variables['userId'] ? Craft::$app->getUsers()->getUserById($variables['userId']) : null;
 
         if (!$variables['address']) {
             $variables['address'] = null;
@@ -72,18 +76,22 @@ class AddressesController extends BaseCpController
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
 
-        if (!$variables['customerId']) {
-            $variables['customerId'] = (new Query())
-                ->from(Table::CUSTOMERS_ADDRESSES)
-                ->select(['customerId'])
+        if (!$variables['userId']) {
+            $row = (new Query())
+                ->from(Table::USERS_ADDRESSES)
+                ->select(['userId', 'isPrimaryBillingAddress', 'isPrimaryShippingAddress'])
                 ->where(['addressId' => $variables['address']->id])
-                ->scalar();
+                ->one();
+
+            if ($row) {
+                $variables = array_merge($variables, $row);
+            }
         }
 
-        if (!$variables['customer'] && $variables['customerId']) {
-            $variables['customer'] = Plugin::getInstance()->getCustomers()->getCustomerById($variables['customerId']);
+        if (!$variables['user'] && $variables['userId']) {
+            $variables['user'] = Craft::$app->getUsers()->getUserById($variables['userId']);
         }
-        $variables['redirect'] = 'commerce/customers' . ($variables['customerId'] ? '/' . $variables['customerId'] : '');
+        $variables['redirect'] = 'users' . ($variables['userId'] ? '/' . $variables['userId'] : '');
 
         if ($redirect = Craft::$app->getRequest()->getQueryParam('redirect')) {
             $variables['redirect'] = $redirect;
@@ -103,11 +111,11 @@ class AddressesController extends BaseCpController
         $address = null;
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
-        $customerId = Craft::$app->getRequest()->getValidatedBodyParam('customerId');
-        $customer = $customerId ? Plugin::getInstance()->getCustomers()->getCustomerById((int)$customerId) : null;
+        $userId = Craft::$app->getRequest()->getValidatedBodyParam('userId');
+        $user = Craft::$app->getUsers()->getUserById($userId);
 
-        if ($id && $customer) {
-            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId((int)$id, (int)$customer->id);
+        if ($id && $user) {
+            $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId((int)$id, (int)$user->id);
 
             if (!$address) {
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -156,7 +164,7 @@ class AddressesController extends BaseCpController
         }
 
         // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
-        $result = $customer ? Plugin::getInstance()->getCustomers()->saveAddress($address, $customer) : Plugin::getInstance()->getAddresses()->saveAddress($address);
+        $result = $user ? Plugin::getInstance()->getUsers()->saveAddress($address, $user) : Plugin::getInstance()->getAddresses()->saveAddress($address);
 
         // Save it
         if (!$result) {
@@ -211,26 +219,38 @@ class AddressesController extends BaseCpController
             return null;
         }
 
-        $customerId = (new Query())
-            ->select(['[[ca.customerId]]'])
-            ->from(Table::CUSTOMERS_ADDRESSES . ' ca')
-            ->innerJoin(Table::CUSTOMERS . ' c', '[[c.id]] = [[ca.customerId]]')
-            ->where(['[[ca.addressId]]' => $address->id])
-            ->andWhere(['not', ['[[c.id]]' => null]])
-            ->scalar();
+        /** @var UserAddress $userAddressRecord */
+        $userAddressRecord = UserAddress::find()->where(['addressId' => $address->id])->one();
 
-        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            $this->setFailFlash(Craft::t('commerce', 'Cannot find customer.'));
+        if (!$userAddressRecord || !$user = Craft::$app->getUsers()->getUserById($userAddressRecord->userId)) {
+            $this->setFailFlash(Craft::t('commerce', 'User not found.'));
             return null;
         }
 
+        $where = ['userId' => $user->id, ['not', ['addressId' => $userAddressRecord->id]]];
         if ($type == 'billing') {
-            $customer->primaryBillingAddressId = $address->id;
+            $userAddressRecord->isPrimaryBillingAddress = true;
+            $where = ['isPrimaryBillingAddress' => true];
         } else if ($type == 'shipping') {
-            $customer->primaryShippingAddressId = $address->id;
+            $userAddressRecord->isPrimaryShippingAddress = true;
+            $where = ['isPrimaryShippingAddress' => true];
         }
 
-        if (Plugin::getInstance()->getCustomers()->saveCustomer($customer)) {
+        /** @var UserAddress $previousPrimaryAddress */
+        $previousPrimaryAddress = UserAddress::find()->where($where)->one();
+
+        if ($userAddressRecord->save()) {
+
+            if ($previousPrimaryAddress) {
+                if ($type == 'billing') {
+                    $previousPrimaryAddress->isPrimaryBillingAddress = false;
+                } else if ($type == 'shipping') {
+                    $previousPrimaryAddress->isPrimaryShippingAddress = false;
+                }
+
+                $previousPrimaryAddress->save();
+            }
+
             $this->setSuccessFlash(Craft::t('commerce', 'Primary address updated.'));
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t update primary address.'));
