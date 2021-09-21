@@ -19,7 +19,7 @@ class m191017_183550_add_extra_address_fields extends Migration
      */
     public function safeUp()
     {
-        $this->addColumn('{{%commerce_addresses}}', 'fullName', $this->string()->after('lastName'));
+        $this->addColumn('{{%commerce_addresses}}', 'fullName', $this->string()->after('familyName'));
         $this->addColumn('{{%commerce_addresses}}', 'address3', $this->string()->after('address2'));
         $this->addColumn('{{%commerce_addresses}}', 'label', $this->string()->after('alternativePhone'));
         $this->addColumn('{{%commerce_addresses}}', 'notes', $this->text()->after('label'));

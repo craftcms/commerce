@@ -58,8 +58,8 @@ class StoreLocationController extends BaseStoreSettingsController
         $attributes = [
             'attention',
             'title',
-            'firstName',
-            'lastName',
+            'givenName',
+            'familyName',
             'fullName',
             'addressLine1',
             'address2',

@@ -93,13 +93,12 @@ class Address extends Model implements AddressInterface
     /**
      * @var string|null First Name
      */
-    public ?string $firstName = null;
-
-
+    public ?string $giveName = null;
+    
     /**
-     * @var string|null Last Name
+     * @var string|null Family Name
      */
-    public ?string $lastName = null;
+    public ?string $familyName = null;
 
     /**
      * @var string|null Full Name
@@ -300,11 +299,6 @@ class Address extends Model implements AddressInterface
      * @var string Additional name (Middle name / Patronymic)
      */
     public $additionalName;
-
-    /**
-     * @var string Family name (Last name)
-     */
-    public $familyName;
     
     /**
      * @inheritDoc
@@ -370,8 +364,8 @@ class Address extends Model implements AddressInterface
     public function attributeLabels(): array
     {
         $labels = parent::attributeLabels();
-        $labels['firstName'] = Craft::t('commerce', 'First Name');
-        $labels['lastName'] = Craft::t('commerce', 'Last Name');
+        $labels['givenName'] = Craft::t('commerce', 'First Name');
+        $labels['familyName'] = Craft::t('commerce', 'Last Name');
         $labels['fullName'] = Craft::t('commerce', 'Full Name');
         $labels['attention'] = Craft::t('commerce', 'Attention');
         $labels['title'] = Craft::t('commerce', 'Title');
@@ -417,8 +411,8 @@ class Address extends Model implements AddressInterface
         ];
 
         $textAttributes = [
-            'firstName',
-            'lastName',
+            'givenName',
+            'familyName',
             'fullName',
             'attention',
             'title',
@@ -643,7 +637,7 @@ class Address extends Model implements AddressInterface
     {
         $addressLines = [
             'attention' => $this->attention,
-            'name' => trim($this->title . ' ' . $this->firstName . ' ' . $this->lastName),
+            'name' => trim($this->title . ' ' . $this->giveName . ' ' . $this->familyName),
             'fullName' => $this->fullName,
             'addressLine1' => $this->addressLine1,
             'address2' => $this->address2,
@@ -735,8 +729,8 @@ class Address extends Model implements AddressInterface
         if (
             $this->attention == $otherAddress->attention &&
             $this->title == $otherAddress->title &&
-            $this->firstName == $otherAddress->firstName &&
-            $this->lastName == $otherAddress->lastName &&
+            $this->giveName == $otherAddress->giveName &&
+            $this->familyName == $otherAddress->familyName &&
             $this->fullName == $otherAddress->fullName &&
             $this->addressLine1 == $otherAddress->addressLine1 &&
             $this->address2 == $otherAddress->address2 &&
@@ -842,7 +836,7 @@ class Address extends Model implements AddressInterface
 
     public function getGivenName()
     {
-        return $this->firstName;
+        return $this->giveName;
     }
 
     public function getAdditionalName()
@@ -852,7 +846,7 @@ class Address extends Model implements AddressInterface
 
     public function getFamilyName()
     {
-        return $this->lastName;
+        return $this->familyName;
     }
 
     public function getLocale()

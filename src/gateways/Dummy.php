@@ -46,8 +46,8 @@ class Dummy extends SubscriptionGateway
         $paymentFormModel = $this->getPaymentFormModel();
 
         if (Craft::$app->getConfig()->general->devMode) {
-            $paymentFormModel->firstName = 'Jenny';
-            $paymentFormModel->lastName = 'Andrews';
+            $paymentFormModel->givenName = 'Jenny';
+            $paymentFormModel->familyName = 'Andrews';
             $paymentFormModel->number = '4242424242424242';
             $paymentFormModel->expiry = '01/2023';
             $paymentFormModel->cvv = '123';

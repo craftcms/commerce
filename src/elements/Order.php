@@ -926,12 +926,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->shippingAddress) {
-     * echo $order->shippingAddress->firstName;
+     * echo $order->shippingAddress->givenName;
      * }
      * ```
      * ```twig
      * {% if order.shippingAddress %}
-     * {{ order.shippingAddress.firstName }}
+     * {{ order.shippingAddress.givenName }}
      * {% endif %}
      * ```
      */
@@ -944,12 +944,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->billingAddress) {
-     * echo $order->billingAddress->firstName;
+     * echo $order->billingAddress->givenName;
      * }
      * ```
      * ```twig
      * {% if order.billingAddress %}
-     * {{ order.billingAddress.firstName }}
+     * {{ order.billingAddress.givenName }}
      * {% endif %}
      * ```
      */

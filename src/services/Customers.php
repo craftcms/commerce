@@ -649,17 +649,17 @@ class Customers extends Component
         $customersQuery = (new Query())
             ->select([
                 'billing.addressLine1 as billingAddress',
-                'billing.firstName as billingFirstName',
+                'billing.givenName as billingFirstName',
                 'billing.fullName as billingFullName',
-                'billing.lastName as billingLastName',
+                'billing.familyName as billingLastName',
                 'customers.id as id',
                 'email' => new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END'),
                 'primaryBillingAddressId',
                 'primaryShippingAddressId',
                 'shipping.addressLine1 as shippingAddress',
-                'shipping.firstName as shippingFirstName',
+                'shipping.givenName as shippingFirstName',
                 'shipping.fullName as shippingFullName',
-                'shipping.lastName as shippingLastName',
+                'shipping.familyName as shippingLastName',
                 'userId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
@@ -670,12 +670,12 @@ class Customers extends Component
             ->groupBy([
                 'customers.id',
                 'orders.email',
-                'billing.firstName',
-                'billing.lastName',
+                'billing.givenName',
+                'billing.familyName',
                 'billing.fullName',
                 'billing.addressLine1',
-                'shipping.firstName',
-                'shipping.lastName',
+                'shipping.givenName',
+                'shipping.familyName',
                 'shipping.fullName',
                 'shipping.addressLine1',
                 'users.email',
@@ -691,19 +691,19 @@ class Customers extends Component
             $customersQuery->andWhere([
                 'or',
                 [$likeOperator, '[[billing.addressLine1]]', $search],
-                [$likeOperator, '[[billing.firstName]]', $search],
+                [$likeOperator, '[[billing.givenName]]', $search],
                 [$likeOperator, '[[billing.fullName]]', $search],
-                [$likeOperator, '[[billing.lastName]]', $search],
+                [$likeOperator, '[[billing.familyName]]', $search],
                 [$likeOperator, '[[orders.email]]', $search],
                 [$likeOperator, '[[orders.reference]]', $search],
                 [$likeOperator, '[[orders.number]]', $search],
                 [$likeOperator, '[[shipping.addressLine1]]', $search],
-                [$likeOperator, '[[shipping.firstName]]', $search],
+                [$likeOperator, '[[shipping.givenName]]', $search],
                 [$likeOperator, '[[shipping.fullName]]', $search],
-                [$likeOperator, '[[shipping.lastName]]', $search],
+                [$likeOperator, '[[shipping.familyName]]', $search],
                 [$likeOperator, '[[users.username]]', $search],
-                [$likeOperator, '[[users.firstName]]', $search],
-                [$likeOperator, '[[users.lastName]]', $search],
+                [$likeOperator, '[[users.givenName]]', $search],
+                [$likeOperator, '[[users.familyName]]', $search],
                 [$likeOperator, '[[users.email]]', $search],
             ]);
         }
@@ -870,8 +870,8 @@ class Customers extends Component
         $user->unverifiedEmail = $order->email;
         $user->newPassword = null;
         $user->username = $order->email;
-        $user->firstName = $order->billingAddress->firstName ?? '';
-        $user->lastName = $order->billingAddress->lastName ?? '';
+        $user->givenName = $order->billingAddress->giveName ?? '';
+        $user->familyName = $order->billingAddress->familyName ?? '';
         $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS); //  don't validate required custom fields.
 

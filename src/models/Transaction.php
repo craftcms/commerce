@@ -142,9 +142,9 @@ class Transaction extends Model
     private ?Gateway $_gateway;
 
     /**
-     * @var Transaction
+     * @var Transaction|null
      */
-    private Transaction $_parentTransaction;
+    private ?Transaction $_parentTransaction = null;
 
     /**
      * @var Order

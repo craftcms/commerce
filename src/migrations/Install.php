@@ -109,8 +109,8 @@ class Install extends Migration
             'addressLine2' => $this->string(), // previously address2
             'addressLine3' => $this->string(),
             'organization' => $this->string(), // previously organization
-            'givenName' => $this->string(), // previously firstName
-            'familyName' => $this->string(), // previously lastName
+            'givenName' => $this->string(), // previously givenName
+            'familyName' => $this->string(), // previously familyName
             'additionalName' => $this->string(),
             'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),

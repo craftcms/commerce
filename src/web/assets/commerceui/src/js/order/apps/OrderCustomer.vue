@@ -14,8 +14,8 @@
             email: draft.order.email,
             photo: photo,
             fullName: draft.order.billingAddress && draft.order.billingAddress.fullName ? draft.order.billingAddress.fullName : null,
-            firstName: draft.order.billingAddress && draft.order.billingAddress.firstName ? draft.order.billingAddress.firstName : null,
-            lastName: draft.order.billingAddress && draft.order.billingAddress.lastName ? draft.order.billingAddress.lastName : null,
+            givenName: draft.order.billingAddress && draft.order.billingAddress.givenName ? draft.order.billingAddress.givenName : null,
+            familyName: draft.order.billingAddress && draft.order.billingAddress.familyName ? draft.order.billingAddress.familyName : null,
             user: user,
             url: customerUrl,
           }"

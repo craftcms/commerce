@@ -8,16 +8,16 @@
               >
                   <img v-if="customer.photo" class="w-full" :src="customer.photo" :alt="customer.email">
                   <div v-if="!customer.photo && customer.fullName">{{customer.fullName[0]}}</div>
-                  <div :class="getBgColor(customer.firstName)"
-                       v-if="!customer.photo && !customer.fullName && customer.firstName">{{customer.firstName[0]}}
+                  <div :class="getBgColor(customer.givenName)"
+                       v-if="!customer.photo && !customer.fullName && customer.givenName">{{customer.givenName[0]}}
                   </div>
               </div>
               <span class="status" :class="customer.user.status" v-if="customer.user"></span>
           </div>
           <div class="customer-info-container ml-1">
               <div v-if="customer.fullName">{{customer.fullName}}</div>
-              <div v-if="!customer.fullName && (customer.firstName || customer.lastName)">
-                  {{customer.firstName}}<span v-if="customer.firstName && customer.lastName">&nbsp;</span>{{customer.lastName}}
+              <div v-if="!customer.fullName && (customer.givenName || customer.familyName)">
+                  {{customer.givenName}}<span v-if="customer.givenName && customer.familyName">&nbsp;</span>{{customer.familyName}}
               </div>
               <div class="w-full light">{{customer.email}}</div>
               <div class="w-full" v-if="display && (customer.url || (customer.user && customer.user.url))">
@@ -80,7 +80,7 @@
                 let customerName = this.customer.fullName;
 
                 if (!customerName) {
-                    customerName = this.customer.firstName;
+                    customerName = this.customer.givenName;
                 }
 
                 if (!customerName) {

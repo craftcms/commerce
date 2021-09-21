@@ -30,7 +30,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @var int|null Card number
      */
-    public ?int $number = null;
+    public ?string $number = null;
 
     /**
      * @var int|null Expiry month
@@ -43,9 +43,9 @@ class CreditCardPaymentForm extends BasePaymentForm
     public ?int $year = null;
 
     /**
-     * @var int|null CVV number
+     * @var string|null CVV number
      */
-    public ?int $cvv = null;
+    public ?string $cvv = null;
 
     /**
      * @var string|null Token
@@ -90,7 +90,7 @@ class CreditCardPaymentForm extends BasePaymentForm
     protected function defineRules(): array
     {
         return [
-            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
+            [['givenName', 'familyName', 'month', 'year', 'cvv', 'number'], 'required'],
             [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
             [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12],
             [['cvv'], 'integer', 'integerOnly' => true],

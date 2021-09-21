@@ -7,6 +7,7 @@
 
 namespace craft\commerce\elements\db;
 
+use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\PurchasableInterface;
@@ -1370,7 +1371,7 @@ class OrderQuery extends ElementQuery
                     ->where(new Expression('[[lineitems.orderId]] = [[elements.id]]')),
             ]);
         }
-
+      
         return parent::beforePrepare();
     }
 }

@@ -39,8 +39,8 @@
                                 user: slotProps.option.user,
                                 email: slotProps.option.email,
                                 fullName: slotProps.option.billingFullName,
-                                firstName: slotProps.option.billingFirstName,
-                                lastName: slotProps.option.billingLastName,
+                                givenName: slotProps.option.billingFirstName,
+                                familyName: slotProps.option.billingLastName,
                             }"
                         ></customer>
                     </div>
@@ -114,7 +114,7 @@
                     return {customerId: this.customerId, email: this.order.email}
                 }
 
-                return {customerId: null, email: searchText, totalOrders: 0, userId: null, firstName: null, lastName: null}
+                return {customerId: null, email: searchText, totalOrders: 0, userId: null, givenName: null, familyName: null}
             },
 
             onSearch({searchText, loading}) {

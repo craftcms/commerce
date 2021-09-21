@@ -68,8 +68,8 @@ class CustomerAddressesController extends BaseFrontEndController
         $attrs = [
             'attention',
             'title',
-            'firstName',
-            'lastName',
+            'givenName',
+            'familyName',
             'fullName',
             'addressLine1',
             'address2',

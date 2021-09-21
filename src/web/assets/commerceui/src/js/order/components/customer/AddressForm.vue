@@ -22,13 +22,13 @@
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('First Name', 'commerce')" :errors="getErrors('firstName')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('firstName') }" v-model="address.firstName" @input="update($event, self())" />
+        <field :label="$options.filters.t('First Name', 'commerce')" :errors="getErrors('givenName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('givenName') }" v-model="address.givenName" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Last Name', 'commerce')" :errors="getErrors('lastName')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('lastName') }" v-model="address.lastName" @input="update($event, self())" />
+        <field :label="$options.filters.t('Last Name', 'commerce')" :errors="getErrors('familyName')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('familyName') }" v-model="address.familyName" @input="update($event, self())" />
         </field>
       </div>
     </div>

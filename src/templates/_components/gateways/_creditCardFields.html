@@ -8,31 +8,31 @@
         <!-- Card Holder Name -->
         <div class="item" data-colspan="1">
             {{ forms.text({
-                name: 'firstName',
+                name: 'givenName',
                 maxlength: 70,
                 placeholder: "First Name"|t('commerce'),
                 autocomplete: false,
-                class: 'card-holder-first-name'~(paymentForm.getErrors('firstName') ? ' error'),
-                value: paymentForm.firstName,
+                class: 'card-holder-first-name'~(paymentForm.getErrors('givenName') ? ' error'),
+                value: paymentForm.givenName,
                 required: true,
             }) }}
         </div>
 
         <div class="item" data-colspan="1">
             {{ forms.text({
-                name: 'lastName',
+                name: 'familyName',
                 maxlength: 70,
                 placeholder: "Last Name"|t('commerce'),
                 autocomplete: false,
-                class: 'card-holder-last-name'~(paymentForm.getErrors('lastName') ? ' error'),
-                value: paymentForm.lastName,
+                class: 'card-holder-last-name'~(paymentForm.getErrors('familyName') ? ' error'),
+                value: paymentForm.familyName,
                 required: true,
             }) }}
         </div>
     </div>
 
     {% set errors = [] %}
-    {% for attributeKey in ['firstName', 'lastName'] %}
+    {% for attributeKey in ['givenName', 'familyName'] %}
         {% set errors = errors|merge(paymentForm.getErrors(attributeKey)) %}
     {% endfor %}
 

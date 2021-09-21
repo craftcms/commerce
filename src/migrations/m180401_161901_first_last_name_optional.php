@@ -23,11 +23,11 @@ class m180401_161901_first_last_name_optional extends Migration
         if ($this->db->getIsPgsql()) {
             // Manually construct the SQL for Postgres
             // (see https://github.com/yiisoft/yii2/issues/12077)
-            $this->execute('alter table {{%commerce_addresses}} alter column [[firstName]] DROP NOT NULL');
-            $this->execute('alter table {{%commerce_addresses}} alter column [[lastName]] DROP NOT NULL');
+            $this->execute('alter table {{%commerce_addresses}} alter column [[givenName]] DROP NOT NULL');
+            $this->execute('alter table {{%commerce_addresses}} alter column [[familyName]] DROP NOT NULL');
         } else {
-            $this->alterColumn('{{%commerce_addresses}}', 'firstName', $this->string()->null());
-            $this->alterColumn('{{%commerce_addresses}}', 'lastName', $this->string()->null());
+            $this->alterColumn('{{%commerce_addresses}}', 'givenName', $this->string()->null());
+            $this->alterColumn('{{%commerce_addresses}}', 'familyName', $this->string()->null());
         }
         return true;
     }

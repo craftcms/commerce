@@ -90,12 +90,12 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='title'>" + this.address.title + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.firstName) {
-            $("<span class='firstName'>" + this.address.firstName + "<br></span>").appendTo(this.$address);
+        if (this.address.givenName) {
+            $("<span class='givenName'>" + this.address.givenName + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.lastName) {
-            $("<span class='lastName'>" + this.address.lastName + "<br></span>").appendTo(this.$address);
+        if (this.address.familyName) {
+            $("<span class='familyName'>" + this.address.familyName + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.fullName) {
@@ -294,14 +294,14 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 {field: 'attention', label: Craft.t('commerce', 'Attention'), type: 'Text'},
                 {field: 'title', label: Craft.t('commerce', 'Title'), type: 'Text'},
                 {
-                    field: 'firstName',
+                    field: 'givenName',
                     label: Craft.t('commerce', 'First Name'),
                     required: true,
                     autofocus: true,
                     type: 'Text'
                 },
                 {
-                    field: 'lastName',
+                    field: 'familyName',
                     label: Craft.t('commerce', 'Last Name'),
                     required: true,
                     type: 'Text'
@@ -407,8 +407,8 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'id': this.$form.find('input[name=id]').val(),
                 'attention': this.$form.find('input[name=' + this.id + 'attention]').val(),
                 'title': this.$form.find('input[name=' + this.id + 'title]').val(),
-                'firstName': this.$form.find('input[name=' + this.id + 'firstName]').val(),
-                'lastName': this.$form.find('input[name=' + this.id + 'lastName]').val(),
+                'givenName': this.$form.find('input[name=' + this.id + 'givenName]').val(),
+                'familyName': this.$form.find('input[name=' + this.id + 'familyName]').val(),
                 'fullName': this.$form.find('input[name=' + this.id + 'fullName]').val(),
                 'addressLine1': this.$form.find('input[name=' + this.id + 'addressLine1]').val(),
                 'address2': this.$form.find('input[name=' + this.id + 'address2]').val(),

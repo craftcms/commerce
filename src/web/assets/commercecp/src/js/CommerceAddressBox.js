@@ -66,12 +66,12 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='title'>" + this.address.title + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.firstName) {
-            $("<span class='firstName'>" + this.address.firstName + "<br></span>").appendTo(this.$address);
+        if (this.address.givenName) {
+            $("<span class='givenName'>" + this.address.givenName + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.lastName) {
-            $("<span class='lastName'>" + this.address.lastName + "<br></span>").appendTo(this.$address);
+        if (this.address.familyName) {
+            $("<span class='familyName'>" + this.address.familyName + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.fullName) {

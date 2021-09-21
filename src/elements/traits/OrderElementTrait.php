@@ -79,11 +79,11 @@ trait OrderElementTrait
             }
             case 'shippingFirstName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->firstName ?? '' : '';
+                return $this->getShippingAddress() ? $this->getShippingAddress()->giveName ?? '' : '';
             }
             case 'shippingLastName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->lastName ?? '' : '';
+                return $this->getShippingAddress() ? $this->getShippingAddress()->familyName ?? '' : '';
             }
             case 'billingFullName':
             {
@@ -91,11 +91,11 @@ trait OrderElementTrait
             }
             case 'billingFirstName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->firstName ?? '' : '';
+                return $this->getBillingAddress() ? $this->getBillingAddress()->giveName ?? '' : '';
             }
             case 'billingLastName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->lastName ?? '' : '';
+                return $this->getBillingAddress() ? $this->getBillingAddress()->familyName ?? '' : '';
             }
             case 'shippingBusinessName':
             {
@@ -247,9 +247,9 @@ trait OrderElementTrait
     {
         switch ($attribute) {
             case 'billingFirstName':
-                return $this->billingAddress->firstName ?? '';
+                return $this->billingAddress->giveName ?? '';
             case 'billingLastName':
-                return $this->billingAddress->lastName ?? '';
+                return $this->billingAddress->familyName ?? '';
             case 'billingFullName':
                 return $this->billingAddress->fullName ?? '';
             case 'billingPhone':
@@ -259,9 +259,9 @@ trait OrderElementTrait
                 $addressLines = $address ? $address->getAddressLines(true) : [];
                 return implode(' ', $addressLines);
             case 'shippingFirstName':
-                return $this->shippingAddress->firstName ?? '';
+                return $this->shippingAddress->giveName ?? '';
             case 'shippingLastName':
-                return $this->shippingAddress->lastName ?? '';
+                return $this->shippingAddress->familyName ?? '';
             case 'shippingFullName':
                 return $this->shippingAddress->fullName ?? '';
             case 'shippingPhone':
@@ -446,7 +446,6 @@ trait OrderElementTrait
     protected static function defineTableAttributes(): array
     {
         return [
-            'order' => ['label' => Craft::t('commerce', 'Order')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -567,12 +566,12 @@ trait OrderElementTrait
             'totalPaid' => Craft::t('commerce', 'Total Paid'),
             [
                 'label' => Craft::t('commerce', 'Shipping First Name'),
-                'orderBy' => 'shipping_address.firstName',
+                'orderBy' => 'shipping_address.givenName',
                 'attribute' => 'shippingFirstName',
             ],
             [
                 'label' => Craft::t('commerce', 'Shipping Last Name'),
-                'orderBy' => 'shipping_address.lastName',
+                'orderBy' => 'shipping_address.familyName',
                 'attribute' => 'shippingLastName',
             ],
             [
@@ -582,12 +581,12 @@ trait OrderElementTrait
             ],
             [
                 'label' => Craft::t('commerce', 'Billing First Name'),
-                'orderBy' => 'billing_address.firstName',
+                'orderBy' => 'billing_address.givenName',
                 'attribute' => 'billingFirstName',
             ],
             [
                 'label' => Craft::t('commerce', 'Billing Last Name'),
-                'orderBy' => 'billing_address.lastName',
+                'orderBy' => 'billing_address.familyName',
                 'attribute' => 'billingLastName',
             ],
             [

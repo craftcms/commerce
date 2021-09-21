@@ -38,20 +38,20 @@
 
         {{ forms.textField({
             label: 'First Name'|t('commerce'),
-            id: 'firstName',
-            name: 'firstName',
-            placeholder: storeLocation.firstName,
-            value: storeLocation.firstName,
-            errors: storeLocation.getErrors('firstName'),
+            id: 'givenName',
+            name: 'givenName',
+            placeholder: storeLocation.givenName,
+            value: storeLocation.givenName,
+            errors: storeLocation.getErrors('givenName'),
         }) }}
 
         {{ forms.textField({
             label: 'Last Name'|t('commerce'),
-            id: 'lastName',
-            name: 'lastName',
-            placeholder: storeLocation.lastName,
-            value: storeLocation.lastName,
-            errors: storeLocation.getErrors('lastName'),
+            id: 'familyName',
+            name: 'familyName',
+            placeholder: storeLocation.familyName,
+            value: storeLocation.familyName,
+            errors: storeLocation.getErrors('familyName'),
         }) }}
 
         {{ forms.textField({
