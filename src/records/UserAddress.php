@@ -11,14 +11,14 @@ use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 
 /**
- * Taz zone country
+ * User Address
  *
  * @property int $addressId
  * @property int $userId
  * @property bool $isPrimaryBillingAddress
  * @property bool $isPrimaryShippingAddress
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 2.0
+ * @since 4.0
  */
 class UserAddress extends ActiveRecord
 {
