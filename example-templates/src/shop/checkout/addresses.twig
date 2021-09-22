@@ -5,10 +5,11 @@
   {% set addresses = craft.commerce.customers.customer.addresses %}
   <div class="flex -mx-8">
     <div class="w-2/3 px-8">
-      <h1 class="text-xl font-bold">Where should we send your order?</h1>
+      <h1 class="text-xl font-bold">
+        {{- 'Where should we send your order?'|t -}}
+      </h1>
 
       <div class="mt-6">
-
         <form method="post" action="">
           {{ actionInput('commerce/cart/update-cart') }}
           {{ successMessageInput('Addresses selected.') }}
@@ -16,13 +17,14 @@
           {{ csrfInput() }}
 
           {% if not cart.email %}
-            <label for="email">Email</label>
+            <label for="email">{{ 'Email'|t }}</label>
             <input type="email"
-                   id="email"
                    name="email"
-                   class="w-full [[classes.input]]"
+                   id="email"
                    value="{{ cart.email }}"
-                   placeholder="email@site.com"/>
+                   class="w-full [[classes.input]]"
+                   placeholder="email@site.com"
+            />
 
             <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
           {% endif %}
@@ -38,19 +40,21 @@
           <div class="mt-3">
             <label>
               <input type="checkbox"
-                     id="billingAddressSameAsShipping"
                      name="billingAddressSameAsShipping"
-                     checked="checked"/>
-              Use same address for billing
+                     id="billingAddressSameAsShipping"
+                     checked="checked"
+              />
+              {{ 'Use same address for billing'|t }}
             </label>
           </div>
 
           <div class="mt-3">
             <label>
               <input type="checkbox"
+                     name="makePrimaryShippingAddress"
                      id="makePrimaryShippingAddress"
-                     name="makePrimaryShippingAddress"/>
-              Make this the primary shipping address
+              />
+              {{ 'Make this the primary shipping address'|t }}
             </label>
           </div>
 
@@ -65,16 +69,16 @@
           <div class="mt-3">
             <label>
               <input type="checkbox"
+                     name="makePrimaryBillingAddress"
                      id="makePrimaryBillingAddress"
-                     name="makePrimaryBillingAddress"/>
-              Make this the primary billing address
+              />
+              {{ 'Make this the primary billing address'|t }}
             </label>
           </div>
 
           <div class="mt-3 flex justify-end">
-            <button type="submit"
-                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-              Confirm addresses
+            <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+              {{- 'Confirm addresses'|t -}}
             </button>
           </div>
         </form>

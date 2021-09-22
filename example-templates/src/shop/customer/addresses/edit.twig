@@ -1,19 +1,19 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% set addressId = craft.app.request.param('addressId') %}
+{% set redirect = craft.app.request.param('redirect') %}
+
+{% if not address is defined and addressId %}
+  {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
+{% endif %}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  {% set addressId = craft.app.request.param('addressId') %}
-  {% set redirect = craft.app.request.param('redirect') %}
-
-  {% if not address is defined and addressId %}
-    {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
-  {% endif %}
-
   <h1 class="text-xl font-semibold">
     {% if addressId %}
-      Edit Address
+      {{- 'Edit address'|t -}}
     {% else %}
-      Add a new address
+      {{- 'Add a new address'|t -}}
     {% endif %}
   </h1>
 
@@ -40,35 +40,42 @@
     <div>
       <label class="flex items-center">
         <input type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}
-               id="makePrimaryShippingAddress"
                name="makePrimaryShippingAddress"
-               class="mr-2"/>
-        Make this the primary shipping address
+               id="makePrimaryShippingAddress"
+               class="mr-2"
+        />
+        {{ 'Make this the primary shipping address'|t }}
       </label>
     </div>
 
     <div>
       <label class="flex items-center">
         <input type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}
-               id="makePrimaryBillingAddress"
                name="makePrimaryBillingAddress"
-               class="mr-2"/>
-        Make this the primary billing address
+               id="makePrimaryBillingAddress"
+               class="mr-2"
+        />
+        {{ 'Make this the primary billing address'|t }}
       </label>
     </div>
 
     <div class="mt-6 flex justify-between">
       <div>
         {% if redirect %}
-          <a href="/{{ redirect }}" class="[[classes.a]]">Cancel</a>
+          <a href="/{{ redirect }}" class="[[classes.a]]">
+            {{- 'Cancel'|t -}}
+          </a>
         {% else %}
-          <a href="{{ url('/[[folderName]]/customer/addresses') }}" class="[[classes.a]]">Cancel</a>
+          <a href="{{ url('/[[folderName]]/customer/addresses') }}" class="[[classes.a]]">
+            {{- 'Cancel'|t -}}
+          </a>
         {% endif %}
       </div>
       <div>
         <button type="submit"
-                class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-          Save Address
+                class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+        >
+          {{- 'Save Address'|t -}}
         </button>
       </div>
     </div>

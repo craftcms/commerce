@@ -2,10 +2,11 @@
 {% if craft.commerce.edition == 'lite' %}
   <div class="bg-[[dangerColor]]-800 text-white">
     <div class="container mx-auto p-6">
-      Because you are running Craft Commerce <span
-              class="bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded"> {{ craft.commerce.edition|upper }}</span>
-      you can only have one item in your cart at a time.
-      <a class="underline " href="https://craftcms.com/docs/commerce/3.x/editions.html">Learn More</a>.
+      {{ 'You’re limited to one cart item at a time with Craft Commerce <span class="{classes}"> {edition}</span>. <a href="{url}">Learn more</a>.'|t('site', {
+        classes: 'bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded',
+        edition: 'craft.commerce.edition|upper',
+        url: 'https://craftcms.com/docs/commerce/3.x/editions.html',
+      }) }}
     </div>
   </div>
 {% endif %}
@@ -13,24 +14,41 @@
 <div class="bg-gray-500 text-white">
   <div class="container mx-auto p-6">
     {% if not currentUser %}
-      <p class="text-1xl">You are a guest user that is not logged in.</p>
+      <p class="text-1xl">{{ 'You’re a guest user that’s not logged in.'|t }}</p>
     {% endif %}
 
     {% if currentUser %}
-      <p class="text-1xl">Logged in as <code class="rounded p-1 bg-gray-700 text-xs">{{ currentUser.username }}</code>
-      {% if currentUser.groups %}, in user groups: {% for group in currentUser.groups %}<code
-              class="rounded p-1 bg-gray-700 text-xs mr-2">{{ group.name }}</code>{% endfor %}</p>{% endif %}
+      <p class="text-1xl">
+        {% if currentUser.groups %}
+          {% set userGroups %}
+            {% for group in currentUser.groups %}
+              <code class="rounded p-1 bg-gray-700 text-xs mr-2">{{ group.name }}</code>
+            {% endfor %}
+          {% endset %}
+          {{ 'Logged in as <code class="{classes}">{user}</code>, in user groups: {groups}.'|t('site', {
+            classes: 'rounded p-1 bg-gray-700 text-xs',
+            user: currentUser.username,
+            groups: userGroups
+          }) }}
+        {% else %}
+          {{ 'Logged in as <code class="{classes}">{user}</code>.'|t('site', {
+            classes: 'rounded p-1 bg-gray-700 text-xs',
+            user: currentUser.username
+          }) }}
+        {% endif %}
     {% endif %}
   </div>
 </div>
 
 <div class="bg-gray-900 text-white">
   <div class="container mx-auto p-6">
-    <h3 class="text-2xl pb-3">Example Templates</h3>
-    <p class="pb-3 max-w-2xl">These are the example templates for Craft Commerce 3.3</p>
-    <p class="pb-3 max-w-2xl">We do not recommend using these example templates as-is for your site, but suggest
-      extracting portions and customizing them as appropriate.</p>
-    <p class="pb-3">Here are some other resources to get you started:</p>
+    <h3 class="text-2xl pb-3">
+      {{- 'Example Templates'|t -}}
+    </h3>
+    <p class="pb-3 max-w-2xl">{{ 'These are the example templates for Craft Commerce 3.3.'|t }}</p>
+    <p class="pb-3 max-w-2xl">{{ 'They’re not meant to use as-is for your site, but as a starting point for learning and
+      further customization.'|t }}</p>
+    <p class="pb-3">{{ 'Here are some other resources to get you started:'|t }}</p>
     <ul class="list-disc list-inside pb-2">
       <li><a href="https://craftcms.com/docs/commerce/3.x/" class="[[classes.a]] underline">Craft Commerce
           Documentation</a>.
@@ -38,16 +56,18 @@
       <li><a href="https://craftcms.com/docs/3.x/" class="[[classes.a]] underline">Craft CMS Documentation</a>.
       </li>
       <li><a href="http://craftcms.stackexchange.com" class="[[classes.a]] underline">Craft CMS Stack Exchange</a>.
-        Use the
-        <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
+        Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
       </li>
-      <li><a href="https://craftcms.com/discord" class="[[classes.a]] underline">Craft Discord Community</a>. Use
-        the <code
-                class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
+      <li><a href="https://craftcms.com/discord" class="[[classes.a]] underline">Craft Discord Community</a>.
+        Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
       </li>
     </ul>
-    <p class="pb-2 pt-2 text-xs text-gray-700">These templates use pure
-      <a href="http://tailwindcss.com" class="underline">Tailwind</a> classes, and native javascript. You are
-      running the {{ craft.commerce.edition|upper }} edition of Craft Commerce.</p>
+    <p class="pb-2 pt-2 text-xs text-gray-700">
+      {{ 'These templates use <a href="{url}" class="underline">Tailwind</a> CSS classes and native JavaScript. You’re
+      running the {edition} edition of Craft Commerce.'|t('site', {
+        url: 'https://tailwindcss.com',
+        edition: craft.commerce.edition|upper
+      }) }}
+    </p>
   </div>
 </div>

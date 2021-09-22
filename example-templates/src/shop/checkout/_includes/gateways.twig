@@ -2,7 +2,7 @@
 {% set paymentSources = paymentSources is not defined ? [] : paymentSources %}
 {% set availableGateways = availableGateways is not defined ? [] : availableGateways %}
 
-<label class="font-semibold">Choose a payment gateway or payment source:</label>
+<label class="font-semibold">{{ 'Choose a payment gateway or payment source'|t }}:</label>
 {% if paymentSources|length %}
   {% for source in paymentSources %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
@@ -15,7 +15,7 @@
         </div>
         <div>
           <strong>{{ source.description }}</strong>
-          <br><span class="text-gray-600">Stored source</span>
+          <br><span class="text-gray-600">{{ 'Stored source'|t }}</span>
         </div>
       </div>
     </label>
@@ -25,18 +25,19 @@
 {% if availableGateways|length %}
   {% for id,name in availableGateways %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-      <div class="flex justify-start items-center">
-        <div class="pr-2">
+      <span class="flex justify-start items-center">
+        <span class="pr-2">
           <input type="radio"
                  name="gatewayId"
                  value="{{ id }}"
-                 {% if id == cart.gatewayId %}checked{% endif %} />
-        </div>
-        <div>
+                 {% if id == cart.gatewayId %}checked{% endif %}
+          />
+        </span>
+        <span>
           <strong>{{ name }}</strong>
-          <br><span class="text-gray-600">Payment gateway</span>
-        </div>
-      </div>
+          <br><span class="text-gray-600">{{ 'Payment gateway'|t }}</span>
+        </span>
+      </span>
     </label>
   {% endfor %}
 {% endif %}

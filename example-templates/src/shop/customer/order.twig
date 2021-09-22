@@ -1,11 +1,11 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% set number = craft.app.request.getRequiredParam('number') %}
+{% set order = craft.orders.number(number).one() %}
+
 {% set extraHead %}
   <meta name="robots" content="noindex">
 {% endset %}
-
-{% set number = craft.app.request.getRequiredParam('number') %}
-{% set order = craft.orders.number(number).one() %}
 
 {% if not order or order.isCompleted == false %}
   {% redirect '[[folderName]]/customer' %}
@@ -15,71 +15,77 @@
   <!-- Template: {{ _self }}.twig -->
   {% if currentUser %}
     <div class="mt-3">
-      <p><a href="{{ url('/[[folderName]]/customer') }}" class="[[classes.a]]">&larr; View My Orders</a></p>
+      <p><a href="{{ url('/[[folderName]]/customer') }}" class="[[classes.a]]">&larr; {{ 'View My Orders'|t }}</a></p>
     </div>
   {% endif %}
-  <h1 class="text-xl font-semibold mt-3">Order {{ order.reference }}</h1>
+  <h1 class="text-xl font-semibold mt-3">
+    {{- 'Order {ref}'|t('site', { ref: order.reference }) -}}
+  </h1>
 
   <div class="flex -mx-6 mt-3">
     <div class="w-1/3 mx-6">
-      <h3 class="font-semibold">Details</h3>
+      <h3 class="font-semibold">
+        {{- 'Details'|t -}}
+      </h3>
 
       <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">Customer:</div>
+        <div class="text-sm text-gray-600 pr-2">{{ 'Customer'|t }}:</div>
         <div class="font-bold">{{ order.email }}</div>
       </div>
       <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">Total:</div>
+        <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
         <div class="font-bold">{{ order.totalPriceAsCurrency }}</div>
       </div>
       <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">Payment Status:</div>
+        <div class="text-sm text-gray-600 pr-2">{{ 'Payment Status'|t }}:</div>
         <div class="font-bold">{{ order.paidStatushtml|raw }}</div>
       </div>
       <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">Amount Paid:</div>
+        <div class="text-sm text-gray-600 pr-2">{{ 'Amount Paid'|t }}:</div>
         <div class="font-bold">{{ order.totalPaidAsCurrency }}</div>
       </div>
       <div class="flex items-center w-full">
-        <div class="text-sm text-gray-600 pr-2">Date:</div>
+        <div class="text-sm text-gray-600 pr-2">{{ 'Date'|t }}:</div>
         <div class="font-bold">{{ order.dateOrdered|date('D jS M Y') }}</div>
       </div>
       {% if order.shippingMethodName %}
         <div class="flex items-center w-full">
-          <div class="text-sm text-gray-600 pr-2">Shipping Method:</div>
+          <div class="text-sm text-gray-600 pr-2">{{ 'Shipping Method'|t }}:</div>
           <div class="font-bold">{{ order.shippingMethodName }}</div>
         </div>
       {% endif %}
       {% if order.pdfUrl %}
         <div class="flex items-center w-full">
-          <div class="text-sm text-gray-600 pr-2">PDF:</div>
-          <div><a href="{{ order.getPdfUrl('receipt') }}" class="[[classes.a]]">Download</a></div>
+          <div class="text-sm text-gray-600 pr-2">{{ 'PDF'|t }}:</div>
+          <div><a href="{{ order.getPdfUrl('receipt') }}" class="[[classes.a]]">{{ 'Download'|t }}</a></div>
         </div>
       {% endif %}
     </div>
     <div class="w-1/3 order-address mx-6">
       <div class="[[classes.box.base]]">
-        <h3 class="font-semibold">Shipping Address</h3>
+        <h3 class="font-semibold">{{ 'Shipping Address'|t }}</h3>
         {% if order.shippingAddress %}
-          {{ include('[[folderName]]/_private/address/address', { address: order.shippingAddress }) }}
+          {{ include('[[folderName]]/_private/address/address', {
+            address: order.shippingAddress
+          }) }}
           {% if order.shippingAddress.sameAs(order.billingAddress) %}
-            <p>Addresses are the same</p>
+            <p>{{ 'Addresses are the same.'|t }}</p>
           {% endif %}
         {% else %}
-          <p>Not submitted.</p>
+          <p>{{ 'Not submitted.'|t }}</p>
         {% endif %}
       </div>
     </div>
     <div class="w-1/3 order-address mx-6">
       <div class="[[classes.box.base]]">
-        <h3 class="font-semibold">Billing Address</h3>
+        <h3 class="font-semibold">{{ 'Billing Address'|t }}</h3>
         {% if order.billingAddress %}
           {{ include('[[folderName]]/_private/address/address', { address: order.billingAddress }) }}
           {% if order.billingAddress.sameAs(order.shippingAddress) %}
-            <p>Addresses are the same</p>
+            <p>{{ 'Addresses are the same.'|t }}</p>
           {% endif %}
         {% else %}
-          <p>Not submitted</p>
+          <p>{{ 'Not submitted.'|t }}</p>
         {% endif %}
       </div>
     </div>
@@ -88,9 +94,9 @@
   <table class="w-full mt-3">
     <thead>
     <tr class="text-gray-600 bg-gray-200">
-      <th class="py-2 pl-3 text-left w-1/3">Product</th>
-      <th class="py-2 text-left">Qty</th>
-      <th class="py-2 pr-3 text-right">Price</th>
+      <th class="py-2 pl-3 text-left w-1/3">{{ 'Product'|t }}</th>
+      <th class="py-2 text-left">{{ 'Qty'|t }}</th>
+      <th class="py-2 pr-3 text-right">{{ 'Price'|t }}</th>
     </tr>
     </thead>
     <tbody>
@@ -100,8 +106,12 @@
           <strong class="text-lg">{{ item.description }}</strong><br>
           <span class="text-gray-500 tracking-widest font-mono text-xs">{{ item.sku }}</span>
           <div class="mt-2 relative">
-            <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">{{ item.options|length ? item.options|json_encode : 'no options.' }}</code>
-            <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">Options</span>
+            <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
+              {{- item.options|length ? item.options|json_encode : 'No options.'|t -}}
+            </code>
+            <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">
+              {{- 'Options'|t -}}
+            </span>
           </div>
         </td>
         <td class="py-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}">
@@ -111,14 +121,14 @@
 
           {% if item.note %}
             <div class="mt-1 flex">
-              <div class="pr-2 uppercase">Note</div>
+              <div class="pr-2 uppercase">{{ 'Note'|t }}</div>
               <div>{{ item.note }}</div>
             </div>
           {% endif %}
 
           {% if item.options.giftWrapped is defined %}
             <div class="mt-1">
-              <div class="pr-2 uppercase">Gift Wrapped?</div>
+              <div class="pr-2 uppercase">{{ 'Gift Wrapped?'|t }}</div>
               <div>{{ item.options.giftWrapped|title }}</div>
             </div>
           {% endif %}
@@ -126,23 +136,23 @@
 
         <td class="py-3 pr-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
           <div class="flex items-center w-full justify-end" title="{{ item.price }}">
-            <div class="text-xs pr-2">Price:</div>
+            <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
             <div class="text-sm">{% if item.onSale %}
               <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onSale %}</del>{% endif %}
             </div>
           </div>
           {% if item.onSale %}
             <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
-              <div class="text-xs pr-2">Sale Price:</div>
+              <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
               <div class="text-sm">{{ item.salePriceAsCurrency }}</div>
             </div>
             <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
-              <div class="text-xs pr-2">Sale Amount:</div>
+              <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
               <div class="text-sm">{{ item.saleAmountAsCurrency }}</div>
             </div>
           {% endif %}
           <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
-            <div class="text-xs pr-2">Subtotal:</div>
+            <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
             <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
           </div>
         </td>
@@ -150,7 +160,7 @@
       <tr class="">
         <td class="pb-3 pr-3 text-right" colspan="2">
           {% if item.adjustments|length %}
-            <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Adjustments</div>
+            <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Adjustments'|t }}</div>
             <div class="border-t border-gray-300 border-dotted mt-1">
               {% for adjustment in item.adjustments %}
                 <div class="flex w-full items-center mt-2 text-sm">
@@ -160,12 +170,13 @@
                   <div class="">
                     {{ adjustment.name }}
                     {% if adjustment.isEstimated %}<i
-                            class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                            class="text-grey-dark">{{ 'Estimated'|t }}</i>{% endif %}<br>
                     {{ adjustment.description }}
                   </div>
                   <div class="ml-auto">
-                                        <span class="text-gray-500"
-                                              title="{{ adjustment.amount }}"> {{ adjustment.amountAsCurrency }}</span>
+                    <span class="text-gray-500" title="{{ adjustment.amount }}">
+                      {{ ' ' ~ adjustment.amountAsCurrency }}
+                    </span>
                   </div>
                 </div>
               {% endfor %}
@@ -173,7 +184,7 @@
           {% endif %}
 
           <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
-            <div class="text-sm text-gray-600 pr-2">Total:</div>
+            <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
             <div class="font-bold">{{ item.totalAsCurrency }}</div>
           </div>
         </td>
@@ -185,7 +196,7 @@
       <td colspan="2" class="text-right pr-3 pb-3">
         <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
              title="{{ order.itemSubTotal }}">
-          <div class="text-sm text-gray-600 pr-2">Item Subtotal:</div>
+          <div class="text-sm text-gray-600 pr-2">{{ 'Item Subtotal'|t }}:</div>
           <div class="font-bold">{{ order.itemSubtotalAsCurrency }}</div>
         </div>
       </td>
@@ -195,7 +206,7 @@
       <tr class="border-t-2 border-gray-300">
         <td class="py-3"></td>
         <td colspan="2" class="py-3 pr-3">
-          <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Order Adjustments</div>
+          <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Order Adjustments'|t }}</div>
           <div class="border-t border-gray-300 border-dotted mt-1">
             {% for adjustment in order.orderAdjustments %}
               <div class="flex w-full items-center mt-2 text-sm">
@@ -204,13 +215,13 @@
                 </div>
                 <div class="">
                   {{ adjustment.name }}
-                  {% if adjustment.isEstimated %}<i
-                          class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                  {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated'|t }}</i>{% endif %}<br>
                   {{ adjustment.description }}
                 </div>
                 <div class="ml-auto">
-                                    <span class="text-gray-500"
-                                          title="{{ adjustment.amount }}"> {{ adjustment.amountAsCurrency }}</span>
+                  <span class="text-gray-500" title="{{ adjustment.amount }}">
+                    {{ ' ' ~ adjustment.amountAsCurrency }}
+                  </span>
                 </div>
               </div>
             {% endfor %}
@@ -222,68 +233,76 @@
       <td colspan="2" class="border-t-2 border-gray-300"></td>
       <td class="text-right align-text-top border-t-2 border-gray-300 pt-3 pr-3">
         <div class="mt-3">
-          <strong class="text-sm text-gray-600">Adjustment Totals</strong>
+          <strong class="text-sm text-gray-600">{{ 'Adjustment Totals'|t }}</strong>
         </div>
 
         <div class="flex items-center w-full justify-end" title="{{ order.totalShippingCost }}">
-          <div class="text-xs text-gray-500 pr-2">Total Shipping:</div>
+          <div class="text-xs text-gray-500 pr-2">{{ 'Total Shipping'|t }}:</div>
           <div class="text-sm text-gray-500">{{ order.totalShippingCostAsCurrency }}</div>
         </div>
         <div class="flex items-center w-full justify-end" title="{{ order.totalTax }}">
-          <div class="text-xs text-gray-500 pr-2">Total Tax:</div>
+          <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax'|t }}:</div>
           <div class="text-sm text-gray-500">{{ order.totalTaxAsCurrency }}</div>
         </div>
         <div class="flex items-center w-full justify-end" title="{{ order.totalTaxIncluded }}">
-          <div class="text-xs text-gray-500 pr-2">Total Tax (inc):</div>
+          <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax (inc)'|t }}:</div>
           <div class="text-sm text-gray-500">{{ order.totalTaxIncludedAsCurrency }}</div>
         </div>
         <div class="flex items-center w-full justify-end" title="{{ order.totalDiscount }}">
-          <div class="text-xs text-gray-500 pr-2">Total Discount:</div>
+          <div class="text-xs text-gray-500 pr-2">{{ 'Total Discount'|t }}:</div>
           <div class="text-sm text-gray-500">{{ order.totalDiscountAsCurrency }}</div>
         </div>
 
         <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPrice }}">
-          <div class="text-gray-600 pr-2">Total Price:</div>
+          <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
           <div class="text-xl font-bold">{{ order.totalPriceAsCurrency }}</div>
         </div>
 
         <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPaid }}">
-          <div class="text-gray-600 pr-2">Total Paid:</div>
+          <div class="text-gray-600 pr-2">{{ 'Total Paid'|t }}:</div>
           <div class="text-xl font-bold">{{ order.totalPaidAsCurrency }}</div>
         </div>
 
         <div class="flex items-center w-full justify-end mt-3" title="{{ order.outstandingBalance }}">
-          <div class="text-gray-600 pr-2">Outstanding Balance:</div>
+          <div class="text-gray-600 pr-2">{{ 'Outstanding Balance'|t }}:</div>
           <div class="text-xl font-bold">{{ order.outstandingBalanceAsCurrency }}</div>
         </div>
 
         {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}
-          <a href="{{ siteUrl('[[folderName]]/checkout/pay-static', {orderNumber: order.number, email: order.email }) }}"
-             class="[[classes.btn.base]] [[classes.btn.mainColor]]">Make Payment</a>
+          <a href="{{ siteUrl(
+              '[[folderName]]/checkout/pay-static',
+              { orderNumber: order.number, email: order.email
+            }) }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+          >
+            {{- 'Make payment'|t -}}
+          </a>
         {% endif %}
-
       </td>
     </tr>
     </tbody>
   </table>
 
-  <h1 class="text-xl font-semibold mt-3">Transactions</h1>
+  <h1 class="text-xl font-semibold mt-3">
+    {{- 'Transactions'|t -}}
+  </h1>
 
   <table class="w-full mt-3">
     <thead>
     <tr class="text-gray-600 bg-gray-200">
-      <th class="py-2 pl-3 text-left">Type</th>
-      <th class="py-2 pl-3 text-left">Status</th>
-      <th class="py-2 text-left">Currency</th>
-      <th class="py-2 pr-3 text-right">Amount</th>
-      <th class="py-2 text-left">Payment Currency</th>
-      <th class="py-2 pr-3 text-right">Payment Amount</th>
+      <th class="py-2 pl-3 text-left">{{ 'Type'|t }}</th>
+      <th class="py-2 pl-3 text-left">{{ 'Status'|t }}</th>
+      <th class="py-2 text-left">{{ 'Currency'|t }}</th>
+      <th class="py-2 pr-3 text-right">{{ 'Amount'|t }}</th>
+      <th class="py-2 text-left">{{ 'Payment Currency'|t }}</th>
+      <th class="py-2 pr-3 text-right">{{ 'Payment Amount'|t }}</th>
     </tr>
     </thead>
     <tbody>
     {% for transaction in order.transactions %}
       <tr>
-        <td class="text-left align-text-top pt-3 pr-3 {% if transaction.getParent() %}pl-5{% endif %}">{{ transaction.type|title }}</td>
+        <td class="text-left align-text-top pt-3 pr-3 {% if transaction.getParent() %}pl-5{% endif %}">
+          {{ transaction.type|title }}
+        </td>
         <td class="text-left align-text-top pt-3 pr-3">{{ transaction.status|title }}</td>
         <td class="text-left align-text-top pt-3 pr-3">{{ transaction.currency }}</td>
         <td class="text-right align-text-top pt-3 pr-3">{{ transaction.amountAsCurrency }}</td>

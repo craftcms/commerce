@@ -4,12 +4,17 @@
 
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">Manage Stored Cards</h1>
-  {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
+  <h1 class="text-3xl block sm:inline">
+    {{- 'Manage Stored Cards'|t -}}
+  </h1>
   {% if paymentSources|length %}
-    <h2 class="text-lg font-semibold block mt-3">Current Cards</h2>
+    <h2 class="text-lg font-semibold block mt-3">
+      {{- 'Current Cards'|t -}}
+    </h2>
 
     <div class="mt-3 flex flex-wrap -mx-2">
       {% for paymentSource in paymentSources %}
@@ -26,9 +31,8 @@
                 {{ redirectInput('/[[folderName]]/customer/cards') }}
                 {{ actionInput('commerce/payment-sources/delete') }}
                 {{ hiddenInput('id', paymentSource.id) }}
-                <button type="submit"
-                        class="[[classes.btn.base]] [[classes.btn.grayColor]]">
-                  Delete Card
+                <button type="submit" class="[[classes.btn.base]] [[classes.btn.grayColor]]">
+                  {{- 'Delete card'|t -}}
                 </button>
               </form>
             </div>
@@ -40,11 +44,14 @@
 
   <hr class="my-3">
 
-  <h2 class="text-lg font-semibold block mt-3">Add a Card</h2>
+  <h2 class="text-lg font-semibold block mt-3">
+    {{- 'Add a Card'|t -}}
+  </h2>
+
   <div class="[[classes.box.base]] max-w-md">
     <div>
       <div class="field">
-        <label for="gatewayId" class="block">Payment Gateway</label>
+        <label for="gatewayId" class="block">{{ 'Payment Gateway'|t }}</label>
         <select id="gatewayId" class="mt-1 [[classes.input]]">
           <option value="">---</option>
 
@@ -66,13 +73,14 @@
           <form id="gateway-{{ gateway.id }}"
                 method="post"
                 action=""
-                class="form-horizontal max-w-md">
+                class="form-horizontal max-w-md"
+          >
+            {{ csrfInput() }}
             {{ actionInput('commerce/payment-sources/add') }}
             {{ hiddenInput('gatewayId', gateway.id) }}
             {{ hiddenInput('successMessage', 'Added payment source.'|hash) }}
             {{ hiddenInput('cancelUrl', '/[[folderName]]/customer/cards'|hash) }}
             {{ redirectInput('/[[folderName]]/customer/cards') }}
-            {{ csrfInput() }}
 
             {{ gateway.getPaymentFormHtml({})|raw }}
 
@@ -83,12 +91,14 @@
                      class="[[input-classes]] w-full"
                      maxlength="70"
                      autocomplete="off"
-                     placeholder="Card description">
+                     placeholder="{{ 'Card description'|t }}"
+              />
             </div>
 
             <div class="mt-2 text-right">
-              <button type="submit"
-                      class="[[classes.btn.base]] [[classes.btn.mainColor]]">Add card</button>
+              <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
+                {{- 'Add card'|t -}}
+              </button>
             </div>
           </form>
         </div>
@@ -113,5 +123,4 @@
       });
     }
   {% endjs %}
-
 {% endblock %}

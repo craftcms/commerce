@@ -1,27 +1,27 @@
 <!-- Template: {{ _self }}.twig -->
 {% set checkoutSteps = [
   {
-    label: "Email",
+    label: 'Email',
     url: '[[folderName]]/checkout/email'
   },
   {
-    label: "Account",
+    label: 'Account',
     url: '[[folderName]]/checkout/register-signin'
   },
   {
-    label: "Address",
+    label: 'Address',
     url: '[[folderName]]/checkout/addresses'
   },
   {
-    label: "Shipping",
+    label: 'Shipping',
     url: '[[folderName]]/checkout/shipping'
   },
   {
-    label: "Payment Method",
+    label: 'Payment Method',
     url: '[[folderName]]/checkout/payment-method'
   },
   {
-    label: "Payment",
+    label: 'Payment',
     url: '[[folderName]]/checkout/payment'
   }
 ] %}
@@ -39,12 +39,16 @@
         {% if step.url == craft.app.request.pathInfo %}
           {% set width = ((loop.index) * 100 / totalSteps - 10) %}
         {% endif %}
-        <a href="{{ url(step.url) }}"
-           class="flex-1 text-gray-600 pb-2 {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
-      ">{{ step.label }}</a>
+        {% set additionalClasses = (step.url in craft.app.request.pathInfo)
+          ? 'text-gray-800 focus:outline-none no-underline' :
+          : 'hover:text-gray-800'
+        %}
+        <a href="{{ url(step.url) }}" class="flex-1 text-gray-600 pb-2 {{ additionalClasses }}">
+          {{- step.label|t -}}
+        </a>
       {% endfor %}
     </nav>
-    <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
+    <div class="h-2 w-full bg-gray-200 rounded"></div>
     <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width:{{ width }}%;"></div>
   </div>
 {% endif %}

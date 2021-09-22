@@ -2,7 +2,9 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">Products</h1>
+  <h1 class="text-3xl block sm:inline">
+    {{- 'Products'|t -}}
+  </h1>
 
   {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
 

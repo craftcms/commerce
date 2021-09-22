@@ -2,7 +2,9 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">Cart</h1>
+  <h1 class="text-3xl block sm:inline">
+    {{- 'Cart'|t -}}
+  </h1>
 
   {% if cart.lineItems|length %}
     <form method="post" action="">
@@ -12,9 +14,9 @@
       <table class="w-full mt-4 rounded-lg">
         <thead>
         <tr class="text-gray-600 bg-gray-200">
-          <th class="py-2 pl-3 text-left w-1/3 rounded-l">Product</th>
-          <th class="py-2 text-left">Qty</th>
-          <th class="py-2 pr-3 text-right rounded-r">Price</th>
+          <th class="py-2 pl-3 text-left w-1/3 rounded-l">{{ 'Product'|t }}</th>
+          <th class="py-2 text-left">{{ 'Qty'|t }}</th>
+          <th class="py-2 pr-3 text-right rounded-r">{{ 'Price'|t }}</th>
         </tr>
         </thead>
         <tbody>
@@ -24,93 +26,107 @@
                 rowspan="2">
               <div class="w-full overflow-hidden max-w-md">
                 <div class="truncate">
-                  <strong class="text-lg {% if item.hasErrors() %}text-red-500{% endif %}">{{ item.description }}</strong>
+                  <strong class="text-lg {% if item.hasErrors() %}text-red-500{% endif %}">
+                    {{- item.description -}}
+                  </strong>
                 </div>
               </div>
               <span class="text-gray-500 tracking-widest font-mono text-xs">{{ item.sku }}</span>
               <div class="mt-2 relative">
-                <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">{{ item.options|length ? item.options|json_encode : 'no options.' }}</code>
-                <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">Options</span>
+                <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
+                  {{- item.options|length ? item.options|json_encode : 'no options.' -}}
+                </code>
+                <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">
+                  {{ 'Options'|t }}
+                </span>
               </div>
               <div class="mt-6">
                 <label>
                   <input type="checkbox"
                          name="lineItems[{{ item.id }}][remove]"
-                         value="1">
-                  <span>Remove Line</span>
+                         value="1"
+                  />
+                  <span>{{ 'Remove Line'|t }}</span>
                 </label>
               </div>
             </td>
             <td class="py-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}">
               {% if item.options.giftWrapped is defined %}
                 <select name="lineItems[{{ item.id }}][options][giftWrapped]">
-                  <option value="no"
-                          {% if item.options.giftWrapped == 'no' %}selected{% endif %}>
-                    No gift wrap
+                  <option value="no"{% if item.options.giftWrapped == 'no' %} selected{% endif %}>
+                    {{- 'No gift wrap'|t -}}
                   </option>
-                  <option value="yes"
-                          {% if item.options.giftWrapped == 'yes' %}selected{% endif %}>
-                    Gift wrapped.
+                  <option value="yes"{% if item.options.giftWrapped == 'yes' %} selected{% endif %}>
+                    {{- 'Gift wrapped'|t -}}
                   </option>
                 </select>
               {% endif %}
 
               {% if item.options.donationAmount is defined %}
                 <label for="lineitem-donationAmount-{{ item.id }}">
-                  <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">Donation Amount</span>
+                  <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">
+                    {{- 'Donation Amount'|t -}}
+                  </span>
                 </label>
                 <input type="text"
-                       id="lineitem-donationAmount-{{ item.id }}"
                        name="lineItems[{{ item.id }}][options][donationAmount]"
                        value="{{ item.options.donationAmount }}"
+                       id="lineitem-donationAmount-{{ item.id }}"
                        class="[[classes.input]] w-24"
-                       placeholder="Donation"/>
+                       placeholder="{{ 'Donation'|t }}"
+                />
               {% endif %}
 
               <span class="{{ item.options.donationAmount is defined ? 'hidden' : '' }}">
-                                <input type="{% if item.options.donationAmount is defined %}hidden{% else %}number{% endif %}"
-                                       class="[[classes.input]] w-24 {% if item.getFirstError('qty') %}border-red-500 border{% endif %}"
-                                       name="lineItems[{{ item.id }}][qty]"
-                                       min="0"
-                                       value="{{ item.qty }}"/>
-                            </span>
+                  <input type="{% if item.options.donationAmount is defined %}hidden{% else %}number{% endif %}"
+                         name="lineItems[{{ item.id }}][qty]"
+                         value="{{ item.qty }}"
+                         class="[[classes.input]] w-24 {% if item.getFirstError('qty') %}border-red-500 border{% endif %}"
+                         min="0"
+                  />
+              </span>
 
               <div class="mt-3">
                 <label for="lineitem-note-{{ item.id }}">
-                  <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">ItemNote</span>
+                  <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">
+                    {{- 'Item Note'|t -}}
+                  </span>
                 </label>
                 <input type="text"
-                       id="lineitem-note-{{ item.id }}"
                        name="lineItems[{{ item.id }}][note]"
                        value="{{ item.note }}"
+                       id="lineitem-note-{{ item.id }}"
                        class="[[classes.input]]"
                        size="20"
-                       placeholder="My Note"/>
+                       placeholder="My Note"
+                />
               </div>
             </td>
 
             <td class="py-3 pr-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
               {% if not cart.hasErrors() %}
                 <div class="flex items-center w-full justify-end" title="{{ item.price }}">
-                  <div class="text-xs pr-2">Price:</div>
-                  <div class="text-sm">{% if item.onSale %}
-                    <del>{% endif %}{{ item.price|commerceCurrency(cart.currency) }}{% if item.onSale %}</del>{% endif %}
+                  <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
+                  <div class="text-sm">
+                      {%- if item.onSale %}<del>{% endif %}
+                      {{- item.price|totalAsCurrency- }}
+                      {% if item.onSale %}</del>{% endif -%}
                   </div>
                 </div>
                 {% if item.onSale %}
                   <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
-                    <div class="text-xs pr-2">Sale Price:</div>
-                    <div class="text-sm">{{ item.salePrice|commerceCurrency(cart.currency) }}</div>
+                    <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
+                    <div class="text-sm">{{ item.salePrice|totalAsCurrency }}</div>
                   </div>
                   <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
-                    <div class="text-xs pr-2">Sale Amount:</div>
-                    <div class="text-sm">{{ item.saleAmount|commerceCurrency(cart.currency) }}</div>
+                    <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
+                    <div class="text-sm">{{ item.saleAmount|totalAsCurrency }}</div>
                   </div>
 
                   {% set itemSales = item.snapshot.sales ?? [] %}
                   {% if itemSales|length %}
                     <div class="flex w-full justify-end">
-                      <div class="text-xs pr-2">Sales Applied:</div>
+                      <div class="text-xs pr-2">{{ 'Sales Applied'|t }}:</div>
                       <div class="text-xs">
                         {% for sale in itemSales %}
                           {{ sale.name }}<br>
@@ -120,8 +136,8 @@
                   {% endif %}
                 {% endif %}
                 <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
-                  <div class="text-xs pr-2">Subtotal:</div>
-                  <div class="text-sm">{{ item.subtotal|commerceCurrency(cart.currency) }}</div>
+                  <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
+                  <div class="text-sm">{{ item.subtotal|totalAsCurrency }}</div>
                 </div>
               {% endif %}
             </td>
@@ -129,20 +145,20 @@
           <tr class="">
             <td class="pb-3 pr-3 text-right" colspan="2">
               {% if not cart.hasErrors() and item.adjustments|length %}
-                <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Adjustments</div>
+                <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Adjustments'|t }}</div>
                 <div class="border-t border-gray-300 border-dotted mt-1">
                   {% for adjustment in item.adjustments %}
                     <div class="flex w-full mt-2 text-sm">
                       <div class="text-left">
                         <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong><br>
                         {{ adjustment.name }}
-                        {% if adjustment.isEstimated %}<i
-                                class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
+                        {% if adjustment.isEstimated %}<i class="text-grey-dark">{{ 'Estimated' }}</i>{% endif %}<br>
                         <span class="text-gray-600 text-xs">{{ adjustment.description }}</span>
                       </div>
                       <div class="ml-auto">
-                                                <span class="text-gray-500"
-                                                      title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                        <span class="text-gray-500" title="{{ adjustment.amount }}">
+                          {{ ' ' ~ adjustment.amount|totalAsCurrency }}
+                        </span>
                       </div>
                     </div>
                   {% endfor %}
@@ -152,7 +168,7 @@
               {% if not cart.hasErrors() %}
                 <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
                   <div class="text-sm text-gray-600 pr-2">Total:</div>
-                  <div class="font-bold">{{ item.total|commerceCurrency(cart.currency) }}</div>
+                  <div class="font-bold">{{ item.total|totalAsCurrency }}</div>
                 </div>
               {% endif %}
             </td>
@@ -165,7 +181,7 @@
             <td colspan="2" class="text-right pr-3 pb-3">
               <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
                    title="{{ cart.itemSubTotal }}">
-                <div class="text-sm text-gray-600 pr-2">Items Total:</div>
+                <div class="text-sm text-gray-600 pr-2">{{ 'Items Total'|t }}:</div>
                 <div class="font-bold">{{ cart.itemTotalAsCurrency }}</div>
               </div>
             </td>
@@ -176,7 +192,8 @@
           <tr class="border-t-2 border-gray-300">
             <td class="py-3"></td>
             <td colspan="2" class="py-3 pr-3">
-              <div class="text-left text-2xs uppercase tracking-wider text-gray-600">Order Adjustments
+              <div class="text-left text-2xs uppercase tracking-wider text-gray-600">
+                {{- 'Order Adjustments'|t -}}
               </div>
               <div class="border-t border-gray-300 border-dotted mt-1">
                 {% for adjustment in cart.orderAdjustments %}
@@ -191,7 +208,7 @@
                     </div>
                     <div class="ml-auto">
                       <span class="text-gray-500"
-                            title="{{ adjustment.amount }}"> {{ adjustment.amount|commerceCurrency(cart.currency) }}</span>
+                            title="{{ adjustment.amount }}"> {{ adjustment.amount|totalAsCurrency }}</span>
                     </div>
                   </div>
                 {% endfor %}
@@ -208,29 +225,29 @@
           <td class="text-right align-text-top border-t-2 border-gray-300 pt-3 pr-3">
             {% if not cart.hasErrors() %}
               <div class="mt-3">
-                <strong class="text-sm text-gray-600">Adjustment Totals</strong>
+                <strong class="text-sm text-gray-600">{{ 'Adjustment Totals'|t }}</strong>
               </div>
 
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalShippingCost() }}">
-                <div class="text-xs text-gray-500 pr-2">Total Shipping:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}</div>
+                <div class="text-xs text-gray-500 pr-2">{{ 'Total Shipping'|t }}:</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalShippingCost()|totalAsCurrency }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalTax() }}">
-                <div class="text-xs text-gray-500 pr-2">Total Tax:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalTax()|commerceCurrency(cart.currency) }}</div>
+                <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax'|t }}:</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalTax()|totalAsCurrency }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalTaxIncluded() }}">
-                <div class="text-xs text-gray-500 pr-2">Total Tax (inc):</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}</div>
+                <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax (inc)'|t }}:</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalTaxIncluded()|totalAsCurrency }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalDiscount() }}">
-                <div class="text-xs text-gray-500 pr-2">Total Discount:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}</div>
+                <div class="text-xs text-gray-500 pr-2">{{ 'Total Discount'|t }}:</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalDiscount()|totalAsCurrency }}</div>
               </div>
 
               <div class="flex items-center w-full justify-end mt-3" title="{{ cart.totalPrice }}">
-                <div class="text-gray-600 pr-2">Total Price:</div>
-                <div class="text-xl font-bold">{{ cart.totalPrice|commerceCurrency(cart.currency) }}</div>
+                <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
+                <div class="text-xl font-bold">{{ cart.totalPrice|totalAsCurrency }}</div>
               </div>
             {% endif %}
           </td>
@@ -239,7 +256,9 @@
           <td class="pt-3 text-right" colspan="3">
             <div class="flex w-full justify-end">
               <div class="{% if cart.getFirstError('couponCode') %}[[classes.box.error]]{% else %}[[classes.box.base]]{% endif %} text-left max-w-sm w-full">
-                <h5 class="font-bold">Coupon Code</h5>
+                <h5 class="font-bold">
+                  {{- 'Coupon Code'|t -}}
+                </h5>
                 {% if cart.getFirstError('couponCode') %}
                   <div class="text-red-500">{{ cart.getFirstError('couponCode') }}</div>
                 {% endif %}
@@ -250,7 +269,8 @@
                          value="{{ cart.couponCode }}"
                          class="[[classes.input]] w-full {% if cart.getFirstError('couponCode') %}text-red-500{% endif %}"
                          width="11"
-                         placeholder="{{ "Coupon Code" }}"/>
+                         placeholder="{{ "Coupon Code" }}"
+                  />
                 </div>
               </div>
             </div>
@@ -258,15 +278,15 @@
               <div class="flex w-full justify-end">
                 <div class="pr-2">
                   {{ redirectInput('[[folderName]]/cart') }}
-                  <button type="submit"
-                          class="[[classes.btn.small]] [[classes.btn.grayColor]]">
-                    Update Cart
+                  <button type="submit" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
+                    {{- 'Update Cart'|t -}}
                   </button>
                 </div>
                 <div>
                   {% if not cart.hasErrors() %}
-                    <a class="[[classes.btn.small]] [[classes.btn.mainColor]]"
-                       href="{{ url('/[[folderName]]/checkout') }}">Checkout</a>
+                    <a href="{{ url('/[[folderName]]/checkout') }}" class="[[classes.btn.small]] [[classes.btn.mainColor]]">
+                      {{ 'Checkout'|t }}
+                    </a>
                   {% endif %}
                 </div>
               </div>
@@ -279,7 +299,8 @@
   {% endif %}
 
   {% if not cart.lineItems|length %}
-    <p>You have no items in your cart, add some on the <a href="{{ url('/[[folderName]]/products') }}">products
-        page</a>.</p>
+    <p>{{ 'Empty cart. Add items on the {link} page.'|t('site', {
+        link: tag('a', { href: url('/[[folderName]]/products'), text: 'products' })
+    }) }}</p>
   {% endif %}
 {% endblock %}

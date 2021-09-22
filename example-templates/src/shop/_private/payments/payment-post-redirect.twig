@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <title>Redirecting...</title>
+  <title>{{ 'Redirecting'|t }}...</title>
 </head>
 <body onload="document.forms[0].submit();">
 <form action="{{ actionUrl|raw }}" method="post">
-  <p style="color:green">Redirecting to payment page...</p>
+  <p style="color:green">{{ 'Redirecting to payment page'|t }}...</p>
   <p>
     {{ inputs|raw }}
-    <button type="submit">Continue</button>
+    <button type="submit">{{ 'Continue'|t }}</button>
   </p>
 </form>
 </body>

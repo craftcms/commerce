@@ -6,11 +6,12 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-
   <div class="flex -mx-8 pt-8">
     <div class="w-1/2 pl-8">
       <div class="[[classes.box.base]]">
-        {% include '[[folderName]]/customer/_includes/sign-in' with { redirectUrl : '[[folderName]]/customer'} %}
+        {% include '[[folderName]]/customer/_includes/sign-in' with {
+          redirectUrl : '[[folderName]]/customer'
+        } %}
       </div>
     </div>
   </div>

@@ -8,20 +8,28 @@
         <div class="bg-cover bg-center bg-gray-300 h-64 rounded"></div>
       </div>
       <div class="w-full md:w-1/2 p-2">
-        <h1 class="text-3xl block sm:inline">{{ product.defaultVariant.title }}</h1>
-        <h4 class="text-gray-500 mt-3">Description</h4>
+        <h1 class="text-3xl block sm:inline">
+          {{- product.defaultVariant.title -}}
+        </h1>
+
+        <h4 class="text-gray-500 mt-3">
+          {{- 'Description'|t -}}
+        </h4>
+
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-          et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-          cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
+          {{ 'This is a pretend product description, placeholdering here for you to swap with something better.'|t }}
         </p>
-        <h4 class="text-gray-500 mt-3">Variants</h4>
+
+        <h4 class="text-gray-500 mt-3">
+          {{- 'Variants'|t -}}
+        </h4>
+
         <form method="post">
-          {{ actionInput('commerce/cart/update-cart') }}
-          {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
           {{ csrfInput() }}
+          {{ actionInput('commerce/cart/update-cart') }}
+          {{ successMessageInput('{product} added to cart.'|t('site', {
+            product: product.title
+          })) }}
           <div>
             {% for variant in product.variants %}
               {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
@@ -33,7 +41,8 @@
                   <input type="text"
                          name="purchasables[{{ loop.index }}][qty]"
                          value="0"
-                         class="[[classes.input]] w-full"/>
+                         class="[[classes.input]] w-full"
+                  />
                 </div>
                 <div class="pl-2 text-right w-1/4">
                   {% if variant.onSale %}
@@ -47,7 +56,7 @@
             {% endfor %}
             <div class="mt-3 pt-3 border-t border-gray-300 text-right">
               <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                Add to cart
+                {{- 'Add to cart'|t -}}
               </button>
             </div>
           </div>

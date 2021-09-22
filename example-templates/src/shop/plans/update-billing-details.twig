@@ -1,9 +1,11 @@
 <!-- Template: {{ _self }}.twig -->
 {% extends '[[folderName]]/_private/layouts' %}
+
+{% set subscriptionUid = craft.app.request.getParam('subscription') %}
+{% set subscription = craft.subscriptions.anyStatus().uid(subscriptionUid).one() %}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  {% set subscriptionUid = craft.app.request.getParam('subscription') %}
-  {% set subscription = craft.subscriptions.anyStatus().uid(subscriptionUid).one() %}
 
   {% if currentUser is null or not subscriptionUid or not subscription %}
     {% exit 404 %}
@@ -21,11 +23,14 @@
     {% exit 404 %}
   {% endif %}
 
+  {% set planName = subscription.getPlan().name %}
+
   <div class="flex -mx-8">
     <div class="w-2/3 px-8">
       {% if subscription.isSuspended and subscription.hasBillingIssues %}
-        <h1 class="text-xl font-semibold">Billing issue for subscription
-          to {{ subscription.getPlan().name }}</h1>
+        <h1 class="text-xl font-semibold">
+          {{- 'Billing issue for subscription to {plan}'|t('site', { plan: planName }) -}}
+        </h1>
 
         <div>{{ subscription.getBillingIssueDescription() }}</div>
 
@@ -35,7 +40,9 @@
           </form>
         </fieldset>
       {% else %}
-        <h1 class="text-xl font-semibold">No issues with subscription to {{ subscription.getPlan().name }}</h1>
+        <h1 class="text-xl font-semibold">
+          {{- 'No issues with subscription to {plan}'|t('site', { plan: planName }) -}}
+        </h1>
       {% endif %}
     </div>
   </div>

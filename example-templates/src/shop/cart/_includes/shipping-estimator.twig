@@ -1,27 +1,40 @@
 <!-- Template: {{ _self }}.twig -->
 {% if not cart.getShippingAddress() %}
+  {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
+  {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
+
   <div class="[[classes.box.base]] max-w-sm">
-    <h5 class="mt-0 font-bold">{{ 'Shipping Estimate' }}</h5>
+    <h5 class="mt-0 font-bold">
+      {{- 'Shipping Estimate'|t -}}
+    </h5>
 
     <div class="js-estimate-fields">
-      {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
-      {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
-      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">{{ 'Country' }}</label>
-      <select class="js-address-country js-estimate-country w-full [[classes.input]]"
-              name="estimatedShippingAddress[countryId]" data-modelname="estimatedShippingAddress">
+      <label class="m-0 mt-2 block" for="estimatedShippingAddress-countryId">
+        {{- 'Country'|t -}}
+      </label>
+      <select name="estimatedShippingAddress[countryId]"
+              data-modelname="estimatedShippingAddress"
+              class="js-address-country js-estimate-country w-full [[classes.input]]"
+      >
         {% for key, option in countries %}
           {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryId : '') %}
-          <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+          <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>
+            {{ option }}</option>
         {% endfor %}
       </select>
 
       <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-        <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">{{ 'State' }}</label>
-        {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ? states[cart.estimatedShippingAddress.countryId] : []) %}
-        <select id="estimatedShippingAddress-stateId"
-                name="estimatedShippingAddress[stateValue]"
+        <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
+          {{- 'State'|t -}}
+        </label>
+        {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ?
+          states[cart.estimatedShippingAddress.countryId] : []
+        ) %}
+        <select name="estimatedShippingAddress[stateValue]"
+                id="estimatedShippingAddress-stateId"
                 class="js-address-stateId [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
-                data-modelname="estimatedShippingAddress">
+                data-modelname="estimatedShippingAddress"
+        >
           {% for key, option in options %}
             {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
             <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>{{ option }}</option>
@@ -29,35 +42,46 @@
         </select>
 
         <input type="text"
-               id="estimatedShippingAddress-stateName"
                {% if options|length == 0 %}name="estimatedShippingAddress[stateValue]"{% endif %}
+               id="estimatedShippingAddress-stateName"
+               value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"
                data-modelname="estimatedShippingAddress"
                class="js-address-stateName [[classes.input]] {% if options|length > 0 %}hidden{% endif %} w-full"
-               value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"/>
+        />
       </div>
 
-      <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">{{ 'Zip Code' }}</label>
+      <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">
+        {{- 'Postal Code'|t -}}
+      </label>
       <input type="text"
-             id="estimatedShippingAddress-zipCode"
              name="estimatedShippingAddress[zipCode]"
+             id="estimatedShippingAddress-zipCode"
              class="w-full [[classes.input]]"
-             value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}">
+             value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}"
+      />
 
       <div class="mt-6">
         <label class="m-0">
           <input type="checkbox"
                  {% if cart.estimatedShippingAddressId == cart.estimatedBillingAddressId %}checked{% endif %}
                  name="estimatedBillingAddressSameAsShipping"
-                 value="1"/>
-          Billing Same as Shipping
+                 value="1"
+          />
+          {{ 'Billing Same as Shipping'|t }}
         </label>
       </div>
 
       <div class="js-estimate-billing mt-6">
-        <h5 class="mt-0 font-bold">{{ 'Tax Estimate' }}</h5>
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">{{ 'Country' }}</label>
-        <select class="js-address-country w-full [[classes.input]] js-estimate-country"
-                name="estimatedBillingAddress[countryId]" data-modelname="estimatedBillingAddress">
+        <h5 class="mt-0 font-bold">
+          {{- 'Tax Estimate'|t -}}
+        </h5>
+        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-countryId">
+          {{- 'Country'|t -}}
+        </label>
+        <select name="estimatedBillingAddress[countryId]"
+                data-modelname="estimatedBillingAddress"
+                class="js-address-country w-full [[classes.input]] js-estimate-country"
+        >
           {% for key, option in countries %}
             {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryId : '') %}
             <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
@@ -65,33 +89,44 @@
         </select>
 
         <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-          <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">{{ 'State' }}</label>
-          {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ? states[cart.estimatedBillingAddress.countryId] : []) %}
-          <select id="estimatedBillingAddress-stateId"
-                  name="estimatedBillingAddress[stateValue]"
+          <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">
+            {{- 'State' -}}
+          </label>
+          {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ?
+            states[cart.estimatedBillingAddress.countryId] : []
+          ) %}
+          <select name="estimatedBillingAddress[stateValue]"
+                  id="estimatedBillingAddress-stateId"
+                  data-modelname="estimatedBillingAddress"
                   class="js-address-stateId w-full [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
-                  data-modelname="estimatedBillingAddress">
+          >
             {% for key, option in options %}
               {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateId : '') %}
-              <option value="{{ key }}"
-                      {% if key == optionValue %}selected{% endif %}>{{ option }}
-              </option>
+              {{ tag('option', {
+                value: key,
+                selected: key == optionValue,
+                text: option
+              }) }}
             {% endfor %}
           </select>
           <input type="text"
-                 id="estimatedBillingAddress-stateName"
-                 class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full [[classes.input]]"
                  {% if options|length == 0 %}name="estimatedBillingAddress[stateValue]"{% endif %}
+                 value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}"
+                 id="estimatedBillingAddress-stateName"
                  data-modelname="estimatedBillingAddress"
-                 value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
+                 class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full [[classes.input]]"
+          />
         </div>
 
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">{{ 'Zip Code' }}</label>
+        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">
+          {{- 'Zip Code' -}}
+        </label>
         <input type="text"
-               id="estimatedBillingAddress-zipCode"
                name="estimatedBillingAddress[zipCode]"
+               value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}"
+               id="estimatedBillingAddress-zipCode"
                class="w-full [[classes.input]]"
-               value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}">
+        />
       </div>
     </div>
 
@@ -104,15 +139,20 @@
                 <input type="radio"
                        name="shippingMethodHandle"
                        value="{{ handle }}"
-                       {% if handle == cart.shippingMethodHandle %}checked{% endif %} />
+                       {% if handle == cart.shippingMethodHandle %}checked{% endif %}
+                />
                 {{ method.name }}
-                <span title="{{ method.priceForOrder(cart) }}">{{ method.priceForOrder(cart)|commerceCurrency(cart.currency) }}</span>
+                <span title="{{ method.priceForOrder(cart) }}">
+                  {{- method.priceForOrder(cart)|totalAsCurrency -}}
+                </span>
               </label>
             </div>
           {% endfor %}
         </div>
         <div class="mt-6">
-          <a class="[[classes.a]] js-estimate-show-fields" href="#">{{ 'Show Estimate Fields' }}</a>
+          <a class="[[classes.a]] js-estimate-show-fields" href="#">
+            {{- 'Show Estimate Fields'|t -}}
+          </a>
         </div>
       {% endif %}
     </div>

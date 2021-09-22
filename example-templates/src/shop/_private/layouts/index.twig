@@ -3,7 +3,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Craft Commerce</title>
+  <title>{{ 'Craft Commerce'|t }}</title>
 
   [[tailwindCssTag]]
 
@@ -56,12 +56,17 @@
   {% if cart.hasNotices() %}
     <div class="bg-[[color]]-400 text-white">
       <div class="container mx-auto px-6 py-4 relative">
-        <span>Cart Notices</span>
+        <span>{{ 'Cart Notices'|t }}</span>
         {% set entriesByType = cart.getNotices()|group('type') %}
         {% for type, notices in entriesByType %}
           {% for notice in notices %}
-            <li class="list-disc" data-type="{{ notice.type }}" data-attribute="{{ notice.attribute }}"
-                data-message="{{ notice.message }}">{{ notice }}</li>
+            <li class="list-disc"
+                data-type="{{ notice.type }}"
+                data-attribute="{{ notice.attribute }}"
+                data-message="{{ notice.message }}"
+            >
+              {{- notice -}}
+            </li>
           {% endfor %}
         {% endfor %}
         <form method="post">
@@ -70,8 +75,9 @@
           {{ hiddenInput('clearNotices') }}
           {{ csrfInput() }}
           <button type="submit"
-                  class="[[classes.btn.small]] [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0">
-            Dismiss
+                  class="[[classes.btn.small]] [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0"
+          >
+            {{- 'Dismiss'|t -}}
           </button>
         </form>
       </div>
@@ -82,13 +88,11 @@
     <div class="bg-[[dangerColor]]-500 text-white">
       <div class="container mx-auto px-6 py-4">
         {% for attribute, errors in cart.errors %}
-          {% if loop.first %}
-            <ul>{% endif %}
+          {% if loop.first %}<ul>{% endif %}
           {% for key, error in errors %}
             <li>{{ attribute }}: {{ error }}</li>
           {% endfor %}
-          {% if loop.last %}</ul>
-          {% endif %}
+          {% if loop.last %}</ul>{% endif %}
         {% endfor %}
       </div>
     </div>

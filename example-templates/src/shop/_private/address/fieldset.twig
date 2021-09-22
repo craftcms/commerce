@@ -1,24 +1,28 @@
 <!-- Template: {{ _self }}.twig -->
 <div class="js-address-fieldset {{ classes }}">
-  <h2 class="text-lg font-bold">{{ title }}</h2>
+  <h2 class="text-lg font-bold">
+    {{- title -}}
+  </h2>
+
   {% if addresses and currentUser %}
     <div class="flex flex-wrap -mx-4 pb-4">
       {% for address in addresses %}
+        {% set editUrl = '/[[folderName]]/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect='~craft.app.request.fullPath %}
         <div class="px-2 w-1/2 pb-2">
-          <label class="block address-select js-address-select [[classes.box.base]]"
-                 data-address-id="{{ address.id }}">
-            <div class="js-radio">
-              <input type="radio"
-                     name="{{ name }}Id"
-                     value="{{ address.id }}"
-                     {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %}
-                     data-model-name="{{ name }}"/>
+          <label data-address-id="{{ address.id }}"
+                 class="block address-select js-address-select [[classes.box.base]]">
+            <span class="js-radio">
+              {{ input('radio', name ~ 'Id', address.id, {
+                checked: attribute(cart, name ~ 'Id') == address.id,
+                'data-model-name': name
+              }) }}
               {{ include('[[folderName]]/_private/address/address') }}
-            </div>
-            <div>
-              <a class="[[classes.btn.small]] [[classes.btn.grayColor]]"
-                 href="{{ url('/[[folderName]]/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
-            </div>
+            </span>
+            <span>
+              <a href="{{ url(editUrl) }}" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
+                {{- 'Edit'|t -}}
+              </a>
+            </span>
           </label>
         </div>
       {% endfor %}
@@ -35,10 +39,10 @@
     {% if currentUser %}
       <div class="js-radio">
         <label>
-          <input type="radio"
-                 name="{{ name }}Id"
-                 {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
-          New {{ title }}
+          {{ input('radio', name ~ 'Id', '', {
+            checked: not addresses|length or addressHasErrors
+          }) }}
+          {{ 'New {title}'|t('site', { title: title }) }}
         </label>
       </div>
     {% endif %}

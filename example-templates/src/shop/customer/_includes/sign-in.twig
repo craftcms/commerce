@@ -5,44 +5,49 @@
 
   <div class="field mt-3">
     <label for="loginName">
-      Email / Username
+      {{ 'Email / Username'|t }}
     </label>
     <div class="mt-1">
       <input type="text"
              id="loginName"
              name="loginName"
              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[[color]]-500 focus:border-[[color]]-500 sm:text-sm"
-             value="{{ craft.app.user.getRememberedUsername() }}" required
-             placeholder="email@site.com"/>
+             value="{{ craft.app.user.getRememberedUsername() }}"
+             placeholder="email@site.com"
+             required
+      />
     </div>
   </div>
 
   <div class="field mt-3">
-    <label for="loginPassword">Password</label>
+    <label for="loginPassword">{{ 'Password'|t }}</label>
     <input type="password"
            id="loginPassword"
            name="password"
-           class="[[classes.input]] mt-1 w-full"/>
+           class="[[classes.input]] mt-1 w-full"
+    />
   </div>
 
   <div class="field mt-3">
     <label>
       <input type="checkbox"
              name="rememberMe"
-             value="1">
-      Remember me
+             value="1"
+      />
+      {{ 'Remember me'|t }}
     </label>
   </div>
 
   <div class="mt-3 flex justify-between items-center">
     <div>
-      <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">Forgot
-        your password?</a>
+      <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">
+        {{- 'Forgot your password?'|t -}}
+      </a>
     </div>
     <div>
       <button type="submit"
               class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-        Login
+        {{- 'Login'|t -}}
       </button>
     </div>
   </div>
