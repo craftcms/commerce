@@ -32,6 +32,7 @@
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
+- It’s now possible to create an order for a user from the Edit User page.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - `craft\commerce\modela\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
