@@ -1,14 +1,11 @@
+{% requireLogin %}
 {% extends 'shop/_private/layouts' %}
 
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
-    {% set customer = craft.commerce.customers.customer %}
-    {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
-    {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
-
-    {% if not currentUser %}
-        {% exit 404 %}
-    {% endif %}
+    {% set primaryBillingAddressId = currentUser.getPrimaryBillingAddressId() %}
+    {% set primaryShippingAddressId = currentUser.getPrimaryShippingAddressId() %}
+    {% set addresses = currentUser.getAddresses() %}
 
     <div class="flex justify-between items-center">
         <h1 class="text-3xl block sm:inline">Addresses</h1>
@@ -18,20 +15,19 @@
         </a>
     </div>
 
-    {% if customer.addresses|length %}
+    {% if addresses|length %}
         <div class="grid mt-10 gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {% for address in customer.addresses %}
-                <div class="relative bg-gray-50 rounded p-2">
-                    {{ include('shop/_private/address/address', {address: address}) }}
-
+            {% for address in addresses %}
+                <div class="relative bg-gray-100 border-blue-300 border-b-2 p-6">
+                    {{ include('shop/_private/address/address', { address: address }) }}
 
                     <div>
-                        {% if primaryBillingAddress and primaryBillingAddress.id == address.id %}
+                        {% if primaryBillingAddressId and primaryBillingAddressId == address.id %}
                             <span role="img" aria-label="Check Mark">✅</span> Primary Billing
                         {% endif %}
                     </div>
                     <div>
-                        {% if primaryShippingAddress and primaryShippingAddress.id == address.id %}
+                        {% if primaryShippingAddressId and primaryShippingAddressId == address.id %}
                             <span role="img" aria-label="Check Mark">✅</span> Primary Shipping
                         {% endif %}
                     </div>
@@ -45,7 +41,7 @@
                         </div>
                         <div>
                             <form method="post" action="">
-                                {{ actionInput('commerce/customer-addresses/delete') }}
+                                {{ actionInput('commerce/user-addresses/delete') }}
                                 {{ hiddenInput('id', address.id) }}
                                 {{ csrfInput() }}
                                 <button type="submit" class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">

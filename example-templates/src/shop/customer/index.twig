@@ -4,11 +4,13 @@
     <meta name="robots" content="noindex">
 {% endset %}
 
+{% if not currentUser %}
+    {% redirect '[[folderName]]/customer/sign-in' %}
+{% endif %}
+
 {% block main %}
     <!-- Template: {{ _self }}.twig -->
-    {% if currentUser %}
-
-    {% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
+    {% set orders = currentUser.getOrders() %}
 
     <h1 class="text-3xl block sm:inline">My Orders</h1>
 
@@ -60,11 +62,4 @@
 
     <a class="[[classes.btn.base]] [[classes.btn.mainColor]]"
        href="{{ url('/[[folderName]]/customer/cards') }}">Manage Stored Cards</a>
-    {% else %}
-    <h1 class="text-3xl block sm:inline">My Orders</h1>
-
-    <p>You don’t have any orders yet.</p>
-    <p><a href="{{ url('/[[folderName]]/products') }}" class="[[classes.a]]">Continue shopping</a></p>
-    {% endif %}
-
 {% endblock %}

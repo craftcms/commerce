@@ -1,3 +1,4 @@
+{% requireLogin %}
 {% extends '[[folderName]]/_private/layouts' %}
 
 {% block main %}
@@ -6,7 +7,7 @@
     {% set redirect = craft.app.request.param('redirect') %}
 
     {% if not address is defined and addressId %}
-        {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
+        {% set address = currentUser.getAddressById(addressId) %}
     {% endif %}
 
     <h1 class="text-xl font-semibold">
@@ -19,7 +20,7 @@
 
     <form method="post" action="">
         {{ csrfInput() }}
-        {{ actionInput('commerce/customer-addresses/save') }}
+        {{ actionInput('commerce/user-addresses/save') }}
         {% if redirect %}
             {{ redirectInput(redirect) }}
         {% else %}
@@ -32,8 +33,8 @@
 
         {{ include('[[folderName]]/_private/address/form') }}
 
-        {% set isPrimaryBilling = (cart.customer.primaryBillingAddressId == addressId) %}
-        {% set isPrimaryShipping = (cart.customer.primaryShippingAddressId == addressId) %}
+        {% set isPrimaryBilling = (currentUser.getPrimaryBillingAddressId() == addressId) %}
+        {% set isPrimaryShipping = (currentUser.getPrimaryShippingAddressId() == addressId) %}
 
         <hr class="my-3"/>
 
