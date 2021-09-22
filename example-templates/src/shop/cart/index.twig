@@ -32,21 +32,23 @@
                 </div>
               </div>
               <span class="text-gray-500 tracking-widest font-mono text-xs">{{ item.sku }}</span>
-              <div class="mt-2 relative">
-                <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
-                  {{- item.options|length ? item.options|json_encode : 'No options.'|t -}}
-                </code>
-                <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">
-                  {{ 'Options'|t }}
-                </span>
-              </div>
+              {% if item.options|length %}
+                <div class="mt-2 relative">
+                  <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
+                    {{- item.options|json_encode -}}
+                  </code>
+                  <span class="absolute top-0 left-0 pt-2 pl-2 text-xs text-gray-500 uppercase tracking-wider">
+                    {{ 'Options'|t }}
+                  </span>
+                </div>
+              {% endif %}
               <div class="mt-6">
                 <label>
                   <input type="checkbox"
                          name="lineItems[{{ item.id }}][remove]"
                          value="1"
                   />
-                  <span>{{ 'Remove Line'|t }}</span>
+                  <span>{{ 'Remove'|t }}</span>
                 </label>
               </div>
             </td>
@@ -278,13 +280,13 @@
               <div class="flex w-full justify-end">
                 <div class="pr-2">
                   {{ redirectInput('[[folderName]]/cart') }}
-                  <button type="submit" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
+                  <button type="submit" class="[[classes.btn.base]] [[classes.btn.grayColor]]">
                     {{- 'Update Cart'|t -}}
                   </button>
                 </div>
                 <div>
                   {% if not cart.hasErrors() %}
-                    <a href="{{ url('/[[folderName]]/checkout') }}" class="[[classes.btn.small]] [[classes.btn.mainColor]]">
+                    <a href="{{ url('/[[folderName]]/checkout') }}" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
                       {{ 'Checkout'|t }}
                     </a>
                   {% endif %}
