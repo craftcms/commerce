@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.3 - 2021-09-22
 
 ### Fixed
 - Fixed a bug where discounts’ purchasable conditions weren’t applying to products when they were initially added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
