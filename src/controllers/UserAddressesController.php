@@ -93,7 +93,9 @@ class UserAddressesController extends BaseController
         ];
         // Set Address attributes to new values (if provided) or use the existing ones for values that aren’t sent:
         foreach ($attrs as $attr) {
-            $address->$attr = $this->request->getBodyParam("address.{$attr}", $address->$attr);
+            $tmpAttr = $this->request->getBodyParam("address.{$attr}", $address->$attr);
+            $tmpAttr = ($attr === 'countryId' && $tmpAttr === '') ? null : $tmpAttr;
+            $address->$attr = $tmpAttr;
         }
 
         if (Plugin::getInstance()->getUsers()->saveAddress($address, $user)) {
