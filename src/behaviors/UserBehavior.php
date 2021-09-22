@@ -74,6 +74,16 @@ class UserBehavior extends Behavior
     }
 
     /**
+     * @param int $id
+     * @return Address|null
+     * @throws InvalidConfigException
+     */
+    public function getAddressById(int $id): ?Address
+    {
+        return ArrayHelper::firstWhere($this->getAddresses(), 'id', $id);
+    }
+
+    /**
      * @return array
      * @throws InvalidConfigException
      */
