@@ -21,6 +21,7 @@ use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use DateInterval;
@@ -719,7 +720,7 @@ class Subscription extends Element
                 $subscriber = $this->getSubscriber();
                 $url = $subscriber->getCpEditUrl();
 
-                return '<a href="' . $url . '">' . $subscriber . '</a>';
+                return '<a href="' . $url . '">' . Html::encode($subscriber) . '</a>';
 
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
