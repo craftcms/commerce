@@ -1,6 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{% if cart.availableShippingMethodOptions|length < 2 and cart.shippingMethod %}
+{% if cart is defined and cart.availableShippingMethodOptions|length < 2 and cart.shippingMethod %}
   {% redirect '[[folderName]]/checkout/payment-method' %}
 {% endif %}
 
