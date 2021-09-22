@@ -4,9 +4,9 @@
     <div class="container mx-auto p-6">
       {{ 'You’re limited to one cart item at a time with Craft Commerce <span class="{classes}"> {edition}</span>. <a href="{url}">Learn more</a>.'|t('site', {
         classes: 'bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded',
-        edition: 'craft.commerce.edition|upper',
+        edition: craft.commerce.edition|upper,
         url: 'https://craftcms.com/docs/commerce/3.x/editions.html',
-      }) }}
+      })|raw }}
     </div>
   </div>
 {% endif %}
@@ -29,12 +29,12 @@
             classes: 'rounded p-1 bg-gray-700 text-xs',
             user: currentUser.username,
             groups: userGroups
-          }) }}
+          })|raw }}
         {% else %}
           {{ 'Logged in as <code class="{classes}">{user}</code>.'|t('site', {
             classes: 'rounded p-1 bg-gray-700 text-xs',
             user: currentUser.username
-          }) }}
+          })|raw }}
         {% endif %}
     {% endif %}
   </div>

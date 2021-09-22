@@ -40,7 +40,7 @@
           {% set width = ((loop.index) * 100 / totalSteps - 10) %}
         {% endif %}
         {% set additionalClasses = (step.url in craft.app.request.pathInfo)
-          ? 'text-gray-800 focus:outline-none no-underline' :
+          ? 'text-gray-800 focus:outline-none no-underline'
           : 'hover:text-gray-800'
         %}
         <a href="{{ url(step.url) }}" class="flex-1 text-gray-600 pb-2 {{ additionalClasses }}">
