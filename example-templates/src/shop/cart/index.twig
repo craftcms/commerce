@@ -300,7 +300,7 @@
 
   {% if not cart.lineItems|length %}
     <p>{{ 'Empty cart. Add items on the {link} page.'|t('site', {
-        link: tag('a', { href: url('/[[folderName]]/products'), text: 'products' })
+        link: tag('a', { href: url('/[[folderName]]/products'), text: 'products', class: 'underline' })
     }) }}</p>
   {% endif %}
 {% endblock %}
