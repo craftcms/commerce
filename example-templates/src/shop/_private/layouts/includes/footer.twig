@@ -2,7 +2,7 @@
 {% if craft.commerce.edition == 'lite' %}
   <div class="bg-[[dangerColor]]-800 text-white">
     <div class="container mx-auto p-6">
-      {{ 'You’re limited to one cart item at a time with Craft Commerce <span class="{classes}"> {edition}</span>. <a href="{url}">Learn more</a>.'|t('site', {
+      {{ 'You’re limited to one cart item at a time with Craft Commerce <span class="{classes}"> {edition}</span>. <a href="{url}" class="underline">Learn more</a>.'|t('site', {
         classes: 'bg-white text-red-700 tracking-wide px-2 py-1 mx-1 rounded',
         edition: craft.commerce.edition|upper,
         url: 'https://craftcms.com/docs/commerce/3.x/editions.html',
