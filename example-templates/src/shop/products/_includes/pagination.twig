@@ -25,7 +25,9 @@
     </a>
   {% endfor %}
 
-  <span class="px-2 py-1">{{ pageInfo.currentPage }}</span>
+  {% if pageInfo.totalPages > 1 %}
+    <span class="px-2 py-1">{{ pageInfo.currentPage }}</span>
+  {% endif %}
 
   {% for page, url in pageInfo.getNextUrls(5) %}
     <a href="{{ url }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
