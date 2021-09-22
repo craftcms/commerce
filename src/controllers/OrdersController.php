@@ -114,18 +114,27 @@ class OrdersController extends Controller
     {
         $this->requirePermission('commerce-editOrders');
 
-        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+        $userId = Craft::$app->getRequest()->getParam('userId', null);
+        $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
 
-        $order = new Order();
-        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-
-        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            $customer = new Customer();
-            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        if ($userId && !$user) {
+            throw new BadRequestHttpException("Invalid user ID: $userId");
         }
 
-        $order->setCustomer($customer);
-        $order->origin = Order::ORIGIN_CP;
+        $attributes = [
+            'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
+            'origin' => Order::ORIGIN_CP,
+        ];
+
+        if ($user) {
+            $attributes['userId'] = $user->id;
+        }
+
+        $order = Craft::createObject(Order::class, [
+            'config' => [
+                'attributes' => $attributes,
+            ],
+        ]);
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -1033,16 +1042,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = null;
-        if ($variables['order']->customerId) {
-            $customerQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery()->andWhere(['customers.id' => $variables['order']->customerId]);
-            $customers = $this->_prepCustomersArray($customerQuery->all());
-
-            if (!empty($customers)) {
-                $customer = ArrayHelper::firstValue($customers);
-            }
-        }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
+        $user = $variables['order']->userid ? Craft::$app->getUsers()->getUserById($variables['order']->userId) : null;
+        Craft::$app->getView()->registerJs('window.orderEdit.originalUser = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
