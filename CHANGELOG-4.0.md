@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\behaviors\UserBehavior`.
 - Added `craft\commerce\controllers\UserAddressesController`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE`.
 - Added `craft\commerce\elements\db\OrderQuery::$userId`.
@@ -27,6 +28,7 @@
 - Added `craft\commerce\services\Addresses::setPrimaryAddressByAddressIdAndType()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
+- Added `craft\commerce\services\Users`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
