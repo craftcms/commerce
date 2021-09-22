@@ -21,6 +21,13 @@ var orderColumns = [
 ];
 
 new Craft.VueAdminTable({
+    buttons: [
+        {
+            label: Craft.t('commerce', 'New Order'),
+            href: '{{ cpUrl('commerce/orders/new', { userId: userId }) }}',
+            icon: 'plus',
+        }
+    ],
     columns: orderColumns,
     container: '#orders-vue-admin-table',
     emptyMessage: Craft.t('commerce', 'No orders exist.'),
