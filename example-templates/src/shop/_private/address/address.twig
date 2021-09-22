@@ -3,7 +3,7 @@
 <ul>
   {% for key, line in address.addressLines %}
     <li>
-      {{ tag(key in boldkeys ? 'strong' : 'span', {
+      {{ tag(key in boldKeys ? 'strong' : 'span', {
         text: key == 'attention' ? 'Attn'|t ~ ': ' ~ line : line
       }) }}
     </li>
