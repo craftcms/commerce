@@ -87,7 +87,7 @@
         {{ 'Shipping'|t }}:
       </div>
       <div>
-        {{ cart.totalShippingCost|totalAsCurrency }}
+        {{ cart.totalShippingCostAsCurrency }}
       </div>
     </div>
     <div class="flex w-full justify-end items-center text-xs text-gray-500">
@@ -95,7 +95,7 @@
         {{ 'Tax'|t }}:
       </div>
       <div>
-        {{ cart.totalTax|totalAsCurrency }}
+        {{ cart.totalTaxAsCurrency }}
       </div>
     </div>
     <div class="flex w-full justify-end items-center text-xs text-gray-500">
