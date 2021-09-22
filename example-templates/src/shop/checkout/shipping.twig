@@ -44,7 +44,7 @@
                     </div>
                     <div>
                       <strong>{{ method.name }}</strong><br>
-                      <span class="price">{{ method.getPrice()|totalAsCurrency }}</span>
+                      <span class="price">{{ method.getPrice()|commerceCurrency(cart.currency) }}</span>
                     </div>
                   </div>
                 </label>
