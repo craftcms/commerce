@@ -1161,14 +1161,14 @@ class Order extends Element
                 'storedTotalDiscount' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTax' => AttributeTypecastBehavior::TYPE_FLOAT,
                 'storedTotalTaxIncluded' => AttributeTypecastBehavior::TYPE_FLOAT,
-            ]
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -1342,7 +1342,7 @@ class Order extends Element
 
                     return [
                         'date' => $formatter->asDate($model->$attribute, Locale::LENGTH_SHORT),
-                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT)
+                        'time' => $formatter->asTime($model->$attribute, Locale::LENGTH_SHORT),
                     ];
                 }
 
@@ -1394,46 +1394,42 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
+        return array_merge(parent::defineRules(), [
+            // Address models are valid
+            [['billingAddress', 'shippingAddress'], 'validateAddress'],
 
-        // Address models are valid
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddress'
-        ]; // from OrderValidatorTrait
+            // Do addresses  belong to the customer of the order (only checked if the order is a cart)
+            [['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'],
 
-        // Do addresses  belong to the customer of the order (only checked if the order is a cart)
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'
-        ]; // from OrderValidatorTrait
+            // Are the addresses both being set to each other.
+            [
+                ['billingAddress', 'shippingAddress'],
+                'validateAddressReuse',
+                'when' => function($model) {
+                    /** @var Order $model */
+                    return !$model->isCompleted;
+                },
+            ],
 
-        // Are the addresses both being set to each other.
-        $rules[] = [
-            ['billingAddress', 'shippingAddress'], 'validateAddressReuse', 'when' => function($model) {
-                /** @var Order $model */
-                return !$model->isCompleted;
-            }
-        ]; // from OrderValidatorTrait
+            // Line items are valid?
+            [['lineItems'], 'validateLineItems'],
 
-        // Line items are valid?
-        $rules[] = [['lineItems'], 'validateLineItems']; // from OrderValidatorTrait
+            // Coupon Code valid?
+            [['couponCode'], 'validateCouponCode'],
 
-        // Coupon Code valid?
-        $rules[] = [['couponCode'], 'validateCouponCode']; // from OrderValidatorTrait
+            [['gatewayId'], 'number', 'integerOnly' => true],
+            [['gatewayId'], 'validateGatewayId'],
+            [['shippingAddressId'], 'number', 'integerOnly' => true],
+            [['billingAddressId'], 'number', 'integerOnly' => true],
 
-        $rules[] = [['gatewayId'], 'number', 'integerOnly' => true];
-        $rules[] = [['gatewayId'], 'validateGatewayId']; // OrderValidatorsTrait
-        $rules[] = [['shippingAddressId'], 'number', 'integerOnly' => true];
-        $rules[] = [['billingAddressId'], 'number', 'integerOnly' => true];
+            [['paymentCurrency'], 'validatePaymentCurrency'],
 
-        $rules[] = [['paymentCurrency'], 'validatePaymentCurrency']; // OrderValidatorTrait
-
-        $rules[] = [['paymentSourceId'], 'number', 'integerOnly' => true];
-        $rules[] = [['paymentSourceId'], 'validatePaymentSourceId']; // OrderValidatorTrait
-        $rules[] = [['email'], 'email'];
-
-        return $rules;
+            [['paymentSourceId'], 'number', 'integerOnly' => true],
+            [['paymentSourceId'], 'validatePaymentSourceId'],
+            [['email'], 'email'],
+        ]);
     }
 
     /**
@@ -1690,7 +1686,7 @@ class Order extends Element
         if ($this->hasEventHandlers(self::EVENT_AFTER_ADD_LINE_ITEM)) {
             $this->trigger(self::EVENT_AFTER_ADD_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $lineItem,
-                'isNew' => !$replaced
+                'isNew' => !$replaced,
             ]));
         }
     }
@@ -1750,7 +1746,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1764,7 +1760,7 @@ class Order extends Element
                                 'type' => 'lineItemSalePriceChanged',
                                 'attribute' => "lineItems.{$item->id}.salePrice",
                                 'message' => $message,
-                            ]
+                            ],
                         ]);
                         $this->addNotice($notice);
                     }
@@ -1776,8 +1772,8 @@ class Order extends Element
                         'attributes' => [
                             'message' => $message,
                             'type' => 'lineItemRemoved',
-                            'attribute' => 'lineItems'
-                        ]
+                            'attribute' => 'lineItems',
+                        ],
                     ]);
                     $this->addNotice($notice);
                     $this->removeLineItem($item);
@@ -1823,7 +1819,7 @@ class Order extends Element
                                 'type' => 'shippingMethodChanged',
                                 'attribute' => 'shippingMethodHandle',
                                 'message' => $message,
-                            ]
+                            ],
                         ])
                     );
                     $this->recalculate();
@@ -1877,7 +1873,7 @@ class Order extends Element
         if (!$this->shippingMethodHandle) {
             // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
-        } elseif ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
+        } else if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
             // Update shipping method name if there is a handle and we can retrieve the method
             $this->shippingMethodName = $shippingMethod->getName();
         }
@@ -3333,7 +3329,7 @@ class Order extends Element
 
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_REMOVE_LINE_ITEM, new LineItemEvent([
-                        'lineItem' => $lineItem
+                        'lineItem' => $lineItem,
                     ]));
                 }
             }
@@ -3355,7 +3351,7 @@ class Order extends Element
                 if ($this->hasEventHandlers(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM)) {
                     $this->trigger(self::EVENT_AFTER_APPLY_ADD_LINE_ITEM, new LineItemEvent([
                         'lineItem' => $lineItem,
-                        'isNew' => true
+                        'isNew' => true,
                     ]));
                 }
             }

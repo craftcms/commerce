@@ -19,7 +19,7 @@ class m200127_235254_replace_old_revenue_widget extends Migration
         $type = 'craft\commerce\widgets\TotalRevenue';
         $widgetSettings = [
             'startDate' => null,
-            'endDate' => null
+            'endDate' => null,
         ];
 
         $oldRevenueWidgets = (new Query())

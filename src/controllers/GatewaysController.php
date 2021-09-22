@@ -32,7 +32,7 @@ class GatewaysController extends BaseAdminController
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
 
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => $gateways
+            'gateways' => $gateways,
         ]);
     }
 
@@ -77,7 +77,7 @@ class GatewaysController extends BaseAdminController
 
                 $gatewayOptions[] = [
                     'value' => $class,
-                    'label' => $class::displayName()
+                    'label' => $class::displayName(),
                 ];
             }
         }
@@ -140,7 +140,7 @@ class GatewaysController extends BaseAdminController
 
             // Send the volume back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'gateway' => $gateway
+                'gateway' => $gateway,
             ]);
 
             return null;

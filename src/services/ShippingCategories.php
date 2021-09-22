@@ -214,7 +214,7 @@ class ShippingCategories extends Component
                 'unique' => true,
                 'status' => null,
                 'enabledForSite' => false,
-            ]
+            ],
         ]));
     }
 

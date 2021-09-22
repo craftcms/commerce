@@ -45,7 +45,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         $variables = [
             'id' => $id,
             'taxCategory' => $taxCategory,
-            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
+            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
         ];
 
         if (!$variables['taxCategory']) {
@@ -121,7 +121,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'errors' => $taxCategory->getErrors()
+                    'errors' => $taxCategory->getErrors(),
                 ]);
             }
 
@@ -130,7 +130,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         // Send the tax category back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'taxCategory' => $taxCategory
+            'taxCategory' => $taxCategory,
         ]);
 
         return null;

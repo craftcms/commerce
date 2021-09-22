@@ -15,7 +15,7 @@ use craft\helpers\FileHelper;
 use yii\console\ExitCode;
 
 /**
- * Allows you to create a new database backup.
+ * Console command to build example templates.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
@@ -52,8 +52,8 @@ class ExampleTemplatesController extends Controller
     public $devBuild = false;
 
     /**
-     * @var string The type of templates you want to generate. 'pro' for full templates or 'lite' for minimal templates.
-     * Possible values are: blue, red
+     * @var string The base color for the generated example templates.
+     * Possible values are: gray, red, yellow, green, blue, indigo, purple or pink.
      */
     public $baseColor;
 
@@ -120,7 +120,7 @@ class ExampleTemplatesController extends Controller
 
         // Add the string replacement data to be swapped out in templates
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[folderName]]' => $folderName
+            '[[folderName]]' => $folderName,
         ]);
         $this->_addCssClassesToReplacementData();
         $this->_addTranslationsToReplacementData();
@@ -137,7 +137,7 @@ class ExampleTemplatesController extends Controller
 
             // Find all text files we want to replace [[ ]] notation in.
             $files = FileHelper::findFiles($tempDestination, [
-                'only' => ['*.twig', '*.html', '*.svg', '*.css']
+                'only' => ['*.twig', '*.html', '*.svg', '*.css'],
             ]);
             // Set the [[ ]] notion variables and write our the files.
             foreach ($files as $file) {
@@ -272,7 +272,7 @@ class ExampleTemplatesController extends Controller
         }
 
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[tailwindCssTag]]' => $tag
+            '[[tailwindCssTag]]' => $tag,
         ]);
     }
 

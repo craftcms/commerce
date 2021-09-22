@@ -39,7 +39,7 @@ class Currency
 
         // If $amount is string it throws round error on PHP 8
         // @todo to be removed on Commerce 4 - ensure $amount is of float type
-        $amount = (float) $amount;
+        $amount = (float)$amount;
 
         return round($amount, $decimals);
     }
@@ -74,7 +74,7 @@ class Currency
         }
 
         $currencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        
+
         if (is_string($currency)) {
             $currencyIso = $currency;
         }

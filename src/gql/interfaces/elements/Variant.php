@@ -47,7 +47,7 @@ class Variant extends Element
             'description' => 'This is the interface implemented by all variants.',
             'resolveType' => function(VariantElement $value) {
                 return $value->getGqlTypeName();
-            }
+            },
         ]));
 
         VariantType::generateTypes();
@@ -157,7 +157,7 @@ class Variant extends Element
             'product' => [
                 'name' => 'product',
                 'type' => Product::getType(),
-                'description' => 'The variant’s parent product.'
+                'description' => 'The variant’s parent product.',
             ],
             'productTitle' => [
                 'name' => 'productTitle',
@@ -167,7 +167,7 @@ class Variant extends Element
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
-                'description' => 'The product type ID of the variant’s parent product.'
+                'description' => 'The product type ID of the variant’s parent product.',
             ],
             'sku' => [
                 'name' => 'sku',

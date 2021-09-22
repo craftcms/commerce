@@ -39,7 +39,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxCategories()->getAllTaxCategories();
 
         return $this->renderTemplate('commerce/tax/taxrates/index', [
-            'taxRates' => $taxRates
+            'taxRates' => $taxRates,
         ]);
     }
 
@@ -79,7 +79,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
-            ['value' => '', 'label' => '']
+            ['value' => '', 'label' => ''],
         ];
 
         foreach ($taxZones as $model) {
@@ -184,7 +184,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'taxRate' => $taxRate
+            'taxRate' => $taxRate,
         ]);
     }
 

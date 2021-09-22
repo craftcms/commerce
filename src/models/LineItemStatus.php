@@ -84,7 +84,7 @@ class LineItemStatus extends Model
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'isArchived' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         return $behaviors;
@@ -101,13 +101,11 @@ class LineItemStatus extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-
-        return $rules;
+        return [
+            [['name', 'handle'], 'required'],
+        ];
     }
 
     /**

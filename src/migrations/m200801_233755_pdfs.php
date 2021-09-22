@@ -114,7 +114,7 @@ class m200801_233755_pdfs extends Migration
                 'enabled' => true,
                 'sortOrder' => $sortOrder++,
                 'isDefault' => false,
-                'uid' => $emailPdfUids[$key]
+                'uid' => $emailPdfUids[$key],
             ];
 
             $configPath = Pdfs::CONFIG_PDFS_KEY . '.' . $configData['uid'];
@@ -135,7 +135,7 @@ class m200801_233755_pdfs extends Migration
                 'templatePath' => $email['templatePath'],
                 'plainTextTemplatePath' => $email['plainTextTemplatePath'],
                 'pdf' => $emailPdfUids[$key], // uid generated from this migration
-                'uid' => $email['uid']
+                'uid' => $email['uid'],
             ];
 
             $configPath = Emails::CONFIG_EMAILS_KEY . '.' . $email['uid'];

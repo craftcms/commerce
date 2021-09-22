@@ -124,7 +124,7 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite'
+            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -135,7 +135,7 @@ class ShippingRules extends Component
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
             $record->priority = $model->priority = $count + 1;
-        } elseif ($model->priority) {
+        } else if ($model->priority) {
             $record->priority = $model->priority;
         } else {
             $model->priority = $record->priority;
@@ -158,13 +158,13 @@ class ShippingRules extends Component
                     'condition' => $ruleCategory->condition,
                     'perItemRate' => $ruleCategory->perItemRate,
                     'weightRate' => $ruleCategory->weightRate,
-                    'percentageRate' => $ruleCategory->percentageRate
+                    'percentageRate' => $ruleCategory->percentageRate,
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
-                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
+                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW,
                 ]);
             }
 
@@ -287,7 +287,7 @@ class ShippingRules extends Component
                 'percentageRate',
                 'minRate',
                 'maxRate',
-                'isLite'
+                'isLite',
             ])
             ->orderBy(['methodId' => SORT_ASC, 'priority' => SORT_ASC])
             ->from([Table::SHIPPINGRULES]);

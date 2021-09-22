@@ -120,7 +120,7 @@ class ShippingMethods extends Component
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
-            'order' => $order
+            'order' => $order,
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {

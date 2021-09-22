@@ -21,6 +21,7 @@ use craft\db\Query;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use DateInterval;
@@ -453,8 +454,8 @@ class Subscription extends Element
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
-                'defaultSort' => ['dateCreated', 'desc']
-            ]
+                'defaultSort' => ['dateCreated', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
@@ -466,9 +467,9 @@ class Subscription extends Element
                 'key' => $key,
                 'label' => $plan->name,
                 'data' => [
-                    'handle' => $plan->handle
+                    'handle' => $plan->handle,
                 ],
-                'criteria' => ['planId' => $plan->id]
+                'criteria' => ['planId' => $plan->id],
             ];
         }
 
@@ -517,7 +518,7 @@ class Subscription extends Element
 
             return [
                 'elementType' => User::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -547,13 +548,11 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'],
+        ]);
     }
 
     /**
@@ -679,7 +678,7 @@ class Subscription extends Element
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
-            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
+            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')],
         ];
     }
 
@@ -721,7 +720,7 @@ class Subscription extends Element
                 $subscriber = $this->getSubscriber();
                 $url = $subscriber->getCpEditUrl();
 
-                return '<a href="' . $url . '">' . $subscriber . '</a>';
+                return '<a href="' . $url . '">' . Html::encode($subscriber) . '</a>';
 
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
