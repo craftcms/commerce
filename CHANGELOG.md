@@ -3,8 +3,8 @@
 ## Unreleased
 
 ### Fixed
-- Fixed a bug where discount with purchasable conditions did not apply the discount when a new product was added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
-- Fixed a bug where the cart did not recalculation when force saving. ([#2560](https://github.com/craftcms/commerce/issues/2560))
+- Fixed a bug where discounts with purchasable conditions did not apply the discount when a new product was added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
+- Fixed a bug where the cart did not recalculate when force saving. ([#2560](https://github.com/craftcms/commerce/issues/2560))
 - Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
 - Fixed a bug where new Commerce installs were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
 
