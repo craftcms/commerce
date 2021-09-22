@@ -24,12 +24,12 @@ use yii\db\Connection;
 class DonationQuery extends ElementQuery
 {
     /**
-     * @var string The sku of the donation purchasable
+     * @var string The SKU of the donation purchasable.
      */
     public $sku;
 
     /**
-     * Narrows the query results based on the sku.
+     * Narrows the query results based on the SKU.
      *
      * Possible values include:
      *
@@ -43,8 +43,8 @@ class DonationQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set sku = craft.app.request.getQueryParam('sku') %}
      * {% set {element-var} = {twig-method}
-     *     .sku(sku)
-     *     .one() %}
+     *   .sku(sku)
+     *   .one() %}
      * ```
      *
      * ```php
