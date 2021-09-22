@@ -60,7 +60,7 @@
 
   {{ forms.textField({
     label: 'First Name'|t('commerce'),
-    name: 'givenName',
+    name: 'address[givenName]',
     id: 'givenName',
     value : address.givenName,
     errors: address.getErrors('givenName'),
@@ -68,7 +68,7 @@
 
   {{ forms.textField({
     label: 'Last Name'|t('commerce'),
-    name: 'familyName',
+    name: 'address[familyName]',
     id: 'familyName',
     value : address.familyName,
     errors: address.getErrors('familyName'),

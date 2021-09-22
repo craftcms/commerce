@@ -128,11 +128,11 @@ class AddressesController extends BaseCpController
         if (!$address) {
             $address = new AddressModel();
         }
-
+     
         // @TODO namespace inputs, and use setAttributes on the model #COM-30
         // Shared attributes
         $address->load(Craft::$app->getRequest()->getBodyParams(), 'address');
-        
+
         // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
         $result = $customer ? Plugin::getInstance()->getCustomers()->saveAddress($address, $customer) : Plugin::getInstance()->getAddresses()->saveAddress($address);
 

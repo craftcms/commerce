@@ -93,7 +93,7 @@ class Address extends Model implements AddressInterface
     /**
      * @var string|null First Name
      */
-    public ?string $giveName = null;
+    public ?string $givenName = null;
     
     /**
      * @var string|null Family Name
@@ -291,11 +291,6 @@ class Address extends Model implements AddressInterface
     public $organization;
 
     /**
-     * @var string Given name (First name)
-     */
-    public $givenName;
-
-    /**
      * @var string Additional name (Middle name / Patronymic)
      */
     public $additionalName;
@@ -326,7 +321,9 @@ class Address extends Model implements AddressInterface
     public function attributes(): array
     {
         $names = parent::attributes();
+        
         $names[] = 'administrativeValue';
+        $names[] = 'givenName';
 
         return $names;
     }
@@ -637,7 +634,7 @@ class Address extends Model implements AddressInterface
     {
         $addressLines = [
             'attention' => $this->attention,
-            'name' => trim($this->title . ' ' . $this->giveName . ' ' . $this->familyName),
+            'name' => trim($this->title . ' ' . $this->givenName . ' ' . $this->familyName),
             'fullName' => $this->fullName,
             'addressLine1' => $this->addressLine1,
             'address2' => $this->address2,
@@ -729,7 +726,7 @@ class Address extends Model implements AddressInterface
         if (
             $this->attention == $otherAddress->attention &&
             $this->title == $otherAddress->title &&
-            $this->giveName == $otherAddress->giveName &&
+            $this->givenName == $otherAddress->givenName &&
             $this->familyName == $otherAddress->familyName &&
             $this->fullName == $otherAddress->fullName &&
             $this->addressLine1 == $otherAddress->addressLine1 &&
@@ -836,7 +833,7 @@ class Address extends Model implements AddressInterface
 
     public function getGivenName()
     {
-        return $this->giveName;
+        return $this->givenName;
     }
 
     public function getAdditionalName()

@@ -79,7 +79,7 @@ trait OrderElementTrait
             }
             case 'shippingFirstName':
             {
-                return $this->getShippingAddress() ? $this->getShippingAddress()->giveName ?? '' : '';
+                return $this->getShippingAddress() ? $this->getShippingAddress()->givenName ?? '' : '';
             }
             case 'shippingLastName':
             {
@@ -91,7 +91,7 @@ trait OrderElementTrait
             }
             case 'billingFirstName':
             {
-                return $this->getBillingAddress() ? $this->getBillingAddress()->giveName ?? '' : '';
+                return $this->getBillingAddress() ? $this->getBillingAddress()->givenName ?? '' : '';
             }
             case 'billingLastName':
             {
@@ -247,7 +247,7 @@ trait OrderElementTrait
     {
         switch ($attribute) {
             case 'billingFirstName':
-                return $this->billingAddress->giveName ?? '';
+                return $this->billingAddress->givenName ?? '';
             case 'billingLastName':
                 return $this->billingAddress->familyName ?? '';
             case 'billingFullName':
@@ -259,7 +259,7 @@ trait OrderElementTrait
                 $addressLines = $address ? $address->getAddressLines(true) : [];
                 return implode(' ', $addressLines);
             case 'shippingFirstName':
-                return $this->shippingAddress->giveName ?? '';
+                return $this->shippingAddress->givenName ?? '';
             case 'shippingLastName':
                 return $this->shippingAddress->familyName ?? '';
             case 'shippingFullName':

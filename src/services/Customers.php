@@ -870,7 +870,7 @@ class Customers extends Component
         $user->unverifiedEmail = $order->email;
         $user->newPassword = null;
         $user->username = $order->email;
-        $user->givenName = $order->billingAddress->giveName ?? '';
+        $user->givenName = $order->billingAddress->givenName ?? '';
         $user->familyName = $order->billingAddress->familyName ?? '';
         $user->pending = true;
         $user->setScenario(Element::SCENARIO_ESSENTIALS); //  don't validate required custom fields.
