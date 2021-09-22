@@ -109,18 +109,18 @@
                   <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
                   <div class="text-sm">
                       {%- if item.onSale %}<del>{% endif %}
-                      {{- item.price|totalAsCurrency- }}
+                      {{- item.priceAsCurrency- }}
                       {% if item.onSale %}</del>{% endif -%}
                   </div>
                 </div>
                 {% if item.onSale %}
                   <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
                     <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
-                    <div class="text-sm">{{ item.salePrice|totalAsCurrency }}</div>
+                    <div class="text-sm">{{ item.salePriceAsCurrency }}</div>
                   </div>
                   <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
                     <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                    <div class="text-sm">{{ item.saleAmount|totalAsCurrency }}</div>
+                    <div class="text-sm">{{ item.saleAmountAsCurrency }}</div>
                   </div>
 
                   {% set itemSales = item.snapshot.sales ?? [] %}
@@ -137,7 +137,7 @@
                 {% endif %}
                 <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
                   <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
-                  <div class="text-sm">{{ item.subtotal|totalAsCurrency }}</div>
+                  <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
                 </div>
               {% endif %}
             </td>
@@ -157,7 +157,7 @@
                       </div>
                       <div class="ml-auto">
                         <span class="text-gray-500" title="{{ adjustment.amount }}">
-                          {{ ' ' ~ adjustment.amount|totalAsCurrency }}
+                          {{ ' ' ~ adjustment.amountAsCurrency }}
                         </span>
                       </div>
                     </div>
@@ -168,7 +168,7 @@
               {% if not cart.hasErrors() %}
                 <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
                   <div class="text-sm text-gray-600 pr-2">Total:</div>
-                  <div class="font-bold">{{ item.total|totalAsCurrency }}</div>
+                  <div class="font-bold">{{ item.totalAsCurrency }}</div>
                 </div>
               {% endif %}
             </td>
@@ -208,7 +208,7 @@
                     </div>
                     <div class="ml-auto">
                       <span class="text-gray-500"
-                            title="{{ adjustment.amount }}"> {{ adjustment.amount|totalAsCurrency }}</span>
+                            title="{{ adjustment.amount }}"> {{ adjustment.amountAsCurrency }}</span>
                     </div>
                   </div>
                 {% endfor %}
@@ -230,24 +230,24 @@
 
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalShippingCost() }}">
                 <div class="text-xs text-gray-500 pr-2">{{ 'Total Shipping'|t }}:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalShippingCost()|totalAsCurrency }}</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalShippingCost()|commerceCurrency(cart.currency) }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalTax() }}">
                 <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax'|t }}:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalTax()|totalAsCurrency }}</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalTax()|commerceCurrency(cart.currency) }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalTaxIncluded() }}">
                 <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax (inc)'|t }}:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalTaxIncluded()|totalAsCurrency }}</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalTaxIncluded()|commerceCurrency(cart.currency) }}</div>
               </div>
               <div class="flex items-center w-full justify-end" title="{{ cart.getTotalDiscount() }}">
                 <div class="text-xs text-gray-500 pr-2">{{ 'Total Discount'|t }}:</div>
-                <div class="text-sm text-gray-500">{{ cart.getTotalDiscount()|totalAsCurrency }}</div>
+                <div class="text-sm text-gray-500">{{ cart.getTotalDiscount()|commerceCurrency(cart.currency) }}</div>
               </div>
 
               <div class="flex items-center w-full justify-end mt-3" title="{{ cart.totalPrice }}">
                 <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
-                <div class="text-xl font-bold">{{ cart.totalPrice|totalAsCurrency }}</div>
+                <div class="text-xl font-bold">{{ cart.totalPriceAsCurrency }}</div>
               </div>
             {% endif %}
           </td>
