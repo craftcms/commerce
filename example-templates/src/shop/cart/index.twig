@@ -298,9 +298,7 @@
         </tbody>
       </table>
     </form>
-  {% endif %}
-
-  {% if not cart.lineItems|length %}
+  {% else %}
     <p>{{ 'Empty cart. Add items on the {link} page.'|t('site', {
         link: tag('a', { href: url('/[[folderName]]/products'), text: 'products', class: 'underline' })
     })|raw }}</p>
