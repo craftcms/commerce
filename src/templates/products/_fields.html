@@ -237,12 +237,13 @@
         fieldClass: 'variant-properties-dimensions',
         errors: variant.getErrors('length')|merge(variant.getErrors('width'))|merge(variant.getErrors('height'))
     }, dimensionsInput) }}
-
+    
+    {# Adding "+ 0" removes decimal zeros but retain precision #}
     {{ forms.textField({
         id: 'weight',
         label: 'Weight'|t('commerce'),
         name: 'weight',
-        value: (variant.weight and variant.getErrors('weight') is empty ? variant.weight|number : variant.weight),
+        value: (variant.weight and variant.getErrors('weight') is empty ? (variant.weight + 0) : variant.weight), 
         placeholder: 'Enter weight'|t('commerce'),
         unit: craft.commerce.settings.weightUnits,
         errors: variant.getErrors('weight')

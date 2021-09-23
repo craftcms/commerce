@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where weight value with 4 decimal places hides the value. ([#2540](https://github.com/craftcms/commerce/issues/2540))
+
 ## 3.4.3 - 2021-09-22
 
 ### Fixed
