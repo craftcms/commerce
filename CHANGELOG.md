@@ -1,15 +1,15 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.3 - 2021-09-22
 
 ### Fixed
-- Fixed a bug where discounts with purchasable conditions did not apply the discount when a new product was added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
-- Fixed a bug where the cart did not recalculate when force saving. ([#2560](https://github.com/craftcms/commerce/issues/2560))
+- Fixed a bug where discounts’ purchasable conditions weren’t applying to products when they were initially added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
+- Fixed a bug where carts weren’t getting recalculated when force-saved. ([#2560](https://github.com/craftcms/commerce/issues/2560))
 - Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
 - Fixed a bug where new Commerce installs were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
 
 ### Security
-- Fixed some Commerce control panel XSS vulnerabilities.
+- Fixed XSS vulnerabilities.
 
 ## 3.4.2 - 2021-08-11
 
