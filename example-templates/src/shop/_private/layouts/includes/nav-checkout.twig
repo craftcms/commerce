@@ -33,15 +33,21 @@
 {% endif %}
 
 {% if craft.app.request.pathInfo in checkoutSteps|column('url') %}
-    <div class="container mx-auto justify-between items-center p-6 text-center text-xs">
+    <div class="container mx-auto justify-between items-center p-6 text-center text-sm text-gray-600 ">
         <nav class="flex">
             {% for step in checkoutSteps %}
                 {% if step.url == craft.app.request.pathInfo %}
                     {% set width = ((loop.index) * 100 / totalSteps - 10) %}
                 {% endif %}
-                <a href="{{ url(step.url) }}"
-                   class="flex-1 text-gray-600 pb-2 {{ (step.url in craft.app.request.pathInfo) ? 'text-gray-800 focus:outline-none no-underline' : 'hover:text-gray-800' }}
-      ">{{ step.label }}</a>
+                <span class="flex-1 pb-2 ">
+                {% if (step.url != craft.app.request.pathInfo) %}
+                    <a href="{{ url(step.url) }}"
+                       title="{{ step.url }} -> {{ craft.app.request.pathInfo }}"
+                       class="no-underline focus:outline-none hover:underline">{{ step.label }}</a>
+                {% else %}
+                    {{ step.label }}
+                {% endif %}
+                </span>
             {% endfor %}
         </nav>
         <div class="h-2 bg-gray-200 rounded" style="width:100%;"></div>
