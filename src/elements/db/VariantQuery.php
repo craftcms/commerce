@@ -189,8 +189,8 @@ class VariantQuery extends ElementQuery
      *
      * {# Fetch the {element} with that slug #}
      * {% set {element-var} = {twig-method}
-     *     .sku(requestedSlug|literal)
-     *     .one() %}
+     *   .sku(requestedSlug|literal)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -282,8 +282,8 @@ class VariantQuery extends ElementQuery
      * ```twig
      * {# Fetch default variants #}
      * {% set {elements-var} = {twig-function}
-     *     .isDefault()
-     *     .all() %}
+     *   .isDefault()
+     *   .all() %}
      * ```
      *
      * ```php
