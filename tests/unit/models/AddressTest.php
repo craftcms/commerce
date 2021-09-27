@@ -199,7 +199,7 @@ class AddressTest extends Unit
         $address->stateId = $stateId;
         $address->stateName = $stateName;
 
-        self::assertSame($stateText, $address->getStateName());
+        self::assertSame($stateText, $address->getAdministrativeAreaName());
     }
 
     /**
@@ -353,7 +353,7 @@ class AddressTest extends Unit
     public function addressLinesDataProvider(): array
     {
         return [
-            [['address1' => 'This is address 1'], false, ['address1' => 'This is address 1']],
+            [['addressLine1' => 'This is address 1'], false, ['addressLine1' => 'This is address 1']],
             [
                 [
                     'isStoreLocation' => false,
@@ -362,11 +362,11 @@ class AddressTest extends Unit
                     'firstName' => 'Emmett',
                     'lastName' => 'Brown',
                     'fullName' => 'Doc Brown',
-                    'address1' => '1640 Riverside Drive',
-                    'address2' => '',
-                    'address3' => '',
-                    'city' => 'Hill Valley',
-                    'zipCode' => '88',
+                    'addressLine1' => '1640 Riverside Drive',
+                    'addressLine2' => '',
+                    'addressLine3' => '',
+                    'locality' => 'Hill Valley',
+                    'postalCode' => '88',
                     'phone' => '555-555-5555',
                     'alternativePhone' => '',
                     'label' => 'Movies',
@@ -386,9 +386,9 @@ class AddressTest extends Unit
                 [
                     'name' => 'Dr Emmett Brown',
                     'fullName' => 'Doc Brown',
-                    'address1' => '1640 Riverside Drive',
-                    'city' => 'Hill Valley',
-                    'zipCode' => '88',
+                    'addressLine1' => '1640 Riverside Drive',
+                    'locality' => 'Hill Valley',
+                    'postalCode' => '88',
                     'phone' => '555-555-5555',
                     'label' => 'Movies',
                     'countryText' => 'United States',
@@ -400,7 +400,7 @@ class AddressTest extends Unit
                     'custom4' => 'Biff',
                 ]
             ],
-            [['address1' => 'Sanitize <br> this'], true, ['address1' => 'Sanitize &lt;br&gt; this']],
+            [['addressLine1' => 'Sanitize <br> this'], true, ['addressLine1' => 'Sanitize &lt;br&gt; this']],
         ];
     }
 

@@ -40,7 +40,7 @@
 
 {% block content %}
     <input type="hidden" name="action" value="commerce/states/save">
-    {% if state.id %}<input type="hidden" name="stateId" value="{{ state.id }}">{% endif %}
+    {% if state.id %}<input type="hidden" name="administrativeAreaId" value="{{ state.id }}">{% endif %}
 
     {{ forms.textField({
         first: true,

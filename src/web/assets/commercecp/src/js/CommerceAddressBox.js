@@ -48,7 +48,7 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
 
         // Only show the map button if we have an address
         if (this.address.id) {
-            var address = [this.address.addressLine1, this.address.address2, this.address.city, this.address.zipCode, this.address.stateText, this.address.countryText];
+            var address = [this.address.addressLine1, this.address.addressLine2, this.address.locality, this.address.postalCode, this.address.administrativeAreaText, this.address.countryText];
             var addressStr = address.join(' ');
             $("<a class='small btn right' style='margin:2px' target='_blank' href='http://maps.google.com/maps?q=" + addressStr + "'>" + Craft.t('commerce', 'Map') + "</a>").appendTo($buttons);
         }
@@ -110,24 +110,24 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
             $("<span class='addressLine1'>" + this.address.addressLine1 + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.address2) {
-            $("<span class='address2'>" + this.address.address2 + "<br></span>").appendTo(this.$address);
+        if (this.address.addressLine2) {
+            $("<span class='addressLine2'>" + this.address.addressLine2 + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.address3) {
-            $("<span class='address3'>" + this.address.address3 + "<br></span>").appendTo(this.$address);
+        if (this.address.addressLine3) {
+            $("<span class='addressLine3'>" + this.address.addressLine3 + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.city) {
-            $("<span class='city'>" + this.address.city + "<br></span>").appendTo(this.$address);
+        if (this.address.locality) {
+            $("<span class='locality'>" + this.address.locality + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.zipCode) {
-            $("<span class='zipCode'>" + this.address.zipCode + "<br></span>").appendTo(this.$address);
+        if (this.address.postalCode) {
+            $("<span class='postalCode'>" + this.address.postalCode + "<br></span>").appendTo(this.$address);
         }
 
-        if (this.address.stateText) {
-            $("<span class='stateText'>" + this.address.stateText + "<br></span>").appendTo(this.$address);
+        if (this.address.administrativeAreaText) {
+            $("<span class='administrativeAreaText'>" + this.address.administrativeAreaText + "<br></span>").appendTo(this.$address);
         }
 
         if (this.address.countryText) {

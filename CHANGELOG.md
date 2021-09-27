@@ -1,11 +1,5 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
-
-### Fixed
-- Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
-- Fixed a bug where new Commerce intalls were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
-
 ## 3.4.2 - 2021-08-11
 
 ### Changed
@@ -285,7 +279,7 @@
 
 ## 3.2.17 - 2021-03-03
 
-### Added 
+### Added
 - Added the ability to set a cart’s order site on the Edit Order page. ([#2031](https://github.com/craftcms/commerce/issues/2031))
 - Added the `cp.commerce.customers.edit`, `cp.commerce.customers.edit.content`, and `cp.commerce.customers.edit.details` template hooks to the Edit Customer page. ([#2030](https://github.com/craftcms/commerce/issues/2030))
 
@@ -3026,7 +3020,7 @@
 ## 0.9.1173 - 2015-11-09
 
 ### Added
-- Added a “Business Name” field to customer addresses (accessible via a `organization` attribute), which replaces the “Company” field (and `company` attribute), and can be used to store customers’ businesses’ names when purchasing on behalf of their company.
+- Added a “Business Name” field to customer addresses (accessible via a `businessName` attribute), which replaces the “Company” field (and `company` attribute), and can be used to store customers’ businesses’ names when purchasing on behalf of their company.
 - Added a “Business Tax ID” field to customer addresses (accessible via a `businessTaxId` attribute), which can be used to store customers’ businesses’ tax IDs (e.g. VAT) when purchasing on behalf of their company.
 - Added a `getCountriesByTaxZoneId()` method to the Tax Zones service.
 - Added a `getStatesByTaxZoneId()` method to the Tax Zones service.
@@ -3038,7 +3032,7 @@
 - The “Handle” field on Edit Tax Category pages is now automatically generated based on the “Name” field.
 - Plugin-based shipping methods are now listed in Commerce → Settings → Shipping Methods alongside the user-managed ones.
 - Orders can now be sorted by ID in the Control Panel.
-- Updated the example templates to account for the new `organization` and `businessTaxId` address attributes.
+- Updated the example templates to account for the new `businessName` and `businessTaxId` address attributes.
 
 ### Fixed
 - Fixed a PHP error that occurred when editing a product if PHP was configured to display strict errors.

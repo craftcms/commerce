@@ -50,6 +50,6 @@ class ShippingZone extends ActiveRecord
      */
     public function getStates(): ActiveQueryInterface
     {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::SHIPPINGZONE_STATES, ['shippingZoneId' => 'id']);
+        return $this->hasMany(State::class, ['id' => 'administrativeAreaId'])->viaTable(Table::SHIPPINGZONE_STATES, ['shippingZoneId' => 'id']);
     }
 }

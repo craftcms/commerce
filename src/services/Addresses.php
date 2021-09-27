@@ -283,7 +283,7 @@ class Addresses extends Component
             Craft::info('Address could not save due to validation error.', __METHOD__);
             return false;
         }
-
+       
         $addressRecord->attention = $addressModel->attention;
         $addressRecord->title = $addressModel->title;
         $addressRecord->givenName = $addressModel->givenName;
@@ -407,8 +407,8 @@ class Addresses extends Component
                 $stateAbbr[] = $state->abbreviation;
             }
 
-            $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
-            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateName()), array_map('strtolower', $stateNames), false));
+            $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->administrativeAreaId, $states, false));
+            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAdministrativeAreaName()), array_map('strtolower', $stateNames), false));
             $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateAbbreviation()), array_map('strtolower', $stateAbbr), false));
 
             if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
@@ -420,14 +420,14 @@ class Addresses extends Component
         if (is_string($zone->getZipCodeConditionFormula()) && $zone->getZipCodeConditionFormula() !== '') {
             $formulasService = Plugin::getInstance()->getFormulas();
             $conditionFormula = $zone->getZipCodeConditionFormula();
-            $zipCode = $address->zipCode;
+            $zipCode = $address->postalCode;
 
             $cacheKey = get_class($zone) . ':' . $conditionFormula . ':' . $zipCode;
 
             if (Craft::$app->cache->exists($cacheKey)) {
                 $result = Craft::$app->cache->get($cacheKey);
             } else {
-                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['zipCode' => $zipCode], 'Zip Code condition formula matching address');
+                $result = (bool)$formulasService->evaluateCondition($conditionFormula, ['postalCode' => $zipCode], 'Zip Code condition formula matching address');
                 Craft::$app->cache->set($cacheKey, $result, null, new TagDependency(['tags' => get_class($zone) . ':' . $zone->id]));
             }
 
@@ -504,7 +504,7 @@ class Addresses extends Component
         $readOnly = [
             'countryIso',
             'countryText',
-            'stateText',
+            'administrativeAreaText',
             'abbreviationText',
             'addressLines',
         ];

@@ -43,26 +43,26 @@
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
-        <field :label="$options.filters.t('Address 2', 'commerce')" :errors="getErrors('address2')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address2') }" v-model="address.address2" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 2', 'commerce')" :errors="getErrors('addressLine2')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('addressLine2') }" v-model="address.addressLine2" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Address 3', 'commerce')" :errors="getErrors('address3')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('address3') }" v-model="address.address3" @input="update($event, self())" />
+        <field :label="$options.filters.t('Address 3', 'commerce')" :errors="getErrors('addressLine3')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('addressLine3') }" v-model="address.addressLine3" @input="update($event, self())" />
         </field>
       </div>
     </div>
 
     <div class="order-address-form-row order-flex -mx-1">
       <div class="w-2/3 px-1">
-        <field :label="$options.filters.t('City', 'commerce')" :errors="getErrors('city')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('city') }" v-model="address.city" @input="update($event, self())" />
+        <field :label="$options.filters.t('City', 'commerce')" :errors="getErrors('locality')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('locality') }" v-model="address.locality" @input="update($event, self())" />
         </field>
       </div>
       <div class="w-1/3 px-1">
-        <field :label="$options.filters.t('Zip Code', 'commerce')" :errors="getErrors('zipCode')" v-slot:default="slotProps">
-          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('zipCode') }" v-model="address.zipCode" @input="update($event, self())" />
+        <field :label="$options.filters.t('Zip Code', 'commerce')" :errors="getErrors('postalCode')" v-slot:default="slotProps">
+          <input :id="slotProps.id" type="text" class="text w-full" :class="{ error: hasErrors('postalCode') }" v-model="address.postalCode" @input="update($event, self())" />
         </field>
       </div>
     </div>
@@ -95,7 +95,7 @@
         </div>
         <div class="w-1/2 px-1">
             <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
-                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateValue" @input="update($event, self())"  v-if="!hasStates"/>
+                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.administrativeAreaValue" @input="update($event, self())"  v-if="!hasStates"/>
                 <select-input
                     ref="vSelect"
                     label="name"
@@ -261,9 +261,9 @@
                         (!this.countryHasStates(this.address.countryId) && this.countryHasStates(previousCountryId))
                     )
                 ) {
-                    this.address.stateValue = null;
-                    this.address.stateId = null;
-                    this.address.stateName = null;
+                    this.address.administrativeAreaValue = null;
+                    this.address.administrativeAreaId = null;
+                    this.address.administrativeAreaName = null;
                     this.$emit('stateUpdate', null);
                 }
 
@@ -272,10 +272,10 @@
 
             handleStateChange(option) {
                 this.stateSelect = option;
-                this.address.stateName = null;
-                this.address.stateId = null;
-                this.address.stateText = null;
-                this.address.stateValue = this.stateSelect.id;
+                this.address.administrativeAreaName = null;
+                this.address.administrativeAreaId = null;
+                this.address.administrativeAreaText = null;
+                this.address.administrativeAreaValue = this.stateSelect.id;
                 this.$emit('stateUpdate', this.stateSelect);
                 this.validate(this.address);
             },
@@ -346,8 +346,8 @@
                     return this.stateSelect;
                 }
 
-                if (this.address && this.address.stateValue && this.address.stateId) {
-                    return {id: this.address.stateValue, name: this.address.stateText};
+                if (this.address && this.address.administrativeAreaValue && this.address.administrativeAreaId) {
+                    return {id: this.address.administrativeAreaValue, name: this.address.administrativeAreaText};
                 }
 
                 return null;

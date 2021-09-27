@@ -110,16 +110,16 @@ class AddressesTest extends Unit
     public function testSaveAddress(): void
     {
         $address = $this->addresses->getAddressById(1000);
-        $address->address2 = 'Great Scott!';
+        $address->addressLine2 = 'Great Scott!';
 
         $saveResult = $this->addresses->saveAddress($address);
 
         self::assertTrue($saveResult);
         self::assertFalse($address->hasErrors());
-        self::assertSame('Great Scott!', $address->address2);
+        self::assertSame('Great Scott!', $address->addressLine2);
 
         $address2 = (new Query())
-            ->select(['address2'])
+            ->select(['addressLine2'])
             ->from(Table::ADDRESSES)
             ->where(['id' => 1000])
             ->scalar();
@@ -188,10 +188,10 @@ class AddressesTest extends Unit
                 return ['236'];
             },
         ]);
-        $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "12345"';
+        $zoneZipCodeCondition->zipCodeConditionFormula = 'postalCode == "12345"';
         self::assertFalse($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
 
-        $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "88"';
+        $zoneZipCodeCondition->zipCodeConditionFormula = 'postalCode == "88"';
         self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
     }
 
@@ -232,11 +232,11 @@ class AddressesTest extends Unit
             'firstName',
             'lastName',
             'fullName',
-            'address1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
+            'addressLine1',
+            'addressLine2',
+            'addressLine3',
+            'locality',
+            'postalCode',
             'phone',
             'alternativePhone',
             'label',

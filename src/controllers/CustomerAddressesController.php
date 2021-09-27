@@ -39,7 +39,7 @@ class CustomerAddressesController extends BaseFrontEndController
         $this->requirePostRequest();
 
         $addressId = $this->request->getBodyParam('address.id');
-
+        
         $customerService = Plugin::getInstance()->getCustomers();
         $customerId = $customerService->getCustomer()->id;
         $addressIds = $customerService->getAddressIdsByCustomerId($customerId);
@@ -72,10 +72,10 @@ class CustomerAddressesController extends BaseFrontEndController
             'familyName',
             'fullName',
             'addressLine1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
+            'addressLine2',
+            'addressLine3',
+            'locality',
+            'postalCode',
             'phone',
             'alternativePhone',
             'label',
@@ -84,7 +84,7 @@ class CustomerAddressesController extends BaseFrontEndController
             'businessTaxId',
             'businessId',
             'countryId',
-            'stateValue',
+            'administrativeAreaValue',
             'custom1',
             'custom2',
             'custom3',

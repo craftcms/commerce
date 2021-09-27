@@ -52,7 +52,7 @@
             return {
                 columns: [
                     { name: '__slot:title', title: this.$options.filters.t('Address 1', 'commerce') },
-                    { name: 'zipCode', title: this.$options.filters.t('Zip Code', 'commerce') },
+                    { name: 'postalCode', title: this.$options.filters.t('Zip Code', 'commerce') },
                     { name: 'billing', title: this.$options.filters.t('Primary Billing Address', 'commerce'), callback: function(value) {
                         if (!value) {
                             return '';

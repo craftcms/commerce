@@ -86,7 +86,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'countryId' => $this->integer(),
             'administrativeAreaId' => $this->integer(), // previously administrativeAreaId
-            'administrativeAreaName' => $this->string(), // previously stateName
+            'administrativeAreaName' => $this->string(), // previously administrativeAreaName
             'isStoreLocation' => $this->boolean()->notNull()->defaultValue(false),
             'attention' => $this->string(),
             'title' => $this->string(),
@@ -101,12 +101,12 @@ class Install extends Migration
             'custom2' => $this->string(),
             'custom3' => $this->string(),
             'custom4' => $this->string(),
-            'locality' => $this->string(), // previously city
+            'locality' => $this->string(), // previously locality
             'dependentLocality' => $this->string(),
-            'postalCode' => $this->string(), // previously zipCode
+            'postalCode' => $this->string(), // previously postalCode
             'sortingCode' => $this->string(),
-            'addressLine1' => $this->string(), // previously address1
-            'addressLine2' => $this->string(), // previously address2
+            'addressLine1' => $this->string(), // previously addressLine1
+            'addressLine2' => $this->string(), // previously addressLine2
             'addressLine3' => $this->string(),
             'organization' => $this->string(), // previously organization
             'givenName' => $this->string(), // previously givenName

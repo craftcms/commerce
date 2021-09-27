@@ -51,6 +51,6 @@ class TaxZone extends ActiveRecord
      */
     public function getStates(): ActiveQueryInterface
     {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::TAXZONE_STATES, ['taxZoneId' => 'id']);
+        return $this->hasMany(State::class, ['id' => 'administrativeAreaId'])->viaTable(Table::TAXZONE_STATES, ['taxZoneId' => 'id']);
     }
 }

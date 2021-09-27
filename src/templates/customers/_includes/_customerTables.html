@@ -33,7 +33,7 @@
     id: address.id,
     title: address.addressLine1 != '' ? address.addressLine1|e : 'View address'|t('commerce'),
     url: address.cpEditUrl ~ (addressRedirect is defined and addressRedirect ? '?redirect=' ~ addressRedirect : ''),
-    zipCode: address.zipCode|e,
+    postalCode: address.postalCode|e,
     billing: (customer.primaryBillingAddressId == address.id),
     shipping: (customer.primaryShippingAddressId == address.id),
     detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines(true)|join('<br>') }
@@ -113,7 +113,7 @@
 {% js %}
   var columns = [
       { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
-      { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
+      { name: 'postalCode', title: Craft.t('commerce', 'Zip Code') },
       { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) {
               if (!value) {
                   return '';

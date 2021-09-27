@@ -170,7 +170,7 @@ class ShippingZones extends Component
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
-                $cols = ['stateId', 'shippingZoneId'];
+                $cols = ['administrativeAreaId', 'shippingZoneId'];
                 $table = Table::SHIPPINGZONE_STATES;
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();

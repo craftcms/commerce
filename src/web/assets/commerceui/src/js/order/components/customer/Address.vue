@@ -22,12 +22,12 @@
 
         computed: {
             state() {
-                if (this.address.stateName) {
-                    return this.address.stateName;
+                if (this.address.administrativeAreaName) {
+                    return this.address.administrativeAreaName;
                 }
 
-                if (this.address.stateText) {
-                    return this.address.stateText;
+                if (this.address.administrativeAreaText) {
+                    return this.address.administrativeAreaText;
                 }
 
                 return null

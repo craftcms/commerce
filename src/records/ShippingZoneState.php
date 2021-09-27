@@ -38,7 +38,7 @@ class ShippingZoneState extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['shippingZoneId', 'stateId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'stateId']],
+            [['shippingZoneId', 'administrativeAreaId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'administrativeAreaId']],
         ];
     }
 
@@ -56,6 +56,6 @@ class ShippingZoneState extends ActiveRecord
      */
     public function getState(): ActiveQueryInterface
     {
-        return $this->hasOne(State::class, ['id' => 'stateId']);
+        return $this->hasOne(State::class, ['id' => 'administrativeAreaId']);
     }
 }

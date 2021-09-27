@@ -38,7 +38,7 @@ class TaxZoneState extends ActiveRecord
     public function rules()
     {
         return [
-            [['taxZoneId', 'stateId'], 'unique', 'targetAttribute' => ['taxZoneId', 'stateId']],
+            [['taxZoneId', 'administrativeAreaId'], 'unique', 'targetAttribute' => ['taxZoneId', 'administrativeAreaId']],
         ];
     }
 
@@ -56,6 +56,6 @@ class TaxZoneState extends ActiveRecord
      */
     public function getState(): ActiveQueryInterface
     {
-        return $this->hasOne(State::class, ['id' => 'stateId']);
+        return $this->hasOne(State::class, ['id' => 'administrativeAreaId']);
     }
 }

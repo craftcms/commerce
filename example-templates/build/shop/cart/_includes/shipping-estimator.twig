@@ -36,12 +36,12 @@
                        value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '' }}"/>
             </div>
 
-            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">Zip Code</label>
+            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-postalCode">Zip Code</label>
             <input type="text"
-                   id="estimatedShippingAddress-zipCode"
-                   name="estimatedShippingAddress[zipCode]"
+                   id="estimatedShippingAddress-postalCode"
+                   name="estimatedShippingAddress[postalCode]"
                    class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
-                   value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '' }}">
+                   value="{{ cart.estimatedShippingAddress ? cart.estimatedShippingAddress.postalCode : '' }}">
 
             <div class="mt-6">
                 <label class="m-0">
@@ -86,12 +86,12 @@
                            value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '' }}">
                 </div>
 
-                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">Zip Code</label>
+                <label class="mb-0 mt-2 block" for="estimatedBillingAddress-postalCode">Zip Code</label>
                 <input type="text"
-                       id="estimatedBillingAddress-zipCode"
-                       name="estimatedBillingAddress[zipCode]"
+                       id="estimatedBillingAddress-postalCode"
+                       name="estimatedBillingAddress[postalCode]"
                        class="w-full border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded"
-                       value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '' }}">
+                       value="{{ cart.estimatedBillingAddress ? cart.estimatedBillingAddress.postalCode : '' }}">
             </div>
         </div>
 

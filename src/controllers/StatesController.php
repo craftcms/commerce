@@ -75,7 +75,7 @@ class StatesController extends BaseStoreSettingsController
             $relatedAddressCount = (new Query())
                 ->select(['addresses.id',])
                 ->from([Table::ADDRESSES . ' addresses'])
-                ->where(['stateId' => $variables['id']])
+                ->where(['administrativeAreaId' => $variables['id']])
                 ->count();
 
             $variables['showDisableWarning'] = $relatedAddressCount ? true : $variables['showDisableWarning'];
@@ -84,7 +84,7 @@ class StatesController extends BaseStoreSettingsController
                 $relatedShippingZoneCount = (new Query())
                     ->select(['zone_states.id',])
                     ->from([Table::SHIPPINGZONE_STATES . ' zone_states'])
-                    ->where(['stateId' => $variables['id']])
+                    ->where(['administrativeAreaId' => $variables['id']])
                     ->count();
 
                 $variables['showDisableWarning'] = $relatedShippingZoneCount ? true : $variables['showDisableWarning'];
@@ -94,7 +94,7 @@ class StatesController extends BaseStoreSettingsController
                 $relatedTaxZoneCount = (new Query())
                     ->select(['zone_states.id',])
                     ->from([Table::TAXZONE_STATES . ' zone_states'])
-                    ->where(['stateId' => $variables['id']])
+                    ->where(['administrativeAreaId' => $variables['id']])
                     ->count();
 
                 $variables['showDisableWarning'] = $relatedTaxZoneCount ? true : $variables['showDisableWarning'];
@@ -116,7 +116,7 @@ class StatesController extends BaseStoreSettingsController
         $state = new State();
 
         // Shared attributes
-        $state->id = Craft::$app->getRequest()->getBodyParam('stateId');
+        $state->id = Craft::$app->getRequest()->getBodyParam('administrativeAreaId');
         $state->name = Craft::$app->getRequest()->getBodyParam('name');
         $state->abbreviation = Craft::$app->getRequest()->getBodyParam('abbreviation');
         $state->countryId = Craft::$app->getRequest()->getBodyParam('countryId');

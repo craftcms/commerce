@@ -184,19 +184,19 @@
                     familyName: null,
                     fullName: null,
                     addressLine1: null,
-                    address2: null,
-                    address3: null,
-                    city: null,
-                    zipCode: null,
+                    addressLine2: null,
+                    addressLine3: null,
+                    locality: null,
+                    postalCode: null,
                     phone: null,
                     alternativePhone: null,
                     label: null,
                     organization: null,
                     businessTaxId: null,
                     businessId: null,
-                    stateName: null,
+                    administrativeAreaName: null,
                     countryId: null,
-                    stateId: null,
+                    administrativeAreaId: null,
                     notes: null,
                     custom1: null,
                     custom2: null,
@@ -204,8 +204,8 @@
                     custom4: null,
                     isEstimated: null,
                     countryText: null,
-                    stateText: null,
-                    stateValue: null,
+                    administrativeAreaText: null,
+                    administrativeAreaValue: null,
                     abbreviationText: null
                 },
                 country: null,
@@ -282,19 +282,19 @@
                     familyName: null,
                     fullName: null,
                     addressLine1: null,
-                    address2: null,
-                    address3: null,
-                    city: null,
-                    zipCode: null,
+                    addressLine2: null,
+                    addressLine3: null,
+                    locality: null,
+                    postalCode: null,
                     phone: null,
                     alternativePhone: null,
                     label: null,
                     organization: null,
                     businessTaxId: null,
                     businessId: null,
-                    stateName: null,
+                    administrativeAreaName: null,
                     countryId: null,
-                    stateId: null,
+                    administrativeAreaId: null,
                     notes: null,
                     custom1: null,
                     custom2: null,
@@ -302,8 +302,8 @@
                     custom4: null,
                     isEstimated: null,
                     countryText: null,
-                    stateText: null,
-                    stateValue: null,
+                    administrativeAreaText: null,
+                    administrativeAreaValue: null,
                     abbreviationText: null
                 };
             },
@@ -323,10 +323,10 @@
                     }
 
                     if (this.modals[type].state) {
-                        updateAddress.stateName = null;
-                        updateAddress.stateId = this.modals[type].state.id;
-                        updateAddress.stateValue = this.modals[type].state.id;
-                        updateAddress.stateText = this.modals[type].state.name;
+                        updateAddress.administrativeAreaName = null;
+                        updateAddress.administrativeAreaId = this.modals[type].state.id;
+                        updateAddress.administrativeAreaValue = this.modals[type].state.id;
+                        updateAddress.administrativeAreaText = this.modals[type].state.name;
                     }
 
                     if (type == 'new') {

@@ -242,7 +242,7 @@ class States extends Component
     {
         if (!isset($this->_statesByTaxZoneId[$taxZoneId])) {
             $results = $this->_createStatesQuery()
-                ->innerJoin(Table::TAXZONE_STATES . ' taxZoneStates', '[[states.id]] = [[taxZoneStates.stateId]]')
+                ->innerJoin(Table::TAXZONE_STATES . ' taxZoneStates', '[[states.id]] = [[taxZoneStates.administrativeAreaId]]')
                 ->where(['taxZoneStates.taxZoneId' => $taxZoneId])
                 ->all();
 
@@ -268,7 +268,7 @@ class States extends Component
     {
         if (!isset($this->_statesByShippingZoneId[$shippingZoneId])) {
             $results = $this->_createStatesQuery()
-                ->innerJoin(Table::SHIPPINGZONE_STATES . ' shippingZoneStates', '[[states.id]] = [[shippingZoneStates.stateId]]')
+                ->innerJoin(Table::SHIPPINGZONE_STATES . ' shippingZoneStates', '[[states.id]] = [[shippingZoneStates.administrativeAreaId]]')
                 ->where(['shippingZoneStates.shippingZoneId' => $shippingZoneId])
                 ->all();
 

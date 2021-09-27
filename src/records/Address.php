@@ -63,7 +63,7 @@ class Address extends ActiveRecord
      */
     public function getState(): ActiveQueryInterface
     {
-        return $this->hasOne(State::class, ['id' => 'stateId']);
+        return $this->hasOne(State::class, ['id' => 'administrativeAreaId']);
     }
 
     /**

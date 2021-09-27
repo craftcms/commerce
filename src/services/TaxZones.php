@@ -156,7 +156,7 @@ class TaxZones extends Component
                 $rows = array_map(function($id) use ($model) {
                     return [$id, $model->id];
                 }, $stateIds);
-                $cols = ['stateId', 'taxZoneId'];
+                $cols = ['administrativeAreaId', 'taxZoneId'];
                 $table = Table::TAXZONE_STATES;
             }
             Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();

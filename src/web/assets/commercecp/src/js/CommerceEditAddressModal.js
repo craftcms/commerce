@@ -83,10 +83,10 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 },
                 {field: 'fullName', label: Craft.t('commerce', 'Full Name'), type: 'Text'},
                 {field: 'addressLine1', label: Craft.t('commerce', 'Address 1'), type: 'Text'},
-                {field: 'address2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
-                {field: 'address3', label: Craft.t('commerce', 'Address 3'), type: 'Text'},
-                {field: 'city', label: Craft.t('commerce', 'City'), type: 'Text'},
-                {field: 'zipCode', label: Craft.t('commerce', 'Zip Code'), type: 'Text'},
+                {field: 'addressLine2', label: Craft.t('commerce', 'Address 2'), type: 'Text'},
+                {field: 'addressLine3', label: Craft.t('commerce', 'Address 3'), type: 'Text'},
+                {field: 'locality', label: Craft.t('commerce', 'City'), type: 'Text'},
+                {field: 'postalCode', label: Craft.t('commerce', 'Zip Code'), type: 'Text'},
                 {field: 'phone', label: Craft.t('commerce', 'Phone'), type: 'Text'},
                 {field: 'alternativePhone', label: Craft.t('commerce', 'Phone (Alt)'), type: 'Text'},
                 {field: 'label', label: Craft.t('commerce', 'Label'), type: 'Text'},
@@ -117,12 +117,12 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 })).appendTo($inputs);
             }
 
-            var stateValueInput = $("<select id='" + this.id + "stateValue' name='" + this.id + "stateValue'/>");
-            this.fields['stateValue'] = Craft.ui.createField(stateValueInput, {
-                id: this.id + 'stateValue',
+            var stateValueInput = $("<select id='" + this.id + "administrativeAreaValue' name='" + this.id + "administrativeAreaValue'/>");
+            this.fields['administrativeAreaValue'] = Craft.ui.createField(stateValueInput, {
+                id: this.id + 'administrativeAreaValue',
                 label: Craft.t('commerce', 'State'),
-                name: this.id + 'stateValue',
-                errors: this.errors['stateValue']
+                name: this.id + 'administrativeAreaValue',
+                errors: this.errors['administrativeAreaValue']
             });
 
             var countryIdInput = $("<select id='" + this.id + "countryId' name='" + this.id + "countryId'/>");
@@ -149,13 +149,13 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
             });
 
             // add any custom state value that could not be in the standard list of states.
-            this.states.push({'name': this.address.stateValue, 'id': this.address.stateValue});
+            this.states.push({'name': this.address.administrativeAreaValue, 'id': this.address.administrativeAreaValue});
 
-            this.fields['stateValue'].appendTo($inputs);
-            this.fields['stateValue'].find('select').selectize({
+            this.fields['administrativeAreaValue'].appendTo($inputs);
+            this.fields['administrativeAreaValue'].find('select').selectize({
                 valueField: 'id',
                 create: true,
-                items: [this.address.stateValue],
+                items: [this.address.administrativeAreaValue],
                 options: this.states,
                 labelField: 'name',
                 searchField: ['name'],
@@ -186,10 +186,10 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'familyName': this.$form.find('input[name=' + this.id + 'familyName]').val(),
                 'fullName': this.$form.find('input[name=' + this.id + 'fullName]').val(),
                 'addressLine1': this.$form.find('input[name=' + this.id + 'addressLine1]').val(),
-                'address2': this.$form.find('input[name=' + this.id + 'address2]').val(),
-                'address3': this.$form.find('input[name=' + this.id + 'address3]').val(),
-                'city': this.$form.find('input[name=' + this.id + 'city]').val(),
-                'zipCode': this.$form.find('input[name=' + this.id + 'zipCode]').val(),
+                'addressLine2': this.$form.find('input[name=' + this.id + 'addressLine2]').val(),
+                'addressLine3': this.$form.find('input[name=' + this.id + 'addressLine3]').val(),
+                'locality': this.$form.find('input[name=' + this.id + 'locality]').val(),
+                'postalCode': this.$form.find('input[name=' + this.id + 'postalCode]').val(),
                 'phone': this.$form.find('input[name=' + this.id + 'phone]').val(),
                 'alternativePhone': this.$form.find('input[name=' + this.id + 'alternativePhone]').val(),
                 'label': this.$form.find('input[name=' + this.id + 'label]').val(),
@@ -197,7 +197,7 @@ Craft.Commerce.EditAddressModal = Garnish.Modal.extend(
                 'organization': this.$form.find('input[name=' + this.id + 'organization]').val(),
                 'businessTaxId': this.$form.find('input[name=' + this.id + 'businessTaxId]').val(),
                 'businessId': this.$form.find('input[name=' + this.id + 'businessId]').val(),
-                'stateValue': this.$form.find('select[name=' + this.id + 'stateValue]').val(),
+                'administrativeAreaValue': this.$form.find('select[name=' + this.id + 'administrativeAreaValue]').val(),
                 'countryId': this.$form.find('select[name=' + this.id + 'countryId]').val(),
                 'custom1': this.$form.find('input[name=' + this.id + 'custom1]').val(),
                 'custom2': this.$form.find('input[name=' + this.id + 'custom2]').val(),

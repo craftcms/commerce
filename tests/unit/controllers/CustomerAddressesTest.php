@@ -78,7 +78,7 @@ class CustomerAddressesTest extends Unit
         $this->request->setBodyParams([
             'address' => [
                 'id' => $address->id,
-                'address1' => '1 Apple Park Way'
+                'addressLine1' => '1 Apple Park Way'
             ]
         ]);
 
@@ -92,6 +92,6 @@ class CustomerAddressesTest extends Unit
         self::assertInstanceOf(AddressModel::class, $response->data['address']);
         self::assertEquals(1002, $response->data['address']->id);
         self::assertEquals(1002, $savedAddress->id);
-        self::assertEquals('1 Apple Park Way', $savedAddress->address1);
+        self::assertEquals('1 Apple Park Way', $savedAddress->addressLine1);
     }
 }

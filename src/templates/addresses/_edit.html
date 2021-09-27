@@ -44,7 +44,7 @@
 {% block content %}
   {{ forms.textField({
     label: 'Attention'|t('commerce'),
-    name: 'attention',
+    name: 'address[attention]',
     id: 'attention',
     value : address.attention,
     errors: address.getErrors('attention'),
@@ -52,7 +52,7 @@
 
   {{ forms.textField({
     label: 'Title'|t('commerce'),
-    name: 'title',
+    name: 'address[title]',
     id: 'title',
     value : address.title,
     errors: address.getErrors('title'),
@@ -76,7 +76,7 @@
 
   {{ forms.textField({
     label: 'Full Name'|t('commerce'),
-    name: 'fullName',
+    name: 'address[fullName]',
     id: 'fullName',
     value : address.fullName,
     errors: address.getErrors('fullName'),
@@ -84,7 +84,7 @@
 
   {{ forms.textField({
     label: 'Address 1'|t('commerce'),
-    name: 'addressLine1',
+    name: 'address[addressLine1]',
     id: 'addressLine1',
     value : address.addressLine1,
     errors: address.getErrors('addressLine1'),
@@ -92,40 +92,40 @@
 
   {{ forms.textField({
     label: 'Address 2'|t('commerce'),
-    name: 'address2',
-    id: 'address2',
-    value : address.address2,
-    errors: address.getErrors('address2'),
+    name: 'address[addressLine2]',
+    id: 'addressLine2',
+    value : address.addressLine2,
+    errors: address.getErrors('addressLine2'),
   }) }}
 
   {{ forms.textField({
     label: 'Address 3'|t('commerce'),
-    name: 'address3',
-    id: 'address3',
-    value : address.address3,
-    errors: address.getErrors('address3'),
+    name: 'address[addressLine3]',
+    id: 'addressLine3',
+    value : address.addressLine3,
+    errors: address.getErrors('addressLine3'),
   }) }}
 
   {{ forms.textField({
-    label: 'City'|t('commerce'),
-    name: 'city',
-    id: 'city',
-    value : address.city,
-    errors: address.getErrors('city'),
+    label: 'Locality'|t('commerce'),
+    name: 'address[locality]',
+    id: 'locality',
+    value : address.locality,
+    errors: address.getErrors('locality'),
   }) }}
 
   {{ forms.textField({
-    label: 'Zip Code'|t('commerce'),
-    name: 'zipCode',
-    id: 'zipCode',
-    value : address.zipCode,
-    errors: address.getErrors('zipCode'),
+    label: 'Postal Code'|t('commerce'),
+    name: 'address[postalCode]',
+    id: 'postalCode',
+    value : address.postalCode,
+    errors: address.getErrors('postalCode'),
   }) }}
 
   {{ forms.selectField({
     label: 'Country'|t('commerce'),
     id: 'country',
-    name: 'countryId',
+    name: 'address[countryId]',
     options: craft.commerce.countries.allEnabledCountriesAsList,
     value: address.countryId,
     errors: address.getErrors('countryId'),
@@ -133,25 +133,25 @@
   }) }}
 
   {{ forms.textField({
-    label: 'State'|t('commerce'),
-    name: 'stateName',
-    id: 'stateValue',
-    value : address.stateName,
-    errors: address.getErrors('stateValue'),
+    label: 'Administrative Area'|t('commerce'),
+    name: 'address[administrativeAreaName]',
+    id: 'administrativeAreaValue',
+    value : address.administrativeAreaName,
+    errors: address.getErrors('administrativeAreaValue'),
   }) }}
 
   {{ forms.selectField({
     label: 'State'|t('commerce'),
-    id: 'stateId',
-    name: 'stateValue',
+    id: 'administrativeAreaId',
+    name: 'address[administrativeAreaValue]',
     options: craft.commerce.states.allEnabledStatesAsList,
-    value: address.stateId,
-    errors: address.getErrors('stateValue'),
+    value: address.administrativeAreaId,
+    errors: address.getErrors('administrativeAreaValue'),
   }) }}
 
   {{ forms.textField({
     label: 'Phone'|t('commerce'),
-    name: 'phone',
+    name: 'address[phone]',
     id: 'phone',
     value : address.phone,
     errors: address.getErrors('phone'),
@@ -159,7 +159,7 @@
 
   {{ forms.textField({
     label: 'Phone (Alt)'|t('commerce'),
-    name: 'alternativePhone',
+    name: 'address[alternativePhone]',
     id: 'alternativePhone',
     value : address.alternativePhone,
     errors: address.getErrors('alternativePhone'),
@@ -167,7 +167,7 @@
 
   {{ forms.textField({
     label: 'Label'|t('commerce'),
-    name: 'label',
+    name: 'address[label]',
     id: 'label',
     value : address.label,
     errors: address.getErrors('label'),
@@ -175,7 +175,7 @@
 
   {{ forms.textareaField({
     label: 'Notes'|t('commerce'),
-    name: 'notes',
+    name: 'address[notes]',
     id: 'notes',
     value : address.notes,
     errors: address.getErrors('notes'),
@@ -183,7 +183,7 @@
 
   {{ forms.textField({
     label: 'Business Name'|t('commerce'),
-    name: 'organization',
+    name: 'address[organization]',
     id: 'organization',
     value : address.organization,
     errors: address.getErrors('organization'),
@@ -191,7 +191,7 @@
 
   {{ forms.textField({
     label: 'Business Tax ID'|t('commerce'),
-    name: 'businessTaxId',
+    name: 'address[businessTaxId]',
     id: 'businessTaxId',
     value : address.businessTaxId,
     errors: address.getErrors('businessTaxId'),
@@ -199,7 +199,7 @@
 
   {{ forms.textField({
     label: 'Business ID'|t('commerce'),
-    name: 'businessId',
+    name: 'address[businessId]',
     id: 'businessId',
     value : address.businessId,
     errors: address.getErrors('businessId'),
@@ -207,7 +207,7 @@
 
   {{ forms.textField({
     label: 'Custom 1'|t('commerce'),
-    name: 'custom1',
+    name: 'address[custom1]',
     id: 'custom1',
     value : address.custom1,
     errors: address.getErrors('custom1'),
@@ -215,7 +215,7 @@
 
   {{ forms.textField({
     label: 'Custom 2'|t('commerce'),
-    name: 'custom2',
+    name: 'address[custom2]',
     id: 'custom2',
     value : address.custom2,
     errors: address.getErrors('custom2'),
@@ -223,7 +223,7 @@
 
   {{ forms.textField({
     label: 'Custom 3'|t('commerce'),
-    name: 'custom3',
+    name: 'address[custom3]',
     id: 'custom3',
     value : address.custom3,
     errors: address.getErrors('custom3'),
@@ -231,7 +231,7 @@
 
   {{ forms.textField({
     label: 'Custom 4'|t('commerce'),
-    name: 'custom4',
+    name: 'address[custom4]',
     id: 'custom4',
     value : address.custom4,
     errors: address.getErrors('custom4'),
@@ -248,26 +248,26 @@
 {% endblock %}
 
 {% js %}
-var selectedStateId = {{ address.stateId ?: 'null' }};
+var selectedStateId = {{ address.administrativeAreaId ?: 'null' }};
   var states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
   $('#country').selectize();
 
   $('select#country').change(function ()  {
     // get the value of the selected country.
     var cid = $(this).val();
-    var $states = $('#stateId');
-    var $stateName = $('#stateValue');
+    var $states = $('#administrativeAreaId');
+    var $stateName = $('#administrativeAreaValue');
     $states.find('option').remove();
 
     if (states.hasOwnProperty(cid))
     {
       // We have states for this country, show the states drop down.
-      $states.parents('#stateId-field').removeClass('hidden');
-      $states.attr('name', 'stateValue');
+      $states.parents('#administrativeAreaId-field').removeClass('hidden');
+      $states.attr('name', 'administrativeAreaValue');
 
-      // We have states for this country, hide the stateName input.
+      // We have states for this country, hide the administrativeAreaName input.
       $stateName.removeAttr('name');
-      $stateName.parents('#stateValue-field').addClass('hidden');
+      $stateName.parents('#administrativeAreaValue-field').addClass('hidden');
       $stateName.val('');
 
       // Add all states as options to drop down.
@@ -284,12 +284,12 @@ var selectedStateId = {{ address.stateId ?: 'null' }};
 
     } else {
       // hide the states dropdown, since this country has none.
-      $states.parents('#stateId-field').addClass('hidden');
+      $states.parents('#administrativeAreaId-field').addClass('hidden');
       $states.removeAttr('name');
 
-      // show the stateName
-      $stateName.parents('#stateValue-field').removeClass('hidden');
-      $stateName.attr('name', 'stateValue');
+      // show the administrativeAreaName
+      $stateName.parents('#administrativeAreaValue-field').removeClass('hidden');
+      $stateName.attr('name', 'address[administrativeAreaValue]');
     }
   });
 

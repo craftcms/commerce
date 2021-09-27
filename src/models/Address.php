@@ -40,7 +40,7 @@ use yii\base\InvalidConfigException;
  * @property State $state
  * @property string $stateText
  * @property string $abbreviationText
- * @property int|string $administrativeValue
+ * @property int|string $administrativeAreaValue
  * @property string $countryIso
  * @property Validator $vatValidator
  * @property-read array $addressLines
@@ -233,7 +233,7 @@ class Address extends Model implements AddressInterface
     /**
      * @var int|string|null Can be a State ID or State Name
      */
-    private $_administrativeValue = null;
+    private $_administrativeAreaValue = null;
 
     /**
      * @var
@@ -321,9 +321,7 @@ class Address extends Model implements AddressInterface
     public function attributes(): array
     {
         $names = parent::attributes();
-        
-        $names[] = 'administrativeValue';
-        $names[] = 'givenName';
+        $names[] = 'administrativeAreaValue';
 
         return $names;
     }
@@ -337,7 +335,7 @@ class Address extends Model implements AddressInterface
         $fields = parent::fields();
         $fields['countryIso'] = 'countryIso';
         $fields['countryText'] = 'countryText';
-        $fields['stateText'] = 'stateText';
+        $fields['administrativeAreaText'] = 'administrativeAreaText';
         $fields['abbreviationText'] = 'abbreviationText';
         $fields['addressLines'] = 'addressLines';
 
@@ -367,19 +365,19 @@ class Address extends Model implements AddressInterface
         $labels['attention'] = Craft::t('commerce', 'Attention');
         $labels['title'] = Craft::t('commerce', 'Title');
         $labels['addressLine1'] = Craft::t('commerce', 'Address 1');
-        $labels['address2'] = Craft::t('commerce', 'Address 2');
-        $labels['address3'] = Craft::t('commerce', 'Address 3');
-        $labels['city'] = Craft::t('commerce', 'City');
-        $labels['zipCode'] = Craft::t('commerce', 'Zip Code');
+        $labels['addressLine2'] = Craft::t('commerce', 'Address 2');
+        $labels['addressLine3'] = Craft::t('commerce', 'Address 3');
+        $labels['locality'] = Craft::t('commerce', 'City');
+        $labels['postalCode'] = Craft::t('commerce', 'Zip Code');
         $labels['phone'] = Craft::t('commerce', 'Phone');
         $labels['alternativePhone'] = Craft::t('commerce', 'Alternative Phone');
         $labels['organization'] = Craft::t('commerce', 'Business Name');
         $labels['businessId'] = Craft::t('commerce', 'Business ID');
         $labels['businessTaxId'] = Craft::t('commerce', 'Business Tax ID');
         $labels['countryId'] = Craft::t('commerce', 'Country');
-        $labels['stateId'] = Craft::t('commerce', 'State');
-        $labels['stateName'] = Craft::t('commerce', 'State');
-        $labels['administrativeValue'] = Craft::t('commerce', 'State');
+        $labels['administrativeAreaId'] = Craft::t('commerce', 'State');
+        $labels['administrativeAreaName'] = Craft::t('commerce', 'State');
+        $labels['administrativeAreaValue'] = Craft::t('commerce', 'State');
         $labels['custom1'] = Craft::t('commerce', 'Custom 1');
         $labels['custom2'] = Craft::t('commerce', 'Custom 2');
         $labels['custom3'] = Craft::t('commerce', 'Custom 3');
@@ -395,13 +393,13 @@ class Address extends Model implements AddressInterface
     protected function defineRules(): array
     {
         $rules = [
-            [['countryId', 'stateId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')],
+            [['countryId', 'administrativeAreaId'], 'integer', 'skipOnEmpty' => true, 'message' => Craft::t('commerce', 'Country requires valid input.')],
             [
-                ['stateId'],
+                ['administrativeAreaId'],
                 'validateState',
                 'skipOnEmpty' => false,
                 'when' => function($model) {
-                    return (!$model->countryId || is_numeric($model->countryId)) && (!$model->stateId || is_numeric($model->stateId));
+                    return (!$model->countryId || is_numeric($model->countryId)) && (!$model->administrativeAreaId || is_numeric($model->administrativeAreaId));
                 },
             ],
             [['businessTaxId'], 'validateBusinessTaxId', 'skipOnEmpty' => true],
@@ -414,16 +412,16 @@ class Address extends Model implements AddressInterface
             'attention',
             'title',
             'addressLine1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
+            'addressLine2',
+            'addressLine3',
+            'locality',
+            'postalCode',
             'phone',
             'alternativePhone',
             'businessId',
             'organization',
-            'stateName',
-            'administrativeValue',
+            'administrativeAreaName',
+            'administrativeAreaValue',
             'custom1',
             'custom2',
             'custom3',
@@ -457,9 +455,9 @@ class Address extends Model implements AddressInterface
     public function validateState($attribute, $params, $validator): void
     {
         $country = $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
-        $state = $this->stateId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->stateId) : null;
+        $state = $this->administrativeAreaId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->administrativeAreaId) : null;
         if ($country && $country->isStateRequired && (!$state || ($state && $state->countryId !== $country->id))) {
-            $this->addError('administrativeValue', Craft::t('commerce', 'Country requires a related state selected.'));
+            $this->addError('administrativeAreaValue', Craft::t('commerce', 'Country requires a related state selected.'));
         }
     }
 
@@ -533,15 +531,16 @@ class Address extends Model implements AddressInterface
     /**
      * @return string
      */
-    public function getStateName(): string
+    public function getAdministrativeAreaName(): string
     {
         $state = $this->getState();
-        if ($this->stateName) {
-            if ($this->stateId && $state === null) {
+      
+        if ($this->administrativeAreaName) {
+            if ($this->administrativeAreaId && $state === null) {
                 return '';
             }
 
-            return $this->stateId ? $state->name : $this->stateName;
+            return $this->administrativeAreaId ? $state->name : $this->administrativeAreaName;
         }
 
         return $state->name ?? '';
@@ -551,9 +550,9 @@ class Address extends Model implements AddressInterface
      * @return string
      * @deprecated in 4.0. Use [[getStateName]] instead.
      */
-    public function getStateText(): string
+    public function getAdministrativeAreaText(): string
     {
-        return $this->getStateName();
+        return $this->getAdministrativeAreaName();
     }
 
     /**
@@ -579,46 +578,46 @@ class Address extends Model implements AddressInterface
      */
     public function getState(): ?State
     {
-        return $this->stateId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->stateId) : null;
+        return $this->administrativeAreaId ? Plugin::getInstance()->getStates()->getAdministrativeAreaById($this->administrativeAreaId) : null;
     }
 
     /**
      * @return int|string
      */
-    public function getadministrativeValue()
+    public function getAdministrativeAreaValue()
     {
-        if ($this->_administrativeValue === null) {
-            if ($this->stateName) {
-                return $this->stateId ?: $this->stateName;
+        if ($this->_administrativeAreaValue === null) {
+            if ($this->administrativeAreaName) {
+                return $this->administrativeAreaId ?: $this->administrativeAreaName;
             }
 
-            return $this->stateId ?: '';
+            return $this->administrativeAreaId ?: '';
         }
-
-        return $this->_administrativeValue;
+        
+        return $this->_administrativeAreaValue;
     }
 
     /**
-     * Sets the stateId or stateName based on the value parameter.
+     * Sets the administrativeAreaId or administrativeAreaName based on the value parameter.
      *
      * @param string|int|null $value A state ID or a state name, null to clear the state from the address.
      * @throws InvalidConfigException
      */
-    public function setAdministrativeValue($value): void
+    public function setAdministrativeAreaValue($value): void
     {
         if ($value) {
             if (Plugin::getInstance()->getStates()->getAdministrativeAreaById((int)$value)) {
-                $this->stateId = $value;
+                $this->administrativeAreaId = $value;
             } else {
-                $this->stateId = null;
-                $this->stateName = $value;
+                $this->administrativeAreaId = null;
+                $this->administrativeAreaName = $value;
             }
 
-            $this->_administrativeValue = $value;
+            $this->_administrativeAreaValue = $value;
         } else {
-            $this->stateId = null;
-            $this->stateName = null;
-            $this->_administrativeValue = null;
+            $this->administrativeAreaId = null;
+            $this->administrativeAreaName = null;
+            $this->_administrativeAreaValue = null;
         }
     }
 
@@ -637,17 +636,17 @@ class Address extends Model implements AddressInterface
             'name' => trim($this->title . ' ' . $this->givenName . ' ' . $this->familyName),
             'fullName' => $this->fullName,
             'addressLine1' => $this->addressLine1,
-            'address2' => $this->address2,
-            'address3' => $this->address3,
-            'city' => $this->city,
-            'zipCode' => $this->zipCode,
+            'addressLine2' => $this->addressLine2,
+            'addressLine3' => $this->addressLine3,
+            'locality' => $this->locality,
+            'postalCode' => $this->postalCode,
             'phone' => $this->phone,
             'alternativePhone' => $this->alternativePhone,
             'label' => $this->label,
             'notes' => $this->notes,
             'organization' => $this->organization,
             'businessTaxId' => $this->businessTaxId,
-            'stateText' => $this->stateText,
+            'administrativeAreaText' => $this->administrativeAreaText,
             'countryText' => $this->countryText,
             'custom1' => $this->custom1,
             'custom2' => $this->custom2,
@@ -730,18 +729,18 @@ class Address extends Model implements AddressInterface
             $this->familyName == $otherAddress->familyName &&
             $this->fullName == $otherAddress->fullName &&
             $this->addressLine1 == $otherAddress->addressLine1 &&
-            $this->address2 == $otherAddress->address2 &&
-            $this->address3 == $otherAddress->address3 &&
-            $this->city == $otherAddress->city &&
-            $this->zipCode == $otherAddress->zipCode &&
+            $this->addressLine2 == $otherAddress->addressLine2 &&
+            $this->addressLine3 == $otherAddress->addressLine3 &&
+            $this->locality == $otherAddress->locality &&
+            $this->postalCode == $otherAddress->postalCode &&
             $this->phone == $otherAddress->phone &&
             $this->alternativePhone == $otherAddress->alternativePhone &&
             $this->label == $otherAddress->label &&
             $this->notes == $otherAddress->notes &&
             $this->organization == $otherAddress->organization &&
             (
-                (!empty($this->getStateName()) && $this->getStateName() == $otherAddress->getStateName()) ||
-                $this->administrativeValue == $otherAddress->administrativeValue
+                (!empty($this->getAdministrativeAreaName()) && $this->getAdministrativeAreaName() == $otherAddress->getAdministrativeAreaName()) ||
+                $this->administrativeAreaValue == $otherAddress->administrativeAreaValue
             ) &&
             (
                 (!empty($this->getCountryName()) && $this->getCountryName() == $otherAddress->getCountryName()) ||
@@ -793,12 +792,12 @@ class Address extends Model implements AddressInterface
 
     public function getAdministrativeArea()
     {
-        return $this->getStateText();
+        return $this->getAdministrativeAreaText();
     }
 
     public function getLocality()
     {
-        return $this->city;
+        return $this->locality;
     }
 
     public function getDependentLocality()
@@ -808,7 +807,7 @@ class Address extends Model implements AddressInterface
 
     public function getPostalCode()
     {
-        return $this->zipCode ?? $this->postalCode;
+        return $this->postalCode ?? $this->postalCode;
     }
 
     public function getSortingCode()
@@ -823,7 +822,7 @@ class Address extends Model implements AddressInterface
 
     public function getAddressLine2()
     {
-        return $this->address2;
+        return $this->addressLine2;
     }
 
     public function getOrganization()

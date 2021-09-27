@@ -64,7 +64,7 @@
     label: 'Zip Code Condition Formula'|t('commerce'),
     id: 'zipCodeConditionFormula',
     rows: 5,
-    instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping zone should include a given Zip/postal code. (The Zip/postal code can be referenced via a `zipCode` variable.)'|t('commerce', {
+    instructions: 'Specify a <a href="{url}">Twig condition</a> that determines whether the shipping zone should include a given Zip/postal code. (The Zip/postal code can be referenced via a `postalCode` variable.)'|t('commerce', {
         url: 'https://twig.symfony.com/doc/2.x/templates.html#expressions',
     }),
     errors: shippingZone is defined ? shippingZone.getErrors('zipCodeConditionFormula'),
@@ -78,7 +78,7 @@
                     name: 'zipCodeConditionFormula',
                     class: 'code',
                     rows: 5,
-                    placeholder: 'Example'|t('commerce') ~ ': zipCode[0:2] == \'NG\''
+                    placeholder: 'Example'|t('commerce') ~ ': postalCode[0:2] == \'NG\''
                 }) }}
             </div>
 
@@ -191,7 +191,7 @@
             url: Craft.getActionUrl('commerce/formulas/validate-condition'),
             data: {
                 condition: $zipCodeConditionFormula.val(),
-                params: { zipCode : '' }
+                params: { postalCode : '' }
             },
             dataType: 'json',
             headers: {

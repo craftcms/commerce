@@ -105,38 +105,38 @@
 
         {{ forms.textField({
             label: 'Address 2'|t('commerce'),
-            id: 'address2',
-            name: 'address2',
-            placeholder: storeLocation.address2,
-            value: storeLocation.address2,
-            errors: storeLocation.getErrors('address2'),
+            id: 'addressLine2',
+            name: 'addressLine2',
+            placeholder: storeLocation.addressLine2,
+            value: storeLocation.addressLine2,
+            errors: storeLocation.getErrors('addressLine2'),
         }) }}
 
         {{ forms.textField({
             label: 'Address 3'|t('commerce'),
-            id: 'address3',
-            name: 'address3',
-            placeholder: storeLocation.address3,
-            value: storeLocation.address3,
-            errors: storeLocation.getErrors('address3'),
+            id: 'addressLine3',
+            name: 'addressLine3',
+            placeholder: storeLocation.addressLine3,
+            value: storeLocation.addressLine3,
+            errors: storeLocation.getErrors('addressLine3'),
         }) }}
 
         {{ forms.textField({
             label: 'City'|t('commerce'),
-            id: 'city',
-            name: 'city',
-            placeholder: storeLocation.city,
-            value: storeLocation.city,
-            errors: storeLocation.getErrors('city'),
+            id: 'locality',
+            name: 'locality',
+            placeholder: storeLocation.locality,
+            value: storeLocation.locality,
+            errors: storeLocation.getErrors('locality'),
         }) }}
 
         {{ forms.textField({
             label: 'Zip Code'|t('commerce'),
-            id: 'zipCode',
-            name: 'zipCode',
-            placeholder: storeLocation.zipCode,
-            value: storeLocation.zipCode,
-            errors: storeLocation.getErrors('zipCode'),
+            id: 'postalCode',
+            name: 'postalCode',
+            placeholder: storeLocation.postalCode,
+            value: storeLocation.postalCode,
+            errors: storeLocation.getErrors('postalCode'),
         }) }}
 
         <div class="countrySelector field">
@@ -154,10 +154,10 @@
 
         {{ forms.selectField({
             label: 'State'|t('commerce'),
-            id: 'stateValue',
-            name: 'stateValue',
-            value: storeLocation.stateValue,
-            errors: storeLocation.getErrors('stateValue'),
+            id: 'administrativeAreaValue',
+            name: 'administrativeAreaValue',
+            value: storeLocation.administrativeAreaValue,
+            errors: storeLocation.getErrors('administrativeAreaValue'),
             class: 'selectize fullwidth'
         }) }}
 
@@ -243,10 +243,10 @@
     {% js %}
         window.statesByCountryId = {{ statesByCountryId|json_encode|raw }};
 
-        var stateField = $('#stateValue-field').find('select').selectize({
+        var stateField = $('#administrativeAreaValue-field').find('select').selectize({
             valueField: 'id',
             create: true,
-            items: ['{{ storeLocation.stateValue }}'],
+            items: ['{{ storeLocation.administrativeAreaValue }}'],
             options: {{ startingStates|json_encode|raw }},
             labelField: 'name',
             searchField: ['name'],
