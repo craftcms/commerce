@@ -59,7 +59,7 @@
   }) }}
 
   {{ forms.textField({
-    label: 'First Name'|t('commerce'),
+    label: 'Given Name'|t('commerce'),
     name: 'address[givenName]',
     id: 'givenName',
     value : address.givenName,
@@ -67,7 +67,7 @@
   }) }}
 
   {{ forms.textField({
-    label: 'Last Name'|t('commerce'),
+    label: 'Family Name'|t('commerce'),
     name: 'address[familyName]',
     id: 'familyName',
     value : address.familyName,
@@ -263,7 +263,7 @@ var selectedStateId = {{ address.administrativeAreaId ?: 'null' }};
     {
       // We have states for this country, show the states drop down.
       $states.parents('#administrativeAreaId-field').removeClass('hidden');
-      $states.attr('name', 'administrativeAreaValue');
+      $states.attr('name', 'address[administrativeAreaValue]');
 
       // We have states for this country, hide the administrativeAreaName input.
       $stateName.removeAttr('name');

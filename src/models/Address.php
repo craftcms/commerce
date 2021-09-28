@@ -112,31 +112,6 @@ class Address extends Model implements AddressInterface
     public ?string $addressLine1 = null;
     
     /**
-     * @var string|null Address Line 2
-     */
-    public ?string $address2 = null;
-
-
-    /**
-     * @var string|null Address Line 3
-     * @since 2.2
-     */
-    public ?string $address3 = null;
-
-
-    /**
-     * @var string|null City
-     */
-    public ?string $city = null;
-
-
-    /**
-     * @var string|null Zip
-     */
-    public ?string $zipCode = null;
-
-
-    /**
      * @var string|null Phone
      */
     public ?string $phone = null;
@@ -153,11 +128,6 @@ class Address extends Model implements AddressInterface
     public ?string $label = null;
     
     /**
-     * @var string|null Business Name
-     */
-    public ?string $businessName = null;
-    
-    /**
      * @var string|null Business Tax ID
      */
     public ?string $businessTaxId = null;
@@ -168,19 +138,69 @@ class Address extends Model implements AddressInterface
     public ?string $businessId = null;
 
     /**
-     * @var string|null State Name
-     */
-    public ?string $stateName = null;
-
-    /**
      * @var int|null Country ID
      */
     public ?int $countryId = null;
 
     /**
-     * @var int|null State ID
+     * @var string Country Code
      */
-    public ?int $stateId = null;
+    public $countryCode;
+
+    /**
+     * @var string Administrative area id
+     */
+    public $administrativeAreaId;
+
+    /**
+     * @var string Administrative name
+     */
+    public $administrativeAreaName;
+
+    /**
+     * @var int|string|null Can be a State ID or State Name
+     */
+    private $_administrativeAreaValue = null;
+
+    /**
+     * @var string Locality (City)
+     */
+    public $locality;
+
+    /**
+     * @var string Dependent Locality
+     */
+    public $dependentLocality;
+
+    /**
+     * @var string Postal code
+     */
+    public $postalCode;
+
+    /**
+     * @var string Sorting code
+     */
+    public $sortingCode;
+
+    /**
+     * @var string Address line 2
+     */
+    public $addressLine2;
+
+    /**
+     * @var string Address line3
+     */
+    public $addressLine3;
+
+    /**
+     * @var string Organization
+     */
+    public $organization;
+
+    /**
+     * @var string Additional name (Middle name / Patronymic)
+     */
+    public $additionalName;
 
     /**
      * @var string|null Notes, only field that can contain Emoji
@@ -231,69 +251,9 @@ class Address extends Model implements AddressInterface
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int|string|null Can be a State ID or State Name
-     */
-    private $_administrativeAreaValue = null;
-
-    /**
      * @var
      */
     private $_vatValidator;
-
-    /**
-     * @var string Country Code
-     */
-    public $countryCode;
-
-    /**
-     * @var string Administrative area id
-     */
-    public $administrativeAreaId;
-    
-    /**
-     * @var string Administrative name
-     */
-    public $administrativeAreaName;
-
-    /**
-     * @var string Locality (City)
-     */
-    public $locality;
-
-    /**
-     * @var string Dependent Locality
-     */
-    public $dependentLocality;
-
-    /**
-     * @var string Postal code
-     */
-    public $postalCode;
-
-    /**
-     * @var string Sorting code
-     */
-    public $sortingCode;
-
-    /**
-     * @var string Address line 2
-     */
-    public $addressLine2;    
-    
-    /**
-     * @var string Address line3
-     */
-    public $addressLine3;
-
-    /**
-     * @var string Organization
-     */
-    public $organization;
-
-    /**
-     * @var string Additional name (Middle name / Patronymic)
-     */
-    public $additionalName;
     
     /**
      * @inheritDoc
