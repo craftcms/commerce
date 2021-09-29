@@ -926,12 +926,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->shippingAddress) {
-     * echo $order->shippingAddress->firstName;
+     *     echo $order->shippingAddress->firstName;
      * }
      * ```
      * ```twig
      * {% if order.shippingAddress %}
-     * {{ order.shippingAddress.firstName }}
+     *   {{ order.shippingAddress.firstName }}
      * {% endif %}
      * ```
      */
@@ -944,12 +944,12 @@ class Order extends Element
      * ---
      * ```php
      * if ($order->billingAddress) {
-     * echo $order->billingAddress->firstName;
+     *     echo $order->billingAddress->firstName;
      * }
      * ```
      * ```twig
      * {% if order.billingAddress %}
-     * {{ order.billingAddress.firstName }}
+     *   {{ order.billingAddress.firstName }}
      * {% endif %}
      * ```
      */
@@ -974,12 +974,12 @@ class Order extends Element
      * ---
      * ```php
      * foreach ($order->getLineItems() as $lineItem) {
-     * echo $lineItem->description';
+     *     echo $lineItem->description';
      * }
      * ```
      * ```twig
      * {% for lineItem in order.lineItems %}
-     * {{ lineItem.description }}
+     *   {{ lineItem.description }}
      * {% endfor %}
      * ```
      */
@@ -992,12 +992,12 @@ class Order extends Element
      * ---
      * ```php
      * foreach ($order->getAdjustments() as $adjustment) {
-     * echo $adjustment->amount';
+     *     echo $adjustment->amount';
      * }
      * ```
      * ```twig
      * {% for adjustment in order.adjustments %}
-     * {{ adjustment.amount }}
+     *   {{ adjustment.amount }}
      * {% endfor %}
      * ```
      */

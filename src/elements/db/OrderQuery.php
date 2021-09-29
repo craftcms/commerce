@@ -204,8 +204,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderNumber = craft.app.request.getQueryParam('number') %}
      * {% set {element-var} = {twig-method}
-     *     .number(orderNumber)
-     *     .one() %}
+     *   .number(orderNumber)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -240,8 +240,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderNumber = craft.app.request.getQueryParam('shortNumber') %}
      * {% set {element-var} = {twig-method}
-     *     .shortNumber(orderNumber)
-     *     .one() %}
+     *   .shortNumber(orderNumber)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -277,8 +277,8 @@ class OrderQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set orderReference = craft.app.request.getQueryParam('ref') %}
      * {% set {element-var} = {twig-method}
-     *     .reference(orderReference)
-     *     .one() %}
+     *   .reference(orderReference)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -314,8 +314,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch orders from customers with a .co.uk domain on their email address #}
      * {% set {elements-var} = {twig-method}
-     *     .email('*.co.uk')
-     *     .all() %}
+     *   .email('*.co.uk')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -342,8 +342,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch completed orders #}
      * {% set {elements-var} = {twig-function}
-     *     .isCompleted()
-     *     .all() %}
+     *   .isCompleted()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -380,8 +380,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateOrdered(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateOrdered(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -420,8 +420,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .datePaid(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .datePaid(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -460,8 +460,8 @@ class OrderQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateAuthorized(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateAuthorized(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -500,8 +500,8 @@ class OrderQuery extends ElementQuery
      * {% set nextMonth = date('first day of next month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .expiryDate("< #{nextMonth}")
-     *     .all() %}
+     *   .expiryDate("< #{nextMonth}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -540,8 +540,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *     .orderStatus('shipped')
-     *     .all() %}
+     *   .orderStatus('shipped')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -588,8 +588,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order status with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .orderStatusId(1)
-     *     .all() %}
+     *   .orderStatusId(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -625,8 +625,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order status with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .orderLanguage('en')
-     *     .all() %}
+     *   .orderLanguage('en')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -662,8 +662,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with an order site ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .orderSiteId(1)
-     *     .all() %}
+     *   .orderSiteId(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -699,8 +699,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch shipped {elements} #}
      * {% set {elements-var} = {twig-method}
-     *     .origin('web')
-     *     .all() %}
+     *   .origin('web')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -734,8 +734,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .customer(currentUser.customerFieldHandle)
-     *     .all() %}
+     *   .customer(currentUser.customerFieldHandle)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -777,8 +777,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .customerId(currentUser.customerFieldHandle.id)
-     *     .all() %}
+     *   .customerId(currentUser.customerFieldHandle.id)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -858,8 +858,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .user(currentUser)
-     *     .all() %}
+     *   .user(currentUser)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -896,8 +896,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch paid orders #}
      * {% set {elements-var} = {twig-function}
-     *     .isPaid()
-     *     .all() %}
+     *   .isPaid()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -924,8 +924,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch unpaid orders #}
      * {% set {elements-var} = {twig-function}
-     *     .isUnpaid()
-     *     .all() %}
+     *   .isUnpaid()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -952,8 +952,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch orders that do or do not have line items #}
      * {% set {elements-var} = {twig-function}
-     *     .hasLineItems()
-     *     .all() %}
+     *   .hasLineItems()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -980,8 +980,8 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch carts that have attempted payments #}
      * {% set {elements-var} = {twig-function}
-     *     .hasTransactions()
-     *     .all() %}
+     *   .hasTransactions()
+     *   .all() %}
      * ```
      *
      * ```php
