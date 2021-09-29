@@ -166,8 +166,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .user(currentUser)
-     *     .all() %}
+     *   .user(currentUser)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -214,8 +214,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch Supporter plan subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .plan('supporter')
-     *     .all() %}
+     *   .plan('supporter')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -261,8 +261,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's subscriptions #}
      * {% set {elements-var} = {twig-method}
-     *     .userId(currentUser.id)
-     *     .all() %}
+     *   .userId(currentUser.id)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -376,8 +376,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch trialed subscriptions #}
      * {% set {elements-var} = {twig-function}
-     *     .onTrial()
-     *     .all() %}
+     *   .onTrial()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -414,8 +414,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekFromNow = date('+7 days')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .nextPaymentDate("< #{aWeekFromNow}")
-     *     .all() %}
+     *   .nextPaymentDate("< #{aWeekFromNow}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -444,8 +444,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch canceled subscriptions #}
      * {% set {elements-var} = {twig-function}
-     *     .isCanceled()
-     *     .all() %}
+     *   .isCanceled()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -482,8 +482,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateCanceled(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateCanceled(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -512,8 +512,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch started subscriptions #}
      * {% set {elements-var} = {twig-function}
-     *     .hasStarted()
-     *     .all() %}
+     *   .hasStarted()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -540,8 +540,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch suspended subscriptions #}
      * {% set {elements-var} = {twig-function}
-     *     .isSuspended()
-     *     .all() %}
+     *   .isSuspended()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -577,8 +577,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateSuspended(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateSuspended(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -607,8 +607,8 @@ class SubscriptionQuery extends ElementQuery
      * ```twig
      * {# Fetch expired subscriptions #}
      * {% set {elements-var} = {twig-function}
-     *     .isExpired()
-     *     .all() %}
+     *   .isExpired()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -646,8 +646,8 @@ class SubscriptionQuery extends ElementQuery
      * {% set aWeekAgo = date('7 days ago')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .dateExpired(">= #{aWeekAgo}")
-     *     .all() %}
+     *   .dateExpired(">= #{aWeekAgo}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -667,6 +667,37 @@ class SubscriptionQuery extends ElementQuery
         $this->dateExpired = $value;
 
         return $this;
+    }
+
+    /**
+     * Narrows the query results based on the {elements}’ statuses.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `'active'` _(default)_ | that are active.
+     * | `'expired'` | that have expired.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch expired {elements} #}
+     * {% set {elements-var} = {twig-function}
+     *   .status('expired')
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch expired {elements}
+     * ${elements-var} = {element-class}::find()
+     *     ->status('expired')
+     *     ->all();
+     * ```
+     */
+    public function status($value): self
+    {
+        return parent::status($value);
     }
 
     /**
