@@ -31,7 +31,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class UserBehavior extends Behavior
+class CustomerBehavior extends Behavior
 {
     /** @var User */
     public $owner;
