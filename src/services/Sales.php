@@ -23,6 +23,8 @@ use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\User;
+use craft\helpers\ArrayHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
@@ -473,7 +475,7 @@ class Sales extends Component
         }
 
         if ($order) {
-            $user = $order->getUser();
+            $user = $order->getCustomer();
 
             if (!$sale->allGroups) {
                 // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
@@ -481,7 +483,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = Plugin::getInstance()->getUsers()->getUserGroupIdsByUser($user);
+                $userGroups = $this->_getUserGroupIdsByUser($user);
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -493,7 +495,7 @@ class Sales extends Component
             // User groups of the currently logged in user
             $userGroups = null;
             if ($currentUser = Craft::$app->getUser()->getIdentity()) {
-                $userGroups = Plugin::getInstance()->getUsers()->getUserGroupIdsByUser($currentUser);
+                $userGroups = $this->_getUserGroupIdsByUser($currentUser);
             }
 
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
@@ -696,6 +698,15 @@ class Sales extends Component
         return $result;
     }
 
+    /**
+     * @param User $user
+     * @return int[]
+     */
+    public function _getUserGroupIdsByUser(User $user): array
+    {
+        $userGroups = $user->getGroups() ?? [];
+        return ArrayHelper::getColumn($userGroups, 'id');
+    }
 
     /**
      * Get all enabled sales.

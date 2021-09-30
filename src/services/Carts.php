@@ -87,7 +87,7 @@ class Carts extends Component
         $originalOrderLanguage = $this->_cart->orderLanguage;
         $originalSiteId = $this->_cart->orderSiteId;
         $originalPaymentCurrency = $this->_cart->paymentCurrency;
-        $originalUserId = $this->_cart->userId;
+        $originalUserId = $this->_cart->customerId;
 
         // These values should always be kept up to date when a cart is retrieved from session.
         $this->_cart->lastIp = Craft::$app->getRequest()->userIP;
@@ -95,8 +95,8 @@ class Carts extends Component
         $this->_cart->orderSiteId = Craft::$app->getSites()->getHasCurrentSite() ? Craft::$app->getSites()->getCurrentSite()->id : Craft::$app->getSites()->getPrimarySite()->id;
         $this->_cart->paymentCurrency = $this->_getCartPaymentCurrencyIso();
 
-        if (!$this->_cart->getUser() && $user) {
-            $this->_cart->setUser($user);
+        if (!$this->_cart->getCustomer() && $user) {
+            $this->_cart->setCustomer($user);
         }
         $this->_cart->origin = Order::ORIGIN_WEB;
 
@@ -104,7 +104,7 @@ class Carts extends Component
         $hasOrderLanguageChanged = $originalOrderLanguage != $this->_cart->orderLanguage;
         $hasOrderSiteIdChanged = $originalSiteId != $this->_cart->orderSiteId;
         $hasPaymentCurrencyChanged = $originalPaymentCurrency != $this->_cart->paymentCurrency;
-        $hasUserChanged = $originalUserId != $this->_cart->userId;
+        $hasUserChanged = $originalUserId != $this->_cart->customerId;
 
         // Has the customer in session changed?
         if ($hasUserChanged) {
@@ -270,7 +270,7 @@ class Carts extends Component
 
         // If the current cart is empty see if the logged in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
-        if ($cart && $currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->user($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
+        if ($cart && $currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
             $this->setSessionCartNumber($previousCart->number);
         }
     }

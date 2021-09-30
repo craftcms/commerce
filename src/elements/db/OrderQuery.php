@@ -110,7 +110,7 @@ class OrderQuery extends ElementQuery
     /**
      * @var int|null The user ID that the resulting orders must have.
      */
-    public ?int $userId;
+    public ?int $customerId;
 
     /**
      * @var int|null The gateway ID that the resulting orders must have.
@@ -160,7 +160,7 @@ class OrderQuery extends ElementQuery
     /**
      * @var bool Eager load the user on to the order.
      */
-    public bool $withUser = false;
+    public bool $withCustomer = false;
 
     /**
      * @var bool Eager loads the line items on the resulting orders.
@@ -796,22 +796,22 @@ class OrderQuery extends ElementQuery
      * @param User|int $value The property value
      * @return static self reference
      */
-    public function user($value): OrderQuery
+    public function customer($value): OrderQuery
     {
         if ($value instanceof User) {
-            $this->userId = $value->id;
+            $this->customerId = $value->id;
         } else if ($value !== null) {
             $user = Craft::$app->getUser()->getUserById($value);
-            $this->userId = $user->id ?? null;
+            $this->customerId = $user->id ?? null;
         } else {
-            $this->userId = null;
+            $this->customerId = null;
         }
 
         return $this;
     }
 
     /**
-     * Narrows the query results based on the user, per their ID.
+     * Narrows the query results based on the customer, per their user ID.
      *
      * Possible values include:
      *
@@ -842,9 +842,9 @@ class OrderQuery extends ElementQuery
      * @param int|null $value The property value
      * @return static self reference
      */
-    public function userId(?int $value): OrderQuery
+    public function customerId(?int $value): OrderQuery
     {
-        $this->userId = $value;
+        $this->customerId = $value;
         return $this;
     }
 
@@ -1055,11 +1055,11 @@ class OrderQuery extends ElementQuery
      * @param bool|null $value The property value
      * @return static self reference
      *
-     * @used-by withUser()
+     * @used-by withCustomer()
      */
-    public function withUser(?bool $value = true): OrderQuery
+    public function withCustomer(?bool $value = true): OrderQuery
     {
-        $this->withUser = $value;
+        $this->withCustomer = $value;
 
         return $this;
     }
@@ -1132,8 +1132,8 @@ class OrderQuery extends ElementQuery
             }
 
             // Eager-load users?
-            if ($this->withUser === true || $this->withAll) {
-                $orders = Plugin::getInstance()->getUsers()->eagerLoadUsersForOrders($orders);
+            if ($this->withCustomer === true || $this->withAll) {
+                $orders = Plugin::getInstance()->getCustomers()->eagerLoadCustomerForOrders($orders);
             }
 
             // Eager-load addresses?
@@ -1178,7 +1178,7 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',
-            'commerce_orders.userId',
+            'commerce_orders.customerId',
             'commerce_orders.dateUpdated',
             'commerce_orders.registerUserOnOrderComplete',
             'commerce_orders.recalculationMode',
@@ -1265,8 +1265,8 @@ class OrderQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_orders.orderSiteId', $this->orderSiteId));
         }
 
-        if (isset($this->userId)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.userId', $this->userId));
+        if (isset($this->customerId)) {
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.userId', $this->customerId));
         }
 
         if (isset($this->gatewayId)) {

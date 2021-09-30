@@ -93,7 +93,7 @@ trait OrderValidatorsTrait
      */
     public function validateAddressCanBeUsed(string $attribute): void
     {
-        $user = $this->getUser();
+        $user = $this->getCustomer();
         /** @var Address $address */
         $address = $this->$attribute;
 

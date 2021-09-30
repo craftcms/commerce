@@ -7,6 +7,7 @@
 
 namespace craft\commerce\plugin;
 
+use craft\commerce\services\AddressBook;
 use craft\commerce\services\Addresses;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
@@ -93,6 +94,18 @@ use yii\base\InvalidConfigException;
 trait Services
 {
     /**
+     * Returns the address book service
+     *
+     * @return AddressBook The address book service
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
+    public function getAddressBook(): AddressBook
+    {
+        return $this->get('addressBook');
+    }
+
+    /**
      * Returns the address service
      *
      * @return Addresses The address service
@@ -141,7 +154,6 @@ trait Services
      *
      * @return Customers The customers service
      * @throws InvalidConfigException
-     * @deprecated in 4.0. Use [[getUsers()]] instead.
      */
     public function getCustomers(): Customers
     {
@@ -502,17 +514,6 @@ trait Services
     }
 
     /**
-     * Returns the users service
-     *
-     * @return Users The users service
-     * @throws InvalidConfigException
-     */
-    public function getUsers(): Users
-    {
-        return $this->get('users');
-    }
-
-    /**
      * Returns the variants service
      *
      * @return Variants The variants service
@@ -542,6 +543,9 @@ trait Services
     private function _setPluginComponents(): void
     {
         $this->setComponents([
+            'addressBook' => [
+                'class' => AddressBook::class,
+            ],
             'addresses' => [
                 'class' => Addresses::class,
             ],
@@ -655,9 +659,6 @@ trait Services
             ],
             'transactions' => [
                 'class' => Transactions::class,
-            ],
-            'users' => [
-                'class' => Users::class,
             ],
             'variants' => [
                 'class' => Variants::class,

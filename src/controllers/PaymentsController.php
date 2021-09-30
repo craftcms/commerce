@@ -226,7 +226,7 @@ class PaymentsController extends BaseFrontEndController
         if ($paymentSourceId = $this->request->getParam('paymentSourceId')) {
             if ($paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
-                $cartUserId = $order->getUser() ? $order->getUser()->id : null;
+                $cartUserId = $order->getCustomer() ? $order->getCustomer()->id : null;
                 $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
                 $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
                 if ($allowedToUsePaymentSource) {

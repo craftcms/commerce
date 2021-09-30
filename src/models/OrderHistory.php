@@ -19,7 +19,7 @@ use yii\base\InvalidConfigException;
 /**
  * Class Order History Class
  *
- * @property Customer $customer
+ * @property User $user
  * @property OrderStatus $newStatus
  * @property Order $order
  * @property OrderStatus $prevStatus

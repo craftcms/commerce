@@ -349,7 +349,7 @@ class Discounts extends Component
             return false;
         }
 
-        $user = $order->getUser();
+        $user = $order->getCustomer();
 
         if (!$this->isDiscountUserGroupValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
@@ -526,7 +526,7 @@ class Discounts extends Component
             return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
         }
 
-        $user = $order->getUser();
+        $user = $order->getCustomer();
 
         if (!$this->isDiscountUserGroupValid($discount, $user)) {
             return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
@@ -907,7 +907,7 @@ class Discounts extends Component
             return;
         }
 
-        $user = $order->getUser();
+        $user = $order->getCustomer();
         foreach ($discounts as $discount) {
             // Count if there was a user on this order that has authentication
             if ($user && $user->getStatus() != $user::STATUS_INACTIVE) {
@@ -929,7 +929,7 @@ class Discounts extends Component
                         ->update(Table::USER_DISCOUNTUSES, [
                             'uses' => new Expression('[[uses]] + 1'),
                         ], [
-                            'userId' => $order->userId,
+                            'userId' => $order->customerId,
                             'discountId' => $discount['discountUseId'],
                         ])
                         ->execute();

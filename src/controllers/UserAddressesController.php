@@ -98,7 +98,7 @@ class UserAddressesController extends BaseController
             $address->$attr = $tmpAttr;
         }
 
-        if (Plugin::getInstance()->getUsers()->saveAddress($address, $user)) {
+        if (Plugin::getInstance()->getAddressBook()->saveAddress($address, $user)) {
             try {
                 if ($this->request->getBodyParam('makePrimaryBillingAddress')) {
                     Plugin::getInstance()->getAddresses()->setPrimaryAddressByAddressIdAndType($address->id, Addresses::ADDRESS_TYPE_BILLING);

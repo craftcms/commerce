@@ -70,9 +70,9 @@ trait OrderElementTrait
             {
                 return $this->getOrderStatus() ? $this->getOrderStatus()->getLabelHtml() ?? '<span class="status"></span>' : '';
             }
-            case 'user':
+            case 'customer':
             {
-                return $this->getUserLinkHtml();
+                return $this->getCustomerLinkHtml();
             }
             case 'shippingFullName':
             {
@@ -274,7 +274,7 @@ trait OrderElementTrait
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
-                return $this->getUser()->username ?? '';
+                return $this->getCustomer()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
             default:
@@ -465,7 +465,7 @@ trait OrderElementTrait
             'dateCreated' => ['label' => Craft::t('commerce', 'Date Created')],
             'dateUpdated' => ['label' => Craft::t('commerce', 'Date Updated')],
             'email' => ['label' => Craft::t('commerce', 'Email')],
-            'user' => ['label' => Craft::t('commerce', 'User')],
+            'customer' => ['label' => Craft::t('commerce', 'Customer')],
             'shippingFullName' => ['label' => Craft::t('commerce', 'Shipping Full Name')],
             'shippingFirstName' => ['label' => Craft::t('commerce', 'Shipping First Name')],
             'shippingLastName' => ['label' => Craft::t('commerce', 'Shipping Last Name')],

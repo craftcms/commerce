@@ -114,7 +114,7 @@ class OrderHistories extends Component
         $orderHistoryModel->newStatusId = $order->orderStatusId;
 
         // TODO refactor the method by which we store and work out who changed the order history #COM-51
-        $userId = $order->userId;
+        $userId = $order->customerId;
 
         // Use to current customer's ID only if we aren't in a console request
         // and we currently have an active session

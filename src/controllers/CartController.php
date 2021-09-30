@@ -192,7 +192,7 @@ class CartController extends BaseFrontEndController
         $this->_setAddresses();
 
         // Set guest email address onto guest customers order.
-        if (!$this->_cart->getUser() && $email = $this->request->getParam('email')) {
+        if (!$this->_cart->getCustomer() && $email = $this->request->getParam('email')) {
             $this->_cart->setEmail($email);
         }
 
@@ -226,7 +226,7 @@ class CartController extends BaseFrontEndController
         if (($paymentSourceId = $this->request->getParam('paymentSourceId')) !== null) {
             if ($paymentSourceId && $paymentSource = $plugin->getPaymentSources()->getPaymentSourceById($paymentSourceId)) {
                 // The payment source can only be used by the same user as the cart's user.
-                $cartUserId = $this->_cart->getUser() ? $this->_cart->getUser()->id : null;
+                $cartUserId = $this->_cart->getCustomer() ? $this->_cart->getCustomer()->id : null;
                 $paymentSourceUserId = $paymentSource->getUser() ? $paymentSource->getUser()->id : null;
                 $allowedToUsePaymentSource = ($cartUserId && $paymentSourceUserId && $this->_currentUser && $isSiteRequest && ($paymentSourceUserId == $cartUserId));
                 if ($allowedToUsePaymentSource) {
@@ -280,8 +280,6 @@ class CartController extends BaseFrontEndController
             $this->setFailFlash($error);
             return $this->request->getIsGet() ? $this->redirect($redirect) : null;
         }
-
-        $cartCustomer = $cart->getCustomer();
 
         $session = Craft::$app->getSession();
         $carts = Plugin::getInstance()->getCarts();
@@ -511,7 +509,7 @@ class CartController extends BaseFrontEndController
         // Shipping address
         if ($shippingAddressId && !$shippingIsBilling) {
             $address = null;
-            if ($userId = $this->_cart->getUserId()) {
+            if ($userId = $this->_cart->getCustomerId()) {
                 $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($shippingAddressId, $userId);
             }
 
@@ -523,7 +521,7 @@ class CartController extends BaseFrontEndController
         // Billing address
         if ($billingAddressId && !$billingIsShipping) {
             $address = null;
-            if ($userId = $this->_cart->getUserId()) {
+            if ($userId = $this->_cart->getCustomerId()) {
                 $address = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($billingAddressId, $userId);
             }
 

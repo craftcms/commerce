@@ -164,7 +164,7 @@ class AddressesController extends BaseCpController
         }
 
         // @todo remove forked save of address. This is currently here for backwards compatibility #COM-31
-        $result = $user ? Plugin::getInstance()->getUsers()->saveAddress($address, $user) : Plugin::getInstance()->getAddresses()->saveAddress($address);
+        $result = $user ? Plugin::getInstance()->getAddressBook()->saveAddress($address, $user) : Plugin::getInstance()->getAddresses()->saveAddress($address);
 
         // Save it
         if (!$result) {

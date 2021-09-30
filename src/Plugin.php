@@ -11,7 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
-use craft\commerce\behaviors\UserBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -445,7 +445,7 @@ class Plugin extends BasePlugin
     private function _registerCraftEventListeners(): void
     {
         if (!Craft::$app->getRequest()->isConsoleRequest) {
-            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getUsers(), 'loginHandler']);
+            Event::on(User::class, User::EVENT_AFTER_LOGIN, [$this->getCustomers(), 'loginHandler']);
             Event::on(User::class, User::EVENT_AFTER_LOGOUT, [$this->getCarts(), 'forgetCart']);
         }
 
@@ -459,7 +459,7 @@ class Plugin extends BasePlugin
             UserElement::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-                    UserBehavior::class,
+                    CustomerBehavior::class,
                 ]);
             }
         );
@@ -761,8 +761,8 @@ class Plugin extends BasePlugin
     private function _registerTemplateHooks(): void
     {
         if ($this->getSettings()->showEditUserCommerceTab) {
-            Craft::$app->getView()->hook('cp.users.edit', [$this->getUsers(), 'addEditUserCommerceTab']);
-            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getUsers(), 'addEditUserCommerceTabContent']);
+            Craft::$app->getView()->hook('cp.users.edit', [$this->getCustomers(), 'addEditUserCommerceTab']);
+            Craft::$app->getView()->hook('cp.users.edit.content', [$this->getCustomers(), 'addEditUserCommerceTabContent']);
         }
     }
 }

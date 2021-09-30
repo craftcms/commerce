@@ -355,7 +355,7 @@ class OrdersController extends Controller
         }
 
         $orderQuery = Order::find()
-            ->user($user)
+            ->customer($user)
             ->withAll() // eager-load all related data
             ->isCompleted();
 

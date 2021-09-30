@@ -21,42 +21,47 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
      */
     public function safeUp()
     {
-        // TODO It would be advisable to consolidate guest orders before starting this process
-
-        // Store data from customers/customers addresses table
-        $guestCustomers = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['email'])
+        $allUsersByCustomerId = (new Query())->from('{{%commerce_orders}} orders')
+            ->select(['email', 'userId', 'customerId'])
             ->innerJoin('{{%commerce_customers}} customers', 'customers.id = orders.customerId')
-            ->where(['customers.userId' => null])
-            ->andWhere(['not' , ['email' => null]])
+            ->where(['not' , ['email' => null]])
             ->andWhere(['not' , ['email' => '']])
             ->indexBy('customerId')
+            ->orderBy('customerId ASC')
             ->distinct()
-            ->column();
+            ->all();
 
-        foreach ($guestCustomers as &$row) {
-            $user = Craft::$app->getUsers()->ensureUserByEmail($row);
-            $row = $user->id;
+        $userIdsByEmail = [];
+        foreach ($allUsersByCustomerId as &$row) {
+            if ($row['userId']) {
+                $userIdsByEmail[$row['email']] = $row['userId'];
+                continue;
+            }
+
+            if (isset($userIdsByEmail[$row['email']])) {
+                $row['userId'] = $userIdsByEmail[$row['email']];
+                continue;
+            }
+
+            $user = Craft::$app->getUsers()->ensureUserByEmail($row['email']);
+            $row['userId'] = $user->id;
+            $userIdsByEmail[$row['email']] = $user->id;
         }
         unset($row);
 
-        $currentUserCustomersById = (new Query())->from('{{%commerce_customers}}')
-            ->select(['userId'])
-            ->where(['not', ['userId' => null]])
-            ->indexBy('id')
-            ->column();
-
-        $allUserIdsByCustomerId = array_replace($guestCustomers, $currentUserCustomersById);
+        $allUserIdsByCustomerId = ArrayHelper::getColumn($allUsersByCustomerId, 'userId', true);
+        // Remove `customerId` fk
+        $this->dropForeignKeyIfExists('{{%commerce_orders}}', 'customerId');
 
         // Orders
-        $this->_switchCustomerIdToUserId('{{%commerce_orders}}', $allUserIdsByCustomerId);
+        $this->_batchUpdateUserId($allUserIdsByCustomerId, '{{%commerce_orders}}', 'customerId');
 
-        $userIdsByEmail = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['userId'])
-            ->where(['not', ['email' => null]])
-            ->andWhere(['not', ['email' => '']])
-            ->indexBy('email')
-            ->column();
+        // Drop all customer IDs with no data
+        $this->update('{{%commerce_orders}}', ['customerId' => null], ['email' => null]);
+        $this->update('{{%commerce_orders}}', ['customerId' => null], ['email' => '']);
+
+        // Add fk to `customerId`
+        $this->addForeignKey(null, '{{%commerce_orders}}', ['customerId'], '{{%users}}', ['id'], 'RESTRICT', 'CASCADE');
 
         $customersPrimaryAddresses = (new Query())->from('{{%commerce_customers}}')
             ->select(['id', 'primaryBillingAddressId', 'primaryShippingAddressId'])
@@ -147,8 +152,9 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
     /**
      * @param array $customers
      * @param string $table
+     * @param string $updateColumn
      */
-    private function _batchUpdateUserId(array $customers, string $table): void
+    private function _batchUpdateUserId(array $customers, string $table, string $updateColumn = 'userId'): void
     {
         $batches = array_chunk($customers, 500, true);
         foreach ($batches as $batch) {
@@ -161,7 +167,7 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
             ';
 
             $this->update($table, [
-                'userId' => new Expression('CASE ' . $cases . ' END')
+                $updateColumn => new Expression('CASE ' . $cases . ' END')
             ], ['customerId' => array_keys($batch)]);
         }
     }

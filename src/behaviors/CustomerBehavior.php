@@ -91,7 +91,7 @@ class UserBehavior extends Behavior
     {
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
         return Order::find()
-            ->user($this->owner)
+            ->customer($this->owner)
             ->isCompleted(false)
             ->dateUpdated('>= ' . $edge)
             ->orderBy('dateUpdated DESC')
@@ -106,7 +106,7 @@ class UserBehavior extends Behavior
     {
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
         return Order::find()
-            ->user($this->owner)
+            ->customer($this->owner)
             ->isCompleted(false)
             ->dateUpdated('< ' . $edge)
             ->orderBy('dateUpdated ASC')
@@ -122,7 +122,7 @@ class UserBehavior extends Behavior
     public function getOrders(): array
     {
         return Order::find()
-            ->user($this->owner)
+            ->customer($this->owner)
             ->isCompleted()
             ->withAll()
             ->orderBy('dateOrdered DESC')

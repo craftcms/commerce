@@ -22,8 +22,8 @@ use yii\db\ActiveQueryInterface;
  * @property string $cancelUrl
  * @property string $couponCode
  * @property string $currency
- * @property ActiveQueryInterface $user
- * @property int $userId
+ * @property ActiveQueryInterface $customer
+ * @property int $customerId
  * @property DateTime $dateOrdered
  * @property DateTime $datePaid
  * @property DateTime $dateAuthorized
@@ -147,9 +147,9 @@ class Order extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getUser(): ActiveQueryInterface
+    public function getCustomer(): ActiveQueryInterface
     {
-        return $this->hasOne(User::class, ['id' => 'userId']);
+        return $this->hasOne(User::class, ['id' => 'customerId']);
     }
 
     /**

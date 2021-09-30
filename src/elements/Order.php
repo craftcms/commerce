@@ -14,7 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
-use craft\commerce\behaviors\UserBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
@@ -109,7 +109,7 @@ use yii\log\Logger;
  * @property-read int $totalQty the total number of items
  * @property-read int $totalWeight
  * @property-read string $orderStatusHtml
- * @property-read string $userLinkHtml
+ * @property-read string $customerLinkHtml
  * @property-read string $adjustmentSubtotalAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
  * @property-read string $itemSubtotalAsCurrency
@@ -773,9 +773,9 @@ class Order extends Element
     public ?string $shippingMethodName = null;
 
     /**
-     * @var int|null User ID
+     * @var int|null Customer's User ID
      */
-    public ?int $userId = null;
+    public ?int $customerId = null;
 
     /**
      * Whether the email address on the order should be used to register
@@ -1047,23 +1047,9 @@ class Order extends Element
     private ?array $_transactions = null;
 
     /**
-     * @var Customer|null
+     * @var User|null
      * @see Order::getCustomer()
      * @see Order::setCustomer()
-     * ---
-     * ```php
-     * echo $order->customer;
-     * ```
-     * ```twig
-     * {{ order.customer }}
-     * ```
-     */
-    private ?Customer $_customer = null;
-
-    /**
-     * @var User|null
-     * @see Order::getUser()
-     * @see Order::setUser()
      * ---
      * ```php
      * echo $order->user;
@@ -1072,7 +1058,7 @@ class Order extends Element
      * {{ order.user }}
      * ```
      */
-    private ?User $_user = null;
+    private ?User $_customer = null;
 
     /**
      * @var float|null
@@ -1095,17 +1081,15 @@ class Order extends Element
     {
         // Set default addresses on the order
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $user = $this->getUser();
-            /** @var UserBehavior|null $userBehavior */
-            $userBehavior = $user ? $user->getBehavior('UserBehavior') : null;
-            $hasPrimaryShippingAddress = !$this->shippingAddressId && $user && $userBehavior && $primaryShippingAddressId = $userBehavior->getPrimaryShippingAddressId();
-            $hasPrimaryBillingAddress = !$this->billingAddressId && $user && $userBehavior && $primaryBillingAddressId = $userBehavior->getPrimaryBillingAddressId();
+            $user = $this->getCustomer();
+            $hasPrimaryShippingAddress = !$this->shippingAddressId && $user && $primaryShippingAddressId = $user->getPrimaryShippingAddressId();
+            $hasPrimaryBillingAddress = !$this->billingAddressId && $user && $primaryBillingAddressId = $user->getPrimaryBillingAddressId();
 
-            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryShippingAddressId, $this->userId))) {
+            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryShippingAddressId, $this->customerId))) {
                 $this->setShippingAddress($shippingAddress);
             }
 
-            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryBillingAddressId, $this->userId))) {
+            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryBillingAddressId, $this->customerId))) {
                 $this->setBillingAddress($billingAddress);
             }
         }
@@ -1326,7 +1310,7 @@ class Order extends Element
         }
 
         $fields['paidStatusHtml'] = 'paidStatusHtml';
-        $fields['userLinkHtml'] = 'userLinkHtml';
+        $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
         $fields['totalTax'] = 'totalTax';
         $fields['totalTaxIncluded'] = 'totalTaxIncluded';
@@ -1570,7 +1554,7 @@ class Order extends Element
     {
         // Run order complete handlers directly.
         Plugin::getInstance()->getDiscounts()->orderCompleteHandler($this);
-        Plugin::getInstance()->getUsers()->orderCompleteHandler($this);
+        Plugin::getInstance()->getCustomers()->orderCompleteHandler($this);
 
         foreach ($this->getLineItems() as $lineItem) {
             Plugin::getInstance()->getLineItems()->orderCompleteHandler($lineItem, $this);
@@ -1898,7 +1882,7 @@ class Order extends Element
         $orderRecord->orderSiteId = $this->orderSiteId;
         $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
-        $orderRecord->userId = $this->userId;
+        $orderRecord->customerId = $this->customerId;
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
@@ -1910,7 +1894,7 @@ class Order extends Element
         $orderRecord->dateUpdated = $this->dateUpdated;
         $orderRecord->dateCreated = $this->dateCreated;
 
-        $user = $this->getUser();
+        $user = $this->getCustomer();
         $existingAddresses = [];
         if ($user) {
             $existingAddresses = $user->getAddresses();
@@ -1926,7 +1910,7 @@ class Order extends Element
             // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
             if ($user && ($noUserOrCurrentUser || !$currentUserDoesntMatchOrderUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 $isPrimaryShippingAddress = (isset($this->makePrimaryShippingAddress) && $this->makePrimaryShippingAddress) || empty($existingAddresses) || !$user->getPrimaryShippingAddressId() ?: null;
-                Plugin::getInstance()->getUsers()->saveAddress($shippingAddress, $user, false, null, $isPrimaryShippingAddress);
+                Plugin::getInstance()->getAddressBook()->saveAddress($shippingAddress, $user, false, null, $isPrimaryShippingAddress);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
             }
@@ -1945,7 +1929,7 @@ class Order extends Element
             // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
             if ($user && ($noUserOrCurrentUser || !$currentUserDoesntMatchOrderUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
                 $isPrimaryBillingAddress = (isset($this->makePrimaryBillingAddress) && $this->makePrimaryBillingAddress) || empty($existingAddresses) || !$user->getPrimaryBillingAddressId() ?: null;
-                Plugin::getInstance()->getUsers()->saveAddress($billingAddress, $user, false, $isPrimaryBillingAddress);
+                Plugin::getInstance()->getAddressBook()->saveAddress($billingAddress, $user, false, $isPrimaryBillingAddress);
             } else {
                 Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
             }
@@ -2076,53 +2060,53 @@ class Order extends Element
     /**
      * @return int|null
      */
-    public function getUserId(): ?int
+    public function getCustomerId(): ?int
     {
-        if (null === $this->userId && $user = $this->getUser()) {
-            $this->userId = $user->id;
+        if (null === $this->customerId && $user = $this->getCustomer()) {
+            $this->customerId = $user->id;
         }
 
-        return $this->userId;
+        return $this->customerId;
     }
 
     /**
      * @return User|null
      */
-    public function getUser(): ?User
+    public function getCustomer(): ?User
     {
-        if (null !== $this->_user && $this->_user->id == $this->userId) {
-            return $this->_user;
+        if (null !== $this->_customer && $this->_customer->id == $this->customerId) {
+            return $this->_customer;
         }
 
-        if ($this->userId) {
-            $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
+        if ($this->customerId) {
+            $this->_customer = Craft::$app->getUsers()->getUserById($this->customerId);
 
-            if (null === $this->_user) {
-                $this->userId = null;
+            if (null === $this->_customer) {
+                $this->customerId = null;
             }
         }
 
-        return $this->_user;
+        return $this->_customer;
     }
 
     /**
      * @param User|null $user
      * @since 4.0.
      */
-    public function setUser(?User $user): void
+    public function setCustomer(?User $user): void
     {
         if ($user instanceof User) {
             if (!$user->id) {
                 throw new InvalidCallException('User must have an ID');
             }
-            $previousUserId = $this->userId;
+            $previousUserId = $this->customerId;
 
-            $this->_user = $user;
-            $this->userId = $user->id;
+            $this->_customer = $user;
+            $this->customerId = $user->id;
             $this->_email = $user->email;
 
             // If the customer is changing then we should be resetting the association with the addresses on the cart
-            if (($this->shippingAddressId || $this->billingAddressId) && $this->userId != $previousUserId) {
+            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousUserId) {
                 if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
                     $shippingAddress->id = null;
                     $this->setShippingAddress($shippingAddress);
@@ -2140,8 +2124,8 @@ class Order extends Element
                 $this->_estimatedShippingAddress = null;
             }
         } else {
-            $this->_user = null;
-            $this->userId = null;
+            $this->_customer = null;
+            $this->customerId = null;
         }
     }
 
@@ -2153,8 +2137,8 @@ class Order extends Element
     public function setEmail(?string $email): void
     {
         if (!$email) {
-            $this->_user = null;
-            $this->userId = null;
+            $this->_customer = null;
+            $this->customerId = null;
             $this->_email = null;
             return;
         }
@@ -2166,7 +2150,7 @@ class Order extends Element
         try {
             $user = Craft::$app->getUsers()->ensureUserByEmail($email);
             $this->_email = $email;
-            $this->setUser($user);
+            $this->setCustomer($user);
         } catch(\Exception $e) {
             $this->addError('error', $e->getMessage());
         }
@@ -2179,7 +2163,7 @@ class Order extends Element
      */
     public function getEmail(): ?string
     {
-        if ($user = $this->getUser()) {
+        if ($user = $this->getCustomer()) {
             return $user->email;
         }
 
@@ -2257,15 +2241,14 @@ class Order extends Element
     }
 
     /**
-     * User link represented as HTML
+     * Customer User link represented as HTML
      *
      * @return string
-     * @since 4.0
      */
-    public function getUserLinkHtml(): string
+    public function getCustomerLinkHtml(): string
     {
         $html = '';
-        if ($user = $this->getUser()) {
+        if ($user = $this->getCustomer()) {
             $html = Html::tag('a', $user->email, ['href' => $user->getCpEditUrl()]);
         }
 
@@ -3005,7 +2988,7 @@ class Order extends Element
             return null;
         }
 
-        if (($user = $this->getUser()) === null) {
+        if (($user = $this->getCustomer()) === null) {
             throw new InvalidConfigException('Guest customers can not set a payment source.');
         }
 
@@ -3033,7 +3016,7 @@ class Order extends Element
         }
 
         if ($paymentSource instanceof PaymentSource) {
-            $user = $this->getUser();
+            $user = $this->getCustomer();
             if ($user && $paymentSource->getUser()->id != $user->id) {
                 throw new InvalidArgumentException('PaymentSource is not owned by the user of the order.');
             }
