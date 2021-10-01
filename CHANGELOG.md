@@ -4,6 +4,7 @@
 
 ### Added
 - Added the `autoSetCartShippingMethodOption` config setting.
+- Added the `clearLineItems` param to the `commerce/cart/update-cart` action.
 
 ## 3.4.3 - 2021-09-22
 
