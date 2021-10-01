@@ -29,10 +29,10 @@ class m210901_211323_not_null_booleans extends Migration
     private function updateColumns(): void
     {
         $columns = [
-            Table::COUNTRIES => [
+            '{{%commerce_countries}}' => [
                 'isStateRequired' => false,
             ],
-            Table::DISCOUNTS => [
+            '{{%commerce_discounts}}' => [
                 'excludeOnSale' => false,
                 'hasFreeShippingForMatchingItems' => false,
                 'hasFreeShippingForOrder' => false,
@@ -41,52 +41,52 @@ class m210901_211323_not_null_booleans extends Migration
                 'enabled' => true,
                 'stopProcessing' => false,
             ],
-            Table::DONATIONS => [
+            '{{%commerce_donations}}' => [
                 'availableForPurchase' => false,
             ],
-            Table::EMAILS => [
+            '{{%commerce_emails}}' => [
                 'enabled' => true,
             ],
-            Table::PDFS => [
+            '{{%commerce_pdfs}}' => [
                 'enabled' => true,
                 'isDefault' => false,
             ],
-            Table::GATEWAYS => [
+            '{{%commerce_gateways}}' => [
                 'isFrontendEnabled' => true,
                 'isArchived' => false,
             ],
-            Table::LINEITEMSTATUSES => [
+            '{{%commerce_lineitemstatuses}}' => [
                 'default' => false,
             ],
-            Table::ORDERADJUSTMENTS => [
+            '{{%commerce_orderadjustments}}' => [
                 'included' => false,
             ],
-            Table::ORDERS => [
+            '{{%commerce_orders}}' => [
                 'isCompleted' => false,
                 'registerUserOnOrderComplete' => false,
             ],
-            Table::ORDERSTATUSES => [
+            '{{%commerce_orderstatuses}}' => [
                 'default' => false,
             ],
-            Table::PLANS => [
+            '{{%commerce_plans}}' => [
                 'enabled' => false,
                 'isArchived' => false,
             ],
-            Table::PRODUCTS => [
+            '{{%commerce_products}}' => [
                 'promotable' => false,
                 'availableForPurchase' => true,
                 'freeShipping' => false,
             ],
-            Table::PRODUCTTYPES => [
+            '{{%commerce_producttypes}}' => [
                 'hasDimensions' => false,
                 'hasVariants' => false,
                 'hasVariantTitleField' => true,
                 'hasProductTitleField' => true,
             ],
-            Table::PRODUCTTYPES_SITES => [
+            '{{%commerce_producttypes_sites}}' => [
                 'hasUrls' => false,
             ],
-            Table::SALES => [
+            '{{%commerce_sales}}' => [
                 'allGroups' => false,
                 'allPurchasables' => false,
                 'allCategories' => false,
@@ -94,28 +94,28 @@ class m210901_211323_not_null_booleans extends Migration
                 'ignorePrevious' => false,
                 'stopProcessing' => false,
             ],
-            Table::SHIPPINGCATEGORIES => [
+            '{{%commerce_shippingcategories}}' => [
                 'default' => false,
             ],
-            Table::SHIPPINGMETHODS => [
+            '{{%commerce_shippingmethods}}' => [
                 'enabled' => true,
                 'isLite' => false,
             ],
-            Table::SHIPPINGRULES => [
+            '{{%commerce_shippingrules}}' => [
                 'enabled' => true,
                 'isLite' => false,
             ],
-            Table::SHIPPINGZONES => [
+            '{{%commerce_shippingzones}}' => [
                 'isCountryBased' => true,
             ],
-            Table::SUBSCRIPTIONS => [
+            '{{%commerce_subscriptions}}' => [
                 'isCanceled' => false,
                 'isExpired' => false,
             ],
-            Table::TAXCATEGORIES => [
+            '{{%commerce_taxcategories}}' => [
                 'default' => false,
             ],
-            Table::TAXRATES => [
+            '{{%commerce_taxrates}}' => [
                 'isEverywhere' => true,
                 'include' => false,
                 'isVat' => false,
@@ -123,11 +123,11 @@ class m210901_211323_not_null_booleans extends Migration
                 'removeVatIncluded' => false,
                 'isLite' => false,
             ],
-            Table::TAXZONES => [
+            '{{%commerce_taxzones}}' => [
                 'isCountryBased' => true,
                 'default' => false,
             ],
-            Table::VARIANTS => [
+            '{{%commerce_variants}}' => [
                 'isDefault' => false,
                 'hasUnlimitedStock' => false,
                 'deletedWithProduct' => false,

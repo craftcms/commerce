@@ -17,7 +17,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * Order notice model.
  *
  * @property Order|null $order
- * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
@@ -60,23 +59,6 @@ class OrderNotice extends Model
     public function __toString()
     {
         return $this->message ?: '';
-    }
-
-    public function behaviors(): array
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'type' => AttributeTypecastBehavior::TYPE_STRING,
-                'attribute' => AttributeTypecastBehavior::TYPE_STRING,
-                'message' => AttributeTypecastBehavior::TYPE_STRING,
-            ],
-        ];
-        return $behaviors;
     }
 
     /**

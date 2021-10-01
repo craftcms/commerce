@@ -173,8 +173,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product type with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultPrice(1)
-     *     .all() %}
+     *   .defaultPrice(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -211,8 +211,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultHeight(1)
-     *     .all() %}
+     *   .defaultHeight(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -249,8 +249,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaulLength(1)
-     *     .all() %}
+     *   .defaulLength(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -287,8 +287,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultWidth(1)
-     *     .all() %}
+     *   .defaultWidth(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -325,8 +325,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultWeight(1)
-     *     .all() %}
+     *   .defaultWeight(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -363,8 +363,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default SKU of `xxx-001` #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultSku('xxx-001')
-     *     .all() %}
+     *   .defaultSku('xxx-001')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -402,8 +402,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with a Foo product type #}
      * {% set {elements-var} = {twig-method}
-     *     .type('foo')
-     *     .all() %}
+     *   .type('foo')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -450,8 +450,8 @@ class ProductQuery extends ElementQuery
      * {% set firstDayOfMonth = date('first day of this month') %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .before(firstDayOfMonth)
-     *     .all() %}
+     *   .before(firstDayOfMonth)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -495,8 +495,8 @@ class ProductQuery extends ElementQuery
      * {% set firstDayOfMonth = date('first day of this month') %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .after(firstDayOfMonth)
-     *     .all() %}
+     *   .after(firstDayOfMonth)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -552,8 +552,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product type with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .typeId(1)
-     *     .all() %}
+     *   .typeId(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -610,8 +610,8 @@ class ProductQuery extends ElementQuery
      * {% set end = date('first day of this month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .postDate(['and', ">= #{start}", "< #{end}"])
-     *     .all() %}
+     *   .postDate(['and', ">= #{start}", "< #{end}"])
+     *   .all() %}
      * ```
      *
      * ```php
@@ -651,8 +651,8 @@ class ProductQuery extends ElementQuery
      * {% set nextMonth = date('first day of next month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .expiryDate("< #{nextMonth}")
-     *     .all() %}
+     *   .expiryDate("< #{nextMonth}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -681,8 +681,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch products that are available for purchase #}
      * {% set {elements-var} = {twig-function}
-     *     .availableForPurchase()
-     *     .all() %}
+     *   .availableForPurchase()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -719,8 +719,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch disabled {elements} #}
      * {% set {elements-var} = {twig-function}
-     *     .status('disabled')
-     *     .all() %}
+     *   .status('disabled')
+     *   .all() %}
      * ```
      *
      * ```php

@@ -58,7 +58,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                         disabled = true;
                     }
 
-                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+sale.name+'</option>'));
+                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+Craft.escapeHtml(sale.name)+'</option>'));
                 }
                 var $field = $('<div class="input ltr"></div>');
                 var $container = $('<div class="select" />');

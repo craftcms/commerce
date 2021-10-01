@@ -126,9 +126,7 @@ class OrderAdjustments extends Component
         }
 
         $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-        $adjustment = new OrderAdjustment($row);
-        $adjustment->typecastAttributes();
-        return $adjustment;
+        return new OrderAdjustment($row);
     }
 
     /**
@@ -147,9 +145,7 @@ class OrderAdjustments extends Component
 
         foreach ($rows as $row) {
             $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-            $adjustment = new OrderAdjustment($row);
-            $adjustment->typecastAttributes();
-            $adjustments[] = $adjustment;
+            $adjustments[] = new OrderAdjustment($row);
         }
 
         return $adjustments;
@@ -251,7 +247,7 @@ class OrderAdjustments extends Component
         foreach ($orderAdjustmentResults as $result) {
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             $adjustment = new OrderAdjustment($result);
-            $adjustment->typecastAttributes();
+
             $orderAdjustments[$adjustment->orderId] = $orderAdjustments[$adjustment->orderId] ?? [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
         }
