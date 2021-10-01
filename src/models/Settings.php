@@ -63,6 +63,13 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Whether the first available shipping method option should be set automatically on carts.
+     *
+     * @group Cart
+     */
+    public $autoSetCartShippingMethodOption = false;
+
+    /**
      * @var bool Whether carts are allowed to be empty on checkout.
      * @group Cart
      * @since 2.2
@@ -171,16 +178,16 @@ class Settings extends Model
      * <!DOCTYPE html>
      * <html>
      * <head>
-     *     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-     *     <title>Redirecting...</title>
+     *   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     *   <title>Redirecting...</title>
      * </head>
      * <body onload="document.forms[0].submit();">
      * <form action="{{ actionUrl }}" method="post">
-     *     <p>Redirecting to payment page...</p>
-     *     <p>
-     *         {{ inputs|raw }}
-     *         <input type="submit" value="Continue">
-     *     </p>
+     *   <p>Redirecting to payment page...</p>
+     *   <p>
+     *     {{ inputs|raw }}
+     *     <input type="submit" value="Continue">
+     *   </p>
      * </form>
      * </body>
      * </html>

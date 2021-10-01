@@ -2,10 +2,20 @@
 
 ## Unreleased
 
+### Added
+- Added the `autoSetCartShippingMethodOption` config setting.
+- Added the `clearLineItems` param to the `commerce/cart/update-cart` action.
+
+## 3.4.3 - 2021-09-22
+
 ### Fixed
+- Fixed a bug where discounts’ purchasable conditions weren’t applying to products when they were initially added to the cart. ([#2559](https://github.com/craftcms/commerce/issues/2559)) 
+- Fixed a bug where carts weren’t getting recalculated when force-saved. ([#2560](https://github.com/craftcms/commerce/issues/2560))
 - Fixed a bug where Commerce models’ `defineRules()` methods were declared as `public` instead of `protected`.
-- Fixed a bug where new Commerce intalls were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
-- Fixed a bug where cart doesn't recalculate if product is out of stock.
+- Fixed a bug where new Commerce installs were getting a `sendCartInfo` column added to their `commerce_gateways` table, which isn’t needed.
+
+### Security
+- Fixed XSS vulnerabilities.
 
 ## 3.4.2 - 2021-08-11
 

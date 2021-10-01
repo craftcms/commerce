@@ -88,6 +88,11 @@ class CartController extends BaseFrontEndController
         $this->_cart = $this->_getCart(true);
 
         // Can clear notices when updating the cart
+        if (($clearCart = $this->request->getParam('clearLineItems')) !== null) {
+            $this->_cart->setLineItems([]);
+        }
+
+        // Can clear notices when updating the cart
         if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
             $this->_cart->clearNotices();
         }

@@ -534,22 +534,21 @@ class Discounts extends Component
             }
         }
 
-        if ($discount->getCategoryIds() && !$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
+        if (!$discount->allCategories && $discount->getCategoryIds() && $purchasable = $lineItem->getPurchasable()) {
 
-            $key = 'type:' . $discount->categoryRelationshipType . 'element:' . $purchasable->getId() . 'categories:' . implode('|', $discount->getCategoryIds());
+            $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
-            if (isset($this->_matchingLineItemCategoryCondition[$key]) && $this->_matchingLineItemCategoryCondition[$key] === false) {
+            if (!isset($this->_matchingLineItemCategoryCondition[$key])) {
+                $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
+                $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
+                $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
+                if (!$purchasableIsRelateToOneOrMoreCategories) {
+                    return $this->_matchingLineItemCategoryCondition[$key] = false;
+                }
+                $this->_matchingLineItemCategoryCondition[$key] = true;
+            } else if ($this->_matchingLineItemCategoryCondition[$key] === false) {
                 return false;
             }
-
-            $relatedTo = [$discount->categoryRelationshipType => $purchasable->getPromotionRelationSource()];
-            $relatedCategories = Category::find()->relatedTo($relatedTo)->ids();
-            $purchasableIsRelateToOneOrMoreCategories = (bool)array_intersect($relatedCategories, $discount->getCategoryIds());
-            if (!$purchasableIsRelateToOneOrMoreCategories) {
-                return $this->_matchingLineItemCategoryCondition[$key] = false;
-            }
-
-            $this->_matchingLineItemCategoryCondition[$key] = true;
         }
 
         $event = new MatchLineItemEvent(compact('lineItem', 'discount'));
@@ -782,7 +781,6 @@ class Discounts extends Component
             $this->_allDiscounts = null;
             $this->_activeDiscountsByKey = null;
             $this->_matchingLineItemCategoryCondition = null;
-            $this->_matchingDiscountsToOrder = null;
 
             return true;
         } catch (\Exception $e) {
@@ -821,6 +819,7 @@ class Discounts extends Component
         // Reset internal cache
         $this->_allDiscounts = null;
         $this->_activeDiscountsByKey = null;
+        $this->_matchingLineItemCategoryCondition = null;
 
         return $result;
     }
