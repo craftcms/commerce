@@ -318,44 +318,4 @@ class Customers extends Component
 
         return $orders;
     }
-
-    /**
-     * @param int $customerId
-     * @param string $email
-     * @throws \yii\db\Exception
-     */
-    private function _updatePreviousOrderEmails(int $customerId, string $email): void
-    {
-        $orderIds = (new Query())
-            ->select(['orders.id'])
-            ->from([Table::ORDERS . ' orders'])
-            ->where(['orders.customerId' => $customerId])
-            ->andWhere(['not', ['orders.email' => $email]])
-            ->column();
-
-        if (!empty($orderIds)) {
-            Craft::$app->getDb()->createCommand()
-                ->update(Table::ORDERS, ['email' => $email], ['id' => $orderIds])
-                ->execute();
-        }
-    }
-
-    /**
-     * Returns a Query object prepped for retrieving Order Adjustment.
-     *
-     * @return Query The query object.
-     */
-    private function _createCustomerQuery(): Query
-    {
-        return (new Query())
-            ->select([
-                'dateCreated',
-                'dateUpdated',
-                'id',
-                'primaryBillingAddressId',
-                'primaryShippingAddressId',
-                'userId',
-            ])
-            ->from([Table::CUSTOMERS]);
-    }
 }
