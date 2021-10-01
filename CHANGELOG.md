@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added the `autoSetCartShippingMethodOption` config setting.
+
 ## 3.4.3 - 2021-09-22
 
 ### Fixed

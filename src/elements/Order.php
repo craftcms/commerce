@@ -1090,6 +1090,13 @@ class Order extends Element
             }
         }
 
+        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+            }
+        }
+
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }

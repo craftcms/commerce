@@ -63,6 +63,13 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Whether the first available shipping method option should be set automatically on carts.
+     *
+     * @group Cart
+     */
+    public $autoSetCartShippingMethodOption = false;
+
+    /**
      * @var bool Whether carts are allowed to be empty on checkout.
      * @group Cart
      * @since 2.2
