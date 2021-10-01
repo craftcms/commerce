@@ -7,26 +7,26 @@
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\records\CustomerAddress;
+use craft\commerce\records\UserAddress;
 use craft\test\ActiveFixture;
 
 /**
- * Customers Addresses Fixture
+ * User Addresses Fixture
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.1.4
+ * @since 4.0
  */
-class CustomersAddressesFixture extends ActiveFixture
+class UserAddressesFixture extends ActiveFixture
 {
     /**
      * @inheritdoc
      */
-    public $dataFile = __DIR__.'/data/customers-addresses.php';
+    public $dataFile = __DIR__.'/data/user-addresses.php';
 
     /**
      * @inheritdoc
      */
-    public $modelClass = CustomerAddress::class;
+    public $modelClass = UserAddress::class;
 
     public $depends = [AddressesFixture::class, CustomerFixture::class];
 }

@@ -33,7 +33,7 @@ $yesterday->setTime(23, 59, 59);
 
 return [
     'completed-new' => [
-        'customerId' => '1000',
+        '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
         'email' => 'support@craftcms.com',
         'billingAddressId' => '1002',
@@ -43,7 +43,7 @@ return [
         '_markAsComplete' => true
     ],
     'completed-new-past' => [
-        'customerId' => '1000',
+        '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
         'email' => 'support@craftcms.com',
         'billingAddressId' => '1002',
@@ -54,7 +54,7 @@ return [
         '_dateOrdered' => $yesterday,
     ],
     'completed-shipped' => [
-        'customerId' => '1000',
+        '_customerEmail' => 'customer1@crafttest.com',
         'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
         'email' => 'support@craftcms.com',
         'billingAddressId' => '1002',

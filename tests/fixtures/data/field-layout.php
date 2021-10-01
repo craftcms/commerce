@@ -1,6 +1,7 @@
 <?php
 
 use craft\commerce\fields\Variants;
+use craft\fields\PlainText;
 
 return [
     [
@@ -24,5 +25,22 @@ return [
                 ]
             ]
         ]
-    ]
+    ],
+    [
+        // Because User elements fetch layout by type
+        'type' => 'craft\elements\User',
+        'tabs' => [
+            [
+                'name' => 'Tab 1',
+                'fields' => [
+                    [
+                        'name' => 'My Test Text',
+                        'handle' => 'myTestText',
+                        'type' => PlainText::class,
+                        'required' => false,
+                    ],
+                ]
+            ]
+        ]
+    ],
 ];

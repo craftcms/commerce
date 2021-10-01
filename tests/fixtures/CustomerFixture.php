@@ -7,8 +7,7 @@
 
 namespace craftcommercetests\fixtures;
 
-use craft\commerce\records\Customer;
-use craft\test\ActiveFixture;
+use craft\test\fixtures\elements\UserFixture;
 
 /**
  * Class CustomerFixture.
@@ -17,7 +16,7 @@ use craft\test\ActiveFixture;
  * @author Global Network Group | Giel Tettelaar <giel@yellowflash.net>
  * @since 2.1
  */
-class CustomerFixture extends ActiveFixture
+class CustomerFixture extends UserFixture
 {
     /**
      * @inheritdoc
@@ -27,5 +26,5 @@ class CustomerFixture extends ActiveFixture
     /**
      * @inheritdoc
      */
-    public $modelClass = Customer::class;
+    public $depends = [FieldLayoutFixture::class];
 }

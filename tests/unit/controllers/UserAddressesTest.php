@@ -9,21 +9,21 @@ namespace craftcommercetests\unit\controllers;
 
 use Codeception\Test\Unit;
 use Craft;
-use craft\commerce\controllers\CustomerAddressesController;
+use craft\commerce\controllers\UserAddressesController;
 use craft\commerce\models\Address as AddressModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address;
 use craft\web\Request;
-use craftcommercetests\fixtures\CustomersAddressesFixture;
+use craftcommercetests\fixtures\UserAddressesFixture;
 use UnitTester;
 
 /**
  * CustomerAddressesTest
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 3.2.14
+ * @since 4.0
  */
-class CustomerAddressesTest extends Unit
+class UserAddressesTest extends Unit
 {
     /**
      * @var UnitTester
@@ -31,9 +31,9 @@ class CustomerAddressesTest extends Unit
     protected UnitTester $tester;
 
     /**
-     * @var  CustomerAddressesController
+     * @var  UserAddressesController
      */
-    protected CustomerAddressesController $controller;
+    protected UserAddressesController $controller;
 
     /**
      * @var Request
@@ -46,8 +46,8 @@ class CustomerAddressesTest extends Unit
     public function _fixtures(): array
     {
         return [
-            'customers-addresses' => [
-                'class' => CustomersAddressesFixture::class,
+            'user-addresses' => [
+                'class' => UserAddressesFixture::class,
             ],
         ];
     }
@@ -59,7 +59,7 @@ class CustomerAddressesTest extends Unit
     {
         parent::_before();
 
-        $this->controller = new CustomerAddressesController('customer-addresses', Plugin::getInstance());
+        $this->controller = new UserAddressesController('user-addresses', Plugin::getInstance());
         // Mock admin user
         Craft::$app->getUser()->setIdentity(
             Craft::$app->getUsers()->getUserById('1')

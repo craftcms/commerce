@@ -15,8 +15,10 @@ use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\services\Addresses;
 use craft\db\Query;
+use craft\elements\User;
 use craftcommercetests\fixtures\AddressesFixture;
-use craftcommercetests\fixtures\CustomersAddressesFixture;
+use craftcommercetests\fixtures\CustomerFixture;
+use craftcommercetests\fixtures\UserAddressesFixture;
 use UnitTester;
 use yii\base\ExitException;
 use yii\db\Exception;
@@ -45,11 +47,14 @@ class AddressesTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'addresses' => [
                 'class' => AddressesFixture::class,
             ],
-            'customers-addresses' => [
-                'class' => CustomersAddressesFixture::class,
+            'user-addresses' => [
+                'class' => UserAddressesFixture::class,
             ],
         ];
     }
@@ -69,10 +74,13 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetAddressesByCustomerId(): void
+    public function testGetAddressesByUserId(): void
     {
         $address = $this->addresses->getAddressById(1000);
-        $customerAddresses = $this->addresses->getAddressesByCustomerId(88);
+        /** @var User $user */
+        $user = $this->tester->grabFixture('customer')->getElement('customer1');
+
+        $customerAddresses = $this->addresses->getAddressesByUserId($user->id);
 
         self::assertIsArray($customerAddresses);
         self::assertNotEmpty($customerAddresses);
@@ -82,13 +90,16 @@ class AddressesTest extends Unit
     /**
      *
      */
-    public function testGetAddressByIdAndCustomerId(): void
+    public function testGetAddressByIdAndUserId(): void
     {
         $customerAddress = $this->addresses->getAddressById(1000);
-        $noAddress = $this->addresses->getAddressByIdAndCustomerId(999,88);
+        /** @var User $user */
+        $user = $this->tester->grabFixture('customer')->getElement('customer1');
+
+        $noAddress = $this->addresses->getAddressByIdAndUserId(999, $user->id);
         self::assertNull($noAddress);
 
-        $address = $this->addresses->getAddressByIdAndCustomerId(1000, 88);
+        $address = $this->addresses->getAddressByIdAndUserId(1000, $user->id);
         self::assertEquals($customerAddress, $address);
     }
 

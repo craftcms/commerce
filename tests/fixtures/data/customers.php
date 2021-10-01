@@ -6,16 +6,19 @@
  */
 
 return [
-    'admin-user' => [
-        'id' => '1000',
-        'userId' => '1',
+    'customer1' => [
+        'active' => true,
+        'username' => 'customer1',
+        'email' => 'customer1@crafttest.com',
+        'fieldLayoutType' => 'craft\elements\User',
     ],
-    'tim-cook' => [
-        'id' => '1001',
-        'userId' => null,
-    ],
-    'doc-brown' => [
-        'id' => '88',
-        'userId' => null,
+    'customer2' => [
+        'active' => true,
+        'firstName' => 'Customer',
+        'lastName' => 'Two',
+        'username' => 'customer2',
+        'email' => 'customer2@crafttest.com',
+        'fieldLayoutType' => 'craft\elements\User',
+        'field:shortBio' => 'This is the guy who knows stuff',
     ],
 ];
