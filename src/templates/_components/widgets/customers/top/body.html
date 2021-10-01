@@ -9,7 +9,7 @@
 {% for stat in stats %}
   {% set tableData = tableData|merge([{
     title: stat.email,
-    url: stat.user is defined and stat.user ? stat.getCpEditUrl() : '',
+    url: stat.customer is defined and stat.customer ? stat.getCpEditUrl() : '',
     total: stat.total|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
     average: stat.average|commerceCurrency(craft.commerce.paymentCurrencies.getPrimaryPaymentCurrencyIso()),
   }]) %}

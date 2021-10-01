@@ -55,11 +55,10 @@ class TopCustomers extends Stat
             ->select([
                 'average' => new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4)'),
                 'count' => new Expression('COUNT([[orders.id]])'),
-                'userId',
-                'email' => '[[orders.email]]',
+                'customerId',
                 'total' => new Expression('SUM([[total]])'),
             ])
-            ->groupBy(['[[orders.userId]]', '[[orders.email]]'])
+            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {
@@ -85,11 +84,9 @@ class TopCustomers extends Stat
     public function prepareData($data)
     {
         foreach ($data as &$topCustomer) {
-            $topCustomer['user'] = Craft::$app->getUsers()->getUserById($topCustomer['userId']);
+            $topCustomer['customer'] = Craft::$app->getUsers()->getUserById($topCustomer['customerId']);
 
-            if ($topCustomer['user']) {
-                $topCustomer['email'] = $topCustomer['user']->email;
-            }
+            $topCustomer['email'] = $topCustomer['customer']->email ?? null;
         }
 
         return $data;

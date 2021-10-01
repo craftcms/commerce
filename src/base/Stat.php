@@ -443,7 +443,7 @@ abstract class Stat implements StatInterface
      * @return array|null
      * @throws \Exception
      */
-    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null): ?array
+    protected function _createChartQuery(array $select = [], array $resultsDefaults = [], ?Query $query = null): ?array
     {
         // Allow the passing in of a custom query in case we need to add extra logic
         $query = $query ?: $this->_createStatQuery();
