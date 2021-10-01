@@ -357,7 +357,7 @@ class Install extends Migration
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
-            'customerId' => $this->integer()->notNull(),
+            'userId' => $this->integer()->notNull(),
             'prevStatusId' => $this->integer(),
             'newStatusId' => $this->integer(),
             'message' => $this->text(),
@@ -905,7 +905,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'prevStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
-        $this->createIndex(null, Table::ORDERHISTORIES, 'customerId', false);
+        $this->createIndex(null, Table::ORDERHISTORIES, 'userId', false);
         $this->createIndex(null, Table::ORDERS, 'number', true);
         $this->createIndex(null, Table::ORDERS, 'reference', false);
         $this->createIndex(null, Table::ORDERS, 'billingAddressId', false);
@@ -1014,7 +1014,7 @@ class Install extends Migration
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['prevStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['userId'], CraftTable::USERS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::USERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['gatewayId'], Table::GATEWAYS, ['id'], 'SET NULL');
