@@ -19,6 +19,6 @@ return [
         'username' => 'customer2',
         'email' => 'customer2@crafttest.com',
         'fieldLayoutType' => 'craft\elements\User',
-        'field:shortBio' => 'This is the guy who knows stuff',
+        'field:myTestText' => 'Some test text.',
     ],
 ];
