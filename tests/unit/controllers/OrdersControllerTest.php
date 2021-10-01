@@ -120,19 +120,10 @@ class OrdersControllerTest extends Unit
         $customer = $response->data[0] ?? [];
         $keys = [
             'id',
-            'userId',
             'email',
+            'addresses',
             'primaryBillingAddressId',
-            'billingFirstName',
-            'billingLastName',
-            'billingFullName',
-            'billingAddress',
-            'shippingFirstName',
-            'shippingLastName',
-            'shippingFullName',
-            'shippingAddress',
             'primaryShippingAddressId',
-            'user',
             'photo',
             'url',
         ];

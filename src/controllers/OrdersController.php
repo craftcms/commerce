@@ -36,6 +36,7 @@ use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
+use craft\elements\db\UserQuery;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\AdminTable;
@@ -550,13 +551,13 @@ class OrdersController extends Controller
             return $this->asJson($customers);
         }
 
-        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($query);
+        $userQuery = User::find()->limit($limit);
 
-        $customersQuery->limit($limit);
+        if ($query) {
+            $userQuery->search($query);
+        }
 
-        $customers = $customersQuery->all();
-
-        $customers = $this->_prepCustomersArray($customers);
+        $customers = $this->_prepCustomersArray($userQuery->all());
 
         return $this->asJson($customers);
     }
@@ -1456,7 +1457,7 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $customers
+     * @param User[] $customers
      * @return array
      * @since 3.1.4
      */
@@ -1466,18 +1467,19 @@ class OrdersController extends Controller
             return [];
         }
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
         foreach ($customers as &$customer) {
-            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
-            $customer['user'] = $user ? [
-                'title' => $user ? $user->__toString() : null,
-                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
-                'status' => $user ? $user->getStatus() : null,
-            ] : null;
-            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
-            $customer['url'] = $currentUser->can('commerce-manageCustomers') ? UrlHelper::cpUrl('commerce/customers/' . $customer['id']) : null;
+            $addresses = $customer->getAddresses();
+            $primaryBillingAddressId = $customer->getPrimaryBillingAddressId();
+            $primaryShippingAddressId = $customer->getPrimaryShippingAddressId();
+            $photo = $customer->photoId ? $customer->getThumbUrl(30) : null;
+
+            $customer = $customer->toArray();
+            $customer['addresses'] = $addresses;
+            $customer['primaryBillingAddressId'] = $primaryBillingAddressId;
+            $customer['primaryShippingAddressId'] = $primaryShippingAddressId;
+            $customer['photo'] = $photo;
         }
+
 
         return $customers;
     }
