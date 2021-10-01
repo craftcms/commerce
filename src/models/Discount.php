@@ -9,14 +9,18 @@ namespace craft\commerce\models;
 
 use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\conditions\discounts\DiscountOrderCondition;
+use craft\commerce\conditions\discounts\DiscountOrderConditionInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount model
@@ -51,6 +55,11 @@ class Discount extends Model
      * @var string|null Coupon Code
      */
     public ?string $code = null;
+
+    /**
+     * @var DiscountOrderConditionInterface|null Condition
+     */
+    public ?DiscountOrderConditionInterface $_orderCondition = null;
 
     /**
      * @var int Per user coupon use limit
@@ -217,6 +226,21 @@ class Discount extends Model
     /**
      * @inheritdoc
      */
+    public function init(): void
+    {
+        parent::init();
+
+        if ($this->_orderCondition === null) {
+            $config = [
+                'type' => DiscountOrderCondition::class
+            ];
+            $this->_orderCondition = Craft::$app->getConditions()->createCondition($config);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function datetimeAttributes(): array
     {
         $attributes = parent::datetimeAttributes();
@@ -232,6 +256,40 @@ class Discount extends Model
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
+    }
+
+    /**
+     * @return DiscountOrderConditionInterface
+     */
+    public function getOrderCondition()
+    {
+        return $this->_orderCondition;
+    }
+
+    /**
+     * @param $condition
+     * @return DiscountOrderConditionInterface|array|null
+     * @throws InvalidConfigException
+     */
+    public function setOrderCondition($condition)
+    {
+        if (is_string($condition)) {
+            $condition = Json::decodeIfJson($condition, true);
+        }
+
+        if ($condition instanceof DiscountOrderConditionInterface) {
+            $this->_orderCondition = $condition;
+        } elseif (is_array($condition)) {
+            /** @var DiscountOrderCondition $orderCondition */
+            $orderCondition = Craft::$app->getConditions()->createCondition($condition);
+            $this->_orderCondition = $orderCondition;
+        } elseif ($condition === null) {
+            $this->_orderCondition = null;
+        } else {
+            throw new InvalidConfigException('Not a condition object or config');
+        }
+
+        return $this->_orderCondition;
     }
 
     /**

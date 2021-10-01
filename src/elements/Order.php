@@ -2253,7 +2253,7 @@ class Order extends Element
      */
     public function getPaidStatus(): string
     {
-        if ($this->getIsPaid() && $this->getTotal() > 0 && $this->getTotalPaid() > $this->getTotal()) {
+        if ($this->getIsPaid() && $this->getTotalPrice() > 0 && $this->getTotalPaid() > $this->getTotalPrice()) {
             return self::PAID_STATUS_OVERPAID;
         }
 

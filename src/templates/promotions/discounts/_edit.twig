@@ -23,6 +23,8 @@
     {% set matchingItemsClasses = "error" %}
 {% endif %}
 
+{% set orderConditionsClasses = "" %}
+
 {% set conditionsClasses = "" %}
 {% if(discount.getErrors('startDate') or discount.getErrors('endDate')) %}
     {% set conditionsClasses = "error" %}
@@ -37,8 +39,9 @@
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
     1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
     2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
-    3: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
-    4: {'label':'Actions'|t('commerce'),'url':'#actions'}
+    3: {'label':'Order Conditions'|t('commerce'),'url':'#order-conditions','class':orderConditionsClasses},
+    4: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
+    5: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
 {% hook "cp.commerce.discounts.edit" %}
@@ -151,6 +154,7 @@
             }) }}
         {% endfor %}
 
+        <hr>
 
         {{ forms.elementSelectField({
             id: 'categories',
@@ -192,6 +196,17 @@
             value: discount.code,
             errors: discount.getErrors('code'),
         }) }}
+    </div>
+
+    <div id="order-conditions" class="hidden">
+        {% set builderConfig = {
+            'mainTag' : 'div',
+            'namespace': 'orderCondition'
+        } %}
+
+        {% namespace 'orderCondition' %}
+        {{ discount.orderCondition.getBuilderHtml(builderConfig)|raw }}
+        {% endnamespace %}
     </div>
 
     <div id="conditions" class="hidden">
