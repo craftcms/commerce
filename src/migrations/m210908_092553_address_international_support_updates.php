@@ -15,8 +15,8 @@ class m210908_092553_address_international_support_updates extends Migration
      */
     public function safeUp(): bool
     {
-        $this->renameColumn('{{%commerce_addresses}}', 'administrativeAreaId', 'administrativeAreaId');
-        $this->renameColumn('{{%commerce_addresses}}', 'administrativeAreaName', 'administrativeAreaName');
+        $this->renameColumn('{{%commerce_addresses}}', 'stateId', 'administrativeAreaId');
+        $this->renameColumn('{{%commerce_addresses}}', 'stateName', 'administrativeAreaName');
         $this->renameColumn('{{%commerce_addresses}}', 'firstName', 'givenName');
         $this->renameColumn('{{%commerce_addresses}}', 'lastName', 'familyName');
         $this->renameColumn('{{%commerce_addresses}}', 'address1', 'addressLine1');

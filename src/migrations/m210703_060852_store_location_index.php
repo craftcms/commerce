@@ -26,7 +26,7 @@ class m210703_060852_store_location_index extends Migration
 
         // Same as before
         $this->createIndex(null, '{{%commerce_addresses}}', 'countryId', false);
-        $this->createIndex(null, '{{%commerce_addresses}}', 'administrativeAreaId', false);
+        $this->createIndex(null, '{{%commerce_addresses}}', 'stateId', false);
 
         // This is the new index
         $this->createIndex(null, '{{%commerce_addresses}}', 'isStoreLocation', false);
