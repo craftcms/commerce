@@ -113,7 +113,7 @@ class CartTest extends Unit
         self::assertIsBool($data['cart']['estimatedBillingSameAsShipping']);
         self::assertIsString($data['cart']['shippingMethodHandle']);
         self::assertNull($data['cart']['shippingMethodName']);
-        self::assertIsInt($data['cart']['customerId']);
+        self::assertNull($data['cart']['customerId']);
         self::assertIsBool($data['cart']['registerUserOnOrderComplete']);
         self::assertNull($data['cart']['paymentSourceId']);
         self::assertNull($data['cart']['storedTotalPrice']);
