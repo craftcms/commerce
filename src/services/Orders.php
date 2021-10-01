@@ -11,6 +11,7 @@ use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Order;
 use craft\commerce\models\Customer;
+use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
@@ -129,7 +130,7 @@ class Orders extends Component
     /**
      * Get all orders by their customer.
      *
-     * @param int|Customer $customer
+     * @param int|User $customer
      * @return Order[]|null
      */
     public function getOrdersByCustomer($customer): ?array
@@ -139,7 +140,7 @@ class Orders extends Component
         }
 
         $query = Order::find();
-        if ($customer instanceof Customer) {
+        if ($customer instanceof User) {
             $query->customer($customer);
         } else {
             $query->customerId($customer);

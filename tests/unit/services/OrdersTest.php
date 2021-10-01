@@ -11,6 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\services\Orders;
+use craft\elements\User;
+use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\OrdersFixture;
 use UnitTester;
 
@@ -43,6 +45,9 @@ class OrdersTest extends Unit
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'orders' => [
                 'class' => OrdersFixture::class,
             ],
@@ -80,7 +85,9 @@ class OrdersTest extends Unit
 
     public function testGetOrdersByCustomer(): void
     {
-        $orders = $this->service->getOrdersByCustomer($this->fixtureData->getElement('completed-new')->customerId);
+        /** @var User $customer */
+        $customer = $this->tester->grabFixture('customer')->getElement('customer1');
+        $orders = $this->service->getOrdersByCustomer($customer->id);
 
         self::assertIsArray($orders);
         self::assertCount(3, $orders);

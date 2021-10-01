@@ -1266,7 +1266,7 @@ class OrderQuery extends ElementQuery
         }
 
         if (isset($this->customerId)) {
-            $this->subQuery->andWhere(Db::parseParam('commerce_orders.userId', $this->customerId));
+            $this->subQuery->andWhere(Db::parseParam('commerce_orders.customerId', $this->customerId));
         }
 
         if (isset($this->gatewayId)) {
