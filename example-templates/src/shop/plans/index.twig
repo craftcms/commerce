@@ -1,5 +1,6 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{# @var plans \craft\commerce\base\Plan[] #}
 {% set plans = craft.commerce.getPlans().getAllEnabledPlans() %}
 
 {% block main %}
@@ -14,6 +15,7 @@
     </h2>
   {% endif %}
 
+  {# @var currentUser \craft\elements\User #}
   {% if currentUser %}
     <div class="mt-4">
       {% set subscriptions = craft.subscriptions.userId(currentUser.id).all() %}
@@ -21,60 +23,65 @@
       {% if subscriptions|length %}
         <table class="w-full">
           <thead>
-          <tr class="bg-gray-300 text-left">
-            <th class="p-2">{{ 'Plan'|t }}</th>
-            <th class="p-2">{{ 'Next Payment'|t }}</th>
-            <th class="p-2">&nbsp;</th>
-          </tr>
-          </thead>
-          {% for subscription in subscriptions %}
-            <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
-              <td class="p-2">
-                {% set plan = subscription.plan ?? null %}
-                {% if plan %}
-                  <div>
-                    {{ plan.name }}
-
-                    {% set information = plan.getInformation() ?? null %}
-                    {% if information %}
-                      <div>
-                        <h4 class="font-semibold">{{ 'Plan Information Entry'|t }}</h4>
-                        <ul>
-                          <li>{{ 'ID' }}: {{ information.id }}</li>
-                          <li>{{ 'Title' }}: {{ information.title }}</li>
-                        </ul>
-                        <br>
-                      </div>
-                    {% endif %}
-                  </div>
-                {% endif %}
-
-                {% if subscription.isCanceled %}
-                  <div>
-                    <span class="text-sm text-gray-600">
-                      {{- 'Canceled on {date}.'|t('site', { date: subscription.dateCanceled|date('Y-m-d') }) -}}
-                    </span>
-                  </div>
-                {% endif %}
-              </td>
-              <td class="p-2">
-                {{- subscription.isCanceled
-                  ? 'Expires on {date}.'|t('site', { date: subscription.nextPaymentDate|date('Y-m-d') })
-                  : ''
-                -}}
-              </td>
-              <td class="p-2 text-right">
-                <a href="{{ url('/[[folderName]]/plans/subscription', { subscription: subscription.id }) }}"
-                   class="[[classes.btn.base]] [[classes.btn.grayColor]]"
-                >
-                  {{- 'Manage'|t -}}
-                </a>
-              </td>
+            <tr class="bg-gray-300 text-left">
+              <th class="p-2">{{ 'Plan'|t }}</th>
+              <th class="p-2">{{ 'Next Payment'|t }}</th>
+              <th class="p-2">&nbsp;</th>
             </tr>
-          {% endfor %}
+          </thead>
+          <tbody>
+            {% for subscription in subscriptions %}
+              <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+                <td class="p-2">
+                  {% set plan = subscription.plan ?? null %}
+                  {% if plan %}
+                    <div>
+                      {{ plan.name }}
+
+                      {# @var information \craft\elements\Entry #}
+                      {% set information = plan.getInformation() ?? null %}
+                      {% if information %}
+                        <div>
+                          <h4 class="font-semibold">{{ 'Plan Information Entry'|t }}</h4>
+                          <ul>
+                            <li>{{ 'ID' }}: {{ information.id }}</li>
+                            <li>{{ 'Title' }}: {{ information.title }}</li>
+                          </ul>
+                          <br>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  {% if subscription.isCanceled %}
+                    <div>
+                      <span class="text-sm text-gray-600">
+                        {{- 'Canceled on {date}.'|t({ date: subscription.dateCanceled|date('Y-m-d') }) -}}
+                      </span>
+                    </div>
+                  {% endif %}
+                </td>
+                <td class="p-2">
+                  {{- subscription.isCanceled
+                    ? 'Expires on {date}.'|t({ date: subscription.nextPaymentDate|date('Y-m-d') })
+                    : ''
+                  -}}
+                </td>
+                <td class="p-2 text-right">
+                  <a href="{{ url('/[[folderName]]/plans/subscription', { subscription: subscription.id }) }}"
+                     class="[[classes.btn.base]] [[classes.btn.grayColor]]"
+                  >
+                    {{- 'Manage'|t -}}
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
       {% else %}
-        <h2 class="text-lg font-semibold text-gray-600">{{ 'You do not have any active subscriptions.'|t }}</h2>
+        <h2 class="text-lg font-semibold text-gray-600">
+          {{- 'You do not have any active subscriptions.'|t- }}
+        </h2>
       {% endif %}
     </div>
   {% endif %}
@@ -100,17 +107,25 @@
                 </h4>
 
                 <div class="mt-3">
-                  <select name="trialDays" data-plan="{{ plan.id }}" class="[[classes.input]]">
+                  {% tag 'select' with {
+                    name: 'trialDays',
+                    'data-plan': plan.id,
+                    class: '[[classes.input]]'
+                  } %}
                     {% for i in [0, 3, 7, 14] %}
                       {% if i == 0 %}
-                        <option value="{{ (plan.uid~':0')|hash }}">{{ 'No trial period.'|t }}</option>
+                        {{ tag('option', {
+                          value: (plan.uid ~ ':0')|hash,
+                          text: 'No trial period.'|t
+                        }) }}
                       {% else %}
-                        <option value="{{ (plan.uid~':'~i)|hash }}">
-                          {{- 'Trial for {n} days.'|t('site', { n: i }) -}}
-                        </option>
+                        {{ tag('option', {
+                          value: (plan.uid ~ ':' ~ i)|hash,
+                          text: 'Trial for {n} days.'|t({ n: i })
+                        }) }}
                       {% endif %}
                     {% endfor %}
-                  </select>
+                  {% endtag %}
 
                   {% set paymentSources = craft.commerce.getPaymentSources()
                     .getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
@@ -122,9 +137,11 @@
                   {% endif %}
 
                   <div class="mt-3 text-right">
-                    <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                      {{- 'Subscribe'|t -}}
-                    </button>
+                    {{ tag('button', {
+                      type: 'submit',
+                      class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                      text: 'Subscribe'|t
+                    }) }}
                   </div>
                 </div>
               </form>

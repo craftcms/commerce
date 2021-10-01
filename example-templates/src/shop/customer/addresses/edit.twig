@@ -4,6 +4,7 @@
 {% set redirect = craft.app.request.param('redirect') %}
 
 {% if not address is defined and addressId %}
+  {# @var address \craft\commerce\models\Address #}
   {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
 {% endif %}
 
@@ -20,11 +21,7 @@
   <form method="post" action="">
     {{ csrfInput() }}
     {{ actionInput('commerce/customer-addresses/save') }}
-    {% if redirect %}
-      {{ redirectInput(redirect) }}
-    {% else %}
-      {{ redirectInput('[[folderName]]/customer/addresses') }}
-    {% endif %}
+    {{ redirectInput(redirect ?: '[[folderName]]/customer/addresses') }}
 
     {% if addressId %}
       {{ hiddenInput('address[id]', addressId) }}
@@ -32,51 +29,46 @@
 
     {{ include('[[folderName]]/_private/address/form') }}
 
-    {% set isPrimaryBilling = (cart.customer.primaryBillingAddressId == addressId) %}
-    {% set isPrimaryShipping = (cart.customer.primaryShippingAddressId == addressId) %}
-
     <hr class="my-3"/>
 
+    {% set isPrimaryShipping = (cart.customer.primaryShippingAddressId == addressId) %}
     <div>
       <label class="flex items-center">
-        <input type="checkbox" {{ isPrimaryShipping ? 'checked' :'' }}
-               name="makePrimaryShippingAddress"
-               id="makePrimaryShippingAddress"
-               class="mr-2"
-        />
+        {{ input('checkbox', 'makePrimaryShippingAddress', 1, {
+          id: 'makePrimaryShippingAddress',
+          checked: isPrimaryShipping,
+          class: 'mr-2'
+        }) }}
         {{ 'Make this the primary shipping address'|t }}
       </label>
     </div>
 
+    {% set isPrimaryBilling = (cart.customer.primaryBillingAddressId == addressId) %}
     <div>
       <label class="flex items-center">
-        <input type="checkbox" {{ isPrimaryBilling ? 'checked' :'' }}
-               name="makePrimaryBillingAddress"
-               id="makePrimaryBillingAddress"
-               class="mr-2"
-        />
+        {{ input('checkbox', 'makePrimaryBillingAddress', 1, {
+          id: 'makePrimaryBillingAddress',
+          checked: isPrimaryBilling,
+          class: 'mr-2'
+        }) }}
         {{ 'Make this the primary billing address'|t }}
       </label>
     </div>
 
     <div class="mt-6 flex justify-between">
       <div>
-        {% if redirect %}
-          <a href="/{{ redirect }}" class="[[classes.a]]">
-            {{- 'Cancel'|t -}}
-          </a>
-        {% else %}
-          <a href="{{ url('/[[folderName]]/customer/addresses') }}" class="[[classes.a]]">
-            {{- 'Cancel'|t -}}
-          </a>
-        {% endif %}
+        <a href="{{ redirect ? '/' ~ redirect : url('/[[folderName]]/customer/addresses') }}"
+           class="[[classes.a]]"
+        >
+          {{- 'Cancel'|t -}}
+        </a>
       </div>
       <div>
-        <button type="submit"
-                class="[[classes.btn.base]] [[classes.btn.mainColor]]"
-        >
-          {{- 'Save Address'|t -}}
-        </button>
+        {{ tag('button', {
+          type: 'submit',
+          class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+          text: 'Save Address'|t
+        }) }}
       </div>
     </div>
   </form>

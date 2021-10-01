@@ -1,40 +1,47 @@
 <!-- Template: {{ _self }}.twig -->
-{% set paymentSources = paymentSources is not defined ? [] : paymentSources %}
-{% set availableGateways = availableGateways is not defined ? [] : availableGateways %}
+{#
+Outputs radio selection inputs for payment sources and/or gateways.
 
-<label class="font-semibold">{{ 'Choose a payment gateway or payment source'|t }}:</label>
+@var availableGateways \craft\commerce\base\GatewayInterface[]  Available payment gateways
+@var paymentSources    \craft\commerce\models\PaymentSource[]   Available payment sources
+#}
+
+{% set paymentSources = paymentSources ?? [] %}
+{% set availableGateways = availableGateways ?? [] %}
+
+<label class="font-semibold">
+  {{- 'Choose a payment gateway or payment source'|t -}}:
+</label>
+
 {% if paymentSources|length %}
   {% for source in paymentSources %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-      <div class="flex justify-start items-center">
-        <div class="pr-2">
-          <input type="radio"
-                 name="paymentSourceId"
-                 value="{{ source.id }}"
-                 {% if source.id == cart.paymentSourceId %}checked{% endif %} />
-        </div>
-        <div>
+      <span class="flex justify-start items-center">
+        <span class="pr-2">
+          {{ input('radio', 'paymentSourceId', source.id, {
+            checked: source.id == cart.paymentSourceId
+          }) }}
+        </span>
+        <span>
           <strong>{{ source.description }}</strong>
           <br><span class="text-gray-600">{{ 'Stored source'|t }}</span>
-        </div>
-      </div>
+        </span>
+      </span>
     </label>
   {% endfor %}
 {% endif %}
 
 {% if availableGateways|length %}
-  {% for id,name in availableGateways %}
+  {% for gatewayId, gatewayName in availableGateways %}
     <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
       <span class="flex justify-start items-center">
         <span class="pr-2">
-          <input type="radio"
-                 name="gatewayId"
-                 value="{{ id }}"
-                 {% if id == cart.gatewayId %}checked{% endif %}
-          />
+          {{ input('radio', 'gatewayId', gatewayId, {
+            checked: gatewayId == cart.gatewayId
+          }) }}
         </span>
         <span>
-          <strong>{{ name }}</strong>
+          <strong>{{ gatewayName }}</strong>
           <br><span class="text-gray-600">{{ 'Payment gateway'|t }}</span>
         </span>
       </span>

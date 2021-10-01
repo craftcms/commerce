@@ -4,6 +4,10 @@
   {% redirect '[[folderName]]/checkout/addresses' %}
 {% endif %}
 
+{% if cart is not defined %}
+  {% set cart = craft.commerce.carts.cart %}
+{% endif %}
+
 {% if not cart.email %}
   {% redirect '[[folderName]]/checkout' %}
 {% endif %}

@@ -4,8 +4,11 @@
   {% exit 404 %}
 {% endif %}
 
+{# @var customer \craft\commerce\models\Customer #}
 {% set customer = craft.commerce.customers.customer %}
+{# @var primaryBillingAddress \craft\commerce\models\Address #}
 {% set primaryBillingAddress = customer.getPrimaryBillingAddress() %}
+{# @var primaryShippingAddress \craft\commerce\models\Address #}
 {% set primaryShippingAddress = customer.getPrimaryShippingAddress() %}
 
 {% block main %}
@@ -43,7 +46,8 @@
           <div class="flex justify-between items-center">
             <div>
               <a href="{{ url('/[[folderName]]/customer/addresses/edit') }}?addressId={{ address.id }}"
-                 class="[[classes.btn.small]] [[classes.btn.mainColor]]">
+                 class="[[classes.btn.small]] [[classes.btn.mainColor]]"
+              >
                 {{ 'Edit'|t }}
               </a>
             </div>
@@ -52,9 +56,11 @@
                 {{ csrfInput() }}
                 {{ actionInput('commerce/customer-addresses/delete') }}
                 {{ hiddenInput('id', address.id) }}
-                <button type="submit" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
-                  {{- 'Delete'|t -}}
-                </button>
+                {{ tag('button', {
+                  type: 'submit',
+                  class: '[[classes.btn.small]] [[classes.btn.grayColor]]',
+                  text: 'Delete'|t
+                }) }}
               </form>
             </div>
           </div>

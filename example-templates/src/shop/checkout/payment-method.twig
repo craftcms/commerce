@@ -7,7 +7,6 @@
   <!-- Template: {{ _self }}.twig -->
   <div class="flex -mx-8">
     <div class="w-2/3 px-8">
-
       <h1 class="font-bold text-xl">
         {{- 'How would you like to pay?'|t -}}
       </h1>
@@ -36,11 +35,12 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-              <button type="submit"
-                      name="submit"
-                      class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                {{ 'Next'|t }}
-              </button>
+              {{ tag('button', {
+                type: 'submit',
+                name: 'submit',
+                class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                text: 'Next'|t
+              }) }}
             </div>
           </form>
         </div>

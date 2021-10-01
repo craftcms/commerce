@@ -4,6 +4,7 @@
 
 {% extends '[[folderName]]/_private/layouts' %}
 
+{# @var paymentSources \craft\commerce\models\PaymentSource[] #}
 {% set paymentSources = craft.commerce.paymentSources.getAllPaymentSourcesByUserId(currentUser.id) %}
 
 {% block main %}
@@ -31,9 +32,11 @@
                 {{ redirectInput('/[[folderName]]/customer/cards') }}
                 {{ actionInput('commerce/payment-sources/delete') }}
                 {{ hiddenInput('id', paymentSource.id) }}
-                <button type="submit" class="[[classes.btn.base]] [[classes.btn.grayColor]]">
-                  {{- 'Delete card'|t -}}
-                </button>
+                {{ tag('button', {
+                  type: 'submit',
+                  class: '[[classes.btn.base]] [[classes.btn.grayColor]]',
+                  text: 'Delete card'|t
+                }) }}
               </form>
             </div>
           </div>
@@ -51,16 +54,22 @@
   <div class="[[classes.box.base]] max-w-md">
     <div>
       <div class="field">
-        <label for="gatewayId" class="block">{{ 'Payment Gateway'|t }}</label>
+        <label for="gatewayId" class="block">
+          {{- 'Payment Gateway'|t -}}
+        </label>
         <select id="gatewayId" class="mt-1 [[classes.input]]">
-          <option value="">---</option>
-
+          {{ tag('option', {
+            value: '',
+            text: '---'
+          }) }}
+          {# @var gateways \craft\commerce\base\GatewayInterface[] #}
           {% set gateways = craft.commerce.gateways.allCustomerEnabledGateways %}
-          {% set supportedGateways = {} %}
-
           {% for gateway in gateways %}
             {% if gateway.supportsPaymentSources() %}
-              <option value="{{ gateway.id }}">{{ gateway.name }}</option>
+              {{ tag('option', {
+                value: gateway.id,
+                text: gateway.name
+              }) }}
             {% endif %}
           {% endfor %}
         </select>
@@ -69,7 +78,8 @@
     <div class="mt-3">
       {% for gateway in gateways if gateway.supportsPaymentSources() %}
         <div id="fields-{{ gateway.id }}"
-             class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed">
+             class="js-gateway-fields hidden pt-3 mt-3 border-t border-gray-300 border-dashed"
+        >
           <form id="gateway-{{ gateway.id }}"
                 method="post"
                 action=""
@@ -85,20 +95,20 @@
             {{ gateway.getPaymentFormHtml({})|raw }}
 
             <div class="mt-2" data-colspan="1">
-              <input type="text"
-                     name="description"
-                     value=""
-                     class="[[input-classes]] w-full"
-                     maxlength="70"
-                     autocomplete="off"
-                     placeholder="{{ 'Card description'|t }}"
-              />
+              {{ input('text', 'description', '', {
+                maxlength: 70,
+                autocomplete: 'off',
+                placeholder: 'Card description'|t,
+                class: ['w-full', '[[input-classes]]']
+              }) }}
             </div>
 
             <div class="mt-2 text-right">
-              <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                {{- 'Add card'|t -}}
-              </button>
+              {{ tag('button', {
+                type: 'submit',
+                class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                text: 'Add card'|t
+              }) }}
             </div>
           </form>
         </div>

@@ -1,5 +1,7 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{# @var product \craft\commerce\elements\Product #}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
   <div>
@@ -27,7 +29,7 @@
         <form method="post">
           {{ csrfInput() }}
           {{ actionInput('commerce/cart/update-cart') }}
-          {{ successMessageInput('{product} added to cart.'|t('site', {
+          {{ successMessageInput('{product} added to cart.'|t({
             product: product.title
           })) }}
           <div>
@@ -38,11 +40,11 @@
                   <span class="italic">{{ variant.title }}</span>
                 </div>
                 <div class="pl-2 w-1/4">
-                  <input type="text"
-                         name="purchasables[{{ loop.index }}][qty]"
-                         value="0"
-                         class="[[classes.input]] w-full"
-                  />
+                  {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
+                    step: 1,
+                    min: 1,
+                    class: ['w-full', '[[classes.input]]']
+                  }) }}
                 </div>
                 <div class="pl-2 text-right w-1/4">
                   {% if variant.onSale %}
@@ -55,9 +57,11 @@
               </div>
             {% endfor %}
             <div class="mt-3 pt-3 border-t border-gray-300 text-right">
-              <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                {{- 'Add to cart'|t -}}
-              </button>
+              {{ tag('button', {
+                type: 'submit',
+                class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                text: 'Add to cart'|t
+              }) }}
             </div>
           </div>
         </form>

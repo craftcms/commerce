@@ -1,16 +1,27 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{# @var number string #}
 {% set number = craft.app.request.getParam('orderNumber') %}
+{# @var email string #}
 {% set email = craft.app.request.getParam('email') %}
+{# @var paymentMethod string #}
 {% set paymentMethod = craft.app.request.getParam('paymentMethod') %}
+{# @var gatewayId string #}
 {% set gatewayId = craft.app.request.getParam('gatewayId') %}
+{# @var paymentSourceId string #}
 {% set paymentSourceId = craft.app.request.getParam('paymentSourceId') %}
+{# @var paymentCurrency string #}
 {% set paymentCurrency = craft.app.request.getParam('paymentCurrency') %}
+{# @var url string #}
 {% set url = '[[folderName]]/checkout/pay-static' %}
 
 {% set cart = null %}
 {% if number and email %}
-  {% set cart = craft.orders.number(number).email(email).one() ?? null %}
+  {# @var cart \craft\commerce\elements\Order #}
+  {% set cart = craft.orders()
+    .number(number)
+    .email(email)
+    .one() ?? null %}
 {% endif %}
 
 {% block main %}
@@ -39,38 +50,43 @@
 
         <form method="get">
           <div class="mt-3">
-            <label for="orderNumber">{{ 'Cart/Order Number'|t }}</label>
+            <label for="orderNumber">
+              {{- 'Cart/Order Number'|t -}}
+            </label>
             <div>
-              <input type="text"
-                     name="orderNumber"
-                     id="orderNumber"
-                     class="[[classes.input]] w-full"
-                     value="{{ number }}"
-              />
+              {{ input('text', 'orderNumber', number, {
+                id: 'orderNumber',
+                class: ['w-full', '[[classes.input]]']
+              }) }}
             </div>
           </div>
           <div class="mt-3">
-            <label for="email">{{ 'Email Address'|t }}</label>
+            <label for="email">
+              {{- 'Email Address'|t -}}
+            </label>
             <div>
-              <input type="text"
-                     name="email"
-                     id="email"
-                     class="[[classes.input]] w-2/3"
-                     value="{{ email }}"
-              />
+              {{ input('email', 'email', email, {
+                id: 'email',
+                class: ['w-2/3', '[[classes.input]]']
+              }) }}
             </div>
           </div>
           <div class="mt-3 text-right">
-            <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-              {{- 'Submit'|t -}}
-            </button>
+            {{ tag('button', {
+              type: 'submit',
+              class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+              text: 'Submit'|t
+            }) }}
           </div>
         </form>
       {% else %}
+        {# @var customer \craft\commerce\models\Customer #}
         {% set customer = cart.customer ?? null %}
         {% if not gatewayId and not paymentSourceId %}
           {% set paymentSources = [] %}
-          {% if customer and customer.userId and currentUser and currentUser.id == customer.userId %}
+          {% set currentUserIsCustomer = customer and customer.userId and currentUser and currentUser.id == customer.userId %}
+
+          {% if currentUserIsCustomer %}
             {% set paymentSources = craft.commerce.paymentSources.allPaymentSourcesByUserId(currentUser.id) %}
           {% endif %}
 
@@ -100,9 +116,11 @@
                     </a>
                   </div>
                   <div class="w-1/2 text-right">
-                    <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                      {{- 'Submit'|t -}}
-                    </button>
+                    {{ tag('button', {
+                      type: 'submit',
+                      class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                      text: 'Submit'|t
+                    }) }}
                   </div>
                 </div>
               </div>
@@ -127,6 +145,7 @@
 
               <fieldset>
                 {% if gatewayId %}
+                  {# @var gateway \craft\commerce\base\GatewayInterface #}
                   {% set gateway = craft.commerce.gateways.getGatewayById(gatewayId) ?? null %}
 
                   {% if not gateway %}
@@ -155,10 +174,7 @@
                     {% if gateway.supportsPaymentSources() and currentUser and customer.userId and customer.userId == currentUser.id %}
                       <div class="checkbox">
                         <label>
-                          <input type="checkbox"
-                                 name="savePaymentSource"
-                                 value="1"
-                          />
+                          {{ input('checkbox', 'savePaymentSource', 1) }}
                           {{ 'Save card for future purchases'|t }}
                         </label>
                       </div><br/>
@@ -184,10 +200,11 @@
                   <div class="w-full">
                     {% if canPay %}
                       {{ include('[[folderName]]/checkout/_includes/partial-payment') }}
-
-                      <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                        {{- 'Pay'|t -}}
-                      </button>
+                      {{ tag('button', {
+                        type: 'submit',
+                        class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+                        text: 'Pay'|t
+                      }) }}
                     {% endif %}
                   </div>
                 </div>

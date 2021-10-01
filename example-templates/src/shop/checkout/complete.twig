@@ -17,10 +17,15 @@
         >
           {{ csrfInput() }}
           {{ actionInput('commerce/cart/complete') }}
-          {{ redirectInput(siteUrl('/[[folderName]]/customer/order', { number: cart.number, success: 'true' })) }}
-          <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-            {{- 'Submit'|t -}}
-          </button>
+          {{ redirectInput(siteUrl('/[[folderName]]/customer/order', {
+            number: cart.number,
+            success: 'true'
+          })) }}
+          {{ tag('button', {
+            type: 'submit',
+            class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+            text: 'Submit'|t
+          }) }}
         </form>
       </div>
     </div>

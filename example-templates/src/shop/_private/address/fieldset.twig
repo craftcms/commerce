@@ -1,4 +1,14 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs a fieldset for selecting one of a user’s available addresses or creating a new one.
+
+@var addresses   array
+@var cart        \craft\commerce\elements\Order
+@var classes     string
+@var name        string
+@var title       string
+@var currentUser \craft\elements\User
+#}
 <div class="js-address-fieldset {{ classes }}">
   <h2 class="text-lg font-bold">
     {{- title -}}
@@ -10,7 +20,8 @@
         {% set editUrl = '/[[folderName]]/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect='~craft.app.request.fullPath %}
         <div class="px-2 w-1/2 pb-2">
           <label data-address-id="{{ address.id }}"
-                 class="block address-select js-address-select [[classes.box.base]]">
+                 class="block address-select js-address-select [[classes.box.base]]"
+          >
             <span class="js-radio">
               {{ input('radio', name ~ 'Id', address.id, {
                 checked: attribute(cart, name ~ 'Id') == address.id,
@@ -30,7 +41,7 @@
   {% endif %}
 
   <div class="js-address-select" data-model-name="{{ name }}">
-    {% if attribute(cart, name~'Id') %}
+    {% if attribute(cart, name ~ 'Id') %}
       {% set addressHasErrors = attribute(cart, name).hasErrors() %}
     {% else %}
       {% set addressHasErrors = false %}
@@ -42,12 +53,12 @@
           {{ input('radio', name ~ 'Id', '', {
             checked: not addresses|length or addressHasErrors
           }) }}
-          {{ 'New {title}'|t('site', { title: title }) }}
+          {{ 'New {title}'|t({ title: title }) }}
         </label>
       </div>
     {% endif %}
 
-    <div class="js-body {% if currentUser %}hidden{% endif %}">
+    <div class="js-body{% if currentUser %} hidden{% endif %}">
       {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
       {{ include('[[folderName]]/_private/address/form', {
         'modelName': name,

@@ -5,35 +5,46 @@
 
   <div class="field mt-3">
     <label for="loginName">
-      {{ 'Email / Username'|t }}
+      {{- 'Email / Username'|t -}}
     </label>
     <div class="mt-1">
-      <input type="text"
-             id="loginName"
-             name="loginName"
-             class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[[color]]-500 focus:border-[[color]]-500 sm:text-sm"
-             value="{{ craft.app.user.getRememberedUsername() }}"
-             placeholder="email@site.com"
-             required
-      />
+      {{ input('text', 'loginName', craft.app.user.getRememberedUsername(), {
+        id: 'loginName',
+        placeholder: 'email@site.com',
+        required: true,
+        class: [
+          'appearance-none',
+          'block',
+          'w-full',
+          'px-3',
+          'py-2',
+          'border',
+          'border-gray-300',
+          'rounded-md',
+          'shadow-sm',
+          'placeholder-gray-400',
+          'focus:outline-none',
+          'sm:text-sm',
+          'focus:ring-[[color]]-500',
+          'focus:border-[[color]]-500',
+        ]
+      }) }}
     </div>
   </div>
 
   <div class="field mt-3">
-    <label for="loginPassword">{{ 'Password'|t }}</label>
-    <input type="password"
-           id="loginPassword"
-           name="password"
-           class="[[classes.input]] mt-1 w-full"
-    />
+    <label for="loginPassword">
+      {{- 'Password'|t -}}
+    </label>
+    {{ input('password', 'password', null, {
+      id: 'loginPassword',
+      class: ['mt-1', 'w-full', '[[classes.input]]']
+    }) }}
   </div>
 
   <div class="field mt-3">
     <label>
-      <input type="checkbox"
-             name="rememberMe"
-             value="1"
-      />
+      {{ input('checkbox', 'rememberMe', 1) }}
       {{ 'Remember me'|t }}
     </label>
   </div>
@@ -45,10 +56,11 @@
       </a>
     </div>
     <div>
-      <button type="submit"
-              class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-        {{- 'Login'|t -}}
-      </button>
+      {{ tag('button', {
+        type: 'submit',
+        class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+        text: 'Sign in'|t
+      }) }}
     </div>
   </div>
 </form>

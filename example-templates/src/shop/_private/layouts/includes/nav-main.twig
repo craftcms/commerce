@@ -1,4 +1,10 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs the site’s global main navigation based on path and included `pages` array.
+
+@var cart        \craft\commerce\elements\Order
+@var currentUser \craft\elements\User
+#}
 {% set pages = [
   {
     label: 'Products',
@@ -32,7 +38,7 @@
         {% endfor %}
       </nav>
       <a href="{{ url('[[folderName]]/cart') }}"
-         class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow"
+         class="absolute text-lg right-0 top-0 cursor-pointer mx-6 my-5 px-2 py-1 bg-white rounded-lg hover:shadow"
       >
         {% if cart.totalQty %}
           <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[color]]-800 text-white text-xs">

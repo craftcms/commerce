@@ -1,13 +1,15 @@
+{# Offer payment options at 20%, 50%, 75%, and 100%. #}
+{% set percentageOptions = [ 0.2, 0.5, 0.75, 1 ] %}
+
 {% if craft.commerce.settings.allowPartialPaymentOnCheckout %}
-  {# Offer payment options at 20%, 50%, 75%, and 100%. #}
-  {% set percentageOptions = [ 0.2, 0.5, 0.75, 1 ] %}
   <div class="mt-3">
     <p>{{ 'Make partial payment'|t }}...</p>
     <div>
-      <select name="paymentAmount"
-              id="paymentAmount"
-              class="[[classes.input]]"
-      >
+      {% tag 'select' with {
+        name: 'paymentAmount',
+        id: 'paymentAmount',
+        class: '[[classes.input]]'
+      } %}
         {% for percentageOption in percentageOptions %}
           {# Calculate the desired amount in the target currency #}
           {% set convertedAmount = craft.commerce.paymentCurrencies.convertCurrency(
@@ -15,11 +17,13 @@
             cart.currency,
             cart.paymentCurrency
           ) %}
-          <option value="{{ convertedAmount|hash }}">
-            {{ percentageOption * 100 }}% ({{ convertedAmount|commerceCurrency(cart.paymentCurrency) }}) ({{ cart.paymentCurrency }})
-          </option>
+          {% set percent = percentageOption * 100 %}
+          {{ tag('option', {
+            value: convertedAmount|hash,
+            text: percent ~ '% (' ~ convertedAmount|commerceCurrency(cart.paymentCurrency) ~ ') (' ~ cart.paymentCurrency ~ ')'
+          }) }}
         {% endfor %}
-      </select>
+      {% endtag %}
     </div>
   </div>
 {% endif %}

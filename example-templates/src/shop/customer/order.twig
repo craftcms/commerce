@@ -1,7 +1,9 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
 {% set number = craft.app.request.getRequiredParam('number') %}
-{% set order = craft.orders.number(number).one() %}
+{% set order = craft.orders()
+  .number(number)
+  .one() %}
 
 {% set extraHead %}
   <meta name="robots" content="noindex">
@@ -19,7 +21,7 @@
     </div>
   {% endif %}
   <h1 class="text-xl font-semibold mt-3">
-    {{- 'Order {ref}'|t('site', { ref: order.reference }) -}}
+    {{- 'Order {ref}'|t({ ref: order.reference }) -}}
   </h1>
 
   <div class="flex -mx-6 mt-3">

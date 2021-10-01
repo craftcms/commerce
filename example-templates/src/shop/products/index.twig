@@ -8,6 +8,12 @@
 
   {% paginate craft.products.limit(6) as pageInfo, pageProducts %}
 
-  {{ include('[[folderName]]/products/_includes/grid', { products: pageProducts }) }}
-  {{ include('[[folderName]]/products/_includes/pagination', { products: pageProducts, pageInfo: pageInfo }) }}
+  {{ include('[[folderName]]/products/_includes/grid', {
+    products: pageProducts
+  }) }}
+
+  {{ include('[[folderName]]/products/_includes/pagination', {
+    products: pageProducts,
+    pageInfo: pageInfo
+  }) }}
 {% endblock %}

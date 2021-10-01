@@ -1,3 +1,11 @@
+{#
+Common, top-level layout template.
+
+@var cart        \craft\commerce\elements\Cart
+@var extraHead   string
+@var flashNotice string
+@var flashError  string
+#}
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -36,7 +44,6 @@
 </header>
 
 <div id="main">
-
   {% if flashNotice %}
     <div class="bg-[[color]]-500 text-white">
       <div class="container mx-auto px-6 py-4">
@@ -74,11 +81,11 @@
           {{ successMessageInput('Notices dismissed') }}
           {{ hiddenInput('clearNotices') }}
           {{ csrfInput() }}
-          <button type="submit"
-                  class="[[classes.btn.small]] [[classes.btn.blue]] absolute mt-4 mr-4 top-0 right-0"
-          >
-            {{- 'Dismiss'|t -}}
-          </button>
+          {{ tag('button', {
+            type: 'submit',
+            class: ['absolute', 'mt-4', 'mr-4', 'top-0', 'right-0', '[[classes.btn.small]]', '[[classes.btn.blue]]'],
+            text: 'Dismiss'|t
+          }) }}
         </form>
       </div>
     </div>

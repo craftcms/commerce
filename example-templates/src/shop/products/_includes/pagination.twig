@@ -1,7 +1,9 @@
 <!-- Template: {{ _self }}.twig -->
+{# @var products  \craft\commerce\elements\Product[] #}
+{# @var pageInfo  \craft\web\twig\variables\Paginate #}
 <div class="my-6">
   <div class="mb-2">
-    {{ 'Showing {num} of {total}.'|t('site', {
+    {{ 'Showing {num} of {total}.'|t({
       num: products|length,
       total: pageInfo.total
     }) }}
@@ -9,13 +11,13 @@
 
   {% if pageInfo.currentPage != 1 %}
     <a href="{{ pageInfo.firstUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'First' -}}
+      {{- 'First'|t -}}
     </a>
   {% endif %}
 
   {% if pageInfo.prevUrl %}
     <a href="{{ pageInfo.prevUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Previous' -}}
+      {{- 'Previous'|t -}}
     </a>
   {% endif %}
 
@@ -37,13 +39,13 @@
 
   {% if pageInfo.nextUrl %}
     <a href="{{ pageInfo.nextUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Next' -}}
+      {{- 'Next'|t -}}
     </a>
   {% endif %}
 
   {% if pageInfo.currentPage != pageInfo.totalPages %}
     <a href="{{ pageInfo.lastUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
-      {{- 'Last' -}}
+      {{- 'Last'|t -}}
     </a>
   {% endif %}
 </div>

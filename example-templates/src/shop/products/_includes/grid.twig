@@ -1,17 +1,22 @@
 <!-- Template: {{ _self }}.twig -->
+{# @var products \craft\commerce\elements\Product[] #}
 <div class="my-6">
   <div class="grid gap-3 gap-y-9 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
     {% for product in products %}
       <div class="relative bg-gray-50 rounded">
         <div>
           <a class="block" href="{{ product.url }}">
-            <div class="hover:bg-[[color]]-400 bg-[[color]]-500 h-32 rounded rounded-b-none"></div>
+            {% include "shop/_private/images/placeholder.svg" with {
+              class: 'w-full h-auto rounded rounded-b-none opacity-75 hover:opacity-100',
+              width: 320,
+              height: 140
+            } %}
           </a>
         </div>
         <div class="m-4">
           <div class="relative text-lg text-bold mb-2">
             <div class="w-2/3">
-              <a class="[[classes.a]]" href="{{ product.url }}">
+              <a class="leading-tight [[classes.a]]" href="{{ product.url }}">
                 {{ product.title|title }}
               </a>
             </div>
@@ -25,17 +30,38 @@
           <form method="post" class="mt-6">
             {{ csrfInput() }}
             {{ actionInput('commerce/cart/update-cart') }}
-            {{ successMessageInput('Added '~ product.title ~' to the cart.') }}
+            {{ successMessageInput('{product} added to cart.'|t({
+              product: product.title
+            })) }}
             {# {{ hiddenInput('clearNotices', true) }} #}
             <div class="inline-block relative w-full">
-              <select name="purchasableId"
-                      class="js-purchasableId block appearance-none w-full border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring">
+              {% tag 'select' with {
+                name: 'purchasableId',
+                class: [
+                  'js-purchasableId',
+                  'block',
+                  'appearance-none',
+                  'w-full',
+                  'border',
+                  'border-gray-200',
+                  'hover:border-gray-500',
+                  'px-4',
+                  'py-2',
+                  'pr-8',
+                  'rounded',
+                  'leading-tight',
+                  'focus:outline-none',
+                  'focus:ring'
+                ]
+              } %}
                 {% for variant in product.getVariants() %}
-                  <option value="{{ variant.id }}">
-                    {{- variant.title }} {{ variant.sku }} {{ variant.salePrice|currency(cart.currency) -}}
-                  </option>
+                  {# @var variant \craft\commerce\elements\Variant #}
+                  {{ tag('option', {
+                    value: variant.id,
+                    text: variant.sku ~ ' ' ~ variant.salePrice|currency(cart.currency)
+                  }) }}
                 {% endfor %}
-              </select>
+              {% endtag %}
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                   <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
@@ -43,30 +69,29 @@
               </div>
             </div>
             <div class="mt-1 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2">
-              <input type="number"
-                     name="qty"
-                     value="1"
-                     class="mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring"
-                     step="1"
-                     min="1"
-                     placeholder="Quantity"
-              />
+              {{ input('number', 'qty', 1, {
+                class: 'mr-0 mb-1 md:mr-1 md:mb-0 sm:mb-1 border border-gray-200 hover:border-gray-500 px-4 py-2 pr-8 rounded leading-tight focus:outline-none focus:ring',
+                step: 1,
+                min: 1,
+                placeholder: 'Quantity'|t
+              }) }}
               {% if product.availableForPurchase %}
-                <button type="submit" class="m-0 [[classes.btn.base]] [[classes.btn.mainColor]] text-center">
-                  {{- 'Add to cart'|t -}}
-                </button>
+                {{ tag('button', {
+                  type: 'submit',
+                  class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.mainColor]]'],
+                  text: 'Add to cart'|t
+                }) }}
               {% else %}
-                <button type="submit" class="m-0 [[classes.btn.base]] [[classes.btn.grayColor]] text-center">
-                  {{- 'Unavailable'|t -}}
-                </button>
+                {{ tag('button', {
+                  type: 'submit',
+                  class: ['m-0', 'text-center', '[[classes.btn.base]] [[classes.btn.grayColor]]'],
+                  text: 'Unavailable'|t
+                }) }}
               {% endif %}
             </div>
             <div class="mt-1">
               <label>
-                <input type="checkbox"
-                       name="options[giftWrapped]"
-                       value="yes"
-                />
+                {{ input('checkbox', 'options[giftWrapped]', 'yes') }}
                 {{ 'Gift wrap item'|t }}
               </label>
             </div>

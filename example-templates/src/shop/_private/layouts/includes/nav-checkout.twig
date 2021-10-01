@@ -1,4 +1,7 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs the checkout progress navigation using the request path and included `checkoutSteps` array.
+#}
 {% set checkoutSteps = [
   {
     label: 'Email',
@@ -49,6 +52,6 @@
       {% endfor %}
     </nav>
     <div class="h-2 w-full bg-gray-200 rounded"></div>
-    <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width:{{ width }}%;"></div>
+    <div class="h-2 bg-[[color]]-600 rounded -mt-2" style="width: {{ width }}%;"></div>
   </div>
 {% endif %}

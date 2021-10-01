@@ -1,5 +1,10 @@
-{% set boldKeys = ['attention', 'name', 'businessName'] %}
 <!-- Template: {{ _self }}.twig -->
+{#
+Prints the lines of an address, bolding lines with keys in the `boldKeys` array.
+
+@var address \craft\commerce\models\Address
+#}
+{% set boldKeys = ['attention', 'name', 'businessName'] %}
 <ul>
   {% for key, line in address.addressLines %}
     <li>

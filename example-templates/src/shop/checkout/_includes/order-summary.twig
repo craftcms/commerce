@@ -1,11 +1,7 @@
 <!-- Template: {{ _self }}.twig -->
-{% if showShippingAddress is not defined %}
-  {% set showShippingAddress = false %}
-{% endif %}
 
-{% if showShippingMethod is not defined %}
-  {% set showShippingMethod = false %}
-{% endif %}
+{% set showShippingAddress = showShippingAddress ?? false %}
+{% set showShippingMethod = showShippingMethod ?? false %}
 
 <div class="[[classes.box.base]]">
   <h3 class="mt-0 text-lg font-bold">
@@ -13,33 +9,31 @@
   </h3>
 
   {% if showShippingAddress %}
-    <div class="border-b border-gray-300 pb-3">
-
+    <div class="border-gray-300 pb-3">
       <h4 class="font-semibold mt-3">
         {{- 'Shipping to'|t -}}
       </h4>
       {% if cart.shippingAddress %}
         <div class="js-address-select border-0">
-          {{ include('[[folderName]]/_private/address/address',
-            { 'address': cart.shippingAddress }
-          ) }}
+          {{ include('[[folderName]]/_private/address/address', {
+            'address': cart.shippingAddress
+          }) }}
         </div>
       {% else %}
         <p>{{ 'No shipping address selected.'|t }}</p>
       {% endif %}
 
       <a href="{{ url('/[[folderName]]/checkout/addresses') }}" class="[[classes.a]]">
-        {{ 'Change'|t }}
+        {{- 'Change'|t -}}
       </a>
     </div>
   {% endif %}
 
   {% if showShippingMethod %}
-    <div class="border-b border-gray-300 pb-3">
+    <div class="border-gray-300 pb-3">
       <h4 class="font-semibold mt-3">
         {{- 'Shipping method'|t -}}
       </h4>
-
       <div>
         {{ cart.shippingMethodName ?: 'No shipping method selected.'|t }}
       </div>
@@ -55,7 +49,11 @@
         <div class="truncate">
           {{ item.description }}
         </div>
-        <div class="text-gray-500 text-xs uppercase">{% if item.qty %}&times;{{ item.qty }}{% endif %}</div>
+        {% if item.qty > 1 %}
+          <div class="text-gray-500 text-xs uppercase ml-1">
+            {{ '× ' ~ item.qty }}
+          </div>
+        {% endif %}
       </div>
       <div>
         {{ item.subtotal|currency(cart.currency) }}
@@ -64,7 +62,7 @@
   {% else %}
     <div class="mb-3">
       <p>
-        {{ 'Nothing in your cart yet, <a href="{url}" class="{anchorClasses}">add something</a>.'|t('site', {
+        {{ 'Nothing in your cart yet, <a href="{url}" class="{anchorClasses}">add something</a>.'|t({
           url: url('/[[folderName]]/products'),
           anchorClasses: '[[classes.a]]'
         }) }}
@@ -73,8 +71,11 @@
   {% endfor %}
 
   {% if not cart.shippingMethod %}
-    <div class="border-b border-gray-300 pb-3">
-      <strong>{{ 'Shipping'|t }}</strong> {{ 'None selected.'|t }}
+    <div class="border-gray-300 pb-3">
+      <h4 class="font-semibold mt-3">
+        {{- 'Shipping'|t -}}
+      </h4>
+      {{ 'None selected.'|t }}
       <a href="{{ url('/[[folderName]]/checkout/shipping') }}" class="[[classes.a]]">
         {{- 'Choose a shipping method.'|t -}}
       </a>
@@ -106,14 +107,16 @@
         {{ cart.totalTaxIncluded|commerceCurrency(cart.currency) }}
       </div>
     </div>
-    <div class="flex w-full justify-end items-center text-xs text-gray-500">
-      <div class="pr-2">
-        {{ 'Discount'|t }}:
+    {% if cart.totalDiscount %}
+      <div class="flex w-full justify-end items-center text-xs text-gray-500">
+        <div class="pr-2">
+          {{ 'Discount'|t }}:
+        </div>
+        <div>
+          {{ (cart.totalDiscount * -1)|commerceCurrency(cart.currency) }}
+        </div>
       </div>
-      <div>
-        {{ (cart.totalDiscount * -1)|commerceCurrency(cart.currency) }}
-      </div>
-    </div>
+    {% endif %}
     <div class="flex w-full justify-end items-center">
       <div class="text-gray-600 pr-2">
         {{ 'Total'|t }}:

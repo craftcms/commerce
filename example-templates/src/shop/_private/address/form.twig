@@ -1,98 +1,104 @@
 <!-- Template: {{ _self }}.twig -->
-{% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
-{% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
-
+{#
+Outputs address form fields for editing an address.
+#}
 {% set modelName = modelName is defined ? modelName : 'address' %}
+{# @var model \craft\commerce\models\Address #}
 {% set model = address is defined ? address : null %}
 
 <div class="js-address-box {{ modelName }}">
-
   <div class="flex -mx-4">
     <div class="flex-1 mx-4">
 
       <div class="mt-3">
-        <label for="{{ modelName }}-attention">{{ 'Attention'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[attention]"
-               value="{{ model ? model.attention : '' }}"
-               id="{{ modelName }}-attention"
-               class="w-full [[classes.input]]"
-        >
-        {% if model and model.getErrors('attention') %}
-          <div class="text-red-700">{{ model.getErrors('attention')|join }}</div>
-        {% endif %}
-      </div>
-
-      <div class="mt-3">
-        <label for="{{ modelName }}-title">{{ 'Title'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[title]"
-               value="{{ model ? model.title : '' }}"
-               id="{{ modelName }}-title"
-               class="w-full [[classes.input]]"
-        >
-        {% if model and model.getErrors('title') %}
-          <span class="text-red-700">{{ model.getErrors('title')|join }}</span>
-        {% endif %}
-      </div>
-
-      <div class="mt-3">
-        <label for="{{ modelName }}-firstName">{{ 'First Name'|t }}</label>
-        <input type="text"
-               id="{{ modelName }}-firstName"
-               name="{{ modelName }}[firstName]"
-               class="w-full [[classes.input]]"
-               value="{{ model ? model.firstName : '' }}">
+        <label for="{{ modelName }}-firstName">
+          {{- 'First Name'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[firstName]', model ? model.firstName : '', {
+          id: modelName ~ '-firstName',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('firstName') %}
           <div class="text-red-700">{{ model.getErrors('firstName')|join }}</div>
         {% endif %}
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-lastName">{{ 'Last Name'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[lastName]"
-               value="{{ model ? model.lastName : '' }}"
-               id="{{ modelName }}-lastName"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-lastName">
+          {{- 'Last Name'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[lastName]', model ? model.lastName : '', {
+          id: modelName ~ '-lastName',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('lastName') %}
           <div class="text-red-700">{{ model.getErrors('lastName')|join }}</div>
         {% endif %}
       </div>
 
+      {#
       <div class="mt-3">
-        <label for="{{ modelName }}-fullName">{{ 'Full Name'|t }}</label>
-        <input type="text"
-               id="{{ modelName }}-fullName"
-               name="{{ modelName }}[fullName]"
-               class="w-full [[classes.input]]"
-               value="{{ model ? model.fullName : '' }}">
+        <label for="{{ modelName }}-attention">
+          {{- 'Attention'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[attention]', model ? model.attention : '', {
+          id: modelName ~ '-attention',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
+        {% if model and model.getErrors('attention') %}
+          <div class="text-red-700">{{ model.getErrors('attention')|join }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mt-3">
+        <label for="{{ modelName }}-title">
+          {{- 'Title'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[title]', model ? model.title : '', {
+          id: modelName ~ '-title',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
+        {% if model and model.getErrors('title') %}
+          <span class="text-red-700">{{ model.getErrors('title')|join }}</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-3">
+        <label for="{{ modelName }}-fullName">
+          {{- 'Full Name'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[fullName]', model ? model.fullName : '', {
+          id: modelName ~ '-fullName',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('fullName') %}
           <div class="text-red-700">{{ model.getErrors('fullName')|join }}</div>
         {% endif %}
       </div>
 
+      #}
+
       <div class="mt-3">
-        <label for="{{ modelName }}-label">{{ 'Label'|t }}</label>
-        <input type="text"
-               id="{{ modelName }}-label"
-               name="{{ modelName }}[label]"
-               class="w-full [[classes.input]]"
-               value="{{ model ? model.label : '' }}">
+        <label for="{{ modelName }}-label">
+          {{- 'Label'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[label]', model ? model.label : '', {
+          id: modelName ~ '-label',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('label') %}
           <div class="text-red-700">{{ model.getErrors('label')|join }}</div>
         {% endif %}
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-businessName">{{ 'Business Name'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[businessName]"
-               value="{{ model ? model.businessName : '' }}"
-               id="{{ modelName }}-businessName"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-businessName">
+          {{- 'Business Name'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[businessName]', model ? model.businessName : '', {
+          id: modelName ~ '-businessName',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('businessName') %}
           <div class="text-red-700">{{ model.getErrors('businessName')|join }}</div>
         {% endif %}
@@ -100,25 +106,26 @@
 
       <div class="flex -mx-4 mt-3">
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-businessTaxId">{{ 'Business Tax ID'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[businessTaxId]"
-                 value="{{ model ? model.businessTaxId : '' }}"
-                 id="{{ modelName }}-businessTaxId"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-businessTaxId">
+            {{- 'Business Tax ID'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[businessTaxId]', model ? model.businessTaxId : '', {
+            id: modelName ~ '-businessTaxId',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('businessTaxId') %}
             <div class="text-red-700">{{ model.getErrors('businessTaxId')|join }}</div>
           {% endif %}
         </div>
+
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-businessId">{{ 'Business ID'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[businessId]"
-                 value="{{ model ? model.businessId : '' }}"
-                 id="{{ modelName }}-businessId"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-businessId">
+            {{- 'Business ID'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[businessId]', model ? model.businessId : '', {
+            id: modelName ~ '-businessId',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('businessId') %}
             <div class="text-red-700">{{ model.getErrors('businessId')|join }}</div>
           {% endif %}
@@ -127,25 +134,26 @@
 
       <div class="flex -mx-4 mt-3">
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-custom1">{{ 'Custom 1'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[custom1]"
-                 value="{{ model ? model.custom1 : '' }}"
-                 id="{{ modelName }}-custom1"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-custom1">
+            {{- 'Custom 1'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[custom1]', model ? model.custom1 : '', {
+            id: modelName ~ '-custom1',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('custom1') %}
             <div class="text-red-700">{{ model.getErrors('custom1')|join }}</div>
           {% endif %}
         </div>
+
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-custom2">{{ 'Custom 2'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[custom2]"
-                 value="{{ model ? model.custom2 : '' }}"
-                 id="{{ modelName }}-custom2"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-custom2">
+            {{- 'Custom 2'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[custom2]', model ? model.custom2 : '', {
+            id: modelName ~ '-custom2',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('custom2') %}
             <div class="text-red-700">{{ model.getErrors('custom2')|join }}</div>
           {% endif %}
@@ -154,25 +162,26 @@
 
       <div class="flex -mx-4 mt-3">
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-custom3">{{ 'Custom 3'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[custom3]"
-                 value="{{ model ? model.custom3 : '' }}"
-                 id="{{ modelName }}-custom3"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-custom3">
+            {{- 'Custom 3'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[custom3]', model ? model.custom3 : '', {
+            id: modelName ~ '-custom3',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('custom3') %}
             <div class="text-red-700">{{ model.getErrors('custom3')|join }}</div>
           {% endif %}
         </div>
+
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-custom4">{{ 'Custom 4'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[custom4]"
-                 value="{{ model ? model.custom4 : '' }}"
-                 id="{{ modelName }}-custom4"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-custom4">
+            {{- 'Custom 4'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[custom4]', model ? model.custom4 : '', {
+            id: modelName ~ '-custom4',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('custom4') %}
             <div class="text-red-700">{{ model.getErrors('custom4')|join }}</div>
           {% endif %}
@@ -183,39 +192,39 @@
     <div class="flex-1 mx-4">
 
       <div class="mt-3">
-        <label for="{{ modelName }}-address1">{{ 'Address 1'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[address1]"
-               value="{{ model ? model.address1 : '' }}"
-               id="{{ modelName }}-address1"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-address1">
+          {{- 'Address 1'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[address1]', model ? model.address1 : '', {
+          id: modelName ~ '-address1',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('address1') %}
           <div class="text-red-700">{{ model.getErrors('address1')|join }}</div>
         {% endif %}
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-address2">{{ 'Address 2'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[address2]"
-               value="{{ model ? model.address2 : '' }}"
-               id="{{ modelName }}-address2"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-address2">
+          {{- 'Address 2'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[address2]', model ? model.address2 : '', {
+          id: modelName ~ '-address2',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('address2') %}
           <div class="text-red-700">{{ model.getErrors('address2')|join }}</div>
         {% endif %}
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-address3">{{ 'Address 3'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[address3]"
-               value="{{ model ? model.address3 : '' }}"
-               id="{{ modelName }}-address3"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-address3">
+          {{- 'Address 3'|t -}}
+        </label>
+        {{ input('text', modelName ~ '[address3]', model ? model.address3 : '', {
+          id: modelName ~ '-address3',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('address3') %}
           <div class="text-red-700">{{ model.getErrors('address3')|join }}</div>
         {% endif %}
@@ -223,24 +232,25 @@
 
       <div class="flex -mx-4 mt-3">
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-city">{{ 'City'|t }}</label>
-          <input type="text"
-                 name="{{ modelName }}[city]"
-                 value="{{ model ? model.city : '' }}"
-                 id="{{ modelName }}-city"
-                 class="w-full [[classes.input]]"
-          />
+          <label for="{{ modelName }}-city">
+            {{- 'City'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[city]', model ? model.city : '', {
+            id: modelName ~ '-city',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('city') %}
             <div class="text-red-700">{{ model.getErrors('city')|join }}</div>
           {% endif %}
         </div>
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-zipCode">{{ 'Postal Code'|t }}</label>
-          <input type="text"
-                 id="{{ modelName }}-zipCode"
-                 name="{{ modelName }}[zipCode]"
-                 class="w-full [[classes.input]]"
-                 value="{{ model ? model.zipCode : '' }}">
+          <label for="{{ modelName }}-zipCode">
+            {{- 'Postal Code'|t -}}
+          </label>
+          {{ input('text', modelName ~ '[zipCode]', model ? model.zipCode : '', {
+            id: modelName ~ '-zipCode',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('zipCode') %}
             <div class="text-red-700">{{ model.getErrors('zipCode')|join }}</div>
           {% endif %}
@@ -248,68 +258,94 @@
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-phone">{{ 'Phone'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[phone]"
-               value="{{ model ? model.phone : '' }}"
-               id="{{ modelName }}-phone"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-phone">
+          {{- 'Phone'|t -}}
+        </label>
+        {{ input('tel', modelName ~ '[phone]', model ? model.phone : '', {
+          id: modelName ~ '-phone',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('phone') %}
           <span class="text-red-700">{{ model.getErrors('phone')|join }}</span>
         {% endif %}
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-alternativePhone">{{ 'Alternative Phone'|t }}</label>
-        <input type="text"
-               name="{{ modelName }}[alternativePhone]"
-               value="{{ model ? model.alternativePhone : '' }}"
-               id="{{ modelName }}-alternativePhone"
-               class="w-full [[classes.input]]"
-        />
+        <label for="{{ modelName }}-alternativePhone">
+          {{- 'Alternative Phone'|t -}}
+        </label>
+        {{ input('tel', modelName ~ '[alternativePhone]', model ? model.alternativePhone : '', {
+          id: modelName ~ '-alternativePhone',
+          class: ['w-full', '[[classes.input]]']
+        }) }}
         {% if model and model.getErrors('alternativePhone') %}
           <div class="text-red-700">{{ model.getErrors('alternativePhone')|join }}</div>
         {% endif %}
       </div>
 
+      {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
       <div class="flex -mx-4 mt-3">
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-countryId">{{ 'Country'|t }} *</label>
-          <select id="{{ modelName }}-countryId"
-                  name="{{ modelName }}[countryId]"
-                  class="js-address-country w-full [[classes.input]]">
-            <option value="">{{ 'Select Country'|t }}...</option>
+          <label for="{{ modelName }}-countryId">
+            {{- 'Country'|t }} *
+          </label>
+          {% tag 'select' with {
+            id: modelName ~ '-countryId',
+            'data-modelname': modelName,
+            name: modelName ~ '[countryId]',
+            class: ['js-address-country', 'w-full', '[[classes.input]]', countries|length == 0 ? 'hidden' : ''],
+          } %}
+            {{ tag('option', {
+              value: '',
+              text: 'Select Country'|t ~ '...'
+            }) }}
             {% for key, option in countries %}
+              {# @var option \craft\commerce\models\Country #}
               {% set optionValue = (model ? model.countryId : '') %}
-              <option value="{{ key }}" {% if key == optionValue %} selected{% endif %}>{{ option }}</option>
+              {{ tag('option', {
+                value: key,
+                selected: key == optionValue,
+                text: option
+              }) }}
             {% endfor %}
-          </select>
+          {% endtag %}
           {% if model and model.getErrors('countryId') %}
             <div class="text-red-700">{{ model.getErrors('countryId')|join }}</div>
           {% endif %}
         </div>
+
+        {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
         <div class="flex-1 mx-4">
-          <label for="{{ modelName }}-state">{{ 'State'|t }}</label>
+          <label for="{{ modelName }}-state">
+            {{- 'State'|t -}}
+          </label>
+          {# Get the states for the selected country #}
           {% set options = (model and states[model.countryId] is defined ? states[model.countryId] : []) %}
-          <select id="{{ modelName }}-stateId" data-modelname="{{ modelName }}"
-                  class="js-address-stateId w-full [[classes.input]] {% if options|length == 0 %}hidden{% endif %}"
-                  name="{{ modelName }}[stateValue]">
-            <option value="">{{ 'Select State'|t }}...</option>
+          {% tag 'select' with {
+            id: modelName ~ '-stateId',
+            'data-modelname': modelName,
+            name: modelName ~ '[stateValue]',
+            class: ['js-address-stateId', 'w-full', '[[classes.input]]', options|length == 0 ? 'hidden' : ''],
+          } %}
+            {{ tag('option', {
+              value: '',
+              text: 'Select State'|t ~ '...'
+            }) }}
             {% for key, option in options %}
+              {# @var option \craft\commerce\models\State #}
               {% set optionValue = (model ? model.stateId : '') %}
-              <option value="{{ key }}" {% if key == optionValue %}selected{% endif %}>
-                {{ option }}
-              </option>
+              {{ tag('option', {
+                value: key,
+                selected: key == optionValue,
+                text: option
+              }) }}
             {% endfor %}
-          </select>
-          <input type="text"
-                 id="{{ modelName }}-stateName"
-                 data-modelname="{{ modelName }}"
-                 class="js-address-stateName {% if options|length > 0 %}hidden{% endif %} w-full [[classes.input]]"
-                 {% if options|length == 0 %}name="{{ modelName }}[stateValue]"{% endif %}
-                 value="{{ model ? model.stateName : '' }}"
-          />
+          {% endtag %}
+          {{ input('text', options|length == 0 ? modelName ~ '[stateValue]', model ? model.stateName : '', {
+            id: modelName ~ '-stateName',
+            'data-modelname': modelName,
+            class: ['js-address-stateName', options|length > 0 ? 'hidden' : '', 'w-full', '[[classes.input]]']
+          }) }}
           {% if model and model.getErrors('stateValue') %}
             <div class="text-red-700">{{ model.getErrors('stateValue')|join }}</div>
           {% endif %}
@@ -317,15 +353,17 @@
       </div>
 
       <div class="mt-3">
-        <label for="{{ modelName }}-notes">{{ 'Notes'|t }}</label>
-        <textarea id="{{ modelName }}-notes"
-                  name="{{ modelName }}[notes]"
-                  cols="30"
-                  rows="10"
-                  class="w-full [[classes.input]]"
-        >
-          {{- model ? model.notes : '' -}}
-        </textarea>
+        <label for="{{ modelName }}-notes">
+          {{- 'Notes'|t -}}
+        </label>
+        {{ tag('textarea', {
+          name: modelName ~ '[notes]',
+          id: modelName ~ '-notes',
+          cols: 30,
+          rows: 10,
+          class: ['w-full', '[[classes.input]]'],
+          text: model ? model.notes : ''
+        }) }}
         {% if model and model.getErrors('notes') %}
           <div class="text-red-700">{{ model.getErrors('notes')|join }}</div>
         {% endif %}

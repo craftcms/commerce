@@ -1,6 +1,10 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
-{% set orders = craft.orders.customer(craft.commerce.customers.customer).isCompleted(true).all() %}
+{# @var orders \craft\commerce\elements\Order[] #}
+{% set orders = craft.orders()
+  .customer(craft.commerce.customers.customer)
+  .isCompleted(true)
+  .all() %}
 
 {% set extraHead %}
   <meta name="robots" content="noindex">
@@ -9,8 +13,6 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
   {% if currentUser %}
-
-
     <h1 class="text-3xl block sm:inline">
       {{- 'My Orders'|t -}}
     </h1>
