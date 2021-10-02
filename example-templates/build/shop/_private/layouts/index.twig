@@ -13,14 +13,16 @@ Common, top-level layout template.
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{{ 'Craft Commerce'|t }}</title>
 
-  <link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://unpkg.com/htmx.org@^1"></script>
+
 
   {% if extraHead is defined %}
     {{ extraHead }}
   {% endif %}
 </head>
 <body class="relative text-gray-800 flex flex-col min-h-screen leading-relaxed">
-
+<div id="body" hx-boost="true">
 {% if cart is not defined %}
   {% set cart = craft.commerce.carts.cart %}
 {% endif %}
@@ -115,6 +117,6 @@ Common, top-level layout template.
 <footer>
   {{ include('shop/_private/layouts/includes/footer') }}
 </footer>
-
+</div>
 </body>
 </html>

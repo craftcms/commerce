@@ -34,7 +34,8 @@ Outputs the site’s global main navigation based on path and included `pages` a
            role="navigation"
            aria-label="Main">
         {% for page in pages %}
-          <a href="{{ url(page.url) }}" class="mx-4">
+          <a href="{{ url(page.url) }}"
+             class="mx-4">
             {{- page.label|t -}}
           </a>
         {% endfor %}

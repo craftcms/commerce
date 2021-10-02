@@ -12,6 +12,7 @@ use craft\commerce\console\Controller;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
+use craft\helpers\Html;
 use yii\console\ExitCode;
 
 /**
@@ -44,6 +45,12 @@ class ExampleTemplatesController extends Controller
      * @since 3.3
      */
     public $cdnAssets;
+
+    /**
+     * @var bool Whether to use HTMX
+     * @since 3.3
+     */
+    public $useHtmx;
 
     /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
@@ -92,6 +99,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
+            $this->useHtmx = true;
             $this->cdnAssets = true;
         }
 
@@ -108,6 +116,12 @@ class ExampleTemplatesController extends Controller
             $folderName = $this->prompt('Choose folder name:', ['required' => true, 'default' => 'shop']);
         }
 
+        // Use HTMX
+        if ($this->useHtmx === null) {
+            $this->useHtmx = $this->confirm('Use HTMX for forms and links?', true);
+        }
+
+        // Use CDN for resources
         if ($this->cdnAssets === null) {
             $this->cdnAssets = $this->confirm('Use CDN link to resources (tailwind)?', true);
         }
@@ -124,7 +138,7 @@ class ExampleTemplatesController extends Controller
         ]);
         $this->_addCssClassesToReplacementData();
         $this->_addTranslationsToReplacementData();
-        $this->_addTailwindCss();
+        $this->_addResourceAssets();
 
         // Let’s go!
         $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
@@ -259,20 +273,32 @@ class ExampleTemplatesController extends Controller
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    private function _addTailwindCss()
+    private function _addResourceAssets(): void
     {
-        $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+        // URLs
+        $tailwindCssUrl = 'https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css';
+        $htmxJsUrl = 'https://unpkg.com/htmx.org@^1';
+
+        // Resource Tags
+        $tailwindLinkTag = Html::cssFile($tailwindCssUrl);
+        $htmxScriptTag = Html::jsFile($htmxJsUrl);
+
+        $resourceTags = '';
 
         if (!$this->cdnAssets) {
-            $response = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
-            if ($response && $response->getStatusCode() == '200') {
-                $css = $response->getBody();
-                $tag = "<style>$css</style>";
+            // Tailwind
+            $tailwindCssResponse = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
+            if ($tailwindCssResponse && $tailwindCssResponse->getStatusCode() == '200') {
+                $resourceTags .= Html::style($tailwindCssResponse->getBody()) . "\n";
             }
+        } else {
+            $resourceTags .= $tailwindLinkTag . "\n"; // Tailwind
+            $resourceTags .= $this->useHtmx ? $htmxScriptTag . "\n" : ''; // Htmx
         }
 
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[tailwindCssTag]]' => $tag,
+            '[[resourceTags]]' => $resourceTags,
+            '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
         ]);
     }
 
