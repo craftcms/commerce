@@ -65,7 +65,7 @@
         {{ 'Nothing in your cart yet, <a href="{url}" class="{anchorClasses}">add something</a>.'|t({
           url: url('/shop/products'),
           anchorClasses: 'text-blue-500 hover:text-blue-600'
-        }) }}
+        })|raw }}
       </p>
     </div>
   {% endfor %}

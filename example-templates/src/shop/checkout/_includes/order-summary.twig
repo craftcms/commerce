@@ -65,7 +65,7 @@
         {{ 'Nothing in your cart yet, <a href="{url}" class="{anchorClasses}">add something</a>.'|t({
           url: url('/[[folderName]]/products'),
           anchorClasses: '[[classes.a]]'
-        }) }}
+        })|raw }}
       </p>
     </div>
   {% endfor %}
