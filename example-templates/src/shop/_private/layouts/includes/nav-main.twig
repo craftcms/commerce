@@ -40,8 +40,7 @@ Outputs the site’s global main navigation based on path and included `pages` a
         {% endfor %}
       </nav>
       <a href="{{ url('[[folderName]]/cart') }}"
-         class="absolute text-lg right-0 top-0 cursor-pointer mx-6 my-5 px-2 py-1 bg-white rounded-lg hover:shadow"
-      >
+         class="absolute text-lg right-0 top-0 cursor-pointer mx-6 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
         {% if cart.totalQty %}
           <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[color]]-800 text-white text-xs">
             {{- cart.totalQty -}}
