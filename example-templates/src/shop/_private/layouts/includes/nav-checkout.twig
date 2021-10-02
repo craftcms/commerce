@@ -39,7 +39,9 @@ Outputs the checkout progress navigation using the request path and included `ch
 
 {% if currentPath in checkoutSteps|column('url') %}
   <div class="container mx-auto justify-between items-center p-6 text-center text-sm text-gray-600">
-    <nav class="flex">
+    <nav class="flex"
+         role="navigation"
+         aria-label="Checkout">
       {% for step in checkoutSteps %}
         {% set isCurrentStep = step.url == currentPath %}
         <span class="flex-1 pb-2">
@@ -50,7 +52,8 @@ Outputs the checkout progress navigation using the request path and included `ch
               {{- step.label|t -}}
             </span>
           {% else %}
-            <a href="{{ url(step.url) }}" class="no-underline focus:outline-none">
+            <a href="{{ url(step.url) }}"
+               class="no-underline">
               {{- step.label|t -}}
             </a>
           {% endif %}
