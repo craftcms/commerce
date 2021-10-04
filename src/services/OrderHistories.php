@@ -220,7 +220,7 @@ class OrderHistories extends Component
     {
         return (new Query())
             ->select([
-                'customerId',
+                'userId',
                 'dateCreated',
                 'id',
                 'message',
