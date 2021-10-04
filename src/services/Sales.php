@@ -483,7 +483,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = $this->_getUserGroupIdsByUser($user);
+                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($user);
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -495,7 +495,7 @@ class Sales extends Component
             // User groups of the currently logged in user
             $userGroups = null;
             if ($currentUser = Craft::$app->getUser()->getIdentity()) {
-                $userGroups = $this->_getUserGroupIdsByUser($currentUser);
+                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($currentUser);
             }
 
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
@@ -696,16 +696,6 @@ class Sales extends Component
 
 
         return $result;
-    }
-
-    /**
-     * @param User $user
-     * @return int[]
-     */
-    public function _getUserGroupIdsByUser(User $user): array
-    {
-        $userGroups = $user->getGroups() ?? [];
-        return ArrayHelper::getColumn($userGroups, 'id');
     }
 
     /**
