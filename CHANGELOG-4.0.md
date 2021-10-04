@@ -71,7 +71,6 @@
 - Removed `craft\commerce\services\Customers::getAddressIds()`. Use `ArrayHelper::getColumn($user->getAddresses(), 'id')` instead.
 - Removed `craft\commerce\services\Customers::getCustomerByUserId()`.
 - Removed `craft\commerce\services\Customers::getCustomersQuery()`.
-- Removed `craft\commerce\services\Customers::getUserGroupIdsForUser()`.
 - Removed `craft\commerce\services\Customers::purgeOrphanedCustomers()`.
 - Removed `craft\commerce\services\Customers::saveAddress()`. Use `AddressBook::saveAddress()` instead.
 - Removed `craft\commerce\services\Customers::saveCustomer()`.

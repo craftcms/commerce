@@ -290,6 +290,16 @@ class Customers extends Component
     }
 
     /**
+     * @param User $user
+     * @return int[]
+     */
+    public function getUserGroupIdsByUser(User $user): array
+    {
+        $userGroups = $user->getGroups() ?? [];
+        return ArrayHelper::getColumn($userGroups, 'id');
+    }
+
+    /**
      * @param array|Order[] $orders
      * @return Order[]
      * @since 3.2.0
