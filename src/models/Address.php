@@ -358,7 +358,7 @@ class Address extends Model
         $rules[] = [$textAttributesMinusMb4Allowed, StringValidator::class, 'disallowMb4' => true];
 
         // Set safe attributes to allow assignment via set attributes
-        $rules[] = [['id'], 'safe'];
+        $rules[] = [['id', 'dateCreated', 'dateUpdated'], 'safe'];
 
         return $rules;
     }
