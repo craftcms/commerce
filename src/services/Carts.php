@@ -70,7 +70,7 @@ class Carts extends Component
         if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
             $cartAttributes = [];
             if ($user) {
-                $cartAttributes['user'] = $user;
+                $cartAttributes['customer'] = $user;
             }
 
             $this->_cart = Craft::createObject(Order::class, [
