@@ -76,7 +76,7 @@ class AddressesTest extends Unit
      */
     public function testGetAddressesByUserId(): void
     {
-        $address = $this->addresses->getAddressById(1000);
+        $address = $this->addresses->getAddressById(1002);
         /** @var User $user */
         $user = $this->tester->grabFixture('customer')->getElement('customer1');
 
@@ -84,7 +84,7 @@ class AddressesTest extends Unit
 
         self::assertIsArray($customerAddresses);
         self::assertNotEmpty($customerAddresses);
-        self::assertEquals($address, $customerAddresses[0]);
+        self::assertEquals($address->toArray(), $customerAddresses[0]->toArray());
     }
 
     /**
@@ -92,15 +92,15 @@ class AddressesTest extends Unit
      */
     public function testGetAddressByIdAndUserId(): void
     {
-        $customerAddress = $this->addresses->getAddressById(1000);
+        $customerAddress = $this->addresses->getAddressById(1002);
         /** @var User $user */
         $user = $this->tester->grabFixture('customer')->getElement('customer1');
 
         $noAddress = $this->addresses->getAddressByIdAndUserId(999, $user->id);
         self::assertNull($noAddress);
 
-        $address = $this->addresses->getAddressByIdAndUserId(1000, $user->id);
-        self::assertEquals($customerAddress, $address);
+        $address = $this->addresses->getAddressByIdAndUserId(1002, $user->id);
+        self::assertEquals($customerAddress->toArray(), $address->toArray());
     }
 
     /**

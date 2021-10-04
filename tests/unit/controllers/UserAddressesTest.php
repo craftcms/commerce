@@ -62,7 +62,7 @@ class UserAddressesTest extends Unit
         $this->controller = new UserAddressesController('user-addresses', Plugin::getInstance());
         // Mock admin user
         Craft::$app->getUser()->setIdentity(
-            Craft::$app->getUsers()->getUserById('1')
+            Craft::$app->getUsers()->getUserByUsernameOrEmail('customer1@crafttest.com')
         );
         Craft::$app->getUser()->getIdentity()->password = '$2y$13$tAtJfYFSRrnOkIbkruGGEu7TPh0Ixvxq0r.XgWqIgNWuWpxpA7SxK';
         $this->request = Craft::$app->getRequest();

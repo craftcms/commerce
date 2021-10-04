@@ -20,6 +20,8 @@ return [
                             'name' => 'Commerce Product Variants',
                             'handle' => 'commerceProductVariants',
                             'fieldType' => Variants::class,
+                            // TODO figure out why not having this set breaks tests using this fixture
+                            'context' => 'foo'
                         ]
                     ],
                 ]

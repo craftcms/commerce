@@ -8,6 +8,7 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
+use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Variant;
 use craft\commerce\models\Sale;
@@ -17,6 +18,7 @@ use craft\commerce\services\Sales;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
+use craftcommercetests\fixtures\CustomerFixture;
 use craftcommercetests\fixtures\SalesFixture;
 use Throwable;
 use UnitTester;
@@ -48,11 +50,19 @@ class SalesTest extends Unit
     protected SalesFixture $salesData;
 
     /**
+     * @var string|null
+     */
+    private ?string $_originalEdition = null;
+
+    /**
      * @return array
      */
     public function _fixtures(): array
     {
         return [
+            'customer' => [
+                'class' => CustomerFixture::class,
+            ],
             'sales' => [
                 'class' => SalesFixture::class,
             ],
@@ -66,8 +76,21 @@ class SalesTest extends Unit
     {
         parent::_before();
 
+        $this->_originalEdition = Craft::$app->getEdition();
+        Craft::$app->setEdition(Craft::Pro);
         $this->sales = Plugin::getInstance()->getSales();
         $this->salesData = $this->tester->grabFixture('sales');
+    }
+
+    /**
+     *
+     */
+    protected function _after()
+    {
+        parent::_after();
+
+        Craft::$app->setEdition($this->_originalEdition);
+        $this->_originalEdition = null;
     }
 
     /**
@@ -147,24 +170,23 @@ class SalesTest extends Unit
      */
     public function testGetSalePriceForPurchasable(): void
     {
+        $originalIdentity = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getUser()->setIdentity(
+            $this->tester->grabFixture('customer')->getElement('customer1')
+        );
+        Craft::$app->getUser()->getIdentity()->password = '$2y$13$tAtJfYFSRrnOkIbkruGGEu7TPh0Ixvxq0r.XgWqIgNWuWpxpA7SxK';
         $variant = Variant::find()->sku('rad-hood')->one();
         $salePrice = $this->sales->getSalePriceForPurchasable($variant);
 
         self::assertNotSame($variant->getPrice(), $salePrice);
-        self::assertSame(111.59, $salePrice);
-
-        $mockCustomersService = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => function () {
-                return ['1002'];
-            }
-        ]);
-        Plugin::getInstance()->set('customers', $mockCustomersService);
+        self::assertEquals(111.59, $salePrice);
 
         $variant = Variant::find()->sku('hct-white')->one();
         $salePrice = $this->sales->getSalePriceForPurchasable($variant);
 
         self::assertNotSame($variant->getPrice(), $salePrice);
-        self::assertSame(15.99, $salePrice);
+        self::assertEquals(15.99, $salePrice);
+        Craft::$app->getUser()->setIdentity($originalIdentity);
     }
 
     /**

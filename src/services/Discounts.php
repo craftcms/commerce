@@ -914,14 +914,11 @@ class Discounts extends Component
                 $userDiscountUseRecord = UserDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
                 if (!$userDiscountUseRecord) {
-                    $userDiscountUseRecord = Craft::createObject(UserDiscountUse::class, [
-                        'config' => [
-                            'attributes' => [
-                                'userId' => $user->id,
-                                'discountId' => $discount['discountUseId'],
-                                'uses' => 1,
-                            ]
-                        ]
+                    $userDiscountUseRecord = Craft::createObject(UserDiscountUse::class);
+                    Craft::configure($userDiscountUseRecord, [
+                        'userId' => $user->id,
+                        'discountId' => $discount['discountUseId'],
+                        'uses' => 1,
                     ]);
                     $userDiscountUseRecord->save();
                 } else {
@@ -1035,7 +1032,8 @@ class Discounts extends Component
      */
     public function isDiscountUserGroupValid(Discount $discount, ?User $user): bool
     {
-        $groupIds = $user ? ArrayHelper::getColumn($user->getGroups(), 'id', false) : [];
+
+        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($user) : [];
 
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {

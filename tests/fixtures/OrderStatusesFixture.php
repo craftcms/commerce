@@ -7,6 +7,7 @@
 
 namespace craftcommercetests\fixtures;
 
+use Craft;
 use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
@@ -60,6 +61,10 @@ class OrderStatusesFixture extends BaseModelFixture
      */
     public function unload(): void
     {
+        // TODO remove this when we figure out why things are being unlaoded twice #COM-54
+        $_muteEvents = Craft::$app->getProjectConfig()->muteEvents;
+        Craft::$app->getProjectConfig()->muteEvents = false;
+
         if (!empty($this->ids)) {
             foreach ($this->ids as $id) {
                 if ($id == 1) {
@@ -67,14 +72,10 @@ class OrderStatusesFixture extends BaseModelFixture
                     continue;
                 }
 
-                $arInstance = OrderStatusRecord::find()
-                    ->where(['id' => $id])
-                    ->one();
-
-                if ($arInstance && !$arInstance->delete()) {
-                    throw new InvalidArgumentException('Unable to delete Order Status instance');
-                }
+                $this->service->{$this->deleteMethod}($id);
             }
         }
+
+        Craft::$app->getProjectConfig()->muteEvents = $_muteEvents;
     }
 }

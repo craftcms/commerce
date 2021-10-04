@@ -122,7 +122,7 @@ class UserGroupConditionDiscountTest extends Unit
     public function _mockCustomers(array $ids = [1, 2]): void
     {
         $mockCustomers = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => $ids
+            'getUserGroupIdsByUser' => $ids
         ]);
 
         Plugin::getInstance()->set('customers', $mockCustomers);

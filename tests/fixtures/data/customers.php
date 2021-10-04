@@ -11,6 +11,7 @@ return [
         'username' => 'customer1',
         'email' => 'customer1@crafttest.com',
         'fieldLayoutType' => 'craft\elements\User',
+        '_userGroups' => [1002],
     ],
     'customer2' => [
         'active' => true,
