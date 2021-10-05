@@ -45,8 +45,8 @@ class AddressBook extends Component
      *
      * ```php
      * Event::on(
-     * Customers::class,
-     * Customers::EVENT_BEFORE_SAVE_USER_ADDRESS,
+     * AddressBook::class,
+     * AddressBook::EVENT_BEFORE_SAVE_USER_ADDRESS,
      *      function(UserAddressEvent $event) {
      *          // @var User $user
      *          $user = $event->user;
@@ -64,10 +64,10 @@ class AddressBook extends Component
      *
      * ```php
      * Event::on(
-     * Customers::class,
-     * Customers::EVENT_AFTER_SAVE_USER_ADDRESS,
+     * AddressBook::class,
+     * AddressBook::EVENT_AFTER_SAVE_USER_ADDRESS,
      *      function(UserAddressEvent $event) {
-     *          // @var Customer $user
+     *          // @var User $user
      *          $user = $event->user;
      *
      *          // @var Address $address
