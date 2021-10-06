@@ -977,9 +977,8 @@ class Customers extends Component
         // Update the email address in the DB for this customer
         if ($email) {
             $this->_updatePreviousOrderEmails($customer->id, $email);
+            $this->consolidateGuestOrdersByEmail($email);
         }
-
-        $this->consolidateGuestOrdersByEmail($email);
     }
 
     /**
