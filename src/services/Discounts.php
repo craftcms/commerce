@@ -910,7 +910,7 @@ class Discounts extends Component
         $user = $order->getCustomer();
         foreach ($discounts as $discount) {
             // Count if there was a user on this order that has authentication
-            if ($user && $user->getStatus() != $user::STATUS_INACTIVE) {
+            if ($user && $user->getIsCredentialed()) {
                 $userDiscountUseRecord = UserDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
                 if (!$userDiscountUseRecord) {
