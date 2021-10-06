@@ -32,6 +32,7 @@ use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\commerce\records\UserAddress;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
@@ -128,7 +129,7 @@ class OrdersController extends Controller
         ];
 
         if ($user) {
-            $attributes['userId'] = $user->id;
+            $attributes['customerId'] = $user->id;
         }
 
         $order = Craft::createObject(Order::class, [
@@ -551,15 +552,13 @@ class OrdersController extends Controller
             return $this->asJson($customers);
         }
 
-        $userQuery = User::find()->limit($limit);
+        $userQuery = User::find()->status(null)->limit($limit);
 
         if ($query) {
             $userQuery->search($query);
         }
 
-        $customers = $this->_prepCustomersArray($userQuery->all());
-
-        return $this->asJson($customers);
+        return $this->asJson($userQuery->all());
     }
 
     /**
@@ -1043,8 +1042,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $user = $variables['order']->userid ? Craft::$app->getUsers()->getUserById($variables['order']->userId) : null;
-        Craft::$app->getView()->registerJs('window.orderEdit.originalUser = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
+        $customer = $variables['order']->customerId ? Craft::$app->getUsers()->getUserById($variables['order']->customerId) : null;
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1106,7 +1105,7 @@ class OrdersController extends Controller
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
         $customerId = $orderRequestData['order']['customerId'] ?? null;
-        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+        if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
             $order->setCustomer($customer);
         } else {
             $order->setCustomer(null);
@@ -1183,9 +1182,9 @@ class OrdersController extends Controller
 
         // We need to create a new address if it belongs to a customer and the order is completed
         if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
+            $belongsToCustomer = UserAddress::find()
                 ->where(['addressId' => $billingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
+                ->andWhere(['not', ['userId' => null]])
                 ->exists();
 
             if ($belongsToCustomer) {
@@ -1194,9 +1193,9 @@ class OrdersController extends Controller
         }
 
         if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
+            $belongsToCustomer = UserAddress::find()
                 ->where(['addressId' => $shippingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
+                ->andWhere(['not', ['userId' => null]])
                 ->exists();
 
             if ($belongsToCustomer) {
