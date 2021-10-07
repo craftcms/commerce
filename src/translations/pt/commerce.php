@@ -693,6 +693,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'Não existe zona de envio com a ID “{id}”',
     'No state exists with the ID “{id}”' => 'Não existe estado com a ID “{id}”',
     'No states exist yet.' => 'Nenhum estado existe ainda.',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'Não existe um plano de subscrição com a ID “{id}”',
     'No subscription plans exist yet.' => 'Ainda não existem planos de subscrição.',
     'No subscriptions exist for this user yet.' => 'Ainda não existem subscrições para este utilizador.',
