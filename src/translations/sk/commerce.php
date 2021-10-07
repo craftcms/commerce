@@ -693,6 +693,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'Neexistuje žiadna zóna doručenia s ID „{id}“',
     'No state exists with the ID “{id}”' => 'Žiadny štát s ID „{id}“ neexistuje',
     'No states exist yet.' => 'Žiadne štáty zatiaľ neexistujú.',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'Neexistuje žiadny plán prihlásení na odber s ID „{id}“',
     'No subscription plans exist yet.' => 'Doposiaľ neexistujú žiadne plány prihlásení na odber.',
     'No subscriptions exist for this user yet.' => 'Pre tohto používateľa doposiaľ neexistujú žiadne prihlásenia na odber.',
