@@ -693,6 +693,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'Aucune zone de livraison avec l\'identifiant « {id} »',
     'No state exists with the ID “{id}”' => 'Il n\'existe aucun État avec l\'identifiant « {id} »',
     'No states exist yet.' => 'Aucun état n’a été créé.',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'Il n\'existe aucun d’abonnement avec l’identifiant « {id} »',
     'No subscription plans exist yet.' => 'Aucun plan d’abonnement n’existe encore.',
     'No subscriptions exist for this user yet.' => 'Il n’existe encore aucun abonnement pour cet utilisateur.',
