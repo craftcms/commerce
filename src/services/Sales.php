@@ -255,49 +255,6 @@ class Sales extends Component
     }
 
     /**
-     * Populates a sale's relations.
-     *
-     * @param Sale $sale
-     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
-     * // TODO Removed when completing #COM-58
-     */
-    public function populateSaleRelations(Sale $sale): void
-    {
-        $rows = (new Query())->select(
-            'sp.purchasableId,
-            spt.categoryId,
-            sug.userGroupId')
-            ->from(Table::SALES . ' sales')
-            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
-            ->where(['sales.id' => $sale->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
-            }
-        }
-
-        $sale->setPurchasableIds($purchasableIds);
-        $sale->setCategoryIds($categoryIds);
-        $sale->setUserGroupIds($userGroupIds);
-    }
-
-    /**
      * Returns the sales that match the purchasable.
      *
      * @param PurchasableInterface $purchasable
