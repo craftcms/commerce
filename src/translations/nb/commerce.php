@@ -693,6 +693,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'Ingen fraktsone eksisterer med ID-en «{id}»',
     'No state exists with the ID “{id}”' => 'Ingen stat eksisterer med ID-en «{id}»',
     'No states exist yet.' => 'Ingen tilstander finnes ennå.',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'Det finnes ingen abonnementsplan med ID-en «{id}»',
     'No subscription plans exist yet.' => 'Det finnes ingen abonnementsplan ennå.',
     'No subscriptions exist for this user yet.' => 'Ingen abonnementer finnes for denne brukeren ennå.',
