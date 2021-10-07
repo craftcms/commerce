@@ -42,12 +42,12 @@ class TotalRevenue extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var bool
      */
-    public $showOrderCount = false;
+    public bool $showOrderCount = false;
 
     /**
      * @var TotalRevenueStat
@@ -60,7 +60,7 @@ class TotalRevenue extends Widget
     public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,

@@ -40,27 +40,27 @@ class TotalOrdersByCountry extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var string Options 'billing', 'shippinh'.
      */
-    public $type;
+    public string $type;
 
     /**
      * @var TotalOrdersByCountryStat
      */
-    private $_stat;
+    private TotalOrdersByCountryStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @inheritDoc
@@ -74,14 +74,14 @@ class TotalOrdersByCountry extends Widget
             'shipping' => Craft::t('commerce', 'Shipping'),
         ];
 
-        if ($this->type == 'billing') {
+        if (isset($this->type) && $this->type == 'billing') {
             $this->_title = Craft::t('commerce', 'Total Orders by Billing Country');
         } else {
             $this->_title = Craft::t('commerce', 'Total Orders by Shipping Country');
             $this->type = 'shipping';
         }
 
-        $this->dateRange = !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersByCountryStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersByCountryStat(
             $this->dateRange,

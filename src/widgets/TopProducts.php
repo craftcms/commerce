@@ -39,17 +39,17 @@ class TopProducts extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
-     * @var string Options 'revenue', 'qty'.
+     * @var string|null Options 'revenue', 'qty'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var array|null
      */
-    public $revenueOptions = [
+    public ?array $revenueOptions = [
         TopProductsStat::REVENUE_OPTION_DISCOUNT,
         TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
         TopProductsStat::REVENUE_OPTION_TAX,
@@ -59,22 +59,22 @@ class TopProducts extends Widget
     /**
      * @var TopProductsStat
      */
-    private $_stat;
+    private TopProductsStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @var array
      */
-    private $_revenueCheckboxOptions;
+    private array $_revenueCheckboxOptions;
 
     /**
      * @inheritDoc
@@ -133,7 +133,7 @@ class TopProducts extends Widget
             }
         }
 
-        $this->dateRange = !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopProductsStat(
             $this->dateRange,
