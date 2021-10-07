@@ -486,10 +486,6 @@ class Discounts extends Component
             $this->trigger(self::EVENT_DISCOUNT_MATCHES_LINE_ITEM, $event);
         }
 
-        if ($this->hasEventHandlers(self::EVENT_BEFORE_MATCH_LINE_ITEM)) {
-            $this->trigger(self::EVENT_BEFORE_MATCH_LINE_ITEM, $event);
-        }
-
         return $event->isValid;
     }
 
