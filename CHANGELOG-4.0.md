@@ -5,11 +5,13 @@
 ### Added
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\UserAddressesController`.
-- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
+- Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
 - Added `craft\commerce\events\UserAddressEvent`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
-- Added `craft\commerce\records\Order::getUser()`.
+- Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\records\UserAddress`.
 - Added `craft\commerce\records\UserDiscountUse`.
@@ -97,7 +99,7 @@
 - Removed `craft\commerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
-- Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders::consolidate()`.
+- Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders`.
 - Removed `craft\commerce\services\Customers::consolidateOrdersToUser()`.
 - Removed `craft\commerce\services\Customers::getCustomer()`.
 - Removed `craft\commerce\services\Customers::getCustomerById()`.
