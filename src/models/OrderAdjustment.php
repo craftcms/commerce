@@ -41,9 +41,9 @@ class OrderAdjustment extends Model
     public string $name;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public string $description;
+    public ?string $description = null;
 
     /**
      * @var string Type

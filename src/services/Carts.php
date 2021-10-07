@@ -123,8 +123,7 @@ class Carts extends Component
         $hasSomethingChangedOnCart = ($hasIpChanged || $hasOrderLanguageChanged || $hasUserChanged || $hasPaymentCurrencyChanged || $hasOrderSiteIdChanged);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        // Manual force save only works when the order has not ID
-        if (($this->_cart->id && $hasSomethingChangedOnCart) || ($forceSave && !$this->_cart->id)) {
+        if (($this->_cart->id && $hasSomethingChangedOnCart) || $forceSave) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 

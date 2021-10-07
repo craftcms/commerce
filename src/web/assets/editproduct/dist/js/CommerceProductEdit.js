@@ -177,7 +177,7 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
                             _this.discountIdsByVariantId[id].push(discount.id);
 
                             $('<li>\n' +
-                                '<a href="'+discount.cpEditUrl+'"><span>'+discount.name+'</span></a>\n' +
+                                '<a href="'+discount.cpEditUrl+'"><span>'+Craft.escapeHtml(discount.name)+'</span></a>\n' +
                                 '</li>').appendTo(element);
                         }
                     }
