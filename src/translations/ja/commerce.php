@@ -693,6 +693,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'ID「{id}」の配送地域は存在しません',
     'No state exists with the ID “{id}”' => 'ID「{id}」の州は存在しません',
     'No states exist yet.' => '州/都道府県がまだありません。',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'ID「{id}」の定期支払いプランは存在しません',
     'No subscription plans exist yet.' => 'まだ定期支払いプランがありません。',
     'No subscriptions exist for this user yet.' => 'このユーザーに定期支払いはまだありません。',
