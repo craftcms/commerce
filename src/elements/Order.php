@@ -760,9 +760,9 @@ class Order extends Element
     public bool $estimatedBillingSameAsShipping = false;
 
     /**
-     * @var string Shipping Method Handle
+     * @var string|null Shipping Method Handle
      */
-    public string $shippingMethodHandle = '';
+    public ?string $shippingMethodHandle = '';
 
     /**
      * @var string|null Shipping Method Name
