@@ -87,6 +87,11 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
+        // Can clear line items when updating the cart
+        if (($clearCart = $this->request->getParam('clearLineItems')) !== null) {
+            $this->_cart->setLineItems([]);
+        }
+
         // Can clear notices when updating the cart
         if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
             $this->_cart->clearNotices();

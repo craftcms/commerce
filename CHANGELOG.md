@@ -1,5 +1,16 @@
 # Release Notes for Craft Commerce
 
+## 3.4.4 - 2021-10-07
+
+### Added
+- Added the `autoSetCartShippingMethodOption` config setting.
+
+### Changed
+- The `commerce/cart/update-cart` action now supports a `clearLineItems` param.
+
+### Fixed
+- Fixed a bug where addresses weren’t getting copied to orders correctly. ([#2555](https://github.com/craftcms/commerce/issues/2555))
+
 ## 3.4.3 - 2021-09-22
 
 ### Fixed
