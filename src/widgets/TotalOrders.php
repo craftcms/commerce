@@ -119,6 +119,11 @@ class TotalOrders extends Widget
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 

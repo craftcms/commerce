@@ -165,6 +165,10 @@ class TopPurchasables extends Widget
     {
         $stats = $this->_stat->get();
 
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
         $view->registerAssetBundle(AdminTableAsset::class);
