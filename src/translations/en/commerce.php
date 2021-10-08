@@ -692,6 +692,7 @@ return [
     'No shipping zone exists with the ID “{id}”' => 'No shipping zone exists with the ID “{id}”',
     'No state exists with the ID “{id}”' => 'No state exists with the ID “{id}”',
     'No states exist yet.' => 'No states exist yet.',
+    'No stats available.' => 'No stats available.',
     'No subscription plan exists with the ID “{id}”' => 'No subscription plan exists with the ID “{id}”',
     'No subscription plans exist yet.' => 'No subscription plans exist yet.',
     'No subscriptions exist for this user yet.' => 'No subscriptions exist for this user yet.',

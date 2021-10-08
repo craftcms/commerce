@@ -39,7 +39,7 @@ class TotalOrders extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var int|bool
@@ -49,12 +49,12 @@ class TotalOrders extends Widget
     /**
      * @var null|TotalOrdersStat
      */
-    private $_stat;
+    private ?TotalOrdersStat $_stat;
 
     public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersStat(
             $this->dateRange,
@@ -119,6 +119,11 @@ class TotalOrders extends Widget
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
