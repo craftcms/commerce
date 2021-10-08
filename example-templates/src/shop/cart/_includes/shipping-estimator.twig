@@ -32,44 +32,49 @@ Outputs a form for collecting shipping estimate address details if an address do
         {% endfor %}
       {% endtag %}
 
-      <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
-        <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
-          {{- 'State'|t -}}
-        </label>
-        {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ?
-          states[cart.estimatedShippingAddress.countryId] : []
-        ) %}
-        {% tag 'select' with {
-          name: 'estimatedShippingAddress[stateValue]',
-          id: 'estimatedShippingAddress-stateId',
-          'data-modelname': 'estimatedShippingAddress',
-          class: ['js-address-stateId', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
-        } %}
-          {% for key, option in options %}
-            {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
-            {{ tag('option', {
-              value: key,
-              selected: key == optionValue,
-              text: option
+      <div class="lg:flex lg:-mx-2">
+        <div class="lg:w-1/2 lg:mx-2 my-2">
+          <div class="js-estimate-state-box" data-modelname="estimatedShippingAddress">
+            <label class="mb-0 mt-2 block" for="estimatedShippingAddress-state">
+              {{- 'State'|t -}}
+            </label>
+            {% set options = (cart.estimatedShippingAddress and states[cart.estimatedShippingAddress.countryId] is defined ?
+              states[cart.estimatedShippingAddress.countryId] : []
+              ) %}
+            {% tag 'select' with {
+              name: 'estimatedShippingAddress[stateValue]',
+              id: 'estimatedShippingAddress-stateId',
+              'data-modelname': 'estimatedShippingAddress',
+              class: ['js-address-stateId', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
+            } %}
+              {% for key, option in options %}
+                {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
+                {{ tag('option', {
+                  value: key,
+                  selected: key == optionValue,
+                  text: option
+                }) }}
+              {% endfor %}
+            {% endtag %}
+
+            {{ input('text', options|length == 0 ? 'estimatedShippingAddress[stateValue]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '', {
+              id: 'estimatedShippingAddress-stateName',
+              'data-modelname': 'estimatedShippingAddress',
+              class: ['js-address-stateName', 'w-full', options|length > 0 ? 'hidden' : '', '[[classes.input]]']
             }) }}
-          {% endfor %}
-        {% endtag %}
-
-        {{ input('text', options|length == 0 ? 'estimatedShippingAddress[stateValue]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateName : '', {
-          id: 'estimatedShippingAddress-stateName',
-          'data-modelname': 'estimatedShippingAddress',
-          class: ['js-address-stateName', 'w-full', options|length > 0 ? 'hidden' : '', '[[classes.input]]']
-        }) }}
+          </div>
+        </div>
+        <div class="lg:w-1/2 lg:mx-2 my-2">
+          <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">
+            {{- 'Postal Code'|t -}}
+          </label>
+          {{ input('text', 'estimatedShippingAddress[zipCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '', {
+            id: 'estimatedShippingAddress-zipCode',
+            'data-modelname': 'estimatedShippingAddress',
+            class: ['w-full', '[[classes.input]]']
+          }) }}
+        </div>
       </div>
-
-      <label class="mb-0 mt-2 block" for="estimatedShippingAddress-zipCode">
-        {{- 'Postal Code'|t -}}
-      </label>
-      {{ input('text', 'estimatedShippingAddress[zipCode]', cart.estimatedShippingAddress ? cart.estimatedShippingAddress.zipCode : '', {
-        id: 'estimatedShippingAddress-zipCode',
-        'data-modelname': 'estimatedShippingAddress',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
 
       <div class="mt-6">
         <label class="m-0">
