@@ -261,7 +261,7 @@ class SalesController extends BaseCpController
         }
 
         $sales = [];
-        foreach ($product->getVariants() as $variant) {
+        foreach ($product->getVariants(true) as $variant) {
             $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
             foreach ($variantSales as $sale) {
                 if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
@@ -459,7 +459,7 @@ class SalesController extends BaseCpController
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable && $purchasable instanceof Product) {
-                    foreach ($purchasable->getVariants() as $variant) {
+                    foreach ($purchasable->getVariants(true) as $variant) {
                         $purchasableIds[] = $variant->getId();
                     }
                 } else {
