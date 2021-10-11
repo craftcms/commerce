@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\Plugin;
 use craft\commerce\Plugin as Commerce;
-use craft\errors\MissingComponentException;
 use Throwable;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
@@ -30,16 +29,13 @@ class PaymentSourcesController extends BaseFrontEndController
      * Adds a payment source.
      *
      * @return Response|null
-     * @throws HttpException
-     * @throws MissingComponentException
-     * @throws InvalidConfigException
      * @throws BadRequestHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
      */
-    public function actionAdd()
+    public function actionAdd(): ?Response
     {
         $this->requirePostRequest();
-
-        $order = null;
 
         $plugin = Plugin::getInstance();
 
@@ -95,7 +91,7 @@ class PaymentSourcesController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'paymentSource' => $paymentSource
+                'paymentSource' => $paymentSource,
             ]);
         }
 
@@ -111,7 +107,7 @@ class PaymentSourcesController extends BaseFrontEndController
      * @throws Throwable if failed to delete the payment source on the gateway
      * @throws BadRequestHttpException if user not logged in
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
         $this->requireLogin();

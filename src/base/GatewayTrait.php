@@ -18,42 +18,42 @@ use DateTime;
 trait GatewayTrait
 {
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Payment Type
      */
-    public $paymentType = 'purchase';
+    public string $paymentType = 'purchase';
 
     /**
      * @var bool Enabled on the frontend
      */
-    public $isFrontendEnabled = true;
+    public bool $isFrontendEnabled = true;
 
     /**
      * @var bool Archived
      */
-    public $isArchived = false;
+    public bool $isArchived = false;
 
     /**
-     * @var DateTime Archived Date
+     * @var DateTime|null Archived Date
      */
-    public $dateArchived;
+    public ?DateTime $dateArchived = null;
 
     /**
      * @var int|null Sort order
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
      * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 }

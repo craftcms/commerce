@@ -25,27 +25,27 @@ class OrderNoticesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @group OrderNotices
      */
-    public function testOrderNotices()
+    public function testOrderNotices(): void
     {
         /** @var OrderNotice $firstNotice */
         $firstNotice = Craft::createObject([
@@ -87,7 +87,7 @@ class OrderNoticesTest extends Unit
     /**
      * @group OrderNotices
      */
-    public function testClearOrderNotices()
+    public function testClearOrderNotices(): void
     {
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
@@ -152,7 +152,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -166,7 +166,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

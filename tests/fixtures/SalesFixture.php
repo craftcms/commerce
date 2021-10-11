@@ -36,12 +36,12 @@ class SalesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveSale';
+    public string $saveMethod = 'saveSale';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteSaleById';
+    public string $deleteMethod = 'deleteSaleById';
 
     /**
      * @inheritDoc
@@ -51,19 +51,19 @@ class SalesFixture extends BaseModelFixture
     /**
      * @var array|null
      */
-    private $_purchasableIds;
+    private ?array $_purchasableIds;
 
     /**
      * @var array|null
      */
-    private $_categoryIds;
+    private ?array $_categoryIds;
 
     /**
      * @var array|null
      */
-    private $_userGroupIds;
+    private ?array $_userGroupIds;
 
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 

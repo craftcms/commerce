@@ -16,21 +16,21 @@ namespace craft\commerce\base;
 interface RequestResponseInterface
 {
     /**
-     * Returns whether or not the payment was successful.
+     * Returns whether the payment was successful.
      *
      * @return bool
      */
     public function isSuccessful(): bool;
 
     /**
-     * Returns whether or not the payment is being processed by gateway.
+     * Returns whether the payment is being processed by gateway.
      *
      * @return bool
      */
     public function isProcessing(): bool;
 
     /**
-     * Returns whether or not the user needs to be redirected.
+     * Returns whether the user needs to be redirected.
      *
      * @return bool
      */

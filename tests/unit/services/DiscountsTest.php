@@ -39,13 +39,12 @@ class DiscountsTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Discounts $discounts
      */
-    protected $discounts;
-
+    protected Discounts $discounts;
 
     /**
      * @return array
@@ -65,7 +64,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testOrderCouponAvailableWithInvalidCoupon()
+    public function testOrderCouponAvailableWithInvalidCoupon(): void
     {
         $this->orderCouponAvailableTest(
             ['couponCode' => 'invalid_coupon'],
@@ -77,7 +76,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testSuccessOrderCouponAvailable()
+    public function testSuccessOrderCouponAvailable(): void
     {
         $this->orderCouponAvailableTest(
             ['couponCode' => 'discount_1', 'customerId' => '1000'],
@@ -89,7 +88,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testExistingCouponNotEnabled()
+    public function testExistingCouponNotEnabled(): void
     {
         // Set it to be disabled
         $this->updateOrderCoupon([
@@ -106,7 +105,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testOrderCouponExpired()
+    public function testOrderCouponExpired(): void
     {
         // Invalidate the coupon.... It's valid until sometime in the past.
         $this->updateOrderCoupon([
@@ -123,7 +122,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testOrderCouponNotYetValid()
+    public function testOrderCouponNotYetValid(): void
     {
         // Set the coupon to start in two days from now.
         $date = new DateTime('now');
@@ -142,7 +141,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testCouponThatHasBeenUsedTooMuch()
+    public function testCouponThatHasBeenUsedTooMuch(): void
     {
         $this->updateOrderCoupon([
             'totalDiscountUses' => 2
@@ -158,7 +157,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testCouponWithUseLimitAndNoUserOnClient()
+    public function testCouponWithUseLimitAndNoUserOnClient(): void
     {
         $this->updateOrderCoupon([
             'perUserLimit' => '1'
@@ -174,7 +173,7 @@ class DiscountsTest extends Unit
     /**
      * @throws Exception
      */
-    public function testCouponPerUserLimit()
+    public function testCouponPerUserLimit(): void
     {
         $this->updateOrderCoupon([
             'perUserLimit' => '1'
@@ -201,7 +200,7 @@ class DiscountsTest extends Unit
      * @todo Replace stub with fixture data. #COM-54
      *
      */
-    public function testCouponPerEmailLimit()
+    public function testCouponPerEmailLimit(): void
     {
         $this->updateOrderCoupon([
             'perEmailLimit' => '1'
@@ -232,7 +231,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testLineItemMatchingSuccess()
+    public function testLineItemMatchingSuccess(): void
     {
         $this->matchLineItems(
             ['couponCode' => null],
@@ -246,7 +245,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testLineItemMatchingSaleFail()
+    public function testLineItemMatchingSaleFail(): void
     {
         $this->matchLineItems(
             ['couponCode' => null],
@@ -260,7 +259,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testLineItemMatchingIfNotPromotable()
+    public function testLineItemMatchingIfNotPromotable(): void
     {
         $this->matchLineItems(
             ['couponCode' => null],
@@ -277,7 +276,7 @@ class DiscountsTest extends Unit
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public function testOrderCompleteHandler()
+    public function testOrderCompleteHandler(): void
     {
         // TODO: Update this test to create a full real order that saves. #COM-54
 
@@ -333,7 +332,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testVoidIfNoCouponCode()
+    public function testVoidIfNoCouponCode(): void
     {
         $order = new Order(['couponCode' => null]);
         self::assertNull(
@@ -344,7 +343,7 @@ class DiscountsTest extends Unit
     /**
      *
      */
-    public function testVoidIfInvalidCouponCode()
+    public function testVoidIfInvalidCouponCode(): void
     {
         $order = new Order(['couponCode' => 'i_dont_exist_as_coupon']);
         self::assertNull(
@@ -358,14 +357,10 @@ class DiscountsTest extends Unit
      * @param array $discountConfig
      * @param array $purchasableConfig
      * @param bool $desiredResult
+     * @throws \Exception
      */
-    protected function matchLineItems(
-        array $orderConfig,
-        array $lineItemConfig,
-        array $discountConfig,
-        array $purchasableConfig,
-        bool $desiredResult
-    ) {
+    protected function matchLineItems(array $orderConfig, array $lineItemConfig, array $discountConfig, array $purchasableConfig, bool $desiredResult)
+    {
         $order = new Order($orderConfig);
         $lineItem = new LineItem($lineItemConfig);
         $lineItem->setOrder($order);

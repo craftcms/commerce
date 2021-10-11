@@ -25,17 +25,17 @@ abstract class CommerceUiAsset extends AssetBundle
     /**
      * @var string
      */
-    protected $appJs = 'app.js';
+    protected string $appJs = 'app.js';
 
     /**
      * @var string
      */
-    protected $appCss = 'app.css';
+    protected string $appCss = 'app.css';
 
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist/';
 
@@ -46,9 +46,7 @@ abstract class CommerceUiAsset extends AssetBundle
             TimepickerAsset::class,
         ];
 
-        if ($this->getDevServer()) {
-            // Development
-            $devServer = static::getDevServer();
+        if ($devServer = self::getDevServer()) {
             $this->js[] = $devServer . '/' . $this->appJs;
         } else {
             // Production

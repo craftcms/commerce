@@ -21,5 +21,5 @@ class TransactionEvent extends Event
     /**
      * @var Transaction The transaction model
      */
-    public $transaction;
+    public Transaction $transaction;
 }

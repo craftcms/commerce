@@ -22,7 +22,6 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\i18n\Locale;
-use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
@@ -45,7 +44,7 @@ class DiscountsController extends BaseCpController
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
         $this->requirePermission('commerce-managePromotions');
@@ -92,7 +91,7 @@ class DiscountsController extends BaseCpController
     /**
      * @throws HttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -106,7 +105,7 @@ class DiscountsController extends BaseCpController
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');
-        $discount->percentDiscount = $request->getBodyParam('percentDiscount');
+        $discount->percentDiscount = (float)$request->getBodyParam('percentDiscount');
         $discount->percentageOffSubject = $request->getBodyParam('percentageOffSubject');
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
@@ -121,7 +120,7 @@ class DiscountsController extends BaseCpController
         $discount->appliedTo = $request->getBodyParam('appliedTo') ?: DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
         $discount->orderConditionFormula = $request->getBodyParam('orderConditionFormula');
         $discount->userGroupsCondition = $request->getBodyParam('userGroupsCondition');
-            
+
         $baseDiscount = $request->getBodyParam('baseDiscount') ?: 0;
         $baseDiscount = Localization::normalizeNumber($baseDiscount);
         $discount->baseDiscount = $baseDiscount * -1;
@@ -173,8 +172,7 @@ class DiscountsController extends BaseCpController
 
         $groups = $request->getBodyParam('groups', []);
 
-        if($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE)
-        {
+        if ($discount->userGroupsCondition == DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
             $groups = [];
         }
 
@@ -195,7 +193,7 @@ class DiscountsController extends BaseCpController
 
         // Send the model back to the template
         $variables = [
-            'discount' => $discount
+            'discount' => $discount,
         ];
         $this->_populateVariables($variables);
 
@@ -203,7 +201,8 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     *
+     * @return Response
+     * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
     {
@@ -290,7 +289,7 @@ class DiscountsController extends BaseCpController
      * @throws BadRequestHttpException
      * @since 3.0
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
@@ -318,7 +317,6 @@ class DiscountsController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws InvalidConfigException
      */
     public function actionGetDiscountsByPurchasableId(): Response
     {
@@ -357,7 +355,7 @@ class DiscountsController extends BaseCpController
     /**
      * @param array $variables
      */
-    private function _populateVariables(&$variables)
+    private function _populateVariables(array &$variables): void
     {
         if ($variables['discount']->id) {
             $variables['title'] = $variables['discount']->name;
@@ -429,7 +427,7 @@ class DiscountsController extends BaseCpController
 
         $variables['categoryElementType'] = Category::class;
         $variables['categories'] = null;
-        $categories = $categoryIds = [];
+        $categories = [];
 
         if (empty($variables['id']) && Craft::$app->getRequest()->getParam('categoryIds')) {
             $categoryIds = explode('|', Craft::$app->getRequest()->getParam('categoryIds'));
@@ -452,7 +450,7 @@ class DiscountsController extends BaseCpController
 
         $variables['appliedTo'] = [
             DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS => Craft::t('commerce', 'Discount the matching items only'),
-            DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS => Craft::t('commerce', 'Discount all line items')
+            DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS => Craft::t('commerce', 'Discount all line items'),
         ];
 
         $variables['purchasables'] = null;
@@ -492,7 +490,7 @@ class DiscountsController extends BaseCpController
         foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
                 'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
+                'elementType' => $purchasableType,
             ];
         }
     }

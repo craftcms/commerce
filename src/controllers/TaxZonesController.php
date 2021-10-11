@@ -10,6 +10,10 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -66,8 +70,10 @@ class TaxZonesController extends BaseTaxSettingsController
 
     /**
      * @return null|Response
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -115,7 +121,7 @@ class TaxZonesController extends BaseTaxSettingsController
         } else {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'errors' => $taxZone->getErrors()
+                    'errors' => $taxZone->getErrors(),
                 ]);
             }
 
@@ -144,10 +150,12 @@ class TaxZonesController extends BaseTaxSettingsController
 
     /**
      * @return Response
-     * @throws \yii\web\BadRequestHttpException
+     * @throws BadRequestHttpException
+     * @throws LoaderError
+     * @throws SyntaxError
      * @since 2.2
      */
-    public function actionTestZip()
+    public function actionTestZip(): Response
     {
         $this->requirePostRequest();
         $this->requireAcceptsJson();

@@ -14,6 +14,7 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\PaymentSource as PaymentSourceRecord;
 use craft\elements\User;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Payment source model
@@ -26,44 +27,44 @@ use craft\validators\UniqueValidator;
 class PaymentSource extends Model
 {
     /**
-     * @var int Payment source ID
+     * @var int|null Payment source ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int The user ID
      */
-    public $userId;
+    public int $userId;
 
     /**
      * @var int The gateway ID.
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var string Token
      */
-    public $token;
+    public string $token;
 
     /**
      * @var string Description
      */
-    public $description;
+    public string $description;
 
     /**
      * @var string Response data
      */
-    public $response;
+    public string $response;
 
     /**
      * @var User|null $_user
      */
-    private $_user;
+    private ?User $_user;
 
     /**
      * @var GatewayInterface|null $_gateway
      */
-    private $_gateway;
+    private ?GatewayInterface $_gateway;
 
 
     /**
@@ -83,7 +84,7 @@ class PaymentSource extends Model
      */
     public function getUser()
     {
-        if (null === $this->_user) {
+        if (!isset($this->_user)) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
@@ -94,10 +95,11 @@ class PaymentSource extends Model
      * Returns the gateway associated with this payment source.
      *
      * @return GatewayInterface|null
+     * @throws InvalidConfigException
      */
     public function getGateway()
     {
-        if (null === $this->_gateway) {
+        if (isset($this->_gateway)) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -107,13 +109,11 @@ class PaymentSource extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class];
-        $rules[] = [['gatewayId', 'userId', 'token', 'description'], 'required'];
-
-        return $rules;
+        return [
+            [['token'], UniqueValidator::class, 'targetAttribute' => ['gatewayId', 'token'], 'targetClass' => PaymentSourceRecord::class],
+            [['gatewayId', 'userId', 'token', 'description'], 'required'],
+        ];
     }
 }

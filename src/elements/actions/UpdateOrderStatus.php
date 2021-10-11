@@ -27,12 +27,12 @@ class UpdateOrderStatus extends ElementAction
     /**
      * @var int
      */
-    public $orderStatusId;
+    public int $orderStatusId;
 
     /**
      * @var string
      */
-    public $message;
+    public string $message;
 
 
     /**
@@ -46,7 +46,7 @@ class UpdateOrderStatus extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $orderStatuses = Json::encode(array_values(Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses()));
         $type = Json::encode(static::class);

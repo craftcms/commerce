@@ -25,23 +25,21 @@ class TotalOrdersByCountry extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalOrdersByCountry';
+    protected string $_handle = 'totalOrdersByCountry';
 
     /**
      * @var string Type of stat e.g. 'shipping' or 'billing'.
      */
-    public $type = 'shipping';
+    public string $type = 'shipping';
 
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }

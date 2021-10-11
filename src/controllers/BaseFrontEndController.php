@@ -9,7 +9,6 @@ namespace craft\commerce\controllers;
 
 use craft\commerce\elements\Order;
 use craft\commerce\events\ModifyCartInfoEvent;
-use craft\commerce\Plugin;
 
 /**
  * Class BaseFrontEndController
@@ -47,20 +46,16 @@ class BaseFrontEndController extends BaseController
      */
     protected $allowAnonymous = true;
 
-
     /**
      * @param Order $cart
      * @return array
      */
     protected function cartArray(Order $cart): array
     {
-        // Typecast order attributes
-        $cart->typeCastAttributes();
-
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
-            'notices'
+            'notices',
         ];
 
         $cartInfo = $cart->toArray([], $extraFields);
@@ -68,7 +63,7 @@ class BaseFrontEndController extends BaseController
         // Fire a 'modifyCartContent' event
         $event = new ModifyCartInfoEvent([
             'cartInfo' => $cartInfo,
-            'cart' => $cart
+            'cart' => $cart,
         ]);
 
         $this->trigger(self::EVENT_MODIFY_CART_INFO, $event);

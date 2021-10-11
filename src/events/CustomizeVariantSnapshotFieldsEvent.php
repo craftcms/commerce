@@ -21,10 +21,10 @@ class CustomizeVariantSnapshotFieldsEvent extends Event
     /**
      * @var Variant The variant
      */
-    public $variant;
+    public Variant $variant;
 
     /**
      * @var array|null The fields to be captured
      */
-    public $fields;
+    public ?array $fields;
 }

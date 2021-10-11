@@ -18,9 +18,9 @@ use craft\base\Model as BaseModel;
 class Model extends BaseModel
 {
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = parent::fields();
 

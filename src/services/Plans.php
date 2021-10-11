@@ -20,6 +20,7 @@ use craft\helpers\Db;
 use DateTime;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\db\Exception;
 
 /**
  * Plans service.
@@ -90,7 +91,7 @@ class Plans extends Component
      * @var Plan[]|null
      * @since 3.2.8
      */
-    private $_allPlans;
+    private ?array $_allPlans = null;
 
     /**
      * Returns all subscription plans
@@ -106,6 +107,7 @@ class Plans extends Component
      * Returns all enabled subscription plans
      *
      * @return Plan[]
+     * @noinspection PhpUnused
      */
     public function getAllEnabledPlans(): array
     {
@@ -118,9 +120,21 @@ class Plans extends Component
      * @param int $gatewayId
      * @return Plan[]
      */
-    public function getAllGatewayPlans(int $gatewayId): array
+    public function getPlansByGatewayId(int $gatewayId): array
     {
         return ArrayHelper::whereMultiple($this->_getAllPlans(), ['gatewayId' => $gatewayId, 'isArchived' => false]);
+    }
+
+    /**
+     * Return all subscription plans for a gateway.
+     *
+     * @param int $gatewayId
+     * @return Plan[]
+     * @deprecated in 4.0. Use [[getAllPlansByGatewayId]] instead.
+     */
+    public function getAllGatewayPlans(int $gatewayId): array
+    {
+        return $this->getPlansByGatewayId($gatewayId);
     }
 
     /**
@@ -129,7 +143,7 @@ class Plans extends Component
      * @param int $planId The plan id.
      * @return Plan|null
      */
-    public function getPlanById(int $planId)
+    public function getPlanById(int $planId): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'id', $planId);
     }
@@ -140,7 +154,7 @@ class Plans extends Component
      * @param string $planUid The plan uid.
      * @return Plan|null
      */
-    public function getPlanByUid(string $planUid)
+    public function getPlanByUid(string $planUid): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'uid', $planUid);
     }
@@ -150,8 +164,9 @@ class Plans extends Component
      *
      * @param string $handle the plan handle
      * @return Plan|null
+     * @noinspection PhpUnused
      */
-    public function getPlanByHandle(string $handle)
+    public function getPlanByHandle(string $handle): ?Plan
     {
         return ArrayHelper::firstValue(ArrayHelper::whereMultiple($this->_getAllPlans(), ['handle' => $handle, 'isArchived' => false]));
     }
@@ -162,7 +177,7 @@ class Plans extends Component
      * @param string $reference the plan reference
      * @return Plan|null
      */
-    public function getPlanByReference(string $reference)
+    public function getPlanByReference(string $reference): ?Plan
     {
         return ArrayHelper::firstWhere($this->_getAllPlans(), 'reference', $reference);
     }
@@ -172,6 +187,7 @@ class Plans extends Component
      *
      * @param int $entryId The Entry ID to search by
      * @return Plan[]
+     * @noinspection PhpUnused
      */
     public function getPlansByInformationEntryId(int $entryId): array
     {
@@ -274,6 +290,7 @@ class Plans extends Component
      *
      * @param array $ids Array of plans.
      * @return bool Always true.
+     * @throws Exception
      */
     public function reorderPlans(array $ids): bool
     {
@@ -367,7 +384,7 @@ class Plans extends Component
      * @return array
      * @since 3.2.8
      */
-    private function _getAllPlans()
+    private function _getAllPlans(): ?array
     {
         if ($this->_allPlans === null) {
             $plans = $this->_createPlansQuery()->all();

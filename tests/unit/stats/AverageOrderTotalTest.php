@@ -24,7 +24,7 @@ class AverageOrderTotalTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array

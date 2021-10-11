@@ -16,7 +16,8 @@ use craft\db\SoftDeleteTrait;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
-use yii\behaviors\AttributeTypecastBehavior;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Order status model.
@@ -36,71 +37,56 @@ class OrderStatus extends Model
     }
 
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var string Color
      */
-    public $color = 'green';
+    public string $color = 'green';
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
-     * @var int Sort order
+     * @var int|null Sort order
      */
-    public $sortOrder;
-
-    /**
-     * @var bool Default status
-     */
-    public $default;
+    public ?int $sortOrder = null;
 
     /**
      * @var bool Default status
      */
-    public $dateDeleted;
+    public bool $default = false;
 
     /**
-     * @var string UID
+     * @var DateTime|null Date deleted
      */
-    public $uid;
+    public ?DateTime $dateDeleted = null;
+
+    /**
+     * @var string|null UID
+     */
+    public ?string $uid = null;
 
     /**
      * @return array
      */
     public function behaviors(): array
     {
-        $behaviors = $this->softDeleteBehaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'name' => AttributeTypecastBehavior::TYPE_STRING,
-                'handle' => AttributeTypecastBehavior::TYPE_STRING,
-                'color' => AttributeTypecastBehavior::TYPE_STRING,
-                'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
-                'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
-        return $behaviors;
+        return $this->softDeleteBehaviors();
     }
 
     /**
@@ -127,19 +113,17 @@ class OrderStatus extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        return [
+            [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [
+                ['handle'],
+                HandleValidator::class,
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new'],
+            ],
         ];
-
-        return $rules;
     }
 
     /**
@@ -152,6 +136,7 @@ class OrderStatus extends Model
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getEmailIds(): array
     {
@@ -160,6 +145,7 @@ class OrderStatus extends Model
 
     /**
      * @return Email[]
+     * @throws InvalidConfigException
      */
     public function getEmails(): array
     {

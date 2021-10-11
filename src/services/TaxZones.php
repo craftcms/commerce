@@ -17,9 +17,12 @@ use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\caching\TagDependency;
+use yii\db\StaleObjectException;
 
 /**
  * Tax zone service.
@@ -31,15 +34,9 @@ use yii\caching\TagDependency;
 class TaxZones extends Component
 {
     /**
-     * @var bool
+     * @var TaxAddressZone[]|null
      */
-    private $_fetchedAllTaxZones = false;
-
-    /**
-     * @var TaxAddressZone[]
-     */
-    private $_allTaxZones;
-
+    private ?array $_allTaxZones = null;
 
     /**
      * Get all tax zones.
@@ -48,18 +45,15 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (!$this->_fetchedAllTaxZones) {
-            $this->_allTaxZones = [];
+        if (null === $this->_allTaxZones) {
             $rows = $this->_createTaxZonesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxZones[$row['id']] = new TaxAddressZone($row);
             }
-
-            $this->_fetchedAllTaxZones = true;
         }
 
-        return $this->_allTaxZones;
+        return $this->_allTaxZones ?? [];
     }
 
     /**
@@ -68,25 +62,9 @@ class TaxZones extends Component
      * @param int $id
      * @return TaxAddressZone|null
      */
-    public function getTaxZoneById($id)
+    public function getTaxZoneById(int $id): ?TaxAddressZone
     {
-        if (isset($this->_allTaxZones[$id])) {
-            return $this->_allTaxZones[$id];
-        }
-
-        if ($this->_fetchedAllTaxZones) {
-            return null;
-        }
-
-        $result = $this->_createTaxZonesQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_allTaxZones[$id] = new TaxAddressZone($result);
+        return ArrayHelper::firstWhere($this->getAllTaxZones(), 'id', $id);
     }
 
     /**
@@ -199,10 +177,12 @@ class TaxZones extends Component
     }
 
     /**
-     * @param $id
+     * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteTaxZoneById($id): bool
+    public function deleteTaxZoneById(int $id): bool
     {
         $record = TaxZoneRecord::findOne($id);
 
@@ -212,7 +192,6 @@ class TaxZones extends Component
 
         return false;
     }
-
 
     /**
      * Returns a Query object prepped for retrieving tax zones.

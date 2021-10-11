@@ -10,6 +10,8 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\Plugin;
 use craft\web\Controller;
+use yii\web\BadRequestHttpException;
+use yii\web\Response;
 
 /**
  * Class BaseCp
@@ -20,10 +22,10 @@ use craft\web\Controller;
 class FormulasController extends Controller
 {
     /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
+     * @return Response
+     * @throws BadRequestHttpException
      */
-    public function actionValidateCondition()
+    public function actionValidateCondition(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
@@ -45,10 +47,10 @@ class FormulasController extends Controller
     }
 
     /**
-     * @return \yii\web\Response
-     * @throws \yii\web\BadRequestHttpException
+     * @return Response
+     * @throws BadRequestHttpException
      */
-    public function actionValidateFormula()
+    public function actionValidateFormula(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();

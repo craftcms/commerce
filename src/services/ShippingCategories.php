@@ -15,14 +15,17 @@ use craft\commerce\records\ShippingCategory as ShippingCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping category service.
  *
  * @property array|ShippingCategory[] $allShippingCategories all Shipping Categories
+ * @property-read array $allShippingCategoriesAsList
  * @property null|ShippingCategory $defaultShippingCategory the default shipping category
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -32,7 +35,7 @@ class ShippingCategories extends Component
     /**
      * @var ShippingCategory[]|null
      */
-    private $_allShippingCategories = null;
+    private ?array $_allShippingCategories = null;
 
     /**
      * Returns all Shipping Categories
@@ -72,7 +75,7 @@ class ShippingCategories extends Component
      * @param int $shippingCategoryId
      * @return ShippingCategory|null
      */
-    public function getShippingCategoryById(int $shippingCategoryId)
+    public function getShippingCategoryById(int $shippingCategoryId): ?ShippingCategory
     {
         $categories = $this->getAllShippingCategories();
 
@@ -84,8 +87,9 @@ class ShippingCategories extends Component
      *
      * @param string $shippingCategoryHandle
      * @return ShippingCategory|null
+     * @noinspection PhpUnused
      */
-    public function getShippingCategoryByHandle(string $shippingCategoryHandle)
+    public function getShippingCategoryByHandle(string $shippingCategoryHandle): ?ShippingCategory
     {
         $categories = $this->getAllShippingCategories();
 
@@ -204,7 +208,7 @@ class ShippingCategories extends Component
      *
      * @param int $productTypeId
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId)
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
             'elementType' => Product::class,
@@ -213,15 +217,17 @@ class ShippingCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-            ]
+            ],
         ]));
     }
 
     /**
      * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteShippingCategoryById($id): bool
+    public function deleteShippingCategoryById(int $id): bool
     {
         $all = $this->getAllShippingCategories();
         if (count($all) === 1) {
@@ -243,6 +249,7 @@ class ShippingCategories extends Component
     /**
      * @param $productTypeId
      * @return array
+     * @throws InvalidConfigException
      */
     public function getShippingCategoriesByProductTypeId($productTypeId): array
     {

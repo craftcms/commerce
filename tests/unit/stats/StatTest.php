@@ -9,8 +9,11 @@ namespace craftcommercetests\unit\stats;
 
 use Codeception\Test\Unit;
 use craft\commerce\base\Stat;
+use DateInterval;
 use DateTime;
+use DateTimeZone;
 use UnitTester;
+use yii\base\Exception;
 
 /**
  * StatTest
@@ -23,17 +26,17 @@ class StatTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var DateTime
      */
-    protected $today;
+    protected DateTime $today;
 
     /**
      * @var DateTime
      */
-    protected $yesterday;
+    protected DateTime $yesterday;
 
     /**
      * @dataProvider instantiateDatesDataProvider
@@ -41,7 +44,7 @@ class StatTest extends Unit
      * @param string $dateRange
      * @param DateTime $startDate
      * @param DateTime $endDate
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function testInstantiateDates(string $dateRange, DateTime $startDate, DateTime $endDate): void
     {
@@ -57,12 +60,14 @@ class StatTest extends Unit
     /**
      * @dataProvider predefinedDateRangesDataProvider
      *
-     * @param $dateRange
-     * @param $startDate
-     * @param $endDate
-     * @param $keysCount
+     * @param string $dateRange
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @param int $keysCount
+     * @param bool $keyedByDays
+     * @throws Exception
      */
-    public function testPredefinedDateRanges($dateRange, $startDate, $endDate, $keysCount, $keyedByDays = true)
+    public function testPredefinedDateRanges(string $dateRange, DateTime $startDate, DateTime $endDate, int $keysCount, bool $keyedByDays = true): void
     {
         $format = $keyedByDays ? 'Y-m-d' : 'Y-n';
         $stat = $this->_createStatClass($dateRange, $startDate, $endDate);
@@ -73,9 +78,9 @@ class StatTest extends Unit
             self::assertArrayHasKey($startDate->format($format), $data);
 
             if ($keyedByDays) {
-                $startDate->add(new \DateInterval('P1D'));
+                $startDate->add(new DateInterval('P1D'));
             } else {
-                $startDate->add(new \DateInterval('P1M'));
+                $startDate->add(new DateInterval('P1M'));
             }
         }
 
@@ -93,7 +98,7 @@ class StatTest extends Unit
     {
         return new class($range, $start, $end) extends Stat {
             // Prevent caching
-            public $cache = false;
+            public bool $cache = false;
 
             // Implement getData method
             public function getData()
@@ -107,11 +112,12 @@ class StatTest extends Unit
      * @before createDates
      *
      * @return array
+     * @throws \Exception
      */
     public function instantiateDatesDataProvider(): array
     {
         // @TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
-        $tz = new \DateTimeZone('America/Los_Angeles');
+        $tz = new DateTimeZone('America/Los_Angeles');
 
         return [
             [
@@ -126,14 +132,15 @@ class StatTest extends Unit
      * @before createDates
      *
      * @return array
+     * @throws \Exception
      */
-    public function predefinedDateRangesDataProvider()
+    public function predefinedDateRangesDataProvider(): array
     {
 
         // @TODO figure out how to get this from the test Craft app as it hasn't been instantiated at this point #COM-54
         // Put `tz` into class variable before running the test?
 
-        $tz = new \DateTimeZone('America/Los_Angeles');
+        $tz = new DateTimeZone('America/Los_Angeles');
         $today = (new DateTime('now', $tz))->setTime(0, 0);
 
         return [
@@ -172,7 +179,7 @@ class StatTest extends Unit
                 Stat::DATE_RANGE_THISMONTH,
                 (new DateTime('now', $tz))->setDate($today->format('Y'), $today->format('n'), 1)->setTime(0, 0),
                 clone $today,
-                $today->format('t'),
+                (int)$today->format('t'),
             ],
             [
                 Stat::DATE_RANGE_THISWEEK,

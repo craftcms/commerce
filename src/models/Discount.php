@@ -25,6 +25,7 @@ use DateTime;
  * @property-read string $percentDiscountAsPercent
  * @property array $categoryIds
  * @property array $purchasableIds
+ * @property-read array $userGroupsConditions
  * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -32,76 +33,76 @@ use DateTime;
 class Discount extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Name of the discount
      */
-    public $name;
+    public string $name = '';
 
     /**
-     * @var string The description of this discount
+     * @var string|null The description of this discount
      */
-    public $description;
+    public ?string $description = null;
 
     /**
-     * @var string Coupon Code
+     * @var string|null Coupon Code
      */
-    public $code;
+    public ?string $code = null;
 
     /**
      * @var int Per user coupon use limit
      */
-    public $perUserLimit = 0;
+    public int $perUserLimit = 0;
 
     /**
      * @var int Per email coupon use limit
      */
-    public $perEmailLimit = 0;
+    public int $perEmailLimit = 0;
 
     /**
      * @var int Total use limit by guests or users
      * @since 3.0
      */
-    public $totalDiscountUseLimit = 0;
+    public int $totalDiscountUseLimit = 0;
 
     /**
      * @var int Total use counter;
      * @since 3.0
      */
-    public $totalDiscountUses = 0;
+    public int $totalDiscountUses = 0;
 
     /**
      * @var DateTime|null Date the discount is valid from
      */
-    public $dateFrom;
+    public ?DateTime $dateFrom = null;
 
     /**
      * @var DateTime|null Date the discount is valid to
      */
-    public $dateTo;
+    public ?DateTime $dateTo = null;
 
     /**
      * @var float Total minimum spend on matching items
      */
-    public $purchaseTotal = 0;
+    public float $purchaseTotal = 0;
 
     /**
      * @var string|null Condition that must match to match the order, null or empty string means match all
      */
-    public $orderConditionFormula;
+    public ?string $orderConditionFormula = null;
 
     /**
      * @var int Total minimum qty of matching items
      */
-    public $purchaseQty = 0;
+    public int $purchaseQty = 0;
 
     /**
      * @var int Total maximum spend on matching items
      */
-    public $maxPurchaseQty = 0;
+    public int $maxPurchaseQty = 0;
 
     /**
      * @var float Base amount of discount
@@ -111,87 +112,87 @@ class Discount extends Model
     /**
      * @var string Type of discount for the base discount e.g. currency value or percentage
      */
-    public $baseDiscountType;
+    public string $baseDiscountType = DiscountRecord::BASE_DISCOUNT_TYPE_VALUE;
 
     /**
      * @var float Amount of discount per item
      */
-    public $perItemDiscount;
+    public float $perItemDiscount = 0.0;
 
     /**
      * @var float Percentage of amount discount per item
      */
-    public $percentDiscount;
+    public float $percentDiscount = 0.0;
 
     /**
      * @var string Whether the discount is off the original price, or the already discount price.
      */
-    public $percentageOffSubject;
+    public string $percentageOffSubject = DiscountRecord::TYPE_DISCOUNTED_SALEPRICE;
 
     /**
      * @var bool Exclude the “On Sale” Purchasables
      */
-    public $excludeOnSale;
+    public bool $excludeOnSale = false;
 
     /**
      * @var bool Matching products have free shipping.
      */
-    public $hasFreeShippingForMatchingItems;
+    public bool $hasFreeShippingForMatchingItems = false;
 
     /**
      * @var bool The whole order has free shipping.
      */
-    public $hasFreeShippingForOrder;
-    
+    public bool $hasFreeShippingForOrder = false;
+
     /**
-     * @var string Type of user group condition that should match the discount. (See getUserConditions().)
+     * @var string|null Type of user group condition that should match the discount. (See getUserConditions().)
      */
-    public $userGroupsCondition;
+    public ?string $userGroupsCondition = null;
 
     /**
      * @var bool Match all products
      */
-    public $allPurchasables;
+    public bool $allPurchasables = false;
 
     /**
      * @var bool Match all product types
      */
-    public $allCategories;
+    public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
      */
-    public $categoryRelationshipType;
+    public string $categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
     /**
      * @var bool Discount enabled?
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var bool stopProcessing
      */
-    public $stopProcessing;
+    public bool $stopProcessing = false;
 
     /**
-     * @var int sortOrder
+     * @var int|null sortOrder
      */
-    public $sortOrder;
-
-    /**
-     * @var DateTime|null
-     */
-    public $dateCreated;
+    public ?int $sortOrder = 999999;
 
     /**
      * @var DateTime|null
      */
-    public $dateUpdated;
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Discount ignores sales
      */
-    public $ignoreSales = true;
+    public bool $ignoreSales = true;
 
     /**
      * @var bool What the per item amount and per item percentage off amounts can apply to
@@ -201,29 +202,17 @@ class Discount extends Model
     /**
      * @var int[] Product Ids
      */
-    private $_purchasableIds;
+    private array $_purchasableIds;
 
     /**
      * @var int[] Product Type IDs
      */
-    private $_categoryIds;
+    private array $_categoryIds;
 
     /**
      * @var int[] Group IDs
      */
-    private $_userGroupIds;
-
-    /**
-     * @inheritDoc
-     */
-    public function init()
-    {
-        if ($this->categoryRelationshipType === null) {
-            $this->categoryRelationshipType = DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
-        }
-
-        parent::init();
-    }
+    private array $_userGroupIds;
 
     /**
      * @inheritdoc
@@ -238,9 +227,9 @@ class Discount extends Model
     }
 
     /**
-     * @return string|false
+     * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
     }
@@ -250,7 +239,7 @@ class Discount extends Model
      */
     public function getCategoryIds(): array
     {
-        if (null === $this->_categoryIds) {
+        if (!isset($this->_categoryIds)) {
             $this->_loadCategoryRelations();
         }
 
@@ -262,7 +251,7 @@ class Discount extends Model
      */
     public function getPurchasableIds(): array
     {
-        if (null === $this->_purchasableIds) {
+        if (!isset($this->_purchasableIds)) {
             $this->_loadPurchasableRelations();
         }
 
@@ -274,7 +263,7 @@ class Discount extends Model
      */
     public function getUserGroupIds(): array
     {
-        if (null === $this->_userGroupIds) {
+        if (!isset($this->_userGroupIds)) {
             $this->_loadUserGroupRelations();
         }
 
@@ -286,7 +275,7 @@ class Discount extends Model
      *
      * @param int[] $categoryIds
      */
-    public function setCategoryIds(array $categoryIds)
+    public function setCategoryIds(array $categoryIds): void
     {
         $this->_categoryIds = array_unique($categoryIds);
     }
@@ -296,7 +285,7 @@ class Discount extends Model
      *
      * @param int[] $purchasableIds
      */
-    public function setPurchasableIds(array $purchasableIds)
+    public function setPurchasableIds(array $purchasableIds): void
     {
         $this->_purchasableIds = array_unique($purchasableIds);
     }
@@ -306,7 +295,7 @@ class Discount extends Model
      *
      * @param int[] $userGroupIds
      */
-    public function setUserGroupIds(array $userGroupIds)
+    public function setUserGroupIds(array $userGroupIds): void
     {
         $this->_userGroupIds = array_unique($userGroupIds);
     }
@@ -314,9 +303,9 @@ class Discount extends Model
     /**
      * @param bool $value
      */
-    public function setHasFreeShippingForMatchingItems($value)
+    public function setHasFreeShippingForMatchingItems(bool $value): void
     {
-        $this->hasFreeShippingForMatchingItems = (bool)$value;
+        $this->hasFreeShippingForMatchingItems = $value;
     }
 
     /**
@@ -324,7 +313,7 @@ class Discount extends Model
      */
     public function getHasFreeShippingForMatchingItems(): bool
     {
-        return (bool)$this->hasFreeShippingForMatchingItems;
+        return $this->hasFreeShippingForMatchingItems;
     }
 
     /**
@@ -332,7 +321,7 @@ class Discount extends Model
      */
     public function getPercentDiscountAsPercent(): string
     {
-        if ($this->percentDiscount !== 0) {
+        if (isset($this->percentDiscount) && $this->percentDiscount !== 0.0) {
             $string = (string)$this->percentDiscount;
             $number = rtrim($string, '0');
             $diff = strlen($string) - strlen($number);
@@ -348,84 +337,85 @@ class Discount extends Model
     public function getUserGroupsConditions(): array
     {
         return [
-          DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
-          DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
-          DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:')
+            DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE => Craft::t('commerce', 'All users'),
+            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ALL => Craft::t('commerce', 'Users in all of these groups:'),
+            DiscountRecord::CONDITION_USER_GROUPS_INCLUDE_ANY => Craft::t('commerce', 'Users in any of these groups:'),
+            DiscountRecord::CONDITION_USER_GROUPS_EXCLUDE => Craft::t('commerce', 'Users in none of these groups:'),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [
+        return [
+            [['name'], 'required'],
             [
-                'perUserLimit',
-                'perEmailLimit',
-                'totalDiscountUseLimit',
-                'totalDiscountUses',
-                'purchaseTotal',
-                'purchaseQty',
-                'maxPurchaseQty',
-                'baseDiscount',
-                'perItemDiscount',
-                'percentDiscount'
-            ], 'number', 'skipOnEmpty' => false
-        ];
-        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' =>
                 [
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                    DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-                ]
-        ];
-        $rules[] = [
-            ['appliedTo'], 'in', 'range' =>
-                [
+                    'perUserLimit',
+                    'perEmailLimit',
+                    'totalDiscountUseLimit',
+                    'totalDiscountUses',
+                    'purchaseTotal',
+                    'purchaseQty',
+                    'maxPurchaseQty',
+                    'baseDiscount',
+                    'perItemDiscount',
+                    'percentDiscount',
+                ], 'number', 'skipOnEmpty' => false,
+            ],
+            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [
+                ['categoryRelationshipType'],
+                'in', 'range' => [
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                DiscountRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+            ],
+            ],
+            [
+                ['appliedTo'],
+                'in',
+                'range' => [
                     DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS,
-                    DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS
-                ]
-        ];
-        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']];
-        $rules[] = [
-            'hasFreeShippingForOrder', function($attribute, $params, $validator) {
-                if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
-                    $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
-                }
-            }
-        ];
-        $rules[] = [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true];
-        $rules[] = [
-            'orderConditionFormula', function($attribute, $params, $validator) {
-                if ($this->{$attribute}) {
-                    $order = Order::find()->one();
-                    if (!$order) {
-                        $order = new Order();
+                    DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS,
+                ],
+            ],
+            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [
+                'hasFreeShippingForOrder',
+                function($attribute, $params, $validator) {
+                    if ($this->hasFreeShippingForMatchingItems && $this->hasFreeShippingForOrder) {
+                        $this->addError($attribute, Craft::t('commerce', 'Free shipping can only be for whole order or matching items, not both.'));
                     }
-                    $orderDiscountConditionParams = [
-                        'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress'])
-                    ];
-                    if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
-                        $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                },
+            ],
+            [['orderConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [
+                'orderConditionFormula',
+                function($attribute, $params, $validator) {
+                    if ($this->{$attribute}) {
+                        $order = Order::find()->one();
+                        if (!$order) {
+                            $order = new Order();
+                        }
+                        $orderDiscountConditionParams = [
+                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
+                        ];
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+                            $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
+                        }
                     }
-                }
-            }
+                },
+            ],
         ];
-
-        return $rules;
     }
 
     /**
      * Loads the related purchasable IDs into this discount
      */
-    private function _loadPurchasableRelations()
+    private function _loadPurchasableRelations(): void
     {
         $purchasableIds = (new Query())->select(['dp.purchasableId'])
             ->from(Table::DISCOUNTS . ' discounts')
@@ -439,7 +429,7 @@ class Discount extends Model
     /**
      * Loads the related category IDs into this discount
      */
-    private function _loadCategoryRelations()
+    private function _loadCategoryRelations(): void
     {
         $categoryIds = (new Query())->select(['dpt.categoryId'])
             ->from(Table::DISCOUNTS . ' discounts')
@@ -453,7 +443,7 @@ class Discount extends Model
     /**
      * Loads the related user group IDs into this discount
      */
-    private function _loadUserGroupRelations()
+    private function _loadUserGroupRelations(): void
     {
         $userGroupIds = (new Query())->select(['dug.userGroupId'])
             ->from(Table::DISCOUNTS . ' discounts')

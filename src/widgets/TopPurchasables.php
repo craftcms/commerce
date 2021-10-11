@@ -39,44 +39,44 @@ class TopPurchasables extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
-     * @var string Options 'revenue', 'qty'.
+     * @var string|null Options 'revenue', 'qty'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var string options 'description', 'sku'.
      */
-    public $nameField;
+    public string $nameField;
 
     /**
-     * @var TopProductsStat
+     * @var TopPurchasablesStat
      */
-    private $_stat;
+    private TopPurchasablesStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @var array
      */
-    private $_nameFieldOptions;
+    private array $_nameFieldOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
-        $this->nameField = $this->nameField ?: 'description';
+        $this->nameField = isset($this->nameField) ?: 'description';
 
         $this->_nameFieldOptions = [
             'description' => Craft::t('commerce', 'Description'),
@@ -105,7 +105,8 @@ class TopPurchasables extends Widget
                 break;
             }
         }
-        $this->dateRange = !$this->dateRange ? TopPurchasablesStat::DATE_RANGE_TODAY : $this->dateRange;
+
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopPurchasablesStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopPurchasablesStat(
             $this->dateRange,
@@ -152,7 +153,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -160,9 +161,13 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);

@@ -28,6 +28,7 @@ use function in_array;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  *
+ * @property-read \craft\commerce\models\TaxRate[] $taxRates
  * @property Validator $vatValidator
  */
 class Tax extends Component implements AdjusterInterface
@@ -35,36 +36,36 @@ class Tax extends Component implements AdjusterInterface
     const ADJUSTMENT_TYPE = 'tax';
 
     /**
-     * @var
+     * @var Validator
      */
-    private $_vatValidator;
+    private Validator $_vatValidator;
 
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
-     * @var Address
+     * @var Address|null
      */
-    private $_address;
+    private ?Address $_address = null;
 
     /**
      * @var TaxRate[]
      */
-    private $_taxRates;
+    private array $_taxRates;
 
     /**
      * @var bool
      */
-    private $_isEstimated = false;
+    private bool $_isEstimated = false;
 
     /**
      * Track the additional discounts created inside the tax adjuster per line item
      *
      * @var array
      */
-    private $_costRemovedByLineItem = [];
+    private array $_costRemovedByLineItem = [];
 
     /**
      * Track the additional discounts created inside the tax adjuster for order shipping costs
@@ -92,11 +93,13 @@ class Tax extends Component implements AdjusterInterface
         return $this->_adjustInternal();
     }
 
-    private function _adjustInternal()
+    /**
+     * @return array
+     */
+    private function _adjustInternal(): array
     {
         $adjustments = [];
 
-        /** @var TaxRate $rate */
         foreach ($this->_taxRates as $rate) {
             $newAdjustments = $this->_getAdjustments($rate);
             if ($newAdjustments) {
@@ -114,9 +117,9 @@ class Tax extends Component implements AdjusterInterface
 
     /**
      * @param TaxRate $taxRate
-     * @return OrderAdjustment[]|false
+     * @return OrderAdjustment[]
      */
-    private function _getAdjustments(TaxRate $taxRate)
+    private function _getAdjustments(TaxRate $taxRate): array
     {
         $adjustments = [];
         $hasValidEuVatId = false;
@@ -268,7 +271,7 @@ class Tax extends Component implements AdjusterInterface
     /**
      * @return TaxRate[]
      */
-    protected function getTaxRates()
+    protected function getTaxRates(): array
     {
         return Plugin::getInstance()->getTaxRates()->getAllTaxRates();
     }
@@ -280,7 +283,7 @@ class Tax extends Component implements AdjusterInterface
      * @return float
      * @since 3.1
      */
-    private function _getTaxAmount($taxableAmount, $rate, $included)
+    private function _getTaxAmount($taxableAmount, $rate, $included): float
     {
         if (!$included) {
             $incTax = $taxableAmount * (1 + $rate);
@@ -330,23 +333,23 @@ class Tax extends Component implements AdjusterInterface
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
         if (!$validBusinessTaxId) {
-            $validBusinessTaxId = $this->_validateVatNumber($this->_address->businessTaxId);
+            $validBusinessTaxId = $this->validateVatNumber($this->_address->businessTaxId);
         }
 
         if ($validBusinessTaxId) {
             Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
             return true;
-        } else {
-            Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
-            return false;
         }
+
+        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
+        return false;
     }
 
     /**
      * @param string $businessVatId
      * @return bool
      */
-    private function _validateVatNumber($businessVatId)
+    protected function validateVatNumber(string $businessVatId): bool
     {
         try {
             return $this->_getVatValidator()->validate($businessVatId);
@@ -404,12 +407,10 @@ class Tax extends Component implements AdjusterInterface
     }
 
     /**
-     *
+     * @return Address|null
      */
-    private function _getTaxAddress()
+    private function _getTaxAddress(): ?Address
     {
-        $address = null;
-
         $this->_isEstimated = false;
         if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax) {
             $address = $this->_order->getShippingAddress();

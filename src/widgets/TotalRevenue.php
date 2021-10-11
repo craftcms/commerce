@@ -21,6 +21,7 @@ use craft\helpers\StringHelper;
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -41,25 +42,25 @@ class TotalRevenue extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var bool
      */
-    public $showOrderCount = false;
+    public bool $showOrderCount = false;
 
     /**
      * @var TotalRevenueStat
      */
-    private $_stat;
+    private TotalRevenueStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,
@@ -101,7 +102,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -117,7 +118,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -130,8 +131,7 @@ class TotalRevenue extends Widget
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         if (empty($stats)) {
-            // TODO no stats available message #COM-57
-            return '';
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
         }
 
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);

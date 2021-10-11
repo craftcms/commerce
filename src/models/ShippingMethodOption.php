@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
@@ -27,36 +28,30 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var float Price of the shipping method option
      */
-    public $price;
+    public float $price;
 
     /**
      * @var boolean
      */
-    public $matchesOrder;
+    public bool $matchesOrder;
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -85,16 +80,16 @@ class ShippingMethodOption extends ShippingMethod
     /**
      * @return float
      */
-    public function getPrice()
+    public function getPrice(): float
     {
         return $this->price;
     }
 
     /**
-     * @param $order
+     * @param Order $order
      * @since 3.1.10
      */
-    public function setOrder($order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
     }

@@ -16,8 +16,10 @@ use craft\commerce\records\ShippingRule as ShippingRuleRecord;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping rule service.
@@ -32,8 +34,7 @@ class ShippingRules extends Component
     /**
      * @var null|ShippingRule[]
      */
-    private $_allShippingRules;
-
+    private ?array $_allShippingRules = null;
 
     /**
      * Get all shipping rules.
@@ -62,7 +63,7 @@ class ShippingRules extends Component
      * @param int $id
      * @return ShippingRule[]
      */
-    public function getAllShippingRulesByShippingMethodId($id): array
+    public function getAllShippingRulesByShippingMethodId(int $id): array
     {
         return ArrayHelper::where($this->getAllShippingRules(), 'methodId', $id);
     }
@@ -73,7 +74,7 @@ class ShippingRules extends Component
      * @param int $id
      * @return ShippingRule|null
      */
-    public function getShippingRuleById($id)
+    public function getShippingRuleById(int $id): ?ShippingRule
     {
         return ArrayHelper::firstWhere($this->getAllShippingRules(), 'id', $id);
     }
@@ -124,7 +125,7 @@ class ShippingRules extends Component
             'percentageRate',
             'minRate',
             'maxRate',
-            'isLite'
+            'isLite',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
@@ -135,7 +136,7 @@ class ShippingRules extends Component
         if (empty($record->priority) && empty($model->priority)) {
             $count = ShippingRuleRecord::find()->where(['methodId' => $model->methodId])->count();
             $record->priority = $model->priority = $count + 1;
-        } elseif ($model->priority) {
+        } else if ($model->priority) {
             $record->priority = $model->priority;
         } else {
             $model->priority = $record->priority;
@@ -158,13 +159,13 @@ class ShippingRules extends Component
                     'condition' => $ruleCategory->condition,
                     'perItemRate' => $ruleCategory->perItemRate,
                     'weightRate' => $ruleCategory->weightRate,
-                    'percentageRate' => $ruleCategory->percentageRate
+                    'percentageRate' => $ruleCategory->percentageRate,
                 ]);
             } else {
                 $ruleCategory = new ShippingRuleCategory([
                     'shippingRuleId' => $model->id,
                     'shippingCategoryId' => $shippingCategory->id,
-                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW
+                    'condition' => ShippingRuleCategoryRecord::CONDITION_ALLOW,
                 ]);
             }
 
@@ -199,7 +200,7 @@ class ShippingRules extends Component
     }
 
     /**
-     * Gets the the lite shipping rule or returns a new one.
+     * Gets the lite shipping rule or returns a new one.
      *
      * @return ShippingRule
      */
@@ -227,6 +228,7 @@ class ShippingRules extends Component
      *
      * @param array $ids
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderShippingRules(array $ids): bool
     {
@@ -243,8 +245,10 @@ class ShippingRules extends Component
      *
      * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteShippingRuleById($id): bool
+    public function deleteShippingRuleById(int $id): bool
     {
         $record = ShippingRuleRecord::findOne($id);
 

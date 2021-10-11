@@ -13,9 +13,14 @@ use craft\commerce\models\Email;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Emails Controller
@@ -27,6 +32,7 @@ class EmailsController extends BaseAdminController
 {
     /**
      * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -68,9 +74,9 @@ class EmailsController extends BaseAdminController
         $variables['pdfList'] = $pdfList;
 
         $emailLanguageOptions = [
-            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
-        
+
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);
@@ -79,8 +85,12 @@ class EmailsController extends BaseAdminController
     /**
      * @return null|Response
      * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -107,17 +117,17 @@ class EmailsController extends BaseAdminController
         $email->enabled = (bool)Craft::$app->getRequest()->getBodyParam('enabled');
         $email->templatePath = Craft::$app->getRequest()->getBodyParam('templatePath');
         $email->plainTextTemplatePath = Craft::$app->getRequest()->getBodyParam('plainTextTemplatePath');
-        $email->pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
+        $pdfId = Craft::$app->getRequest()->getBodyParam('pdfId');
+        $email->pdfId = $pdfId ?: null;
         $email->language = Craft::$app->getRequest()->getBodyParam('language');
 
         // Save it
         if ($emailsService->saveEmail($email)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Email saved.'));
             return $this->redirectToPostedUrl($email);
-        } else {
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         }
 
+        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save email.'));
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams(['email' => $email]);
 

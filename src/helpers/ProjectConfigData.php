@@ -42,7 +42,7 @@ class ProjectConfigData
             $output['orders'] = [
                 'fieldLayouts' => [
                     $orderFieldLayout->uid => $orderFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
@@ -56,7 +56,7 @@ class ProjectConfigData
             $output['subscriptions'] = [
                 'fieldLayouts' => [
                     $subscriptionFieldLayout->uid => $subscriptionFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
@@ -114,7 +114,7 @@ class ProjectConfigData
                 'name',
                 'productTitleFormat',
                 'skuFormat',
-                'titleFormat',
+                'variantTitleFormat',
                 'uid',
                 'variantFieldLayoutId',
             ])

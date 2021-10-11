@@ -11,6 +11,8 @@ use Codeception\Test\Unit;
 use craft\commerce\stats\NewCustomers;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -24,7 +26,7 @@ class NewCustomersTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -45,8 +47,9 @@ class NewCustomersTest extends Unit
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param float|null $count
+     * @throws \yii\base\Exception
      */
-    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, $count): void
+    public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, ?float $count): void
     {
         $stat = new NewCustomers($dateRange, $startDate, $endDate);
         $data = $stat->get();
@@ -57,20 +60,21 @@ class NewCustomersTest extends Unit
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
         return [
             [
                 NewCustomers::DATE_RANGE_TODAY,
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
             ],
             [
                 NewCustomers::DATE_RANGE_CUSTOM,
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
             ],
         ];

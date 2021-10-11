@@ -33,12 +33,12 @@ class Donation extends Purchasable
     /**
      * @var bool Is the product available for purchase.
      */
-    public $availableForPurchase;
+    public bool $availableForPurchase = false;
 
     /**
      * @var string The SKU
      */
-    private $_sku;
+    private string $_sku;
 
     /**
      * @return array
@@ -51,7 +51,7 @@ class Donation extends Purchasable
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => $this->_order->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
             'currencyAttributes' => $this->currencyAttributes(),
-            'attributeCurrencyMap' => []
+            'attributeCurrencyMap' => [],
         ];
 
         return $behaviors;
@@ -64,7 +64,7 @@ class Donation extends Purchasable
     {
         return [
             'price',
-            'salePrice'
+            'salePrice',
         ];
     }
 
@@ -75,7 +75,7 @@ class Donation extends Purchasable
     {
         $fields = parent::fields();
 
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event  #COM-27
+        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
         if ($this->getBehavior('currencyAttributes')) {
             $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
         }
@@ -135,7 +135,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): string
     {
         return 'donation';
     }
@@ -186,7 +186,7 @@ class Donation extends Purchasable
     /**
      * @param string|null $value
      */
-    public function setSku($value)
+    public function setSku(?string $value): void
     {
         $this->_sku = $value;
     }
@@ -218,7 +218,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function populateLineItem(LineItem $lineItem)
+    public function populateLineItem(LineItem $lineItem): void
     {
         $options = $lineItem->getOptions();
         if (isset($options['donationAmount'])) {
@@ -246,8 +246,8 @@ class Donation extends Purchasable
                     if (isset($options['donationAmount']) && $options['donationAmount'] == 0) {
                         $validator->addError($lineItem, $attribute, Craft::t('commerce', 'Donation can not be zero.'));
                     }
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -264,14 +264,14 @@ class Donation extends Purchasable
      */
     public function getIsAvailable(): bool
     {
-        return (bool)$this->availableForPurchase;
+        return $this->availableForPurchase;
     }
 
     /**
      * @param bool $isNew
      * @throws Exception
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $record = DonationRecord::findOne($this->id);
@@ -293,14 +293,6 @@ class Donation extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function isSelectable(): bool
-    {
-        return true;
+        parent::afterSave($isNew);
     }
 }

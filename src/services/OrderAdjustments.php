@@ -22,10 +22,13 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Order adjustment service.
  *
+ * @property-read array $discountAdjusters
  * @property AdjusterInterface[] $adjusters
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -76,6 +79,7 @@ class OrderAdjustments extends Component
      * Get all order adjusters.
      *
      * @return string[]
+     * @throws InvalidConfigException
      */
     public function getAdjusters(): array
     {
@@ -95,7 +99,7 @@ class OrderAdjustments extends Component
         }
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $adjusters
+            'types' => $adjusters,
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {
@@ -111,7 +115,7 @@ class OrderAdjustments extends Component
      * @param int $id
      * @return OrderAdjustment|null
      */
-    public function getOrderAdjustmentById(int $id)
+    public function getOrderAdjustmentById(int $id): ?OrderAdjustment
     {
         $row = $this->_createOrderAdjustmentQuery()
             ->where(['id' => $id])
@@ -122,9 +126,7 @@ class OrderAdjustments extends Component
         }
 
         $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-        $adjustment = new OrderAdjustment($row);
-        $adjustment->typecastAttributes();
-        return $adjustment;
+        return new OrderAdjustment($row);
     }
 
     /**
@@ -133,7 +135,7 @@ class OrderAdjustments extends Component
      * @param int $orderId
      * @return OrderAdjustment[]
      */
-    public function getAllOrderAdjustmentsByOrderId($orderId): array
+    public function getAllOrderAdjustmentsByOrderId(int $orderId): array
     {
         $rows = $this->_createOrderAdjustmentQuery()
             ->where(['orderId' => $orderId])
@@ -143,9 +145,7 @@ class OrderAdjustments extends Component
 
         foreach ($rows as $row) {
             $row['sourceSnapshot'] = Json::decodeIfJson($row['sourceSnapshot']);
-            $adjustment = new OrderAdjustment($row);
-            $adjustment->typecastAttributes();
-            $adjustments[] = $adjustment;
+            $adjustments[] = new OrderAdjustment($row);
         }
 
         return $adjustments;
@@ -184,10 +184,9 @@ class OrderAdjustments extends Component
         $record->description = $orderAdjustment->description;
         $record->amount = $orderAdjustment->amount;
         $record->included = $orderAdjustment->included;
-        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
+        $record->sourceSnapshot = $orderAdjustment->getSourceSnapshot();
         $record->lineItemId = $orderAdjustment->getLineItem()->id ?? null;
         $record->orderId = $orderAdjustment->getOrder()->id ?? null;
-        $record->sourceSnapshot = $orderAdjustment->sourceSnapshot;
         $record->isEstimated = $orderAdjustment->isEstimated;
 
         $record->save(false);
@@ -206,8 +205,9 @@ class OrderAdjustments extends Component
      *
      * @param int $orderId
      * @return bool
+     * @noinspection PhpUnused
      */
-    public function deleteAllOrderAdjustmentsByOrderId($orderId): bool
+    public function deleteAllOrderAdjustmentsByOrderId(int $orderId): bool
     {
         return OrderAdjustmentRecord::deleteAll(['orderId' => $orderId]);
     }
@@ -217,8 +217,11 @@ class OrderAdjustments extends Component
      *
      * @param int $adjustmentId
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
+     * @noinspection PhpUnused
      */
-    public function deleteOrderAdjustmentByAdjustmentId($adjustmentId): bool
+    public function deleteOrderAdjustmentByAdjustmentId(int $adjustmentId): bool
     {
         $orderAdjustment = OrderAdjustmentRecord::findOne($adjustmentId);
 
@@ -244,7 +247,7 @@ class OrderAdjustments extends Component
         foreach ($orderAdjustmentResults as $result) {
             $result['sourceSnapshot'] = Json::decodeIfJson($result['sourceSnapshot']);
             $adjustment = new OrderAdjustment($result);
-            $adjustment->typecastAttributes();
+
             $orderAdjustments[$adjustment->orderId] = $orderAdjustments[$adjustment->orderId] ?? [];
             $orderAdjustments[$adjustment->orderId][] = $adjustment;
         }
@@ -288,7 +291,7 @@ class OrderAdjustments extends Component
     public function getDiscountAdjusters(): array
     {
         $discountEvent = new RegisterComponentTypesEvent([
-            'types' => []
+            'types' => [],
         ]);
 
         if (Plugin::getInstance()->is(Plugin::EDITION_PRO)) {

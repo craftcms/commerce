@@ -91,7 +91,7 @@ class PlansController extends BaseStoreSettingsController
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSavePlan()
+    public function actionSavePlan(): void
     {
         $request = Craft::$app->getRequest();
         $this->requirePostRequest();
@@ -142,7 +142,7 @@ class PlansController extends BaseStoreSettingsController
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'plan' => $plan
+            'plan' => $plan,
         ]);
     }
 

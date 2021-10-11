@@ -12,6 +12,8 @@ use craft\commerce\models\Country;
 use craft\commerce\stats\TotalOrdersByCountry;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -25,7 +27,7 @@ class TotalOrdersByCountryTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -47,6 +49,8 @@ class TotalOrdersByCountryTest extends Unit
      * @param DateTime $startDate
      * @param DateTime $endDate
      * @param int $count
+     * @param array $countryData
+     * @throws \yii\base\Exception
      */
     public function testGetData(string $dateRange, string $type, DateTime $startDate, DateTime $endDate, int $count, array $countryData): void
     {
@@ -71,6 +75,7 @@ class TotalOrdersByCountryTest extends Unit
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
@@ -78,8 +83,8 @@ class TotalOrdersByCountryTest extends Unit
             [
                 TotalOrdersByCountry::DATE_RANGE_TODAY,
                 'shipping',
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 1,
                 [
                     'total' => 2,
@@ -90,8 +95,8 @@ class TotalOrdersByCountryTest extends Unit
             [
                 TotalOrdersByCountry::DATE_RANGE_CUSTOM,
                 'shipping',
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
                 [],
             ],

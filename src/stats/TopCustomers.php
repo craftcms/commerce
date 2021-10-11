@@ -22,22 +22,22 @@ class TopCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topCustomers';
+    protected string $_handle = 'topCustomers';
 
     /**
      * @var string Type of start either 'total' or 'average'.
      */
-    public $type = 'total';
+    public string $type = 'total';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
         if ($type) {
             $this->type = $type;

@@ -143,7 +143,7 @@ class LineItems extends Component
     /**
      * @var LineItem[]
      */
-    private $_lineItemsByOrderId = [];
+    private array $_lineItemsByOrderId = [];
 
 
     /**
@@ -165,7 +165,6 @@ class LineItems extends Component
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
                 $lineItem = new LineItem($result);
-                $lineItem->typecastAttributes();
                 $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
@@ -193,13 +192,12 @@ class LineItems extends Component
             ->where([
                 'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
             ->one() : null;
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
         } else {
             $lineItem = $this->createLineItem($order, $purchasableId, $options);
         }
@@ -263,7 +261,7 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
-        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote ?? '');
+        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
@@ -324,7 +322,7 @@ class LineItems extends Component
      * @param int $id the line item ID
      * @return LineItem|null Line item or null, if not found.
      */
-    public function getLineItemById($id)
+    public function getLineItemById($id): ?LineItem
     {
         $result = $this->_createLineItemQuery()
             ->where(['id' => $id])
@@ -332,7 +330,6 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             return $lineItem;
         }
 
@@ -409,7 +406,6 @@ class LineItems extends Component
         foreach ($lineItemsResults as $result) {
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
             $lineItems[$lineItem->orderId][] = $lineItem;
         }
@@ -431,7 +427,7 @@ class LineItems extends Component
      * @throws Throwable
      * @since 3.2.5
      */
-    public function orderCompleteHandler(LineItem $lineItem, Order $order)
+    public function orderCompleteHandler(LineItem $lineItem, Order $order): void
     {
         // Called the after order complete method for the purchasable if there is one
         if ($lineItem->getPurchasable()) {

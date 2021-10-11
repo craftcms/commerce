@@ -28,17 +28,17 @@ class CustomerAddressesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var  CustomerAddressesController
      */
-    protected $controller;
+    protected CustomerAddressesController $controller;
 
     /**
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * @return array
@@ -55,7 +55,7 @@ class CustomerAddressesTest extends Unit
     /**
      * @inheritDoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -69,7 +69,7 @@ class CustomerAddressesTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
-    public function testSaveAddress()
+    public function testSaveAddress(): void
     {
         $this->request->headers->set('Accept', 'application/json');
         $this->request->headers->set('X-Http-Method-Override', 'POST');

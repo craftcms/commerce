@@ -18,55 +18,54 @@ use Craft;
 class CreditCardPaymentForm extends BasePaymentForm
 {
     /**
-     * @var string First name
+     * @var string|null First name
      */
-    public $firstName;
+    public ?string $firstName = null;
 
     /**
-     * @var string Last name
+     * @var string|null Last name
      */
-    public $lastName;
+    public ?string $lastName = null;
 
     /**
-     * @var int Card number
+     * @var int|null Card number
      */
-    public $number;
+    public ?int $number = null;
 
     /**
-     * @var int Expiry month
+     * @var int|null Expiry month
      */
-    public $month;
+    public ?int $month = null;
 
     /**
-     * @var int Expiry year
+     * @var int|null Expiry year
      */
-    public $year;
+    public ?int $year = null;
 
     /**
-     * @var int CVV number
+     * @var int|null CVV number
      */
-    public $cvv;
+    public ?int $cvv = null;
 
     /**
-     * @var string Token
+     * @var string|null Token
      */
-    public $token;
+    public ?string $token = null;
 
     /**
-     * @var string Expiry date
+     * @var string|null Expiry date
      */
-    public $expiry;
+    public ?string $expiry = null;
 
     /**
      * @var bool
      */
-    public $threeDSecure = false;
-
+    public bool $threeDSecure = false;
 
     /**
      * @inheritdoc
      */
-    public function setAttributes($values, $safeOnly = true)
+    public function setAttributes($values, $safeOnly = true): void
     {
         parent::setAttributes($values, $safeOnly);
 
@@ -88,27 +87,25 @@ class CreditCardPaymentForm extends BasePaymentForm
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'];
-        $rules[] = [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12];
-        $rules[] = [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12];
-        $rules[] = [['cvv'], 'integer', 'integerOnly' => true];
-        $rules[] = [['cvv'], 'string', 'length' => [3, 4]];
-        $rules[] = [['number'], 'integer', 'integerOnly' => true];
-        $rules[] = [['number'], 'string', 'max' => 19];
-        $rules[] = [['number'], 'creditCardLuhn'];
-
-        return $rules;
+        return [
+            [['firstName', 'lastName', 'month', 'year', 'cvv', 'number'], 'required'],
+            [['month'], 'integer', 'integerOnly' => true, 'min' => 1, 'max' => 12],
+            [['year'], 'integer', 'integerOnly' => true, 'min' => date('Y'), 'max' => date('Y') + 12],
+            [['cvv'], 'integer', 'integerOnly' => true],
+            [['cvv'], 'string', 'length' => [3, 4]],
+            [['number'], 'integer', 'integerOnly' => true],
+            [['number'], 'string', 'max' => 19],
+            [['number'], 'creditCardLuhn'],
+        ];
     }
 
     /**
-     * @param $attribute
+     * @param string $attribute
      * @param $params
      */
-    public function creditCardLuhn($attribute, $params)
+    public function creditCardLuhn(string $attribute, $params): void
     {
         $str = '';
         foreach (array_reverse(str_split($this->$attribute)) as $i => $c) {

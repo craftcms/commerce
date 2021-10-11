@@ -19,9 +19,6 @@ use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
-use craft\commerce\services\LineItemStatuses;
-use craft\commerce\services\Orders;
-use craft\errors\DeprecationException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
 use DateTime;
@@ -59,7 +56,6 @@ use yii\behaviors\AttributeTypecastBehavior;
  * @property-read string $taxAsCurrency
  * @property-read string $taxIncludedAsCurrency
  * @property-read string $adjustmentsTotalAsCurrency
- * @method void typecastAttributes() Typecast behaviour
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -68,12 +64,12 @@ class LineItem extends Model
     /**
      * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Description
      */
-    private $_description;
+    private string $_description;
 
     /**
      * @var float Price is the original price of the purchasable
@@ -108,7 +104,7 @@ class LineItem extends Model
     /**
      * @var int Quantity
      */
-    public $qty;
+    public int $qty;
 
     /**
      * @var mixed Snapshot
@@ -118,84 +114,84 @@ class LineItem extends Model
     /**
      * @var string SKU
      */
-    private $_sku;
+    private string $_sku;
 
     /**
      * @var string Note
      */
-    public $note;
+    public string $note = '';
 
     /**
      * @var string Private Note
      */
-    public $privateNote;
+    public string $privateNote = '';
 
     /**
-     * @var int Purchasable ID
+     * @var int|null Purchasable ID
      */
-    public $purchasableId;
+    public ?int $purchasableId;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
-     * @var int Line Item Status ID
+     * @var int|null Line Item Status ID
      */
-    public $lineItemStatusId;
+    public ?int $lineItemStatusId = null;
 
     /**
      * @var int Tax category ID
      */
-    public $taxCategoryId;
+    public int $taxCategoryId;
 
     /**
      * @var int Shipping category ID
      */
-    public $shippingCategoryId;
+    public int $shippingCategoryId;
 
     /**
      * @var DateTime|null
      * @since 2.2
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.2.0
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var string UID
      */
-    public $uid;
+    public string $uid;
 
     /**
-     * @var PurchasableInterface Purchasable
+     * @var PurchasableInterface|null Purchasable
      */
-    private $_purchasable;
+    private ?PurchasableInterface $_purchasable = null;
 
     /**
-     * @var Order Order
+     * @var Order|null
      */
-    private $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var LineItemStatus Line item status
+     * @var LineItemStatus|null Line item status
      */
-    private $_lineItemStatus;
+    private ?LineItemStatus $_lineItemStatus;
 
     /**
-     * @var
+     * @var array
      */
-    private $_options = [];
+    private array $_options = [];
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->note = LitEmoji::shortcodeToUnicode($this->note);
         $this->privateNote = LitEmoji::shortcodeToUnicode($this->privateNote);
@@ -210,30 +206,10 @@ class LineItem extends Model
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'taxCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'shippingCategoryId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'lineItemStatusId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'note' => AttributeTypecastBehavior::TYPE_STRING,
-                'privateNote' => AttributeTypecastBehavior::TYPE_STRING,
-                'width' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'height' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'length' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'weight' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'qty' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'price' => AttributeTypecastBehavior::TYPE_FLOAT,
-                'salePrice' => AttributeTypecastBehavior::TYPE_FLOAT
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->getOrder()->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -241,13 +217,12 @@ class LineItem extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if (null === $this->_order && null !== $this->orderId) {
-            /** @var Orders $orderService */
-            $orderService = Plugin::getInstance()->getOrders();
-            $this->_order = $orderService->getOrderById($this->orderId);
+        if (null === $this->_order && isset($this->orderId) && $this->orderId) {
+            $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
         return $this->_order;
@@ -256,7 +231,7 @@ class LineItem extends Model
     /**
      * @param Order $order
      */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->orderId = $order->id;
         $this->_order = $order;
@@ -264,11 +239,11 @@ class LineItem extends Model
 
     /**
      * @return LineItemStatus|null
+     * @throws InvalidConfigException
      */
-    public function getLineItemStatus()
+    public function getLineItemStatus(): ?LineItemStatus
     {
-        if (null === $this->_lineItemStatus && null !== $this->lineItemStatusId) {
-            /** @var LineItemStatuses $lineItemStatus */
+        if (!isset($this->_lineItemStatus) && isset($this->lineItemStatusId)) {
             $lineItemStatus = Plugin::getInstance()->getLineItemStatuses();
             $this->_lineItemStatus = $lineItemStatus->getLineItemStatusById($this->lineItemStatusId);
         }
@@ -280,7 +255,7 @@ class LineItem extends Model
      * @param LineItemStatus|null $status
      * @since 3.2.2
      */
-    public function setLineItemStatus(LineItemStatus $status = null)
+    public function setLineItemStatus(LineItemStatus $status = null): void
     {
         if ($status !== null) {
             $this->_lineItemStatus = $status;
@@ -306,7 +281,7 @@ class LineItem extends Model
      *
      * @param array|string $options
      */
-    public function setOptions($options)
+    public function setOptions($options): void
     {
         $options = Json::decodeIfJson($options);
 
@@ -339,7 +314,7 @@ class LineItem extends Model
     /**
      * @return string
      */
-    public function getDescription()
+    public function getDescription(): string
     {
         if (!$this->_description) {
             $snapshot = Json::decodeIfJson($this->snapshot, true);
@@ -350,9 +325,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param $description
+     * @param string $description
      */
-    public function setDescription($description)
+    public function setDescription(string $description): void
     {
         $this->_description = $description;
     }
@@ -360,7 +335,7 @@ class LineItem extends Model
     /**
      * @return string
      */
-    public function getSku()
+    public function getSku(): string
     {
         if (!$this->_sku) {
             $snapshot = Json::decodeIfJson($this->snapshot, true);
@@ -371,9 +346,9 @@ class LineItem extends Model
     }
 
     /**
-     * @param $sku
+     * @param string $sku
      */
-    public function setSku($sku)
+    public function setSku(string $sku): void
     {
         $this->_sku = $sku;
     }
@@ -381,7 +356,7 @@ class LineItem extends Model
     /**
      * Returns a unique hash of the line item options
      */
-    public function getOptionsSignature()
+    public function getOptionsSignature(): string
     {
         return LineItemHelper::generateOptionsSignature($this->_options);
     }
@@ -390,16 +365,16 @@ class LineItem extends Model
      * @return float
      * @since 3.1.1
      */
-    public function getPrice()
+    public function getPrice(): float
     {
         return CurrencyHelper::round($this->_price);
     }
 
     /**
-     * @param $price
+     * @param float|int $price
      * @since 3.1.1
      */
-    public function setPrice($price)
+    public function setPrice($price): void
     {
         $this->_price = $price;
     }
@@ -407,16 +382,16 @@ class LineItem extends Model
     /**
      * @return float Sale Price
      */
-    public function getSalePrice()
+    public function getSalePrice(): float
     {
         return CurrencyHelper::round($this->_salePrice);
     }
 
     /**
-     * @param $salePrice
+     * @param float|int $salePrice
      * @since 3.1.1
      */
-    public function setSalePrice($salePrice)
+    public function setSalePrice($salePrice): void
     {
         $this->_salePrice = $salePrice;
     }
@@ -425,7 +400,7 @@ class LineItem extends Model
      * @return float
      * @since 3.1.1
      */
-    public function getSaleAmount()
+    public function getSaleAmount(): float
     {
         return $this->price - $this->salePrice;
     }
@@ -433,29 +408,29 @@ class LineItem extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
+        $rules = [
             [
-                'optionsSignature',
-                'price',
-                'salePrice',
-                'saleAmount',
-                'weight',
-                'length',
-                'height',
-                'width',
-                'qty',
-                'snapshot',
-                'taxCategoryId',
-                'shippingCategoryId'
-            ], 'required'
+                [
+                    'optionsSignature',
+                    'price',
+                    'salePrice',
+                    'saleAmount',
+                    'weight',
+                    'length',
+                    'height',
+                    'width',
+                    'qty',
+                    'snapshot',
+                    'taxCategoryId',
+                    'shippingCategoryId',
+                ], 'required',
+            ],
+            [['qty'], 'integer', 'min' => 1],
+            [['shippingCategoryId', 'taxCategoryId'], 'integer'],
+            [['price', 'salePrice'], 'number'],
         ];
-        $rules[] = [['qty'], 'integer', 'min' => 1];
-        $rules[] = [['shippingCategoryId', 'taxCategoryId'], 'integer'];
-        $rules[] = [['price', 'salePrice'], 'number'];
 
         if ($this->purchasableId) {
             /** @var PurchasableInterface $purchasable */
@@ -482,7 +457,7 @@ class LineItem extends Model
         if (isset($rule[1]) && $rule[1] instanceof Closure) {
             $method = $rule[1];
             $method->bindTo($purchasable);
-            $rule[1] = function($attribute, $params, $validator, $current) use ($method) {
+            $rule[1] = static function($attribute, $params, $validator, $current) use ($method) {
                 $method($attribute, $params, $validator, $current);
             };
         }
@@ -584,6 +559,7 @@ class LineItem extends Model
      * Returns the Purchasable’s sale price multiplied by the quantity of the line item, plus any adjustment belonging to this lineitem.
      *
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTotal(): float
     {
@@ -591,10 +567,10 @@ class LineItem extends Model
     }
 
     /**
-     * @param $taxable
-     * @return float|int
+     * @param string $taxable
+     * @return float
      */
-    public function getTaxableSubtotal($taxable)
+    public function getTaxableSubtotal(string $taxable): float
     {
         switch ($taxable) {
             case TaxRateRecord::TAXABLE_PRICE:
@@ -615,6 +591,7 @@ class LineItem extends Model
 
     /**
      * @return bool False when no related purchasable exists
+     * @throws InvalidConfigException
      */
     public function refreshFromPurchasable(): bool
     {
@@ -636,9 +613,9 @@ class LineItem extends Model
     /**
      * @return PurchasableInterface|null
      */
-    public function getPurchasable()
+    public function getPurchasable(): ?PurchasableInterface
     {
-        if (null === $this->_purchasable && null !== $this->purchasableId) {
+        if (null === $this->_purchasable && isset($this->purchasableId) && $this->purchasableId !== null) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
 
@@ -648,7 +625,7 @@ class LineItem extends Model
     /**
      * @param PurchasableInterface $purchasable
      */
-    public function setPurchasable(PurchasableInterface $purchasable)
+    public function setPurchasable(PurchasableInterface $purchasable): void
     {
         $this->purchasableId = $purchasable->getId();
         $this->_purchasable = $purchasable;
@@ -656,9 +633,9 @@ class LineItem extends Model
 
     /**
      * @param PurchasableInterface $purchasable
-     *
+     * @throws InvalidConfigException
      */
-    public function populateFromPurchasable(PurchasableInterface $purchasable)
+    public function populateFromPurchasable(PurchasableInterface $purchasable): void
     {
         $this->price = $purchasable->getPrice();
         $this->salePrice = Plugin::getInstance()->getSales()->getSalePriceForPurchasable($purchasable, $this->order);
@@ -670,7 +647,7 @@ class LineItem extends Model
         // Check to see if there is a discount applied that ignores Sales for this line item
         $ignoreSales = false;
         foreach (Plugin::getInstance()->getDiscounts()->getAllActiveDiscounts($this->getOrder()) as $discount) {
-            if ($discount->enabled && Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
+            if (Plugin::getInstance()->getDiscounts()->matchLineItem($this, $discount, true)) {
                 $ignoreSales = $discount->ignoreSales;
                 if ($ignoreSales) {
                     break;
@@ -690,7 +667,7 @@ class LineItem extends Model
             'purchasableId' => $purchasable->getId(),
             'cpEditUrl' => '#',
             'options' => $this->getOptions(),
-            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order)
+            'sales' => $ignoreSales ? [] : Plugin::getInstance()->getSales()->getSalesForPurchasable($purchasable, $this->order),
         ];
 
         // Add our purchasable data to the snapshot, save our sales.
@@ -704,7 +681,7 @@ class LineItem extends Model
         if ($lineItemsService->hasEventHandlers($lineItemsService::EVENT_POPULATE_LINE_ITEM)) {
             $lineItemsService->trigger($lineItemsService::EVENT_POPULATE_LINE_ITEM, new LineItemEvent([
                 'lineItem' => $this,
-                'isNew' => !$this->id
+                'isNew' => !$this->id,
             ]));
         }
     }
@@ -723,10 +700,6 @@ class LineItem extends Model
      */
     public function getTaxCategory(): TaxCategory
     {
-        if (null === $this->taxCategoryId) {
-            throw new InvalidConfigException('Line Item is missing its tax category ID');
-        }
-
         return Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
     }
 
@@ -745,6 +718,7 @@ class LineItem extends Model
 
     /**
      * @return OrderAdjustment[]
+     * @throws InvalidConfigException
      */
     public function getAdjustments(): array
     {
@@ -765,8 +739,9 @@ class LineItem extends Model
     /**
      * @param bool $included
      * @return float
+     * @throws InvalidConfigException
      */
-    public function getAdjustmentsTotal($included = false): float
+    public function getAdjustmentsTotal(bool $included = false): float
     {
         $amount = 0;
         foreach ($this->getAdjustments() as $adjustment) {
@@ -782,8 +757,9 @@ class LineItem extends Model
      * @param string $type
      * @param bool $included
      * @return float|int
+     * @throws InvalidConfigException
      */
-    private function _getAdjustmentsTotalByType($type, $included = false)
+    private function _getAdjustmentsTotalByType(string $type, bool $included = false)
     {
         $amount = 0;
 
@@ -824,6 +800,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTax(): float
     {
@@ -832,6 +809,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getTaxIncluded(): float
     {
@@ -840,6 +818,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getShippingCost(): float
     {
@@ -848,6 +827,7 @@ class LineItem extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getDiscount(): float
     {

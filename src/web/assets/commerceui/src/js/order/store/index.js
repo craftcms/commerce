@@ -195,7 +195,7 @@ export default new Vuex.Store({
         },
 
         edit({commit, state}) {
-            const $tabLinks = window.document.querySelectorAll('#tabs a.tab')
+            const $tabLinks = window.document.querySelectorAll('#tabs > ul > li > a')
             let $selectedLink = null
             let $detailsLink = null
             let switchToDetailsTab = false

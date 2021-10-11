@@ -33,7 +33,11 @@ use craft\models\FieldLayout;
 use craft\queue\jobs\ResaveElements;
 use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Product type service.
@@ -97,41 +101,40 @@ class ProductTypes extends Component
 
     const CONFIG_PRODUCTTYPES_KEY = 'commerce.productTypes';
 
-
     /**
      * @var bool
      */
-    private $_fetchedAllProductTypes = false;
+    private bool $_fetchedAllProductTypes = false;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private $_productTypesById;
+    private ?array $_productTypesById = null;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private $_productTypesByHandle;
+    private ?array $_productTypesByHandle = null;
 
     /**
-     * @var int[]
+     * @var int[]|null
      */
-    private $_allProductTypeIds;
+    private ?array $_allProductTypeIds = null;
 
     /**
-     * @var int[]
+     * @var int[]|null
      */
-    private $_editableProductTypeIds;
+    private ?array $_editableProductTypeIds = null;
 
     /**
      * @var ProductTypeSite[][]
      */
-    private $_siteSettingsByProductId = [];
+    private array $_siteSettingsByProductId = [];
 
     /**
      * @var array interim storage for product types being saved via CP
      */
-    private $_savingProductTypes = [];
+    private array $_savingProductTypes = [];
 
 
     /**
@@ -175,7 +178,7 @@ class ProductTypes extends Component
     }
 
     /**
-     * Returns all of the product type IDs.
+     * Returns all the product type IDs.
      *
      * @return array An array of all the product types’ IDs.
      */
@@ -219,7 +222,7 @@ class ProductTypes extends Component
      * @param string $handle The product type's handle.
      * @return ProductType|null The product type or `null`.
      */
-    public function getProductTypeByHandle($handle)
+    public function getProductTypeByHandle(string $handle): ?ProductType
     {
         if (isset($this->_productTypesByHandle[$handle])) {
             return $this->_productTypesByHandle[$handle];
@@ -248,7 +251,7 @@ class ProductTypes extends Component
      * @param int $productTypeId the product type ID
      * @return array The product type settings.
      */
-    public function getProductTypeSites($productTypeId): array
+    public function getProductTypeSites(int $productTypeId): array
     {
         if (!isset($this->_siteSettingsByProductId[$productTypeId])) {
             $rows = (new Query())
@@ -320,7 +323,7 @@ class ProductTypes extends Component
         // If the product type does not have variants, default the title format.
         if (!$isNewProductType && !$productType->hasVariants) {
             $productType->hasVariantTitleField = false;
-            $productType->titleFormat = '{product.title}';
+            $productType->variantTitleFormat = '{product.title}';
         }
 
         $projectConfig = Craft::$app->getProjectConfig();
@@ -332,7 +335,7 @@ class ProductTypes extends Component
 
             // Variant title field
             'hasVariantTitleField' => $productType->hasVariantTitleField,
-            'titleFormat' => $productType->titleFormat,
+            'variantTitleFormat' => $productType->variantTitleFormat,
 
             // Prouduct title field
             'hasProductTitleField' => $productType->hasProductTitleField,
@@ -340,7 +343,7 @@ class ProductTypes extends Component
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
-            'siteSettings' => []
+            'siteSettings' => [],
         ];
 
         $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
@@ -403,7 +406,7 @@ class ProductTypes extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedProductType(ConfigEvent $event)
+    public function handleChangedProductType(ConfigEvent $event): void
     {
         $productTypeUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -431,16 +434,16 @@ class ProductTypes extends Component
 
             // Variant title fields
             $hasVariantTitleField = $data['hasVariantTitleField'];
-            $titleFormat = $data['titleFormat'] ?? '{product.title}';
-            if ($productTypeRecord->titleFormat != $titleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
+            $variantTitleFormat = $data['variantTitleFormat'] ?? '{product.title}';
+            if ($productTypeRecord->variantTitleFormat != $variantTitleFormat || $productTypeRecord->hasVariantTitleField != $hasVariantTitleField) {
                 $shouldResaveProducts = true;
             }
-            $productTypeRecord->titleFormat = $titleFormat;
+            $productTypeRecord->variantTitleFormat = $variantTitleFormat;
             $productTypeRecord->hasVariantTitleField = $hasVariantTitleField;
 
             // Product title fields
             $hasProductTitleField = $data['hasProductTitleField'];
-            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';;
+            $productTitleFormat = $data['productTitleFormat'] ?? 'Title';
             if ($productTypeRecord->productTitleFormat != $productTitleFormat || $productTypeRecord->hasProductTitleField != $hasProductTitleField) {
                 $shouldResaveProducts = true;
             }
@@ -616,7 +619,7 @@ class ProductTypes extends Component
                         'siteId' => '*',
                         'status' => null,
                         'typeId' => $productTypeRecord->id,
-                    ]
+                    ],
                 ]));
             }
         } catch (Throwable $e) {
@@ -646,10 +649,10 @@ class ProductTypes extends Component
     /**
      * Returns all product types by a tax category id.
      *
-     * @param $taxCategoryId
+     * @param int $taxCategoryId
      * @return array
      */
-    public function getProductTypesByTaxCategoryId($taxCategoryId): array
+    public function getProductTypesByTaxCategoryId(int $taxCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
             ->innerJoin(Table::PRODUCTTYPES_TAXCATEGORIES . ' productTypeTaxCategories', '[[productTypes.id]] = [[productTypeTaxCategories.productTypeId]]')
@@ -668,10 +671,10 @@ class ProductTypes extends Component
     /**
      * Returns all product types by a shipping category id.
      *
-     * @param $shippingCategoryId
+     * @param int $shippingCategoryId
      * @return array
      */
-    public function getProductTypesByShippingCategoryId($shippingCategoryId): array
+    public function getProductTypesByShippingCategoryId(int $shippingCategoryId): array
     {
         $rows = $this->_createProductTypeQuery()
             ->innerJoin(Table::PRODUCTTYPES_SHIPPINGCATEGORIES . ' productTypeShippingCategories', '[[productTypes.id]] = [[productTypeShippingCategories.productTypeId]]')
@@ -708,7 +711,7 @@ class ProductTypes extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleDeletedProductType(ConfigEvent $event)
+    public function handleDeletedProductType(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $productTypeRecord = $this->_getProductTypeRecord($uid);
@@ -763,7 +766,7 @@ class ProductTypes extends Component
      *
      * @param DeleteSiteEvent $event
      */
-    public function pruneDeletedSite(DeleteSiteEvent $event)
+    public function pruneDeletedSite(DeleteSiteEvent $event): void
     {
         $siteUid = $event->site->uid;
 
@@ -783,7 +786,7 @@ class ProductTypes extends Component
      *
      * @param FieldEvent $event
      */
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
         /** @var Field $field */
         $field = $event->field;
@@ -823,7 +826,7 @@ class ProductTypes extends Component
      * @param int $productTypeId the product type's ID
      * @return ProductType|null either the product type or `null`
      */
-    public function getProductTypeById(int $productTypeId)
+    public function getProductTypeById(int $productTypeId): ?ProductType
     {
         if (isset($this->_productTypesById[$productTypeId])) {
             return $this->_productTypesById[$productTypeId];
@@ -852,7 +855,7 @@ class ProductTypes extends Component
      * @param string $uid the product type's UID
      * @return ProductType|null either the product type or `null`
      */
-    public function getProductTypeByUid(string $uid)
+    public function getProductTypeByUid(string $uid): ?ProductType
     {
         return ArrayHelper::firstWhere($this->getAllProductTypes(), 'uid', $uid, true);
     }
@@ -893,8 +896,13 @@ class ProductTypes extends Component
      * Adds a new product type setting row when a Site is added to Craft.
      *
      * @param SiteEvent $event The event that triggered this.
+     * @throws Exception
+     * @throws ErrorException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
-    public function afterSaveSiteHandler(SiteEvent $event)
+    public function afterSaveSiteHandler(SiteEvent $event): void
     {
         $projectConfig = Craft::$app->getProjectConfig();
 
@@ -918,7 +926,7 @@ class ProductTypes extends Component
      *
      * @param ProductType $productType The product type to memoize.
      */
-    private function _memoizeProductType(ProductType $productType)
+    private function _memoizeProductType(ProductType $productType): void
     {
         $this->_productTypesById[$productType->id] = $productType;
         $this->_productTypesByHandle[$productType->handle] = $productType;
@@ -944,7 +952,7 @@ class ProductTypes extends Component
                 'productTypes.name',
                 'productTypes.productTitleFormat',
                 'productTypes.skuFormat',
-                'productTypes.titleFormat',
+                'productTypes.variantTitleFormat',
                 'productTypes.uid',
                 'productTypes.variantFieldLayoutId',
             ])

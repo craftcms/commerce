@@ -1,11 +1,11 @@
 {% if showChart is defined and not showChart %}
     <div class="commerce-widget-numberstat">
-    {% spaceless %}
+    {% apply spaceless %}
         {% set total = number ?? 0 %}
         <strong class="commerce-widget-numberstat-number">{{ total }}</strong><br>
         <span>{{ (total == 1 ? 'order' : 'orders')|t('commerce')|e }}</span><br>
         <span class="extralight">{{ timeFrame|e }}</span>
-    {% endspaceless %}
+    {% endapply %}
     </div>
 {% endif %}
 

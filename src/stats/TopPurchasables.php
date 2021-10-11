@@ -22,26 +22,24 @@ class TopPurchasables extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topPurchasables';
+    protected string $_handle = 'topPurchasables';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
      */
-    public $type = 'qty';
+    public string $type = 'qty';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
@@ -62,7 +60,7 @@ class TopPurchasables extends Stat
                 '[[p.description]]',
                 '[[p.sku]]',
                 $selectTotalQty,
-                $selectTotalRevenue
+                $selectTotalRevenue,
             ])
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.orderId]] = [[orders.id]]')
             ->leftJoin(Table::PURCHASABLES . ' p', '[[p.id]] = [[li.purchasableId]]')

@@ -39,17 +39,17 @@ class TopProducts extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
-     * @var string Options 'revenue', 'qty'.
+     * @var string|null Options 'revenue', 'qty'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var array|null
      */
-    public $revenueOptions = [
+    public ?array $revenueOptions = [
         TopProductsStat::REVENUE_OPTION_DISCOUNT,
         TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
         TopProductsStat::REVENUE_OPTION_TAX,
@@ -59,27 +59,27 @@ class TopProducts extends Widget
     /**
      * @var TopProductsStat
      */
-    private $_stat;
+    private TopProductsStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @var array
      */
-    private $_revenueCheckboxOptions;
+    private array $_revenueCheckboxOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -133,7 +133,7 @@ class TopProducts extends Widget
             }
         }
 
-        $this->dateRange = !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopProductsStat(
             $this->dateRange,
@@ -179,7 +179,7 @@ class TopProducts extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -187,9 +187,13 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
@@ -217,7 +221,7 @@ class TopProducts extends Widget
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
             'revenueOptions' => $this->_revenueCheckboxOptions,
-            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE
+            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE,
         ]);
     }
 }

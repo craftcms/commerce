@@ -10,13 +10,13 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Order notice model.
  *
  * @property Order|null $order
- * @method void typecastAttributes()
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
@@ -24,34 +24,34 @@ use yii\behaviors\AttributeTypecastBehavior;
 class OrderNotice extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var string Type
      */
-    public $type;
+    public string $type;
 
     /**
      * @var string Attribute
      */
-    public $attribute;
+    public string $attribute;
 
     /**
      * @var string Message
      */
-    public $message;
+    public string $message;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
      * @var Order|null The order this notice belongs to
      */
-    private $_order;
+    private ?Order $_order;
 
     /**
      * @return string
@@ -61,48 +61,22 @@ class OrderNotice extends Model
         return $this->message ?: '';
     }
 
-    public function behaviors(): array
-    {
-        $behaviors = parent::behaviors();
-
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'orderId' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'type' => AttributeTypecastBehavior::TYPE_STRING,
-                'attribute' => AttributeTypecastBehavior::TYPE_STRING,
-                'message' => AttributeTypecastBehavior::TYPE_STRING
-            ]
-        ];
-        return $behaviors;
-    }
-
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            [
-                'type',
-                'message',
-                'attribute',
-                'orderId'
-            ], 'required'
+        return [
+            [['type', 'message', 'attribute', 'orderId'], 'required'],
+            [['orderId'], 'integer'],
         ];
-        $rules[] = [['orderId'], 'integer'];
-
-        return $rules;
     }
 
     /**
      * @param Order $order
      * @return void
      */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
         $this->orderId = $order->id;
@@ -110,10 +84,11 @@ class OrderNotice extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if ($this->_order === null && $this->orderId) {
+        if (!isset($this->_order) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 

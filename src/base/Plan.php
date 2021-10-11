@@ -33,28 +33,27 @@ abstract class Plan extends Model implements PlanInterface
 {
     use PlanTrait;
 
-
     /**
      * @var SubscriptionGatewayInterface|null the gateway
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
      * @var mixed the plan data.
      */
-    private $_data;
+    private $_data = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTime $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTime $dateUpdated = null;
 
     /**
      * Returns the billing plan friendly name
@@ -63,7 +62,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function __toString()
     {
-        return $this->name;
+        return (string)$this->name;
     }
 
     /**
@@ -72,7 +71,7 @@ abstract class Plan extends Model implements PlanInterface
      * @return SubscriptionGatewayInterface|null
      * @throws InvalidConfigException if gateway does not support subscriptions
      */
-    public function getGateway()
+    public function getGateway(): ?SubscriptionGatewayInterface
     {
         if (null === $this->_gateway) {
             $this->_gateway = Commerce::getInstance()->getGateways()->getGatewayById($this->gatewayId);
@@ -104,7 +103,7 @@ abstract class Plan extends Model implements PlanInterface
      *
      * @return Entry|null
      */
-    public function getInformation()
+    public function getInformation(): ?Entry
     {
         if ($this->planInformationId) {
             return Entry::find()->id($this->planInformationId)->one();
@@ -120,7 +119,7 @@ abstract class Plan extends Model implements PlanInterface
      */
     public function getSubscriptionCount(): int
     {
-        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountForPlanById($this->id);
+        return Commerce::getInstance()->getSubscriptions()->getSubscriptionCountByPlanId($this->id);
     }
 
     /**
@@ -167,16 +166,16 @@ abstract class Plan extends Model implements PlanInterface
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             [
                 ['handle'],
                 UniqueValidator::class,
                 'targetClass' => PlanRecord::class,
-                'targetAttribute' => ['handle']
+                'targetAttribute' => ['handle'],
             ],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required'],
         ];
     }
 }

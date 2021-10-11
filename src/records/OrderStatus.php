@@ -10,6 +10,7 @@ namespace craft\commerce\records;
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
 use craft\db\SoftDeleteTrait;
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -41,6 +42,7 @@ class OrderStatus extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @throws InvalidConfigException
      */
     public function getEmails(): ActiveQueryInterface
     {
