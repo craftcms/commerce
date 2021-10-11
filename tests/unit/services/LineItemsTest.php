@@ -91,11 +91,23 @@ class LineItemsTest extends Unit
 
     public function testResolveLineItemNew(): void
     {
+        /** @var Order $order */
         $order = $this->fixtureData->getElement('completed-new');
         $lineItem = $order->getLineItems()[1];
         $variant = Variant::find()->id($lineItem->purchasableId)->one();
 
         $resolvedLineItem = $this->service->resolveLineItem($order, $lineItem->purchasableId, $lineItem->getOptions());
+
+        self::assertInstanceOf(LineItem::class, $resolvedLineItem);
+        self::assertEquals($variant->getPrice(), $resolvedLineItem->getPrice());
+    }
+
+    public function testResolveLineItemUnsavedOrder(): void
+    {
+        $order = new Order();
+        $variant = Variant::find()->sku('hct-blue')->one();
+
+        $resolvedLineItem = $this->service->resolveLineItem($order, $variant->id, ['giftWrapped' => 'no']);
 
         self::assertInstanceOf(LineItem::class, $resolvedLineItem);
         self::assertEquals($variant->getPrice(), $resolvedLineItem->getPrice());

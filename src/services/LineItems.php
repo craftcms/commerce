@@ -173,7 +173,7 @@ class LineItems extends Component
     }
 
     /**
-     * Takes an order ID, a purchasable ID, options, and resolves it to a line item.
+     * Takes an order, a purchasable ID, options, and resolves it to a line item.
      *
      * If a line item is found for that order ID with those exact options, that line item is
      * returned. Otherwise, a new line item is returned.
