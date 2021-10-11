@@ -20,8 +20,14 @@ Outputs a form for collecting shipping estimate address details if an address do
       {% tag 'select' with {
         name: 'estimatedShippingAddress[countryId]',
         'data-modelname': 'estimatedShippingAddress',
-        class: ['js-address-country', 'js-estimate-country', 'w-full', '[[classes.input]]']
+        class: ['js-address-country', 'js-estimate-country', 'w-full', 'h-9', 'max-w-full', '[[classes.input]]']
       } %}
+        {{ tag('option', {
+          value: '',
+          disabled: true,
+          selected: not cart.estimatedShippingAddress,
+          text: 'Select country'|t ~ '...'
+        }) }}
         {% for key, option in countries %}
           {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.countryId : '') %}
           {{ tag('option', {
@@ -45,7 +51,7 @@ Outputs a form for collecting shipping estimate address details if an address do
               name: 'estimatedShippingAddress[stateValue]',
               id: 'estimatedShippingAddress-stateId',
               'data-modelname': 'estimatedShippingAddress',
-              class: ['js-address-stateId', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
+              class: ['js-address-stateId', 'max-w-full', 'h-9', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
             } %}
               {% for key, option in options %}
                 {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
@@ -97,6 +103,12 @@ Outputs a form for collecting shipping estimate address details if an address do
           'data-modelname': 'estimatedBillingAddress',
           class: ['js-address-country', 'js-estimate-country', 'w-full', '[[classes.input]]']
         } %}
+          {{ tag('option', {
+            value: '',
+            disabled: true,
+            selected: not cart.estimatedBillingAddress,
+            text: 'Select country'|t ~ '...'
+          }) }}
           {% for key, option in countries %}
             {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.countryId : '') %}
             {{ tag('option', {
