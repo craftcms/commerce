@@ -11,6 +11,8 @@
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
 - `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
+- `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
+- `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.

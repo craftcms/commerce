@@ -796,10 +796,12 @@ class Customers extends Component
             // Address ID could be null if the orders customer just got switched during order completion.
             // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
             $originalBillingAddressId = $originalBillingAddress->id;
-            $originalBillingAddress->id = null;
-            if ($addressesService->saveAddress($originalBillingAddress, false)) {
+            $newBillingAddress = new Address();
+            $newBillingAddress->attributes = $originalBillingAddress->attributes;
+            $newBillingAddress->id = null;
+            if ($addressesService->saveAddress($newBillingAddress, false)) {
                 $mutated = true;
-                $order->setBillingAddress($originalBillingAddress);
+                $order->setBillingAddress($newBillingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -810,10 +812,12 @@ class Customers extends Component
             // Address ID could be null if the orders customer just got switched during order completion.
             // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
             $originalShippingAddressId = $originalShippingAddress->id;
-            $originalShippingAddress->id = null;
-            if ($addressesService->saveAddress($originalShippingAddress, false)) {
+            $newShippingAddress = new Address();
+            $newShippingAddress->attributes = $originalShippingAddress->attributes;
+            $newShippingAddress->id = null;
+            if ($addressesService->saveAddress($newShippingAddress, false)) {
                 $mutated = true;
-                $order->setShippingAddress($originalShippingAddress);
+                $order->setShippingAddress($newShippingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);

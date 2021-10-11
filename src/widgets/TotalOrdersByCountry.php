@@ -13,6 +13,7 @@ use craft\commerce\stats\TotalOrdersByCountry as TotalOrdersByCountryStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 
 /**
@@ -138,16 +139,15 @@ class TotalOrdersByCountry extends Widget
     {
         $stats = $this->_stat->get();
 
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
 
         $id = 'total-revenue' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
-
-        if (empty($stats)) {
-            // TODO no stats available message #COM-57
-            return '';
-        }
 
         $labels = ArrayHelper::getColumn($stats, 'name', false);
         $totalOrders = ArrayHelper::getColumn($stats, 'total', false);

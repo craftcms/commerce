@@ -131,8 +131,7 @@ class TotalRevenue extends Widget
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         if (empty($stats)) {
-            // TODO no stats available message #COM-57
-            return '';
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
         }
 
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);
