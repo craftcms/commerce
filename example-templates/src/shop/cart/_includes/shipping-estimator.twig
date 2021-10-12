@@ -53,6 +53,12 @@ Outputs a form for collecting shipping estimate address details if an address do
               'data-modelname': 'estimatedShippingAddress',
               class: ['js-address-stateId', 'max-w-full', 'h-9', options|length == 0 ? 'hidden' : '', '[[classes.input]]']
             } %}
+              {{ tag('option', {
+                value: '',
+                disabled: true,
+                selected: not cart.estimatedShippingAddress,
+                text: 'Select state'|t ~ '...'
+              }) }}
               {% for key, option in options %}
                 {% set optionValue = (cart.estimatedShippingAddress ? cart.estimatedShippingAddress.stateId : '') %}
                 {{ tag('option', {
@@ -82,7 +88,7 @@ Outputs a form for collecting shipping estimate address details if an address do
         </div>
       </div>
 
-      <div class="mt-6">
+      <div class="mt-4">
         <label class="m-0">
           {{ input('checkbox', 'estimatedBillingAddressSameAsShipping', 1, {
             checked: cart.estimatedShippingAddressId == cart.estimatedBillingAddressId
@@ -90,6 +96,7 @@ Outputs a form for collecting shipping estimate address details if an address do
           {{ 'Billing Same as Shipping'|t }}
         </label>
       </div>
+
 
       <div class="js-estimate-billing mt-6">
         <h5 class="mt-0 font-bold">
@@ -101,7 +108,7 @@ Outputs a form for collecting shipping estimate address details if an address do
         {% tag 'select' with {
           name: 'estimatedBillingAddress[countryId]',
           'data-modelname': 'estimatedBillingAddress',
-          class: ['js-address-country', 'js-estimate-country', 'w-full', '[[classes.input]]']
+          class: ['js-address-country', 'js-estimate-country', 'w-full', 'max-w-full', 'h-9', '[[classes.input]]']
         } %}
           {{ tag('option', {
             value: '',
@@ -119,42 +126,53 @@ Outputs a form for collecting shipping estimate address details if an address do
           {% endfor %}
         {% endtag %}
 
-        <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
-          <label class="mb-0 mt-2 block" for="estimatedBillingAddress-state">
-            {{- 'State' -}}
-          </label>
-          {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ?
-            states[cart.estimatedBillingAddress.countryId] : []
-          ) %}
-          {% tag 'select' with {
-            name: 'estimatedBillingAddress[stateValue]',
-            id: 'estimatedBillingAddress-stateId',
-            'data-modelname': 'estimatedBillingAddress',
-            class: ['js-address-stateId', 'w-full', options|length == 0 ? 'hidden', '[[classes.input]]']
-          } %}
-            {% for key, option in options %}
-              {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateId : '') %}
-              {{ tag('option', {
-                value: key,
-                selected: key == optionValue,
-                text: option
+        <div class="lg:flex lg:-mx-2">
+          <div class="lg:w-1/2 lg:mx-2 my-2">
+            <div class="js-estimate-state-box" data-modelname="estimatedBillingAddress">
+              <label class="mb-0 block" for="estimatedBillingAddress-state">
+                {{- 'State'|t -}}
+              </label>
+              {% set options = (cart.estimatedBillingAddress and states[cart.estimatedBillingAddress.countryId] is defined ?
+                states[cart.estimatedBillingAddress.countryId] : []
+                ) %}
+              {% tag 'select' with {
+                name: 'estimatedBillingAddress[stateValue]',
+                id: 'estimatedBillingAddress-stateId',
+                'data-modelname': 'estimatedBillingAddress',
+                class: ['js-address-stateId', 'w-full', 'max-w-full', 'h-9', options|length == 0 ? 'hidden', '[[classes.input]]']
+              } %}
+                {{ tag('option', {
+                  value: '',
+                  disabled: true,
+                  selected: not cart.estimatedBillingAddress,
+                  text: 'Select state'|t ~ '...'
+                }) }}
+                {% for key, option in options %}
+                  {% set optionValue = (cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateId : '') %}
+                  {{ tag('option', {
+                    value: key,
+                    selected: key == optionValue,
+                    text: option
+                  }) }}
+                {% endfor %}
+              {% endtag %}
+              {{ input('text', options|length == 0 ? 'estimatedBillingAddress[stateValue]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '', {
+                id: 'estimatedBillingAddress-stateName',
+                'data-modelname': 'estimatedBillingAddress',
+                class: ['js-address-stateName', options|length > 0 ? 'hidden', 'w-full', '[[classes.input]]']
               }) }}
-            {% endfor %}
-          {% endtag %}
-          {{ input('text', options|length == 0 ? 'estimatedBillingAddress[stateValue]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.stateName : '', {
-            id: 'estimatedBillingAddress-stateName',
-            'data-modelname': 'estimatedBillingAddress',
-            class: ['js-address-stateName', options|length > 0 ? 'hidden', 'w-full', '[[classes.input]]']
-          }) }}
+            </div>
+          </div>
+          <div class="lg:w-1/2 lg:mx-2 my-2">
+            <label class="mb-0 block" for="estimatedBillingAddress-zipCode">
+              {{- 'Postal Code' -}}
+            </label>
+            {{ input('text', options|length == 0 ? 'estimatedBillingAddress[zipCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '', {
+              id: 'estimatedBillingAddress-zipCode',
+              class: ['w-full', '[[classes.input]]']
+            }) }}
+          </div>
         </div>
-
-        <label class="mb-0 mt-2 block" for="estimatedBillingAddress-zipCode">
-          {{- 'Zip Code' -}}
-        </label>
-        {{ input('text', options|length == 0 ? 'estimatedBillingAddress[zipCode]', cart.estimatedBillingAddress ? cart.estimatedBillingAddress.zipCode : '', {
-          id: 'estimatedBillingAddress-zipCode',
-          class: ['w-full', '[[classes.input]]']
-        }) }}
       </div>
     </div>
 
@@ -175,7 +193,7 @@ Outputs a form for collecting shipping estimate address details if an address do
             </div>
           {% endfor %}
         </div>
-        <div class="mt-6">
+        <div class="mt-4">
           <a class="[[classes.a]] js-estimate-show-fields" href="#">
             {{- 'Show Estimate Fields'|t -}}
           </a>
@@ -194,7 +212,7 @@ Outputs a form for collecting shipping estimate address details if an address do
   var $estimateShowFieldsButton = document.querySelector('.js-estimate-show-fields');
   var $estimateBilling = document.querySelector('.js-estimate-billing');
   var $estimateBillingSameAsShipping = document.querySelector('input[name="estimatedBillingAddressSameAsShipping"]');
-  var $estimateCountrySelects = document.querySelector('select.js-estimate-country');
+  var $estimateCountrySelects = document.querySelectorAll('select.js-estimate-country');
 
   function _estimatorHide(el) {
     el.classList.add('hidden');
@@ -222,8 +240,8 @@ Outputs a form for collecting shipping estimate address details if an address do
   }
 
   // Handle the change event for the "same as" checkbox
-  $estimateBillingSameAsShipping.addEventListener('change', function(ev) {
-    var $this = ev.target;
+  $estimateBillingSameAsShipping.addEventListener('change', function(event) {
+    var $this = event.target;
     if ($this.checked) {
       _estimatorHide($estimateBilling);
     } else {
@@ -231,7 +249,7 @@ Outputs a form for collecting shipping estimate address details if an address do
     }
   });
 
-  // Setup initial state Showing/hiding of the shipping method selection
+  // Setup initial state showing/hiding of the shipping method selection
   var shippingSelect = $estimateShippingMethodsContainer.querySelector('.js-shipping-select');
   if (shippingSelect) {
     _estimatorHide($estimateFieldsContainer);
@@ -241,8 +259,8 @@ Outputs a form for collecting shipping estimate address details if an address do
 
   // Handle click event for returning to the estimate fields
   if ($estimateShowFieldsButton) {
-    $estimateShowFieldsButton.addEventListener('click', function(ev) {
-      ev.preventDefault();
+    $estimateShowFieldsButton.addEventListener('click', function(event) {
+      event.preventDefault();
 
       if ($estimateFieldsContainer.classList.contains('hidden')) {
         _estimatorShow($estimateFieldsContainer);
@@ -255,48 +273,50 @@ Outputs a form for collecting shipping estimate address details if an address do
   }
 
   // Handle change event for country selection for both shipping and billing
-  $estimateCountrySelects.addEventListener('change', function(ev) {
-    // get the value of the selected country.
-    var $this = ev.target;
-    var cid = $this.value;
-    var $box = document.querySelector('.js-estimate-state-box[data-modelname="' + $this.dataset.modelname + '"]');
-    var $states = $box.querySelector('select.js-address-stateId');
-    var $stateName = $box.querySelector('input.js-address-stateName');
-    var $statesOption = $states.querySelectorAll('option');
+  $estimateCountrySelects.forEach(element => {
+    element.addEventListener('change', event => {
+      // get the value of the selected country.
+      var $this = event.target;
+      var cid = $this.value;
+      var $box = document.querySelector('.js-estimate-state-box[data-modelname="' + $this.dataset.modelname + '"]');
+      var $states = $box.querySelector('select.js-address-stateId');
+      var $stateName = $box.querySelector('input.js-address-stateName');
+      var $statesOption = $states.querySelectorAll('option:not([value=""]');
 
-    if ($statesOption.length) {
-      $statesOption.forEach(function(el) {
-        el.remove();
-      });
-    }
-
-    if (window.states.hasOwnProperty(cid)) {
-      // We have states for this country, show the states drop down.
-      $states.classList.remove('hidden');
-      $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
-
-      // We have states for this country, hide the stateName input.
-      $stateName.removeAttribute('name');
-      $stateName.classList.add('hidden');
-      $stateName.value = '';
-
-      // Add all states as options to drop down.
-      for (var id in window.states[cid]) {
-        var state = window.states[cid][id];
-        var $option = document.createElement('OPTION');
-        $option.text = state;
-        $option.value = id;
-        $states.appendChild($option);
+      if ($statesOption.length) {
+        $statesOption.forEach(function(el) {
+          el.remove();
+        });
       }
-    } else {
-      // hide the states dropdown, since this country has none.
-      $states.classList.add('hidden');
-      $states.removeAttribute('name');
 
-      // show the stateName
-      $stateName.classList.remove('hidden');
-      $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
-    }
+      if (window.states.hasOwnProperty(cid)) {
+        // We have states for this country, show the states drop down.
+        $states.classList.remove('hidden');
+        $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
+
+        // We have states for this country, hide the stateName input.
+        $stateName.removeAttribute('name');
+        $stateName.classList.add('hidden');
+        $stateName.value = '';
+
+        // Add all states as options to drop down.
+        for (var id in window.states[cid]) {
+          var state = window.states[cid][id];
+          var $option = document.createElement('OPTION');
+          $option.text = state;
+          $option.value = id;
+          $states.appendChild($option);
+        }
+      } else {
+        // hide the states dropdown, since this country has none.
+        $states.classList.add('hidden');
+        $states.removeAttribute('name');
+
+        // show the stateName
+        $stateName.classList.remove('hidden');
+        $stateName.setAttribute('name', $stateName.dataset.modelname + '[stateValue]');
+      }
+    });
   });
-  {% endjs %}
+{% endjs %}
 {% endif %}
