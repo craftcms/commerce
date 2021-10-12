@@ -28,9 +28,9 @@ class CreditCardPaymentForm extends BasePaymentForm
     public ?string $lastName = null;
 
     /**
-     * @var int|null Card number
+     * @var string|null Card number
      */
-    public ?int $number = null;
+    public ?string $number = null;
 
     /**
      * @var int|null Expiry month
