@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Transaction
@@ -139,22 +140,22 @@ class Transaction extends Model
     /**
      * @var Gateway|null
      */
-    private ?Gateway $_gateway;
+    private ?Gateway $_gateway = null;
 
     /**
-     * @var Transaction
+     * @var Transaction|null
      */
-    private Transaction $_parentTransaction;
+    private ?Transaction $_parentTransaction = null;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private Order $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var Transaction[]
+     * @var Transaction[]|null
      */
-    private array $_children;
+    private ?array $_children = null;
 
 
     /**
@@ -239,6 +240,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canCapture(): bool
     {
@@ -247,6 +249,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canRefund(): bool
     {
@@ -255,6 +258,7 @@ class Transaction extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getRefundableAmount(): float
     {
@@ -263,10 +267,11 @@ class Transaction extends Model
 
     /**
      * @return Transaction|null
+     * @throws InvalidConfigException
      */
     public function getParent(): ?Transaction
     {
-        if (!isset($this->_parentTransaction) && $this->parentId) {
+        if (null === $this->_parentTransaction && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
@@ -275,10 +280,11 @@ class Transaction extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
-        if (!isset($this->_order)) {
+        if (null === $this->_order && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -296,10 +302,11 @@ class Transaction extends Model
 
     /**
      * @return Gateway|null
+     * @throws InvalidConfigException
      */
     public function getGateway(): ?Gateway
     {
-        if (!isset($this->_gateway) && $this->gatewayId) {
+        if (null === $this->_gateway && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -318,14 +325,15 @@ class Transaction extends Model
      * Returns child transactions.
      *
      * @return Transaction[]
+     * @throws InvalidConfigException
      */
     public function getChildTransactions(): array
     {
-        if (!isset($this->_children)) {
+        if (null === $this->_children && $this->id) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
-        return $this->_children;
+        return $this->_children ?? [];
     }
 
     /**
