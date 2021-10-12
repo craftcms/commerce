@@ -33,7 +33,7 @@ Outputs a form for collecting an order’s shipping and billing address.
           {% endif %}
 
           {{ include('[[folderName]]/_private/address/fieldset', {
-            title: "Shipping Address",
+            title: 'Shipping Address'|t,
             classes: 'ShippingAddress',
             name: 'shippingAddress'
           }) }}
@@ -61,7 +61,7 @@ Outputs a form for collecting an order’s shipping and billing address.
 
           <div class="mt-3">
             {{ include('[[folderName]]/_private/address/fieldset', {
-              title: "Billing Address",
+              title: 'Billing Address'|t,
               classes: 'BillingAddress hidden',
               name: 'billingAddress'
             }) }}
