@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Added
+- Added `craft\commerce\services\Transactions::getTransactionByReference()`
+
 ## 3.4.4 - 2021-10-07
 
 ### Added
