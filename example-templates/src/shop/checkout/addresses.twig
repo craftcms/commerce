@@ -5,10 +5,11 @@ Outputs a form for collecting an order’s shipping and billing address.
 @var cart \craft\commerce\elements\Order
 #}
 
+{# @var addresses \craft\commerce\models\Address[] #}
+{% set addresses = craft.commerce.customers.customer.addresses %}
+
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  {# @var addresses \craft\commerce\models\Address[] #}
-  {% set addresses = craft.commerce.customers.customer.addresses %}
   <div class="flex -mx-8">
     <div class="w-2/3 px-8">
       <h1 class="text-xl font-bold">
@@ -37,6 +38,8 @@ Outputs a form for collecting an order’s shipping and billing address.
             classes: 'ShippingAddress',
             name: 'shippingAddress'
           }) }}
+
+          <hr class="mt-6">
 
           {{ hiddenInput('billingAddressSameAsShipping', 0) }}
 
