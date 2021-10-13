@@ -50,7 +50,7 @@ class Transaction extends Model
     /**
      * @var int|null User ID
      */
-    public ?int $userId;
+    public ?int $userId = null;
 
     /**
      * @var string Hash
