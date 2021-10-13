@@ -6,7 +6,7 @@
 - Added `craft\commerce\services\Transactions::getTransactionByReference()`
 
 ### Fixed
-- Fixed a bug where shipping rules could never match when the cart was empty.  ([#2583](https://github.com/craftcms/commerce/issues/2583))
+- Fixed a bug where shipping rules could never match when the cart was empty. ([#2583](https://github.com/craftcms/commerce/issues/2583))
 
 ## 3.4.4 - 2021-10-07
 
