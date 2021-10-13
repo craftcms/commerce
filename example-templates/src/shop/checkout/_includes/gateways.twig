@@ -15,9 +15,9 @@ Outputs radio selection inputs for payment sources and/or gateways.
 
 {% if paymentSources|length %}
   {% for source in paymentSources %}
-    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+    <label class="block cursor-pointer mt-3 [[classes.box.selection]]">
       <span class="flex justify-start items-center">
-        <span class="pr-2">
+        <span class="pr-3">
           {{ input('radio', 'paymentSourceId', source.id, {
             checked: source.id == cart.paymentSourceId
           }) }}
@@ -33,9 +33,9 @@ Outputs radio selection inputs for payment sources and/or gateways.
 
 {% if availableGateways|length %}
   {% for gatewayId, gatewayName in availableGateways %}
-    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+    <label class="block cursor-pointer mt-3 [[classes.box.selection]]">
       <span class="flex justify-start items-center">
-        <span class="pr-2">
+        <span class="pr-3">
           {{ input('radio', 'gatewayId', gatewayId, {
             checked: gatewayId == cart.gatewayId
           }) }}
