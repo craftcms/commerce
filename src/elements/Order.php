@@ -1875,13 +1875,14 @@ class Order extends Element
         return $options;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function beforeSave(bool $isNew): bool
     {
         if (!$this->shippingMethodHandle) {
-            // Reset shipping method name if there is no handle
             $this->shippingMethodName = null;
-        } else if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
-            // Update shipping method name if there is a handle and we can retrieve the method
+        } else if ($shippingMethod = $this->getShippingMethod()) {
             $this->shippingMethodName = $shippingMethod->getName();
         }
 
