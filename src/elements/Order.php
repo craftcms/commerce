@@ -1094,11 +1094,10 @@ class Order extends Element
             }
         }
 
-        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+        // Sets a default shipping method
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
-                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-            }
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
         if ($this->orderLanguage === null) {
@@ -1743,6 +1742,15 @@ class Order extends Element
         }
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+
+            // Make sure we set a default shipping method option
+            if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+                $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+                if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                }
+            }
+
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $key => $item) {
                 $originalSalePrice = $item->getSalePrice();
