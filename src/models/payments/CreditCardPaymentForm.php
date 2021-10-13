@@ -43,9 +43,9 @@ class CreditCardPaymentForm extends BasePaymentForm
     public ?int $year = null;
 
     /**
-     * @var int|null CVV number
+     * @var string|null CVV number
      */
-    public ?int $cvv = null;
+    public ?string $cvv = null;
 
     /**
      * @var string|null Token
