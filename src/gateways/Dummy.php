@@ -12,6 +12,7 @@ use craft\commerce\base\Plan;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\base\SubscriptionGateway;
 use craft\commerce\base\SubscriptionResponseInterface;
+use craft\commerce\controllers\PaymentsController;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\payments\CreditCardPaymentForm;
@@ -25,6 +26,7 @@ use craft\commerce\models\subscriptions\SubscriptionForm;
 use craft\commerce\models\subscriptions\SwitchPlansForm;
 use craft\commerce\models\Transaction;
 use craft\elements\User;
+use craft\helpers\Html;
 use craft\helpers\StringHelper;
 use craft\web\Response as WebResponse;
 use craft\web\View;
@@ -63,6 +65,7 @@ class Dummy extends SubscriptionGateway
         $previousMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_CP);
         $html = Craft::$app->getView()->renderTemplate('commerce/_components/gateways/_creditCardFields', $params);
+        $html = Html::namespaceInputs($html, PaymentsController::PAYMENT_FORM_NAMESPACE . sprintf('[%s]', $this->handle));
         $view->setTemplateMode($previousMode);
 
         return $html;
