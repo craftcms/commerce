@@ -76,6 +76,7 @@
                 {{ cart.gateway.getPaymentFormHtml(params)|raw }}
               </div>
 
+              {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
               <style>
               #paymentForm input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
               #paymentForm input:hover { border: 1px solid rgba(107,114,128); }
