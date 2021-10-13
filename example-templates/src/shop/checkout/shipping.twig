@@ -13,7 +13,9 @@
       </h1>
 
       {% if not cart.availableShippingMethodOptions|length %}
-        <p class="my-3">{{ 'No shipping methods available.'|t }}</p>
+        <p class="my-3">
+          {{- 'No shipping methods available.'|t -}}
+        </p>
         <div>
           <a href="{{ url('/[[folderName]]/checkout/payment-method') }}"
              class="[[classes.btn.base]] [[classes.btn.mainColor]]"
@@ -21,9 +23,7 @@
             {{- 'Continue to payment method'|t -}}
           </a>
         </div>
-      {% endif %}
-
-      {% if cart.availableShippingMethodOptions|length %}
+      {% else %}
         <div class="mt-3">
           <form method="post">
             {{ csrfInput() }}
@@ -33,9 +33,9 @@
 
             {% for handle, method in cart.availableShippingMethodOptions %}
               <div class="js-shipping-select mt-2">
-                <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer">
+                <label class="block [[classes.box.selection]]">
                   <div class="flex justify-start items-center">
-                    <div class="pr-2">
+                    <div class="pr-3">
                       {{ input('radio', 'shippingMethodHandle', handle, {
                         checked: handle == cart.shippingMethodHandle
                       }) }}
@@ -50,7 +50,7 @@
             {% endfor %}
             <span class="flash">{{ cart.getErrors('shippingMethod')|join }}</span>
 
-            <div class="mt-3">
+            <div class="mt-6 text-right">
               {{ tag('button', {
                 type: 'submit',
                 class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
