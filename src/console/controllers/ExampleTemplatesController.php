@@ -60,7 +60,7 @@ class ExampleTemplatesController extends Controller
 
     /**
      * @var string The base color for the generated example templates.
-     * Possible values are: gray, red, yellow, green, blue, indigo, purple or pink.
+     * Possible values are: red, yellow, green, blue, indigo, purple or pink.
      */
     public $baseColor;
 
@@ -72,7 +72,7 @@ class ExampleTemplatesController extends Controller
     /**
      * @var string[]
      */
-    private $_colors = ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+    private $_colors = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
 
     /**
      * @inheritdoc
