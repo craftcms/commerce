@@ -49,45 +49,53 @@ Outputs the global site footer.
   </div>
 </div>
 
-<div class="bg-gray-900 text-white">
+<div class="bg-gray-900 text-gray-400 pt-8 pb-12">
   <div class="container mx-auto p-6">
-    <h3 class="text-2xl pb-3">
-      {{- 'Example Templates'|t -}}
-    </h3>
-    <p class="pb-3 max-w-2xl">{{ 'These are the example templates for Craft Commerce 3.4.'|t }}</p>
-    <p class="pb-3 max-w-2xl">{{ 'They’re not meant to use as-is for your site, but as a starting point for learning and
-      further customization.'|t }}</p>
-    <p class="pb-3">{{ 'Here are some other resources to get you started:'|t }}</p>
-    <ul class="list-disc list-inside pb-2">
-      <li>
-        <a href="https://craftcms.com/docs/commerce/3.x/" class="[[classes.a]] underline">
-          {{- 'Craft Commerce Documentation'|t -}}
-        </a>.
-      </li>
-      <li>
-        <a href="https://craftcms.com/docs/3.x/" class="[[classes.a]] underline">
-          {{- 'Craft CMS Documentation'|t -}}
-        </a>.
-      </li>
-      <li>
-        <a href="http://craftcms.stackexchange.com" class="[[classes.a]] underline">
-          {{- 'Craft CMS Stack Exchange'|t -}}
-        </a>.
-        Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
-      </li>
-      <li>
-        <a href="https://craftcms.com/discord" class="[[classes.a]] underline">
-          {{- 'Craft Discord Community'|t -}}
-        </a>.
-        Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
-      </li>
-    </ul>
-    <p class="pb-2 pt-2 text-xs text-gray-700">
-      {{ 'These templates use <a href="{url}" class="underline">Tailwind</a> CSS classes and native JavaScript. You’re
+    <div class="md:flex">
+      <div class="md:w-1/2 md:pr-6">
+        <h3 class="text-xl pb-3 text-gray-300">
+          {{- 'Example Templates'|t -}}
+        </h3>
+        <p class="pb-3">
+          {{ 'These Craft Commerce 3.4 example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
       running the {edition} edition of Craft Commerce.'|t({
-        url: 'https://tailwindcss.com',
-        edition: craft.commerce.edition|upper
-      })|raw }}
-    </p>
+            url: 'https://tailwindcss.com',
+            edition: craft.commerce.edition|upper
+          })|raw }}
+        </p>
+        <p>
+          {{ 'Use these templates as a starting point for learning and customizing—you’ll want to customize them for your site.'|t }}
+        </p>
+      </div>
+      <div class="md:w-1/2 md:pl-6">
+        <h5 class="text-gray-600 pb-2 uppercase text-sm tracking-wide pt-3">
+          {{- 'More Resources'|t -}}
+        </h5>
+        <ul class="list-disc list-inside pb-2">
+          <li>
+            <a href="https://craftcms.com/docs/commerce/3.x/" class="[[classes.a]] underline">
+              {{- 'Craft Commerce Documentation'|t -}}
+            </a>.
+          </li>
+          <li>
+            <a href="https://craftcms.com/docs/3.x/" class="[[classes.a]] underline">
+              {{- 'Craft CMS Documentation'|t -}}
+            </a>.
+          </li>
+          <li>
+            <a href="http://craftcms.stackexchange.com" class="[[classes.a]] underline">
+              {{- 'Craft CMS Stack Exchange'|t -}}
+            </a>.
+            Use the <code class="rounded p-1 bg-gray-700 text-xs">plugin-craftcommerce</code> tag.
+          </li>
+          <li>
+            <a href="https://craftcms.com/discord" class="[[classes.a]] underline">
+              {{- 'Craft Discord Community'|t -}}
+            </a>.
+            Use the <code class="rounded p-1 bg-gray-700 text-xs">#commerce</code> channel.
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
