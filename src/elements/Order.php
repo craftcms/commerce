@@ -1751,6 +1751,12 @@ class Order extends Element
                 }
             }
 
+            if (!$this->shippingMethodHandle) {
+                $this->shippingMethodName = null;
+            } else if ($shippingMethod = $this->getShippingMethod()) {
+                $this->shippingMethodName = $shippingMethod->getName();
+            }
+
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $key => $item) {
                 $originalSalePrice = $item->getSalePrice();
@@ -1885,20 +1891,6 @@ class Order extends Element
         }
 
         return $options;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeSave(bool $isNew): bool
-    {
-        if (!$this->shippingMethodHandle) {
-            $this->shippingMethodName = null;
-        } else if ($shippingMethod = $this->getShippingMethod()) {
-            $this->shippingMethodName = $shippingMethod->getName();
-        }
-
-        return parent::beforeSave($isNew);
     }
 
     /**
