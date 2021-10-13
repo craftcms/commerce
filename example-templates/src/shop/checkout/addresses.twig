@@ -24,13 +24,15 @@ Outputs a form for collecting an order’s shipping and billing address.
           {{ redirectInput('[[folderName]]/checkout/shipping') }}
 
           {% if not cart.email %}
-            <label for="email">{{ 'Email'|t }}</label>
-            {{ input('email', 'email', cart.email, {
-              id: 'email',
-              placeholder: 'email@site.com',
-              class: ['w-full', '[[classes.input]]']
-            }) }}
-            <span class="flash">{{ cart.getErrors('email')|join }}</span><br>
+            <div class="mb-6">
+              <label for="email">{{ 'Email'|t }}</label>
+              {{ input('email', 'email', cart.email, {
+                id: 'email',
+                placeholder: 'email@site.com',
+                class: ['w-full', '[[classes.input]]']
+              }) }}
+              <span class="flash">{{ cart.getErrors('email')|join }}</span>
+            </div>
           {% endif %}
 
           {{ include('[[folderName]]/_private/address/fieldset', {
