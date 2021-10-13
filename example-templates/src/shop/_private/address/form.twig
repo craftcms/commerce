@@ -168,16 +168,6 @@ Outputs address form fields for editing an address.
       }) }}
       {{ _self.displayErrors(model, 'phone') }}
     </div>
-    <div class="md:w-1/2 md:mx-4 my-2">
-      <label for="{{ modelName }}-alternativePhone">
-        {{- 'Alternative Phone'|t -}}
-      </label>
-      {{ input('tel', modelName ~ '[alternativePhone]', model ? model.alternativePhone : '', {
-        id: modelName ~ '-alternativePhone',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {{ _self.displayErrors(model, 'alternativePhone') }}
-    </div>
   </div>
 
   <div class="my-2">
@@ -224,119 +214,6 @@ Outputs address form fields for editing an address.
     }) }}
     {{ _self.displayErrors(model, 'label') }}
   </div>
-
-  {#
-  <div class="my-2">
-    <label for="{{ modelName }}-notes">
-      {{- 'Notes'|t -}}
-    </label>
-    {{ tag('textarea', {
-      name: modelName ~ '[notes]',
-      id: modelName ~ '-notes',
-      cols: 30,
-      rows: 3,
-      class: ['w-full', '[[classes.input]]'],
-      text: model ? model.notes : ''
-    }) }}
-    {{ _self.displayErrors(model, 'notes') }}
-  </div>
-
-  <div class="mt-3">
-    <label for="{{ modelName }}-attention">
-      {{- 'Attention'|t -}}
-    </label>
-    {{ input('text', modelName ~ '[attention]', model ? model.attention : '', {
-      id: modelName ~ '-attention',
-      class: ['w-full', '[[classes.input]]']
-    }) }}
-    {% if model and model.getErrors('attention') %}
-      <div class="text-red-700">{{ model.getErrors('attention')|join }}</div>
-    {% endif %}
-  </div>
-
-  <div class="mt-3">
-    <label for="{{ modelName }}-title">
-      {{- 'Title'|t -}}
-    </label>
-    {{ input('text', modelName ~ '[title]', model ? model.title : '', {
-      id: modelName ~ '-title',
-      class: ['w-full', '[[classes.input]]']
-    }) }}
-    {% if model and model.getErrors('title') %}
-      <span class="text-red-700">{{ model.getErrors('title')|join }}</span>
-    {% endif %}
-  </div>
-
-  <div class="mt-3">
-    <label for="{{ modelName }}-fullName">
-      {{- 'Full Name'|t -}}
-    </label>
-    {{ input('text', modelName ~ '[fullName]', model ? model.fullName : '', {
-      id: modelName ~ '-fullName',
-      class: ['w-full', '[[classes.input]]']
-    }) }}
-    {% if model and model.getErrors('fullName') %}
-      <div class="text-red-700">{{ model.getErrors('fullName')|join }}</div>
-    {% endif %}
-  </div>
-
-  <div class="flex -mx-4 mt-3">
-    <div class="flex-1 mx-4">
-      <label for="{{ modelName }}-custom1">
-        {{- 'Custom 1'|t -}}
-      </label>
-      {{ input('text', modelName ~ '[custom1]', model ? model.custom1 : '', {
-        id: modelName ~ '-custom1',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {% if model and model.getErrors('custom1') %}
-        <div class="text-red-700">{{ model.getErrors('custom1')|join }}</div>
-      {% endif %}
-    </div>
-
-    <div class="flex-1 mx-4">
-      <label for="{{ modelName }}-custom2">
-        {{- 'Custom 2'|t -}}
-      </label>
-      {{ input('text', modelName ~ '[custom2]', model ? model.custom2 : '', {
-        id: modelName ~ '-custom2',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {% if model and model.getErrors('custom2') %}
-        <div class="text-red-700">{{ model.getErrors('custom2')|join }}</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="flex -mx-4 mt-3">
-    <div class="flex-1 mx-4">
-      <label for="{{ modelName }}-custom3">
-        {{- 'Custom 3'|t -}}
-      </label>
-      {{ input('text', modelName ~ '[custom3]', model ? model.custom3 : '', {
-        id: modelName ~ '-custom3',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {% if model and model.getErrors('custom3') %}
-        <div class="text-red-700">{{ model.getErrors('custom3')|join }}</div>
-      {% endif %}
-    </div>
-
-    <div class="flex-1 mx-4">
-      <label for="{{ modelName }}-custom4">
-        {{- 'Custom 4'|t -}}
-      </label>
-      {{ input('text', modelName ~ '[custom4]', model ? model.custom4 : '', {
-        id: modelName ~ '-custom4',
-        class: ['w-full', '[[classes.input]]']
-      }) }}
-      {% if model and model.getErrors('custom4') %}
-        <div class="text-red-700">{{ model.getErrors('custom4')|join }}</div>
-      {% endif %}
-    </div>
-  </div>
-  #}
-
 </div>
 
 {% js %}
