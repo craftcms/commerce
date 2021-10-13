@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where shipping rules could never match when the cart was empty. ([#2583](https://github.com/craftcms/commerce/issues/2583))
+- Fixed a bug where a default shipping method was not being set per the `autoSetCartShippingMethodOption` setting. ([#2584](https://github.com/craftcms/commerce/issues/2584))
 
 ## 3.4.4 - 2021-10-07
 
