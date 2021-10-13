@@ -3,9 +3,11 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\controllers\PaymentsController::PAYMENT_FORM_NAMESPACE`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
+- When using the Payments controller payment form fields are now expected to be namespaced.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
 - `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
