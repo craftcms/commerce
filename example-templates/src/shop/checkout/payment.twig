@@ -13,7 +13,7 @@
       {% if craft.commerce.settings.allowCheckoutWithoutPayment %}
         <div class="border-b border-gray-300 pb-10 mb-10">
           <h1 class="font-bold text-xl">
-            {{- 'Pay later'|t -}}
+            {{- 'Pay Later'|t -}}
           </h1>
           <p>{{ 'Commit to buy now, and make payment later...'|t }}</p>
           <div class="mt-1">
@@ -53,7 +53,7 @@
           {% endfor %}
         {% endif %}
 
-        <div class="mt-3 max-w-md [[classes.box.base]]">
+        <div class="mt-3">
           <form id="paymentForm" method="post" action="">
             {{ csrfInput() }}
             {{ actionInput('commerce/payments/pay') }}
@@ -72,7 +72,21 @@
                 {% set params = { currency: cart.paymentCurrency } %}
               {% endif %}
 
-              {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+              <div class="max-w-3/4">
+                {{ cart.gateway.getPaymentFormHtml(params)|raw }}
+              </div>
+
+              <style>
+              #paymentForm input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
+              #paymentForm input:hover { border: 1px solid rgba(107,114,128); }
+              {# Column containers #}
+              #paymentForm .grid,
+              #paymentForm .card-data div div:nth-child(2) { display: flex; margin-right: -0.75rem; margin-left: -0.75rem; }
+              {# Columns #}
+              #paymentForm .grid .item,
+              #paymentForm input.card-expiry,
+              #paymentForm input.card-cvc { width: 50%; margin-right: 0.75rem; margin-left: 0.75rem; }
+              </style>
 
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
@@ -80,9 +94,8 @@
                     {{ input('checkbox', 'savePaymentSource', 1) }}
                     {{ 'Save card for future purchases'|t }}
                   </label>
-                </div><br/>
+                </div>
               {% endif %}
-
             {% else %}
               {{ cart.gateway.getPaymentConfirmationFormHtml({})|raw }}
             {% endif %}
@@ -118,7 +131,7 @@
       {% endif %}
     </div>
 
-    <div class="w-1/3 px-8 border-l border-gray-lighter">
+    <div class="w-1/3 px-8">
       {{ include('[[folderName]]/checkout/_includes/order-summary', {
         showShippingAddress: true,
         showShippingMethod: true
