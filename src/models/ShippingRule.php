@@ -283,7 +283,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
             }
         }
 
-        $wholeOrderNonShippable = $nonShippableItems > 0 && count($lineItems) == count($nonShippableItems);
+        $wholeOrderNonShippable = count($nonShippableItems) > 0 && count($lineItems) == count($nonShippableItems);
 
         if ($wholeOrderNonShippable) {
             return false;

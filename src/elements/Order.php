@@ -1078,23 +1078,26 @@ class Order extends Element
      */
     public function init()
     {
-        // Set default addresses on the order
+        // Set default addresseses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-            $hasPrimaryShippingAddress = !$this->shippingAddressId && $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
-            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
-                $this->setShippingAddress($shippingAddress);
+            if (!$this->shippingAddressId) {
+                $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+                if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
+                    $this->setShippingAddress($shippingAddress);
+                }
             }
-            $hasPrimaryBillingAddress = !$this->billingAddressId && $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
-            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
-                $this->setBillingAddress($billingAddress);
+            if (!$this->billingAddressId) {
+                $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+                if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
+                    $this->setBillingAddress($billingAddress);
+                }
             }
         }
 
-        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+        // Sets a default shipping method
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
-                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-            }
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
         if ($this->orderLanguage === null) {
@@ -1739,6 +1742,21 @@ class Order extends Element
         }
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+
+            // Make sure we set a default shipping method option
+            if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+                $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+                if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                }
+            }
+
+            if (!$this->shippingMethodHandle) {
+                $this->shippingMethodName = null;
+            } else if ($shippingMethod = $this->getShippingMethod()) {
+                $this->shippingMethodName = $shippingMethod->getName();
+            }
+
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $key => $item) {
                 $originalSalePrice = $item->getSalePrice();
@@ -1873,19 +1891,6 @@ class Order extends Element
         }
 
         return $options;
-    }
-
-    public function beforeSave(bool $isNew): bool
-    {
-        if (!$this->shippingMethodHandle) {
-            // Reset shipping method name if there is no handle
-            $this->shippingMethodName = null;
-        } else if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
-            // Update shipping method name if there is a handle and we can retrieve the method
-            $this->shippingMethodName = $shippingMethod->getName();
-        }
-
-        return parent::beforeSave($isNew);
     }
 
     /**
