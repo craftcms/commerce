@@ -15,10 +15,10 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
   </h2>
 
   {% if addresses and currentUser %}
-    <div class="flex flex-wrap -mx-2 pb-4">
+    <div class="md:flex md:flex-wrap md:-mx-2 pb-4">
       {% for address in addresses %}
         {% set editUrl = '/[[folderName]]/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
-        <div class="px-2 w-1/2 pb-2">
+        <div class="pb-2 my-4 md:px-2 md:w-1/2 md:my-0">
           <label data-address-id="{{ address.id }}"
                  class="block relative address-select js-address-select [[classes.box.selection]]"
           >
