@@ -11,7 +11,7 @@ Common, top-level layout template.
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>{{ 'Craft Commerce'|t }}</title>
+  <title>{{ siteName ~ ' Shop' }}</title>
 
   [[resourceTags]]
 
@@ -33,7 +33,7 @@ Common, top-level layout template.
     <div class="container mx-auto p-6">
       <h1 class="text-3xl">
         <a href="{{ url('/[[folderName]]') }}" class="text-white">
-          {{- '[[folderName]]'|title -}}
+          {{- siteName ~ ' Shop' -}}
         </a>
       </h1>
     </div>
