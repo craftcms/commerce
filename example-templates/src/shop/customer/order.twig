@@ -22,13 +22,24 @@
       <p><a href="{{ url('/[[folderName]]/customer') }}" class="[[classes.a]]">&larr; {{ 'View My Orders'|t }}</a></p>
     </div>
   {% endif %}
-  <h1 class="text-2xl font-semibold mt-3">
-    {{- 'Order {ref}'|t({ ref: order.reference }) -}}
-    <small class="block text-sm text-gray-600 font-normal">{{ order.dateOrdered|date }}</small>
-  </h1>
+
+  <div class="lg:flex mt-5">
+    <div class="lg:w-1/2">
+      <h1 class="text-2xl font-semibold">
+        {{- 'Order {ref}'|t({ ref: order.reference }) -}}
+        <small class="block text-sm text-gray-600 font-normal">{{ order.dateOrdered|date }}</small>
+      </h1>
+    </div>
+    <div class="lg:w-1/2 lg:text-right">
+      {# Display a link to download a PDF if the order has a PDF URL and a PDF has been configured #}
+      {% if order.pdfUrl and craft.commerce.pdfs.hasEnabledPdf %}
+        <a href="{{ order.getPdfUrl('receipt') }}" class="[[classes.a]]">{{ 'Download PDF'|t }}</a>
+      {% endif %}
+    </div>
+  </div>
 
   <div class="lg:flex lg:-mx-6 my-6">
-    <div class="lg:w-2/5 lg:mx-6">
+    <div class="lg:w-1/3 lg:mx-6">
       {# High-level details #}
       <div class="flex items-center w-full">
         <div class="text-sm text-gray-600 pr-2">{{ 'Customer'|t }}:</div>
@@ -50,13 +61,6 @@
         <div class="flex items-center w-full">
           <div class="text-sm text-gray-600 pr-2">{{ 'Shipping Method'|t }}:</div>
           <div class="font-bold">{{ order.shippingMethodName }}</div>
-        </div>
-      {% endif %}
-      {# Display a link to download a PDF if the order has a PDF URL and a PDF has been configured #}
-      {% if order.pdfUrl and craft.commerce.pdfs.hasEnabledPdf %}
-        <div class="flex items-center w-full">
-          <div class="text-sm text-gray-600 pr-2">{{ 'PDF'|t }}:</div>
-          <div><a href="{{ order.getPdfUrl('receipt') }}" class="[[classes.a]]">{{ 'Download'|t }}</a></div>
         </div>
       {% endif %}
 
@@ -97,14 +101,14 @@
         </div>
       {% endif %}
     </div>
-    <div class="mt-10 lg:w-3/5 lg:mx-6 lg:mt-0">
+    <div class="mt-10 lg:w-2/3 lg:mx-6 lg:mt-0">
       {# Order item and adjustment detail #}
-      <table class="w-full">
+      <table class="w-full lg:-mt-2">
         <tbody>
         {% for item in order.lineItems %}
           <tr class="align-top">
             <td class="pb-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}" rowspan="2">
-              <h3 class="text-lg">
+              <h3 class="text-lg pt-2">
                 {{ item.description }}
                 {% if item.qty > 1 %}
                   <small>× {{ item.qty }}</small>
@@ -115,9 +119,9 @@
                 </span>
               {% if item.options|length %}
                 <div class="mt-2 relative">
-                    <span class="absolute top-0 left-0 pt-2 pl-2 text-2xs text-gray-500 uppercase tracking-wider">
-                      {{- 'Options'|t -}}
-                    </span>
+                  <span class="absolute top-0 left-0 pt-2 pl-2 text-xs text-gray-500 uppercase tracking-wider">
+                    {{ 'Options'|t }}
+                  </span>
                   <code class="text-xs p-3 pt-8 bg-gray-100 inline-block tracking-wider font-mono text-gray-600">
                     {{- item.options|json_encode -}}
                   </code>
@@ -126,20 +130,20 @@
             </td>
             <td class="py-3 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}">
               {% if item.note %}
-                <div class="mt-1 flex">
-                  <div class="pr-2 uppercase">{{ 'Note'|t }}</div>
+                <div>
+                  <div class="text-xs block text-gray-500">{{ 'Note'|t }}:</div>
                   <div>{{ item.note }}</div>
                 </div>
               {% endif %}
               {% if item.options.giftWrapped is defined %}
-                <div class="mt-1">
-                  <div class="pr-2 uppercase">{{ 'Gift Wrapped?'|t }}</div>
+                <div>
+                  <div class="text-xs block text-gray-500">{{ 'Gift Wrapped?'|t }}</div>
                   <div>{{ item.options.giftWrapped|title }}</div>
                 </div>
               {% endif %}
             </td>
 
-            <td class="py-3 pr-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
+            <td class="py-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
               <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                 <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
                 <div class="text-sm">{% if item.onSale %}
@@ -157,13 +161,13 @@
                 </div>
               {% endif %}
               <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
-                <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
+                <div class="text-xs">{{ 'Subtotal'|t }}:</div>
                 <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
               </div>
             </td>
           </tr>
           <tr class="">
-            <td class="pb-3 pr-3 text-right" colspan="2">
+            <td class="pb-3 text-right" colspan="2">
               {% if item.adjustments|length %}
                 <div class="text-left text-2xs uppercase tracking-wider text-gray-600">{{ 'Adjustments'|t }}</div>
                 <div class="border-t border-gray-300 border-dotted mt-1">
@@ -198,7 +202,7 @@
 
         <tr>
           <td></td>
-          <td colspan="2" class="text-right pr-3 pb-3">
+          <td colspan="2" class="text-right pb-3">
             <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
                  title="{{ order.itemSubTotal }}">
               <div class="text-sm text-gray-600 pr-2">{{ 'Item Subtotal'|t }}:</div>
@@ -236,7 +240,7 @@
         {% endif %}
         <tr>
           <td colspan="2" class="border-t-2 border-gray-300"></td>
-          <td class="text-right align-text-top border-t-2 border-gray-300 pt-3 pr-3">
+          <td class="text-right align-text-top border-t-2 border-gray-300 pt-3">
             <div class="mt-3">
               <strong class="text-sm text-gray-600">{{ 'Adjustment Totals'|t }}</strong>
             </div>
