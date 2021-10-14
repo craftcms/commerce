@@ -7,7 +7,11 @@
   <div>
     <div class="flex flex-wrap -mx-2">
       <div class="w-full md:w-1/2 p-2">
-        <div class="bg-cover bg-center bg-gray-300 h-64 rounded"></div>
+        {% include "[[folderName]]/_private/images/placeholder.svg" with {
+          class: 'w-full h-auto rounded',
+          width: 625,
+          height: 300
+        } %}
       </div>
       <div class="w-full md:w-1/2 p-2">
         <h1 class="text-3xl block sm:inline">
@@ -37,7 +41,8 @@
               {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
               <div class="flex items-center justify-between w-full">
                 <div class="w-1/2">
-                  <span class="italic">{{ variant.title }}</span>
+                  <span class="inline-block mr-1">{{ variant.title }}</span>
+                  <span class="inline-block font-mono text-xs text-gray-500">{{ variant.sku }}</span>
                 </div>
                 <div class="pl-2 w-1/4">
                   {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
