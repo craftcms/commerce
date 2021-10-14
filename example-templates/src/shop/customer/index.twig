@@ -6,58 +6,57 @@
   .isCompleted(true)
   .all() %}
 
+{# Truncate order preview line items after this many to avoid an overly-verbose layout #}
+{% set limitPreviewLineItems = 4 %}
+
 {% set extraHead %}
   <meta name="robots" content="noindex">
 {% endset %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  {% if currentUser %}
-    <h1 class="text-3xl block sm:inline">
-      {{- 'My Orders'|t -}}
-    </h1>
+  <h1 class="text-3xl block sm:inline">
+    {{- 'My Orders'|t -}}
+  </h1>
 
+  {% if currentUser %}
     {% if orders|length %}
-      <table class="w-full mb-8 mt-3 table-auto">
-        <thead>
-        <tr class="bg-gray-300 text-left">
-          <th class="p-2">{{ 'Order'|t }}</th>
-          <th class="p-2">{{ 'Date'|t }}</th>
-          <th class="p-2">{{ 'Total Quantity'|t }}</th>
-          <th class="p-2">{{ 'Total'|t }}</th>
-        </tr>
-        </thead>
-        <tbody>
+      <div class="grid my-6 grid-cols-3 gap-6">
         {% for order in orders %}
-          {% set rowClass = cycle(['bg-gray-100', ''], loop.index0) %}
-          <tr class="{{ rowClass }}">
-            <td class="p-2">
-              <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}"
-                 class="[[classes.a]]">
-                {{ 'Order'|t }} {{ order.reference }}
-              </a>
-            </td>
-            <td class="p-2">{{ order.dateOrdered|date }}</td>
-            <td class="p-2">{{ order.totalQty }} {{ 'items'|t }}</td>
-            <td class="p-2">{{ order.totalPriceAsCurrency }}</td>
-          </tr>
-          <tr class="{{ rowClass }} text-sm">
-            <td class="p-2" colspan="4">
-              <div class="border-t border-gray-300 border-dashed p-2">
-                <h4 class="text-gray-500 tracking-wide font-mono text-xs uppercase">{{ 'Items'|t }}</h4>
-                <ul>
-                  {% for item in order.lineItems %}
-                    <li>
-                      {{ item.qty }} x {{ item.description }}
-                    </li>
-                  {% endfor %}
-                </ul>
+          {% set totalLineItems = order.lineItems|length %}
+          <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="block border rounded-md px-6 py-6 hover:shadow-md w-full">
+            <div class="flex">
+              <div class="w-2/3">
+                <h2 class="text-lg">
+                  {{ order.dateOrdered|date }}
+                  <small class="block text-sm text-gray-600 font-normal">
+                    {{- order.reference -}}
+                  </small>
+                </h2>
               </div>
-            </td>
-          </tr>
+              <div class="w-1/3 text-right">
+                {{ order.totalPriceAsCurrency }}
+              </div>
+            </div>
+            <div class="border-t border-dotted text-sm mt-3 pt-3">
+            <span class="block text-xs uppercase tracking-wider text-gray-600">
+              {{ '{x} {items}'|t({
+                x: order.totalQty,
+                items: order.totalQty == 1 ? 'item' : 'items'
+              }) }}
+            </span>
+              {% for item in order.lineItems|slice(0, limitPreviewLineItems) %}
+                {{ item.description }}{% if item.qty > 1 %}<span class="text-xs"> × {{ item.qty }}</span>{% endif %}{% if not loop.last %}, {% endif %}
+              {%- endfor -%}
+              {%- if totalLineItems > limitPreviewLineItems and loop.last -%}
+                , {{ 'and {x} other items'|t({
+                x: totalLineItems - limitPreviewLineItems
+              }) }}
+              {% endif %}
+            </div>
+          </a>
         {% endfor %}
-        </tbody>
-      </table>
+      </div>
     {% else %}
       <div>
         <p>{{ 'You don’t have any orders yet.'|t }}</p>
@@ -77,10 +76,6 @@
       {{- 'Manage Stored Cards'|t -}}
     </a>
   {% else %}
-    <h1 class="text-3xl block sm:inline">
-      {{- 'My Orders'|t -}}
-    </h1>
-
     <p>{{ 'You don’t have any orders yet.'|t }}</p>
     <p>
       <a href="{{ url('/[[folderName]]/products') }}" class="[[classes.a]]">
@@ -88,5 +83,4 @@
       </a>
     </p>
   {% endif %}
-
 {% endblock %}
