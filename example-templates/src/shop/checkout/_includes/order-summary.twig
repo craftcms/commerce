@@ -49,7 +49,10 @@
       {% if cart.shippingAddress %}
         <div class="js-address-select border-0">
           {{ include('[[folderName]]/_private/address/address', {
-            'address': cart.shippingAddress
+            address: cart.shippingAddress,
+            ignoreKeys: ['label'],
+            boldKeys: [],
+            asLines: false
           }) }}
         </div>
       {% else %}

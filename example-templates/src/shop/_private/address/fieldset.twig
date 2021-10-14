@@ -28,7 +28,11 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
                 'data-model-name': name
               }) }}
               <span class="-mt-2 ml-3 mb-2">
-                {{ include('[[folderName]]/_private/address/address') }}
+                {{ include('[[folderName]]/_private/address/address', {
+                  address: address,
+                  boldKeys: [ address.label ? 'label' : 'name'],
+                  asLines: false
+                }) }}
               </span>
             </span>
             <span class="block mb-1">
