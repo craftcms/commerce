@@ -41,12 +41,6 @@ class ExampleTemplatesController extends Controller
     public $overwrite = false;
 
     /**
-     * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
-     * @since 3.3
-     */
-    public $cdnAssets;
-
-    /**
      * @var bool Whether to use HTMX
      * @since 3.3
      */
@@ -60,7 +54,7 @@ class ExampleTemplatesController extends Controller
 
     /**
      * @var string The base color for the generated example templates.
-     * Possible values are: red, yellow, green, blue, indigo, purple or pink.
+     * Possible values are: red, yellow, green, blue, indigo, purple, or pink.
      */
     public $baseColor;
 
@@ -84,7 +78,6 @@ class ExampleTemplatesController extends Controller
         $options[] = 'overwrite';
         $options[] = 'baseColor';
         $options[] = 'devBuild';
-        $options[] = 'cdnAssets';
         return $options;
     }
 
@@ -100,14 +93,15 @@ class ExampleTemplatesController extends Controller
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
             $this->useHtmx = true;
-            $this->cdnAssets = true;
         }
 
         $slash = DIRECTORY_SEPARATOR;
         $pathService = Craft::$app->getPath();
         $templatesPath = $this->_getTemplatesPath();
 
-        $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
+        $exampleTemplatesSource = FileHelper::normalizePath(
+            $pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop'
+        );
 
         if ($this->folderName) {
             $folderName = $this->folderName;
@@ -116,14 +110,9 @@ class ExampleTemplatesController extends Controller
             $folderName = $this->prompt('Choose folder name:', ['required' => true, 'default' => 'shop']);
         }
 
-        // Use HTMX
+        // Use htmx
         if ($this->useHtmx === null) {
-            $this->useHtmx = $this->confirm('Use HTMX for forms and links?', true);
-        }
-
-        // Use CDN for resources
-        if ($this->cdnAssets === null) {
-            $this->cdnAssets = $this->confirm('Use CDN link to resources (tailwind)?', true);
+            $this->useHtmx = $this->confirm('Use htmx for forms and links?', true);
         }
 
         // Folder name is required
@@ -140,23 +129,24 @@ class ExampleTemplatesController extends Controller
         $this->_addTranslationsToReplacementData();
         $this->_addResourceAssets();
 
-        // Let’s go!
-        $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
-
         try {
-            // Create a temporary directory to hold the copy of the templates before we replace variables.
+            // Create a temporary directory to hold the copy of the templates before we replace variables
             $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
             // Copy the templates to the temporary directory
             FileHelper::copyDirectory($exampleTemplatesSource, $tempDestination, ['recursive' => true, 'copyEmptyDirectories' => true]);
 
-            // Find all text files we want to replace [[ ]] notation in.
+            // Find all text files in which we want to replace [[ ]] notation.
             $files = FileHelper::findFiles($tempDestination, [
                 'only' => ['*.twig', '*.html', '*.svg', '*.css'],
             ]);
-            // Set the [[ ]] notion variables and write our the files.
+            // Set the [[ ]] notion variables and write the files
             foreach ($files as $file) {
                 $fileContents = file_get_contents($file);
-                $fileContents = str_replace(array_keys($this->_replacementData), array_values($this->_replacementData), $fileContents);
+                $fileContents = str_replace(
+                    array_keys($this->_replacementData),
+                    array_values($this->_replacementData),
+                    $fileContents
+                );
                 file_put_contents($file, $fileContents);
             }
         } catch (\Exception $e) {
@@ -196,7 +186,7 @@ class ExampleTemplatesController extends Controller
 
         $alreadyExists = is_dir($destination);
         if ($alreadyExists && !$this->overwrite) {
-            $errors[] = 'Folder with name "' . $folderName . '" already exists in the templates folder, and the `overwrite` param was not set to true, which would replace.';
+            $errors[] = 'Template folder "' . $folderName . '" already exists. Set the `overwrite` param to `true` if you want to replace it.';
             return $this->_returnErrors($errors);
         }
 
@@ -254,7 +244,7 @@ class ExampleTemplatesController extends Controller
     private function _addCssClassesToReplacementData()
     {
         $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
-        $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
+        $dangerColor = ($mainColor === 'red') ? 'purple' : 'red';
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[color]]' => $mainColor,
             '[[dangerColor]]' => $dangerColor,
@@ -272,33 +262,20 @@ class ExampleTemplatesController extends Controller
     }
 
     /**
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     *
      */
     private function _addResourceAssets(): void
     {
-        // URLs
-        $tailwindCssUrl = 'https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css';
-        $htmxJsUrl = 'https://unpkg.com/htmx.org@^1';
+        $resourceTags = [
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+        ];
 
-        // Resource Tags
-        $tailwindLinkTag = Html::cssFile($tailwindCssUrl);
-        $htmxScriptTag = Html::jsFile($htmxJsUrl);
-
-        $resourceTags = '';
-
-        if (!$this->cdnAssets) {
-            // Tailwind
-            $tailwindCssResponse = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
-            if ($tailwindCssResponse && $tailwindCssResponse->getStatusCode() == '200') {
-                $resourceTags .= Html::style($tailwindCssResponse->getBody()) . "\n";
-            }
-        } else {
-            $resourceTags .= $tailwindLinkTag . "\n"; // Tailwind
-            $resourceTags .= $this->useHtmx ? $htmxScriptTag . "\n" : ''; // Htmx
+        if ($this->useHtmx) {
+            $resourceTags[] = Html::jsFile('https://unpkg.com/htmx.org@^1');
         }
 
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[resourceTags]]' => $resourceTags,
+            '[[resourceTags]]' => implode("\n", $resourceTags),
             '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
         ]);
     }
