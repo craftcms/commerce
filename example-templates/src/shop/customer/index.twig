@@ -4,6 +4,7 @@
 {% set orders = craft.orders()
   .customer(craft.commerce.customers.customer)
   .isCompleted(true)
+  .orderBy('dateOrdered DESC')
   .all() %}
 
 {# Truncate order preview line items after this many to avoid an overly-verbose layout #}
@@ -68,10 +69,8 @@
       </div>
     {% endif %}
 
-    <hr class="my-3">
-
     <a href="{{ url('/[[folderName]]/customer/cards') }}"
-       class="[[classes.btn.base]] [[classes.btn.mainColor]]"
+       class="my-6 [[classes.btn.base]] [[classes.btn.mainColor]]"
     >
       {{- 'Manage Stored Cards'|t -}}
     </a>
