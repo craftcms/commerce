@@ -2,7 +2,7 @@
 {#
 Outputs a fieldset for selecting one of a user’s available addresses or creating a new one.
 
-@var addresses   array
+@var addresses   \craft\commerce\models\Address[]
 @var cart        \craft\commerce\elements\Order
 @var classes     string
 @var name        string
@@ -20,7 +20,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
         {% set editUrl = '/[[folderName]]/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
         <div class="px-2 w-1/2 pb-2">
           <label data-address-id="{{ address.id }}"
-                 class="block address-select js-address-select [[classes.box.selection]]"
+                 class="block relative address-select js-address-select [[classes.box.selection]]"
           >
             <span class="js-radio flex py-2">
               {{ input('radio', name ~ 'Id', address.id, {
@@ -35,6 +35,14 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
               <a href="{{ url(editUrl) }}" class="[[classes.btn.small]] [[classes.btn.grayColor]]">
                 {{- 'Edit'|t -}}
               </a>
+            </span>
+            <span class="absolute top-4 right-4">
+              {% if cart.customer.primaryBillingAddressId == address.id %}
+                <span title="{{ 'Primary billing address'|t }}">💳</span>
+              {% endif %}
+              {% if cart.customer.primaryShippingAddressId == address.id %}
+                <span title="{{ 'Primary shipping address'|t }}">📦</span>
+              {% endif %}
             </span>
           </label>
         </div>
