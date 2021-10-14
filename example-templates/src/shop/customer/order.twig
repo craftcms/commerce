@@ -33,7 +33,9 @@
     <div class="lg:w-1/2 lg:text-right">
       {# Display a link to download a PDF if the order has a PDF URL and a PDF has been configured #}
       {% if order.pdfUrl and craft.commerce.pdfs.hasEnabledPdf %}
-        <a href="{{ order.getPdfUrl('receipt') }}" class="[[classes.a]]">{{ 'Download PDF'|t }}</a>
+        <a href="{{ order.getPdfUrl('receipt') }}" download target="_blank" class="[[classes.a]]">
+          {{ 'Download PDF'|t }}
+        </a>
       {% endif %}
     </div>
   </div>
