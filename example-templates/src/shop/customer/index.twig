@@ -22,10 +22,10 @@
 
   {% if currentUser %}
     {% if orders|length %}
-      <div class="grid my-6 grid-cols-3 gap-6">
+      <div class="my-6 sm:grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-4">
         {% for order in orders %}
           {% set totalLineItems = order.lineItems|length %}
-          <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="block border rounded-md px-6 py-6 hover:shadow-md w-full">
+          <a href="{{ url('/[[folderName]]/customer/order', { number: order.number }) }}" class="block border my-4 sm:my-0 rounded-md px-6 py-6 hover:shadow-md w-full">
             <div class="flex">
               <div class="w-2/3">
                 <h2 class="text-lg">
