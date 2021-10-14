@@ -75,8 +75,8 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
     <div class="js-body{% if currentUser %} hidden{% endif %}">
       {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
       {{ include('[[folderName]]/_private/address/form', {
-        'modelName': name,
-        'address': attribute(cart, name)
+        modelName: name,
+        address: attribute(cart, name)
       }) }}
     </div>
   </div>
