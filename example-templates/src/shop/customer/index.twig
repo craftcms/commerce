@@ -16,9 +16,22 @@
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
-  <h1 class="text-3xl block sm:inline">
-    {{- 'My Orders'|t -}}
-  </h1>
+  <div class="lg:flex lg:justify-between">
+    <h1 class="text-3xl block sm:inline">
+      {{- 'My Orders'|t -}}
+    </h1>
+    {% if currentUser %}
+    <div>
+      <a href="{{ url('/[[folderName]]/customer/cards') }}" class="lg:mr-6 [[classes.a]]">
+        {{- 'Manage Stored Cards'|t -}}
+      </a>
+
+      <a href="{{ logoutUrl }}" class="[[classes.a]]">
+        {{- 'Sign Out'|t -}}
+      </a>
+    </div>
+    {% endif %}
+  </div>
 
   {% if currentUser %}
     {% if orders|length %}
@@ -68,12 +81,6 @@
         </p>
       </div>
     {% endif %}
-
-    <a href="{{ url('/[[folderName]]/customer/cards') }}"
-       class="my-6 [[classes.btn.base]] [[classes.btn.mainColor]]"
-    >
-      {{- 'Manage Stored Cards'|t -}}
-    </a>
   {% else %}
     <p>{{ 'You don’t have any orders yet.'|t }}</p>
     <p>

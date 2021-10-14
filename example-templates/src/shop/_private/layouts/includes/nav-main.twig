@@ -20,13 +20,6 @@ Outputs the site’s global main navigation based on path and included `pages` a
   }
 ] %}
 
-{% if currentUser %}
-  {% set pages = pages|merge([{
-    label: 'My Account',
-    url: '[[folderName]]/customer'
-  }]) %}
-{% endif %}
-
 {% if 'checkout' not in craft.app.request.pathInfo %}
   <div class="bg-gray-100">
     <div class="container mx-auto justify-between items-center p-6 relative">
@@ -39,16 +32,29 @@ Outputs the site’s global main navigation based on path and included `pages` a
             {{- page.label|t -}}
           </a>
         {% endfor %}
+        <div class="absolute right-2 top-0">
+          {% if currentUser %}
+            <a href="{{ url('[[folderName]]/customer') }}"
+               class="mx-4 text-sm font-semibold">
+              {{- currentUser.email -}}
+            </a>
+          {% else %}
+            <a href="{{ url('[[folderName]]/customer/sign-in') }}"
+               class="mx-4">
+              {{- 'Sign In'|t -}}
+            </a>
+          {% endif %}
+          <a href="{{ url('[[folderName]]/cart') }}"
+             class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
+            {% if cart.totalQty %}
+              <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full text-white text-xs bg-[[color]]-800">
+                {{- cart.totalQty -}}
+              </span>
+            {% endif %}
+            <p role="img" aria-label="{{ 'Shopping Cart'|t }}">🛒</p>
+          </a>
+        </div>
       </nav>
-      <a href="{{ url('[[folderName]]/cart') }}"
-         class="absolute text-lg right-0 top-0 cursor-pointer mx-6 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
-        {% if cart.totalQty %}
-          <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-[[color]]-800 text-white text-xs">
-            {{- cart.totalQty -}}
-          </span>
-        {% endif %}
-        <p role="img" aria-label="{{ 'Shopping Cart'|t }}">🛒</p>
-      </a>
     </div>
   </div>
 {% endif %}
