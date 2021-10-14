@@ -72,27 +72,29 @@
                 {% set params = { currency: cart.paymentCurrency } %}
               {% endif %}
 
-              <div class="max-w-3/4">
+              <div class="gateway-payment-form max-w-3/4">
                 {{ cart.gateway.getPaymentFormHtml(params)|raw }}
               </div>
 
               {# Force in some basic styling for the gateway-provided form markup (better to build your own form markup!) #}
               <style>
-              #paymentForm input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
-              #paymentForm input:hover { border: 1px solid rgba(107,114,128); }
+              .gateway-payment-form input { padding: 0.5rem 1rem; width: 100%; margin-bottom: 1rem; line-height: 1.25; border: 1px solid rgba(209,213,219); border-radius: 0.25rem; }
+              .gateway-payment-form input:hover { border: 1px solid rgba(107,114,128); }
               {# Column containers #}
-              #paymentForm .grid,
-              #paymentForm .card-data div div:nth-child(2) { display: flex; margin-right: -0.75rem; margin-left: -0.75rem; }
+              .gateway-payment-form .grid,
+              .gateway-payment-form .card-data div div:nth-child(2) { display: flex; margin-right: -0.75rem; margin-left: -0.75rem; }
               {# Columns #}
-              #paymentForm .grid .item,
-              #paymentForm input.card-expiry,
-              #paymentForm input.card-cvc { width: 50%; margin-right: 0.75rem; margin-left: 0.75rem; }
+              .gateway-payment-form .grid .item,
+              .gateway-payment-form input.card-expiry,
+              .gateway-payment-form input.card-cvc { width: 50%; margin-right: 0.75rem; margin-left: 0.75rem; }
               </style>
 
               {% if cart.gateway.supportsPaymentSources() and currentUser %}
                 <div class="checkbox">
                   <label>
-                    {{ input('checkbox', 'savePaymentSource', 1) }}
+                    {{ input('checkbox', 'savePaymentSource', 1, {
+                      class: ['inline-block', 'mr-1']
+                    }) }}
                     {{ 'Save card for future purchases'|t }}
                   </label>
                 </div>
