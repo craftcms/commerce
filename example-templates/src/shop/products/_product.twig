@@ -5,15 +5,15 @@
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
   <div>
-    <div class="flex flex-wrap -mx-2">
-      <div class="w-full md:w-1/2 p-2">
+    <div class="flex flex-wrap -mx-3">
+      <div class="w-full md:w-1/2 p-3">
         {% include "[[folderName]]/_private/images/placeholder.svg" with {
           class: 'w-full h-auto rounded',
           width: 625,
           height: 300
         } %}
       </div>
-      <div class="w-full md:w-1/2 p-2">
+      <div class="w-full md:w-1/2 p-3">
         <h1 class="text-3xl block sm:inline">
           {{- product.defaultVariant.title -}}
         </h1>
@@ -44,20 +44,20 @@
                   <span class="inline-block mr-1">{{ variant.title }}</span>
                   <span class="inline-block font-mono text-xs text-gray-500">{{ variant.sku }}</span>
                 </div>
-                <div class="pl-2 w-1/4">
-                  {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
-                    step: 1,
-                    min: 1,
-                    class: ['w-full', '[[classes.input]]']
-                  }) }}
-                </div>
-                <div class="pl-2 text-right w-1/4">
+                <div class="pl-4 text-right w-1/4">
                   {% if variant.onSale %}
                     <del class="text-sm text-gray-500">{{ variant.priceAsCurrency }}</del>
                     <br>{{ variant.salePriceAsCurrency }}
                   {% else %}
                     {{ variant.priceAsCurrency }}
                   {% endif %}
+                </div>
+                <div class="pl-4 w-1/4">
+                  {{ input('number', 'purchasables[' ~ loop.index ~ '][qty]', product.variants|length == 1 ? 1 : 0, {
+                    step: 1,
+                    min: 1,
+                    class: ['w-full', '[[classes.input]]']
+                  }) }}
                 </div>
               </div>
             {% endfor %}
