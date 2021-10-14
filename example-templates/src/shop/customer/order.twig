@@ -73,7 +73,10 @@
             {{- 'Shipping & Billing Address'|t -}}
           </h2>
           {{ include('[[folderName]]/_private/address/address', {
-            address: order.shippingAddress
+            address: order.shippingAddress,
+            asLines: false,
+            omitKeys: ['label'],
+            boldKeys: []
           }) }}
         </div>
       {% else %}
@@ -83,7 +86,10 @@
           </h2>
           {% if order.shippingAddress %}
             {{ include('[[folderName]]/_private/address/address', {
-              address: order.shippingAddress
+              address: order.shippingAddress,
+              asLines: false,
+              omitKeys: ['label'],
+              boldKeys: []
             }) }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
@@ -95,7 +101,10 @@
           </h2>
           {% if order.billingAddress %}
             {{ include('[[folderName]]/_private/address/address', {
-              address: order.billingAddress
+              address: order.billingAddress,
+              asLines: false,
+              omitKeys: ['label'],
+              boldKeys: []
             }) }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
