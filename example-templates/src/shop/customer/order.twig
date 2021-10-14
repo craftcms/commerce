@@ -75,7 +75,7 @@
           {{ include('[[folderName]]/_private/address/address', {
             address: order.shippingAddress,
             asLines: false,
-            omitKeys: ['label'],
+            ignoreKeys: ['label'],
             boldKeys: []
           }) }}
         </div>
@@ -88,7 +88,7 @@
             {{ include('[[folderName]]/_private/address/address', {
               address: order.shippingAddress,
               asLines: false,
-              omitKeys: ['label'],
+              ignoreKeys: ['label'],
               boldKeys: []
             }) }}
           {% else %}
@@ -103,7 +103,7 @@
             {{ include('[[folderName]]/_private/address/address', {
               address: order.billingAddress,
               asLines: false,
-              omitKeys: ['label'],
+              ignoreKeys: ['label'],
               boldKeys: []
             }) }}
           {% else %}
