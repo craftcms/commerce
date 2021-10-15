@@ -53,9 +53,9 @@ class Transaction extends Model
     public ?int $userId = null;
 
     /**
-     * @var string Hash
+     * @var string|null Hash
      */
-    public string $hash;
+    public ?string $hash = null;
 
     /**
      * @var int Gateway ID
@@ -63,9 +63,9 @@ class Transaction extends Model
     public int $gatewayId;
 
     /**
-     * @var string Currency
+     * @var string|null Currency
      */
-    public string $currency;
+    public ?string $currency = null;
 
     /**
      * The payment amount in the payment currency.
@@ -76,9 +76,9 @@ class Transaction extends Model
     public float $paymentAmount;
 
     /**
-     * @var string Payment currency
+     * @var string|null Payment currency
      */
-    public string $paymentCurrency;
+    public ?string $paymentCurrency = null;
 
     /**
      * @var float Payment Rate
@@ -86,9 +86,9 @@ class Transaction extends Model
     public float $paymentRate;
 
     /**
-     * @var string Transaction Type
+     * @var string|null Transaction Type
      */
-    public string $type;
+    public ?string $type = null;
 
     /**
      * The amount in the currency (which is the currency of the order)
@@ -98,24 +98,24 @@ class Transaction extends Model
     public float $amount;
 
     /**
-     * @var string Status
+     * @var string|null Status
      */
-    public string $status;
+    public ?string $status = null;
 
     /**
-     * @var string reference
+     * @var string|null reference
      */
-    public string $reference;
+    public ?string $reference = null;
 
     /**
-     * @var string Code
+     * @var string|null Code
      */
-    public string $code;
+    public ?string $code = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public string $message;
+    public ?string $message = null;
 
     /**
      * @var string Note
