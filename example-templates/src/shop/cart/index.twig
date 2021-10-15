@@ -72,7 +72,7 @@ Outputs cart.
                     {% if hasDonationAmount %}
                       <div class="lg:mr-3">
                           <label for="lineitem-donationAmount-{{ item.id }}">
-                            <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">
+                            <span class="text-gray-500 text-xs block">
                               {{- 'Donation Amount'|t -}}
                             </span>
                           </label>
@@ -84,7 +84,7 @@ Outputs cart.
                       </div>
                     {% endif %}
                     <div class="lg:mr-3{{ hasDonationAmount ? ' hidden' : '' }}">
-                      <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">
+                      <span class="text-gray-500 text-xs block">
                         {{- 'Qty'|t -}}
                       </span>
                       {{ input(hasDonationAmount ? 'hidden' : 'number', 'lineItems[' ~ item.id ~ '][qty]', item.qty, {
@@ -98,7 +98,7 @@ Outputs cart.
                     </div>
                     <div class="lg:w-1/2">
                       <label for="lineitem-note-{{ item.id }}">
-                      <span class="text-gray-500 tracking-wide font-mono text-xs uppercase block">
+                      <span class="text-gray-500 text-xs block">
                         {{- 'Item Note'|t -}}
                       </span>
                       </label>
