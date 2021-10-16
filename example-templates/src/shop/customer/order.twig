@@ -157,23 +157,23 @@
             <td class="py-3 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
               <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                 <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
-                <div class="text-sm">{% if item.onSale %}
+                <div class="text-sm tabular-nums">{% if item.onSale %}
                   <del>{% endif %}{{ item.priceAsCurrency }}{% if item.onSale %}</del>{% endif %}
                 </div>
               </div>
               {% if item.onSale %}
                 <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
                   <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
-                  <div class="text-sm">{{ item.salePriceAsCurrency }}</div>
+                  <div class="text-sm tabular-nums">{{ item.salePriceAsCurrency }}</div>
                 </div>
                 <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
                   <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                  <div class="text-sm">{{ item.saleAmountAsCurrency }}</div>
+                  <div class="text-sm tabular-nums">{{ item.saleAmountAsCurrency }}</div>
                 </div>
               {% endif %}
               <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
                 <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
-                <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
+                <div class="text-sm tabular-nums">{{ item.subtotalAsCurrency }}</div>
               </div>
             </td>
           </tr>
@@ -187,14 +187,14 @@
                       <div class="pr-2">
                         <strong class="text-gray-400 text-xs uppercase">{{ adjustment.type }}</strong>
                       </div>
-                      <div class="">
+                      <div>
                         {{ adjustment.name }}
                         {% if adjustment.isEstimated %}<i
                                 class="text-grey-dark">{{ 'Estimated'|t }}</i>{% endif %}<br>
                         {{ adjustment.description }}
                       </div>
                       <div class="ml-auto">
-                          <span class="text-gray-500" title="{{ adjustment.amount }}">
+                          <span class="text-gray-500 tabular-nums" title="{{ adjustment.amount }}">
                             {{ ' ' ~ adjustment.amountAsCurrency }}
                           </span>
                       </div>
@@ -205,7 +205,7 @@
 
               <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
                 <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
-                <div class="font-bold">{{ item.totalAsCurrency }}</div>
+                <div class="font-bold tabular-nums">{{ item.totalAsCurrency }}</div>
               </div>
             </td>
           </tr>
@@ -216,7 +216,7 @@
             <div class="flex items-center w-full justify-end border-t border-gray-300 border-dotted pt-3"
                  title="{{ order.itemSubTotal }}">
               <div class="text-sm text-gray-600 pr-2">{{ 'Item Subtotal'|t }}:</div>
-              <div class="font-bold">{{ order.itemSubtotalAsCurrency }}</div>
+              <div class="font-bold tabular-nums">{{ order.itemSubtotalAsCurrency }}</div>
             </div>
           </td>
         </tr>
@@ -238,7 +238,7 @@
                       {{ adjustment.description }}
                     </div>
                     <div class="ml-auto">
-                        <span class="text-gray-500" title="{{ adjustment.amount }}">
+                        <span class="text-gray-500 tabular-nums" title="{{ adjustment.amount }}">
                           {{ ' ' ~ adjustment.amountAsCurrency }}
                         </span>
                     </div>
@@ -257,35 +257,35 @@
 
             <div class="flex items-center w-full justify-end" title="{{ order.totalShippingCost }}">
               <div class="text-xs text-gray-500 pr-2">{{ 'Total Shipping'|t }}:</div>
-              <div class="text-sm text-gray-500">{{ order.totalShippingCostAsCurrency }}</div>
+              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalShippingCostAsCurrency }}</div>
             </div>
             <div class="flex items-center w-full justify-end" title="{{ order.totalTax }}">
               <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax'|t }}:</div>
-              <div class="text-sm text-gray-500">{{ order.totalTaxAsCurrency }}</div>
+              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalTaxAsCurrency }}</div>
             </div>
             <div class="flex items-center w-full justify-end" title="{{ order.totalTaxIncluded }}">
               <div class="text-xs text-gray-500 pr-2">{{ 'Total Tax (inc)'|t }}:</div>
-              <div class="text-sm text-gray-500">{{ order.totalTaxIncludedAsCurrency }}</div>
+              <div class="text-sm text-gray-500 tabular-nums">{{ order.totalTaxIncludedAsCurrency }}</div>
             </div>
             {% if order.totalDiscount %}
               <div class="flex items-center w-full justify-end" title="{{ order.totalDiscount }}">
                 <div class="text-xs text-gray-500 pr-2">{{ 'Total Discount'|t }}:</div>
-                <div class="text-sm text-gray-500">{{ order.totalDiscountAsCurrency }}</div>
+                <div class="text-sm text-gray-500 tabular-nums">{{ order.totalDiscountAsCurrency }}</div>
               </div>
             {% endif %}
             <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPrice }}">
               <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
-              <div class="text-xl font-bold">{{ order.totalPriceAsCurrency }}</div>
+              <div class="text-xl font-bold tabular-nums">{{ order.totalPriceAsCurrency }}</div>
             </div>
 
             <div class="flex items-center w-full justify-end mt-3" title="{{ order.totalPaid }}">
               <div class="text-gray-600 pr-2">{{ 'Total Paid'|t }}:</div>
-              <div class="text-xl font-bold">{{ order.totalPaidAsCurrency }}</div>
+              <div class="text-xl font-bold tabular-nums">{{ order.totalPaidAsCurrency }}</div>
             </div>
 
             <div class="flex items-center w-full justify-end mt-3" title="{{ order.outstandingBalance }}">
               <div class="text-gray-600 pr-2">{{ 'Outstanding Balance'|t }}:</div>
-              <div class="text-xl font-bold">{{ order.outstandingBalanceAsCurrency }}</div>
+              <div class="text-xl font-bold tabular-nums">{{ order.outstandingBalanceAsCurrency }}</div>
             </div>
 
             {% if order.getOutstandingBalance() - order.getTotalAuthorized() > 0 %}

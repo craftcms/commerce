@@ -116,7 +116,7 @@ Outputs cart.
                   {% if not cart.hasErrors() %}
                     <div class="flex items-center w-full justify-end" title="{{ item.price }}">
                       <div class="text-xs pr-2">{{ 'Price'|t }}:</div>
-                      <div class="text-sm">
+                      <div class="text-sm tabular-nums">
                         {%- if item.onSale %}<del>{% endif %}
                         {{- item.priceAsCurrency -}}
                         {% if item.onSale %}</del>{% endif -%}
@@ -125,11 +125,11 @@ Outputs cart.
                     {% if item.onSale %}
                       <div class="flex items-center w-full justify-end" title="{{ item.salePrice }}">
                         <div class="text-xs pr-2">{{ 'Sale Price'|t }}:</div>
-                        <div class="text-sm">{{ item.salePriceAsCurrency }}</div>
+                        <div class="text-sm tabular-nums">{{ item.salePriceAsCurrency }}</div>
                       </div>
                       <div class="flex items-center w-full justify-end" title="{{ item.saleAmount }}">
                         <div class="text-xs pr-2">{{ 'Sale Amount'|t }}:</div>
-                        <div class="text-sm">{{ item.saleAmountAsCurrency }}</div>
+                        <div class="text-sm tabular-nums">{{ item.saleAmountAsCurrency }}</div>
                       </div>
 
                       {% set itemSales = item.snapshot.sales ?? [] %}
@@ -146,7 +146,7 @@ Outputs cart.
                     {% endif %}
                     <div class="flex items-center w-full justify-end" title="{{ item.subtotal }}">
                       <div class="text-xs pr-2">{{ 'Subtotal'|t }}:</div>
-                      <div class="text-sm">{{ item.subtotalAsCurrency }}</div>
+                      <div class="text-sm tabular-nums">{{ item.subtotalAsCurrency }}</div>
                     </div>
                   {% endif %}
                 </td>
@@ -167,7 +167,7 @@ Outputs cart.
                             <span class="text-gray-600 text-xs">{{ adjustment.description }}</span>
                           </div>
                           <div class="ml-auto">
-                            <span class="text-gray-500" title="{{ adjustment.amount }}">
+                            <span class="text-gray-500 tabular-nums" title="{{ adjustment.amount }}">
                               {{ ' ' ~ adjustment.amountAsCurrency }}
                             </span>
                           </div>
@@ -179,7 +179,7 @@ Outputs cart.
                   {% if not cart.hasErrors() %}
                     <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
                       <div class="text-sm text-gray-600 pr-2">Total:</div>
-                      <div class="font-bold">{{ item.totalAsCurrency }}</div>
+                      <div class="font-bold tabular-nums">{{ item.totalAsCurrency }}</div>
                     </div>
                   {% endif %}
                 </td>
@@ -193,7 +193,7 @@ Outputs cart.
                        title="{{ cart.itemSubTotal }}"
                   >
                     <div class="text-sm text-gray-600 pr-2">{{ 'Items Total'|t }}:</div>
-                    <div class="font-bold">{{ cart.itemTotalAsCurrency }}</div>
+                    <div class="font-bold tabular-nums">{{ cart.itemTotalAsCurrency }}</div>
                   </div>
                 </td>
               </tr>
@@ -218,7 +218,7 @@ Outputs cart.
                           {{ adjustment.description }}
                         </div>
                         <div class="ml-auto">
-                          <span class="text-gray-500"
+                          <span class="text-gray-500 tabular-nums"
                                 title="{{ adjustment.amount }}"
                           > {{ adjustment.amountAsCurrency }}</span>
                         </div>
@@ -230,7 +230,7 @@ Outputs cart.
             {% endif %}
             <tr>
               <td colspan="3" class="text-right align-text-top border-t-2 border-gray-300 pt-3">
-                {% set valueClasses = 'text-xs text-gray-500' %}
+                {% set valueClasses = 'text-xs text-gray-500 tabular-nums' %}
                 {% set labelClasses = valueClasses ~ ' pr-2' %}
                 {% if not cart.hasErrors() %}
                   <div class="mt-3">
@@ -258,7 +258,7 @@ Outputs cart.
 
                   <div class="flex items-center w-full justify-end mt-3" title="{{ cart.totalPrice }}">
                     <div class="text-gray-600 pr-2">{{ 'Total Price'|t }}:</div>
-                    <div class="text-xl font-bold">{{ cart.totalPriceAsCurrency }}</div>
+                    <div class="text-xl font-bold tabular-nums">{{ cart.totalPriceAsCurrency }}</div>
                   </div>
                 {% endif %}
               </td>
