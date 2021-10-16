@@ -19,8 +19,9 @@ Outputs the site’s global main navigation based on path and included `pages` a
     url: '[[folderName]]/donations'
   }
 ] %}
-
-{% if 'checkout' not in craft.app.request.pathInfo %}
+{% set currentPath = craft.app.request.pathInfo %}
+{% set activeClasses = 'bg-white' %}
+{% if 'checkout' not in currentPath %}
   <div class="bg-gray-100">
     <div class="container mx-auto justify-between items-center p-6 relative">
       <nav class="-ml-4"
@@ -28,19 +29,19 @@ Outputs the site’s global main navigation based on path and included `pages` a
            aria-label="Main">
         {% for page in pages %}
           <a href="{{ url(page.url) }}"
-             class="mx-4">
+             class="mx-2 px-2 py-1 rounded{% if page.url in currentPath %} {{ activeClasses }}{% endif %}">
             {{- page.label|t -}}
           </a>
         {% endfor %}
         <div class="absolute right-2 top-0">
           {% if currentUser %}
             <a href="{{ url('[[folderName]]/customer') }}"
-               class="mx-4 text-sm font-semibold">
+               class="mx-2 px-2 py-1 rounded text-sm font-semibold">
               {{- currentUser.email -}}
             </a>
           {% else %}
             <a href="{{ url('[[folderName]]/customer/sign-in') }}"
-               class="mx-4">
+               class="mx-2 px-2 py-1 rounded">
               {{- 'Sign In'|t -}}
             </a>
           {% endif %}
