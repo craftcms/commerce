@@ -24,49 +24,49 @@ use yii\base\InvalidConfigException;
 class ProductTypeSite extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int Product type ID
      */
-    public $productTypeId;
+    public int $productTypeId;
 
     /**
      * @var int Site ID
      */
-    public $siteId;
+    public int $siteId;
 
     /**
      * @var bool Has Urls
      */
-    public $hasUrls;
+    public bool $hasUrls = false;
 
     /**
      * @var string URL Format
      */
-    public $uriFormat;
+    public string $uriFormat;
 
     /**
      * @var string Template Path
      */
-    public $template;
+    public string $template;
 
     /**
-     * @var ProductType
+     * @var ProductType|null
      */
-    private $_productType;
+    private ?ProductType $_productType;
 
     /**
-     * @var Site
+     * @var Site|null
      */
-    private $_site;
+    private ?Site $_site;
 
     /**
      * @var bool
      */
-    public $uriFormatIsRequired = true;
+    public bool $uriFormatIsRequired = true;
 
 
     /**
@@ -97,7 +97,7 @@ class ProductTypeSite extends Model
      *
      * @param ProductType $productType
      */
-    public function setProductType(ProductType $productType)
+    public function setProductType(ProductType $productType): void
     {
         $this->_productType = $productType;
     }
@@ -126,9 +126,9 @@ class ProductTypeSite extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
+        $rules = [];
 
         if ($this->uriFormatIsRequired) {
             $rules[] = ['uriFormat', 'required'];

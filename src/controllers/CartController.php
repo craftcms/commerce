@@ -15,8 +15,7 @@ use craft\commerce\models\LineItem;
 use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
-use craft\helpers\Html;
-use craft\helpers\StringHelper;
+use craft\errors\MissingComponentException;
 use craft\helpers\UrlHelper;
 use Throwable;
 use yii\base\Exception;
@@ -37,22 +36,22 @@ class CartController extends BaseFrontEndController
     /**
      * @var Order The cart element
      */
-    protected $_cart;
+    protected Order $_cart;
 
     /**
      * @var string the name of the cart variable
      */
-    protected $_cartVariable;
+    protected string $_cartVariable;
 
     /**
      * @var User|null
      */
-    protected $_currentUser;
+    protected ?User $_currentUser;
 
     /**
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         $this->_cartVariable = Plugin::getInstance()->getSettings()->cartVariable;
         $this->_currentUser = Craft::$app->getUser()->getIdentity();
@@ -62,8 +61,10 @@ class CartController extends BaseFrontEndController
 
     /**
      * Returns the cart as JSON
+     *
+     * @throws BadRequestHttpException
      */
-    public function actionGetCart()
+    public function actionGetCart(): Response
     {
         $this->requireAcceptsJson();
 
@@ -75,9 +76,14 @@ class CartController extends BaseFrontEndController
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
-     * @throws InvalidConfigException
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws NotFoundHttpException
+     * @throws Throwable
      */
-    public function actionUpdateCart()
+    public function actionUpdateCart(): ?Response
     {
         $this->requirePostRequest();
         $isSiteRequest = Craft::$app->getRequest()->getIsSiteRequest();
@@ -88,8 +94,13 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
+        // Can clear line items when updating the cart
+        if (($clearCart = $this->request->getParam('clearLineItems')) !== null) {
+            $this->_cart->setLineItems([]);
+        }
+
         // Can clear notices when updating the cart
-        if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
+        if ($this->request->getParam('clearNotices') !== null) {
             $this->_cart->clearNotices();
         }
 
@@ -99,11 +110,11 @@ class CartController extends BaseFrontEndController
         // Backwards compatible way of adding to the cart
         if ($purchasableId = $this->request->getParam('purchasableId')) {
             $note = $this->request->getParam('note', '');
-            $options = $this->request->getParam('options', []);
+            $options = $this->request->getParam('options', []); // TODO Commerce 4 should only support key value only #COM-55
             $qty = (int)$this->request->getParam('qty', 1);
 
             if ($qty > 0) {
-                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasableId, $options);
+                $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasableId, $options);
 
                 // New line items already have a qty of one.
                 if ($lineItem->id) {
@@ -130,11 +141,11 @@ class CartController extends BaseFrontEndController
 
                 $purchasable = [];
                 $purchasable['id'] = $purchasableId;
-                $purchasable['options'] = $options;
+                $purchasable['options'] = is_array($options) ? $options : [];
                 $purchasable['note'] = $note;
-                $purchasable['qty'] = $qty;
+                $purchasable['qty'] = (int)$qty;
 
-                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
                 if (isset($purchasablesByKey[$key])) {
                     $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
                 } else {
@@ -149,7 +160,7 @@ class CartController extends BaseFrontEndController
 
                 // Ignore zero value qty for multi-add forms https://github.com/craftcms/commerce/issues/330#issuecomment-384533139
                 if ($purchasable['qty'] > 0) {
-                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart->id, $purchasable['id'], $purchasable['options']);
+                    $lineItem = Plugin::getInstance()->getLineItems()->resolveLineItem($this->_cart, $purchasable['id'], $purchasable['options']);
 
                     // New line items already have a qty of one.
                     if ($lineItem->id) {
@@ -169,7 +180,7 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->qty = (int)$this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
                     $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 
@@ -241,9 +252,12 @@ class CartController extends BaseFrontEndController
 
     /**
      * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws MissingComponentException
      * @since 3.1
      */
-    public function actionLoadCart()
+    public function actionLoadCart(): ?Response
     {
         $number = $this->request->getParam('number');
         $redirect = Plugin::getInstance()->getSettings()->loadCartRedirectUrl ?: UrlHelper::siteUrl();
@@ -288,9 +302,15 @@ class CartController extends BaseFrontEndController
 
     /**
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws HttpException
+     * @throws NotFoundHttpException
+     * @throws Throwable
      * @since 3.3
      */
-    public function actionComplete()
+    public function actionComplete(): ?Response
     {
         /** @var Plugin $plugin */
         $plugin = Plugin::getInstance();
@@ -312,7 +332,7 @@ class CartController extends BaseFrontEndController
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->getShippingMethod()) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 
@@ -326,11 +346,11 @@ class CartController extends BaseFrontEndController
 
         // Set if the customer should be registered on order completion
         if ($this->request->getBodyParam('registerUserOnOrderComplete')) {
-            $order->registerUserOnOrderComplete = true;
+            $this->_cart->registerUserOnOrderComplete = true;
         }
 
         if ($this->request->getBodyParam('registerUserOnOrderComplete') === 'false') {
-            $order->registerUserOnOrderComplete = false;
+            $this->_cart->registerUserOnOrderComplete = false;
         }
 
         if (!empty($errors)) {
@@ -339,9 +359,6 @@ class CartController extends BaseFrontEndController
 
 
         if (empty($errors)) {
-
-            $completedSuccess = false;
-
             try {
                 $completedSuccess = $this->_cart->markAsComplete();
             } catch (\Exception $exception) {
@@ -357,10 +374,10 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @param $lineItemId |nulls
+     * @param $lineItemId |null
      * @return LineItem|null
      */
-    private function _getCartLineItemById($lineItemId)
+    private function _getCartLineItemById(?int $lineItemId): ?LineItem
     {
         $lineItem = null;
 
@@ -380,7 +397,7 @@ class CartController extends BaseFrontEndController
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    private function _returnCart()
+    private function _returnCart(): ?Response
     {
         // Allow validation of custom fields when passing this param
         $validateCustomFields = Plugin::getInstance()->getSettings()->validateCartCustomFieldsOnSubmission;
@@ -411,12 +428,12 @@ class CartController extends BaseFrontEndController
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     'message' => $message,
-                    $this->_cartVariable => $this->cartArray($this->_cart)
+                    $this->_cartVariable => $this->cartArray($this->_cart),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
-                $this->_cartVariable => $this->_cart
+                $this->_cartVariable => $this->_cart,
             ]);
 
             $this->setFailFlash($error);
@@ -424,12 +441,7 @@ class CartController extends BaseFrontEndController
             return null;
         }
 
-        if (($cartUpdatedNotice = $this->request->getParam('cartUpdatedNotice')) !== null) {
-            $cartUpdatedMessage = Html::encode($cartUpdatedNotice);
-            Craft::$app->getDeprecator()->log('cartUpdatedNotice', 'The `cartUpdatedNotice` param has been deprecated for `carts/*` requests. Use a hashed `successMessage` param instead.');
-        } else {
-            $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
-        }
+        $cartUpdatedMessage = Craft::t('commerce', 'Cart updated.');
 
         if ($this->request->getAcceptsJson()) {
             $message = $this->request->getValidatedBodyParam('successMessage') ?? $cartUpdatedMessage;
@@ -437,14 +449,14 @@ class CartController extends BaseFrontEndController
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
                 $this->_cartVariable => $this->cartArray($this->_cart),
-                'message' => $message
+                'message' => $message,
             ]);
         }
 
         $this->setSuccessFlash($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
-            $this->_cartVariable => $this->_cart
+            $this->_cartVariable => $this->_cart,
         ]);
 
         return $this->redirectToPostedUrl();
@@ -459,11 +471,9 @@ class CartController extends BaseFrontEndController
      * @throws NotFoundHttpException
      * @throws Throwable
      */
-    private function _getCart($forceSave = false)
+    private function _getCart(bool $forceSave = false): ?Order
     {
-        $cart = null;
-
-        // TODO Remove `orderNumber` param in 4.0
+        // TODO Remove `orderNumber` param in 4.0 #COM-33
         $orderNumber = $this->request->getBodyParam('orderNumber');
         $orderNumber = $this->request->getBodyParam('number', $orderNumber);
 
@@ -487,7 +497,7 @@ class CartController extends BaseFrontEndController
     /**
      * Set addresses on the cart.
      */
-    private function _setAddresses()
+    private function _setAddresses(): void
     {
         // Address updating
 

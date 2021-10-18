@@ -42,7 +42,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testPriceRounding()
+    public function testPriceRounding(): void
     {
         $lineItem = new LineItem();
         $lineItem->setPrice(1.239);
@@ -57,7 +57,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testPopulateFromPurchasable()
+    public function testPopulateFromPurchasable(): void
     {
         $purchasable = new Purchasable();
         $lineItem = new LineItem();
@@ -73,7 +73,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testAppliedSale()
+    public function testAppliedSale(): void
     {
         $variant = Variant::find()->sku('rad-hood')->one();
         $lineItem = new LineItem();
@@ -88,7 +88,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testSetOptions()
+    public function testSetOptions(): void
     {
         $options = [
             'foo' => 'bar',
@@ -104,7 +104,7 @@ class LineItemTest extends Unit
             'emoji' => ':x:'
         ];
 
-        // TODO change this when set options for emojis is refactored
+        // TODO change this when set options for emojis is refactored #COM-46
         $lineItem->setOptions($options);
         if (Craft::$app->getDb()->getSupportsMb4()) {
             self::assertSame($options, $lineItem->getOptions());
@@ -123,7 +123,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testConsistentOptionsSignatures()
+    public function testConsistentOptionsSignatures(): void
     {
         $options = ['Larry' => 'David'];
         $lineItem1 = new LineItem();
@@ -138,7 +138,7 @@ class LineItemTest extends Unit
     /**
      *
      */
-    public function testUniqueOptionSignatures()
+    public function testUniqueOptionSignatures(): void
     {
         $lineItem = new LineItem();
         $lineItem->setOptions(['foo' => 1]);

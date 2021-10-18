@@ -15,7 +15,6 @@ use craft\commerce\events\EmailEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
-use craft\commerce\Plugin;
 use craft\commerce\queue\jobs\SendEmail;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\Query;
@@ -23,6 +22,7 @@ use craft\db\Table as CraftTable;
 use craft\events\ConfigEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Db;
+use craft\helpers\Queue;
 use craft\helpers\StringHelper;
 use Throwable;
 use yii\base\Component;
@@ -37,6 +37,7 @@ use function count;
  *
  * @property OrderStatus|null $defaultOrderStatus default order status from the DB
  * @property OrderStatus[]|array $allOrderStatuses all Order Statuses
+ * @property-read array $orderCountByStatus
  * @property null|int $defaultOrderStatusId default order status ID from the DB
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -74,16 +75,15 @@ class OrderStatuses extends Component
 
     const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
+    /**
+     * @var OrderStatus[]|null
+     */
+    private ?array $_orderStatusesWithTrashed = null;
 
     /**
      * @var OrderStatus[]|null
      */
-    private $_orderStatusesWithTrashed;
-
-    /**
-     * @var OrderStatus[]|null
-     */
-    private $_orderStatuses;
+    private ?array $_orderStatuses = null;
 
     /**
      * Returns all Order Statuses
@@ -92,7 +92,7 @@ class OrderStatuses extends Component
      * @return OrderStatus[]
      * @since 2.2
      */
-    public function getAllOrderStatuses($withTrashed = false): array
+    public function getAllOrderStatuses(bool $withTrashed = false): array
     {
 
         if ($this->_orderStatuses !== null && !$withTrashed) {
@@ -132,7 +132,7 @@ class OrderStatuses extends Component
      * @param int $id
      * @return OrderStatus|null
      */
-    public function getOrderStatusById($id)
+    public function getOrderStatusById(int $id): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'id', $id);
     }
@@ -143,7 +143,7 @@ class OrderStatuses extends Component
      * @param string $handle
      * @return OrderStatus|null
      */
-    public function getOrderStatusByHandle($handle)
+    public function getOrderStatusByHandle(string $handle): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'handle', $handle, false);
     }
@@ -153,7 +153,7 @@ class OrderStatuses extends Component
      *
      * @return OrderStatus|null
      */
-    public function getDefaultOrderStatus()
+    public function getDefaultOrderStatus(): ?OrderStatus
     {
         return ArrayHelper::firstWhere($this->getAllOrderStatuses(), 'default', true, false);
     }
@@ -162,12 +162,13 @@ class OrderStatuses extends Component
      * Get default order status ID from the DB
      *
      * @return int|null
+     * @noinspection PhpUnused
      */
-    public function getDefaultOrderStatusId()
+    public function getDefaultOrderStatusId(): ?int
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
-        return $orderStatus ? $orderStatus->id : null;
+        return $orderStatus->id ?? null;
     }
 
 
@@ -177,13 +178,13 @@ class OrderStatuses extends Component
      * @param Order $order
      * @return OrderStatus|null
      */
-    public function getDefaultOrderStatusForOrder(Order $order)
+    public function getDefaultOrderStatusForOrder(Order $order): ?OrderStatus
     {
         $orderStatus = $this->getDefaultOrderStatus();
 
         $event = new DefaultOrderStatusEvent([
             'orderStatus' => $orderStatus,
-            'order' => $order
+            'order' => $order,
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_DEFAULT_ORDER_STATUS)) {
@@ -197,7 +198,7 @@ class OrderStatuses extends Component
      * @return array
      * @since 3.0.11
      */
-    public function getOrderCountByStatus()
+    public function getOrderCountByStatus(): array
     {
         $countGroupedByStatusId = (new Query())
             ->select(['[[o.orderStatusId]]', 'count(o.id) as orderCount'])
@@ -215,7 +216,7 @@ class OrderStatuses extends Component
                 $countGroupedByStatusId[$status->id] = [
                     'orderStatusId' => $status->id,
                     'handle' => $status->handle,
-                    'orderCount' => 0
+                    'orderCount' => 0,
                 ];
             }
 
@@ -270,9 +271,9 @@ class OrderStatuses extends Component
                 'handle' => $orderStatus->handle,
                 'color' => $orderStatus->color,
                 'description' => $orderStatus->description,
-                'sortOrder' => (int)($orderStatus->sortOrder ?? 99),
-                'default' => (bool)$orderStatus->default,
-                'emails' => array_combine($emails, $emails)
+                'sortOrder' => isset($orderStatus->sortOrder) ? $orderStatus->sortOrder : 99,
+                'default' => $orderStatus->default,
+                'emails' => array_combine($emails, $emails),
             ];
         }
 
@@ -335,7 +336,7 @@ class OrderStatuses extends Component
                     $connection->createCommand()
                         ->insert(Table::ORDERSTATUS_EMAILS, [
                             'orderStatusId' => $statusRecord->id,
-                            'emailId' => $emailId
+                            'emailId' => $emailId,
                         ])
                         ->execute();
                 }
@@ -440,12 +441,12 @@ class OrderStatuses extends Component
                         $language = $email->getRenderLanguage($order);
                         Locale::switchAppLanguage($language);
 
-                        Craft::$app->getQueue()->push(new SendEmail([
+                        Queue::push(new SendEmail([
                             'orderId' => $order->id,
                             'commerceEmailId' => $email->id,
                             'orderHistoryId' => $orderHistory->id,
-                            'orderData' => $order->toArray()
-                        ]));
+                            'orderData' => $order->toArray(),
+                        ]), 100);
                     }
                 }
 
@@ -493,26 +494,23 @@ class OrderStatuses extends Component
     {
         $query = (new Query())
             ->select([
+                'color',
+                'dateDeleted',
+                'default',
+                'description',
+                'handle',
                 'id',
                 'name',
-                'handle',
-                'color',
-                'description',
                 'sortOrder',
-                'default',
-                'dateDeleted',
-                'uid'
+                'uid',
             ])
             ->orderBy('sortOrder')
             ->from([Table::ORDERSTATUSES]);
 
-        // todo: remove schema version condition after next beakpoint
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '2.1.09', '>=')) {
-            if (!$withTrashed) {
-                $query->where(['dateDeleted' => null]);
-            }
+        if (!$withTrashed) {
+            $query->where(['dateDeleted' => null]);
         }
+
         return $query;
     }
 

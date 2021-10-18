@@ -13,6 +13,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\errors\InvalidElementException;
 use craft\test\fixtures\elements\BaseElementFixture;
+use DateTime;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -40,14 +42,21 @@ class OrdersFixture extends BaseElementFixture
     /**
      * @var array
      */
-    private $_lineItems = [];
+    private array $_lineItems = [];
 
     /**
      * @var bool
      */
-    private $_markAsComplete = false;
+    private bool $_markAsComplete = false;
 
-    public function init()
+    /**
+     * Ability to manually set the dateOrdered attribute
+     *
+     * @var bool|null|DateTime
+     */
+    private $_dateOrdered = false;
+
+    public function init(): void
     {
         Craft::$app->getPlugins()->switchEdition('commerce', Plugin::EDITION_PRO);
 
@@ -61,6 +70,7 @@ class OrdersFixture extends BaseElementFixture
     {
         $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
         $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
+        $this->_dateOrdered = ArrayHelper::remove($attributes, '_dateOrdered');
 
         parent::populateElement($element, $attributes);
     }
@@ -76,7 +86,7 @@ class OrdersFixture extends BaseElementFixture
         /** @var Order $element */
         $this->_setLineItems($element, $this->_lineItems);
 
-        // Resave after extra data
+        // Re-save after extra data
         if (!$result = Craft::$app->getElements()->saveElement($element)) {
             throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
         }
@@ -86,9 +96,18 @@ class OrdersFixture extends BaseElementFixture
             $element->markAsComplete();
         }
 
+        if ($this->_dateOrdered) {
+            $element->dateOrdered = $this->_dateOrdered;
+            // Re-save after extra data
+            if (!$result = Craft::$app->getElements()->saveElement($element)) {
+                throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
+            }
+        }
+
         // Reset private variables
         $this->_lineItems = [];
         $this->_markAsComplete = false;
+        $this->_dateOrdered = false;
 
         return $result;
     }
@@ -98,8 +117,9 @@ class OrdersFixture extends BaseElementFixture
      *
      * @param Order $order
      * @param $lineItems
+     * @throws InvalidConfigException
      */
-    private function _setLineItems(Order $order, $lineItems)
+    private function _setLineItems(Order $order, $lineItems): void
     {
         if (empty($lineItems)) {
             return;
@@ -107,7 +127,7 @@ class OrdersFixture extends BaseElementFixture
 
         $orderLineItems = [];
         foreach ($lineItems as $lineItem) {
-            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $lineItem['purchasableId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
+            $orderLineItems[] = Plugin::getInstance()->getLineItems()->createLineItem($order, $lineItem['purchasableId'], $lineItem['options'], $lineItem['qty'], $lineItem['note']);
         }
 
         $order->setLineItems($orderLineItems);

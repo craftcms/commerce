@@ -29,13 +29,12 @@ use yii\web\Response;
 class CountriesController extends BaseStoreSettingsController
 {
     /**
-     * @throws HttpException
+     * @return Response
      */
     public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
-        return $this->renderTemplate('commerce/store-settings/countries/index',
-            compact('countries'));
+        return $this->renderTemplate('commerce/store-settings/countries/index', compact('countries'));
     }
 
     /**
@@ -106,9 +105,10 @@ class CountriesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws \yii\base\Exception
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 

@@ -38,25 +38,25 @@ class RepeatCustomers extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var null|RepeatingCustomersStat
      */
-    private $_stat;
+    private ?RepeatingCustomersStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new RepeatingCustomersStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -95,7 +95,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $numbers = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -109,7 +109,7 @@ class RepeatCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

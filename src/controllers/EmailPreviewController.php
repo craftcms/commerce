@@ -9,15 +9,14 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Email;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use craft\helpers\ArrayHelper;
 use craft\web\Controller;
 use craft\web\View;
-use yii\web\BadRequestHttpException;
-use yii\web\HttpException;
+use yii\base\Exception;
+use yii\web\ForbiddenHttpException;
 use yii\web\Response;
 
 /**
@@ -30,6 +29,8 @@ class EmailPreviewController extends Controller
 {
     /**
      * @return Response
+     * @throws Exception
+     * @throws ForbiddenHttpException
      */
     public function actionRender(): Response
     {
@@ -38,7 +39,7 @@ class EmailPreviewController extends Controller
         $emailId = Craft::$app->getRequest()->getParam('emailId');
         $email = Plugin::getInstance()->getEmails()->getEmailById($emailId);
 
-        // TODO Remove `orderNumber` param in 4.0
+        // TODO Remove `orderNumber` param in 4.0 #COM-31
         $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
         $orderNumber = Craft::$app->getRequest()->getParam('number', $orderNumber);
 

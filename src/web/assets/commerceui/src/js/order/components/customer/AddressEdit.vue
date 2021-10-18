@@ -64,6 +64,7 @@
                         @countryUpdate="handleCountrySelect($event, 'new')"
                         @stateUpdate="handleStateSelect($event, 'new')"
                         @errors="handleFormErrors($event, 'new')"
+                        @updateValidating="handleValidating($event, 'edit')"
                     ></address-form>
                 </div>
                 <div class="footer">
@@ -73,8 +74,8 @@
                         </btn-link>
                         <btn-link button-class="btn submit"
                                   @click="done('new')"
-                                  :class="{ 'disabled': modals.new.hasErrors }"
-                                  :disabled="modals.new.hasErrors">{{$options.filters.t('Done', 'commerce')}}
+                                  :class="{ 'disabled': modals.new.hasErrors || modals.new.isValidating }"
+                                  :disabled="modals.new.hasErrors || modals.new.isValidating">{{$options.filters.t('Done', 'commerce')}}
                         </btn-link>
                     </div>
                 </div>
@@ -92,6 +93,7 @@
                         @countryUpdate="handleCountrySelect($event, 'edit')"
                         @stateUpdate="handleStateSelect($event, 'edit')"
                         @errors="handleFormErrors($event, 'edit')"
+                        @updateValidating="handleValidating($event, 'edit')"
                     ></address-form>
                 </div>
                 <div class="footer">
@@ -101,8 +103,8 @@
                         </btn-link>
                         <btn-link button-class="btn submit"
                                   @click="done('edit')"
-                                  :class="{ 'disabled': modals.edit.hasErrors }"
-                                  :disabled="modals.edit.hasErrors">{{$options.filters.t('Done', 'commerce')}}
+                                  :class="{ 'disabled': modals.edit.hasErrors || modals.edit.isValidating }"
+                                  :disabled="modals.edit.hasErrors || modals.edit.isValidating">{{$options.filters.t('Done', 'commerce')}}
                         </btn-link>
                     </div>
                 </div>
@@ -200,7 +202,7 @@
                     custom2: null,
                     custom3: null,
                     custom4: null,
-                    isEstimated: null,
+                    isEstimated: false,
                     countryText: null,
                     stateText: null,
                     stateValue: null,
@@ -212,6 +214,7 @@
                         country: null,
                         ref: 'addressmodal',
                         modal: null,
+                        isValidating: false,
                         isVisible: false,
                         save: false,
                         state: null,
@@ -221,6 +224,7 @@
                         country: null,
                         ref: 'newaddressmodal',
                         modal: null,
+                        isValidating: false,
                         isVisible: false,
                         save: false,
                         state: null,
@@ -296,7 +300,7 @@
                     custom2: null,
                     custom3: null,
                     custom4: null,
-                    isEstimated: null,
+                    isEstimated: false,
                     countryText: null,
                     stateText: null,
                     stateValue: null,
@@ -378,6 +382,10 @@
 
             handleStateSelect(state, type) {
                 this.modals[type].state = state;
+            },
+
+            handleValidating(isValidating, type) {
+                this.modals[type].isValidating = isValidating;
             },
 
             done(type) {

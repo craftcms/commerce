@@ -12,12 +12,14 @@ use craft\commerce\helpers\Locale as LocaleHelper;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
-use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
-use craft\i18n\Locale;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Pdfs Controller
@@ -49,11 +51,11 @@ class PdfsController extends BaseAdminController
         $variables = compact('pdf', 'id');
 
         $pdfLanguageOptions = [
-            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+            PdfRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
-        
+
         $variables['pdfLanguageOptions'] = array_merge($pdfLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
-        
+
         if (!$variables['pdf']) {
             if ($variables['id']) {
                 $variables['pdf'] = Plugin::getInstance()->getPdfs()->getPdfById($variables['id']);
@@ -77,10 +79,14 @@ class PdfsController extends BaseAdminController
 
     /**
      * @return null|Response
-     * @throws HttpException
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      * @since 3.2
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 

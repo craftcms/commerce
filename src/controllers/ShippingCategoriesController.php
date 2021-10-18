@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\ShippingCategory;
 use craft\commerce\Plugin;
-use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use yii\base\Exception;
 use yii\web\BadRequestHttpException;
@@ -45,7 +44,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         $variables = [
             'id' => $id,
             'shippingCategory' => $shippingCategory,
-            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes()
+            'productTypes' => Plugin::getInstance()->getProductTypes()->getAllProductTypes(),
         ];
 
         if (!$variables['shippingCategory']) {
@@ -80,9 +79,12 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @noinspection Duplicates
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -109,14 +111,14 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         if (!Plugin::getInstance()->getShippingCategories()->saveShippingCategory($shippingCategory)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 return $this->asJson([
-                    'errors' => $shippingCategory->getErrors()
+                    'errors' => $shippingCategory->getErrors(),
                 ]);
             }
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save shipping category.'));
 
             // Send the shipping category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'shippingCategory' => $shippingCategory
+                'shippingCategory' => $shippingCategory,
             ]);
 
             return null;
@@ -135,7 +137,7 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         // Send the shipping category back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'shippingCategory' => $shippingCategory
+            'shippingCategory' => $shippingCategory,
         ]);
 
         return null;
@@ -159,12 +161,12 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @throws MissingComponentException
-     * @throws Exception
+     * @return Response|null
      * @throws BadRequestHttpException
+     * @throws Exception
      * @since 3.2.9
      */
-    public function actionSetDefaultCategory()
+    public function actionSetDefaultCategory(): ?Response
     {
         $this->requirePostRequest();
 
@@ -184,5 +186,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
         }
 
         $this->setFailFlash(Craft::t('commerce', 'Unable to set default shipping category.'));
+        return null;
     }
 }

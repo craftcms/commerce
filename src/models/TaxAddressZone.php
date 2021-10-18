@@ -11,8 +11,11 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax zone model.
@@ -32,45 +35,57 @@ use craft\validators\UniqueValidator;
 class TaxAddressZone extends Model implements AddressZoneInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
      */
-    public $default = false;
+    public bool $default = false;
 
     /**
-     * @var string The code to match the zip code.
+     * @var string|null The code to match the zip code.
      * @since 2.2
      */
-    public $zipCodeConditionFormula;
+    public ?string $zipCodeConditionFormula = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Country based
      */
-    private $_isCountryBased = true;
+    private bool $_isCountryBased = true;
 
     /**
-     * @var Country[] $_countries
+     * @var Country[]|null $_countries
      */
-    private $_countries;
+    private ?array $_countries = null;
 
     /**
-     * @var State[] $_states
+     * @var State[]|null $_states
      */
-    private $_states;
+    private ?array $_states = null;
 
 
     /**
@@ -97,21 +112,23 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * @param bool $value is the zone country based
      * @return void
      */
-    public function setIsCountryBased(bool $value)
+    public function setIsCountryBased(bool $value): void
     {
         $this->_isCountryBased = $value;
     }
 
     /**
      * @return TaxRate[]
+     * @throws InvalidConfigException
      */
     public function getTaxRates(): array
     {
-        return Plugin::getInstance()->getTaxRates()->getTaxRatesForZone($this);
+        return Plugin::getInstance()->getTaxRates()->getTaxRatesByTaxZoneId($this->id);
     }
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountryIds(): array
     {
@@ -128,14 +145,15 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * Returns all countries in this Tax Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountries(): array
     {
-        if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId((int)$this->id);
+        if ($this->_countries === null && $this->id) {
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId($this->id);
         }
 
-        return $this->_countries;
+        return $this->_countries ?? [];
     }
 
     /**
@@ -143,7 +161,7 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      *
      * @param Country[] $countries
      */
-    public function setCountries($countries)
+    public function setCountries(array $countries): void
     {
         $this->_countries = $countries;
     }
@@ -166,14 +184,15 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * Returns all states in this Tax Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStates(): array
     {
-        if (null === $this->_states) {
-            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId((int)$this->id);
+        if ($this->_states === null && $this->id) {
+            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId($this->id);
         }
 
-        return $this->_states;
+        return $this->_states ?? [];
     }
 
     /**
@@ -181,18 +200,18 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      *
      * @param State[] $states
      */
-    public function setStates($states)
+    public function setStates(array $states): void
     {
         $this->_states = $states;
     }
 
     /**
-     * @return string
+     * @return string|null
      * @since 2.2
      */
-    public function getZipCodeConditionFormula(): string
+    public function getZipCodeConditionFormula(): ?string
     {
-        return (string)$this->zipCodeConditionFormula;
+        return $this->zipCodeConditionFormula;
     }
 
     /**
@@ -202,23 +221,18 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     public function getCountriesNames(): array
     {
-        $countryNames = [];
-        foreach ($this->getCountries() as $country) {
-            $countryNames[] = $country->name;
-        }
-
-        return $countryNames;
+        return ArrayHelper::getColumn($this->getCountries(), 'name');
     }
 
     /**
      * Returns the names of all states in this Tax Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStatesNames(): array
     {
         $stateNames = [];
-        /** @var State $state */
         foreach ($this->getStates() as $state) {
             $stateNames[] = $state->getLabel();
         }
@@ -229,23 +243,26 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']];
-        $rules[] = [
-            ['states'], 'required', 'when' => static function($model) {
-                return !$model->isCountryBased;
-            }
+        return [
+            [['name'], 'required'],
+            [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'],
+                'required',
+                'when' => static function($model) {
+                    return !$model->isCountryBased;
+                },
+            ],
+            [
+                ['countries'],
+                'required',
+                'when' => static function($model) {
+                    return $model->isCountryBased;
+                },
+            ],
         ];
-        $rules[] = [
-            ['countries'], 'required', 'when' => static function($model) {
-                return $model->isCountryBased;
-            }
-        ];
-
-        return $rules;
     }
 }

@@ -9,11 +9,16 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping Category model.
  *
+ * @property array|ProductType[] $productTypes
+ * @property-read int[] $productTypeIds
  * @property string $cpEditUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -21,35 +26,46 @@ use craft\helpers\UrlHelper;
 class ShippingCategory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
      */
-    public $default;
+    public bool $default = false;
 
     /**
-     * @var ProductType[]
+     * @var ProductType[]|null
      */
-    private $_productTypes;
+    private ?array $_productTypes = null;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * Returns the name of this shipping category.
@@ -70,49 +86,44 @@ class ShippingCategory extends Model
     }
 
     /**
-     * @param array $productTypes
+     * @param ProductType[] $productTypes
      */
-    public function setProductTypes($productTypes)
+    public function setProductTypes(array $productTypes): void
     {
         $this->_productTypes = $productTypes;
     }
 
     /**
      * @return ProductType[]
+     * @throws InvalidConfigException
      */
     public function getProductTypes(): array
     {
-        if ($this->_productTypes === null) {
+        if (null === $this->_productTypes && $this->id) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 
-        return $this->_productTypes;
+        return $this->_productTypes ?? [];
     }
 
     /**
      * Helper method to just get the product type IDs
      *
      * @return int[]
+     * @throws InvalidConfigException
      */
     public function getProductTypeIds(): array
     {
-        $ids = [];
-        foreach ($this->getProductTypes() as $productType) {
-            $ids[] = $productType->id;
-        }
-
-        return $ids;
+        return ArrayHelper::getColumn($this->getProductTypes(), 'id', false);
     }
 
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules [] = [['name', 'handle'], 'required'];
-
-        return $rules;
+        return [
+            [['name', 'handle'], 'required'],
+        ];
     }
 }

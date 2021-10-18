@@ -23,7 +23,7 @@ class CommerceCpAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = __DIR__ . '/dist';
 
@@ -42,7 +42,7 @@ class CommerceCpAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function registerAssetFiles($view)
+    public function registerAssetFiles($view): void
     {
         parent::registerAssetFiles($view);
 
@@ -59,6 +59,8 @@ class CommerceCpAsset extends AssetBundle
                 'Cancel',
                 'City',
                 'Country',
+                'Download Type',
+                'Download',
                 'Edit',
                 'First Name',
                 'Last Name',
@@ -67,11 +69,12 @@ class CommerceCpAsset extends AssetBundle
                 'New {productType} product',
                 'New',
                 'No Address',
+                'PDF',
                 'Phone (Alt)',
                 'Phone',
                 'State',
-                'Status change message',
                 'Status Updated.',
+                'Status change message',
                 'Update Address',
                 'Update Order Status',
                 'Update',

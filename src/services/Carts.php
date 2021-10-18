@@ -38,19 +38,19 @@ class Carts extends Component
     /**
      * @var string Session key for storing the cart number
      */
-    protected $cartName = 'commerce_cart';
+    protected string $cartName = 'commerce_cart';
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private $_cart;
+    private ?Order $_cart = null;
 
     /**
      * Useful for debugging how many times the cart is being requested during a request.
      *
      * @var int
      */
-    private $_getCartCount = 0;
+    private int $_getCartCount = 0;
 
     /**
      * Get the current cart for this session.
@@ -61,7 +61,7 @@ class Carts extends Component
      * @throws Exception
      * @throws Throwable
      */
-    public function getCart($forceSave = false): Order
+    public function getCart(bool $forceSave = false): Order
     {
         $this->_getCartCount++; //useful when debugging
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
@@ -113,8 +113,7 @@ class Carts extends Component
         $somethingChangedOnTheCart = ($changedIp || $changedOrderLanguage || $changedCustomerId || $changedPaymentCurrency || $changedOrderSiteId);
 
         // If the cart has already been saved (has an ID), then only save if something else changed.
-        // Manual force save only works when the order has not ID
-        if (($this->_cart->id && $somethingChangedOnTheCart) || ($forceSave && !$this->_cart->id)) {
+        if (($this->_cart->id && $somethingChangedOnTheCart) || $forceSave) {
             Craft::$app->getElements()->saveElement($this->_cart, false);
         }
 
@@ -127,7 +126,7 @@ class Carts extends Component
      * @throws MissingComponentException
      * @throws Throwable
      */
-    private function _getCart()
+    private function _getCart(): ?Order
     {
         $cart = null;
         $isNumberCartInSession = $this->getHasSessionCartNumber();
@@ -137,7 +136,7 @@ class Carts extends Component
             $number = $this->getSessionCartNumber();
             // Get the cart based on the number in the session.
             // It might be completed or trashed, but we still want to load it so we can determine this and forget it.
-            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->one();
+            $cart = Order::find()->number($number)->trashed(null)->anyStatus()->withLineItems()->withAdjustments()->one();
         }
 
         // If the cart is already completed or trashed, forget the cart and start again.
@@ -159,7 +158,7 @@ class Carts extends Component
      * @return void
      * @throws MissingComponentException
      */
-    public function forgetCart()
+    public function forgetCart(): void
     {
         $this->_cart = null;
         Craft::$app->getSession()->remove($this->cartName);
@@ -240,7 +239,7 @@ class Carts extends Component
      * @return void
      * @throws MissingComponentException
      */
-    private function setSessionCartNumber(string $cartNumber)
+    private function setSessionCartNumber(string $cartNumber): void
     {
         $session = Craft::$app->getSession();
         $session->set($this->cartName, $cartNumber);
@@ -255,7 +254,7 @@ class Carts extends Component
      * @throws MissingComponentException
      * @throws Throwable
      */
-    public function restorePreviousCartForCurrentUser()
+    public function restorePreviousCartForCurrentUser(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         $cart = $this->getCart();
@@ -292,7 +291,7 @@ class Carts extends Component
                 ->column();
 
             // Taken from craft\services\Elements::deleteElement(); Using the method directly
-            // takes too much resources since it retrieves the order before deleting it.
+            // takes too many resources since it retrieves the order before deleting it.
 
             // Delete the elements table rows, which will cascade across all other InnoDB tables
             Craft::$app->getDb()->createCommand()

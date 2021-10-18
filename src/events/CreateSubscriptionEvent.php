@@ -23,15 +23,15 @@ class CreateSubscriptionEvent extends CancelableEvent
     /**
      * @var User The subscribing user
      */
-    public $user;
+    public User $user;
 
     /**
      * @var Plan The subscription plan
      */
-    public $plan;
+    public Plan $plan;
 
     /**
      * @var SubscriptionForm Additional parameters
      */
-    public $parameters;
+    public SubscriptionForm $parameters;
 }

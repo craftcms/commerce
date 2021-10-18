@@ -29,7 +29,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $skuFormat
  * @property ActiveQueryInterface $taxCategories
  * @property bool $hasVariantTitleField
- * @property string $titleFormat
+ * @property string $variantTitleFormat
  * @property bool $hasProductTitleField
  * @property string $productTitleFormat
  * @property ActiveQueryInterface $variantFieldLayout
@@ -91,6 +91,7 @@ class ProductType extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getVariantFieldLayout(): ActiveQueryInterface
     {

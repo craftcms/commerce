@@ -46,7 +46,7 @@ class Product extends Element
             'description' => 'This is the interface implemented by all products.',
             'resolveType' => function(ProductElement $value) {
                 return $value->getGqlTypeName();
-            }
+            },
         ]));
 
         ProductType::generateTypes();
@@ -71,33 +71,38 @@ class Product extends Element
             'availableForPurchase' => [
                 'name' => 'availableForPurchase',
                 'type' => Type::boolean(),
-                'description' => 'If the product is available for purchase.'
+                'description' => 'If the product is available for purchase.',
             ],
             'defaultPrice' => [
                 'name' => 'defaultPrice',
                 'type' => Type::float(),
-                'description' => 'The price of the default variant for the product.'
+                'description' => 'The price of the default variant for the product.',
             ],
             'defaultPriceAsCurrency' => [
                 'name' => 'defaultPriceAsCurrency',
                 'type' => Type::string(),
-                'description' => 'The formatted price of the default variant for the product.'
+                'description' => 'The formatted price of the default variant for the product.',
             ],
             'productTypeId' => [
                 'name' => 'productTypeId',
                 'type' => Type::int(),
-                'description' => 'The ID of the product type that contains the product.'
+                'description' => 'The ID of the product type that contains the product.',
             ],
             'productTypeHandle' => [
                 'name' => 'productTypeHandle',
                 'type' => Type::string(),
-                'description' => 'The handle of the product type that contains the product.'
+                'description' => 'The handle of the product type that contains the product.',
+            ],
+            'url' => [
+                'name' => 'url',
+                'type' => Type::string(),
+                'description' => 'The product’s full URL',
             ],
             'variants' => [
                 'name' => 'variants',
                 'type' => Type::listOf(Variant::getType()),
                 'description' => 'The product’s variants.',
-            ]
+            ],
         ]), self::getName());
     }
 }

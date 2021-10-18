@@ -39,7 +39,7 @@ class TotalOrders extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var int|bool
@@ -49,17 +49,17 @@ class TotalOrders extends Widget
     /**
      * @var null|TotalOrdersStat
      */
-    private $_stat;
+    private ?TotalOrdersStat $_stat;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalOrdersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalOrdersStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -103,7 +103,7 @@ class TotalOrders extends Widget
         return Craft::t('commerce', '{total} orders', ['total' => $total]);
     }
 
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         if (!$this->showChart) {
             return '';
@@ -115,10 +115,15 @@ class TotalOrders extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $showChart = $this->showChart;
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
+
         $number = $stats['total'] ?? 0;
         $chart = $stats['chart'] ?? [];
 
@@ -147,7 +152,7 @@ class TotalOrders extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

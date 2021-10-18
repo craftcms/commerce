@@ -9,6 +9,7 @@ namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping rule model
@@ -21,79 +22,65 @@ use craft\commerce\Plugin;
 class ShippingRuleCategory extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int Shipping rule ID
      */
-    public $shippingRuleId;
+    public int $shippingRuleId;
 
     /**
      * @var int Shipping category ID
      */
-    public $shippingCategoryId;
+    public int $shippingCategoryId;
 
     /**
-     * @var float Per item rate
+     * @var float|null Per item rate
      */
-    public $perItemRate;
+    public ?float $perItemRate;
 
     /**
-     * @var float Weight rate
+     * @var float|null Weight rate
      */
-    public $weightRate;
+    public ?float $weightRate;
 
     /**
-     * @var float Percentage rate
+     * @var float|null Percentage rate
      */
-    public $percentageRate;
+    public ?float $percentageRate;
 
     /**
      * @var string Condition
      */
-    public $condition;
+    public string $condition;
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] =
+        return [
+            [['condition'], 'in', 'range' => ['allow', 'disallow', 'require']],
+            [['perItemRate', 'weightRate', 'percentageRate'], 'number', 'skipOnEmpty' => true],
             [
-                ['condition'],
-                'in',
-                'range' => [
-                    'allow',
-                    'disallow',
-                    'require'
+                [
+                    'shippingRuleId',
+                    'shippingCategoryId',
+                    'condition',
+                    'perItemRate',
+                    'weightRate',
+                    'percentageRate',
                 ],
-
-            ];
-
-        $rules[] = [[
-            'perItemRate',
-            'weightRate',
-            'percentageRate',
-        ], 'number', 'skipOnEmpty' => true];
-
-        $rules[] = [[
-            'shippingRuleId',
-            'shippingCategoryId',
-            'condition',
-            'perItemRate',
-            'weightRate',
-            'percentageRate',
-        ], 'safe'];
-
-        return $rules;
+                'safe',
+            ],
+        ];
     }
 
     /**
      * @return ShippingRule
+     * @throws InvalidConfigException
      */
     public function getRule(): ShippingRule
     {
@@ -102,6 +89,7 @@ class ShippingRuleCategory extends Model
 
     /**
      * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getCategory(): ShippingCategory
     {

@@ -18,12 +18,13 @@ use craft\commerce\models\subscriptions\SubscriptionPayment;
 use craft\commerce\Plugin;
 use craft\commerce\records\Subscription as SubscriptionRecord;
 use craft\db\Query;
-use craft\elements\db\ElementQuery;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -65,101 +66,100 @@ class Subscription extends Element
      */
     const STATUS_SUSPENDED = 'suspended';
 
-
     /**
      * @var int User id
      */
-    public $userId;
+    public int $userId;
 
     /**
      * @var int Plan id
      */
-    public $planId;
+    public int $planId;
 
     /**
      * @var int Gateway id
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var int|null Order id
      */
-    public $orderId;
+    public ?int $orderId;
 
     /**
      * @var string Subscription reference on the gateway
      */
-    public $reference;
+    public string $reference;
 
     /**
      * @var int Trial days granted
      */
-    public $trialDays;
+    public int $trialDays;
 
     /**
-     * @var DateTime Date of next payment
+     * @var DateTime|null Date of next payment
      */
-    public $nextPaymentDate;
+    public ?DateTime $nextPaymentDate = null;
 
     /**
      * @var bool Whether the subscription is canceled
      */
-    public $isCanceled;
+    public bool $isCanceled = false;
 
     /**
-     * @var DateTime Time when subscription was canceled
+     * @var DateTime|null Time when subscription was canceled
      */
-    public $dateCanceled;
+    public ?DateTime $dateCanceled = null;
 
     /**
      * @var bool Whether the subscription has expired
      */
-    public $isExpired;
+    public bool $isExpired = false;
 
     /**
-     * @var DateTime Time when subscription expired
+     * @var DateTime|null Time when subscription expired
      */
-    public $dateExpired;
+    public ?DateTime $dateExpired = null;
 
     /**
      * @var bool Whether the subscription has started
      */
-    public $hasStarted;
+    public bool $hasStarted;
 
     /**
      * @var bool Whether the subscription is on hold due to payment issues
      */
-    public $isSuspended;
+    public bool $isSuspended;
 
     /**
-     * @var DateTime Time when subscription was put on hold
+     * @var DateTime|null Time when subscription was put on hold
      */
-    public $dateSuspended;
+    public ?DateTime $dateSuspended = null;
 
     /**
-     * @var SubscriptionGatewayInterface
+     * @var SubscriptionGatewayInterface|null
      */
-    private $_gateway;
+    private ?SubscriptionGatewayInterface $_gateway = null;
 
     /**
      * @var Plan
      */
-    private $_plan;
+    private Plan $_plan;
 
     /**
      * @var User
      */
-    private $_user;
+    private User $_user;
 
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var array The subscription data from gateway
      */
-    public $_subscriptionData;
+    public array $_subscriptionData;
 
 
     /**
@@ -197,7 +197,7 @@ class Subscription extends Element
     /**
      * @return null|string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => (string)$this->getPlan()]);
     }
@@ -208,7 +208,7 @@ class Subscription extends Element
      * @return bool
      * @throws InvalidConfigException if gateway misconfigured
      */
-    public function canReactivate()
+    public function canReactivate(): bool
     {
         return $this->isCanceled && !$this->isExpired && $this->getGateway()->supportsReactivation();
     }
@@ -216,7 +216,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -225,8 +225,9 @@ class Subscription extends Element
      * Returns whether this subscription is on trial.
      *
      * @return bool
+     * @throws Exception
      */
-    public function getIsOnTrial()
+    public function getIsOnTrial(): bool
     {
         if ($this->isExpired) {
             return false;
@@ -275,7 +276,7 @@ class Subscription extends Element
      *
      * @param string|array $data
      */
-    public function setSubscriptionData($data)
+    public function setSubscriptionData($data): void
     {
         $data = Json::decodeIfJson($data);
 
@@ -285,10 +286,10 @@ class Subscription extends Element
     /**
      * Returns the datetime of trial expiry.
      *
-     * @return DateTime
+     * @return DateTime|null
      * @throws Exception
      */
-    public function getTrialExpires(): DateTIme
+    public function getTrialExpires(): ?DateTIme
     {
         $created = clone $this->dateCreated;
         return $created->add(new DateInterval('P' . $this->trialDays . 'D'));
@@ -310,7 +311,7 @@ class Subscription extends Element
      *
      * @return null|Order
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
         if ($this->_order) {
             return $this->_order;
@@ -356,7 +357,7 @@ class Subscription extends Element
      */
     public function getAlternativePlans(): array
     {
-        $plans = Plugin::getInstance()->getPlans()->getAllGatewayPlans($this->gatewayId);
+        $plans = Plugin::getInstance()->getPlans()->getPlansByGatewayId($this->gatewayId);
 
         /** @var Plan $currentPlan */
         $currentPlan = $this->getPlan();
@@ -409,7 +410,7 @@ class Subscription extends Element
     /**
      * @return null|string
      */
-    public function getName()
+    public function getName(): ?string
     {
         return Craft::t('commerce', 'Subscription to “{plan}”', ['plan' => $this->getPlanName()]);
     }
@@ -425,7 +426,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         if ($this->isExpired) {
             return self::STATUS_EXPIRED;
@@ -454,8 +455,8 @@ class Subscription extends Element
                 'key' => '*',
                 'label' => Craft::t('commerce', 'All active subscriptions'),
                 'criteria' => ['planId' => $planIds],
-                'defaultSort' => ['dateCreated', 'desc']
-            ]
+                'defaultSort' => ['dateCreated', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Subscription plans')];
@@ -467,9 +468,9 @@ class Subscription extends Element
                 'key' => $key,
                 'label' => $plan->name,
                 'data' => [
-                    'handle' => $plan->handle
+                    'handle' => $plan->handle,
                 ],
-                'criteria' => ['planId' => $plan->id]
+                'criteria' => ['planId' => $plan->id],
             ];
         }
 
@@ -518,7 +519,7 @@ class Subscription extends Element
 
             return [
                 'elementType' => User::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -528,7 +529,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle === 'order') {
             $this->_order = $elements[0] ?? null;
@@ -548,13 +549,11 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'];
-
-        return $rules;
+        return array_merge(parent::defineRules(), [
+            [['userId', 'planId', 'gatewayId', 'reference', 'subscriptionData'], 'required'],
+        ]);
     }
 
     /**
@@ -593,7 +592,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$isNew) {
             $subscriptionRecord = SubscriptionRecord::findOne($this->id);
@@ -638,10 +637,11 @@ class Subscription extends Element
     /**
      * Return a description of the billing issue (if any) with this subscription.
      *
-     * @return mixed
+     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueDescription()
+    public function getBillingIssueDescription(): string
     {
         return $this->getGateway()->getBillingIssueDescription($this);
     }
@@ -649,10 +649,11 @@ class Subscription extends Element
     /**
      * Return the form HTML for resolving the billing issue (if any) with this subscription.
      *
-     * @return mixed
+     * @return string
      * @throws InvalidConfigException if not a subscription gateway anymore
+     * @noinspection PhpUnused
      */
-    public function getBillingIssueResolveFormHtml()
+    public function getBillingIssueResolveFormHtml(): string
     {
         return $this->getGateway()->getBillingIssueResolveFormHtml($this);
     }
@@ -660,10 +661,10 @@ class Subscription extends Element
     /**
      * Return whether this subscription has billing issues.
      *
-     * @return mixed
+     * @return bool
      * @throws InvalidConfigException if not a subscription gateway anymore
      */
-    public function getHasBillingIssues()
+    public function getHasBillingIssues(): bool
     {
         return $this->getGateway()->getHasBillingIssues($this);
     }
@@ -680,7 +681,7 @@ class Subscription extends Element
             'dateCanceled' => ['label' => Craft::t('commerce', 'Cancellation date')],
             'dateCreated' => ['label' => Craft::t('commerce', 'Subscription date')],
             'dateExpired' => ['label' => Craft::t('commerce', 'Expiry date')],
-            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')]
+            'trialExpires' => ['label' => Craft::t('commerce', 'Trial expiry date')],
         ];
     }
 
@@ -722,7 +723,7 @@ class Subscription extends Element
                 $subscriber = $this->getSubscriber();
                 $url = $subscriber->getCpEditUrl();
 
-                return '<a href="' . $url . '">' . $subscriber . '</a>';
+                return '<a href="' . $url . '">' . Html::encode($subscriber) . '</a>';
 
             case 'orderLink':
                 $url = $this->getOrderEditUrl();
@@ -760,7 +761,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    protected static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         switch ($attribute) {
             case 'subscriber':

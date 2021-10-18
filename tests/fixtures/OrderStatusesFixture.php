@@ -8,7 +8,6 @@
 namespace craftcommercetests\fixtures;
 
 use craft\commerce\models\OrderStatus;
-use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use yii\base\InvalidArgumentException;
@@ -34,22 +33,22 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public $saveMethod = 'saveOrderStatus';
+    public string $saveMethod = 'saveOrderStatus';
 
     /**
      * @inheritDoc
      */
-    public $deleteMethod = 'deleteOrderStatusById';
+    public string $deleteMethod = 'deleteOrderStatusById';
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
     public $service = 'orderStatuses';
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->service = Plugin::getInstance()->get($this->service);
 
@@ -59,7 +58,7 @@ class OrderStatusesFixture extends BaseModelFixture
     /**
      * @inheritDoc
      */
-    public function unload()
+    public function unload(): void
     {
         if (!empty($this->ids)) {
             foreach ($this->ids as $id) {

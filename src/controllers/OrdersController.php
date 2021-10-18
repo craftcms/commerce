@@ -16,6 +16,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\errors\OrderStatusException;
 use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
@@ -34,14 +35,13 @@ use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
+use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\errors\ElementNotFoundException;
-use craft\errors\MissingComponentException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
-use craft\db\Table as CraftTable;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use craft\helpers\StringHelper;
@@ -72,7 +72,7 @@ class OrdersController extends Controller
      * @throws HttpException
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -103,6 +103,12 @@ class OrdersController extends Controller
 
     /**
      * Create an order
+     *
+     * @return Response
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws Throwable
      */
     public function actionNewOrder(): Response
     {
@@ -130,12 +136,19 @@ class OrdersController extends Controller
 
     /**
      * @param int $orderId
-     * @param Order $order
+     * @param Order|null $order
+     * @param null $paymentForm
      * @return Response
+     * @throws CurrencyException
+     * @throws Exception
+     * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws InvalidConfigException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
-    public function actionEditOrder($orderId, Order $order = null, $paymentForm = null): Response
+    public function actionEditOrder(int $orderId, Order $order = null, $paymentForm = null): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -165,13 +178,17 @@ class OrdersController extends Controller
     }
 
     /**
-     * @throws Exception
-     * @throws Throwable
-     * @throws ElementNotFoundException
-     * @throws MissingComponentException
+     * @return Response|null
      * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws OrderStatusException
+     * @throws Throwable
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePermission('commerce-editOrders');
         $this->requirePostRequest();
@@ -214,7 +231,7 @@ class OrdersController extends Controller
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save order.'));
 
             Craft::$app->getUrlManager()->setRouteParams([
-                'order' => $order
+                'order' => $order,
             ]);
 
             return null;
@@ -225,17 +242,17 @@ class OrdersController extends Controller
             $order->markAsComplete();
         }
 
-        $this->redirectToPostedUrl();
+        return $this->redirectToPostedUrl();
     }
 
     /**
      * Deletes an order.
      *
      * @return Response|null
-     * @throws Exception if you try to edit a non existing Id.
+     * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
-    public function actionDeleteOrder()
+    public function actionDeleteOrder(): ?Response
     {
         $this->requirePostRequest();
         $this->requirePermission('commerce-deleteOrders');
@@ -263,7 +280,7 @@ class OrdersController extends Controller
      * @return Response
      * @throws Exception
      */
-    public function actionRefresh()
+    public function actionRefresh(): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -302,7 +319,6 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws InvalidConfigException
      * @throws ForbiddenHttpException
      */
     public function actionUserOrdersTable(): Response
@@ -339,7 +355,7 @@ class OrdersController extends Controller
         }
 
         if ($sort) {
-            list($field, $direction) = explode('|', $sort);
+            [$field, $direction] = explode('|', $sort);
 
             if ($field && $direction) {
                 $orderQuery->orderBy($field . ' ' . $direction);
@@ -376,7 +392,7 @@ class OrdersController extends Controller
      * @param Order $order
      * @return array
      */
-    private function _orderToArray($order)
+    private function _orderToArray($order): array
     {
         // Remove custom fields
         $orderFields = array_keys($order->fields());
@@ -408,9 +424,6 @@ class OrdersController extends Controller
             }
         }
 
-        // Typecast order attributes
-        $order->typeCastAttributes();
-
         $extraFields = [
             'lineItems.snapshot',
             'availableShippingMethodOptions',
@@ -435,7 +448,6 @@ class OrdersController extends Controller
 
         $orderArray = $order->toArray($orderFields, $extraFields);
 
-        // TODO merge this and the above line items loop into one.
         if (!empty($orderArray['lineItems'])) {
             foreach ($orderArray['lineItems'] as &$lineItem) {
                 $lineItem['showForm'] = ArrayHelper::isAssociative($lineItem['options']) || (is_array($lineItem['options']) && empty($lineItem['options']));
@@ -448,75 +460,12 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param null $query
-     * @return Response
-     * @throws InvalidConfigException
-     * @deprecated in 3.5.0. Use [[actionPurchasablesTable()]] instead.
-     */
-    public function actionPurchasableSearch($query = null)
-    {
-        Craft::$app->getDeprecator()->log(__METHOD__, 'The `orders/purchasable-search` action is deprecated. Use `orders/purchasables-table` instead.');
-
-        if ($query === null) {
-            $results = (new Query())
-                ->select(['id', 'price', 'description', 'sku'])
-                ->from('{{%commerce_purchasables}}')
-                ->limit(10)
-                ->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Prepare purchasables query
-        $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
-        $sqlQuery = (new Query())
-            ->select(['id', 'price', 'description', 'sku'])
-            ->from(Table::PURCHASABLES);
-
-        // Are they searching for a purchasable ID?
-        if (is_numeric($query)) {
-            $results = $sqlQuery->where(['id' => $query])->all();
-            if (!$results) {
-                return $this->asJson([]);
-            }
-
-            $purchasables = $this->_addLivePurchasableInfo($results);
-
-            return $this->asJson($purchasables);
-        }
-
-        // Are they searching for a SKU or purchasable description?
-        if ($query) {
-            $sqlQuery->where([
-                'or',
-                [$likeOperator, 'description', '%' . str_replace(' ', '%', $query) . '%', false],
-                [$likeOperator, 'sku', $query]
-            ]);
-        }
-
-        $results = $sqlQuery->limit(30)->all();
-
-        if (!$results) {
-            return $this->asJson([]);
-        }
-
-        $purchasables = $this->_addLivePurchasableInfo($results);
-
-        return $this->asJson($purchasables);
-    }
-
-    /**
      * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws InvalidConfigException
      */
-    public function actionPurchasablesTable()
+    public function actionPurchasablesTable(): Response
     {
         $this->requirePermission('commerce-editOrders');
         $this->requireAcceptsJson();
@@ -534,7 +483,7 @@ class OrdersController extends Controller
             ->select(['purchasables.id', 'purchasables.price', 'purchasables.description', 'purchasables.sku'])
             ->leftJoin(['elements' => CraftTable::ELEMENTS], [
                 'and',
-                '[[elements.id]] = [[purchasables.id]]'
+                '[[elements.id]] = [[purchasables.id]]',
             ])
             ->where(['elements.enabled' => true])
             ->from(['purchasables' => Table::PURCHASABLES]);
@@ -544,19 +493,19 @@ class OrdersController extends Controller
             $sqlQuery->andwhere([
                 'or',
                 [$likeOperator, 'purchasables.description', '%' . str_replace(' ', '%', $search) . '%', false],
-                [$likeOperator, 'purchasables.sku', $search]
+                [$likeOperator, 'purchasables.sku', $search],
             ]);
         }
 
         // Do not return any purchasables with temp SKUs
-        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], 7) != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
+        $sqlQuery->andWhere(new Expression("LEFT([[purchasables.sku]], " . strlen(Purchasable::TEMPORARY_SKU_PREFIX) . ") != '" . Purchasable::TEMPORARY_SKU_PREFIX . "'"));
 
         // Do not return soft deleted purchasables
         $sqlQuery->andWhere(['elements.dateDeleted' => null]);
 
         // Apply sorting if required
         if ($sort && strpos($sort, '|')) {
-            list($column, $direction) = explode('|', $sort);
+            [$column, $direction] = explode('|', $sort);
             if ($column && $direction && in_array($direction, ['asc', 'desc'], true)) {
                 $sqlQuery->orderBy([$column => $direction == 'asc' ? SORT_ASC : SORT_DESC]);
             }
@@ -581,8 +530,9 @@ class OrdersController extends Controller
     /**
      * @param null $query
      * @return Response
+     * @throws InvalidConfigException
      */
-    public function actionCustomerSearch($query = null)
+    public function actionCustomerSearch($query = null): Response
     {
         $limit = 30;
         $customers = [];
@@ -605,8 +555,10 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
-    public function actionSendEmail()
+    public function actionSendEmail(): Response
     {
         $this->requireAcceptsJson();
 
@@ -661,7 +613,7 @@ class OrdersController extends Controller
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    public function actionUpdateOrderAddress()
+    public function actionUpdateOrderAddress(): Response
     {
         $this->requireAcceptsJson();
 
@@ -702,6 +654,7 @@ class OrdersController extends Controller
     /**
      * @return Response
      * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      * @since 3.0.11
      */
     public function actionGetIndexSourcesBadgeCounts(): Response
@@ -722,6 +675,7 @@ class OrdersController extends Controller
      *
      * @return Response
      * @throws BadRequestHttpException
+     * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
@@ -776,14 +730,14 @@ class OrdersController extends Controller
 
             $paymentFormHtml = $gateway->getPaymentFormHtml([
                 'paymentForm' => $paymentFormModel,
-                'order' => $order
+                'order' => $order,
             ]);
 
             $paymentFormHtml = $view->renderTemplate('commerce/_components/gateways/_modalWrapper', [
                 'formHtml' => $paymentFormHtml,
                 'gateway' => $gateway,
                 'paymentForm' => $paymentFormModel,
-                'order' => $order
+                'order' => $order,
             ]);
 
             $formHtml .= $paymentFormHtml;
@@ -807,9 +761,9 @@ class OrdersController extends Controller
      * Captures Transaction
      *
      * @return Response
-     * @throws TransactionException
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
+     * @throws TransactionException
      */
     public function actionTransactionCapture(): Response
     {
@@ -827,11 +781,11 @@ class OrdersController extends Controller
             if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                 $child->order->updateOrderPaidInformation();
                 $this->setSuccessFlash(Craft::t('commerce', 'Transaction captured successfully: {message}', [
-                    'message' => $message
+                    'message' => $message,
                 ]));
             } else {
                 $this->setFailFlash(Craft::t('commerce', 'Couldn’t capture transaction: {message}', [
-                    'message' => $message
+                    'message' => $message,
                 ]));
             }
         } else {
@@ -845,10 +799,10 @@ class OrdersController extends Controller
      * Refunds transaction.
      *
      * @return Response
-     * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionTransactionRefund()
+    public function actionTransactionRefund(): Response
     {
         $this->requirePermission('commerce-refundPayment');
         $this->requirePostRequest();
@@ -894,11 +848,11 @@ class OrdersController extends Controller
                 if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                     $child->order->updateOrderPaidInformation();
                     $this->setSuccessFlash(Craft::t('commerce', 'Transaction refunded successfully: {message}', [
-                        'message' => $message
+                        'message' => $message,
                     ]));
                 } else {
                     $this->setFailFlash(Craft::t('commerce', 'Couldn’t refund transaction: {message}', [
-                        'message' => $message
+                        'message' => $message,
                     ]));
                 }
             } catch (RefundException $exception) {
@@ -911,10 +865,12 @@ class OrdersController extends Controller
         return $this->redirectToPostedUrl();
     }
 
-    /*
+    /**
+     * @return Response
      * @throws BadRequestHttpException
+     * @throws CurrencyException
      */
-    public function actionPaymentAmountData()
+    public function actionPaymentAmountData(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
@@ -945,17 +901,16 @@ class OrdersController extends Controller
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-            'message' => $message
+            'message' => $message,
         ]);
     }
 
     /**
      * Modifies the variables of the request.
      *
-     * @param $variables
-     * @throws InvalidConfigException
+     * @param array $variables
      */
-    private function _updateTemplateVariables(&$variables)
+    private function _updateTemplateVariables(array &$variables): void
     {
         /** @var Order $order */
         $order = $variables['order'];
@@ -984,10 +939,10 @@ class OrdersController extends Controller
 
         $variables['tabs'] = [];
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-details'] = [
             'label' => Craft::t('commerce', 'Order Details'),
             'url' => '#orderDetailsTab',
-            'class' => null
+            'class' => null,
         ];
 
         foreach ($staticForm->getTabMenu() as $tabId => $tab) {
@@ -1000,16 +955,16 @@ class OrdersController extends Controller
             $variables['tabs'][$tabId] = $tab;
         }
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-transactions'] = [
             'label' => Craft::t('commerce', 'Transactions'),
             'url' => '#transactionsTab',
-            'class' => null
+            'class' => null,
         ];
 
-        $variables['tabs'][] = [
+        $variables['tabs']['order-history'] = [
             'label' => Craft::t('commerce', 'Status History'),
             'url' => '#orderHistoryTab',
-            'class' => null
+            'class' => null,
         ];
 
         $variables['fullPageForm'] = true;
@@ -1039,9 +994,10 @@ class OrdersController extends Controller
 
     /**
      * @param array $variables
+     * @throws Exception
      * @throws InvalidConfigException
      */
-    private function _registerJavascript(array $variables)
+    private function _registerJavascript(array $variables): void
     {
         Craft::$app->getView()->registerAssetBundle(CommerceOrderAsset::class);
 
@@ -1112,7 +1068,7 @@ class OrdersController extends Controller
         foreach ($pdfs as $pdf) {
             $pdfUrls[] = [
                 'name' => $pdf->name,
-                'url' => $variables['order']->getPdfUrl(null, $pdf->handle)
+                'url' => $variables['order']->getPdfUrl(null, $pdf->handle),
             ];
         }
 
@@ -1142,7 +1098,7 @@ class OrdersController extends Controller
      * @throws Exception
      * @throws InvalidConfigException
      */
-    private function _updateOrder(Order $order, $orderRequestData)
+    private function _updateOrder(Order $order, $orderRequestData): void
     {
         $order->setRecalculationMode($orderRequestData['order']['recalculationMode']);
         $order->reference = $orderRequestData['order']['reference'];
@@ -1167,7 +1123,7 @@ class OrdersController extends Controller
         foreach ($orderRequestData['order']['notices'] as $notice) {
             $notices[] = Craft::createObject([
                 'class' => OrderNotice::class,
-                'attributes' => $notice
+                'attributes' => $notice,
             ]);
         }
         $order->addNotices($notices);
@@ -1253,11 +1209,9 @@ class OrdersController extends Controller
             $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
             $billingAddress['isEstimated'] = false;
 
+            $billingAddress['id'] = ($billingAddressId == 'new') ? null : $billingAddress['id'];
             $billingAddress = new Address($billingAddress);
 
-            $billingAddress->id = ($billingAddressId == 'new') ? null : $billingAddress->id;
-
-            // TODO figure out if we need to validate at this point;
             Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
             $billingAddressId = $billingAddress->id;
         }
@@ -1266,11 +1220,9 @@ class OrdersController extends Controller
             $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
             $shippingAddress['isEstimated'] = false;
 
+            $shippingAddress['id'] = ($shippingAddressId == 'new') ? null : $shippingAddress['id'];
             $shippingAddress = new Address($shippingAddress);
 
-            $shippingAddress->id = ($shippingAddressId == 'new') ? null : $shippingAddress->id;
-
-            // TODO figure out if we need to validate at this point;
             Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
             $shippingAddressId = $shippingAddress->id;
         }
@@ -1304,7 +1256,7 @@ class OrdersController extends Controller
 
             if (!$lineItem) {
                 try {
-                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order->id, $purchasableId, $options, $qty, $note, $order, $uid);
+                    $lineItem = Plugin::getInstance()->getLineItems()->createLineItem($order, $purchasableId, $options, $qty, $note, $uid);
                 } catch (\Exception $exception) {
                     $order->addError('lineItems', $exception->getMessage());
                     continue;
@@ -1400,7 +1352,7 @@ class OrdersController extends Controller
      * @throws CurrencyException
      * @since 3.0
      */
-    private function _getTransactionsWithLevelsTableArray($transactions, $level = 0): array
+    private function _getTransactionsWithLevelsTableArray(array $transactions, int $level = 0): array
     {
         $return = [];
         $user = Craft::$app->getUser()->getIdentity();
@@ -1442,7 +1394,7 @@ class OrdersController extends Controller
                     ],
                     'status' => [
                         'key' => $transaction->status,
-                        'label' => Html::encode(Craft::t('commerce', StringHelper::toTitleCase($transaction->status)))
+                        'label' => Html::encode(Craft::t('commerce', StringHelper::toTitleCase($transaction->status))),
                     ],
                     'paymentAmount' => $transaction->paymentAmountAsCurrency,
                     'amount' => $transaction->amountAsCurrency,
@@ -1476,8 +1428,6 @@ class OrdersController extends Controller
 
     /**
      * @param array $results
-     * @param string $baseCurrency
-     * @param array $purchasables
      * @return array
      * @throws InvalidConfigException
      */
@@ -1493,7 +1443,7 @@ class OrdersController extends Controller
                 } else {
                     $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 }
-                $row['isAvailable'] = $purchasable->getIsAvailable();
+                $row['isAvailable'] = Plugin::getInstance()->getPurchasables()->isPurchasableAvailable($purchasable);
                 $row['detail'] = [
                     'title' => Craft::t('commerce', 'Information'),
                     'content' => $purchasable->getSnapshot(),

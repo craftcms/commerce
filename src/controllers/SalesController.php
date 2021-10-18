@@ -51,6 +51,7 @@ class SalesController extends BaseCpController
 
     /**
      * @return Response
+     * @throws InvalidConfigException
      */
     public function actionIndex(): Response
     {
@@ -63,6 +64,7 @@ class SalesController extends BaseCpController
      * @param Sale|null $sale
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
@@ -96,7 +98,7 @@ class SalesController extends BaseCpController
      * @throws \yii\base\Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 
@@ -119,7 +121,7 @@ class SalesController extends BaseCpController
 
         $dateFields = [
             'dateFrom',
-            'dateTo'
+            'dateTo',
         ];
         foreach ($dateFields as $field) {
             if (($date = $request->getBodyParam($field)) !== false) {
@@ -131,15 +133,15 @@ class SalesController extends BaseCpController
 
         $applyAmount = $request->getBodyParam('applyAmount');
         $sale->sortOrder = $request->getBodyParam('sortOrder');
-        $sale->ignorePrevious = $request->getBodyParam('ignorePrevious');
-        $sale->stopProcessing = $request->getBodyParam('stopProcessing');
+        $sale->ignorePrevious = (bool)$request->getBodyParam('ignorePrevious');
+        $sale->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $sale->categoryRelationshipType = $request->getBodyParam('categoryRelationshipType');
 
         $applyAmount = Localization::normalizeNumber($applyAmount);
         if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {
             if ((float)$applyAmount >= 1) {
                 $sale->applyAmount = (float)$applyAmount / -100;
-            }else{
+            } else {
                 $sale->applyAmount = -(float)$applyAmount;
             }
         } else {
@@ -174,13 +176,13 @@ class SalesController extends BaseCpController
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
             $this->setSuccessFlash(Craft::t('commerce', 'Sale saved.'));
-            $this->redirectToPostedUrl($sale);
+            return $this->redirectToPostedUrl($sale);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
         $variables = [
-            'sale' => $sale
+            'sale' => $sale,
         ];
         $this->_populateVariables($variables);
 
@@ -188,7 +190,7 @@ class SalesController extends BaseCpController
     }
 
     /**
-     *
+     * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
     {
@@ -214,12 +216,30 @@ class SalesController extends BaseCpController
     {
         $this->requirePermission('commerce-deleteSales');
         $this->requirePostRequest();
-        $this->requireAcceptsJson();
 
-        $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
+        $id = Craft::$app->getRequest()->getBodyParam('id');
+        $ids = Craft::$app->getRequest()->getBodyParam('ids');
 
-        Plugin::getInstance()->getSales()->deleteSaleById($id);
-        return $this->asJson(['success' => true]);
+        if ((!$id && empty($ids)) || ($id && !empty($ids))) {
+            throw new BadRequestHttpException('id or ids must be specified.');
+        }
+
+        if ($id) {
+            $this->requireAcceptsJson();
+            $ids = [$id];
+        }
+
+        foreach ($ids as $id) {
+            Plugin::getInstance()->getSales()->deleteSaleById($id);
+        }
+
+        if ($this->request->getAcceptsJson()) {
+            return $this->asJson(['success' => true]);
+        }
+
+        $this->setSuccessFlash(Craft::t('commerce', 'Sales deleted.'));
+
+        return $this->redirect($this->request->getReferrer());
     }
 
     /**
@@ -257,7 +277,7 @@ class SalesController extends BaseCpController
         }
 
         $sales = [];
-        foreach ($product->getVariants() as $variant) {
+        foreach ($product->getVariants(true) as $variant) {
             $variantSales = Plugin::getInstance()->getSales()->getSalesRelatedToPurchasable($variant);
             foreach ($variantSales as $sale) {
                 if (!ArrayHelper::firstWhere($sales, 'id', $sale->id)) {
@@ -357,11 +377,10 @@ class SalesController extends BaseCpController
 
     /**
      * @throws BadRequestHttpException
-     * @throws \craft\errors\MissingComponentException
      * @throws \yii\db\Exception
      * @since 3.0
      */
-    public function actionUpdateStatus()
+    public function actionUpdateStatus(): void
     {
         $this->requirePostRequest();
         $ids = Craft::$app->getRequest()->getRequiredBodyParam('ids');
@@ -391,7 +410,7 @@ class SalesController extends BaseCpController
      * @param $variables
      * @throws InvalidConfigException
      */
-    private function _populateVariables(&$variables)
+    private function _populateVariables(&$variables): void
     {
         /** @var Sale $sale */
         $sale = $variables['sale'];
@@ -456,7 +475,7 @@ class SalesController extends BaseCpController
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
                 if ($purchasable && $purchasable instanceof Product) {
-                    foreach ($purchasable->getVariants() as $variant) {
+                    foreach ($purchasable->getVariants(true) as $variant) {
                         $purchasableIds[] = $variant->getId();
                     }
                 } else {
@@ -484,7 +503,7 @@ class SalesController extends BaseCpController
         foreach ($purchasableTypes as $purchasableType) {
             $variables['purchasableTypes'][] = [
                 'name' => $purchasableType::displayName(),
-                'elementType' => $purchasableType
+                'elementType' => $purchasableType,
             ];
         }
     }

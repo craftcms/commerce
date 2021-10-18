@@ -10,7 +10,6 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\helpers\Locale;
 use craft\commerce\Plugin;
-use craft\commerce\records\Email;
 use HttpInvalidParamException;
 use Throwable;
 use yii\base\Exception;
@@ -83,7 +82,7 @@ class DownloadsController extends BaseFrontEndController
         }
 
         return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
-            'mimeType' => 'application/pdf'
+            'mimeType' => 'application/pdf',
         ]);
     }
 }

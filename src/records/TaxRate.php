@@ -16,6 +16,8 @@ use yii\db\ActiveQueryInterface;
  *
  * @property int $id
  * @property bool $include
+ * @property bool $removeIncluded
+ * @property bool $removeVatIncluded
  * @property bool $isVat
  * @property string $name
  * @property string $code
@@ -40,9 +42,8 @@ class TaxRate extends ActiveRecord
 
     const ORDER_TAXABALES = [
         self::TAXABLE_ORDER_TOTAL_PRICE,
-        self::TAXABLE_ORDER_TOTAL_SHIPPING
+        self::TAXABLE_ORDER_TOTAL_SHIPPING,
     ];
-
 
     /**
      * @inheritdoc
@@ -54,6 +55,7 @@ class TaxRate extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
     {

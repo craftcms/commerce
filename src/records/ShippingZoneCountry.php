@@ -35,15 +35,16 @@ class ShippingZoneCountry extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['shippingZoneId', 'countryId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'countryId']]
+            [['shippingZoneId', 'countryId'], 'unique', 'targetAttribute' => ['shippingZoneId', 'countryId']],
         ];
     }
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getShippingZone(): ActiveQueryInterface
     {

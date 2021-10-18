@@ -29,6 +29,7 @@ use yii\base\Component;
 use yii\base\ErrorException;
 use yii\base\Exception;
 use yii\base\NotSupportedException;
+use yii\db\StaleObjectException;
 use yii\web\ServerErrorHttpException;
 
 /**
@@ -36,6 +37,11 @@ use yii\web\ServerErrorHttpException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read null|Pdf $defaultPdf
+ * @property-read Pdf[] $allEnabledPdfs
+ * @property-read bool $hasEnabledPdf
+ * @property-read null|Pdf[] $allPdfs
  */
 class Pdfs extends Component
 {
@@ -43,7 +49,7 @@ class Pdfs extends Component
     /**
      * @var Pdf[]|null
      */
-    private $_allPdfs;
+    private ?array $_allPdfs = null;
 
     /**
      * @event PdfSaveEvent The event that is triggered before an pdf is saved.
@@ -176,7 +182,7 @@ class Pdfs extends Component
      * @return Pdf[]
      * @since 3.2
      */
-    public function getAllPdfs()
+    public function getAllPdfs(): ?array
     {
         if ($this->_allPdfs === null) {
             $pdfResults = $this->_createPdfsQuery()->all();
@@ -215,7 +221,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getDefaultPdf()
+    public function getDefaultPdf(): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'isDefault', true);
     }
@@ -225,7 +231,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfByHandle($handle)
+    public function getPdfByHandle(string $handle): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'handle', $handle);
     }
@@ -237,7 +243,7 @@ class Pdfs extends Component
      * @return Pdf|null
      * @since 3.2
      */
-    public function getPdfById($id)
+    public function getPdfById(int $id): ?Pdf
     {
         return ArrayHelper::firstWhere($this->getAllPdfs(), 'id', $id);
     }
@@ -262,7 +268,7 @@ class Pdfs extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_PDF)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_PDF, new PdfSaveEvent([
                 'pdf' => $pdf,
-                'isNew' => $isNewPdf
+                'isNew' => $isNewPdf,
             ]));
         }
 
@@ -291,10 +297,10 @@ class Pdfs extends Component
      *
      * @param ConfigEvent $event
      * @return void
-     * @throws Throwable if reasons
+     * @throws \yii\db\Exception
      * @since 3.2
      */
-    public function handleChangedPdf(ConfigEvent $event)
+    public function handleChangedPdf(ConfigEvent $event): void
     {
         $pdfUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -312,13 +318,7 @@ class Pdfs extends Component
             $pdfRecord->enabled = $data['enabled'];
             $pdfRecord->sortOrder = $data['sortOrder'];
             $pdfRecord->isDefault = $data['isDefault'];
-
-            /** @var Plugin $plugin */
-            $projectConfig = Craft::$app->getProjectConfig();
-            $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion');
-            if (version_compare($schemaVersion, '3.2.13', '>=')) {
-                $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
-            }
+            $pdfRecord->language = $data['language'] ?? PdfRecord::LOCALE_ORDER_LANGUAGE;
 
             $pdfRecord->uid = $pdfUid;
 
@@ -329,7 +329,7 @@ class Pdfs extends Component
             }
 
             $transaction->commit();
-        } catch (Throwable $e) {
+        } catch (\Exception $e) {
             $transaction->rollBack();
             throw $e;
         }
@@ -338,7 +338,7 @@ class Pdfs extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_PDF)) {
             $this->trigger(self::EVENT_AFTER_SAVE_PDF, new PdfSaveEvent([
                 'pdf' => $this->getPdfById($pdfRecord->id),
-                'isNew' => $isNewPdf
+                'isNew' => $isNewPdf,
             ]));
         }
 
@@ -352,7 +352,7 @@ class Pdfs extends Component
      * @return bool
      * @since 3.2
      */
-    public function deletePdfById($id): bool
+    public function deletePdfById(int $id): bool
     {
         $pdf = PdfRecord::findOne($id);
 
@@ -368,9 +368,11 @@ class Pdfs extends Component
      *
      * @param ConfigEvent $event
      * @return void
+     * @throws \Throwable
+     * @throws StaleObjectException
      * @since 3.2
      */
-    public function handleDeletedPdf(ConfigEvent $event)
+    public function handleDeletedPdf(ConfigEvent $event): void
     {
         $uid = $event->tokenMatches[0];
         $pdfRecord = $this->_getPdfRecord($uid);
@@ -385,7 +387,10 @@ class Pdfs extends Component
     /**
      * @param array $ids
      * @return bool
-     * @throws \yii\db\Exception
+     * @throws ErrorException
+     * @throws Exception
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      * @since 3.2
      */
     public function reorderPdfs(array $ids): bool
@@ -408,15 +413,15 @@ class Pdfs extends Component
      *
      * @param Order $order The order you want passed into the PDFs `order` variable.
      * @param string $option A string you want passed into the PDFs `option` variable.
-     * @param string $templatePath The path to the template file in the site templates folder that DOMPDF will use to render the PDF.
+     * @param string|null $templatePath The path to the template file in the site templates folder that DOMPDF will use to render the PDF.
      * @param array $variables Variables available to the pdf html template. Available to template by the array keys.
      * @param Pdf|null $pdf The PDF you want to render. This will override the templatePath argument.
      * @return string The PDF data.
      * @throws Exception
      */
-    public function renderPdfForOrder(Order $order, $option = '', $templatePath = null, $variables = [], $pdf = null): string
+    public function renderPdfForOrder(Order $order, string $option = '', string $templatePath = null, array $variables = [], Pdf $pdf = null): string
     {
-        if ($pdf !== null && $pdf instanceof Pdf) {
+        if ($pdf instanceof Pdf) {
             $templatePath = $pdf->templatePath;
         }
 
@@ -429,7 +434,7 @@ class Pdfs extends Component
             'order' => $order,
             'option' => $option,
             'template' => $templatePath,
-            'variables' => $variables
+            'variables' => $variables,
         ]);
         $this->trigger(self::EVENT_BEFORE_RENDER_PDF, $event);
 
@@ -500,7 +505,7 @@ class Pdfs extends Component
         // Set additional rener options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
-                'options' => $options
+                'options' => $options,
             ]));
         }
 
@@ -554,25 +559,21 @@ class Pdfs extends Component
     {
         $query = (new Query())
             ->select([
-                'id',
-                'name',
-                'handle',
                 'description',
-                'templatePath',
-                'fileNameFormat',
                 'enabled',
-                'sortOrder',
+                'fileNameFormat',
+                'handle',
+                'id',
                 'isDefault',
+                'language',
+                'name',
+                'sortOrder',
+                'templatePath',
                 'uid',
             ])
             ->orderBy('name')
             ->from([Table::PDFS])
             ->orderBy(['sortOrder' => SORT_ASC]);
-
-        $schemaVersion = Plugin::getInstance()->schemaVersion;
-        if (version_compare($schemaVersion, '3.2.13', '>=')) {
-            $query->addSelect(['language']);
-        }
 
         return $query;
     }

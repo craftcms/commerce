@@ -15,12 +15,15 @@ use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\db\StaleObjectException;
 
 /**
  * Country service.
  *
  * @property Country[]|array $allCountries an array of all countries
  * @property array $allCountriesAsList
+ * @property-read array $allEnabledCountriesAsList
+ * @property-read Country[] $allEnabledCountries
  * @property Country[]|array $allCountriesListData all country names, indexed by ID
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -28,30 +31,24 @@ use yii\base\Exception;
 class Countries extends Component
 {
     /**
-     * @var bool
+     * @var Country[]|null
      */
-    private $_fetchedAllCountries = false;
+    private ?array $_countriesById = null;
 
     /**
-     * @var Country[]
+     * @var Country[]|null
      */
-    private $_countriesById = [];
+    private ?array $_enabledCountriesById = null;
 
     /**
-     * @var Country[]
+     * @var Country[][]|null
      */
-    private $_enabledCountriesById = [];
+    private ?array $_countriesByTaxZoneId = null;
 
     /**
-     * @var Country[][]
+     * @var Country[][]|null
      */
-    private $_countriesByTaxZoneId = [];
-
-    /**
-     * @var Country[][]
-     */
-    private $_countriesByShippingZoneId = [];
-
+    private ?array $_countriesByShippingZoneId = null;
 
     /**
      * Returns a country by its ID.
@@ -59,25 +56,9 @@ class Countries extends Component
      * @param int $id the country's ID
      * @return Country|null
      */
-    public function getCountryById(int $id)
+    public function getCountryById(int $id): ?Country
     {
-        if (isset($this->_countriesById[$id])) {
-            return $this->_countriesById[$id];
-        }
-
-        if ($this->_fetchedAllCountries) {
-            return null;
-        }
-
-        $result = $this->_createCountryQuery()
-            ->where(['id' => $id])
-            ->one();
-
-        if (!$result) {
-            return null;
-        }
-
-        return $this->_countriesById[$id] = new Country($result);
+        return ArrayHelper::firstWhere($this->getAllCountries(), 'id', $id);
     }
 
     /**
@@ -86,13 +67,9 @@ class Countries extends Component
      * @param string $iso the country's ISO code
      * @return Country|null
      */
-    public function getCountryByIso(string $iso)
+    public function getCountryByIso(string $iso): ?Country
     {
-        $result = $this->_createCountryQuery()
-            ->where(['iso' => $iso])
-            ->one();
-
-        return $result ? new Country($result) : null;
+        return ArrayHelper::firstWhere($this->getAllCountries(), 'iso', $iso);
     }
 
     /**
@@ -127,21 +104,16 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        if (!$this->_fetchedAllCountries) {
-            $this->_fetchedAllCountries = true;
+        if (null === $this->_countriesById) {
             $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row) {
                 $country = new Country($row);
                 $this->_countriesById[$country->id] = $country;
-
-                if ($country->enabled) {
-                    $this->_enabledCountriesById[$country->id] = $country;
-                }
             }
         }
 
-        return $this->_countriesById;
+        return $this->_countriesById ?? [];
     }
 
     /**
@@ -152,8 +124,13 @@ class Countries extends Component
      */
     public function getAllEnabledCountries(): array
     {
-        $this->getAllCountries();
-        return $this->_enabledCountriesById;
+        $countries = $this->getAllCountries();
+
+        if (null === $this->_enabledCountriesById) {
+            $this->_enabledCountriesById = ArrayHelper::where($countries , 'enabled', true);
+        }
+
+        return $this->_enabledCountriesById ?? [];
     }
 
     /**
@@ -164,21 +141,27 @@ class Countries extends Component
      */
     public function getCountriesByTaxZoneId(int $taxZoneId): array
     {
-        if (!isset($this->_countriesByTaxZoneId[$taxZoneId])) {
+        if (null === $this->_countriesByTaxZoneId) {
             $results = $this->_createCountryQuery()
+                ->addSelect(['taxZoneCountries.taxZoneId'])
                 ->innerJoin(Table::TAXZONE_COUNTRIES . ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
-                ->where(['taxZoneCountries.taxZoneId' => $taxZoneId])
+                ->where(['not', ['taxZoneCountries.taxZoneId' => null]])
                 ->all();
-            $countries = [];
+            $this->_countriesByTaxZoneId = [];
 
             foreach ($results as $result) {
-                $countries[] = new Country($result);
-            }
+                $taxZoneId = $result['taxZoneId'];
+                unset($result['taxZoneId']);
 
-            $this->_countriesByTaxZoneId[$taxZoneId] = $countries;
+                if (!array_key_exists($taxZoneId, $this->_countriesByTaxZoneId)) {
+                    $this->_countriesByTaxZoneId[$taxZoneId] = [];
+                }
+
+                $this->_countriesByTaxZoneId[$taxZoneId][] = new Country($result);
+            }
         }
 
-        return $this->_countriesByTaxZoneId[$taxZoneId];
+        return $this->_countriesByTaxZoneId[$taxZoneId] ?? [];
     }
 
     /**
@@ -189,21 +172,27 @@ class Countries extends Component
      */
     public function getCountriesByShippingZoneId(int $shippingZoneId): array
     {
-        if (!isset($this->_countriesByShippingZoneId[$shippingZoneId])) {
+        if (null === $this->_countriesByShippingZoneId) {
             $results = $this->_createCountryQuery()
+                ->addSelect(['shippingZoneCountries.shippingZoneId'])
                 ->innerJoin(Table::SHIPPINGZONE_COUNTRIES . ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')
                 ->where(['shippingZoneCountries.shippingZoneId' => $shippingZoneId])
                 ->all();
-            $countries = [];
+
+            $this->_countriesByShippingZoneId = [];
 
             foreach ($results as $result) {
-                $countries[] = new Country($result);
-            }
+                $shippingZoneId = $result['shippingZoneId'];
+                unset($result['shippingZoneId']);
 
-            $this->_countriesByShippingZoneId[$shippingZoneId] = $countries;
+                if (!array_key_exists($shippingZoneId, $this->_countriesByShippingZoneId)) {
+                    $this->_countriesByShippingZoneId[$shippingZoneId] = [];
+                }
+                $this->_countriesByShippingZoneId[] = new Country($result);
+            }
         }
 
-        return $this->_countriesByShippingZoneId[$shippingZoneId];
+        return $this->_countriesByShippingZoneId[$shippingZoneId] ?? [];
     }
 
     /**
@@ -253,6 +242,8 @@ class Countries extends Component
      *
      * @param int $id the country's ID
      * @return bool whether the country was deleted successfully
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
     public function deleteCountryById(int $id): bool
     {
@@ -290,15 +281,13 @@ class Countries extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         // Clear all caches
-        // TODO refactor memoization
-        $this->_fetchedAllCountries = false;
-        $this->_countriesById = [];
-        $this->_countriesByShippingZoneId = [];
-        $this->_countriesByTaxZoneId = [];
-        $this->_enabledCountriesById = [];
+        $this->_countriesById = null;
+        $this->_countriesByShippingZoneId = null;
+        $this->_countriesByTaxZoneId = null;
+        $this->_enabledCountriesById = null;
     }
 
     /**
@@ -310,11 +299,13 @@ class Countries extends Component
     {
         return (new Query())
             ->select([
+                'countries.dateCreated',
+                'countries.dateUpdated',
+                'countries.enabled',
                 'countries.id',
-                'countries.name',
                 'countries.iso',
                 'countries.isStateRequired',
-                'countries.enabled',
+                'countries.name',
             ])
             ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);

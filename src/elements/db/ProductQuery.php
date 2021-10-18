@@ -47,12 +47,12 @@ class ProductQuery extends ElementQuery
     /**
      * @var bool Whether the product is available for purchase
      */
-    public $availableForPurchase;
+    public bool $availableForPurchase;
 
     /**
      * @var bool Whether to only return products that the user has permission to edit.
      */
-    public $editable = false;
+    public bool $editable = false;
 
     /**
      * @var mixed The Post Date that the resulting products must have.
@@ -62,27 +62,27 @@ class ProductQuery extends ElementQuery
     /**
      * @var float The default price the resulting products must have.
      */
-    public $defaultPrice;
+    public float $defaultPrice;
 
     /**
      * @var float The default height the resulting products must have.
      */
-    public $defaultHeight;
+    public float $defaultHeight;
 
     /**
      * @var float The default length the resulting products must have.
      */
-    public $defaultLength;
+    public float $defaultLength;
 
     /**
      * @var float The default width the resulting products must have.
      */
-    public $defaultWidth;
+    public float $defaultWidth;
 
     /**
      * @var float The default weight the resulting products must have.
      */
-    public $defaultWeight;
+    public float $defaultWeight;
 
     /**
      * @var mixed The default sku the resulting products must have.
@@ -107,7 +107,7 @@ class ProductQuery extends ElementQuery
     /**
      * @inheritdoc
      */
-    protected $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
+    protected array $defaultOrderBy = ['commerce_products.postDate' => SORT_DESC];
 
 
     /**
@@ -173,8 +173,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product type with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultPrice(1)
-     *     .all() %}
+     *   .defaultPrice(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -187,7 +187,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultPrice($value)
+    public function defaultPrice($value): ProductQuery
     {
         $this->defaultPrice = $value;
 
@@ -211,8 +211,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultHeight(1)
-     *     .all() %}
+     *   .defaultHeight(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -225,7 +225,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultHeight($value)
+    public function defaultHeight($value): ProductQuery
     {
         $this->defaultHeight = $value;
 
@@ -249,8 +249,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaulLength(1)
-     *     .all() %}
+     *   .defaulLength(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -263,7 +263,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultLength($value)
+    public function defaultLength($value): ProductQuery
     {
         $this->defaultLength = $value;
 
@@ -287,8 +287,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultWidth(1)
-     *     .all() %}
+     *   .defaultWidth(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -301,7 +301,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWidth($value)
+    public function defaultWidth($value): ProductQuery
     {
         $this->defaultWidth = $value;
 
@@ -325,8 +325,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product default dimention of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultWeight(1)
-     *     .all() %}
+     *   .defaultWeight(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -339,7 +339,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultWeight($value)
+    public function defaultWeight($value): ProductQuery
     {
         $this->defaultWeight = $value;
 
@@ -353,22 +353,22 @@ class ProductQuery extends ElementQuery
      *
      * | Value | Fetches {elements}…
      * | - | -
-     * | `xxx-001` | of products defaukt SKU of `xxx-001`.
-     * | `'not xxx-001'` | not a defaukt SKU of `xxx-001`.
+     * | `xxx-001` | of products default SKU of `xxx-001`.
+     * | `'not xxx-001'` | not a default SKU of `xxx-001`.
      * | `['not xxx-001', 'not xxx-002']` | of a default SKU of xxx-001 or xxx-002.
-     * | `['not', `xxx-001`, `xxx-002`]` | not a product defaukt SKU of `xxx-001` or `xxx-001`.
+     * | `['not', `xxx-001`, `xxx-002`]` | not a product default SKU of `xxx-001` or `xxx-001`.
      *
      * ---
      *
      * ```twig
-     * {# Fetch {elements} of the product defaukt SKU of `xxx-001` #}
+     * {# Fetch {elements} of the product default SKU of `xxx-001` #}
      * {% set {elements-var} = {twig-method}
-     *     .defaultSku('xxx-001')
-     *     .all() %}
+     *   .defaultSku('xxx-001')
+     *   .all() %}
      * ```
      *
      * ```php
-     * // Fetch {elements}  of the product defaukt SKU of `xxx-001`
+     * // Fetch {elements}  of the product default SKU of `xxx-001`
      * ${elements-var} = {php-method}
      *     ->defaultSku('xxx-001')
      *     ->all();
@@ -377,7 +377,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function defaultSku($value)
+    public function defaultSku($value): ProductQuery
     {
         $this->defaultSku = $value;
 
@@ -402,8 +402,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} with a Foo product type #}
      * {% set {elements-var} = {twig-method}
-     *     .type('foo')
-     *     .all() %}
+     *   .type('foo')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -416,7 +416,7 @@ class ProductQuery extends ElementQuery
      * @param string|string[]|ProductType|null $value The property value
      * @return static self reference
      */
-    public function type($value)
+    public function type($value): ProductQuery
     {
         if ($value instanceof ProductType) {
             $this->typeId = [$value->id];
@@ -450,8 +450,8 @@ class ProductQuery extends ElementQuery
      * {% set firstDayOfMonth = date('first day of this month') %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .before(firstDayOfMonth)
-     *     .all() %}
+     *   .before(firstDayOfMonth)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -466,7 +466,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function before($value)
+    public function before($value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -495,8 +495,8 @@ class ProductQuery extends ElementQuery
      * {% set firstDayOfMonth = date('first day of this month') %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .after(firstDayOfMonth)
-     *     .all() %}
+     *   .after(firstDayOfMonth)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -511,7 +511,7 @@ class ProductQuery extends ElementQuery
      * @param string|DateTime $value The property value
      * @return static self reference
      */
-    public function after($value)
+    public function after($value): ProductQuery
     {
         if ($value instanceof DateTime) {
             $value = $value->format(DateTime::W3C);
@@ -529,7 +529,7 @@ class ProductQuery extends ElementQuery
      * @param bool $value The property value (defaults to true)
      * @return static self reference
      */
-    public function editable(bool $value = true)
+    public function editable(bool $value = true): ProductQuery
     {
         $this->editable = $value;
         return $this;
@@ -552,8 +552,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch {elements} of the product type with an ID of 1 #}
      * {% set {elements-var} = {twig-method}
-     *     .typeId(1)
-     *     .all() %}
+     *   .typeId(1)
+     *   .all() %}
      * ```
      *
      * ```php
@@ -566,7 +566,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function typeId($value)
+    public function typeId($value): ProductQuery
     {
         $this->typeId = $value;
         return $this;
@@ -583,8 +583,9 @@ class ProductQuery extends ElementQuery
      *
      * @param VariantQuery|array $value The property value
      * @return static self reference
+     * @noinspection PhpUnused
      */
-    public function hasVariant($value)
+    public function hasVariant($value): ProductQuery
     {
         $this->hasVariant = $value;
         return $this;
@@ -609,8 +610,8 @@ class ProductQuery extends ElementQuery
      * {% set end = date('first day of this month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .postDate(['and', ">= #{start}", "< #{end}"])
-     *     .all() %}
+     *   .postDate(['and', ">= #{start}", "< #{end}"])
+     *   .all() %}
      * ```
      *
      * ```php
@@ -626,7 +627,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function postDate($value)
+    public function postDate($value): ProductQuery
     {
         $this->postDate = $value;
         return $this;
@@ -650,8 +651,8 @@ class ProductQuery extends ElementQuery
      * {% set nextMonth = date('first day of next month')|atom %}
      *
      * {% set {elements-var} = {twig-method}
-     *     .expiryDate("< #{nextMonth}")
-     *     .all() %}
+     *   .expiryDate("< #{nextMonth}")
+     *   .all() %}
      * ```
      *
      * ```php
@@ -666,7 +667,7 @@ class ProductQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function expiryDate($value)
+    public function expiryDate($value): ProductQuery
     {
         $this->expiryDate = $value;
         return $this;
@@ -680,8 +681,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch products that are available for purchase #}
      * {% set {elements-var} = {twig-function}
-     *     .availableForPurchase()
-     *     .all() %}
+     *   .availableForPurchase()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -694,7 +695,7 @@ class ProductQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function availableForPurchase(bool $value = true)
+    public function availableForPurchase(bool $value = true): ProductQuery
     {
         $this->availableForPurchase = $value;
         return $this;
@@ -718,8 +719,8 @@ class ProductQuery extends ElementQuery
      * ```twig
      * {# Fetch disabled {elements} #}
      * {% set {elements-var} = {twig-function}
-     *     .status('disabled')
-     *     .all() %}
+     *   .status('disabled')
+     *   .all() %}
      * ```
      *
      * ```php
@@ -729,7 +730,7 @@ class ProductQuery extends ElementQuery
      *     ->all();
      * ```
      */
-    public function status($value)
+    public function status($value): ElementQuery
     {
         return parent::status($value);
     }
@@ -737,6 +738,7 @@ class ProductQuery extends ElementQuery
 
     /**
      * @inheritdoc
+     * @throws QueryAbortedException
      */
     protected function beforePrepare(): bool
     {
@@ -754,8 +756,7 @@ class ProductQuery extends ElementQuery
             'commerce_products.typeId',
             'commerce_products.promotable',
             'commerce_products.freeShipping',
-            // TODO: uncomment after next breakpoint
-            //'commerce_products.availableForPurchase',
+            'commerce_products.availableForPurchase',
             'commerce_products.postDate',
             'commerce_products.expiryDate',
             'commerce_products.defaultPrice',
@@ -766,52 +767,46 @@ class ProductQuery extends ElementQuery
             'commerce_products.defaultWidth',
             'commerce_products.defaultHeight',
             'commerce_products.taxCategoryId',
-            'commerce_products.shippingCategoryId'
+            'commerce_products.shippingCategoryId',
         ]);
 
-        // TODO: remove after next breakpoint
-        $commerce = Craft::$app->getPlugins()->getStoredPluginInfo('commerce');
-        if ($commerce && version_compare($commerce['version'], '2.0.0-beta.5', '>=')) {
-            $this->query->addSelect(['commerce_products.availableForPurchase']);
-
-            if ($this->availableForPurchase !== null) {
-                $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
-            }
+        if (isset($this->availableForPurchase) && $this->availableForPurchase !== null) {
+            $this->subQuery->andWhere(['commerce_products.availableForPurchase' => $this->availableForPurchase]);
         }
 
-        if ($this->postDate) {
+        if (isset($this->postDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.postDate', $this->postDate));
         }
 
-        if ($this->expiryDate) {
+        if (isset($this->expiryDate)) {
             $this->subQuery->andWhere(Db::parseDateParam('commerce_products.expiryDate', $this->expiryDate));
         }
 
-        if ($this->typeId) {
+        if (isset($this->typeId)) {
             $this->subQuery->andWhere(['commerce_products.typeId' => $this->typeId]);
         }
 
-        if ($this->defaultPrice) {
+        if (isset($this->defaultPrice)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultPrice', $this->defaultPrice));
         }
 
-        if ($this->defaultHeight) {
+        if (isset($this->defaultHeight)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultHeight', $this->defaultHeight));
         }
 
-        if ($this->defaultLength) {
+        if (isset($this->defaultLength)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultLength', $this->defaultLength));
         }
 
-        if ($this->defaultWidth) {
+        if (isset($this->defaultWidth)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWidth', $this->defaultWidth));
         }
 
-        if ($this->defaultWeight) {
+        if (isset($this->defaultWeight)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultWeight', $this->defaultWeight));
         }
 
-        if ($this->defaultSku) {
+        if (isset($this->defaultSku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.defaultSku', $this->defaultSku));
         }
 
@@ -835,14 +830,14 @@ class ProductQuery extends ElementQuery
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['<=', 'commerce_products.postDate', $currentTimeDb],
                     [
                         'or',
                         ['commerce_products.expiryDate' => null],
-                        ['>', 'commerce_products.expiryDate', $currentTimeDb]
-                    ]
+                        ['>', 'commerce_products.expiryDate', $currentTimeDb],
+                    ],
                 ];
             case Product::STATUS_PENDING:
                 return [
@@ -851,17 +846,17 @@ class ProductQuery extends ElementQuery
                         'elements.enabled' => true,
                         'elements_sites.enabled' => true,
                     ],
-                    ['>', 'commerce_products.postDate', $currentTimeDb]
+                    ['>', 'commerce_products.postDate', $currentTimeDb],
                 ];
             case Product::STATUS_EXPIRED:
                 return [
                     'and',
                     [
                         'elements.enabled' => true,
-                        'elements_sites.enabled' => true
+                        'elements_sites.enabled' => true,
                     ],
                     ['not', ['commerce_products.expiryDate' => null]],
-                    ['<=', 'commerce_products.expiryDate', $currentTimeDb]
+                    ['<=', 'commerce_products.expiryDate', $currentTimeDb],
                 ];
             default:
                 return parent::statusCondition($status);
@@ -871,7 +866,7 @@ class ProductQuery extends ElementQuery
     /**
      * Normalizes the typeId param to an array of IDs or null
      */
-    private function _normalizeTypeId()
+    private function _normalizeTypeId(): void
     {
         if (empty($this->typeId)) {
             $this->typeId = null;
@@ -891,7 +886,7 @@ class ProductQuery extends ElementQuery
      *
      * @throws QueryAbortedException
      */
-    private function _applyEditableParam()
+    private function _applyEditableParam(): void
     {
         if (!$this->editable) {
             return;
@@ -905,14 +900,14 @@ class ProductQuery extends ElementQuery
 
         // Limit the query to only the sections the user has permission to edit
         $this->subQuery->andWhere([
-            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds()
+            'commerce_products.typeId' => Plugin::getInstance()->getProductTypes()->getEditableProductTypeIds(),
         ]);
     }
 
     /**
      * Applies the hasVariant query condition
      */
-    private function _applyHasVariantParam()
+    private function _applyHasVariantParam(): void
     {
         if ($this->hasVariant === null) {
             return;
@@ -920,7 +915,7 @@ class ProductQuery extends ElementQuery
 
         if ($this->hasVariant instanceof VariantQuery) {
             $variantQuery = $this->hasVariant;
-        } elseif (is_array($this->hasVariant)) {
+        } else if (is_array($this->hasVariant)) {
             $query = Variant::find();
             $variantQuery = Craft::configure($query, $this->hasVariant);
         } else {
@@ -940,7 +935,7 @@ class ProductQuery extends ElementQuery
     /**
      * Applies the 'ref' param to the query being prepared.
      */
-    private function _applyRefParam()
+    private function _applyRefParam(): void
     {
         if (!$this->ref) {
             return;
@@ -960,7 +955,7 @@ class ProductQuery extends ElementQuery
                     $condition[] = [
                         'and',
                         Db::parseParam('commerce_producttypes.handle', $parts[0]),
-                        Db::parseParam('elements_sites.slug', $parts[1])
+                        Db::parseParam('elements_sites.slug', $parts[1]),
                     ];
                     $joinSections = true;
                 }

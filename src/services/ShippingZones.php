@@ -16,9 +16,11 @@ use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
 use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\caching\TagDependency;
+use yii\db\StaleObjectException;
 
 /**
  * Shipping zone service.
@@ -32,13 +34,12 @@ class ShippingZones extends Component
     /**
      * @var bool
      */
-    private $_fetchedAllShippingZones = false;
+    private bool $_fetchedAllShippingZones = false;
 
     /**
      * @var ShippingAddressZone[]
      */
-    private $_allShippingZones = [];
-
+    private array $_allShippingZones = [];
 
     /**
      * Get all shipping zones.
@@ -61,12 +62,12 @@ class ShippingZones extends Component
     }
 
     /**
-     * Get a shipping zoneby its ID.
+     * Get a shipping zone by its ID.
      *
      * @param int $id
      * @return ShippingAddressZone|null
      */
-    public function getShippingZoneById($id)
+    public function getShippingZoneById(int $id): ?ShippingAddressZone
     {
         if (isset($this->_allShippingZones[$id])) {
             return $this->_allShippingZones[$id];
@@ -189,8 +190,10 @@ class ShippingZones extends Component
     /**
      * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function deleteShippingZoneById($id): bool
+    public function deleteShippingZoneById(int $id): bool
     {
         $record = ShippingZoneRecord::findOne($id);
 
@@ -206,7 +209,6 @@ class ShippingZones extends Component
         return false;
     }
 
-
     /**
      * Returns a Query object prepped for retrieving shipping zones.
      *
@@ -216,11 +218,13 @@ class ShippingZones extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'name',
+                'dateCreated',
+                'dateUpdated',
                 'description',
+                'id',
                 'isCountryBased',
-                'zipCodeConditionFormula'
+                'name',
+                'zipCodeConditionFormula',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);
@@ -231,7 +235,7 @@ class ShippingZones extends Component
      *
      * @since 3.2.5
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         $this->_fetchedAllShippingZones = false;
         $this->_allShippingZones = [];

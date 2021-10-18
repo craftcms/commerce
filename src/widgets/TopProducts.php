@@ -40,36 +40,80 @@ class TopProducts extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
-     * @var string Options 'revenue', 'qty'.
+     * @var string|null Options 'revenue', 'qty'.
      */
-    public $type;
+    public ?string $type = null;
+
+    /**
+     * @var array|null
+     */
+    public ?array $revenueOptions = [
+        TopProductsStat::REVENUE_OPTION_DISCOUNT,
+        TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+        TopProductsStat::REVENUE_OPTION_TAX,
+        TopProductsStat::REVENUE_OPTION_SHIPPING,
+    ];
 
     /**
      * @var TopProductsStat
      */
-    private $_stat;
+    private TopProductsStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
+
+    /**
+     * @var array
+     */
+    private array $_revenueCheckboxOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
+        parent::init();
+
         $this->_typeOptions = [
-            'qty' => Craft::t('commerce', 'Qty'),
-            'revenue' => Craft::t('commerce', 'Revenue'),
+            TopProductsStat::TYPE_QTY => Craft::t('commerce', 'Qty'),
+            TopProductsStat::TYPE_REVENUE => Craft::t('commerce', 'Revenue'),
+        ];
+
+        $this->_revenueCheckboxOptions = [
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_DISCOUNT,
+                'label' => Craft::t('commerce', 'Discount'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_DISCOUNT, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include line item discounts.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_TAX_INCLUDED,
+                'label' => Craft::t('commerce', 'Tax (inc)'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX_INCLUDED, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include built-in line item tax.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_TAX,
+                'label' => Craft::t('commerce', 'Tax'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_TAX, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include separate line item tax.'),
+            ],
+            [
+                'value' => TopProductsStat::REVENUE_OPTION_SHIPPING,
+                'label' => Craft::t('commerce', 'Shipping'),
+                'checked' => in_array(TopProductsStat::REVENUE_OPTION_SHIPPING, $this->revenueOptions, true),
+                'instructions' => Craft::t('commerce', 'Include line item shipping costs.'),
+            ],
         ];
 
         switch ($this->type) {
@@ -90,16 +134,15 @@ class TopProducts extends Widget
             }
         }
 
-        $this->dateRange = !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopProductsStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopProductsStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true),
+            $this->revenueOptions
         );
-
-        parent::init();
     }
 
     /**
@@ -137,7 +180,7 @@ class TopProducts extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -145,9 +188,13 @@ class TopProducts extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);
@@ -174,6 +221,8 @@ class TopProducts extends Widget
             'namespaceId' => $namespaceId,
             'widget' => $this,
             'typeOptions' => $this->_typeOptions,
+            'revenueOptions' => $this->_revenueCheckboxOptions,
+            'isRevenueOptionsEnabled' => $this->type === TopProductsStat::TYPE_REVENUE,
         ]);
     }
 }

@@ -24,12 +24,12 @@ use yii\db\Connection;
 class DonationQuery extends ElementQuery
 {
     /**
-     * @var string The sku of the donation purchasable
+     * @var string|null The SKU of the donation purchasable
      */
-    public $sku;
+    public ?string $sku = null;
 
     /**
-     * Narrows the query results based on the sku.
+     * Narrows the query results based on the SKU.
      *
      * Possible values include:
      *
@@ -43,8 +43,8 @@ class DonationQuery extends ElementQuery
      * {# Fetch the requested {element} #}
      * {% set sku = craft.app.request.getQueryParam('sku') %}
      * {% set {element-var} = {twig-method}
-     *     .sku(sku)
-     *     .one() %}
+     *   .sku(sku)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -58,7 +58,7 @@ class DonationQuery extends ElementQuery
      * @param string|null $value The property value
      * @return static self reference
      */
-    public function sku(string $value = null)
+    public function sku(string $value = null): DonationQuery
     {
         $this->sku = $value;
         return $this;
@@ -75,7 +75,7 @@ class DonationQuery extends ElementQuery
         $this->query->select([
             'commerce_donations.id',
             'commerce_donations.sku',
-            'commerce_donations.availableForPurchase'
+            'commerce_donations.availableForPurchase',
         ]);
 
         if ($this->sku) {

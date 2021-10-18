@@ -14,17 +14,20 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\AddressEvent;
 use craft\commerce\events\PurgeAddressesEvent;
 use craft\commerce\models\Address;
-use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\records\Address as AddressRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use LitEmoji\LitEmoji;
+use Twig\Error\LoaderError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 use yii\caching\TagDependency;
 use yii\db\Exception;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 
 /**
  * Address service.
@@ -158,8 +161,12 @@ class Addresses extends Component
     /**
      * @var Address[]
      */
-    private $_addressesById = [];
+    private array $_addressesById = [];
 
+    /**
+     * @var Address|null
+     */
+    private ?Address $_storeLocationAddress = null;
 
     /**
      * Returns an address by its ID.
@@ -167,7 +174,7 @@ class Addresses extends Component
      * @param int $addressId the address' ID
      * @return Address|null the matched address or null if not found
      */
-    public function getAddressById(int $addressId)
+    public function getAddressById(int $addressId): ?Address
     {
         if (array_key_exists($addressId, $this->_addressesById)) {
             return $this->_addressesById[$addressId];
@@ -206,10 +213,10 @@ class Addresses extends Component
      * Returns an address by an address id and customer id.
      *
      * @param int $addressId the address id
-     * @param int $customerId the customer's ID
+     * @param int|null $customerId the customer's ID
      * @return Address|null the matched address or null if not found
      */
-    public function getAddressByIdAndCustomerId(int $addressId, $customerId = null)
+    public function getAddressByIdAndCustomerId(int $addressId, ?int $customerId = null): ?Address
     {
         $result = $this->_createAddressQuery()
             ->innerJoin(Table::CUSTOMERS_ADDRESSES . ' customerAddresses', '[[customerAddresses.addressId]] = [[addresses.id]]')
@@ -227,15 +234,17 @@ class Addresses extends Component
      */
     public function getStoreLocationAddress(): Address
     {
+        if ($this->_storeLocationAddress !== null) {
+            return $this->_storeLocationAddress;
+        }
+
         $result = $this->_createAddressQuery()
             ->where(['isStoreLocation' => true])
             ->one();
 
-        if (!$result) {
-            return new Address();
-        }
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
 
-        return new Address($result);
+        return $this->_storeLocationAddress;
     }
 
     /**
@@ -265,7 +274,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
 
@@ -316,9 +325,12 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
+
+        // Clear cache
+        $this->_storeLocationAddress = null;
 
         return true;
     }
@@ -328,6 +340,8 @@ class Addresses extends Component
      *
      * @param int $id the address' ID
      * @return bool whether the address was deleted successfully
+     * @throws \Throwable
+     * @throws StaleObjectException
      */
     public function deleteAddressById(int $id): bool
     {
@@ -344,7 +358,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -354,7 +368,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -363,10 +377,13 @@ class Addresses extends Component
 
     /**
      * @param Address $address
-     * @param $zone
+     * @param AddressZoneInterface $zone
      * @return bool
+     * @throws LoaderError
+     * @throws SyntaxError
+     * @throws InvalidConfigException
      */
-    public function addressWithinZone($address, AddressZoneInterface $zone): bool
+    public function addressWithinZone(Address $address, AddressZoneInterface $zone): bool
     {
         if ($zone->getIsCountryBased()) {
             $countryIds = $zone->getCountryIds();
@@ -381,7 +398,7 @@ class Addresses extends Component
             $countries = [];
             $stateNames = [];
             $stateAbbr = [];
-            /** @var State $state */
+
             foreach ($zone->getStates() as $state) {
                 $states[] = $state->id;
                 $countries[] = $state->countryId;
@@ -390,8 +407,8 @@ class Addresses extends Component
             }
 
             $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
-            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateText()), array_map('strtolower', $stateNames), false));
-            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getAbbreviationText()), array_map('strtolower', $stateAbbr), false));
+            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateName()), array_map('strtolower', $stateNames), false));
+            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateAbbreviation()), array_map('strtolower', $stateAbbr), false));
 
             if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
                 return false;
@@ -425,10 +442,9 @@ class Addresses extends Component
      * Deletes all addresses not related to a customer, cart or order
      *
      * @throws Exception
-     * @throws \yii\base\ExitException
      * @since 3.0.4
      */
-    public function purgeOrphanedAddresses()
+    public function purgeOrphanedAddresses(): void
     {
         $select = new Expression('DISTINCT [[addresses.id]] id');
         $addresses = (new Query())
@@ -447,11 +463,11 @@ class Addresses extends Component
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
                     '[[addresses.isStoreLocation]]' => false,
-                ]
+                ],
             ]);
 
         $event = new PurgeAddressesEvent([
-            'addressesQuery' => $addresses
+            'addressesQuery' => $addresses,
         ]);
 
         //Raise the beforePurgeDeleteAddresses event
@@ -460,7 +476,7 @@ class Addresses extends Component
         }
 
         if ($event->isValid) {
-            foreach ($addresses->batch(500) as $address) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
                 $ids = ArrayHelper::getColumn($address, 'id', false);
 
                 if (!empty($ids)) {
@@ -544,33 +560,35 @@ class Addresses extends Component
     {
         return (new Query())
             ->select([
-                'addresses.id',
-                'addresses.attention',
-                'addresses.title',
-                'addresses.firstName',
-                'addresses.lastName',
-                'addresses.fullName',
-                'addresses.countryId',
-                'addresses.stateId',
                 'addresses.address1',
                 'addresses.address2',
                 'addresses.address3',
-                'addresses.city',
-                'addresses.zipCode',
-                'addresses.phone',
                 'addresses.alternativePhone',
-                'addresses.label',
-                'addresses.notes',
+                'addresses.attention',
+                'addresses.businessId',
                 'addresses.businessName',
                 'addresses.businessTaxId',
-                'addresses.businessId',
-                'addresses.stateName',
+                'addresses.city',
+                'addresses.countryId',
                 'addresses.custom1',
                 'addresses.custom2',
                 'addresses.custom3',
                 'addresses.custom4',
+                'addresses.dateCreated',
+                'addresses.dateUpdated',
+                'addresses.firstName',
+                'addresses.fullName',
+                'addresses.id',
                 'addresses.isEstimated',
-                'addresses.isStoreLocation'
+                'addresses.isStoreLocation',
+                'addresses.label',
+                'addresses.lastName',
+                'addresses.notes',
+                'addresses.phone',
+                'addresses.stateId',
+                'addresses.stateName',
+                'addresses.title',
+                'addresses.zipCode',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

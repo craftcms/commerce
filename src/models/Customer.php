@@ -15,6 +15,7 @@ use craft\commerce\Plugin;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
+use DateTime;
 use Exception;
 
 /**
@@ -25,7 +26,7 @@ use Exception;
  * @property null|Address $primaryBillingAddress the primary Billing Address used by the customer if it exists
  * @property null|Address $primaryShippingAddress the primary Shipping Address used by the customer if it exists
  * @property Order[] $orders the order elements associated with this customer
- * @property-read \craft\commerce\elements\Subscription[] $subscriptions
+ * @property-read Subscription[] $subscriptions
  * @property User $user the user element associated with this customer
  * @property-read array $activeCarts The active carts this customer has
  * @property-read array $inactiveCarts The Inactive carts this customer has
@@ -38,27 +39,39 @@ class Customer extends Model
     /**
      * @var int|null Customer ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var int The user ID
+     * @var int|null The user ID
      */
-    public $userId;
+    public ?int $userId = null;
 
     /**
-     * @var int The primary billing address id
+     * @var int|null The primary billing address id
      */
-    public $primaryBillingAddressId;
+    public ?int $primaryBillingAddressId = null;
 
     /**
-     * @var int The primary shipping address id
+     * @var int|null The primary shipping address id
      */
-    public $primaryShippingAddressId;
+    public ?int $primaryShippingAddressId = null;
 
     /**
-     * @var User $_user
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_user;
+    public ?DateTIme $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTIme $dateUpdated = null;
+
+    /**
+     * @var User|null $_user
+     */
+    private ?User $_user = null;
 
     /**
      * @return null|string
@@ -69,7 +82,7 @@ class Customer extends Model
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function lowerDisplayName(): string
     {
@@ -77,7 +90,7 @@ class Customer extends Model
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function pluralDisplayName(): string
     {
@@ -85,7 +98,7 @@ class Customer extends Model
     }
 
     /**
-     * @inheritdoc
+     * @return string
      */
     public static function pluralLowerDisplayName(): string
     {
@@ -97,7 +110,7 @@ class Customer extends Model
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getEmail();
     }
@@ -105,7 +118,7 @@ class Customer extends Model
     /**
      * @inheritdoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'user',
@@ -123,7 +136,7 @@ class Customer extends Model
      *
      * @return User|null
      */
-    public function getUser()
+    public function getUser(): ?User
     {
         if ($this->_user !== null) {
             return $this->_user;
@@ -143,7 +156,7 @@ class Customer extends Model
      *
      * @param User $user
      */
-    public function setUser(User $user)
+    public function setUser(User $user): void
     {
         $this->_user = $user;
         $this->userId = $user->id;
@@ -158,11 +171,7 @@ class Customer extends Model
     {
         $user = $this->getUser();
 
-        if ($user) {
-            return $user->email;
-        }
-
-        return '';
+        return $user->email ?? '';
     }
 
     /**
@@ -185,7 +194,7 @@ class Customer extends Model
      * @param int|null $id the ID of the address to return, if known
      * @return Address|null
      */
-    public function getAddressById(int $id = null)
+    public function getAddressById(int $id = null): ?Address
     {
         return ArrayHelper::firstWhere($this->getAddresses(), 'id', $id);
     }
@@ -258,7 +267,7 @@ class Customer extends Model
      *
      * @return Address|null
      */
-    public function getPrimaryBillingAddress()
+    public function getPrimaryBillingAddress(): ?Address
     {
         if ($this->primaryBillingAddressId) {
             $address = Plugin::getInstance()->getAddresses()->getAddressById($this->primaryBillingAddressId);
@@ -275,7 +284,7 @@ class Customer extends Model
      *
      * @return Address|null
      */
-    public function getPrimaryShippingAddress()
+    public function getPrimaryShippingAddress(): ?Address
     {
         if ($this->primaryShippingAddressId) {
             $address = Plugin::getInstance()->getAddresses()->getAddressById($this->primaryShippingAddressId);

@@ -21,8 +21,7 @@ class ModifyCartInfoEvent extends Event
     /**
      * @var array The cart info that is allowed to be modified
      */
-    public $cartInfo = [];
-
+    public array $cartInfo = [];
 
     /**
      * The cart object that can be used to modify the cart info.
@@ -31,5 +30,5 @@ class ModifyCartInfoEvent extends Event
      * @var Order|null
      * @since 3.1.11
      */
-    public $cart;
+    public ?Order $cart;
 }

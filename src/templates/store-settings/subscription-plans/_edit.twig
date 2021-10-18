@@ -1,0 +1,120 @@
+{% extends "commerce/_layouts/cp" %}
+{% set title = brandNewPlan ? 'Create a new subscription plan'|t('commerce') : plan.name %}
+
+{% set crumbs = [
+    { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
+    { label: "Subscription plans"|t('commerce'), url: url('commerce/store-settings/subscription-plans') },
+] %}
+
+{% set selectedSubnavItem = 'store-settings' %}
+
+{% set fullPageForm = gatewayOptions|length > 0 %}
+
+{% import "_includes/forms" as forms %}
+
+{% block details %}
+    <div class="meta">
+        {{ forms.lightswitchField({
+            label: "Enabled for customers to select?"|t('commerce'),
+            name: 'enabled',
+            on: plan ? plan.enabled,
+            errors: plan ? plan.getErrors('enabled') : [],
+        }) }}
+    </div>
+
+    {% if plan and plan.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ plan.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ plan.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if gatewayOptions|length > 0 or plan is not null %}
+
+        <input type="hidden" name="action" value="commerce/plans/save-plan">
+        {{ redirectInput('commerce/store-settings/subscription-plans') }}
+
+        {% if plan is not null and plan.id %}
+            <input type="hidden" name="planId" value="{{ plan.id }}">
+        {% endif %}
+
+        <div id="plan-settings">
+            {{ forms.textField({
+                first: true,
+                label: "Name"|t('commerce'),
+                instructions: "What this subscription plan will be called in the control panel."|t('commerce'),
+                id: 'name',
+                name: 'name',
+                value: plan ? plan.name : '',
+                errors: plan ? plan.getErrors('name') : [],
+                autofocus: true,
+                required: true
+            }) }}
+
+            {{ forms.textField({
+                label: "Handle"|t('commerce'),
+                instructions: "How you’ll refer to this subscription plan in the templates."|t('commerce'),
+                id: 'handle',
+                class: 'code',
+                name: 'handle',
+                value: plan ? plan.handle : '',
+                errors: plan ? plan.getErrors('handle') : [],
+                required: true
+            }) }}
+
+            {{ forms.elementSelectField({
+                elementType: entryElementType,
+                elements: (plan and plan.planInformationId) ? craft.entries.id(plan.planInformationId).all() : null,
+                instructions: "The entry that contains the description for this subscription’s plan."|t('commerce'),
+                id: 'planInformation',
+                label: "Description"|t(','),
+                class: 'ltr',
+                name: 'planInformation',
+                limit: 1
+            }) }}
+
+            {{ forms.selectField({
+                label: "Gateway"|t('commerce'),
+                instructions: "The payment gateway that will be used for the subscription plan."|t('commerce'),
+                id: 'gatewayId',
+                class: 'gateway-select code ltr',
+                name: 'gatewayId',
+                value: plan ? plan.gatewayId,
+                options: gatewayOptions,
+                errors: plan ? plan.getErrors('gatewayId') : []
+            }) }}
+
+            {% for gateway in supportedGateways %}
+                {% set isCurrent = plan and (gateway.id == plan.gatewayId) %}
+
+                <div id="gateway-settings-{{ gateway.id }}" class="gateway-settings {% if not isCurrent %}hidden"{% endif %}">
+                {% namespace 'gateway['~gateway.id~']' %}
+                    {{ gateway.getPlanSettingsHtml({'plan': plan, 'gateway': gateway})|raw }}
+                {% endnamespace %}
+                </div>
+            {% endfor %}
+
+
+        </div>
+    {% else %}
+        <p class="error">{{ 'You must <a href="{link}">set up</a> at least one gateway that supports subscriptions first.'|t('commerce', {'link': url('commerce/settings/gateways')})|raw }}</p>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    {% if plan is null or not plan.handle %}new Craft.HandleGenerator('#name', '#handle');{% endif %}
+
+    $('#gatewayId').on('change', function (ev) {
+        $('.gateway-settings').addClass('hidden');
+        $('#gateway-settings-' + ev.currentTarget.value).removeClass('hidden');
+    });
+
+{% endjs %}

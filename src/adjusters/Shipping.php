@@ -27,23 +27,22 @@ class Shipping extends Component implements AdjusterInterface
 {
     const ADJUSTMENT_TYPE = 'shipping';
 
-
     /**
-     * @var
+     * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
      * @var bool
      */
-    private $_isEstimated = false;
+    private bool $_isEstimated = false;
 
     /**
      * Temporary feature flag for testing
      *
      * @var bool
      */
-    private $_consolidateShippingToSingleAdjustment = false;
+    private bool $_consolidateShippingToSingleAdjustment = false;
 
     /**
      * @inheritdoc
@@ -64,7 +63,7 @@ class Shipping extends Component implements AdjusterInterface
 
         foreach ($lineItems as $item) {
             $purchasable = $item->getPurchasable();
-            if ($purchasable && !$purchasable->getIsShippable()) {
+            if ($purchasable && !Plugin::getInstance()->getPurchasables()->isPurchasableShippable($purchasable)) {
                 $nonShippableItems[$item->id] = $item->id;
             }
         }
@@ -125,7 +124,7 @@ class Shipping extends Component implements AdjusterInterface
                     }
 
                     $freeShippingFlagOnProduct = $item->purchasable->hasFreeShipping();
-                    $shippable = $item->purchasable->getIsShippable();
+                    $shippable = Plugin::getInstance()->getPurchasables()->isPurchasableShippable($item->getPurchasable());
                     if (!$freeShippingFlagOnProduct && !$hasFreeShippingFromDiscount && $shippable) {
                         $adjustment = $this->_createAdjustment($shippingMethod, $rule);
 
@@ -187,7 +186,7 @@ class Shipping extends Component implements AdjusterInterface
             $adjustment->amount = $amount;
             $adjustment->description = $rule->getDescription();
             $adjustment->isEstimated = $this->_isEstimated;
-            $adjustment->sourceSnapshot = [];
+            $adjustment->setSourceSnapshot([]);
 
             return [$adjustment];
         }
@@ -201,7 +200,7 @@ class Shipping extends Component implements AdjusterInterface
      * @param ShippingRule $rule
      * @return OrderAdjustment
      */
-    private function _createAdjustment($shippingMethod, $rule): OrderAdjustment
+    private function _createAdjustment(ShippingMethod $shippingMethod, ShippingRule $rule): OrderAdjustment
     {
         //preparing model
         $adjustment = new OrderAdjustment;

@@ -20,7 +20,7 @@ class DeepMergeAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
         $this->sourcePath = '@commerceLib/deepmerge';
 

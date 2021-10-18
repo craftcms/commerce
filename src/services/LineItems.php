@@ -143,7 +143,7 @@ class LineItems extends Component
     /**
      * @var LineItem[]
      */
-    private $_lineItemsByOrderId = [];
+    private array $_lineItemsByOrderId = [];
 
 
     /**
@@ -165,7 +165,6 @@ class LineItems extends Component
             foreach ($results as $result) {
                 $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
                 $lineItem = new LineItem($result);
-                $lineItem->typecastAttributes();
                 $this->_lineItemsByOrderId[$orderId][] = $lineItem;
             }
         }
@@ -174,33 +173,33 @@ class LineItems extends Component
     }
 
     /**
-     * Takes an order ID, a purchasable ID, options, and resolves it to a line item.
+     * Takes an order, a purchasable ID, options, and resolves it to a line item.
      *
      * If a line item is found for that order ID with those exact options, that line item is
      * returned. Otherwise, a new line item is returned.
      *
-     * @param int $orderId
+     * @param Order $order
      * @param int $purchasableId the purchasable's ID
      * @param array $options Options for the line item
      * @return LineItem
+     * @throws \Exception
      */
-    public function resolveLineItem(int $orderId, int $purchasableId, array $options = []): LineItem
+    public function resolveLineItem(Order $order, int $purchasableId, array $options = []): LineItem
     {
         $signature = LineItemHelper::generateOptionsSignature($options);
 
-        $result = $this->_createLineItemQuery()
+        $result = $order->id ? $this->_createLineItemQuery()
             ->where([
-                'orderId' => $orderId,
+                'orderId' => $order->id,
                 'purchasableId' => $purchasableId,
-                'optionsSignature' => $signature
+                'optionsSignature' => $signature,
             ])
-            ->one();
+            ->one() : null;
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
         } else {
-            $lineItem = $this->createLineItem($orderId, $purchasableId, $options);
+            $lineItem = $this->createLineItem($order, $purchasableId, $options);
         }
 
         return $lineItem;
@@ -262,7 +261,7 @@ class LineItems extends Component
 
         $lineItemRecord->snapshot = $lineItem->snapshot;
         $lineItemRecord->note = LitEmoji::unicodeToShortcode($lineItem->note);
-        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote ?? '');
+        $lineItemRecord->privateNote = LitEmoji::unicodeToShortcode($lineItem->privateNote);
         $lineItemRecord->lineItemStatusId = $lineItem->lineItemStatusId;
 
         $lineItemRecord->saleAmount = $lineItem->saleAmount;
@@ -323,7 +322,7 @@ class LineItems extends Component
      * @param int $id the line item ID
      * @return LineItem|null Line item or null, if not found.
      */
-    public function getLineItemById($id)
+    public function getLineItemById($id): ?LineItem
     {
         $result = $this->_createLineItemQuery()
             ->where(['id' => $id])
@@ -331,7 +330,6 @@ class LineItems extends Component
 
         if ($result) {
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             return $lineItem;
         }
 
@@ -341,28 +339,22 @@ class LineItems extends Component
     /**
      * Create a line item.
      *
-     * @param int $orderId The order ID the line item is associated with
+     * @param Order $order The order the line item is associated with
      * @param int $purchasableId The ID of the purchasable the line item represents
      * @param array $options Options to set on the line item
      * @param int $qty The quantity to set on the line item
      * @param string $note The note on the line item
-     * @param Order|null $order Optional, lets the line item created have the right order object assigned to it in memory. You will still need to supply the $orderId param.
      * @param string|null $uid
-     * TODO: Refactor method signature so that the 2 order assignment params are not needed.
      * @return LineItem
      * @throws \Exception
      */
-    public function createLineItem(int $orderId, int $purchasableId, array $options, int $qty = 1, string $note = '', Order $order = null, string $uid = null): LineItem
+    public function createLineItem(Order $order, int $purchasableId, array $options, int $qty = 1, string $note = '', string $uid = null): LineItem
     {
         $lineItem = new LineItem();
         $lineItem->qty = $qty;
         $lineItem->setOptions($options);
         $lineItem->note = $note;
         $lineItem->uid = $uid ?: StringHelper::UUID();
-
-        if ($order == null) {
-            $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
-        }
         $lineItem->setOrder($order);
 
         /** @var PurchasableInterface $purchasable */
@@ -414,7 +406,6 @@ class LineItems extends Component
         foreach ($lineItemsResults as $result) {
             $result['snapshot'] = Json::decodeIfJson($result['snapshot']);
             $lineItem = new LineItem($result);
-            $lineItem->typecastAttributes();
             $lineItems[$lineItem->orderId] = $lineItems[$lineItem->orderId] ?? [];
             $lineItems[$lineItem->orderId][] = $lineItem;
         }
@@ -436,7 +427,7 @@ class LineItems extends Component
      * @throws Throwable
      * @since 3.2.5
      */
-    public function orderCompleteHandler(LineItem $lineItem, Order $order)
+    public function orderCompleteHandler(LineItem $lineItem, Order $order): void
     {
         // Called the after order complete method for the purchasable if there is one
         if ($lineItem->getPurchasable()) {
@@ -464,28 +455,28 @@ class LineItems extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'options',
-                'price',
-                'salePrice',
-                'sku',
-                'description',
-                'weight',
-                'length',
-                'height',
-                'width',
-                'qty',
-                'snapshot',
-                'note',
-                'privateNote',
-                'purchasableId',
-                'orderId',
-                'taxCategoryId',
-                'shippingCategoryId',
-                'lineItemStatusId',
                 'dateCreated',
                 'dateUpdated',
+                'description',
+                'height',
+                'id',
+                'length',
+                'lineItemStatusId',
+                'note',
+                'options',
+                'orderId',
+                'price',
+                'privateNote',
+                'purchasableId',
+                'qty',
+                'salePrice',
+                'shippingCategoryId',
+                'sku',
+                'snapshot',
+                'taxCategoryId',
                 'uid',
+                'weight',
+                'width',
             ])
             ->from([Table::LINEITEMS . ' lineItems']);
     }

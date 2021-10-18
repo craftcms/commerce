@@ -13,6 +13,8 @@ use craft\commerce\stats\NewCustomers as NewCustomersStat;
 use craft\commerce\web\assets\statwidgets\StatWidgetsAsset;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\StringHelper;
+use DateTime;
+use Exception;
 
 /**
  * New Customers widget
@@ -26,38 +28,37 @@ use craft\helpers\StringHelper;
 class NewCustomers extends Widget
 {
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $startDate;
 
     /**
-     * @var int|\DateTime|null
+     * @var int|DateTime|null
      */
     public $endDate;
 
     /**
-     * @var string|null
+     * @var string
      */
-    public $dateRange;
+    public string $dateRange = NewCustomersStat::DATE_RANGE_TODAY;
 
     /**
      * @var null|NewCustomersStat
      */
-    private $_stat;
+    private ?NewCustomersStat $_stat;
 
     /**
      * @inheritDoc
+     * @throws Exception
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 
-        $this->dateRange = !$this->dateRange ? NewCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
-
         $this->_stat = new NewCustomersStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -96,7 +97,7 @@ class NewCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $number = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -110,7 +111,7 @@ class NewCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public static function maxColspan()
+    public static function maxColspan(): ?int
     {
         return 1;
     }

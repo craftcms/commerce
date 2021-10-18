@@ -42,7 +42,7 @@ class ProjectConfigData
             $output['orders'] = [
                 'fieldLayouts' => [
                     $orderFieldLayout->uid => $orderFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
@@ -56,11 +56,11 @@ class ProjectConfigData
             $output['subscriptions'] = [
                 'fieldLayouts' => [
                     $subscriptionFieldLayout->uid => $subscriptionFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
-        return $output;
+        return array_filter($output);
     }
 
     /**
@@ -104,19 +104,19 @@ class ProjectConfigData
     {
         $productTypeRows = (new Query())
             ->select([
+                'descriptionFormat',
                 'fieldLayoutId',
-                'variantFieldLayoutId',
-                'name',
                 'handle',
                 'hasDimensions',
+                'hasProductTitleField',
                 'hasVariants',
                 'hasVariantTitleField',
-                'titleFormat',
-                'hasProductTitleField',
+                'name',
                 'productTitleFormat',
                 'skuFormat',
-                'descriptionFormat',
-                'uid'
+                'variantTitleFormat',
+                'uid',
+                'variantFieldLayoutId',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();
@@ -158,11 +158,11 @@ class ProjectConfigData
 
         $productTypeSiteRows = (new Query())
             ->select([
-                'producttypes_sites.hasUrls',
-                'producttypes_sites.uriFormat',
-                'producttypes_sites.template',
-                'sites.uid AS siteUid',
                 'producttypes.uid AS typeUid',
+                'producttypes_sites.hasUrls',
+                'producttypes_sites.template',
+                'producttypes_sites.uriFormat',
+                'sites.uid AS siteUid',
             ])
             ->from([Table::PRODUCTTYPES_SITES . ' producttypes_sites'])
             ->innerJoin('{{%sites}} sites', '[[sites.id]] = [[producttypes_sites.siteId]]')
@@ -235,14 +235,14 @@ class ProjectConfigData
 
         $statusRows = (new Query())
             ->select([
-                'id',
-                'uid',
-                'name',
-                'handle',
                 'color',
-                'description',
-                'sortOrder',
                 'default',
+                'description',
+                'handle',
+                'id',
+                'name',
+                'sortOrder',
+                'uid',
             ])
             ->indexBy('id')
             ->orderBy('sortOrder')
@@ -256,8 +256,8 @@ class ProjectConfigData
 
         $relationRows = (new Query())
             ->select([
-                'relations.orderStatusId AS statusId',
-                'emails.uid AS emailUid',
+                'emailUid' => 'emails.uid',
+                'statusId' => 'relations.orderStatusId',
             ])
             ->from([Table::ORDERSTATUS_EMAILS . ' relations'])
             ->leftJoin(Table::EMAILS . ' emails', '[[emails.id]] = [[relations.emailId]]')

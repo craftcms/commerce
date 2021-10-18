@@ -7,16 +7,12 @@
 
 namespace craftcommercetests\unit\elements\order;
 
-use Craft;
 use Codeception\Test\Unit;
-use craft\commerce\adjusters\Discount;
 use craft\commerce\elements\Order;
 use craft\commerce\models\LineItem;
-use craft\commerce\models\OrderAdjustment;
-use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
-use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\Plugin;
+use craft\commerce\records\Transaction as TransactionRecord;
 use UnitTester;
 
 /**
@@ -30,27 +26,27 @@ class OrderPaymentAmountTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @group PaymentCurrencies
      */
-    public function testOrderPaymentAmounts()
+    public function testOrderPaymentAmounts(): void
     {
         $this->order = new Order();
         $this->order->id = 1000;
@@ -101,7 +97,7 @@ class OrderPaymentAmountTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -110,13 +106,12 @@ class OrderPaymentAmountTest extends Unit
         $this->pluginInstance->edition = Plugin::EDITION_PRO;
 
         $this->order = new Order();
-
     }
 
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

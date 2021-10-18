@@ -66,17 +66,17 @@ class Discount extends Component implements AdjusterInterface
     /**
      * @var Order
      */
-    private $_order;
+    private Order $_order;
 
     /**
-     * @var
+     * @var DiscountModel
      */
-    private $_discount;
+    private DiscountModel $_discount;
 
     /**
      * @var array
      */
-    private $_appliedDiscounts = [];
+    private array $_appliedDiscounts = [];
 
     /**
      * @var float
@@ -88,12 +88,12 @@ class Discount extends Component implements AdjusterInterface
      *
      * @var bool
      */
-    private $_spreadBaseOrderDiscountsToLineItems = true;
+    private bool $_spreadBaseOrderDiscountsToLineItems = true;
 
     /**
      * @var array
      */
-    private $_discountUnitPricesByLineItem = [];
+    private array $_discountUnitPricesByLineItem = [];
 
     /**
      * @inheritdoc
@@ -174,6 +174,11 @@ class Discount extends Component implements AdjusterInterface
                 return $priceByLineItem[$lineItemHashId];
             }, SORT_DESC);
 
+            // Remove non-promotable line items
+            $lineItemsByPrice = ArrayHelper::where($lineItemsByPrice, function(LineItem $lineItem) {
+                $purchasable = $lineItem->getPurchasable();
+                return $purchasable && $purchasable->getIsPromotable();
+            }, true, true);
 
             // Loop over each order level adjustment and add an adjustment to each line item until it runs out.
             foreach ($orderLevelAdjustments as $orderLevelAdjustment) {
@@ -317,7 +322,7 @@ class Discount extends Component implements AdjusterInterface
         $event = new DiscountAdjustmentsEvent([
             'order' => $this->_order,
             'discount' => $discount,
-            'adjustments' => $adjustments
+            'adjustments' => $adjustments,
         ]);
 
         $this->trigger(self::EVENT_AFTER_DISCOUNT_ADJUSTMENTS_CREATED, $event);

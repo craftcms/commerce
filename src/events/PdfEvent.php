@@ -15,32 +15,32 @@ use yii\base\Event;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
- * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4
+ * TODO split into PdfRenderEvent and PdfSendEvent in Commerce 4 #COM-43
  */
 class PdfEvent extends Event
 {
     /**
      * @var Order
      */
-    public $order;
+    public Order $order;
 
     /**
      * @var string
      */
-    public $option;
+    public string $option;
 
     /**
      * @var string
      */
-    public $template;
+    public string $template;
 
     /**
      * @var array
      */
-    public $variables;
+    public array $variables;
 
     /**
      * @var string|null The rendered PDF
      */
-    public $pdf;
+    public ?string $pdf;
 }

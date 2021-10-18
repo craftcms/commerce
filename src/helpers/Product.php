@@ -14,6 +14,7 @@ use craft\commerce\Plugin;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Localization as LocalizationHelper;
 use craft\web\Request;
+use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 
 /**
@@ -31,6 +32,7 @@ class Product
      * @param               $variant
      * @param               $key
      * @return Variant
+     * @throws InvalidConfigException
      */
     public static function populateProductVariantModel(ProductModel $product, $variant, $key): Variant
     {
@@ -56,8 +58,8 @@ class Product
         $variantModel->weight = isset($variant['weight']) ? LocalizationHelper::normalizeNumber($variant['weight']) : null;
         $variantModel->stock = isset($variant['stock']) ? LocalizationHelper::normalizeNumber($variant['stock']) : null;
         $variantModel->hasUnlimitedStock = (bool)($variant['hasUnlimitedStock'] ?? 0);
-        $variantModel->minQty = LocalizationHelper::normalizeNumber($variant['minQty']);
-        $variantModel->maxQty = LocalizationHelper::normalizeNumber($variant['maxQty']);
+        $variantModel->minQty = (int)LocalizationHelper::normalizeNumber($variant['minQty']);
+        $variantModel->maxQty = (int)LocalizationHelper::normalizeNumber($variant['maxQty']);
 
         if (isset($variant['fields'])) {
             $variantModel->setFieldValues($variant['fields']);

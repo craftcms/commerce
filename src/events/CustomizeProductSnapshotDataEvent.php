@@ -21,10 +21,10 @@ class CustomizeProductSnapshotDataEvent extends Event
     /**
      * @var Product The product
      */
-    public $product;
+    public Product $product;
 
     /**
      * @var array The captured data
      */
-    public $fieldData;
+    public array $fieldData;
 }

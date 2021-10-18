@@ -16,34 +16,19 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
-use craft\commerce\models\ProductType as ProductTypeModel;
-use craft\commerce\models\ProductTypeSite as ProductTypeSiteModel;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country;
 use craft\commerce\records\PaymentCurrency;
-use craft\commerce\records\Product as ProductRecord;
-use craft\commerce\records\ProductType;
-use craft\commerce\records\Purchasable as PurchasableRecord;
 use craft\commerce\records\ShippingCategory;
 use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
 use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
-use craft\commerce\records\Variant as VariantRecord;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
-use craft\db\Query;
-use craft\helpers\DateTimeHelper;
-use craft\helpers\ElementHelper;
 use craft\helpers\MigrationHelper;
-use craft\helpers\StringHelper;
-use craft\queue\jobs\ResaveElements;
-use craft\records\Element;
-use craft\records\Element_SiteSettings;
 use craft\records\FieldLayout;
-use craft\records\Site;
 use Exception;
-use RuntimeException;
 use yii\base\NotSupportedException;
 
 /**
@@ -54,13 +39,19 @@ use yii\base\NotSupportedException;
  */
 class Install extends Migration
 {
-    private $_variantFieldLayoutId;
-    private $_productFieldLayoutId;
+    /**
+     * @var int
+     */
+    private int $_variantFieldLayoutId;
+    /**
+     * @var int
+     */
+    private int $_productFieldLayoutId;
 
     /**
      * @inheritdoc
      */
-    public function safeUp()
+    public function safeUp(): bool
     {
         $this->createTables();
         $this->createIndexes();
@@ -73,13 +64,14 @@ class Install extends Migration
     /**
      * @inheritdoc
      */
-    public function safeDown()
+    public function safeDown(): bool
     {
         $this->dropForeignKeys();
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete('{{%elementindexsettings}}', ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::ELEMENTINDEXSETTINGS, ['type' => [Order::class, Product::class, Subscription::class]]);
+        $this->delete(\craft\db\Table::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
     }
@@ -88,7 +80,7 @@ class Install extends Migration
     /**
      * Creates the tables for Craft Commerce
      */
-    public function createTables()
+    public function createTables(): void
     {
         $this->createTable(Table::ADDRESSES, [
             'id' => $this->primaryKey(),
@@ -127,7 +119,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'iso' => $this->string(2)->notNull(),
-            'isStateRequired' => $this->boolean(),
+            'isStateRequired' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -221,17 +213,17 @@ class Install extends Migration
             'perItemDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentDiscount' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'percentageOffSubject' => $this->enum('percentageOffSubject', ['original', 'discounted'])->notNull(),
-            'excludeOnSale' => $this->boolean(),
-            'hasFreeShippingForMatchingItems' => $this->boolean(),
-            'hasFreeShippingForOrder' => $this->boolean(),
-            'allGroups' => $this->boolean(),
-            'allPurchasables' => $this->boolean(),
-            'allCategories' => $this->boolean(),
+            'excludeOnSale' => $this->boolean()->notNull()->defaultValue(false),
+            'hasFreeShippingForMatchingItems' => $this->boolean()->notNull()->defaultValue(false),
+            'hasFreeShippingForOrder' => $this->boolean()->notNull()->defaultValue(false),
+            'userGroupsCondition' => $this->string()->defaultValue('userGroupsAnyOrNone'),
+            'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'allCategories' => $this->boolean()->notNull()->defaultValue(false),
             'appliedTo' => $this->enum('appliedTo', ['matchingLineItems', 'allLineItems'])->notNull()->defaultValue('matchingLineItems'),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
             'orderConditionFormula' => $this->text(),
-            'enabled' => $this->boolean(),
-            'stopProcessing' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'stopProcessing' => $this->boolean()->notNull()->defaultValue(false),
             'ignoreSales' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -242,7 +234,7 @@ class Install extends Migration
         $this->createTable(Table::DONATIONS, [
             'id' => $this->primaryKey(),
             'sku' => $this->string()->notNull(),
-            'availableForPurchase' => $this->boolean(),
+            'availableForPurchase' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -257,7 +249,7 @@ class Install extends Migration
             'bcc' => $this->string(),
             'cc' => $this->string(),
             'replyTo' => $this->string(),
-            'enabled' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'templatePath' => $this->string()->notNull(),
             'plainTextTemplatePath' => $this->string(),
             'pdfId' => $this->integer(),
@@ -274,8 +266,8 @@ class Install extends Migration
             'description' => $this->string(),
             'templatePath' => $this->string()->notNull(),
             'fileNameFormat' => $this->string(),
-            'enabled' => $this->boolean(),
-            'isDefault' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'language' => $this->string(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -290,9 +282,8 @@ class Install extends Migration
             'handle' => $this->string()->notNull(),
             'settings' => $this->text(),
             'paymentType' => $this->enum('paymentType', ['authorize', 'purchase'])->notNull()->defaultValue('purchase'),
-            'isFrontendEnabled' => $this->boolean(),
-            'sendCartInfo' => $this->boolean(),
-            'isArchived' => $this->boolean(),
+            'isFrontendEnabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -337,7 +328,7 @@ class Install extends Migration
             'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'sortOrder' => $this->integer(),
-            'default' => $this->boolean(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -351,7 +342,7 @@ class Install extends Migration
             'name' => $this->string(),
             'description' => $this->string(),
             'amount' => $this->decimal(14, 4)->notNull(),
-            'included' => $this->boolean(),
+            'included' => $this->boolean()->notNull()->defaultValue(false),
             'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
             'sourceSnapshot' => $this->longText(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -360,7 +351,7 @@ class Install extends Migration
         ]);
 
         $this->createTable(Table::ORDERNOTICES, [
-            'id' =>  $this->primaryKey(),
+            'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
             'type' => $this->string(),
             'attribute' => $this->string(),
@@ -406,7 +397,7 @@ class Install extends Migration
             'totalShippingCost' => $this->decimal(14, 4)->defaultValue(0),
             'paidStatus' => $this->enum('paidStatus', ['paid', 'partial', 'unpaid', 'overPaid']),
             'email' => $this->string(),
-            'isCompleted' => $this->boolean(),
+            'isCompleted' => $this->boolean()->notNull()->defaultValue(false),
             'dateOrdered' => $this->dateTime(),
             'datePaid' => $this->dateTime(),
             'dateAuthorized' => $this->dateTime(),
@@ -416,10 +407,10 @@ class Install extends Migration
             'orderLanguage' => $this->string(12)->notNull(),
             'origin' => $this->enum('origin', ['web', 'cp', 'remote'])->notNull()->defaultValue('web'),
             'message' => $this->text(),
-            'registerUserOnOrderComplete' => $this->boolean(),
+            'registerUserOnOrderComplete' => $this->boolean()->notNull()->defaultValue(false),
             'recalculationMode' => $this->enum('recalculationMode', ['all', 'none', 'adjustmentsOnly'])->notNull()->defaultValue('all'),
-            'returnUrl' => $this->string(),
-            'cancelUrl' => $this->string(),
+            'returnUrl' => $this->text(),
+            'cancelUrl' => $this->text(),
             'shippingMethodHandle' => $this->string(),
             'shippingMethodName' => $this->string(),
             'orderSiteId' => $this->integer(),
@@ -446,7 +437,7 @@ class Install extends Migration
             'description' => $this->string(),
             'dateDeleted' => $this->dateTime(),
             'sortOrder' => $this->integer(),
-            'default' => $this->boolean(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -481,9 +472,9 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'reference' => $this->string()->notNull(),
-            'enabled' => $this->boolean()->notNull(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(false),
             'planData' => $this->text(),
-            'isArchived' => $this->boolean()->notNull(),
+            'isArchived' => $this->boolean()->notNull()->defaultValue(false),
             'dateArchived' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -499,9 +490,9 @@ class Install extends Migration
             'defaultVariantId' => $this->integer(),
             'postDate' => $this->dateTime(),
             'expiryDate' => $this->dateTime(),
-            'promotable' => $this->boolean(),
-            'availableForPurchase' => $this->boolean(),
-            'freeShipping' => $this->boolean(),
+            'promotable' => $this->boolean()->notNull()->defaultValue(false),
+            'availableForPurchase' => $this->boolean()->notNull()->defaultValue(true),
+            'freeShipping' => $this->boolean()->notNull()->defaultValue(true),
             'defaultSku' => $this->string(),
             'defaultPrice' => $this->decimal(14, 4),
             'defaultHeight' => $this->decimal(14, 4),
@@ -520,15 +511,15 @@ class Install extends Migration
             'variantFieldLayoutId' => $this->integer(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
-            'hasDimensions' => $this->boolean(),
-            'hasVariants' => $this->boolean(),
+            'hasDimensions' => $this->boolean()->notNull()->defaultValue(false),
+            'hasVariants' => $this->boolean()->notNull()->defaultValue(false),
 
             // Variant title stuff
-            'hasVariantTitleField' => $this->boolean(),
-            'titleFormat' => $this->string()->notNull(), // TODO: rename to variantTitleFormat in 4.0
+            'hasVariantTitleField' => $this->boolean()->notNull()->defaultValue(true),
+            'variantTitleFormat' => $this->string()->notNull(),
 
             // Product title stuff
-            'hasProductTitleField' => $this->boolean(),
+            'hasProductTitleField' => $this->boolean()->notNull()->defaultValue(true),
             'productTitleFormat' => $this->string(),
 
             'skuFormat' => $this->string(),
@@ -544,7 +535,7 @@ class Install extends Migration
             'siteId' => $this->integer()->notNull(),
             'uriFormat' => $this->text(),
             'template' => $this->string(500),
-            'hasUrls' => $this->boolean(),
+            'hasUrls' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -614,13 +605,13 @@ class Install extends Migration
             'dateTo' => $this->dateTime(),
             'apply' => $this->enum('apply', ['toPercent', 'toFlat', 'byPercent', 'byFlat'])->notNull(),
             'applyAmount' => $this->decimal(14, 4)->notNull(),
-            'allGroups' => $this->boolean(),
-            'allPurchasables' => $this->boolean(),
-            'allCategories' => $this->boolean(),
+            'allGroups' => $this->boolean()->notNull()->defaultValue(false),
+            'allPurchasables' => $this->boolean()->notNull()->defaultValue(false),
+            'allCategories' => $this->boolean()->notNull()->defaultValue(false),
             'categoryRelationshipType' => $this->enum('categoryRelationshipType', ['element', 'sourceElement', 'targetElement'])->notNull()->defaultValue('element'),
-            'enabled' => $this->boolean(),
-            'ignorePrevious' => $this->boolean(),
-            'stopProcessing' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'ignorePrevious' => $this->boolean()->notNull()->defaultValue(false),
+            'stopProcessing' => $this->boolean()->notNull()->defaultValue(false),
             'sortOrder' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -632,7 +623,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
-            'default' => $this->boolean(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -642,8 +633,8 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
-            'enabled' => $this->boolean(),
-            'isLite' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -669,7 +660,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'priority' => $this->integer()->notNull()->defaultValue(0),
-            'enabled' => $this->boolean(),
+            'enabled' => $this->boolean()->notNull()->defaultValue(true),
             'orderConditionFormula' => $this->text(),
             'minQty' => $this->integer()->notNull()->defaultValue(0),
             'maxQty' => $this->integer()->notNull()->defaultValue(0),
@@ -684,7 +675,7 @@ class Install extends Migration
             'percentageRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'minRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
             'maxRate' => $this->decimal(14, 4)->notNull()->defaultValue(0),
-            'isLite' => $this->boolean(),
+            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -712,7 +703,7 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'isCountryBased' => $this->boolean(),
+            'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
             'zipCodeConditionFormula' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -744,9 +735,9 @@ class Install extends Migration
             'hasStarted' => $this->boolean()->notNull()->defaultValue(true),
             'isSuspended' => $this->boolean()->notNull()->defaultValue(false),
             'dateSuspended' => $this->dateTime(),
-            'isCanceled' => $this->boolean()->notNull(),
+            'isCanceled' => $this->boolean()->notNull()->defaultValue(false),
             'dateCanceled' => $this->dateTime(),
-            'isExpired' => $this->boolean()->notNull(),
+            'isExpired' => $this->boolean()->notNull()->defaultValue(false),
             'dateExpired' => $this->dateTime(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -758,7 +749,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'handle' => $this->string()->notNull(),
             'description' => $this->string(),
-            'default' => $this->boolean(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -767,15 +758,17 @@ class Install extends Migration
         $this->createTable(Table::TAXRATES, [
             'id' => $this->primaryKey(),
             'taxZoneId' => $this->integer(),
-            'isEverywhere' => $this->boolean(),
+            'isEverywhere' => $this->boolean()->notNull()->defaultValue(true),
             'taxCategoryId' => $this->integer()->null(),
             'name' => $this->string()->notNull(),
             'code' => $this->string(),
             'rate' => $this->decimal(14, 10)->notNull(),
-            'include' => $this->boolean(),
-            'isVat' => $this->boolean(),
+            'include' => $this->boolean()->notNull()->defaultValue(false),
+            'isVat' => $this->boolean()->notNull()->defaultValue(false), // @TODO rename to isEuVat #COM-45
+            'removeIncluded' => $this->boolean()->notNull()->defaultValue(false),
+            'removeVatIncluded' => $this->boolean()->notNull()->defaultValue(false),
             'taxable' => $this->enum('taxable', ['price', 'shipping', 'price_shipping', 'order_total_shipping', 'order_total_price'])->notNull(),
-            'isLite' => $this->boolean(),
+            'isLite' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -803,9 +796,9 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'isCountryBased' => $this->boolean(),
+            'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
             'zipCodeConditionFormula' => $this->text(),
-            'default' => $this->boolean(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -839,7 +832,7 @@ class Install extends Migration
             'id' => $this->integer()->notNull(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
             'sku' => $this->string()->notNull(),
-            'isDefault' => $this->boolean(),
+            'isDefault' => $this->boolean()->notNull()->defaultValue(false),
             'price' => $this->decimal(14, 4)->notNull(),
             'sortOrder' => $this->integer(),
             'width' => $this->decimal(14, 4),
@@ -847,10 +840,10 @@ class Install extends Migration
             'length' => $this->decimal(14, 4),
             'weight' => $this->decimal(14, 4),
             'stock' => $this->integer()->notNull()->defaultValue(0),
-            'hasUnlimitedStock' => $this->boolean(),
+            'hasUnlimitedStock' => $this->boolean()->notNull()->defaultValue(false),
             'minQty' => $this->integer(),
             'maxQty' => $this->integer(),
-            'deletedWithProduct' => $this->boolean()->null(),
+            'deletedWithProduct' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -861,7 +854,7 @@ class Install extends Migration
     /**
      * Drop the tables
      */
-    public function dropTables()
+    public function dropTables(): void
     {
         $this->dropTableIfExists(Table::ADDRESSES);
         $this->dropTableIfExists(Table::COUNTRIES);
@@ -914,14 +907,12 @@ class Install extends Migration
         $this->dropTableIfExists(Table::TAXZONES);
         $this->dropTableIfExists(Table::TRANSACTIONS);
         $this->dropTableIfExists(Table::VARIANTS);
-
-        return null;
     }
 
     /**
      * Deletes the project config entry.
      */
-    public function dropProjectConfig()
+    public function dropProjectConfig(): void
     {
         Craft::$app->projectConfig->remove('commerce');
     }
@@ -929,10 +920,11 @@ class Install extends Migration
     /**
      * Creates the indexes.
      */
-    public function createIndexes()
+    public function createIndexes(): void
     {
         $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
         $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
+        $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
@@ -1045,7 +1037,7 @@ class Install extends Migration
     /**
      * Adds the foreign keys.
      */
-    public function addForeignKeys()
+    public function addForeignKeys(): void
     {
         $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
@@ -1140,7 +1132,7 @@ class Install extends Migration
     /**
      * Removes the foreign keys.
      */
-    public function dropForeignKeys()
+    public function dropForeignKeys(): void
     {
         $tables = [
             Table::ADDRESSES,
@@ -1180,7 +1172,7 @@ class Install extends Migration
             Table::TAXZONE_COUNTRIES,
             Table::TAXZONE_STATES,
             Table::TRANSACTIONS,
-            Table::VARIANTS
+            Table::VARIANTS,
         ];
 
         foreach ($tables as $table) {
@@ -1191,7 +1183,7 @@ class Install extends Migration
     /**
      * Insert the default data.
      */
-    public function insertDefaultData()
+    public function insertDefaultData(): void
     {
         // The following defaults are not stored in the project config.
         $this->_defaultCountries();
@@ -1208,8 +1200,6 @@ class Install extends Migration
 
         if (!$installed && !$configExists) {
             $this->_defaultOrderSettings();
-            $this->_defaultProductTypes();
-            $this->_defaultProducts(); // Not in project config, but dependant on demo product type
             $this->_defaultGateways();
         }
     }
@@ -1218,7 +1208,7 @@ class Install extends Migration
     /**
      * Insert default countries data.
      */
-    private function _defaultCountries()
+    private function _defaultCountries(): void
     {
         $countries = [
             ['AF', 'Afghanistan'],
@@ -1485,7 +1475,7 @@ class Install extends Migration
     /**
      * Add default States.
      */
-    private function _defaultStates()
+    private function _defaultStates(): void
     {
         $states = [
             'AU' => [
@@ -1590,12 +1580,12 @@ class Install extends Migration
     /**
      * Make USD the default currency.
      */
-    private function _defaultCurrency()
+    private function _defaultCurrency(): void
     {
         $data = [
             'iso' => 'USD',
             'rate' => 1,
-            'primary' => true
+            'primary' => true,
         ];
         $this->insert(PaymentCurrency::tableName(), $data);
     }
@@ -1603,12 +1593,12 @@ class Install extends Migration
     /**
      * Add a default shipping method and rule.
      */
-    private function _defaultShippingMethod()
+    private function _defaultShippingMethod(): void
     {
         $data = [
             'name' => 'Free Shipping',
             'handle' => 'freeShipping',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingMethod::tableName(), $data);
 
@@ -1616,7 +1606,7 @@ class Install extends Migration
             'methodId' => $this->db->getLastInsertID(ShippingMethod::tableName()),
             'description' => 'All countries, free shipping',
             'name' => 'Free Everywhere',
-            'enabled' => true
+            'enabled' => true,
         ];
         $this->insert(ShippingRule::tableName(), $data);
     }
@@ -1624,12 +1614,12 @@ class Install extends Migration
     /**
      * Add a default Tax category.
      */
-    private function _defaultTaxCategories()
+    private function _defaultTaxCategories(): void
     {
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(TaxCategory::tableName(), $data);
     }
@@ -1637,12 +1627,12 @@ class Install extends Migration
     /**
      * Add a default shipping category.
      */
-    private function _defaultShippingCategories()
+    private function _defaultShippingCategories(): void
     {
         $data = [
             'name' => 'General',
             'handle' => 'general',
-            'default' => true
+            'default' => true,
         ];
         $this->insert(ShippingCategory::tableName(), $data);
     }
@@ -1650,10 +1640,10 @@ class Install extends Migration
     /**
      * Add the donation purchasable
      */
-    public function _defaultDonationPurchasable()
+    public function _defaultDonationPurchasable(): void
     {
         $donation = new Donation();
-        $donation->sku = 'DONATION-CC3';
+        $donation->sku = 'DONATION-CC4';
         $donation->availableForPurchase = false;
         Craft::$app->getElements()->saveElement($donation);
     }
@@ -1663,7 +1653,7 @@ class Install extends Migration
      *
      * @throws Exception
      */
-    private function _defaultOrderSettings()
+    private function _defaultOrderSettings(): void
     {
         $this->insert(FieldLayout::tableName(), ['type' => Order::class]);
 
@@ -1671,208 +1661,16 @@ class Install extends Migration
             'name' => 'New',
             'handle' => 'new',
             'color' => 'green',
-            'default' => true
+            'default' => true,
         ];
         $orderStatus = new OrderStatusModel($data);
         Plugin::getInstance()->getOrderStatuses()->saveOrderStatus($orderStatus, []);
     }
 
     /**
-     * Set the default product types.
-     *
-     * @throws Exception
-     */
-    private function _defaultProductTypes()
-    {
-        $this->insert(FieldLayout::tableName(), ['type' => Product::class]);
-        $this->_productFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
-        $this->insert(FieldLayout::tableName(), ['type' => Variant::class]);
-        $this->_variantFieldLayoutId = $this->db->getLastInsertID(FieldLayout::tableName());
-
-        $data = [
-            'name' => 'Clothing',
-            'handle' => 'clothing',
-            'hasDimensions' => true,
-            'hasVariants' => false,
-            'hasVariantTitleField' => true,
-            'fieldLayoutId' => $this->_productFieldLayoutId,
-            'skuFormat' => '',
-            'descriptionFormat' => '',
-            'variantFieldLayoutId' => $this->_variantFieldLayoutId
-        ];
-
-        $productType = new ProductTypeModel($data);
-
-        $siteIds = (new Query())
-            ->select(['id'])
-            ->from(Site::tableName())
-            ->column();
-
-        $allSiteSettings = [];
-
-        foreach ($siteIds as $siteId) {
-            $siteSettings = new ProductTypeSiteModel();
-
-            $siteSettings->siteId = $siteId;
-            $siteSettings->hasUrls = true;
-            $siteSettings->uriFormat = 'shop/products/{slug}';
-            $siteSettings->template = 'shop/products/_product';
-
-            $allSiteSettings[$siteId] = $siteSettings;
-        }
-
-        $productType->setSiteSettings($allSiteSettings);
-
-        Plugin::getInstance()->getProductTypes()->saveProductType($productType);
-    }
-
-    /**
-     * Add some default products.
-     *
-     * @throws Exception
-     */
-    private function _defaultProducts()
-    {
-        $productTypeId = (new Query())
-            ->select(['id'])
-            ->from(ProductType::tableName())
-            ->scalar();
-
-        $taxCategoryId = (new Query())
-            ->select(['id'])
-            ->from(TaxCategory::tableName())
-            ->scalar();
-
-        $shippingCategoryId = (new Query())
-            ->select(['id'])
-            ->from(ShippingCategory::tableName())
-            ->scalar();
-
-        if (!$productTypeId || !$taxCategoryId || !$shippingCategoryId) {
-            throw new RuntimeException('Cannot create the default products.');
-        }
-
-        $products = [
-            ['title' => 'A New Toga', 'sku' => 'ANT-001'],
-            ['title' => 'Parka with Stripes on Back', 'sku' => 'PSB-001'],
-            ['title' => 'Romper for a Red Eye', 'sku' => 'RRE-001'],
-            ['title' => 'The Fleece Awakens', 'sku' => 'TFA-001'],
-            ['title' => 'The Last Knee-high', 'sku' => 'LKH-001'],
-            ['title' => 'Full-size Dry Boxer', 'sku' => 'FDB-001'],
-        ];
-
-        $count = 1;
-
-        foreach ($products as $product) {
-            // Create an element for product
-            $productElementData = [
-                'type' => Product::class,
-                'enabled' => 1,
-                'archived' => 0,
-                'fieldLayoutId' => $this->_productFieldLayoutId
-            ];
-            $this->insert(Element::tableName(), $productElementData);
-            $productId = $this->db->getLastInsertID(Element::tableName());
-
-            // Create an element for variant
-            $variantElementData = [
-                'type' => Variant::class,
-                'enabled' => 1,
-                'archived' => 0,
-                'fieldLayoutId' => $this->_variantFieldLayoutId
-            ];
-            $this->insert(Element::tableName(), $variantElementData);
-            $variantId = $this->db->getLastInsertID(Element::tableName());
-
-            // Populate the i18n data for each site
-            $siteIds = (new Query())
-                ->select(['id'])
-                ->from(Site::tableName())
-                ->column();
-
-            foreach ($siteIds as $siteId) {
-                // Product content data
-                $productI18nData = [
-                    'elementId' => $productId,
-                    'siteId' => $siteId,
-                    'slug' => ElementHelper::normalizeSlug($product['sku']),
-                    'uri' => null,
-                    'enabled' => true
-                ];
-                $this->insert(Element_SiteSettings::tableName(), $productI18nData);
-
-                $contentData = [
-                    'elementId' => $productId,
-                    'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($product['title'])
-                ];
-                $this->insert('{{%content}}', $contentData);
-
-                // Variant content data
-                $variantI18nData = [
-                    'elementId' => $variantId,
-                    'siteId' => $siteId,
-                    'slug' => ElementHelper::normalizeSlug($product['sku']),
-                    'uri' => null,
-                    'enabled' => true
-                ];
-                $this->insert(Element_SiteSettings::tableName(), $variantI18nData);
-
-                $contentData = [
-                    'elementId' => $variantId,
-                    'siteId' => $siteId,
-                    'title' => StringHelper::toTitleCase($product['title'])
-                ];
-                $this->insert('{{%content}}', $contentData);
-            }
-
-            $count++;
-
-            // Prep data for variant and product
-            $variantData = [
-                'productId' => $productId,
-                'id' => $variantId,
-                'sku' => $product['sku'],
-                'price' => 10 * $count,
-                'hasUnlimitedStock' => true,
-                'isDefault' => true
-            ];
-
-            $productData = [
-                'id' => $productId,
-                'typeId' => $productTypeId,
-                'postDate' => DateTimeHelper::currentUTCDateTime()->format('Y-m-d H:i:s'),
-                'expiryDate' => null,
-                'promotable' => true,
-                'availableForPurchase' => true,
-                'defaultPrice' => 10 * $count,
-                'defaultSku' => $product['sku'],
-                'taxCategoryId' => $taxCategoryId,
-                'shippingCategoryId' => $shippingCategoryId,
-            ];
-
-            // Insert the actual product and variant
-            $this->insert(ProductRecord::tableName(), $productData);
-            $this->insert(VariantRecord::tableName(), $variantData);
-
-            $purchasableData = [
-                'id' => $variantId,
-                'sku' => $variantData['sku'],
-                'price' => $variantData['price']
-            ];
-            $this->insert(PurchasableRecord::tableName(), $purchasableData);
-        }
-
-        // Generate URIs etc.
-        Craft::$app->getQueue()->push(new ResaveElements([
-            'elementType' => Product::class
-        ]));
-    }
-
-    /**
      * Add a payment method.
      */
-    private function _defaultGateways()
+    private function _defaultGateways(): void
     {
         $data = [
             'name' => 'Dummy',
@@ -1907,7 +1705,7 @@ class Install extends Migration
      * @param $tableName
      * @throws NotSupportedException
      */
-    private function _dropForeignKeyToAndFromTable($tableName)
+    private function _dropForeignKeyToAndFromTable($tableName): void
     {
         if ($this->_tableExists($tableName)) {
             MigrationHelper::dropAllForeignKeysToTable($tableName, $this);

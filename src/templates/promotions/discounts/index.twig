@@ -1,0 +1,126 @@
+{% extends "commerce/_layouts/promotions" %}
+{% set selectedSidebarNavItem = 'discounts' %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+    'Code',
+    'Couldn’t reorder discounts.',
+    'Delete',
+    'Disabled',
+    'Discounts reordered.',
+    'Duration',
+    'Enabled',
+    'Ignore Sales?',
+    'Name',
+    'No discounts exist yet.',
+    'No',
+    'Set status',
+    'Stops Processing?',
+    'Times Used',
+    'Yes',
+]) %}
+
+{% block actionButton %}
+    {% if currentUser.can('commerce-createDiscounts') %}
+        <a href="{{ url('commerce/promotions/discounts/new') }}" class="btn submit add icon">{{ 'New discount'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+
+{% block content %}
+    <p>{{ 'Discounts are rules that modify the price of items within a cart.'|t('commerce') }}</p>
+    <div id="discounts-vue-admin-table"></div>
+
+    {% hook "cp.commerce.discounts.index" %}
+{% endblock %}
+
+{% set tableData = [] %}
+{% for discount in discounts %}
+
+    {% set dateRange = (discount.dateFrom ? discount.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (discount.dateTo ? discount.dateTo|datetime('short') : '∞') %}
+    {% if not discount.dateFrom and not discount.dateTo %}
+        {% set dateRange = '∞' %}
+    {% endif %}
+
+    {% set tableData = tableData|merge([{
+        id: discount.id,
+        title: discount.name|t('site'),
+        url: url('commerce/promotions/discounts/' ~ discount.id),
+        status: discount.enabled ? true : false,
+        duration: dateRange,
+        timesUsed: discount.totalDiscountUses,
+        handle: discount.code,
+        ignore: discount.ignoreSales ? true : false,
+        stop: discount.stopProcessing ? true : false,
+    }]) %}
+{% endfor %}
+
+
+
+{% js %}
+    var actions = [
+        {
+            label: Craft.t('commerce', 'Set status'),
+            actions: [
+                {
+                    label: Craft.t('commerce', 'Enabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'enabled',
+                    status: 'enabled'
+                },
+                {
+                    label: Craft.t('commerce', 'Disabled'),
+                    action: 'commerce/discounts/update-status',
+                    param: 'status',
+                    value: 'disabled',
+                    status: 'disabled'
+                }
+            ]
+        },
+        {
+            label: Craft.t('commerce', 'Delete'),
+            action: 'commerce/discounts/delete',
+            error: true,
+        }
+    ];
+
+    var columns = [
+        { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+        { name: '__slot:handle', title: Craft.t('commerce', 'Code') },
+        { name: 'duration', title: Craft.t('commerce', 'Duration') },
+        { name: 'timesUsed', title: Craft.t('commerce', 'Times Used') },
+        { name: 'stop', title: Craft.t('commerce', 'Stops Processing?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+        { name: 'ignore', title: Craft.t('commerce', 'Ignore Sales?'),
+            callback: function(value) {
+                if (value) {
+                    return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+                }
+
+                return '';
+            }
+        },
+    ];
+
+    new Craft.VueAdminTable({
+        actions: actions,
+        checkboxes: true,
+        columns: columns,
+        container: '#discounts-vue-admin-table',
+        deleteAction: {{ currentUser.can('commerce-deleteDiscounts')? '"commerce/discounts/delete"' : 'null' }},
+        emptyMessage: Craft.t('commerce', 'No discounts exist yet.'),
+        padded: true,
+        reorderAction: 'commerce/discounts/reorder',
+        reorderSuccessMessage: Craft.t('commerce', 'Discounts reordered.') ,
+        reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder discounts.'),
+        tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

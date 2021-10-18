@@ -94,7 +94,7 @@ class PlansController extends BaseStoreSettingsController
      * @throws InvalidConfigException if gateway does not support subscriptions
      * @throws BadRequestHttpException
      */
-    public function actionSavePlan()
+    public function actionSavePlan(): void
     {
         $this->requirePermission('commerce-manageSubscriptions');
         
@@ -149,7 +149,7 @@ class PlansController extends BaseStoreSettingsController
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'plan' => $plan
+            'plan' => $plan,
         ]);
     }
 
@@ -190,27 +190,5 @@ class PlansController extends BaseStoreSettingsController
         }
 
         return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
-    }
-
-    /**
-     * Temporary redirect function after subscriptions plans were moved.
-     *
-     * @param int|null $planId
-     * @return Response
-     * @deprecated 3.2.11
-     */
-    public function actionRedirect($planId = null): Response
-    {
-        $request = Craft::$app->getRequest();
-
-        if ($request->getSegment(5) == 'new') {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/new', 301);
-        }
-
-        if ($request->getSegment(5) && $planId) {
-            return $this->redirect('commerce/store-settings/subscription-plans/plan/' . $planId, 301);
-        }
-
-        return $this->redirect('commerce/store-settings/subscription-plans', 301);
     }
 }

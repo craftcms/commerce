@@ -9,7 +9,6 @@ namespace craft\commerce\events;
 
 use craft\db\Query;
 use craft\events\CancelableEvent;
-use yii\base\Event;
 
 /**
  * Class PurgeAddressesEvent
@@ -20,7 +19,7 @@ use yii\base\Event;
 class PurgeAddressesEvent extends CancelableEvent
 {
     /**
-     * @var Query|null The query to get the purgable addresses
+     * @var Query|null The query to get the purgeable addresses
      */
-    public $addressesQuery;
+    public ?Query $addressesQuery;
 }

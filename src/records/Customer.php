@@ -20,12 +20,29 @@ use yii\db\ActiveQueryInterface;
  * @property int $primaryBillingAddressId
  * @property int $primaryShippingAddressId
  * @property Order[] $orders
+ * @property-read ActiveQueryInterface $primaryShippingAddress
+ * @property-read ActiveQueryInterface $primaryBillingAddress
  * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Customer extends ActiveRecord
 {
+    /**
+     * @inheritdoc
+     */
+    public function rules(): array
+    {
+        return [
+            [[
+                'id',
+                'primaryBillingAddressId',
+                'primaryShippingAddressId',
+                'userId',
+            ], 'safe'],
+        ];
+    }
+
     /**
      * @inheritdoc
      */

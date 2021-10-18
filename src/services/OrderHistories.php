@@ -15,8 +15,12 @@ use craft\commerce\models\OrderHistory;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderHistory as OrderHistoryRecord;
 use craft\db\Query;
+use craft\errors\MissingComponentException;
+use craft\helpers\DateTimeHelper;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Order history service.
@@ -55,14 +59,13 @@ class OrderHistories extends Component
      */
     const EVENT_ORDER_STATUS_CHANGE = 'orderStatusChange';
 
-
     /**
      * Get order history by its ID.
      *
      * @param int $id
      * @return OrderHistory|null
      */
-    public function getOrderHistoryById($id)
+    public function getOrderHistoryById(int $id): ?OrderHistory
     {
         $result = $this->_createOrderHistoryQuery()
             ->where(['id' => $id])
@@ -77,7 +80,7 @@ class OrderHistories extends Component
      * @param int $id orderId
      * @return OrderHistory[]
      */
-    public function getAllOrderHistoriesByOrderId($id): array
+    public function getAllOrderHistoriesByOrderId(int $id): array
     {
         $rows = $this->_createOrderHistoryQuery()
             ->where(['orderId' => $id])
@@ -97,17 +100,20 @@ class OrderHistories extends Component
      * Create an order history from an order.
      *
      * @param Order $order
-     * @param int $oldStatusId
+     * @param int|null $oldStatusId
      * @return bool
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws MissingComponentException
      */
-    public function createOrderHistoryFromOrder(Order $order, $oldStatusId): bool
+    public function createOrderHistoryFromOrder(Order $order, ?int $oldStatusId): bool
     {
         $orderHistoryModel = new OrderHistory();
         $orderHistoryModel->orderId = $order->id;
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
 
-        // TODO refactor the method by which we store and work out who changed the order history
+        // TODO refactor the method by which we store and work out who changed the order history #COM-51
         $customerId = $order->customerId;
 
         // Use to current customer's ID only if we aren't in a console request
@@ -130,7 +136,7 @@ class OrderHistories extends Component
         if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE)) {
             $this->trigger(self::EVENT_ORDER_STATUS_CHANGE, new OrderStatusEvent([
                 'orderHistory' => $orderHistoryModel,
-                'order' => $order
+                'order' => $order,
             ]));
         }
 
@@ -175,7 +181,7 @@ class OrderHistories extends Component
 
         // Now that we have a record ID, save it on the model
         $model->id = $record->id;
-        $model->dateCreated = $record->dateCreated;
+        $model->dateCreated = DateTimeHelper::toDateTime($record->dateCreated);
 
         return true;
     }
@@ -183,10 +189,13 @@ class OrderHistories extends Component
     /**
      * Delete an order history by its ID.
      *
-     * @param $id
+     * @param int $id
      * @return bool
+     * @throws \Throwable
+     * @throws StaleObjectException
+     * @noinspection PhpUnused
      */
-    public function deleteOrderHistoryById($id): bool
+    public function deleteOrderHistoryById(int $id): bool
     {
         $orderHistory = OrderHistoryRecord::findOne($id);
 
@@ -207,13 +216,13 @@ class OrderHistories extends Component
     {
         return (new Query())
             ->select([
+                'customerId',
+                'dateCreated',
                 'id',
                 'message',
+                'newStatusId',
                 'orderId',
                 'prevStatusId',
-                'newStatusId',
-                'customerId',
-                'dateCreated'
             ])
             ->from([Table::ORDERHISTORIES]);
     }

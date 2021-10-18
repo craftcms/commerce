@@ -22,6 +22,7 @@ use craft\models\FieldLayout;
 use craft\models\FieldLayoutTab;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
+use yii\base\InvalidConfigException;
 
 /**
  * Product type model.
@@ -43,136 +44,138 @@ use craft\validators\UniqueValidator;
 class ProductType extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Handle
+     * @var string|null Handle
      */
-    public $handle;
+    public ?string $handle = null;
 
     /**
      * @var bool Has dimension
      */
-    public $hasDimensions;
+    public bool $hasDimensions = false;
 
     /**
      * @var bool Has variants
      */
-    public $hasVariants;
+    public bool $hasVariants = false;
 
     /**
      * @var bool Has variant title field
      */
-    public $hasVariantTitleField = true;
+    public bool $hasVariantTitleField = true;
 
     /**
      * @var string Variant title format
-     * TODO: Rename to variantTitleFormat in 4.0
      */
-    public $titleFormat = '{product.title}';
+    public string $variantTitleFormat = '{product.title}';
 
     /**
      * @var bool Has product title field?
      */
-    public $hasProductTitleField = true;
+    public bool $hasProductTitleField = true;
 
     /**
      * @var string Product title format
      */
-    public $productTitleFormat = '';
+    public string $productTitleFormat = '';
 
     /**
-     * @var string SKU format
+     * @var string|null SKU format
      */
-    public $skuFormat;
+    public ?string $skuFormat = null;
 
     /**
      * @var string Description format
      */
-    public $descriptionFormat;
+    public string $descriptionFormat = '{product.title} - {title}';
 
     /**
      * @var string Line item format
      */
-    public $lineItemFormat;
+    public string $lineItemFormat;
 
     /**
-     * @var string Template
+     * @var string|null Template
      */
-    public $template;
+    public ?string $template = null;
 
     /**
-     * @var  int Field layout ID
+     * @var int|null Field layout ID
      */
-    public $fieldLayoutId;
+    public ?int $fieldLayoutId = null;
 
     /**
-     * @var int Variant layout ID
+     * @var int|null Variant layout ID
      */
-    public $variantFieldLayoutId;
+    public ?int $variantFieldLayoutId = null;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
-     * @var TaxCategory[]
+     * @var TaxCategory[]|null
      */
-    private $_taxCategories;
+    private ?array $_taxCategories = null;
 
     /**
-     * @var ShippingCategory[]
+     * @var ShippingCategory[]|null
      */
-    private $_shippingCategories;
+    private ?array $_shippingCategories = null;
 
     /**
-     * @var ProductTypeSite[]
+     * @var ProductTypeSite[]|null
      */
-    private $_siteSettings;
-
+    private ?array $_siteSettings = null;
 
     /**
      * @return null|string
      */
     public function __toString()
     {
-        return $this->handle;
+        return (string)$this->handle;
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [
-            ['titleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasVariantTitleField && $model->hasVariants;
-            }
+        return [
+            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
+            [['name', 'handle'], 'required'],
+            [
+                ['variantTitleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasVariantTitleField && $model->hasVariants;
+                },
+            ],
+            [
+                ['productTitleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasProductTitleField;
+                },
+            ],
+            [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
+            [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
+            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            ['fieldLayout', 'validateFieldLayout'],
+            ['variantFieldLayout', 'validateVariantFieldLayout'],
         ];
-        $rules[] = [
-            ['productTitleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasProductTitleField;
-            }
-        ];
-        $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
-        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
-
-        return $rules;
     }
 
     /**
@@ -192,13 +195,14 @@ class ProductType extends Model
     }
 
     /**
-     * Returns the product types's site-specific settings.
+     * Returns the product type's site-specific settings.
      *
      * @return ProductTypeSite[]
+     * @throws InvalidConfigException
      */
     public function getSiteSettings(): array
     {
-        if ($this->_siteSettings !== null) {
+        if (isset($this->_siteSettings)) {
             return $this->_siteSettings;
         }
 
@@ -216,7 +220,7 @@ class ProductType extends Model
      *
      * @param ProductTypeSite[] $siteSettings
      */
-    public function setSiteSettings(array $siteSettings)
+    public function setSiteSettings(array $siteSettings): void
     {
         $this->_siteSettings = $siteSettings;
 
@@ -227,6 +231,7 @@ class ProductType extends Model
 
     /**
      * @return ShippingCategory[]
+     * @throws InvalidConfigException
      */
     public function getShippingCategories(): array
     {
@@ -239,8 +244,9 @@ class ProductType extends Model
 
     /**
      * @param int[]|ShippingCategory[] $shippingCategories
+     * @throws InvalidConfigException
      */
-    public function setShippingCategories($shippingCategories)
+    public function setShippingCategories(array $shippingCategories): void
     {
         $categories = [];
         foreach ($shippingCategories as $category) {
@@ -261,6 +267,7 @@ class ProductType extends Model
 
     /**
      * @return TaxCategory[]
+     * @throws InvalidConfigException
      */
     public function getTaxCategories(): array
     {
@@ -273,8 +280,9 @@ class ProductType extends Model
 
     /**
      * @param int[]|TaxCategory[] $taxCategories
+     * @throws InvalidConfigException
      */
-    public function setTaxCategories($taxCategories)
+    public function setTaxCategories(array $taxCategories): void
     {
         $categories = [];
         foreach ($taxCategories as $category) {
@@ -297,6 +305,7 @@ class ProductType extends Model
 
     /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
     {
@@ -326,7 +335,49 @@ class ProductType extends Model
     }
 
     /**
+     * Validate the field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateFieldLayout(): void
+    {
+        $fieldLayout = $this->getFieldLayout();
+
+        $fieldLayout->reservedFieldHandles = [
+            'cheapestVariant',
+            'defaultVariant',
+            'variants',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            $this->addModelErrors($fieldLayout, 'fieldLayout');
+        }
+    }
+
+    /**
+     * Validate the variant field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateVariantFieldLayout(): void
+    {
+        $variantFieldLayout = $this->getVariantFieldLayout();
+
+        $variantFieldLayout->reservedFieldHandles = [
+            'description',
+            'price',
+            'product',
+            'sku',
+        ];
+
+        if (!$variantFieldLayout->validate()) {
+            $this->addModelErrors($variantFieldLayout, 'variantFieldLayout');
+        }
+    }
+
+    /**
      * @return FieldLayout
+     * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout
     {
@@ -344,12 +395,12 @@ class ProductType extends Model
             'productFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId'
+                'idAttribute' => 'fieldLayoutId',
             ],
             'variantFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId'
+                'idAttribute' => 'variantFieldLayoutId',
             ],
         ];
     }

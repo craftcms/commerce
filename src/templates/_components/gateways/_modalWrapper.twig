@@ -1,0 +1,124 @@
+{% set currentYear = date()|date_modify("+1 year").format('Y') %}
+
+<div id="gateway-{{ gateway.id }}-form"
+     class="gateway-form {% if order and order.gatewayId != gateway.id %}hidden{% endif %}">
+    <form method="POST">
+        <input type="hidden" name="action" value="commerce/payments/pay"/>
+        <input type="hidden" name="redirect" value="commerce/payments/pay"/>
+
+        {% if order %}
+            {{ redirectInput(order.cpEditUrl) }}
+            <input type="hidden" name="cancelUrl"
+                   value="{{ order.cpEditUrl|hash }}"/>
+            <input type="hidden" name="orderNumber" value="{{ order.number }}"/>
+            <input type="hidden" name="orderEmail" value="{{ order.email }}"/>
+        {% endif %}
+
+        <input type="hidden" name="gatewayId" value="{{ gateway.id }}"/>
+        {{ csrfInput() }}
+
+        {{ formHtml|raw }}
+
+        <fieldset>
+        <legend>Payment Amount</legend>
+        <div>
+            <input type="text"  class="paymentAmount text" name="paymentAmount" autocomplete="off" placeholder="{{ order.outstandingBalance }}" step="any" min="1" max="{{ order.outstandingBalance }}" value="{{ order.getPaymentAmount() }}" style="margin: 0 0 0 5px; width:{{ 65 + (10*order.outstandingBalance|length) }}px;">
+
+            {% set currencies = craft.commerce.paymentCurrencies.getAllPaymentCurrencies() %}
+            {% set primaryCurrency = craft.commerce.paymentCurrencies.getPrimaryPaymentCurrency() %}
+            {% if currencies|length > 1 %}
+                <select class="paymentCurrency text" name="paymentCurrency"  style="margin: 0 5px;">
+                {% for currency in currencies %}
+                    <option value="{{currency.iso}}" {% if order.paymentCurrency == currency.iso %}selected {% endif %}>
+                        {{ currency.iso }}
+                    </option>
+                {% endfor %}
+                </select>
+            {% else %}
+                 <input type="hidden" class="paymentCurrency" name="paymentCurrency" value="{{ primaryCurrency.iso }}" />
+            {% endif %}
+
+            <span class="baseCurrencyAmount">
+            {{ 'Pay {amount} of {currency} on the order.'|t('commerce', {'amount' : order.outstandingBalanceAsCurrency, 'currency' : order.currency}) }}
+            </span>
+            <p class="response-message"></p>
+        </div>
+        </fieldset>
+
+        <div class="footer">
+            <div class="buttons right">
+                <input type="submit" class="submit-payment btn submit" value="{{ 'Pay'|t('commerce') }}">
+            </div>
+        </div>
+
+    </form>
+</div>
+
+{% js %}
+
+    var primaryBaseCurrency = '{{ primaryCurrency.iso }}';
+    var paymentAmount = '{{ order.getpaymentAmount() }}';
+    var orderId = '{{ order.id }}';
+
+    function debounce(func, wait, immediate) {
+        var timeout;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    };
+
+
+    function updatePrice(form) {
+        var price = form.find("input.paymentAmount").val();
+
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            headers: {
+                "X-CSRF-Token" : '{{ craft.app.request.csrfToken }}',
+            },
+            url: '',
+            data: {
+                'action' : 'commerce/orders/payment-amount-data',
+                'paymentAmount': price,
+                'paymentCurrency': form.find(".paymentCurrency").val(),
+                'orderId' : orderId
+            },
+            success: function(data){
+                console.log(data);
+                form.find(".baseCurrencyAmount").html(data.baseCurrencyPaymentAmountAsCurrency);
+                form.find(".response-message").html(data.message);
+                window.dispatchEvent(new Event('resize'));
+                form.find('.submit-payment').prop('disabled', false);
+            }
+        });
+    }
+
+    $("input.paymentAmount").bind('keyup mouseup', debounce(function(){
+        var $input = $(this);
+        var $form = $input.closest('form')
+        var newVal = $form.find("input.paymentAmount").val();
+        if(!newVal) {
+            newVal = paymentAmount;
+            $form.find("input.paymentAmount").val(newVal);
+        }
+        updatePrice($form);
+    },500));
+
+    $("select.paymentCurrency").each(function( index ) {
+        var $form = $(this.form);
+        $(this).on('change', function() {
+            console.log('change');
+            updatePrice($form);
+        });
+    });
+
+{% endjs %}

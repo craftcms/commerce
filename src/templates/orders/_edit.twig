@@ -1,0 +1,231 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% set selectedSubnavItem = "orders" %}
+{% set bodyClass = (bodyClass is defined ? bodyClass~' ' : '') ~ "commerceorders commerceordersedit" %}
+
+{% set crumbs = [
+    { label: "Orders"|t('commerce'), url: url('commerce/orders') }
+] %}
+
+
+{% do view.registerTranslations('commerce', [
+    "A valid email is required to create a customer.",
+    "Actions",
+    "Add a line item",
+    "Add an adjustment",
+    "Add an option",
+    "Add",
+    "Address 1",
+    "Address 2",
+    "Address 3",
+    "Adjustments",
+    "Amount",
+    "Are you sure you want to complete this order?",
+    "Are you sure you want to overwrite the billing address?",
+    "Are you sure you want to overwrite the shipping address?",
+    "Are you sure you want to remove this customer?",
+    "Are you sure you want to send email: {name}?",
+    "Attention",
+    "Available?",
+    "Billing Address",
+    "Business ID",
+    "Business Name",
+    "Business Tax ID",
+    "Cancel",
+    "City",
+    "Clear notices",
+    "Close",
+    "Completed",
+    "Control panel",
+    "Copied!",
+    "Copy the URL",
+    "Copy to {location}",
+    "Copy",
+    "Couldn’t get order.",
+    "Couldn’t recalculate order.",
+    "Country",
+    "Coupon Code",
+    "Create customer: “{email}”",
+    "Custom 1",
+    "Custom 2",
+    "Custom 3",
+    "Custom 4",
+    "Customer Note",
+    "Customer Notices",
+    "Customer",
+    "Date Authorized",
+    "Date Ordered",
+    "Date Paid",
+    "Delete",
+    "Description",
+    "Discount",
+    "Done",
+    "Download PDF",
+    "Duplicate options exist",
+    "Edit address",
+    "Edit adjustments",
+    "Edit options",
+    "Edit",
+    "Email sent",
+    "Enter coupon code",
+    "Enter reference",
+    "First Name",
+    "Full Name",
+    "Hide snapshot",
+    "ID",
+    "IP Address",
+    "Included",
+    "Invalid JSON",
+    "Invalid email.",
+    "Item",
+    "Label",
+    "Last Name",
+    "Last Updated",
+    "Line Item",
+    "Mark as completed",
+    "Message",
+    "Name",
+    "New Customer",
+    "New address",
+    "No address",
+    "No billing address",
+    "No description",
+    "No private Note.",
+    "No shipping address",
+    "None",
+    "Notes",
+    "Number",
+    "Options",
+    "Order Site",
+    "Order recalculated.",
+    "Origin",
+    "Original Price",
+    "Paid Amount",
+    "Paid Status",
+    "Phone (Alt)",
+    "Phone",
+    "Price",
+    "Primary Billing Address",
+    "Primary Shipping Address",
+    "Private Note",
+    "Quantity",
+    "Recalculate order",
+    "Reference",
+    "Remove address",
+    "Remove",
+    "SKU",
+    "Sale Amount Off",
+    "Sale Price",
+    "Save and continue editing",
+    "Save and return to all orders",
+    "Search customer…",
+    "Search or enter customer email…",
+    "Search…",
+    "Select address",
+    "Send Email",
+    "Share cart…",
+    "Shipping Address",
+    "Shipping Method",
+    "Shipping",
+    "Short Number",
+    "Snapshot",
+    "Snapshots",
+    "Sorry, no matching options.",
+    "State",
+    "Status",
+    "Tax",
+    "There are errors on the order",
+    "This URL will load the cart into the user’s session, making it the active cart.",
+    "This order has unsaved changes.",
+    "Title",
+    "Total Price",
+    "Total",
+    "Type",
+    "Unable to retrieve load cart URL",
+    "Unit Price",
+    "Update order",
+    "View customer",
+    "View user",
+    "Web",
+    "Yes",
+    "You are not allowed to add a line item.",
+    "Your order is empty",
+    "Zip Code",
+    "billing address",
+    "shipping address",
+    "{amount} included",
+    "“{key}” has invalid JSON",
+]) %}
+
+{% hook "cp.commerce.order.edit" %}
+
+{% block mainFormAttributes %}id="main-form" method="post" accept-charset="UTF-8" data-confirm-unload novalidate{% endblock %}
+
+{% block actionButton %}
+    <input type="hidden" name="action" value="commerce/orders/save">
+    <input type="hidden" name="orderId" value="{{ order.id }}">
+    {{ redirectInput('commerce/orders/'~order.id) }}
+
+    <div id="order-secondary-actions" class="flex">
+        {% hook "cp.commerce.order.edit.order-secondary-actions" %}
+        <div id="order-secondary-actions-app"></div>
+    </div>
+    <div id="order-actions" class="flex">
+        {% hook "cp.commerce.order.edit.order-actions" %}
+        <div id="order-actions-app"></div>
+    </div>
+{% endblock %}
+
+{% block details %}
+    <div id="order-notices-app"></div>
+    <div id="order-meta-app"></div>
+    {# Give plugins a chance to add other things here #}
+    {% hook "cp.commerce.order.edit.details" %}
+{% endblock %}
+
+{% block content %}
+
+    <div id="orderDetailsTab">
+        <div id="order-errors-app"></div>
+        <div id="order-customer-app"></div>
+        <div id="order-details-app"></div>
+
+        {% hook "cp.commerce.order.edit.main-pane" %}
+    </div>
+
+    <div id="fields">
+        {{ staticFieldsHtml|raw }}
+        {{ dynamicFieldsHtml|raw }}
+    </div>
+
+    {% include 'commerce/orders/_transactions' %}
+    {% include 'commerce/orders/_history' %}
+
+    {% hook "cp.commerce.order.content" %}
+
+{% endblock %}
+
+{% js %}
+    window.countries = {{ craft.commerce.countries.allEnabledCountries|values|json_encode|raw }};
+    window.states = {{ craft.commerce.states.allEnabledStates|values|json_encode|raw }};
+
+    $(document).ready(function () {
+        {% if paymentForm is defined and paymentForm %}
+            new Craft.Commerce.OrderEdit({
+                orderId: window.orderEdit.orderId,
+                paymentForm: {
+                    errors: {{ paymentForm.errors|json_encode|raw }},
+                    attributes: {{ paymentForm.attributes|json_encode|raw }}
+                },
+                paymentAmount: {{ order.getPaymentAmount()|json_encode|raw }},
+                paymentCurrency: {{ order.getPaymentCurrency()|json_encode|raw }}
+            });
+        {% endif %}
+        $.each($('.tableRowInfo'), function () {
+            new Craft.Commerce.TableRowAdditionalInfoIcon(this);
+        });
+    });
+{% endjs %}
+
+{% do view.registerAssetBundle("craft\\web\\assets\\prismjs\\PrismJsAsset") %}

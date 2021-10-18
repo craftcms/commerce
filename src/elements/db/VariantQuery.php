@@ -43,50 +43,26 @@ use yii\db\Schema;
  */
 class VariantQuery extends ElementQuery
 {
+
     /**
-     * @var string the SKU of the variant
+     * @inheritdoc
      */
-    public $sku;
+    protected array $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
 
     /**
      * @var bool Whether to only return variants that the user has permission to edit.
      */
-    public $editable = false;
+    public bool $editable = false;
 
     /**
-     * @var
+     * @var bool
      */
-    public $productId;
+    public bool $hasStock;
 
     /**
-     * @var
+     * @var bool
      */
-    public $typeId;
-
-    /**
-     * @var
-     */
-    public $isDefault;
-
-    /**
-     * @var
-     */
-    public $stock;
-
-    /**
-     * @var
-     */
-    public $hasStock;
-
-    /**
-     * @var
-     */
-    public $price;
-
-    /**
-     * @var
-     */
-    public $hasSales;
+    public bool $hasSales;
 
     /**
      * @var ProductQuery|array only return variants that match the resulting product query.
@@ -94,40 +70,71 @@ class VariantQuery extends ElementQuery
     public $hasProduct;
 
     /**
-     * @inheritdoc
+     * @var bool
      */
-    protected $defaultOrderBy = ['commerce_variants.sortOrder' => SORT_ASC];
+    public bool $isDefault;
 
     /**
-     * @var
+     * @var mixed
+     */
+    public $price;
+
+    /**
+     * @var mixed
+     */
+    public $productId;
+
+    /**
+     * @var mixed the SKU of the variant
+     */
+    public $sku;
+
+    /**
+     * @var mixed
+     */
+    public $stock;
+
+    /**
+     * @var mixed
+     */
+    public $typeId;
+
+    /**
+     * @var bool
+     * @since 3.3.4
+     */
+    public bool $hasUnlimitedStock;
+
+    /**
+     * @var mixed
      */
     public $minQty;
 
     /**
-     * @var
+     * @var mixed
      */
     public $maxQty;
 
     /**
-     * @var
+     * @var mixed
      * @since 3.2.0
      */
     public $width = false;
 
     /**
-     * @var
+     * @var mixed
      * @since 3.2.0
      */
     public $height = false;
 
     /**
-     * @var
+     * @var mixed
      * @since 3.2.0
      */
     public $length = false;
 
     /**
-     * @var
+     * @var mixed
      * @since 3.2.0
      */
     public $weight = false;
@@ -150,12 +157,10 @@ class VariantQuery extends ElementQuery
      */
     public function __set($name, $value)
     {
-        switch ($name) {
-            case 'product':
-                $this->product($value);
-                break;
-            default:
-                parent::__set($name, $value);
+        if ($name == 'product') {
+            $this->product($value);
+        } else {
+            parent::__set($name, $value);
         }
     }
 
@@ -182,8 +187,8 @@ class VariantQuery extends ElementQuery
      *
      * {# Fetch the {element} with that slug #}
      * {% set {element-var} = {twig-method}
-     *     .sku(requestedSlug|literal)
-     *     .one() %}
+     *   .sku(requestedSlug|literal)
+     *   .one() %}
      * ```
      *
      * ```php
@@ -199,7 +204,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function sku($value)
+    public function sku($value): VariantQuery
     {
         $this->sku = $value;
         return $this;
@@ -217,7 +222,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function product($value)
+    public function product($value): VariantQuery
     {
         if ($value instanceof Product) {
             $this->productId = [$value->id];
@@ -241,7 +246,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function productId($value)
+    public function productId($value): VariantQuery
     {
         $this->productId = $value;
         return $this;
@@ -261,7 +266,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value
      * @return static self reference
      */
-    public function typeId($value)
+    public function typeId($value): VariantQuery
     {
         $this->typeId = $value;
         return $this;
@@ -275,8 +280,8 @@ class VariantQuery extends ElementQuery
      * ```twig
      * {# Fetch default variants #}
      * {% set {elements-var} = {twig-function}
-     *     .isDefault()
-     *     .all() %}
+     *   .isDefault()
+     *   .all() %}
      * ```
      *
      * ```php
@@ -289,7 +294,7 @@ class VariantQuery extends ElementQuery
      * @param bool $value The property value
      * @return static self reference
      */
-    public function isDefault(bool $value = true)
+    public function isDefault(bool $value = true): VariantQuery
     {
         $this->isDefault = $value;
         return $this;
@@ -309,7 +314,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function stock($value)
+    public function stock($value): VariantQuery
     {
         $this->stock = $value;
         return $this;
@@ -329,7 +334,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function price($value)
+    public function price($value): VariantQuery
     {
         $this->price = $value;
         return $this;
@@ -348,9 +353,30 @@ class VariantQuery extends ElementQuery
      * @param bool $value
      * @return static self reference
      */
-    public function hasStock(bool $value = true)
+    public function hasStock(bool $value = true): VariantQuery
     {
         $this->hasStock = $value;
+        return $this;
+    }
+
+    /**
+     * Narrows the query results to only variants that have been set to unlimited stock.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `true` | with unlimited stock checked.
+     * | `false` | with unlimited stock not checked.
+     *
+     * @param bool $value
+     * @return static self reference
+     * @since 3.3.4
+     * @noinspection PhpUnused
+     */
+    public function hasUnlimitedStock(bool $value = true): VariantQuery
+    {
+        $this->hasUnlimitedStock = $value;
         return $this;
     }
 
@@ -367,7 +393,7 @@ class VariantQuery extends ElementQuery
      * @param bool $value
      * @return static self reference
      */
-    public function hasSales(bool $value = true)
+    public function hasSales(bool $value = true): VariantQuery
     {
         $this->hasSales = $value;
         return $this;
@@ -385,7 +411,7 @@ class VariantQuery extends ElementQuery
      * @param ProductQuery|array $value The property value
      * @return static self reference
      */
-    public function hasProduct($value)
+    public function hasProduct($value): VariantQuery
     {
         $this->hasProduct = $value;
         return $this;
@@ -405,7 +431,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function minQty($value)
+    public function minQty($value): VariantQuery
     {
         $this->minQty = $value;
         return $this;
@@ -425,7 +451,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function maxQty($value)
+    public function maxQty($value): VariantQuery
     {
         $this->maxQty = $value;
         return $this;
@@ -445,7 +471,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function width($value)
+    public function width($value): VariantQuery
     {
         $this->width = $value;
         return $this;
@@ -465,7 +491,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function height($value)
+    public function height($value): VariantQuery
     {
         $this->height = $value;
         return $this;
@@ -485,7 +511,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function length($value)
+    public function length($value): VariantQuery
     {
         $this->length = $value;
         return $this;
@@ -505,7 +531,7 @@ class VariantQuery extends ElementQuery
      * @param mixed $value The property value
      * @return static self reference
      */
-    public function weight($value)
+    public function weight($value): VariantQuery
     {
         $this->weight = $value;
         return $this;
@@ -539,41 +565,41 @@ class VariantQuery extends ElementQuery
             'commerce_variants.stock',
             'commerce_variants.hasUnlimitedStock',
             'commerce_variants.minQty',
-            'commerce_variants.maxQty'
+            'commerce_variants.maxQty',
         ]);
 
         $this->subQuery->leftJoin(Table::PRODUCTS . ' commerce_products', '[[commerce_variants.productId]] = [[commerce_products.id]]');
         $this->subQuery->leftJoin(Table::PRODUCTTYPES . ' commerce_producttypes', '[[commerce_products.typeId]] = [[commerce_producttypes.id]]');
 
-        if ($this->typeId) {
+        if (isset($this->typeId)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_products.typeId', $this->typeId));
         }
 
-        if ($this->sku) {
+        if (isset($this->sku)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.sku', $this->sku));
         }
 
-        if ($this->productId) {
+        if (isset($this->productId)) {
             $this->subQuery->andWhere(['commerce_variants.productId' => $this->productId]);
         }
 
-        if ($this->price) {
+        if (isset($this->price)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.price', $this->price));
         }
 
-        if ($this->isDefault !== null) {
+        if (isset($this->isDefault) && $this->isDefault !== null) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.isDefault', $this->isDefault, '=', false, Schema::TYPE_BOOLEAN));
         }
 
-        if ($this->minQty) {
+        if (isset($this->minQty)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.minQty', $this->minQty));
         }
 
-        if ($this->maxQty) {
+        if (isset($this->maxQty)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.maxQty', $this->maxQty));
         }
 
-        if ($this->stock) {
+        if (isset($this->stock)) {
             $this->subQuery->andWhere(Db::parseParam('commerce_variants.stock', $this->stock));
         }
 
@@ -615,7 +641,13 @@ class VariantQuery extends ElementQuery
             $this->subQuery->andWhere(Db::parseParam('commerce_producttypes.hasDimensions', 1));
         }
 
-        if ($this->hasStock !== null) {
+        if (isset($this->hasUnlimitedStock)) {
+            $this->subQuery->andWhere([
+                'commerce_variants.hasUnlimitedStock' => $this->hasUnlimitedStock,
+            ]);
+        }
+
+        if (isset($this->hasStock)) {
             if ($this->hasStock) {
                 $this->subQuery->andWhere([
                     'or',
@@ -635,7 +667,7 @@ class VariantQuery extends ElementQuery
             }
         }
 
-        if ($this->hasSales !== null) {
+        if (isset($this->hasSales)) {
             // We can't just clone the query as it may be modifying the select statement etc (i.e in the product query‘s hasVariant param)
             // But we want to use the same conditions so that we improve performance over searching all variants
             $query = Variant::find();
@@ -644,7 +676,7 @@ class VariantQuery extends ElementQuery
             }
 
             $query->andWhere(['commerce_products.promotable' => true]);
-            $query->hasSales = null;
+            unset($query->hasSales);
             $query->limit = null;
             $variantIds = $query->ids();
 
@@ -690,7 +722,7 @@ class VariantQuery extends ElementQuery
                         ['not', ['dateTo' => null]],
                         ['<=', 'dateFrom', Db::prepareDateForDb($now)],
                         ['>=', 'dateTo', Db::prepareDateForDb($now)],
-                    ]
+                    ],
                 ])
                 ->andWhere(['enabled' => true])
                 ->orderBy('sortOrder asc')
@@ -776,7 +808,7 @@ class VariantQuery extends ElementQuery
                             'categoryRelationshipType' => [
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_TARGET,
                                 Sale::CATEGORY_RELATIONSHIP_TYPE_BOTH,
-                            ]
+                            ],
                         ]);
 
                         // Source relationships
@@ -867,7 +899,7 @@ class VariantQuery extends ElementQuery
     /**
      * Normalizes the productId param to an array of IDs or null
      */
-    private function _normalizeProductId()
+    private function _normalizeProductId(): void
     {
         if (empty($this->productId)) {
             $this->productId = null;
@@ -885,15 +917,15 @@ class VariantQuery extends ElementQuery
     /**
      * Applies the hasProduct query condition
      */
-    private function _applyHasProductParam()
+    private function _applyHasProductParam(): void
     {
-        if ($this->hasProduct === null) {
+        if (!isset($this->hasProduct)) {
             return;
         }
 
         if ($this->hasProduct instanceof ProductQuery) {
             $productQuery = $this->hasProduct;
-        } elseif (is_array($this->hasProduct)) {
+        } else if (is_array($this->hasProduct)) {
             $query = Product::find();
             $productQuery = Craft::configure($query, $this->hasProduct);
         } else {

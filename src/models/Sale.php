@@ -30,136 +30,126 @@ use DateTime;
 class Sale extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var DateTime|null Date From
      */
-    public $dateFrom;
+    public ?DateTime $dateFrom = null;
 
     /**
      * @var DateTime|null Date To
      */
-    public $dateTo;
+    public ?DateTime $dateTo = null;
 
     /**
      * @var string How the sale should be applied
      */
-    public $apply;
+    public string $apply = SaleRecord::APPLY_BY_PERCENT;
 
     /**
-     * @var float The amount field used by the apply option
+     * @var float|null The amount field used by the apply option
      */
-    public $applyAmount;
+    public ?float $applyAmount = null;
 
     /**
      * @var bool ignore the previous sales that affect the purchasable
      */
-    public $ignorePrevious;
+    public bool $ignorePrevious = false;
 
     /**
      * @var bool should the sales system stop processing other sales after this one
      */
-    public $stopProcessing;
+    public bool $stopProcessing = false;
 
     /**
      * @var bool Match all groups
      */
-    public $allGroups = false;
+    public bool $allGroups = false;
 
     /**
      * @var bool Match all purchasables
      */
-    public $allPurchasables = false;
+    public bool $allPurchasables = false;
 
     /**
      * @var bool Match all categories
      */
-    public $allCategories = false;
+    public bool $allCategories = false;
 
     /**
      * @var string Type of relationship between Categories and Products
      */
-    public $categoryRelationshipType;
+    public string $categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
 
     /**
      * @var bool Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
-     * @var int The order index of the application of the sale
+     * @var int|null The order index of the application of the sale
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
     /**
-     * @var int[] Product Ids
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_purchasableIds;
+    public ?DateTime $dateCreated = null;
 
     /**
-     * @var int[] Product Type IDs
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_categoryIds;
+    public ?DateTime $dateUpdated = null;
 
     /**
-     * @var int[] Group IDs
+     * @var int[]|null Product Ids
      */
-    private $_userGroupIds;
-
+    private ?array $_purchasableIds = null;
 
     /**
-     * @inheritDoc
+     * @var int[]|null Product Type IDs
      */
-    public function init()
-    {
-        if ($this->categoryRelationshipType === null) {
-            $this->categoryRelationshipType = SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH;
-        }
+    private ?array $_categoryIds = null;
 
-        parent::init();
-    }
+    /**
+     * @var int[]|null Group IDs
+     */
+    private ?array $_userGroupIds = null;
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['apply'],
-            'in',
-            'range' => [
-                'toPercent',
-                'toFlat',
-                'byPercent',
-                'byFlat'
-            ]
+        return [
+            [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
+            [
+                ['categoryRelationshipType'],
+                'in',
+                'range' => [
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                ],
+            ],
+            [['enabled'], 'boolean'],
+            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' => [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-            ]
-        ];
-        $rules[] = [['enabled'], 'boolean'];
-        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
-
-        return $rules;
     }
 
     /**
@@ -174,9 +164,9 @@ class Sale extends Model
     }
 
     /**
-     * @return string|false
+     * @return string
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
@@ -277,7 +267,7 @@ class Sale extends Model
      *
      * @param array $ids
      */
-    public function setCategoryIds(array $ids)
+    public function setCategoryIds(array $ids): void
     {
         $this->_categoryIds = array_unique($ids);
     }
@@ -287,7 +277,7 @@ class Sale extends Model
      *
      * @param array $purchasableIds
      */
-    public function setPurchasableIds(array $purchasableIds)
+    public function setPurchasableIds(array $purchasableIds): void
     {
         $this->_purchasableIds = array_unique($purchasableIds);
     }
@@ -297,7 +287,7 @@ class Sale extends Model
      *
      * @param array $userGroupIds
      */
-    public function setUserGroupIds(array $userGroupIds)
+    public function setUserGroupIds(array $userGroupIds): void
     {
         $this->_userGroupIds = array_unique($userGroupIds);
     }

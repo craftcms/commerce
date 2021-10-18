@@ -84,8 +84,8 @@ class ProductTypesController extends BaseAdminController
             'variantFields' => [
                 'label' => Craft::t('commerce', 'Variant Fields'),
                 'url' => '#variant-fields',
-                'class' => ($variables['productType']->hasVariants ? '' : 'hidden')
-            ]
+                'class' => ($variables['productType']->hasVariants ? '' : 'hidden'),
+            ],
         ];
 
         $variables['tabs'] = $tabs;
@@ -99,7 +99,7 @@ class ProductTypesController extends BaseAdminController
      * @throws Throwable
      * @throws BadRequestHttpException
      */
-    public function actionSaveProductType()
+    public function actionSaveProductType(): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
 
@@ -120,8 +120,8 @@ class ProductTypesController extends BaseAdminController
         $productType->hasProductTitleField = (bool)Craft::$app->getRequest()->getBodyParam('hasProductTitleField');
         $productType->productTitleFormat = Craft::$app->getRequest()->getBodyParam('productTitleFormat');
         $productType->hasVariants = (bool)Craft::$app->getRequest()->getBodyParam('hasVariants');
-        $productType->hasVariantTitleField = $productType->hasVariants ? (bool)Craft::$app->getRequest()->getBodyParam('hasVariantTitleField') : false;
-        $productType->titleFormat = Craft::$app->getRequest()->getBodyParam('titleFormat');
+        $productType->hasVariantTitleField = $productType->hasVariants && Craft::$app->getRequest()->getBodyParam('hasVariantTitleField', false);
+        $productType->variantTitleFormat = Craft::$app->getRequest()->getBodyParam('variantTitleFormat');
         $productType->skuFormat = Craft::$app->getRequest()->getBodyParam('skuFormat');
         $productType->descriptionFormat = Craft::$app->getRequest()->getBodyParam('descriptionFormat');
 
@@ -171,7 +171,7 @@ class ProductTypesController extends BaseAdminController
 
         // Send the productType back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'productType' => $productType
+            'productType' => $productType,
         ]);
     }
 

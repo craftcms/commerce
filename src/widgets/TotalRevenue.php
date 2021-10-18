@@ -21,6 +21,7 @@ use craft\helpers\StringHelper;
  *
  * @property string|false $bodyHtml the widget's body HTML
  * @property string $settingsHtml the component’s settings HTML
+ * @property-read string $subtitle
  * @property string $title the widget’s title
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.0
@@ -41,30 +42,30 @@ class TotalRevenue extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
      * @var bool
      */
-    public $showOrderCount = false;
+    public bool $showOrderCount = false;
 
     /**
      * @var TotalRevenueStat
      */
-    private $_stat;
+    private TotalRevenueStat $_stat;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TotalRevenueStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TotalRevenueStat(
             $this->dateRange,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
     }
 
@@ -84,6 +85,9 @@ class TotalRevenue extends Widget
         return Craft::t('commerce', 'Total Revenue');
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getTitle(): string
     {
         $stats = $this->_stat->get();
@@ -98,7 +102,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -114,7 +118,7 @@ class TotalRevenue extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
         $timeFrame = $this->_stat->getDateRangeWording();
@@ -127,14 +131,13 @@ class TotalRevenue extends Widget
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);
 
         if (empty($stats)) {
-            // TODO no stats available message
-            return '';
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
         }
 
         $labels = ArrayHelper::getColumn($stats, 'datekey', false);
         if ($this->_stat->getDateRangeInterval() == 'month') {
             $labels = array_map(static function($label) {
-                list($year, $month) = explode('-', $label);
+                [$year, $month] = explode('-', $label);
                 $month = $month < 10 ? '0' . $month : $month;
                 return implode('-', [$year, $month, '01']);
             }, $labels);

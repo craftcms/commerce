@@ -7,7 +7,9 @@
 
 namespace craftcommercetests\fixtures;
 
+use Craft;
 use craft\base\ElementInterface;
+use craft\commerce\elements\Product;
 use craft\commerce\test\fixtures\elements\ProductFixture as BaseProductFixture;
 
 /**
@@ -40,5 +42,20 @@ class ProductFixture extends BaseProductFixture
                 $element->setVariants($value);
             }
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function deleteElement(ElementInterface $element): bool
+    {
+        /** @var Product $element */
+        $variants = $element->getVariants(true);
+
+        foreach ($variants as $variant) {
+            Craft::$app->getElements()->deleteElement($variant, true);
+        }
+
+        return parent::deleteElement($element);
     }
 }

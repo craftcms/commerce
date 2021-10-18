@@ -3,8 +3,6 @@
 namespace craft\commerce\migrations;
 
 use craft\db\Migration;
-use craft\db\Query;
-use Craft;
 
 /**
  * m210113_093199_add_minMaxTotalType_to_shipping_rules migration.

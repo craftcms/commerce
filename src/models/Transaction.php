@@ -14,7 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
-use yii\behaviors\AttributeTypecastBehavior;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Transaction
@@ -33,135 +33,135 @@ use yii\behaviors\AttributeTypecastBehavior;
 class Transaction extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
      * @var int Order ID
      */
-    public $orderId;
+    public int $orderId;
 
     /**
-     * @var int Parent transaction ID
+     * @var int|null Parent transaction ID
      */
-    public $parentId;
+    public ?int $parentId = null;
 
     /**
-     * @var int User ID
+     * @var int|null User ID
      */
-    public $userId;
+    public ?int $userId = null;
 
     /**
      * @var string Hash
      */
-    public $hash;
+    public string $hash;
 
     /**
      * @var int Gateway ID
      */
-    public $gatewayId;
+    public int $gatewayId;
 
     /**
      * @var string Currency
      */
-    public $currency;
+    public string $currency;
 
     /**
-     * The the payment amount in the payment currency.
+     * The payment amount in the payment currency.
      * Multiplying this by the `paymentRate`, give you the `amount`.
      *
      * @var float Payment Amount
      */
-    public $paymentAmount;
+    public float $paymentAmount;
 
     /**
      * @var string Payment currency
      */
-    public $paymentCurrency;
+    public string $paymentCurrency;
 
     /**
      * @var float Payment Rate
      */
-    public $paymentRate;
+    public float $paymentRate;
 
     /**
      * @var string Transaction Type
      */
-    public $type;
+    public string $type;
 
     /**
      * The amount in the currency (which is the currency of the order)
      *
      * @var float Amount
      */
-    public $amount;
+    public float $amount;
 
     /**
      * @var string Status
      */
-    public $status;
+    public string $status;
 
     /**
      * @var string reference
      */
-    public $reference;
+    public string $reference;
 
     /**
      * @var string Code
      */
-    public $code;
+    public string $code;
 
     /**
      * @var string Message
      */
-    public $message;
+    public string $message;
 
     /**
      * @var string Note
      */
-    public $note = '';
+    public string $note = '';
 
     /**
-     * @var Mixed Response
+     * @var mixed Response
      */
     public $response;
 
     /**
      * @var DateTime|null The date that the transaction was created
      */
-    public $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null The date that the transaction was last updated
      */
-    public $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
-     * @var Gateway
+     * @var Gateway|null
      */
-    private $_gateway;
+    private ?Gateway $_gateway = null;
 
     /**
-     * @var
+     * @var Transaction|null
      */
-    private $_parentTransaction;
+    private ?Transaction $_parentTransaction = null;
 
     /**
-     * @var Order
+     * @var Order|null
      */
-    private $_order;
+    private ?Order $_order = null;
 
     /**
-     * @var Transaction[]
+     * @var Transaction[]|null
      */
-    private $_children;
+    private ?array $_children = null;
 
 
     /**
      * @inheritdoc
      */
-    public function __construct($attributes = null)
+    public function __construct($attributes = [])
     {
         // generate unique hash
         $this->hash = md5(uniqid(mt_rand(), true));
@@ -169,25 +169,38 @@ class Transaction extends Model
         parent::__construct($attributes);
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function init(): void
+    {
+        $primaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
+
+        if (!isset($this->currency)) {
+            $this->currency = $primaryCurrency;
+        }
+
+        if (!isset($this->paymentCurrency)) {
+            $this->paymentCurrency = $primaryCurrency;
+        }
+
+        parent::init();
+    }
+
+    /**
+     * @return array
+     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
 
-        $behaviors['typecast'] = [
-            'class' => AttributeTypecastBehavior::class,
-            'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
-                'hash' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
-        ];
-
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
-            'defaultCurrency' => $this->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'defaultCurrency' => $this->currency,
             'currencyAttributes' => $this->currencyAttributes(),
             'attributeCurrencyMap' => [
-                'paymentAmount' => $this->paymentCurrency
-            ]
+                'paymentAmount' => $this->paymentCurrency,
+            ],
         ];
 
         return $behaviors;
@@ -201,14 +214,14 @@ class Transaction extends Model
         return [
             'amount',
             'paymentAmount',
-            'refundableAmount'
+            'refundableAmount',
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function attributes()
+    public function attributes(): array
     {
         $names = parent::attributes();
         ArrayHelper::removeValue($names, 'response');
@@ -218,7 +231,7 @@ class Transaction extends Model
     /**
      * @inheritDoc
      */
-    public function extraFields()
+    public function extraFields(): array
     {
         return [
             'response',
@@ -227,6 +240,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canCapture(): bool
     {
@@ -235,6 +249,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canRefund(): bool
     {
@@ -243,6 +258,7 @@ class Transaction extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getRefundableAmount(): float
     {
@@ -251,8 +267,9 @@ class Transaction extends Model
 
     /**
      * @return Transaction|null
+     * @throws InvalidConfigException
      */
-    public function getParent()
+    public function getParent(): ?Transaction
     {
         if (null === $this->_parentTransaction && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
@@ -263,10 +280,11 @@ class Transaction extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
-    public function getOrder()
+    public function getOrder(): ?Order
     {
-        if (null === $this->_order) {
+        if (null === $this->_order && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -276,7 +294,7 @@ class Transaction extends Model
     /**
      * @param Order $order
      */
-    public function setOrder(Order $order)
+    public function setOrder(Order $order): void
     {
         $this->_order = $order;
         $this->orderId = $order->id;
@@ -284,8 +302,9 @@ class Transaction extends Model
 
     /**
      * @return Gateway|null
+     * @throws InvalidConfigException
      */
-    public function getGateway()
+    public function getGateway(): ?Gateway
     {
         if (null === $this->_gateway && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
@@ -297,7 +316,7 @@ class Transaction extends Model
     /**
      * @param Gateway $gateway
      */
-    public function setGateway(Gateway $gateway)
+    public function setGateway(Gateway $gateway): void
     {
         $this->_gateway = $gateway;
     }
@@ -306,14 +325,15 @@ class Transaction extends Model
      * Returns child transactions.
      *
      * @return Transaction[]
+     * @throws InvalidConfigException
      */
     public function getChildTransactions(): array
     {
-        if ($this->_children === null) {
+        if (null === $this->_children && $this->id) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
-        return $this->_children;
+        return $this->_children ?? [];
     }
 
     /**
@@ -321,9 +341,9 @@ class Transaction extends Model
      *
      * @param Transaction $transaction
      */
-    public function addChildTransaction(Transaction $transaction)
+    public function addChildTransaction(Transaction $transaction): void
     {
-        if ($this->_children === null) {
+        if (!isset($this->_children)) {
             $this->_children = [];
         }
 
@@ -335,7 +355,7 @@ class Transaction extends Model
      *
      * @param array $transactions
      */
-    public function setChildTransactions(array $transactions)
+    public function setChildTransactions(array $transactions): void
     {
         $this->_children = $transactions;
     }
@@ -343,12 +363,10 @@ class Transaction extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['type', 'status', 'orderId'], 'required'];
-
-        return $rules;
+        return [
+            [['type', 'status', 'orderId'], 'required'],
+        ];
     }
 }

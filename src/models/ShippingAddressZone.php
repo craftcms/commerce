@@ -11,8 +11,11 @@ use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
+use craft\helpers\ArrayHelper;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
+use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Shipping zone model.
@@ -31,45 +34,57 @@ use craft\validators\UniqueValidator;
 class ShippingAddressZone extends Model implements AddressZoneInterface
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Description
+     * @var string|null Description
      */
-    public $description;
+    public ?string $description = null;
 
     /**
      * @var bool Default
      */
-    public $default = false;
+    public bool $default = false;
 
     /**
-     * @var string The code to match the zip code.
+     * @var string|null The code to match the zip code.
      * @since 2.2
      */
-    public $zipCodeConditionFormula;
+    public ?string $zipCodeConditionFormula = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @var bool Country based
      */
-    private $_isCountryBased = true;
+    private bool $_isCountryBased = true;
 
     /**
-     * @var Country[]
+     * @var Country[]|null
      */
-    private $_countries;
+    private ?array $_countries = null;
 
     /**
-     * @var State[]
+     * @var State[]|null
      */
-    private $_states;
+    private ?array $_states = null;
 
 
     /**
@@ -100,6 +115,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountryIds(): array
     {
@@ -116,14 +132,15 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns all countries in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountries(): array
     {
-        if (null === $this->_countries) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId((int)$this->id);
+        if ($this->_countries === null && $this->id) {
+            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId($this->id);
         }
 
-        return $this->_countries;
+        return $this->_countries ?? [];
     }
 
     /**
@@ -131,46 +148,42 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      *
      * @param Country[] $countries
      */
-    public function setCountries($countries)
+    public function setCountries(array $countries): void
     {
         $this->_countries = $countries;
     }
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStateIds(): array
     {
-        $states = [];
-
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->id;
-        }
-
-        return $states;
+        return ArrayHelper::getColumn($this->getStates(), 'id');
     }
 
     /**
      * Returns all states in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getStates(): array
     {
-        if ($this->_states === null) {
+        if ($this->_states === null && $this->id) {
             $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
         }
 
-        return $this->_states;
+        return $this->_states ?? [];
     }
 
     /**
-     * @return string
+     * @return string|null
      * @since 2.2
      */
-    public function getZipCodeConditionFormula(): string
+    public function getZipCodeConditionFormula(): ?string
     {
-        return (string)$this->zipCodeConditionFormula;
+        return $this->zipCodeConditionFormula;
     }
 
     /**
@@ -178,7 +191,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      *
      * @param State[] $states
      */
-    public function setStates($states)
+    public function setStates(array $states): void
     {
         $this->_states = $states;
     }
@@ -187,55 +200,59 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * Returns the names of all countries in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getCountriesNames(): array
     {
-        $countries = [];
-
-        foreach ($this->getCountries() as $country) {
-            $countries[] = $country->name;
-        }
-
-        return $countries;
+        return ArrayHelper::getColumn($this->getCountries(), 'name');
     }
 
     /**
      * Returns the names of all states in this Shipping Zone.
      *
      * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getStatesLabels]] instead.
      */
     public function getStatesNames(): array
     {
-        $states = [];
+        return $this->getStatesLabels();
+    }
 
-        /** @var State $state */
-        foreach ($this->getStates() as $state) {
-            $states[] = $state->getLabel();
-        }
-
-        return $states;
+    /**
+     * Returns the labels of all states in this Shipping Zone.
+     *
+     * @return array
+     * @throws InvalidConfigException
+     */
+    public function getStatesLabels(): array
+    {
+        return ArrayHelper::getColumn($this->getStates(), 'label');
     }
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']];
-        $rules[] = [
-            ['states'], 'required', 'when' => static function($model) {
-                return !$model->isCountryBased;
-            }
+        return [
+            [['name'], 'required'],
+            [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
+            [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
+            [
+                ['states'],
+                'required',
+                'when' => static function($model) {
+                    return !$model->isCountryBased;
+                },
+            ],
+            [
+                ['countries'],
+                'required',
+                'when' => static function($model) {
+                    return $model->isCountryBased;
+                },
+            ],
         ];
-        $rules[] = [
-            ['countries'], 'required', 'when' => static function($model) {
-                return $model->isCountryBased;
-            }
-        ];
-
-        return $rules;
     }
 }

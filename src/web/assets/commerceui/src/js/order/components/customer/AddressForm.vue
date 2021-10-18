@@ -95,7 +95,7 @@
         </div>
         <div class="w-1/2 px-1">
             <field :label="$options.filters.t('State', 'commerce')" :errors="getErrors('state')" v-slot:default="slotProps">
-                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateName" @input="update($event, self())"  v-if="!hasStates"/>
+                <input :id="slotProps.id" type="text" class="text w-full" v-model="address.stateValue" @input="update($event, self())"  v-if="!hasStates"/>
                 <select-input
                     ref="vSelect"
                     label="name"
@@ -242,21 +242,39 @@
         },
 
         methods: {
+            countryHasStates(countryId) {
+                return (this.states[countryId] !== undefined);
+            },
+
             handleCountryChange(option) {
+                const previousCountryId = this.address.countryId;
                 this.countrySelect = option;
                 this.address.countryId = this.countrySelect.id;
+
                 this.$emit('countryUpdate', this.countrySelect);
 
-                if (!this.hasStates) {
-                    this.address.stateName = null;
+                if (this.address.countryId != previousCountryId
+                    &&
+                    (
+                        this.countryHasStates(this.address.countryId)
+                        ||
+                        (!this.countryHasStates(this.address.countryId) && this.countryHasStates(previousCountryId))
+                    )
+                ) {
                     this.address.stateValue = null;
+                    this.address.stateId = null;
+                    this.address.stateName = null;
+                    this.$emit('stateUpdate', null);
                 }
+
                 this.validate(this.address);
             },
 
             handleStateChange(option) {
                 this.stateSelect = option;
                 this.address.stateName = null;
+                this.address.stateId = null;
+                this.address.stateText = null;
                 this.address.stateValue = this.stateSelect.id;
                 this.$emit('stateUpdate', this.stateSelect);
                 this.validate(this.address);
@@ -287,7 +305,15 @@
             },
 
             validate(address) {
-                this.$store.dispatch('validateAddress', address).then((data) => {
+                this.$emit('updateValidating', true);
+
+                let _address = Object.assign({}, address);
+                // Remove 'new' from id prop as this is only for JS use.
+                if (_address.id === 'new') {
+                    _address.id = null;
+                }
+
+                this.$store.dispatch('validateAddress', _address).then((data) => {
                     if (!data.success && data.errors) {
                         this.errors = data.errors;
                         this.$emit('errors', true);
@@ -296,6 +322,7 @@
                         this.$emit('errors', false);
                         this.$emit('update', this.address);
                     }
+                    this.$emit('updateValidating', false);
                 });
             },
 
@@ -342,7 +369,7 @@
             },
 
             hasStates() {
-                return (this.country && Object.keys(this.states).indexOf(this.country.id) !== -1)
+                return (this.country && this.states[this.country.id] !== undefined);
             },
         },
 

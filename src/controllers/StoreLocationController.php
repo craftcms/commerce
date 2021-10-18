@@ -10,7 +10,9 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\web\Response;
+use yii\db\Exception;
+use yii\web\BadRequestHttpException;
+use yii\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
@@ -26,7 +28,7 @@ class StoreLocationController extends BaseStoreSettingsController
         }
 
         $variables = [
-            'storeLocation' => $storeLocation
+            'storeLocation' => $storeLocation,
         ];
 
         return $this->renderTemplate('commerce/store-settings/location/index', $variables);
@@ -35,8 +37,12 @@ class StoreLocationController extends BaseStoreSettingsController
 
     /**
      * Saves the store location setting
+     *
+     * @return Response
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSaveStoreLocation()
+    public function actionSaveStoreLocation(): Response
     {
         $this->requirePostRequest();
 
@@ -73,7 +79,7 @@ class StoreLocationController extends BaseStoreSettingsController
             'custom1',
             'custom2',
             'custom3',
-            'custom4'
+            'custom4',
         ];
         foreach ($attributes as $attr) {
             $address->$attr = Craft::$app->getRequest()->getParam($attr);
@@ -90,7 +96,7 @@ class StoreLocationController extends BaseStoreSettingsController
         $this->setFailFlash(Craft::t('commerce', 'Couldn’t save Store Location.'));
 
         $variables = [
-            'storeLocation' => $address
+            'storeLocation' => $address,
         ];
 
         // Send the model back to the template

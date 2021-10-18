@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use DateTime;
 
 /**
  * Tax rate model.
@@ -28,82 +29,106 @@ use craft\i18n\Locale;
 class TaxRate extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Code
+     * @var string|null Code
      * @since 2.2
      */
-    public $code;
+    public ?string $code = null;
 
     /**
      * @var float Rate
      */
-    public $rate = .00;
+    public float $rate = .00;
 
     /**
      * @var bool Include
      */
-    public $include;
+    public bool $include = false;
+
+    /**
+     * @var bool Remove the included tax rate
+     * @since 3.4
+     */
+    public bool $removeIncluded = false;
+
+    /**
+     * @var bool Remove the included vat tax rate
+     * @since 3.4
+     */
+    public bool $removeVatIncluded = false;
 
     /**
      * @var bool Is VAT
      */
-    public $isVat = false;
+    public bool $isVat = false;
 
     /**
      * @var string taxable
      */
-    public $taxable = 'price';
+    public string $taxable = 'price';
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Is this the tax rate for the lite edition
+     * @var bool Is this the tax rate for the lite edition
      */
-    public $isLite;
+    public bool $isLite = false;
 
     /**
-     * @var int Tax zone ID
+     * @var int|null Tax zone ID
      */
-    public $taxZoneId;
+    public ?int $taxZoneId = null;
 
     /**
-     * @var TaxCategory
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_taxCategory;
+    public ?DateTime $dateCreated = null;
 
     /**
-     * @var TaxAddressZone
+     * @var DateTime|null
+     * @since 3.4
      */
-    private $_taxZone;
+    public ?DateTime $dateUpdated = null;
+
+    /**
+     * @var TaxCategory|null
+     */
+    private ?TaxCategory $_taxCategory = null;
+
+    /**
+     * @var TaxAddressZone|null
+     */
+    private ?TaxAddressZone $_taxZone = null;
 
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [
-            ['taxCategoryId'], 'required', 'when' => function($model): bool {
-                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-            }
+        return [
+            [['name'], 'required'],
+            [
+                ['taxCategoryId'],
+                'required',
+                'when' => function($model): bool {
+                    return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
+                },
+            ],
         ];
-
-        return $rules;
     }
 
     /**
@@ -127,9 +152,9 @@ class TaxRate extends Model
     /**
      * @return TaxAddressZone|null
      */
-    public function getTaxZone()
+    public function getTaxZone(): ?TaxAddressZone
     {
-        if (null === $this->_taxZone && $this->taxZoneId) {
+        if ($this->_taxZone === null && $this->taxZoneId) {
             $this->_taxZone = Plugin::getInstance()->getTaxZones()->getTaxZoneById($this->taxZoneId);
         }
 
@@ -139,9 +164,9 @@ class TaxRate extends Model
     /**
      * @return TaxCategory|null
      */
-    public function getTaxCategory()
+    public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory) {
+        if (null === $this->_taxCategory && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 

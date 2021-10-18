@@ -23,7 +23,7 @@ trait Routes
     /**
      * @since 3.1.10
      */
-    private function _registerSiteRoutes()
+    private function _registerSiteRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_SITE_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce/webhooks/process-webhook/gateway/<gatewayId:\d+>'] = 'commerce/webhooks/process-webhook';
@@ -33,7 +33,7 @@ trait Routes
     /**
      * @since 2.0
      */
-    private function _registerCpRoutes()
+    private function _registerCpRoutes(): void
     {
         Event::on(UrlManager::class, UrlManager::EVENT_REGISTER_CP_URL_RULES, function(RegisterUrlRulesEvent $event) {
             $event->rules['commerce'] = ['template' => 'commerce/index'];
@@ -55,11 +55,6 @@ trait Routes
             $event->rules['commerce/settings/producttypes/<productTypeId:\d+>'] = 'commerce/product-types/edit-product-type';
             $event->rules['commerce/settings/producttypes/new'] = 'commerce/product-types/edit-product-type';
 
-            // @todo remove the following three lines at the next breakpoint
-            $event->rules['commerce/settings/subscriptions/plans'] = 'commerce/plans/redirect';
-            $event->rules['commerce/settings/subscriptions/plan/<planId:\d+>'] = 'commerce/plans/redirect';
-            $event->rules['commerce/settings/subscriptions/plan/new'] = 'commerce/plans/redirect';
-
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
 
@@ -67,6 +62,7 @@ trait Routes
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
+            $event->rules['commerce/addresses/new'] = 'commerce/addresses/edit';
             $event->rules['commerce/addresses/<addressId:\d+>'] = 'commerce/addresses/edit';
 
             $event->rules['commerce/settings/general'] = 'commerce/settings/edit';

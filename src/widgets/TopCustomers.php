@@ -39,32 +39,32 @@ class TopCustomers extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange;
 
     /**
-     * @var string Options 'total', 'average'.
+     * @var string|null Options 'total', 'average'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var TopCustomersStat
      */
-    private $_stat;
+    private TopCustomersStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @inheritDoc
      */
-    public function init()
+    public function init(): void
     {
         $this->_typeOptions = [
             'total' => Craft::t('commerce', 'Total'),
@@ -88,13 +88,13 @@ class TopCustomers extends Widget
                 break;
             }
         }
-        $this->dateRange = !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopCustomersStat(
             $this->dateRange,
             $this->type,
-            DateTimeHelper::toDateTime($this->startDate),
-            DateTimeHelper::toDateTime($this->endDate)
+            DateTimeHelper::toDateTime($this->startDate, true),
+            DateTimeHelper::toDateTime($this->endDate, true)
         );
 
         parent::init();
@@ -135,7 +135,7 @@ class TopCustomers extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle()
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -143,9 +143,13 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getBodyHtml()
+    public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);

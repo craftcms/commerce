@@ -15,13 +15,9 @@
                                    data-model-name="{{ name }}"/>
                             {{ include('shop/_private/address/address') }}
                         </div>
-                        <div class="actions">
-                            <ul>
-                                <li>
-                                    <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
-                                       href="{{ url('/shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
-                                </li>
-                            </ul>
+                        <div>
+                            <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
+                               href="{{ url('/shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
                         </div>
                     </label>
                 </div>

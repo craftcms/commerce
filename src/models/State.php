@@ -10,12 +10,14 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
  * State model.
  *
  * @property Country $country
+ * @property-read string $label
  * @property string $cpEditUrl
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -23,46 +25,55 @@ use yii\base\InvalidConfigException;
 class State extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Abbreviation
+     * @var string|null Abbreviation
      */
-    public $abbreviation;
+    public ?string $abbreviation = null;
 
     /**
-     * @var int Country ID
+     * @var int|null Country ID
      */
-    public $countryId;
+    public ?int $countryId = null;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
-     * @var int Ordering
+     * @var int|null Ordering
      */
-    public $sortOrder;
+    public ?int $sortOrder = null;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateCreated = null;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public ?DateTime $dateUpdated = null;
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
-
-        return $rules;
+        return [
+            [['countryId', 'name', 'abbreviation'], 'required'],
+        ];
     }
 
     /**
@@ -78,7 +89,7 @@ class State extends Model
      */
     public function __toString(): string
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
@@ -96,6 +107,7 @@ class State extends Model
 
     /**
      * @return string
+     * @throws InvalidConfigException
      */
     public function getLabel(): string
     {

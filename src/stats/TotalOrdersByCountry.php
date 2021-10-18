@@ -25,23 +25,21 @@ class TotalOrdersByCountry extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalOrdersByCountry';
+    protected string $_handle = 'totalOrdersByCountry';
 
     /**
      * @var string Type of stat e.g. 'shipping' or 'billing'.
      */
-    public $type = 'shipping';
+    public string $type = 'shipping';
 
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
-        if ($type) {
-            $this->type = $type;
-        }
+        $this->type = $type ?? $this->type;
 
         parent::__construct($dateRange, $startDate, $endDate);
     }
@@ -53,9 +51,9 @@ class TotalOrdersByCountry extends Stat
     {
         $query = $this->_createStatQuery();
         $query->select([
-            new Expression('COUNT([[orders.id]]) as total'),
-            ($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]') . ' as id',
-            ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]') . ' as name',
+            'id' => ($this->type == 'billing' ? '[[bc.id]]' : '[[sc.id]]'),
+            'name' => ($this->type == 'billing' ? '[[bc.name]]' : '[[sc.name]]'),
+            'total' => new Expression('COUNT([[orders.id]])'),
         ]);
         $query->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]');
         $query->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]');
@@ -82,8 +80,8 @@ class TotalOrdersByCountry extends Stat
 
         $otherCountries = $this->_createStatQuery()
             ->select([
-                new Expression('COUNT([[orders.id]]) as total'),
-                new Expression('NULL as id'),
+                'total' => new Expression('COUNT([[orders.id]])'),
+                'id' => new Expression('NULL'),
             ])
             ->leftJoin(Table::ADDRESSES . ' s', '[[s.id]] = [[orders.shippingAddressId]]')
             ->leftJoin(Table::ADDRESSES . ' b', '[[b.id]] = [[orders.billingAddressId]]')

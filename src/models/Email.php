@@ -7,12 +7,12 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Email as EmailRecord;
 use yii\base\InvalidArgumentException;
+use yii\base\InvalidConfigException;
 
 /**
  * Email model.
@@ -27,74 +27,74 @@ use yii\base\InvalidArgumentException;
 class Email extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string Subject
+     * @var string|null Subject
      */
-    public $subject;
+    public ?string $subject = null;
 
     /**
      * @var string Recipient Type
      */
-    public $recipientType;
+    public string $recipientType = EmailRecord::TYPE_CUSTOMER;
 
     /**
-     * @var string To
+     * @var string|null To
      */
-    public $to;
+    public ?string $to = null;
 
     /**
-     * @var string Bcc
+     * @var string|null Bcc
      */
-    public $bcc;
+    public ?string $bcc = null;
 
     /**
-     * @var string Cc
+     * @var string|null Cc
      */
-    public $cc;
+    public ?string $cc = null;
 
     /**
-     * @var string Reply to
+     * @var string|null Reply to
      */
-    public $replyTo;
+    public ?string $replyTo = null;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
-     * @var string Template path
+     * @var string|null Template path
      */
-    public $templatePath;
+    public ?string $templatePath = null;
 
     /**
-     * @var string Plain Text Template path
+     * @var string|null Plain Text Template path
      */
-    public $plainTextTemplatePath;
+    public ?string $plainTextTemplatePath = null;
 
     /**
-     * @var int The PDF UID.
+     * @var int|null The PDF UID.
      */
-    public $pdfId;
+    public ?int $pdfId = null;
 
     /**
      * @var string The language.
      */
-    public $language;
+    public string $language = EmailRecord::LOCALE_ORDER_LANGUAGE;
 
     /**
-     * @var string UID
+     * @var string|null UID
      */
-    public $uid;
+    public ?string $uid = null;
 
     /**
      * Determines the language this pdf, if
@@ -120,24 +120,26 @@ class Email extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['subject', 'name', 'templatePath', 'language'], 'required'];
-        $rules[] = [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]];
-        $rules[] = [
-            ['to'], 'required', 'when' => static function($model) {
-                return $model->recipientType == EmailRecord::TYPE_CUSTOM;
-            }
+        return [
+            [['subject', 'name', 'templatePath', 'language'], 'required'],
+            [['recipientType'], 'in', 'range' => [EmailRecord::TYPE_CUSTOMER, EmailRecord::TYPE_CUSTOM]],
+            [
+                ['to'],
+                'required',
+                'when' => static function($model) {
+                    return $model->recipientType == EmailRecord::TYPE_CUSTOM;
+                },
+            ],
         ];
-        return $rules;
     }
 
     /**
      * @return Pdf|null
+     * @throws InvalidConfigException
      */
-    public function getPdf()
+    public function getPdf(): ?Pdf
     {
         if (!$this->pdfId) {
             return null;
@@ -146,23 +148,10 @@ class Email extends Model
     }
 
     /**
-     * @deprecated in 3.2.0 Use $email->getPdf()->templatePath instead
-     */
-    public function getPdfTemplatePath()
-    {
-        Craft::$app->getDeprecator()->log('\craft\commerce\models\Email::getPdfTemplatePath()', '\craft\commerce\models\Email::getPdfTemplatePath(), use \craft\commerce\models\Email::getPdf()->getTemplatePath() instead.');
-
-        if ($pdf = $this->getPdf()) {
-            return $pdf->templatePath;
-        }
-
-        return "";
-    }
-
-    /**
      * Returns the field layout config for this email.
      *
      * @return array
+     * @throws InvalidConfigException
      * @since 3.2.0
      */
     public function getConfig(): array
@@ -178,7 +167,7 @@ class Email extends Model
             'enabled' => (bool)$this->enabled,
             'plainTextTemplatePath' => $this->plainTextTemplatePath ?? null,
             'templatePath' => $this->templatePath ?: null,
-            'language' => $this->language
+            'language' => $this->language,
         ];
 
         if ($pdf = $this->getPdf()) {

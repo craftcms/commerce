@@ -14,6 +14,11 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
 use craft\i18n\Locale;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -39,7 +44,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxCategories()->getAllTaxCategories();
 
         return $this->renderTemplate('commerce/tax/taxrates/index', [
-            'taxRates' => $taxRates
+            'taxRates' => $taxRates,
         ]);
     }
 
@@ -47,7 +52,12 @@ class TaxRatesController extends BaseTaxSettingsController
      * @param int|null $id
      * @param TaxRate|null $taxRate
      * @return Response
+     * @throws ForbiddenHttpException
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $id = null, TaxRate $taxRate = null): Response
     {
@@ -79,7 +89,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
-            ['value' => '', 'label' => '']
+            ['value' => '', 'label' => ''],
         ];
 
         foreach ($taxZones as $model) {
@@ -141,9 +151,11 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws ForbiddenHttpException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         if (!Plugin::getInstance()->getTaxes()->editTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');
@@ -158,6 +170,8 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
@@ -182,14 +196,16 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'taxRate' => $taxRate
+            'taxRate' => $taxRate,
         ]);
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws ForbiddenHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): Response
     {
         if (!Plugin::getInstance()->getTaxes()->deleteTaxRates()) {
             throw new ForbiddenHttpException('Tax engine does not permit you to perform this action');

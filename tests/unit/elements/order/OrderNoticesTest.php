@@ -7,12 +7,9 @@
 
 namespace craftcommercetests\unit\elements\order;
 
-use Craft;
 use Codeception\Test\Unit;
-use craft\commerce\adjusters\Discount;
+use Craft;
 use craft\commerce\elements\Order;
-use craft\commerce\models\LineItem;
-use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use UnitTester;
@@ -28,28 +25,29 @@ class OrderNoticesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Order
      */
-    protected $order;
+    protected Order $order;
 
     /**
      * @var string
      */
-    protected $originalEdition;
+    protected string $originalEdition;
 
     /**
-     *
+     * @var Plugin|null
      */
-    protected $pluginInstance;
+    protected ?Plugin $pluginInstance;
 
     /**
      * @group OrderNotices
      */
-    public function testOrderNotices()
+    public function testOrderNotices(): void
     {
+        /** @var OrderNotice $firstNotice */
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [
@@ -67,6 +65,7 @@ class OrderNoticesTest extends Unit
         self::assertEquals($firstNotice->message, $firstNotice->message);
         self::assertCount(1, $notices);
 
+        /** @var OrderNotice $secondNotice */
         $secondNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [
@@ -88,7 +87,7 @@ class OrderNoticesTest extends Unit
     /**
      * @group OrderNotices
      */
-    public function testClearOrderNotices()
+    public function testClearOrderNotices(): void
     {
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
@@ -153,7 +152,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -167,7 +166,7 @@ class OrderNoticesTest extends Unit
     /**
      *
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 

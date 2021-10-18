@@ -24,6 +24,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\User;
 use craft\elements\User as UserElement;
 use craft\errors\ElementNotFoundException;
+use craft\errors\MissingComponentException;
 use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use Throwable;
@@ -31,10 +32,10 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 use yii\base\Component;
-use yii\base\Event;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\db\Expression;
+use yii\db\StaleObjectException;
 use yii\web\UserEvent;
 
 /**
@@ -52,9 +53,9 @@ class Customers extends Component
     const SESSION_CUSTOMER = 'commerce_customer';
 
     /**
-     * @var Customer
+     * @var Customer|null
      */
-    private $_customer;
+    private ?Customer $_customer = null;
 
     /**
      * @event CustomerEvent The event that is triggered before customer details is saved.
@@ -155,7 +156,7 @@ class Customers extends Component
      * @param int $id
      * @return Customer|null
      */
-    public function getCustomerById(int $id)
+    public function getCustomerById(int $id): ?Customer
     {
         $row = $this->_createCustomerQuery()
             ->where(['id' => $id])
@@ -229,7 +230,7 @@ class Customers extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                 'address' => $address,
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -241,7 +242,7 @@ class Customers extends Component
         if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
-                'addressId' => $address->id
+                'addressId' => $address->id,
             ])->one();
 
             if (!$customerAddress) {
@@ -256,7 +257,7 @@ class Customers extends Component
                 if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS)) {
                     $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                         'address' => $address,
-                        'customer' => $customer
+                        'customer' => $customer,
                     ]));
                 }
 
@@ -280,11 +281,11 @@ class Customers extends Component
         // Fire a 'beforeSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
-        if (!$customer->id) {
+        if (!isset($customer->id)) {
             $customerRecord = new CustomerRecord();
         } else {
             $customerRecord = CustomerRecord::findOne($customer->id);
@@ -301,9 +302,11 @@ class Customers extends Component
             return false;
         }
 
-        $customerRecord->userId = $customer->userId;
-        $customerRecord->primaryBillingAddressId = $customer->primaryBillingAddressId;
-        $customerRecord->primaryShippingAddressId = $customer->primaryShippingAddressId;
+        $customerRecord->setAttributes([
+            'userId' => $customer->userId,
+            'primaryBillingAddressId' => $customer->primaryBillingAddressId,
+            'primaryShippingAddressId' => $customer->primaryShippingAddressId,
+        ]);
 
         $customerRecord->validate();
         $customer->addErrors($customerRecord->getErrors());
@@ -319,7 +322,7 @@ class Customers extends Component
         // Fire a 'afterSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -329,22 +332,33 @@ class Customers extends Component
     /**
      * Get all address IDs for a customer by its ID.
      *
-     * @param $customerId
+     * @param int $customerId
      * @return array
+     * @throws InvalidConfigException
      */
-    public function getAddressIds($customerId): array
+    public function getAddressIdsByCustomerId(int $customerId): array
     {
         $ids = [];
 
         if ($customerId) {
             $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
-
-            foreach ($addresses as $address) {
-                $ids[] = $address->id;
-            }
+            $ids = ArrayHelper::getColumn($addresses, 'id');
         }
 
         return $ids;
+    }
+
+    /**
+     * Get all address IDs for a customer by its ID.
+     *
+     * @param $customerId
+     * @return array
+     * @throws InvalidConfigException
+     * @deprecated in 4.0. Use [[getAddressIdsByCustomerId()]] instead.
+     */
+    public function getAddressIds($customerId): array
+    {
+        return $this->getAddressIdsByCustomerId($customerId);
     }
 
     /**
@@ -352,16 +366,38 @@ class Customers extends Component
      *
      * @param Customer $customer
      * @return mixed
+     * @throws Throwable
+     * @throws StaleObjectException
+     * @deprecated in 4.0. Use [[deleteCustomerById()]] instead.
      */
-    public function deleteCustomer($customer)
+    public function deleteCustomer(Customer $customer)
     {
         $customer = CustomerRecord::findOne($customer->id);
 
-        if ($customer) {
-            return $customer->delete();
+        if (null === $customer) {
+            return null;
         }
 
-        return null;
+        return $this->deleteCustomerById($customer->id);
+    }
+
+    /**
+     * Deletes a customer by its ID
+     *
+     * @param int $id
+     * @return bool
+     * @throws StaleObjectException
+     * @throws Throwable
+     */
+    public function deleteCustomerById(int $id): bool
+    {
+        $customer = CustomerRecord::findOne($id);
+
+        if ($customer) {
+            return $customer->delete() !== false;
+        }
+
+        return false;
     }
 
     /**
@@ -369,7 +405,7 @@ class Customers extends Component
      *
      * @since 2.2
      */
-    public function purgeOrphanedCustomers()
+    public function purgeOrphanedCustomers(): void
     {
         $customers = (new Query())
             ->select(['[[customers.id]] id'])
@@ -392,8 +428,13 @@ class Customers extends Component
      * When a user logs in, consolidate all his/her orders.
      *
      * @param UserEvent $event
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     * @throws MissingComponentException
      */
-    public function loginHandler(UserEvent $event)
+    public function loginHandler(UserEvent $event): void
     {
         // Remove the old customer from the session.
         $this->forgetCustomer();
@@ -410,7 +451,7 @@ class Customers extends Component
     /**
      * Forgets a Customer by deleting the customer from session and request.
      */
-    public function forgetCustomer()
+    public function forgetCustomer(): void
     {
         $this->_customer = null;
 
@@ -426,6 +467,7 @@ class Customers extends Component
      * @param User $user
      * @param Order[]|null the orders con consolidate. If null, all guest orders associated with the user's email will be fetched
      * @return bool
+     * @throws Throwable
      */
     public function consolidateOrdersToUser(User $user, array $orders = null): bool
     {
@@ -486,7 +528,7 @@ class Customers extends Component
      * @param $id
      * @return Customer|null
      */
-    public function getCustomerByUserId($id)
+    public function getCustomerByUserId($id): ?Customer
     {
         $row = $this->_createCustomerQuery()
             ->where(['userId' => $id])
@@ -519,63 +561,79 @@ class Customers extends Component
      * Handle the user logout.
      *
      * @param UserEvent $event
+     * @throws InvalidConfigException
+     * @throws MissingComponentException
      */
-    public function logoutHandler(UserEvent $event)
+    public function logoutHandler(UserEvent $event): void
     {
-        // Reset the sessions customer.
+        // Reset the session's customer.
         Plugin::getInstance()->getCarts()->forgetCart();
         $this->forgetCustomer();
     }
 
     /**
      * Sets the last used addresses on the customer on order completion.
+     *
+     * Consolidates any other orders using the same email address.
+     *
      * Duplicates the address records used for the order so they are independent to the
      * customers address book.
      *
      * @param Order $order
+     * @throws ElementNotFoundException
+     * @throws Exception
+     * @throws Throwable
+     * @throws \yii\db\Exception
      */
-    public function orderCompleteHandler($order)
+    public function orderCompleteHandler(Order $order): void
     {
-        $orderAddressesMutated = $this->_copyAddressesToOrder($order);
+        // Create a user account if requested
 
         $this->_createUserFromOrder($order);
 
+        // Consolidate orders for email address
+        // This may change the customer on the order (which might drop the address ID's from the order), but
+        // that is ok, since the _copyAddressesToOrder below will save the addresses.
+        $this->consolidateGuestOrdersByEmail($order->email, $order);
+
+        // Ensures that the completed order only has address IDs that belong ONLY to the order, and not an address book.
+        $orderAddressesMutated = $this->_copyAddressesToOrder($order);
+
         if ($orderAddressesMutated) {
-            // We don't need to update search indexes since the addresses are the same.
+            // We don't need to update search indexes since the address contents are the same.
             Craft::$app->getElements()->saveElement($order, false, false, false);
         }
 
-        // Consolidate guest orders
-        $this->consolidateGuestOrdersByEmail($order->email, $order);
-    }
+        // Copy address to guest customer's address book if they have no addresses
+        $customer = $order->getCustomer();
+        if ($customer && !$customer->userId && empty($customer->getAddresses()) && ($order->billingAddressId || $order->shippingAddressId)) {
+            $addressesUpdated = false;
+            if ($order->billingAddressId && $billingAddress = $order->getBillingAddress()) {
+                $billingAddress->id = null;
+                if ($this->saveAddress($billingAddress, $customer, false)) {
+                    $customer->primaryBillingAddressId = $billingAddress->id;
+                    $addressesUpdated = true;
+                }
+            }
 
-    /**
-     * Id of current customer record. Guaranteed not null
-     *
-     * @return int
-     * @throws Exception
-     * @deprecated in 3.1.11. Use `Customers::getCustomer()->id` instead.
-     */
-    public function getCustomerId(): int
-    {
-        Craft::$app->getDeprecator()->log('Customers::getCustomerId()', '`Customers::getCustomerId()` has been deprecated. Use `Customers::getCustomer()->id`, since it is guaranteed to have a ID.');
+            if ($order->shippingAddressId) {
+                $shippingAddress = $order->getShippingAddress();
+                if ($shippingAddress && $shippingAddress->sameAs($order->getBillingAddress())) {
+                    // Don't create two addresses in the address book if they are the same
+                    $customer->primaryShippingAddressId = $customer->primaryBillingAddressId;
+                    $addressesUpdated = true;
+                } else if ($shippingAddress) {
+                    $shippingAddress->id = null;
+                    if ($this->saveAddress($shippingAddress, $customer, false)) {
+                        $customer->primaryShippingAddressId = $shippingAddress->id;
+                        $addressesUpdated = true;
+                    }
+                }
+            }
 
-        return $this->getCustomer()->id;
-    }
-
-    /**
-     * Handle a saved user.
-     *
-     * @param Event $event
-     * @throws Exception
-     * @deprecated in 3.1.11. Use afterSaveUserHandler() instead.
-     */
-    public function saveUserHandler(Event $event)
-    {
-        Craft::$app->getDeprecator()->log('Customers::saveUserHandler()', '`Customers::saveUserHandler()` has been deprecated. Use `Customers::afterSaveUserHandler()` instead.');
-
-        if ($customer = $this->getCustomerByUserId($event->sender->id)) {
-            $this->_updatePreviousOrderEmails($customer->id, $event->sender->email);
+            if ($addressesUpdated) {
+                $this->saveCustomer($customer);
+            }
         }
     }
 
@@ -586,23 +644,23 @@ class Customers extends Component
      * @return Query
      * @since 3.1
      */
-    public function getCustomersQuery($search = null): Query
+    public function getCustomersQuery(string $search = null): Query
     {
         $customersQuery = (new Query())
             ->select([
-                'customers.id as id',
-                'userId',
-                new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END as email'),
-                'primaryBillingAddressId',
-                'billing.firstName as billingFirstName',
-                'billing.lastName as billingLastName',
-                'billing.fullName as billingFullName',
                 'billing.address1 as billingAddress',
-                'shipping.firstName as shippingFirstName',
-                'shipping.lastName as shippingLastName',
-                'shipping.fullName as shippingFullName',
-                'shipping.address1 as shippingAddress',
+                'billing.firstName as billingFirstName',
+                'billing.fullName as billingFullName',
+                'billing.lastName as billingLastName',
+                'customers.id as id',
+                'email' => new Expression('CASE WHEN [[orders.email]] IS NULL THEN [[users.email]] ELSE [[orders.email]] END'),
+                'primaryBillingAddressId',
                 'primaryShippingAddressId',
+                'shipping.address1 as shippingAddress',
+                'shipping.firstName as shippingFirstName',
+                'shipping.fullName as shippingFullName',
+                'shipping.lastName as shippingLastName',
+                'userId',
             ])
             ->from(Table::CUSTOMERS . ' customers')
             ->leftJoin(Table::ORDERS . ' orders', '[[orders.customerId]] = [[customers.id]]')
@@ -625,7 +683,7 @@ class Customers extends Component
             ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                ['not', ['customers.userId' => null]]
+                ['not', ['customers.userId' => null]],
             ]);
 
         if ($search) {
@@ -658,39 +716,51 @@ class Customers extends Component
      *
      * @param string $email
      * @param Order|null $order
+     * @throws InvalidConfigException
      * @throws \yii\db\Exception
      * @since 3.1.4
      */
-    public function consolidateGuestOrdersByEmail(string $email, $order = null)
+    public function consolidateGuestOrdersByEmail(string $email, Order $order = null): void
     {
-        $customerId = (new Query())
-            ->select('orders.customerId')
-            ->from(Table::ORDERS . ' orders')
-            ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
-            ->where(['orders.email' => $email])
-            ->andWhere(['orders.isCompleted' => true])
-            // we want the customers related to a userId to be listed first, then by their latest order
-            ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
-            ->scalar(); // get the first customerId in the result
+        // Consolidation customer for this email
+        $customerId = null;
 
-        // Prefer the user's customer
+        // Try and find a customer related to a user with this email address
         if ($user = User::find()->email($email)->anyStatus()->one()) {
-            $customer = $this->getCustomerByUserId($user->id);
-
-            if ($customer && $customer->id != $customerId) {
+            if ($customer = $this->getCustomerByUserId($user->id)) {
                 $customerId = $customer->id;
             }
         }
 
+        // Try and find a customer past orders with this email address
+        if (!$customerId) {
+            $customerId = (new Query())
+                ->select('orders.customerId')
+                ->from(Table::ORDERS . ' orders')
+                ->innerJoin(Table::CUSTOMERS . ' customers', '[[customers.id]] = [[orders.customerId]]')
+                ->where(['orders.email' => $email])
+                ->andWhere(['orders.isCompleted' => true])
+                // we want the customers related to a userId to be listed first, then by their latest order
+                ->orderBy('[[customers.userId]] DESC, [[orders.dateOrdered]] ASC')
+                ->scalar();
+        }
+
+        // If we have no customer at this point, we have nothing to consolidate to
         if (!$customerId) {
             return;
+        }
+
+        // If we have a current order, lets update it with the consolidation customer now.
+        if ($order && $order->customerId != $customerId) {
+            $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+            $order->setCustomer($customer);
         }
 
         // Get completed orders for other customers with the same email but not the same customer
         $orders = (new Query())
             ->select([
                 'id' => 'orders.id',
-                'userId' => 'customers.userId'
+                'userId' => 'customers.userId',
             ])
             ->where(['and', ['[[orders.email]]' => $email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
             ->leftJoin(Table::CUSTOMERS . ' customers', '[[orders.customerId]] = [[customers.id]]')
@@ -698,26 +768,15 @@ class Customers extends Component
             ->all();
 
         foreach ($orders as $orderRow) {
-            $userId = $orderRow['userId'];
             $orderId = $orderRow['id'];
+            $userId = $orderRow['userId'];
 
             if (!$userId) {
-                // Dont use element save, just update DB directly
-                if ($order && $order instanceof Order) {
-                    $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
-                    if (!$customer) {
-                        throw new Exception('Can’t find customer to assign order to');
-                    }
-                    $order->setCustomer($customer);
-                }
-
                 Craft::$app->getDb()->createCommand()
-                    ->update(Table::ORDERS, [
-                        'customerId' => $customerId,
-                    ], [
-                        'id' => $orderId,
-                    ])
-                    ->execute();
+                    ->update(Table::ORDERS,
+                        ['customerId' => $customerId],
+                        ['id' => $orderId]
+                    )->execute();
             }
         }
     }
@@ -732,80 +791,33 @@ class Customers extends Component
         $mutated = false;
         // Now duplicate the addresses on the order
         $addressesService = Plugin::getInstance()->getAddresses();
-        if ($order->billingAddress) {
-            $snapshotBillingAddress = new Address($order->billingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'fullName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'address3',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'label',
-                    'notes',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName',
-                    'custom1',
-                    'custom2',
-                    'custom3',
-                    'custom4',
-                ]
-            ));
-            $originalBillingAddressId = $snapshotBillingAddress->id;
-            $snapshotBillingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotBillingAddress, false)) {
+
+        if ($originalBillingAddress = $order->getBillingAddress()) {
+            // Address ID could be null if the orders customer just got switched during order completion.
+            // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
+            $originalBillingAddressId = $originalBillingAddress->id;
+            $newBillingAddress = new Address();
+            $newBillingAddress->attributes = $originalBillingAddress->attributes;
+            $newBillingAddress->id = null;
+            if ($addressesService->saveAddress($newBillingAddress, false)) {
                 $mutated = true;
-                $order->setBillingAddress($snapshotBillingAddress);
+                $order->setBillingAddress($newBillingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
             }
         }
 
-        if ($order->shippingAddress) {
-            $snapshotShippingAddress = new Address($order->shippingAddress->toArray([
-                    'id',
-                    'attention',
-                    'title',
-                    'firstName',
-                    'lastName',
-                    'fullName',
-                    'countryId',
-                    'stateId',
-                    'address1',
-                    'address2',
-                    'address3',
-                    'city',
-                    'zipCode',
-                    'phone',
-                    'alternativePhone',
-                    'label',
-                    'notes',
-                    'businessName',
-                    'businessTaxId',
-                    'businessId',
-                    'stateName',
-                    'custom1',
-                    'custom2',
-                    'custom3',
-                    'custom4',
-                ]
-            ));
-            $originalShippingAddressId = $snapshotShippingAddress->id;
-            $snapshotShippingAddress->id = null;
-            if ($addressesService->saveAddress($snapshotShippingAddress, false)) {
+        if ($originalShippingAddress = $order->getShippingAddress()) {
+            // Address ID could be null if the orders customer just got switched during order completion.
+            // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
+            $originalShippingAddressId = $originalShippingAddress->id;
+            $newShippingAddress = new Address();
+            $newShippingAddress->attributes = $originalShippingAddress->attributes;
+            $newShippingAddress->id = null;
+            if ($addressesService->saveAddress($newShippingAddress, false)) {
                 $mutated = true;
-                $order->setShippingAddress($snapshotShippingAddress);
+                $order->setShippingAddress($newShippingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -822,7 +834,7 @@ class Customers extends Component
      * @throws Throwable
      * @throws ElementNotFoundException
      */
-    public function _createUserFromOrder(Order $order)
+    private function _createUserFromOrder(Order $order): void
     {
         // Only do this if requested
         if (!$order->registerUserOnOrderComplete) {
@@ -831,11 +843,6 @@ class Customers extends Component
 
         // Only if on pro edition
         if (Craft::$app->getEdition() != Craft::Pro) {
-            return;
-        }
-
-        // If a user is logged in, then don't create a user account
-        if (Craft::$app->getUser()->getIdentity()) {
             return;
         }
 
@@ -901,13 +908,13 @@ class Customers extends Component
      * @param array $context
      * @since 2.2
      */
-    public function addEditUserCustomerInfoTab(array &$context)
+    public function addEditUserCustomerInfoTab(array &$context): void
     {
         $currentUser = Craft::$app->getUser()->getIdentity();
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
                 'label' => Craft::t('commerce', 'Customer Info'),
-                'url' => '#customerInfo'
+                'url' => '#customerInfo',
             ];
         }
     }
@@ -937,7 +944,7 @@ class Customers extends Component
         Craft::$app->getView()->registerAssetBundle(CommerceCpAsset::class);
         return Craft::$app->getView()->renderTemplate('commerce/customers/_includes/_editUserTab', [
             'customer' => $customer,
-            'addressRedirect' => $context['user']->getCpEditUrl(),
+            'addressRedirect' => $context['user']->getCpEditUrl() . '#customerInfo',
         ]);
     }
 
@@ -945,7 +952,7 @@ class Customers extends Component
      * @param ModelEvent $event
      * @throws Exception
      */
-    public function afterSaveUserHandler(ModelEvent $event)
+    public function afterSaveUserHandler(ModelEvent $event): void
     {
         $user = $event->sender;
         $customer = $this->getCustomerByUserId($user->id);
@@ -987,10 +994,13 @@ class Customers extends Component
     public function eagerLoadCustomerForOrders(array $orders): array
     {
         $customerIds = ArrayHelper::getColumn($orders, 'customerId');
-        $customersResults = $this->_createCustomerQuery()->andWhere(['id' => $customerIds])->all();
+        $customersResults = $this->_createCustomerQuery()
+            ->andWhere(['id' => $customerIds])
+            ->andWhere(['not', ['userId' => null]])
+            ->all();
 
         $customers = [];
-        $userIds = array_filter(ArrayHelper::getColumn($customersResults, 'userId'));
+        $userIds = ArrayHelper::getColumn($customersResults, 'userId');
         $users = User::find()->id($userIds)->limit(null)->all();
 
         foreach ($customersResults as $result) {
@@ -1015,11 +1025,11 @@ class Customers extends Component
     }
 
     /**
-     * @param $customerId
-     * @param $email
+     * @param int $customerId
+     * @param string $email
      * @throws \yii\db\Exception
      */
-    private function _updatePreviousOrderEmails(int $customerId, string $email)
+    private function _updatePreviousOrderEmails(int $customerId, string $email): void
     {
         $orderIds = (new Query())
             ->select(['orders.id'])
@@ -1044,10 +1054,12 @@ class Customers extends Component
     {
         return (new Query())
             ->select([
+                'dateCreated',
+                'dateUpdated',
                 'id',
-                'userId',
                 'primaryBillingAddressId',
-                'primaryShippingAddressId'
+                'primaryShippingAddressId',
+                'userId',
             ])
             ->from([Table::CUSTOMERS]);
     }

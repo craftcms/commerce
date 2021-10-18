@@ -1,0 +1,129 @@
+{% extends "commerce/_layouts/promotions" %}
+{% set selectedSidebarNavItem = 'sales' %}
+
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Couldn’t reorder sale.',
+  'Delete',
+  'Disabled',
+  'Duration',
+  'Effect',
+  'Enabled',
+  'Name',
+  'No sales exist yet.',
+  'No',
+  'Overrides previous?',
+  'Sale reordered.',
+  'Set status',
+  'Stops subsequent?',
+  'Yes',
+]) %}
+
+{% block actionButton %}
+    {% if currentUser.can('commerce-createSales') %}
+        <a href="{{ url('commerce/promotions/sales/new') }}" class="btn submit add icon">{{ 'New sale'|t('commerce') }}</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <p>{{ 'Sales are pricing rules that apply to your product catalog.'|t('commerce') }}</p>
+    <div id="sales-vue-admin-table"></div>
+
+    {% hook "cp.commerce.sales.index" %}
+{% endblock %}
+
+{% set tableData = [] %}
+{% for sale in sales %}
+  {% set effect %}
+      {% if sale.apply == 'byPercent' or sale.apply == 'toPercent' %}
+          {{ sale.applyAmountAsPercent }}
+          {{ sale.apply == 'byPercent' ? '(off original price)'|t('commerce') : '(of original price)'|t('commerce') }}
+      {% else %}
+          {{ sale.applyAmountAsFlat|commerceCurrency(craft.commerce.paymentCurrencies.primaryPaymentCurrency.iso,convert=true) }}
+          {{ sale.apply == 'byFlat' ? '(off original price)'|t('commerce') : '(new price)'|t('commerce') }}
+      {% endif %}
+{% endset %}
+
+  {% set dateRange = (sale.dateFrom ? sale.dateFrom|datetime('short') : '∞') ~ ' - ' ~ (sale.dateTo ? sale.dateTo|datetime('short') : '∞') %}
+  {% if not sale.dateFrom and not sale.dateTo %}
+    {% set dateRange = '∞' %}
+  {% endif %}
+  {% set tableData = tableData|merge([{
+    id: sale.id,
+    title: sale.name|t('site'),
+    url: url('commerce/promotions/sales/' ~ sale.id),
+    status: sale.enabled ? true : false,
+    duration: dateRange,
+    effect: effect,
+    ignore: sale.ignorePrevious ? true : false,
+    stop: sale.stopProcessing ? true : false,
+  }]) %}
+{% endfor %}
+
+
+{% js %}
+var actions = [
+    {
+        label: Craft.t('commerce', 'Set status'),
+        actions: [
+            {
+                label: Craft.t('commerce', 'Enabled'),
+                action: 'commerce/sales/update-status',
+                param: 'status',
+                value: 'enabled',
+                status: 'enabled'
+            },
+            {
+                label: Craft.t('commerce', 'Disabled'),
+                action: 'commerce/sales/update-status',
+                param: 'status',
+                value: 'disabled',
+                status: 'disabled'
+            },
+        ]
+    },
+    {
+        label: Craft.t('commerce', 'Delete'),
+        action: 'commerce/sales/delete',
+        error: true
+    }
+];
+
+var columns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Name') },
+    { name: 'duration', title: Craft.t('commerce', 'Duration') },
+    { name: 'effect', title: Craft.t('commerce', 'Effect') },
+    { name: 'ignore', title: Craft.t('commerce', 'Overrides previous?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+
+            return '';
+        }
+    },
+    { name: 'stop', title: Craft.t('commerce', 'Stops subsequent?'),
+        callback: function(value) {
+            if (value) {
+                return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+            }
+
+            return '';
+        }
+    }
+];
+
+new Craft.VueAdminTable({
+  actions: actions,
+  checkboxes: true,
+  columns: columns,
+  container: '#sales-vue-admin-table',
+  deleteAction: {{ currentUser.can('commerce-deleteSales')? '"commerce/sales/delete"' : 'null' }},
+  emptyMessage: Craft.t('commerce', 'No sales exist yet.'),
+  padded: true,
+  reorderAction: 'commerce/sales/reorder',
+  reorderSuccessMessage: Craft.t('commerce', 'Sale reordered.') ,
+  reorderFailMessage:    Craft.t('commerce', 'Couldn’t reorder sale.'),
+  tableData: {{ tableData|json_encode|raw }}
+});
+{% endjs %}

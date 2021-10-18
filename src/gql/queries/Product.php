@@ -36,13 +36,19 @@ class Product extends Query
                 'type' => Type::listOf(ProductInterface::getType()),
                 'args' => ProductArguments::getArguments(),
                 'resolve' => ProductResolver::class . '::resolve',
-                'description' => 'This query is used to query for products.'
+                'description' => 'This query is used to query for products.',
+            ],
+            'productCount' => [
+                'type' => Type::nonNull(Type::int()),
+                'args' => ProductArguments::getArguments(),
+                'resolve' => ProductResolver::class . '::resolveCount',
+                'description' => 'This query is used to return the number of products.',
             ],
             'product' => [
                 'type' => ProductInterface::getType(),
                 'args' => ProductArguments::getArguments(),
                 'resolve' => ProductResolver::class . '::resolveOne',
-                'description' => 'This query is used to query for a product.'
+                'description' => 'This query is used to query for a product.',
             ],
         ];
     }

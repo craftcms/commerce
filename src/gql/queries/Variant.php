@@ -36,13 +36,19 @@ class Variant extends Query
                 'type' => Type::listOf(VariantInterface::getType()),
                 'args' => VariantArguments::getArguments(),
                 'resolve' => VariantResolver::class . '::resolve',
-                'description' => 'This query is used to query for variants.'
+                'description' => 'This query is used to query for variants.',
+            ],
+            'variantCount' => [
+                'type' => Type::nonNull(Type::int()),
+                'args' => VariantArguments::getArguments(),
+                'resolve' => VariantResolver::class . '::resolveCount',
+                'description' => 'This query is used to return the number of variants.',
             ],
             'variant' => [
                 'type' => VariantInterface::getType(),
                 'args' => VariantArguments::getArguments(),
                 'resolve' => VariantResolver::class . '::resolveOne',
-                'description' => 'This query is used to query for a variant.'
+                'description' => 'This query is used to query for a variant.',
             ],
         ];
     }

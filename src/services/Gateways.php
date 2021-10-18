@@ -28,7 +28,11 @@ use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
 use yii\base\Component;
+use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\web\ServerErrorHttpException;
 use function get_class;
 
 /**
@@ -46,12 +50,12 @@ class Gateways extends Component
     /**
      * @var array|null Gateway setting overrides
      */
-    private $_overrides;
+    private ?array $_overrides = null;
 
     /**
      * @var array|null All gateways
      */
-    private $_allGateways;
+    private ?array $_allGateways = null;
 
     /**
      * @event RegisterComponentTypesEvent The event that is triggered for the registration of additional gateways.
@@ -86,11 +90,11 @@ class Gateways extends Component
     {
         $gatewayTypes = [
             Dummy::class,
-            Manual::class
+            Manual::class,
         ];
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $gatewayTypes
+            'types' => $gatewayTypes,
         ]);
         $this->trigger(self::EVENT_REGISTER_GATEWAY_TYPES, $event);
 
@@ -101,6 +105,7 @@ class Gateways extends Component
      * Returns all customer enabled gateways.
      *
      * @return GatewayInterface[] All gateways that are enabled for frontend
+     * @throws InvalidConfigException
      */
     public function getAllCustomerEnabledGateways(): array
     {
@@ -112,6 +117,7 @@ class Gateways extends Component
      * Returns all subscription gateways.
      *
      * @return array
+     * @throws InvalidConfigException
      */
     public function getAllSubscriptionGateways(): array
     {
@@ -124,6 +130,7 @@ class Gateways extends Component
      * Returns all gateways
      *
      * @return GatewayInterface[] All gateways
+     * @throws InvalidConfigException
      */
     public function getAllGateways(): array
     {
@@ -135,6 +142,12 @@ class Gateways extends Component
      *
      * @param int $id gateway ID
      * @return bool Whether the archiving was successful or not
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     * @throws \yii\db\Exception
      */
     public function archiveGatewayById(int $id): bool
     {
@@ -154,7 +167,7 @@ class Gateways extends Component
             ->update(Table::ORDERS,
                 [
                     'gatewayId' => null,
-                    'paymentSourceId' => null
+                    'paymentSourceId' => null,
                 ],
                 [
                     'and',
@@ -172,8 +185,9 @@ class Gateways extends Component
      *
      * @param int $id
      * @return GatewayInterface|null The gateway or null if not found.
+     * @throws InvalidConfigException
      */
-    public function getGatewayById(int $id)
+    public function getGatewayById(int $id): ?GatewayInterface
     {
         return ArrayHelper::firstWhere($this->_getAllGateways(), 'id', $id);
     }
@@ -183,6 +197,7 @@ class Gateways extends Component
      *
      * @param string $handle
      * @return Gateway|GatewayInterface|null The gateway or null if not found.
+     * @throws InvalidConfigException
      */
     public function getGatewayByHandle(string $handle)
     {
@@ -196,6 +211,10 @@ class Gateways extends Component
      * @param bool $runValidation Whether the gateway should be validated
      * @return bool Whether the gateway was saved successfully or not.
      * @throws Exception
+     * @throws InvalidConfigException
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function saveGateway(Gateway $gateway, bool $runValidation = true): bool
     {
@@ -229,9 +248,9 @@ class Gateways extends Component
                 'handle' => $gateway->handle,
                 'type' => get_class($gateway),
                 'settings' => $gateway->getSettings(),
-                'sortOrder' => (int)($gateway->sortOrder ?? 99),
+                'sortOrder' => ($gateway->sortOrder ?? 99),
                 'paymentType' => $gateway->paymentType,
-                'isFrontendEnabled' => (bool)$gateway->isFrontendEnabled,
+                'isFrontendEnabled' => $gateway->isFrontendEnabled,
             ];
         }
 
@@ -254,7 +273,7 @@ class Gateways extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleChangedGateway(ConfigEvent $event)
+    public function handleChangedGateway(ConfigEvent $event): void
     {
         $gatewayUid = $event->tokenMatches[0];
         $data = $event->newValue;
@@ -291,7 +310,7 @@ class Gateways extends Component
      * @return void
      * @throws Throwable if reasons
      */
-    public function handleArchivedGateway(ConfigEvent $event)
+    public function handleArchivedGateway(ConfigEvent $event): void
     {
         $gatewayUid = $event->tokenMatches[0];
 
@@ -317,6 +336,11 @@ class Gateways extends Component
      *
      * @param array $ids Array of gateways.
      * @return bool Always true.
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function reorderGateways(array $ids): bool
     {
@@ -341,6 +365,7 @@ class Gateways extends Component
      *
      * @param mixed $config The gateway’s class name, or its config, with a `type` value and optionally a `settings` value
      * @return GatewayInterface The gateway
+     * @throws InvalidConfigException
      */
     public function createGateway($config): GatewayInterface
     {
@@ -382,9 +407,11 @@ class Gateways extends Component
      *
      * @param string $handle The gateway handle
      * @return array|null
+     * @throws \craft\errors\DeprecationException
      * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
+     * // TODO Only remove once Craft 4 has lightswitch and dropdown overrides in core
      */
-    public function getGatewayOverrides(string $handle)
+    public function getGatewayOverrides(string $handle): ?array
     {
         if ($this->_overrides === null) {
             $this->_overrides = Craft::$app->getConfig()->getConfigFromFile('commerce-gateways');
@@ -409,17 +436,17 @@ class Gateways extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'type',
-                'name',
-                'handle',
-                'paymentType',
-                'isFrontendEnabled',
-                'isArchived',
                 'dateArchived',
+                'handle',
+                'id',
+                'isArchived',
+                'isFrontendEnabled',
+                'name',
+                'paymentType',
                 'settings',
+                'sortOrder',
+                'type',
                 'uid',
-                'sortOrder'
             ])
             ->orderBy(['sortOrder' => SORT_ASC])
             ->from([Table::GATEWAYS]);
@@ -442,8 +469,9 @@ class Gateways extends Component
 
     /**
      * @return GatewayInterface[]|array|null
+     * @throws InvalidConfigException
      */
-    private function _getAllGateways()
+    private function _getAllGateways(): ?array
     {
         if ($this->_allGateways === null) {
             $gateways = $this->_createGatewayQuery()

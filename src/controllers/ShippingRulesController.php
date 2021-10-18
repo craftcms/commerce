@@ -15,6 +15,11 @@ use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
 use craft\helpers\Json;
 use craft\helpers\Localization;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
+use yii\base\Exception;
+use yii\base\InvalidRouteException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
@@ -33,6 +38,10 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param ShippingRule|null $shippingRule
      * @return Response
      * @throws HttpException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
      */
     public function actionEdit(int $methodId = null, int $ruleId = null, ShippingRule $shippingRule = null): Response
     {
@@ -56,10 +65,6 @@ class ShippingRulesController extends BaseShippingSettingsController
                 $variables['shippingRule'] = new ShippingRule();
             }
         }
-
-        // TODO: check if the following two lines can be removed
-        // $variables['countries'] = ['' => ''] + $plugin->getCountries()->getAllCountriesAsList();
-        // $variables['states'] = $plugin->getStates()->getAllStatesAsList();
 
         $this->getView()->setNamespace('new');
 
@@ -91,7 +96,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Disallow'), 'value' => ShippingRuleCategoryRecord::CONDITION_DISALLOW];
         $variables['categoryShippingOptions'][] = ['label' => Craft::t('commerce', 'Require'), 'value' => ShippingRuleCategoryRecord::CONDITION_REQUIRE];
 
-        if ($variables['shippingRule'] && $variables['shippingRule'] instanceof ShippingRule) {
+        if ($variables['shippingRule'] instanceof ShippingRule) {
             $categoryModels = $variables['shippingRule']->getShippingRuleCategories();
             // Localize numbers
             $localizeAttributes = [
@@ -131,17 +136,20 @@ class ShippingRulesController extends BaseShippingSettingsController
      * Duplicates a shipping rule.
      *
      * @return Response|null
+     * @throws InvalidRouteException
      * @since 3.2
      */
-    public function actionDuplicate()
+    public function actionDuplicate(): ?Response
     {
         return $this->runAction('save', ['duplicate' => true]);
     }
 
     /**
-     * @throws HttpException
+     * @param bool $duplicate
+     * @throws BadRequestHttpException
+     * @throws Exception
      */
-    public function actionSave($duplicate = false)
+    public function actionSave(bool $duplicate = false): void
     {
         $this->requirePostRequest();
 
@@ -218,33 +226,28 @@ class ShippingRulesController extends BaseShippingSettingsController
 
     /**
      * @throws HttpException
+     * @throws ProductTypeNotFoundException
      */
     public function actionDelete(): Response
     {
         $this->requirePostRequest();
-        $request = Craft::$app->getRequest();
+        $this->requireAcceptsJson();
 
         if (!$id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
 
-        if (!$shippingRule = Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
+        if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 
         $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
 
-        if ($request->getAcceptsJson()) {
-            if ($deleted) {
-                return $this->asJson(['success' => true]);
-            } else {
-                return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
-            }
+        if ($deleted) {
+            return $this->asJson(['success' => true]);
         }
 
-        if ($deleted) {
-            return $this->redirectToPostedUrl($shippingRule); // It is deleted but we use the model to get the methodId to redirect back.
-        }
+        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
     }
 }

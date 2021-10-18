@@ -7,6 +7,8 @@
 
 namespace craft\commerce\base;
 
+use DateTime;
+
 /**
  * Stat Trait
  *
@@ -18,40 +20,40 @@ trait StatTrait
     /**
      * @var bool
      */
-    public $cache = false;
+    public bool $cache = false;
 
     /**
      * @var int How long to cache the data, in seconds.
      */
-    public $cacheDuration = 0;
-
-    /**
-     * @var string
-     */
-    public $dateRange = StatInterface::DATE_RANGE_TODAY;
-
-    /**
-     * @var int
-     */
-    public $weekStartDay = 1; // Monday
-
-    /**
-     * @var string
-     */
-    protected $_handle;
-
-    /**
-     * @var null|\DateTime
-     */
-    private $_startDate = null;
-
-    /**
-     * @var null|\DateTime
-     */
-    private $_endDate = null;
+    public int $cacheDuration = 0;
 
     /**
      * @var string|null
      */
-    private $_cacheKey;
+    public ?string $dateRange = StatInterface::DATE_RANGE_TODAY;
+
+    /**
+     * @var int
+     */
+    public int $weekStartDay = 1; // Monday
+
+    /**
+     * @var string
+     */
+    protected string $_handle;
+
+    /**
+     * @var null|DateTime
+     */
+    private ?DateTime $_startDate = null;
+
+    /**
+     * @var null|DateTime
+     */
+    private ?DateTime $_endDate = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $_cacheKey = null;
 }

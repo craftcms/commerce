@@ -10,7 +10,6 @@ namespace craft\commerce\services;
 use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\RequestResponseInterface;
-use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\RefundException;
@@ -24,11 +23,14 @@ use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\db\Query;
-use craft\helpers\ArrayHelper;
 use Exception;
 use Throwable;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use yii\base\Component;
+use yii\base\ExitException;
+use yii\base\InvalidConfigException;
 
 /**
  * Payments service.
@@ -237,7 +239,7 @@ class Payments extends Component
      * @throws PaymentException if the payment was unsuccessful
      * @throws Throwable if reasons
      */
-    public function processPayment(Order $order, BasePaymentForm $form, &$redirect, &$transaction)
+    public function processPayment(Order $order, BasePaymentForm $form, ?string &$redirect, ?Transaction &$transaction): void
     {
         // Raise the 'beforeProcessPaymentEvent' event
         $event = new ProcessPaymentEvent(compact('order', 'form'));
@@ -298,7 +300,7 @@ class Payments extends Component
             // For redirects or unsuccessful transactions, save the transaction before bailing
             if ($response->isRedirect()) {
                 $this->_handleRedirect($response, $redirect);
-                return null;
+                return;
             }
 
             if ($transaction->status !== TransactionRecord::STATUS_SUCCESS) {
@@ -333,7 +335,7 @@ class Payments extends Component
         // Raise 'beforeCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -342,7 +344,7 @@ class Payments extends Component
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -369,7 +371,7 @@ class Payments extends Component
 
         /// Raise 'afterRefundTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_REFUND_TRANSACTION)) {
-            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'amount')));
+            $this->trigger(self::EVENT_AFTER_REFUND_TRANSACTION, new RefundTransactionEvent(compact('transaction', 'refundTransaction', 'amount')));
         }
 
         return $refundTransaction;
@@ -439,7 +441,7 @@ class Payments extends Component
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
             $this->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -460,80 +462,16 @@ class Payments extends Component
     }
 
     /**
-     * Gets the total transactions amount really paid (not authorized).
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated 3.1.11. Use getTotalPaid() instead.
-     */
-    public function getTotalPaidForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalPaidForOrder()', '`Payments::getTotalPaidForOrder()` has been deprecated. Use `Order::getTotalPaid()` instead.');
-
-        return $order->getTotalPaid();
-    }
-
-    /**
-     * Gets the total transactions amount refunded.
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalRefundedForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalRefundedForOrder()', '`Payments::getTotalRefundedForOrder()` has been deprecated.');
-
-        // Since this method was only used by getTotalPaidForOrder, we don't need to move this to the order model since the logic is inside Order::getTotalPaid()
-        $transactions = ArrayHelper::where($order->getTransactions(), static function(Transaction $transaction) {
-            return ($transaction->status == TransactionRecord::STATUS_SUCCESS && $transaction->type == TransactionRecord::TYPE_REFUND);
-        });
-
-        return array_sum(ArrayHelper::getColumn($transactions, 'amount', false));
-    }
-
-    /**
-     * Gets the total transactions amount with authorized.
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalAuthorizedOnlyForOrder(Order $order): float
-    {
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedOnlyForOrder()', '`Payments::getTotalAuthorizedOnlyForOrder()` has been deprecated. Use `Order::getTotalAuthorized()` instead.');
-
-        return $order->getTotalAuthorized();
-    }
-
-    /**
-     *
-     * @param Order $order
-     * @return float
-     * @deprecated in 3.1.11.
-     */
-    public function getTotalAuthorizedForOrder(Order $order): float
-    {
-        // At time of deprecation this method has no internal uses.
-        Craft::$app->getDeprecator()->log('Payments::getTotalAuthorizedForOrder()', '`Payments::getTotalAuthorizedForOrder()` has been deprecated. It is not an accurate result since it does not take the amount paid from the authorized. Use `Order::getTotalAuthorized()` instead.');
-
-        return (float)(new Query())
-            ->from([Table::TRANSACTIONS])
-            ->where([
-                'orderId' => $order->id,
-                'status' => TransactionRecord::STATUS_SUCCESS,
-                'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
-            ])
-            ->sum('amount');
-    }
-
-
-    /**
      * Handles a redirect.
      *
      * @param RequestResponseInterface $response
      * @param                          $redirect
      * @return mixed
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws \yii\base\Exception
+     * @throws ExitException
      */
     private function _handleRedirect(RequestResponseInterface $response, &$redirect)
     {
@@ -586,6 +524,7 @@ class Payments extends Component
      * @param Transaction $parent
      * @return Transaction
      * @throws TransactionException if unable to save transaction
+     * @throws InvalidConfigException
      */
     private function _capture(Transaction $parent): Transaction
     {
@@ -630,9 +569,10 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
-            $amount = ($amount ?: $parent->amount);
-            $child->paymentAmount = $amount;
-            $child->amount = $amount / $parent->paymentRate;
+            // If amount is not supplied refund the full amount
+            $child->paymentAmount = $amount ?: $parent->getRefundableAmount();
+            // Calculate amount in the primary currency
+            $child->amount = $child->paymentAmount / $parent->paymentRate;
             $child->note = $note;
 
             $gateway = $parent->getGateway();
@@ -659,7 +599,7 @@ class Payments extends Component
      * @param Transaction $child
      * @throws TransactionException
      */
-    private function _saveTransaction($child)
+    private function _saveTransaction($child): void
     {
         if (!Plugin::getInstance()->getTransactions()->saveTransaction($child)) {
             throw new TransactionException('Error saving transaction: ' . implode(', ', $child->errors));
@@ -672,13 +612,13 @@ class Payments extends Component
      * @param Transaction $transaction
      * @param RequestResponseInterface $response
      */
-    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response)
+    private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response): void
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isProcessing()) {
+        } else if ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
-        } elseif ($response->isRedirect()) {
+        } else if ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
         } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;

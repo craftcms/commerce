@@ -1,0 +1,285 @@
+{% import "_includes/forms" as forms %}
+
+{% macro lazyCreateSelect(selectParams, newOptionLabel, modalHeading, html, js, action, successText) %}
+
+    {% from "_includes/forms" import selectField %}
+    {{ selectField(selectParams) }}
+
+    {% js %}
+    (function() {
+        var $select = $('#{{ selectParams.id }}').selectize({
+                dropdownParent: 'body'
+            });
+
+            var selectize = $select.get(0).selectize;
+
+            selectize.addOption({
+                value: 'new',
+                text: '{{ newOptionLabel|e("js") }}'
+            });
+
+            selectize.on('item_add', function(value, $item) {
+                if (value == 'new') {
+                    // Not a real option
+                    selectize.clear();
+
+                    var $form = $(
+                    '<form class="modal fitted lazy-create-modal">' +
+                    '<div class="header">' +
+                        '<h1 class="centeralign">{{ modalHeading }}</h1>' +
+                        '</div>' +
+                    '<div class="body">' +
+                        '{{ html|e("js") }}' +
+                        '</div>' +
+                    '<div class="footer">' +
+                        '<div class="buttons right">' +
+                            '<div class="btn cancel-btn">{{ "Cancel"|t('commerce') }}</div>' +
+                            '<input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}"/>' +
+                            '<div class="spinner hidden"/>' +
+                            '</div>' +
+                        '</div>' +
+                    '</form>');
+
+                    var modal = new Garnish.Modal($form, {
+                        onHide: function() {
+                            modal.destroy();
+                            delete modal;
+                        }
+                    });
+
+                    setTimeout(function() {
+                        $form.find('.text:first').focus();
+                        modal.updateSizeAndPosition();
+
+                        $form.find('.body:first').on('resize', function() {
+                            modal.updateSizeAndPosition();
+                        });
+
+                        eval('{{ js|e("js") }}');
+                    }, 100);
+
+                    $form.on('submit', function(ev) {
+                        ev.preventDefault();
+
+                        $form.find('.spinner').removeClass('hidden');
+                        var namespacedData = Garnish.getPostData($form),
+                        data = {};
+
+                        for (var name in namespacedData) {
+                            data[name.replace(/^new\[([^\]]+)\]/, '$1')] = namespacedData[name];
+                        }
+
+                        Craft.postActionRequest('{{ action|e("js") }}', data, function(response, textStatus) {
+                            $form.find('.spinner').addClass('hidden');
+
+                            if (textStatus == 'success') {
+                                if (response.success) {
+                                    Craft.cp.displayNotice('{{ successText|e("js") }}');
+
+                                    selectize.addOption({
+                                        value: response.id,
+                                        text: response.name,
+                                        $order: selectize.order - 1
+                                    });
+
+                                    selectize.setValue(response.id);
+                                    modal.hide();
+                                } else {
+                                    Craft.ui.clearErrorsFromField($form.find('.field'));
+
+                                    for (var attribute in response.errors) {
+                                        Craft.ui.addErrorsToField($('#new-'+attribute+'-field'), response.errors[attribute]);
+                                    }
+
+                                    modal.updateSizeAndPosition();
+                                    Garnish.shake($form);
+                                }
+                            }
+                        });
+                    });
+
+                    $form.find('.cancel-btn').on('click', function() {
+                        modal.hide();
+                    });
+                }
+            });
+        })();
+    {% endjs %}
+
+{% endmacro %}
+
+
+{% from _self import lazyCreateSelect %}
+
+    {{ forms.textField({
+        first: true,
+        label: "Name"|t('commerce'),
+        instructions: "Enter a human-friendly name for this tax rate to be used in the control panel."|t('commerce'),
+        name: 'name',
+        value: taxRate.name,
+        errors: taxRate.getErrors('name'),
+        autofocus: true,
+        required: true
+    }) }}
+
+    {{ forms.textField({
+        label: "Code"|t('commerce'),
+        instructions: "Can be used as an internal reference."|t('commerce'),
+        name: 'code',
+        value: taxRate.code,
+        errors: taxRate.getErrors('code'),
+        class: 'code'
+    }) }}
+
+    {{ forms.selectField({
+        label: 'Taxable Subject'|t('commerce'),
+        instructions: "Select what this rate should be applied to."|t('commerce'),
+        id: 'taxable',
+        name: 'taxable',
+        options: taxables,
+        value: taxRate.taxable,
+    }) }}
+
+    {% set taxZoneSelectParams = {
+        label: "Tax Zone"|t('commerce'),
+        instructions: "Select a tax zone. If empty, this rate will match anywhere."|t('commerce'),
+        id: 'taxZoneId',
+        name: 'taxZoneId',
+        value: taxRate.taxZoneId,
+        errors: taxRate.getErrors('taxZoneId'),
+        required: false,
+        options: taxZones,
+        class: 'selectize fullwidth',
+    } %}
+
+    {{ lazyCreateSelect(
+        taxZoneSelectParams,
+        'New tax zone'|t('commerce'),
+        'Create a new tax zone'|t('commerce'),
+        newTaxZoneFields,
+        newTaxZoneJs,
+        'commerce/tax-zones/save',
+        'Tax zone saved.'|t
+    ) }}
+
+     {% set isVatInput %}
+         {{ forms.checkboxField({
+             label: "EU VAT ID"|t('commerce'),
+             name: 'isVat',
+             checked: taxRate.isVat,
+             errors: taxRate.getErrors('isVat'),
+             toggle: '#isVatContainer'
+         }) }}
+     {% endset %}
+
+    {{ forms.field({
+        label: "Disqualify with valid business tax ID?"|t('commerce'),
+        instructions: "Do not apply this rate if the order address has any of the selected valid business tax IDs."|t('commerce')
+    }, isVatInput) }}
+
+    {% set taxCategorySelectParams = {
+        label: "Tax Category"|t('commerce'),
+        instructions: "Select a tax category."|t('commerce'),
+        id: 'taxCategoryId',
+        name: 'taxCategoryId',
+        value: taxRate.taxCategoryId,
+        errors: taxRate.getErrors('taxCategoryId'),
+        required: true,
+        options: taxCategories,
+        class: 'selectize fullwidth',
+        disabled: hideTaxCategory,
+        fieldClass: 'field' ~ (hideTaxCategory ? ' hidden')
+    } %}
+
+    {{ lazyCreateSelect(
+        taxCategorySelectParams,
+        'New tax category'|t('commerce'),
+        'Create a new tax category'|t('commerce'),
+        newTaxCategoryFields,
+        newTaxCategoryJs,
+        'commerce/tax-categories/save',
+        'Tax category saved.'|t
+    ) }}
+
+    {% set rateInput %}
+    <div class="flex">
+        <div>
+            {{ forms.text({
+                name: 'rate',
+                value: taxRate.rateAsPercent,
+                errors: taxRate.getErrors('rate'),
+                required: true,
+            }) }}
+        </div>
+        <div>
+
+            {{ forms.checkboxField({
+                label: "Included in price?"|t('commerce'),
+                name: 'include',
+                checked: taxRate.include,
+                toggle: '#removeIncludedContainer,#removeVatIncludedContainer',
+                errors: taxRate.getErrors('include'),
+                info: "Enable if this rate should be built into the taxable subject price instead of adding a cost to the order."|t('commerce'),
+            }) }}
+        </div>
+    </div>
+    {% endset %}
+
+    {{ forms.field({
+        label: "Rate"|t('commerce'),
+        instructions: "Enter a percentage like `5%` or `10.5%`."|t('commerce'),
+    }, rateInput) }}
+
+<div id="removeIncludedContainer">
+    {{ forms.lightSwitchField({
+        label: "Adjust price when included rate is disqualified?"|t('commerce'),
+        name: 'removeIncluded',
+        instructions: "If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart."|t('commerce'),
+        on: taxRate.removeIncluded,
+        checked: taxRate.removeIncluded,
+        errors: taxRate.getErrors('removeIncluded'),
+    }) }}
+</div>
+
+<div id="isVatContainer" {% if not taxRate.isVat %} class="hidden"{% endif %}>
+    <div id="removeVatIncludedContainer" {% if not taxRate.include %} class="hidden"{% endif %} style="margin-top: 1.5rem;">
+        {{ forms.lightSwitchField({
+            id: 'removeVatIncluded',
+            label: "Remove the included tax when a valid EU VAT ID is present?"|t('commerce'),
+            name: 'removeVatIncluded',
+            instructions: "If enabled and this rate does not match the order, the rate amount will be removed from the subject price in the cart."|t('commerce'),
+            on: taxRate.removeVatIncluded,
+            checked: taxRate.removeVatIncluded,
+            errors: taxRate.getErrors('removeVatIncluded'),
+        }) }}
+    </div>
+</div>
+
+{% js %}
+{% if taxablesNoTaxCategory is defined and taxablesNoTaxCategory|length %}
+    (function() {
+        var $taxableSelect = $('#taxable');
+        var $taxablesNoTaxCategory = {{ taxablesNoTaxCategory|json_encode|raw }};
+
+        if ($taxableSelect.length) {
+            $taxableSelect.on('change', function(ev) {
+                var $this = $(this);
+                var $taxCategoryField = $('#taxCategoryId');
+                var $selectize = $taxCategoryField.get(0).selectize;
+
+                if ($taxablesNoTaxCategory.indexOf($this.val()) === -1) {
+                    $taxCategoryField.removeAttr('disabled');
+                    $selectize.enable();
+                    $taxCategoryField.parents('.field').removeClass('hidden');
+                    $taxCategoryField.parents('.select.selectize').removeClass('disabled');
+                } else {
+                    $taxCategoryField.attr('disabled', true);
+                    $selectize.disable();
+                    $taxCategoryField.parents('.field').addClass('hidden');
+                    $taxCategoryField.parents('.select.selectize').addClass('disabled');
+                }
+            });
+        }
+    })();
+{% endif %}
+{% endjs %}

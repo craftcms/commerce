@@ -27,10 +27,10 @@ class Products extends Component
      * Get a product by ID.
      *
      * @param int $id
-     * @param int $siteId
+     * @param int|null $siteId
      * @return Product|null
      */
-    public function getProductById(int $id, $siteId = null)
+    public function getProductById(int $id, int $siteId = null): ?Product
     {
         /** @var Product $product */
         $product = Craft::$app->getElements()->getElementById($id, Product::class, $siteId);
@@ -43,7 +43,7 @@ class Products extends Component
      *
      * @param SiteEvent $event
      */
-    public function afterSaveSiteHandler(SiteEvent $event)
+    public function afterSaveSiteHandler(SiteEvent $event): void
     {
         $queue = Craft::$app->getQueue();
         $siteId = $event->oldPrimarySiteId;
@@ -57,8 +57,7 @@ class Products extends Component
                 'criteria' => [
                     'siteId' => $siteId,
                     'status' => null,
-                    'enabledForSite' => false
-                ]
+                ],
             ]));
         }
     }

@@ -9,17 +9,18 @@ namespace craft\commerce\elements\traits;
 
 use Craft;
 use craft\commerce\elements\actions\CopyLoadCartUrl;
-use craft\commerce\elements\actions\DownloadOrderPdf;
+use craft\commerce\elements\actions\DownloadOrderPdfAction;
 use craft\commerce\elements\actions\UpdateOrderStatus;
 use craft\commerce\elements\db\OrderQuery;
-use craft\commerce\elements\Order;
 use craft\commerce\exports\Expanded;
 use craft\commerce\Plugin;
 use craft\elements\actions\Delete;
 use craft\elements\actions\Restore;
-use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\models\FieldLayout;
+use Exception;
 
 trait OrderElementTrait
 {
@@ -43,7 +44,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(self::class);
     }
@@ -156,46 +157,45 @@ trait OrderElementTrait
             {
                 $miniTable = [];
 
-                /** @var Order $this */
                 if ($this->itemSubtotal > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Items'),
-                        'value' => $this->itemSubtotalAsCurrency
+                        'value' => $this->itemSubtotalAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalDiscount > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Discounts'),
-                        'value' => $this->storedTotalDiscountAsCurrency
+                        'value' => $this->storedTotalDiscountAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalShippingCost > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Shipping'),
-                        'value' => $this->storedTotalShippingCostAsCurrency
+                        'value' => $this->storedTotalShippingCostAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalTaxIncluded > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Tax (inc)'),
-                        'value' => $this->storedTotalTaxIncludedAsCurrency
+                        'value' => $this->storedTotalTaxIncludedAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalTax > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Tax'),
-                        'value' => $this->storedTotalTaxAsCurrency
+                        'value' => $this->storedTotalTaxAsCurrency,
                     ];
                 }
 
                 if ($this->storedTotalPrice > 0) {
                     $miniTable[] = [
                         'label' => Craft::t('commerce', 'Price'),
-                        'value' => $this->storedTotalPriceAsCurrency
+                        'value' => $this->storedTotalPriceAsCurrency,
                     ];
                 }
 
@@ -223,12 +223,14 @@ trait OrderElementTrait
             'billingLastName',
             'billingFullName',
             'billingPhone',
+            'billingAddressLines',
             'email',
             'number',
             'shippingFirstName',
             'shippingLastName',
             'shippingFullName',
             'shippingPhone',
+            'shippingAddressLines',
             'shortNumber',
             'transactionReference',
             'username',
@@ -239,6 +241,7 @@ trait OrderElementTrait
 
     /**
      * @inheritdoc
+     * @noinspection PhpUnused
      */
     public function getSearchKeywords(string $attribute): string
     {
@@ -251,6 +254,10 @@ trait OrderElementTrait
                 return $this->billingAddress->fullName ?? '';
             case 'billingPhone':
                 return $this->billingAddress->phone ?? '';
+            case 'billingAddressLines':
+                $address = $this->getBillingAddress();
+                $addressLines = $address ? $address->getAddressLines(true) : [];
+                return implode(' ', $addressLines);
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
@@ -259,6 +266,10 @@ trait OrderElementTrait
                 return $this->shippingAddress->fullName ?? '';
             case 'shippingPhone':
                 return $this->shippingAddress->phone ?? '';
+            case 'shippingAddressLines':
+                $address = $this->getShippingAddress();
+                $addressLines = $address ? $address->getAddressLines(true) : [];
+                return implode(' ', $addressLines);
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
@@ -273,6 +284,7 @@ trait OrderElementTrait
 
     /**
      * @inheritdoc
+     * @throws Exception
      */
     protected static function defineSources(string $context = null): array
     {
@@ -286,7 +298,7 @@ trait OrderElementTrait
                 'data' => [
                     'date-attr' => 'dateOrdered',
                 ],
-            ]
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Order Status')];
@@ -305,7 +317,7 @@ trait OrderElementTrait
                 'data' => [
                     'handle' => $orderStatus->handle,
                     'date-attr' => 'dateOrdered',
-                ]
+                ],
             ];
         }
 
@@ -325,7 +337,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsActive',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
         $updatedBefore = [];
         $updatedBefore[] = '< ' . $edge;
@@ -339,7 +351,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsInactive',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
 
         $criteriaAttemptedPayment = ['hasTransactions' => true, 'isCompleted' => 'not 1'];
@@ -351,7 +363,7 @@ trait OrderElementTrait
             'data' => [
                 'handle' => 'cartsAttemptedPayment',
                 'date-attr' => 'dateUpdated',
-            ]
+            ],
         ];
 
         return $sources;
@@ -368,7 +380,7 @@ trait OrderElementTrait
             $elementService = Craft::$app->getElements();
 
             if (Plugin::getInstance()->getPdfs()->getHasEnabledPdf()) {
-                $actions[] = DownloadOrderPdf::class;
+                $actions[] = DownloadOrderPdfAction::class;
             }
 
             if (Craft::$app->getUser()->checkPermission('commerce-deleteOrders')) {
@@ -387,7 +399,7 @@ trait OrderElementTrait
                 $isStatus = strpos($source, 'orderStatus:');
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
-                        'type' => UpdateOrderStatus::class
+                        'type' => UpdateOrderStatus::class,
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }
@@ -395,7 +407,7 @@ trait OrderElementTrait
                 $isStatus = strpos($source, 'carts:');
                 if ($isStatus === 0) {
                     $updateOrderStatusAction = $elementService->createAction([
-                        'type' => CopyLoadCartUrl::class
+                        'type' => CopyLoadCartUrl::class,
                     ]);
                     $actions[] = $updateOrderStatusAction;
                 }
@@ -434,7 +446,6 @@ trait OrderElementTrait
     protected static function defineTableAttributes(): array
     {
         return [
-            'order' => ['label' => Craft::t('commerce', 'Order')],
             'reference' => ['label' => Craft::t('commerce', 'Reference')],
             'shortNumber' => ['label' => Craft::t('commerce', 'Short Number')],
             'number' => ['label' => Craft::t('commerce', 'Number')],
@@ -500,7 +511,7 @@ trait OrderElementTrait
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         /** @var OrderQuery $elementQuery */
 
@@ -609,14 +620,13 @@ trait OrderElementTrait
     }
 
     /**
-     * @param $miniTable Expects an array with rows of 'label', 'value' keys values.
+     * @param array $miniTable Expects an array with rows of 'label', 'value' keys values.
      *
      * @return string
      */
-    private function _miniTable($miniTable)
+    private function _miniTable(array $miniTable): string
     {
-        $output = '';
-        $output .= '<table style="padding: 0; width: 100%">';
+        $output = '<table style="padding: 0; width: 100%">';
         foreach ($miniTable as $row) {
             $output .= '<tr style="padding: 0">';
             $output .= '<td style="text-align: left; padding: 0px">' . $row['label'] . '</td>';

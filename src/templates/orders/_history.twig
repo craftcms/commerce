@@ -1,0 +1,66 @@
+{# Order History Tab #}
+
+<div id="orderHistoryTab" class="hidden">
+
+        <h3>{{ "Status History"|t('commerce') }}</h3>
+        {% if order.histories|length %}
+            <table class="data fullwidth">
+                <thead>
+                <tr>
+                    <th scope="col">{{ 'Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Previous Status'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Updated By'|t('commerce') }}</th>
+                    <th scope="col">{{ 'Date'|t('commerce') }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for orderHistory in order.histories %}
+                    <tr data-id="{{ orderHistory.id }}">
+                        <td>
+                            {% if orderHistory.newStatus %}
+                            {% if not orderHistory.newStatus.dateDeleted %}<a href="{{ orderHistory.newStatus.cpEditUrl }}">{% endif %}
+                            {{ orderHistory.newStatus.labelHtml|raw }}
+                            {% if not orderHistory.newStatus.dateDeleted %}</a>{% endif %}
+                            {% if loop.first %}({{ "Current"|t('commerce') }}){% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.prevStatus %}
+                            {% if not orderHistory.prevStatus.dateDeleted %}<a href="{{ orderHistory.newStatus.cpEditUrl }}">{% endif %}
+                            {{ orderHistory.prevStatus.labelHtml|raw }}
+                            {% if not orderHistory.prevStatus.dateDeleted %}</a>{% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if orderHistory.customer and orderHistory.customer.user %}
+                                <a href="{{ orderHistory.customer.user.cpEditUrl }}">{{ orderHistory.customer.user.friendlyName }}</a>
+                            {% else %}
+                                {{ orderHistory.order.email }}
+                            {% endif %}
+                        </td>
+                        <td>{{ orderHistory.dateCreated|datetime }}</td>
+                    </tr>
+
+                        {% if orderHistory.message %}
+                    <tr>
+                        <td colspan="5">
+                            <div class="flex fullwidth flex-nowrap" style="align-items: flex-start">
+                                <div>
+                                    <span class="extralight">{{ craft.app.locale.orientation == 'ltr' ? '&#8627;'|raw : '&#8629;'|raw }}</span>
+                                </div>
+                                <div style="max-width: 80ch">
+                                    <h5>Message</h5>
+                                    {{ orderHistory.message | md }}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                        {% endif %}
+
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="light">{{ 'No order status history items will exist until the cart becomes an order.'|t('commerce') }}</p>
+        {% endif %}
+</div>

@@ -13,6 +13,8 @@ use craft\commerce\gql\arguments\elements\Variant as VariantArguments;
 use craft\commerce\gql\interfaces\elements\Variant as VariantInterface;
 use craft\commerce\gql\resolvers\elements\Variant as VariantResolver;
 use craft\fields\BaseRelationField;
+use craft\helpers\Gql as GqlHelper;
+use craft\services\Gql as GqlService;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -20,6 +22,8 @@ use GraphQL\Type\Definition\Type;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
+ *
+ * @property-read array $contentGqlType
  */
 class Variants extends BaseRelationField
 {
@@ -50,6 +54,7 @@ class Variants extends BaseRelationField
             'type' => Type::listOf(VariantInterface::getType()),
             'args' => VariantArguments::getArguments(),
             'resolve' => VariantResolver::class . '::resolve',
+            'complexity' => GqlHelper::relatedArgumentComplexity(GqlService::GRAPHQL_COMPLEXITY_EAGER_LOAD),
         ];
     }
 
