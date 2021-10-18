@@ -165,7 +165,7 @@ class ShippingRule extends Model implements ShippingRuleInterface
     private function _getUniqueCategoryIdsInOrder(Order $order): array
     {
         $orderShippingCategories = [];
-        foreach ($order->lineItems as $lineItem) {
+        foreach ($order->getLineItems() as $lineItem) {
             // Don't look at the shipping category of non-shippable products.
             if ($lineItem->getPurchasable() && Plugin::getInstance()->getPurchasables()->isPurchasableShippable($lineItem->getPurchasable(), $order)) {
                 $orderShippingCategories[] = $lineItem->shippingCategoryId;
