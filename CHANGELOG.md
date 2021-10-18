@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where purging inactive carts did not respect timezones. ([#2588](https://github.com/craftcms/commerce/issues/2588))
+
 ## 3.4.5 - 2021-10-13
 
 ### Added
