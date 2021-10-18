@@ -126,8 +126,7 @@ class ExampleTemplatesController extends Controller
             '[[folderName]]' => $folderName,
         ]);
         $this->_addCssClassesToReplacementData();
-        $this->_addTranslationsToReplacementData();
-        $this->_addResourceAssets();
+        $this->_addResourceAssetsToReplacementData();
 
         try {
             // Create a temporary directory to hold the copy of the templates before we replace variables
@@ -217,30 +216,6 @@ class ExampleTemplatesController extends Controller
     /**
      *
      */
-    private function _addTranslationsToReplacementData()
-    {
-        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            "{{ 'Adjustments' }}" => Craft::t('commerce', 'Adjustments'),
-            "{{ 'Estimated' }}" => Craft::t('commerce', 'Estimated'),
-            "{{ 'Shipping Estimate' }}" => Craft::t('commerce', 'Shipping Estimate'),
-            "{{ 'Country' }}" => Craft::t('commerce', 'Country'),
-            "{{ 'State' }}" => Craft::t('commerce', 'State'),
-            "{{ 'Zip Code' }}" => Craft::t('commerce', 'Zip Code'),
-            "{{ 'Tax Estimate' }}" => Craft::t('commerce', 'Tax Estimate'),
-            "{{ 'Show Estimate Fields' }}" => Craft::t('commerce', 'Show Estimate Fields'),
-            "{{ 'Plan Information Entry' }}" => Craft::t('commerce', 'Plan Information Entry'),
-            "{{ 'ID' }}" => Craft::t('commerce', 'ID'),
-            "{{ 'Title' }}" => Craft::t('app', 'Title'),
-            "{{ 'First' }}" => Craft::t('app', 'First'),
-            "{{ 'Previous' }}" => Craft::t('app', 'Previous'),
-            "{{ 'Last' }}" => Craft::t('app', 'Last'),
-            "{{ 'Next' }}" => Craft::t('app', 'Next'),
-        ]);
-    }
-
-    /**
-     *
-     */
     private function _addCssClassesToReplacementData()
     {
         $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
@@ -264,7 +239,7 @@ class ExampleTemplatesController extends Controller
     /**
      *
      */
-    private function _addResourceAssets(): void
+    private function _addResourceAssetsToReplacementData(): void
     {
         $resourceTags = [
             Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
