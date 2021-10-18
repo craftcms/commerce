@@ -55,6 +55,7 @@ class CustomersController extends BaseCpController
      */
     public function actionEdit(int $id = null, Customer $customer = null): Response
     {
+        $this->requirePermission('commerce-editCustomers');
         $variables = compact('id', 'customer');
 
         if (!$variables['customer']) {
@@ -79,6 +80,7 @@ class CustomersController extends BaseCpController
      */
     public function actionSave()
     {
+        $this->requirePermission('commerce-editCustomers');
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
