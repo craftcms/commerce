@@ -51,21 +51,6 @@ Outputs cart.
                   </div>
                 </td>
                 <td class="pt-3 pb-6 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }}">
-                  {% if item.options.giftWrapped is defined %}
-                    <select name="lineItems[{{ item.id }}][options][giftWrapped]">
-                      {{ tag('option', {
-                        value: 'no',
-                        selected: item.options.giftWrapped == 'no',
-                        text: 'No gift wrap'|t
-                      }) }}
-                      {{ tag('option', {
-                        value: 'yes',
-                        selected: item.options.giftWrapped == 'yes',
-                        text: 'Gift wrapped'|t
-                      }) }}
-                    </select>
-                  {% endif %}
-
                   {# Quantity and note fields #}
                   {% set hasDonationAmount = item.options.donationAmount is defined %}
                   <div class="lg:flex">
@@ -110,6 +95,23 @@ Outputs cart.
                       }) }}
                     </div>
                   </div>
+                  {% if item.options.giftWrapped is defined %}
+                    {% tag 'select' with {
+                      name: 'lineItems[' ~ item.id ~ '][options][giftWrapped]',
+                      class: ['mt-3', 'w-32', 'h-9', 'max-w-full', '[[classes.input]]']
+                    } %}
+                      {{ tag('option', {
+                        value: 'no',
+                        selected: item.options.giftWrapped == 'no',
+                        text: 'No gift wrap'|t
+                      }) }}
+                      {{ tag('option', {
+                        value: 'yes',
+                        selected: item.options.giftWrapped == 'yes',
+                        text: 'Gift wrapped'|t
+                      }) }}
+                    {% endtag %}
+                  {% endif %}
                 </td>
 
                 <td class="py-5 text-gray-500 {{ not loop.first ? 'border-t border-gray-300 border-dashed' : '' }} text-right">
