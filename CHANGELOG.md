@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\services\PaymentSources::getPaymentSourceByTokenAndGatewayId()`.
+ 
 ### Fixed
 - Fixed a bug where purging inactive carts did not respect timezones. ([#2588](https://github.com/craftcms/commerce/issues/2588))
 
