@@ -1,15 +1,49 @@
-{% set boldKeys = ['attention', 'name', 'businessName'] %}
 <!-- Template: {{ _self }}.twig -->
-<ul>
+{#
+Prints an address.
+
+@var address     \craft\commerce\models\Address  The address to display
+@var asLines     boolean                         Whether to list all lines of the address as provided (default: true)
+@var ignoreKeys  array                           Lines to omit from printed address (default: [])
+@var boldKeys    array                           Keys whose printed values should be bolded (default:
+                                                 ['attention', 'name', 'businessName'])
+#}
+
+{% set asLines = asLines ?? true %}
+{% set ignoreKeys = ignoreKeys ?? [] %}
+{% set boldKeys = boldKeys ?? ['attention', 'name', 'businessName'] %}
+
+{% macro print(key, value, boldKeys, ignoreKeys, append = '') %}
+  {% if key not in ignoreKeys and value is not empty %}
+    {{ tag(key in boldKeys ? 'strong' : 'span', {
+      html: ((key == 'attention' ? 'Attn'|t ~ ': ' ~ value : value) ~ append)|nl2br
+    }) }}
+  {% endif %}
+{% endmacro %}
+
+{% if asLines %}
+  <ul>
     {% for key, line in address.addressLines %}
-        <li>
-            {% if key in boldKeys %}
-            <strong>{% if key == 'attention' %}Attn:{% endif %}
-                {% endif %}
-                {{ line }}
-                {% if key in boldKeys %}
-            </strong>
-            {% endif %}
-        </li>
+      {% if key not in ignoreKeys %}
+      <li>
+        {{ _self.print(key, line, boldKeys, ignoreKeys) }}
+      </li>
+      {% endif %}
     {% endfor %}
-</ul>
+  </ul>
+{% else %}
+  {% set name = (address.title ~ ' ' ~ address.firstName ~ ' ' ~ address.lastName)|trim %}
+  <p>
+    {{ _self.print('label', address.label, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('businessName', address.businessName, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('name', name, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('attention', address.attention, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('address1', address.address1, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('address2', address.address2, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('address3', address.address3, boldKeys, ignoreKeys, '\n') }}
+    {{ _self.print('city', address.city, boldKeys, ignoreKeys, ',') }}
+    {{ _self.print('stateText', address.stateText, boldKeys, ignoreKeys) }}
+    {{ _self.print('zipCode', address.zipCode, boldKeys, ignoreKeys, address.countryText ? '\n' : '') }}
+    {{ _self.print('countryText', address.countryText, boldKeys, ignoreKeys) }}
+  </p>
+{% endif %}

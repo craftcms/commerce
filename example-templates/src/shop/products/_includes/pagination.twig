@@ -1,24 +1,51 @@
 <!-- Template: {{ _self }}.twig -->
+{# @var products  \craft\commerce\elements\Product[] #}
+{# @var pageInfo  \craft\web\twig\variables\Paginate #}
 <div class="my-6">
-    <div class="mb-2">{{ 'Showing' }} {{ products|length }} {{ 'of' }} {{ pageInfo.total }}</div>
-    {% if pageInfo.currentPage != 1 %}<a class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300"
-                                         href="{{ pageInfo.firstUrl }}">{{ 'First' }}</a>{% endif %}
-    {% if pageInfo.prevUrl %}<a class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300"
-                                href="{{ pageInfo.prevUrl }}">{{ 'Previous' }}</a>{% endif %}
+  <div class="mb-2">
+    {{ 'Showing {num} of {total}.'|t({
+      num: products|length,
+      total: pageInfo.total
+    }) }}
+  </div>
 
-    {% for page, url in pageInfo.getPrevUrls(5) %}
-        <a class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300" href="{{ url }}">{{ page }}</a>
-    {% endfor %}
+  {% if pageInfo.currentPage != 1 %}
+    <a href="{{ pageInfo.firstUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- 'First'|t -}}
+    </a>
+  {% endif %}
 
+  {% if pageInfo.prevUrl %}
+    <a href="{{ pageInfo.prevUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- 'Previous'|t -}}
+    </a>
+  {% endif %}
+
+  {% for page, url in pageInfo.getPrevUrls(5) %}
+    <a href="{{ url }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- page -}}
+    </a>
+  {% endfor %}
+
+  {% if pageInfo.totalPages > 1 %}
     <span class="px-2 py-1">{{ pageInfo.currentPage }}</span>
+  {% endif %}
 
-    {% for page, url in pageInfo.getNextUrls(5) %}
-        <a class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300" href="{{ url }}">{{ page }}</a>
-    {% endfor %}
+  {% for page, url in pageInfo.getNextUrls(5) %}
+    <a href="{{ url }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- page -}}
+    </a>
+  {% endfor %}
 
-    {% if pageInfo.nextUrl %}<a class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300"
-                                href="{{ pageInfo.nextUrl }}">{{ 'Next' }}</a>{% endif %}
-    {% if pageInfo.currentPage != pageInfo.totalPages %}<a
-        class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300" href="{{ pageInfo.lastUrl }}">
-            {{ 'Last' }}</a>{% endif %}
+  {% if pageInfo.nextUrl %}
+    <a href="{{ pageInfo.nextUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- 'Next'|t -}}
+    </a>
+  {% endif %}
+
+  {% if pageInfo.currentPage != pageInfo.totalPages %}
+    <a href="{{ pageInfo.lastUrl }}" class="text-[[color]]-400px-2 py-1 px-2 rounded border border-gray-300">
+      {{- 'Last'|t -}}
+    </a>
+  {% endif %}
 </div>

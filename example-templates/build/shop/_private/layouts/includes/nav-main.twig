@@ -1,41 +1,61 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs the site’s global main navigation based on path and included `pages` array.
+
+@var cart        \craft\commerce\elements\Order
+@var currentUser \craft\elements\User
+#}
 {% set pages = [
-    {
-        label: "Products",
-        url: 'shop/products'
-    },
-    {
-        label: "Plans",
-        url: 'shop/plans'
-    },
-    {
-        label: "Donations",
-        url: 'shop/donations'
-    }
+  {
+    label: 'Products',
+    url: 'shop/products'
+  },
+  {
+    label: 'Plans',
+    url: 'shop/plans'
+  },
+  {
+    label: 'Donations',
+    url: 'shop/donations'
+  }
 ] %}
-
-{% if currentUser %}
-    {% set pages = pages|merge([{
-        label: "My Account",
-        url: 'shop/customer'
-    }]) %}
-{% endif %}
-
-{% if 'checkout' not in craft.app.request.pathInfo %}
-    <div class="bg-gray-100">
-        <div class="container mx-auto justify-between items-center p-6 relative">
-            <nav class="-ml-4">
-                {% for page in pages %}
-                    <a href="{{ url(page.url) }}"
-                       class="mr-3 rounded px-4 py-2 hover:bg-gray-200 text-gray-600 {{ (page.url in craft.app.request.pathInfo ) ? 'text-gray-900 focus:outline-none' : 'hover:text-gray-900' }}">
-                        {{ page.label }}
-                    </a>
-                {% endfor %}
-            </nav>
-            <a href="{{ url('shop/cart') }}" class="absolute text-lg right-0 top-0 cursor-pointer m-6 px-2 py-1 bg-white rounded-lg hover:shadow">
-                {% if cart.totalQty %}<span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full bg-blue-800 text-white text-xs">{{ cart.totalQty }}</span>{% endif %}
-                <p role="img" aria-label="Shopping Cart">🛒</p>
+{% set currentPath = craft.app.request.pathInfo %}
+{% set activeClasses = 'bg-white' %}
+{% if 'checkout' not in currentPath %}
+  <div class="bg-gray-100">
+    <div class="container mx-auto justify-between items-center p-6 relative">
+      <nav class="-ml-4"
+           role="navigation"
+           aria-label="Main">
+        {% for page in pages %}
+          <a href="{{ url(page.url) }}"
+             class="mx-2 px-2 py-1 rounded{% if page.url in currentPath %} {{ activeClasses }}{% endif %}">
+            {{- page.label|t -}}
+          </a>
+        {% endfor %}
+        <div class="absolute right-2 top-0">
+          {% if currentUser %}
+            <a href="{{ url('shop/customer') }}"
+               class="mx-2 px-2 py-1 rounded text-sm font-semibold">
+              {{- currentUser.email -}}
             </a>
+          {% else %}
+            <a href="{{ url('shop/customer/sign-in') }}"
+               class="mx-2 px-2 py-1 rounded">
+              {{- 'Sign In'|t -}}
+            </a>
+          {% endif %}
+          <a href="{{ url('shop/cart') }}"
+             class="relative text-lg cursor-pointer inline-block mx-4 my-5 px-2 py-1 bg-white rounded-lg hover:shadow">
+            {% if cart.totalQty %}
+              <span class="absolute -mr-3 -mt-3 right-0 top-0 py-1 px-2 rounded-full text-white text-xs bg-blue-800">
+                {{- cart.totalQty -}}
+              </span>
+            {% endif %}
+            <p role="img" aria-label="{{ 'Shopping Cart'|t }}">🛒</p>
+          </a>
         </div>
+      </nav>
     </div>
+  </div>
 {% endif %}
