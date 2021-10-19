@@ -8,7 +8,7 @@ Outputs a form for collecting shipping estimate address details if an address do
   {% set countries = craft.commerce.countries.allEnabledCountriesAsList %}
   {% set states = craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
 
-  <div class="[[classes.box.base]] max-w-sm">
+  <div class="[[classes.box.base]]">
     <h5 class="mt-0 font-bold">
       {{- 'Shipping Estimate'|t -}}
     </h5>
