@@ -1,23 +1,30 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs radio inputs for currency selection.
+#}
+
+{# @var currencies \craft\commerce\models\Currency[] #}
 {% set currencies = craft.commerce.paymentCurrencies.allPaymentCurrencies %}
+{# @var cart \craft\commerce\elements\Order #}
 {% set cart = cart is not defined ? craft.commerce.carts.cart : cart %}
 
 {% if currencies|length > 1 %}
-    <label class="block font-semibold mt-6">Choose payment currency:</label>
-    {% for currency in currencies %}
-        <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
-            <div class="flex justify-start items-center">
-                <div class="pr-2">
-                    <input type="radio"
-                           name="paymentCurrency"
-                           value="{{ currency.iso }}"
-                           {% if currency.iso == cart.paymentCurrency %}checked{% endif %} />
-                </div>
-                <div>
-                    <strong>{{ currency.name }} {{ currency.iso }}</strong><br>
-                    <span class="text-gray-600">{{ cart.outstandingBalance|commerceCurrency(currency.iso,convert=true) }}</span>
-                </div>
-            </div>
-        </label>
-    {% endfor %}
+  <label class="block font-semibold mt-6">
+    {{- 'Choose payment currency'|t }}:
+  </label>
+  {% for currency in currencies %}
+    <label class="block bg-gray-100 p-2 hover:bg-gray-200 cursor-pointer mt-3">
+      <span class="flex justify-start items-center">
+        <span class="pr-2">
+          {{ input('radio', 'paymentCurrency', currency.iso, {
+            checked: currency.iso == cart.paymentCurrency
+          }) }}
+        </span>
+        <span>
+          <strong>{{ currency.name }} {{ currency.iso }}</strong><br>
+          <span class="text-gray-600">{{ cart.outstandingBalance|commerceCurrency(currency.iso,convert=true) }}</span>
+        </span>
+      </span>
+    </label>
+  {% endfor %}
 {% endif %}

@@ -1,54 +1,83 @@
 <!-- Template: {{ _self }}.twig -->
+{#
+Outputs a fieldset for selecting one of a user’s available addresses or creating a new one.
+
+@var addresses   \craft\commerce\models\Address[]
+@var cart        \craft\commerce\elements\Order
+@var classes     string
+@var name        string
+@var title       string
+@var currentUser \craft\elements\User
+#}
 <div class="js-address-fieldset {{ classes }}">
-    <h2 class="text-lg font-bold">{{ title }}</h2>
-    {% if addresses and currentUser %}
-        <div class="flex flex-wrap -mx-4 pb-4">
-            {% for address in addresses %}
-                <div class="px-2 w-1/2 pb-2">
-                    <label class="block address-select js-address-select bg-gray-100 border-blue-300 border-b-2 p-6"
-                           data-address-id="{{ address.id }}">
-                        <div class="js-radio">
-                            <input type="radio"
-                                   name="{{ name }}Id"
-                                   value="{{ address.id }}"
-                                   {% if attribute(cart,name~'Id') == address.id %}checked="checked"{% endif %}
-                                   data-model-name="{{ name }}"/>
-                            {{ include('shop/_private/address/address') }}
-                        </div>
-                        <div>
-                            <a class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
-                               href="{{ url('/shop/customer/addresses/edit?addressId='~ address.id ~'&redirect='~craft.app.request.fullPath) }}">Edit</a>
-                        </div>
-                    </label>
-                </div>
-            {% endfor %}
+  <h2 class="text-lg font-bold mb-4">
+    {{- title -}}
+  </h2>
+
+  {% if addresses and currentUser %}
+    <div class="md:flex md:flex-wrap md:-mx-2 pb-4">
+      {% for address in addresses %}
+        {% set editUrl = '/shop/customer/addresses/edit?addressId=' ~ address.id ~ '&redirect=' ~ craft.app.request.fullPath %}
+        <div class="pb-2 my-4 md:px-2 md:w-1/2 md:my-0">
+          <label data-address-id="{{ address.id }}"
+                 class="block relative address-select js-address-select border-blue-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg"
+          >
+            <span class="js-radio flex py-2">
+              {{ input('radio', name ~ 'Id', address.id, {
+                checked: attribute(cart, name ~ 'Id') == address.id,
+                'data-model-name': name
+              }) }}
+              <span class="-mt-2 ml-3 mb-2">
+                {{ include('shop/_private/address/address', {
+                  address: address,
+                  boldKeys: [ address.label ? 'label' : 'name'],
+                  asLines: false
+                }) }}
+              </span>
+            </span>
+            <span class="block mb-1">
+              <a href="{{ url(editUrl) }}" class="cursor-pointer rounded px-2 py-1 text-sm inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white">
+                {{- 'Edit'|t -}}
+              </a>
+            </span>
+            <span class="absolute top-4 right-4">
+              {% if cart.customer.primaryBillingAddressId == address.id %}
+                <span title="{{ 'Primary billing address'|t }}">💳</span>
+              {% endif %}
+              {% if cart.customer.primaryShippingAddressId == address.id %}
+                <span title="{{ 'Primary shipping address'|t }}">📦</span>
+              {% endif %}
+            </span>
+          </label>
         </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="js-address-select" data-model-name="{{ name }}">
+    {% if attribute(cart, name ~ 'Id') %}
+      {% set addressHasErrors = attribute(cart, name).hasErrors() %}
+    {% else %}
+      {% set addressHasErrors = false %}
     {% endif %}
 
-    <div class="js-address-select" data-model-name="{{ name }}">
-        {% if attribute(cart, name~'Id') %}
-            {% set addressHasErrors = attribute(cart, name).hasErrors() %}
-        {% else %}
-            {% set addressHasErrors = false %}
-        {% endif %}
+    {% if currentUser %}
+      <div class="js-radio">
+        <label>
+          {{ input('radio', name ~ 'Id', '', {
+            checked: not addresses|length or addressHasErrors
+          }) }}
+          {{ 'New {title}'|t({ title: title }) }}
+        </label>
+      </div>
+    {% endif %}
 
-        {% if currentUser %}
-            <div class="js-radio">
-                <label>
-                    <input type="radio"
-                           name="{{ name }}Id"
-                           {% if not addresses|length or addressHasErrors %}checked="checked"{% endif %} value=""/>
-                    New {{ title }}
-                </label>
-            </div>
-        {% endif %}
-
-        <div class="js-body {% if currentUser %}hidden{% endif %}">
-            {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
-            {{ include('shop/_private/address/form', {
-                'modelName': name,
-                'address': attribute(cart, name)
-            }) }}
-        </div>
+    <div class="js-body{% if currentUser %} hidden{% endif %}">
+      {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
+      {{ include('shop/_private/address/form', {
+        modelName: name,
+        address: attribute(cart, name)
+      }) }}
     </div>
+  </div>
 </div>
