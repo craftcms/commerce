@@ -25,6 +25,7 @@ use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
@@ -48,6 +49,11 @@ class DiscountsController extends BaseCpController
     public function init()
     {
         parent::init();
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '<')) {
+            throw new ForbiddenHttpException('Managing discounts is not permitted on the Lite edition.');
+        }
+
         $this->requirePermission('commerce-managePromotions');
     }
 
