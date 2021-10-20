@@ -162,7 +162,7 @@ class ExampleTemplatesController extends Controller
 
         // If this is a dev build, copy them to the build folder
         if ($this->devBuild) {
-            $destination = FileHelper::normalizePath(Craft::getAlias('@vendor') . '/craftcms/commerce/example-templates/build/' . $this->folderName);
+            $destination = FileHelper::normalizePath(Craft::getAlias('@vendor') . '/craftcms/commerce/example-templates/dist/' . $this->folderName);
         }
 
         // If this is not a dev build, copy them to the templates folder
