@@ -179,6 +179,23 @@ class PaymentSources extends Component
     }
 
     /**
+     * Returns a payment source by its gateways token
+     *
+     * @param string $token the payment gateway's token
+     * @param int $gatewayId the gateway's ID
+     * @return PaymentSource|null
+     */
+    public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId)
+    {
+        $result = $this->_createPaymentSourcesQuery()
+            ->where(['token' => $token])
+            ->andWhere(['gatewayId' => $gatewayId])
+            ->one();
+
+        return $result ? new PaymentSource($result) : null;
+    }
+
+    /**
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
