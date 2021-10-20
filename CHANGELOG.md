@@ -4,7 +4,10 @@
 
 ### Added
 - Added `craft\commerce\services\PaymentSources::getPaymentSourceByTokenAndGatewayId()`.
- 
+
+### Changed
+- Improved the styling and behavior of the example templates.
+
 ### Fixed
 - Fixed a bug where purging inactive carts did not respect timezones. ([#2588](https://github.com/craftcms/commerce/issues/2588))
 - Fixed a bug where it was possible to manage discounts when using the Lite edition. ([#2590](https://github.com/craftcms/commerce/issues/2590))
