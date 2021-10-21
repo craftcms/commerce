@@ -700,7 +700,6 @@ class Plugin extends BasePlugin
             switch ($fieldLayout->type) {
                 case Product::class:
                     $e->fields[] = ProductTitleField::class;
-                    $e->fields[] = VariantsField::class;
                     break;
                 case Variant::class:
                     $e->fields[] = VariantTitleField::class;

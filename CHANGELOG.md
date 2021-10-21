@@ -1,5 +1,8 @@
 # Release Notes for Craft Commerce
 
+### Fixed
+- Fixed a bug where variants field is duplicated in the products field layout in the product type page.
+ 
 ## 3.4.5 - 2021-10-13
 
 ### Added
