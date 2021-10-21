@@ -1,49 +1,63 @@
-{% if currentUser %}
-    {% redirect '[[folderName]]/checkout/addresses' %}
-{% endif %}
-
 {% extends '[[folderName]]/_private/layouts' %}
 
+{% if currentUser %}
+  {% redirect '[[folderName]]/checkout/addresses' %}
+{% endif %}
+
+{% if cart is not defined %}
+  {% set cart = craft.commerce.carts.cart %}
+{% endif %}
+
+{% if not cart.email %}
+  {% redirect '[[folderName]]/checkout' %}
+{% endif %}
+
+{% set userExistsButCantLogin = craft.users
+  .email(cart.email)
+  .status(['locked','suspended','pending'])
+  .one() %}
+
+{% if userExistsButCantLogin %}
+  {% redirect '[[folderName]]/checkout/addresses' %}
+{% endif %}
+
+{% set userExists = craft.users.email(cart.email).one() %}
+
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    {% if not cart.email %}
-        {% redirect '[[folderName]]/checkout' %}
-    {% endif %}
+  <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-xl font-bold">
+    {{- 'Account'|t -}}
+  </h1>
 
-    {% set userExistsButCantLogin = craft.users.email(cart.email).status(['locked','suspended','pending']).one() %}
-
-    {% if userExistsButCantLogin %}
-        {% redirect '[[folderName]]/checkout/addresses' %}
-    {% endif %}
-
-    {% set userExists = craft.users.email(cart.email).one() %}
-
-    <h1 class="text-xl font-bold">Account</h1>
-
-    <div class="flex -mx-8 pt-8">
-        <div class="w-1/2 pl-8">
-            <div class="[[classes.box.base]]">
-
-                {% if userExists %}
-                    <h2 class="mt-0 text-lg font-bold">Sign In</h2>
-
-                    {% include '[[folderName]]/customer/_includes/sign-in' with { redirectUrl : '[[folderName]]/checkout/addresses'} %}
-
-                {% else %}
-                    <h2 class="mt-0 text-lg font-bold">Register</h2>
-
-                    {% include '[[folderName]]/customer/_includes/register' with { redirectUrl : '[[folderName]]/checkout/addresses'} %}
-
-                {% endif %}
-            </div>
-        </div>
-        <div class="w-1/2 px-8">
-            <h2 class="mt-6 text-lg font-bold">Checkout</h2>
-            <div class="mt-3">
-                <a href="{{ url('/[[folderName]]/checkout/addresses') }}" class="[[classes.a]]">
-                    Or, just continue as guest &rarr;
-                </a>
-            </div>
-        </div>
+  <div class="flex -mx-8 pt-8">
+    <div class="w-1/2 pl-8">
+      <div class="[[classes.box.base]]">
+        {% if userExists %}
+          <h2 class="mt-0 text-lg font-bold">
+            {{- 'Sign In'|t -}}
+          </h2>
+          {% include '[[folderName]]/customer/_includes/sign-in' with {
+            redirectUrl : '[[folderName]]/checkout/addresses'
+          } %}
+        {% else %}
+          <h2 class="mt-0 text-lg font-bold">
+            {{- 'Register'|t -}}
+          </h2>
+          {% include '[[folderName]]/customer/_includes/register' with {
+            redirectUrl : '[[folderName]]/checkout/addresses'
+          } %}
+        {% endif %}
+      </div>
     </div>
+    <div class="w-1/2 px-8">
+      <h2 class="mt-6 text-lg font-bold">
+        {{- 'Checkout'|t -}}
+      </h2>
+      <div class="mt-3">
+        <a href="{{ url('/[[folderName]]/checkout/addresses') }}" class="[[classes.a]]">
+          {{ 'Or continue as guest'|t }} &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
 {% endblock %}
