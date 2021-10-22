@@ -180,7 +180,7 @@ Outputs cart.
 
                   {% if not cart.hasErrors() %}
                     <div class="flex items-center w-full justify-end mt-3" title="{{ item.total }}">
-                      <div class="text-sm text-gray-600 pr-2">Total:</div>
+                      <div class="text-sm text-gray-600 pr-2">{{ 'Total'|t }}:</div>
                       <div class="font-bold tabular-nums">{{ item.totalAsCurrency }}</div>
                     </div>
                   {% endif %}
