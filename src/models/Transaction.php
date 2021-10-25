@@ -38,9 +38,9 @@ class Transaction extends Model
     public ?int $id = null;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var int|null Parent transaction ID
