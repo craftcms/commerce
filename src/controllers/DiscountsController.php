@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -82,6 +83,9 @@ class DiscountsController extends BaseCpController
                 $variables['isNewDiscount'] = true;
             }
         }
+
+        $tabName = 'Discount (' . ($variables['isNewDiscount'] ? 'New' : 'ID: ' . $variables['discount']->id) . ')';
+        DebugPanel::addModelTab($tabName, $variables['discount']);
 
         $this->_populateVariables($variables);
 
