@@ -335,7 +335,7 @@ class Product extends Element
 
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
-        if (null === $productType) {
+        if ($productType === null) {
             throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
         }
 
@@ -510,7 +510,7 @@ class Product extends Element
             return $this->_variants;
         }
 
-        if (null === $this->_variants && $this->id) {
+        if (!isset($this->_variants) && $this->id) {
             $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
 
             if (!$this->getType()->hasVariants && !empty($variants)) {

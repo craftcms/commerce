@@ -163,7 +163,7 @@ class ProductTypes extends Component
      */
     public function getEditableProductTypeIds(): array
     {
-        if (null === $this->_editableProductTypeIds) {
+        if (!isset($this->_editableProductTypeIds)) {
             $this->_editableProductTypeIds = [];
             $allProductTypes = $this->getAllProductTypes();
 
@@ -184,7 +184,7 @@ class ProductTypes extends Component
      */
     public function getAllProductTypeIds(): array
     {
-        if (null === $this->_allProductTypeIds) {
+        if (!isset($this->_allProductTypeIds)) {
             $this->_allProductTypeIds = [];
             $productTypes = $this->getAllProductTypes();
 

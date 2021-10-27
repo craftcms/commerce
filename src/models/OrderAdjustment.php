@@ -68,7 +68,7 @@ class OrderAdjustment extends Model
     /**
      * @var int|null Order ID
      */
-    public ?int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var int|null Line item ID this adjustment belongs to
@@ -88,7 +88,7 @@ class OrderAdjustment extends Model
     /**
      * @var Order|null The order this adjustment belongs to
      */
-    private ?Order $_order;
+    private ?Order $_order = null;
 
 
     public function behaviors(): array

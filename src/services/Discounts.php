@@ -192,7 +192,7 @@ class Discounts extends Component
     /**
      * @var Discount[][]|null
      */
-    private ?array $_activeDiscountsByKey;
+    private ?array $_activeDiscountsByKey = null;
 
     /**
      * @var array|null
@@ -227,7 +227,7 @@ class Discounts extends Component
      */
     public function getAllDiscounts(): array
     {
-        if (null === $this->_allDiscounts) {
+        if (!isset($this->_allDiscounts)) {
             $discounts = $this->_createDiscountQuery()->all();
 
             $this->_allDiscounts = $this->_populateDiscounts($discounts);

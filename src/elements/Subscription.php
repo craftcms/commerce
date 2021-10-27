@@ -84,7 +84,7 @@ class Subscription extends Element
     /**
      * @var int|null Order id
      */
-    public ?int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var string Subscription reference on the gateway
@@ -243,7 +243,7 @@ class Subscription extends Element
      */
     public function getPlan(): PlanInterface
     {
-        if (null === $this->_plan) {
+        if (!isset($this->_plan)) {
             $this->_plan = Plugin::getInstance()->getPlans()->getPlanById($this->planId);
         }
 
@@ -257,7 +257,7 @@ class Subscription extends Element
      */
     public function getSubscriber(): User
     {
-        if (null === $this->_user) {
+        if (!isset($this->_user)) {
             $this->_user = Craft::$app->getUsers()->getUserById($this->userId);
         }
 
@@ -332,7 +332,7 @@ class Subscription extends Element
      */
     public function getGateway(): SubscriptionGatewayInterface
     {
-        if (null === $this->_gateway) {
+        if (!isset($this->_gateway)) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
             if (!$this->_gateway instanceof SubscriptionGatewayInterface) {
                 throw new InvalidConfigException('The gateway set for subscription does not support subscriptions.');

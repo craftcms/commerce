@@ -99,7 +99,7 @@ class ShippingCategory extends Model
      */
     public function getProductTypes(): array
     {
-        if (null === $this->_productTypes && $this->id) {
+        if (!isset($this->_productTypes) && $this->id) {
             $this->_productTypes = Plugin::getInstance()->getProductTypes()->getProductTypesByShippingCategoryId($this->id);
         }
 

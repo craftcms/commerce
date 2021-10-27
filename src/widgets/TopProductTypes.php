@@ -39,7 +39,7 @@ class TopProductTypes extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var string|null Options 'revenue', 'qty'.

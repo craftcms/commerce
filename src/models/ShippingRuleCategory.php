@@ -39,17 +39,17 @@ class ShippingRuleCategory extends Model
     /**
      * @var float|null Per item rate
      */
-    public ?float $perItemRate;
+    public ?float $perItemRate = null;
 
     /**
      * @var float|null Weight rate
      */
-    public ?float $weightRate;
+    public ?float $weightRate = null;
 
     /**
      * @var float|null Percentage rate
      */
-    public ?float $percentageRate;
+    public ?float $percentageRate = null;
 
     /**
      * @var string Condition
