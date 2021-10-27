@@ -88,7 +88,6 @@ class ExampleTemplatesController extends Controller
      * Generate and copy the example templates.
      *
      * @return int
-     * @throws GuzzleException
      * @throws ErrorException
      * @throws Exception
      */
