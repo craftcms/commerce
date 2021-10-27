@@ -1093,12 +1093,6 @@ class Order extends Element
             }
         }
 
-        // Sets a default shipping method
-        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
-            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-        }
-
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }
@@ -1126,6 +1120,13 @@ class Order extends Element
             } else {
                 $this->setRecalculationMode(self::RECALCULATION_MODE_ALL);
             }
+        }
+
+        // Sets a default shipping method
+        // Leave this as the last one inside init(), as shipping rules will need access the above default that are set (like currency).
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
         parent::init();
