@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
@@ -67,6 +68,7 @@ class SalesController extends BaseCpController
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
         $variables = compact('id', 'sale');
+        $isNewSale = false;
 
         if (!$variables['sale']) {
             if ($variables['id']) {
@@ -77,8 +79,12 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
+                $isNewSale = true;
             }
         }
+
+        $tabName = sprintf('Sale (%s)', $isNewSale ? 'New' : 'ID: ' . $variables['sale']->id);
+        DebugPanel::addModelTab($tabName, $variables['sale']);
 
         $this->_populateVariables($variables);
 
