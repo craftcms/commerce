@@ -200,7 +200,7 @@ class ExampleTemplatesController extends Controller
             FileHelper::removeDirectory($destination);
         } else if ($destinationExists && !$this->overwrite) {
             // A target folder’s been specified that already exists, but we’re not supposed to overwrite it
-            $errors[] = 'Template folder “' . $folderName . '” already exists. Replace it by setting the `overwrite` param to `true`.';
+            $errors[] = 'The “' . $folderName . '” directory already exists. Set the `overwrite` param to `true` to replace it.';
             return $this->_returnErrors($errors);
         }
 
