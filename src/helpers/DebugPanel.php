@@ -23,17 +23,26 @@ class DebugPanel
     /**
      * Add a model debug tab to the debug panel.
      *
-     * @param string $name
+     * @param string $name Name of the tab to be displayed.
      * @param object $model
-     * @param array $attributes
+     * @param array $toArrayAttributes Which attributes to call `toArray` on.
+     * @param array $attributes List of attributes to display, if empty the models `fields()` method will be user.
      */
-    public static function addModelTab(string $name, object $model, array $attributes = []): void
+    public static function addModelTab(string $name, object $model, array $toArrayAttributes = [], array $attributes = []): void
     {
-        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $attributes) {
+        $user = Craft::$app->getUser()->getIdentity();
+        $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
+
+        if (!Craft::$app->getRequest()->getIsCpRequest() || !$user || !$user->getPreference($pref) || !Craft::$app->getConfig()->getGeneral()->devMode) {
+            return;
+        }
+
+        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $toArrayAttributes, $attributes) {
             $event->nav[] = $name;
             $event->content[] = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
                 'model' => $model,
                 'attributes' => !empty($attributes) ? $attributes : $model->getAttributes(),
+                'toArrayAttributes' => $toArrayAttributes,
             ]);
         });
     }

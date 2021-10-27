@@ -79,20 +79,21 @@ class CommercePanel extends Panel
     public function save()
     {
         $nav = ['Cart'];
-        $cartAttributes = $this->cart->getAttributes();
-
-        // Split out line item data for better readability
-        if (!empty($cartAttributes['lineItems'])) {
-            foreach ($cartAttributes['lineItems'] as $key => $lineItem) {
-                $cartAttributes[sprintf('lineItems.%s', $key)] = $lineItem->toArray();
-            }
-            unset($cartAttributes['lineItems']);
-        }
+        $cartAttributes = array_merge(array_keys($this->cart->fields()), $this->cart->extraFields());
 
         $content = [
             Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
                 'model' => $this->cart,
                 'attributes' => $cartAttributes,
+                'toArrayAttributes' => [
+                    'billingAddress',
+                    'customer',
+                    'estimatedBillingAddress',
+                    'estimatedShippingAddress',
+                    'lineItems',
+                    'shippingAddress',
+                    'transactions',
+                ]
             ]),
         ];
 
