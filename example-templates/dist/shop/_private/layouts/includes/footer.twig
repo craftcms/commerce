@@ -57,10 +57,11 @@ Outputs the global site footer.
           {{- 'Example Templates'|t -}}
         </h3>
         <p class="pb-3">
-          {{ 'These Craft Commerce 3.4 example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
+          {{ 'These Craft Commerce {version} example templates use <a href="{url}" class="underline">TailwindCSS</a> and native JavaScript. You’re
       running the {edition} edition of Craft Commerce.'|t({
             url: 'https://tailwindcss.com',
-            edition: craft.commerce.edition|upper
+            edition: craft.commerce.edition|upper,
+            version: craft.commerce.version,
           })|raw }}
         </p>
         <p>
