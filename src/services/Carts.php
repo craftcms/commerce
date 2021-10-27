@@ -16,6 +16,7 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
@@ -188,7 +189,7 @@ class Carts extends Component
         $activeCartDuration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
         $interval = DateTimeHelper::secondsToInterval($activeCartDuration);
         $edge->sub($interval);
-        return $edge->format(DateTime::ATOM);
+        return Db::prepareDateForDb($edge);
     }
 
     /**
@@ -286,7 +287,7 @@ class Carts extends Component
             $cartIds = (new Query())
                 ->select(['orders.id'])
                 ->where(['not', ['isCompleted' => true]])
-                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
                 ->from(['orders' => Table::ORDERS])
                 ->column();
 
