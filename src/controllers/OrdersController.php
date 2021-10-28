@@ -21,6 +21,7 @@ use craft\commerce\errors\RefundException;
 use craft\commerce\errors\TransactionException;
 use craft\commerce\gateways\MissingGateway;
 use craft\commerce\helpers\Currency;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
@@ -164,6 +165,17 @@ class OrdersController extends Controller
         }
 
         $variables['order'] = $order;
+
+        DebugPanel::prependModelTab('Order', $order, [
+            'billingAddress',
+            'customer',
+            'estimatedBillingAddress',
+            'estimatedShippingAddress',
+            'lineItems',
+            'shippingAddress',
+            'transactions',
+        ], array_merge(array_keys($order->fields()), $order->extraFields()));
+
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;
 
