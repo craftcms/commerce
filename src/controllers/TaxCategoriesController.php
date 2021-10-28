@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\TaxCategory;
 use craft\commerce\Plugin;
 use craft\errors\MissingComponentException;
@@ -62,9 +63,13 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         if ($variables['taxCategory']->id) {
             $variables['title'] = $variables['taxCategory']->name;
+            $tabName = sprintf('Tax Category (ID: %s)', $variables['taxCategory']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax category');
+            $tabName = 'Tax Category (New)';
         }
+
+        DebugPanel::prependModelTab($tabName, $variables['taxCategory']);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {

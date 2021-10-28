@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -83,9 +84,13 @@ class TaxRatesController extends BaseTaxSettingsController
 
         if ($variables['taxRate']->id) {
             $variables['title'] = $variables['taxRate']->name;
+            $tabName = sprintf('Tax Rate (ID: %s)', $variables['taxRate']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new tax rate');
+            $tabName = 'Tax Rate (New)';
         }
+
+        DebugPanel::prependModelTab($tabName, $variables['taxRate']);
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
