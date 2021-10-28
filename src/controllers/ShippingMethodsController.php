@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingMethod;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingMethod as ShippingMethodRecord;
@@ -62,9 +63,13 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         if ($variables['shippingMethod']->id) {
             $variables['title'] = $variables['shippingMethod']->name;
+            $tabName = sprintf('Shipping Method (ID: %s)', $variables['shippingMethod']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping method');
+            $tabName = 'Shipping Method (New)';
         }
+
+        DebugPanel::prependModelTab($tabName, $variables['shippingMethod']);
 
         $variables['shippingRules'] = $variables['shippingMethod']->id !== null
             ? Plugin::getInstance()->getShippingRules()->getAllShippingRulesByShippingMethodId($variables['shippingMethod']->id)

@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\Plugin;
 use Twig\Error\LoaderError;
@@ -60,9 +61,13 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         if ($variables['shippingZone']->id) {
             $variables['title'] = $variables['shippingZone']->name;
+            $tabName = sprintf('Shipping Zone (ID: %s)', $variables['shippingZone']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
+            $tabName = 'Shipping Zone (New)';
         }
+
+        DebugPanel::prependModelTab($tabName, $variables['shippingZone']);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();

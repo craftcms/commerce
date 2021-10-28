@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
@@ -80,9 +81,14 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
+            $tabName = sprintf('Shipping Rule (ID: %s)', $variables['shippingRule']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
+            $tabName = 'Shipping Rules (New)';
         }
+
+        DebugPanel::prependModelTab(sprintf('Shipping Method (ID: %s)', $variables['shippingMethod']->id), $variables['shippingMethod']);
+        DebugPanel::prependModelTab($tabName, $variables['shippingRule']);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];
