@@ -1093,12 +1093,6 @@ class Order extends Element
             }
         }
 
-        // Sets a default shipping method
-        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
-            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-        }
-
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }
@@ -1126,6 +1120,13 @@ class Order extends Element
             } else {
                 $this->setRecalculationMode(self::RECALCULATION_MODE_ALL);
             }
+        }
+
+        // Sets a default shipping method
+        // Leave this as the last one inside init(), as shipping rules will need access the above default that are set (like currency).
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
         parent::init();
@@ -2703,7 +2704,7 @@ class Order extends Element
      */
     public function getAdjustments(): ?array
     {
-        if (null !== $this->_orderAdjustments) {
+        if (isset($this->_orderAdjustments)) {
             return $this->_orderAdjustments;
         }
 
@@ -2780,7 +2781,7 @@ class Order extends Element
      */
     public function getShippingAddress(): ?Address
     {
-        if (null === $this->_shippingAddress && $this->shippingAddressId) {
+        if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
             $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
         }
 
@@ -2814,7 +2815,7 @@ class Order extends Element
         $this->_shippingAddress = $address;
 
         // When we are setting an address we need to keep them in sync if they have the same ID
-        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->billingAddressId === $this->shippingAddressId) {
             $this->_billingAddress = $this->_shippingAddress;
         }
     }
@@ -2834,7 +2835,7 @@ class Order extends Element
      */
     public function getEstimatedShippingAddress(): ?Address
     {
-        if (null === $this->_estimatedShippingAddress && $this->estimatedShippingAddressId) {
+        if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
             $this->_estimatedShippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedShippingAddressId);
         }
 
@@ -2872,7 +2873,7 @@ class Order extends Element
      */
     public function getBillingAddress(): ?Address
     {
-        if (null === $this->_billingAddress && $this->billingAddressId) {
+        if (!isset($this->_billingAddress) && $this->billingAddressId) {
             $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
         }
 
@@ -2906,7 +2907,7 @@ class Order extends Element
         $this->_billingAddress = $address;
 
         // When we are setting an address we need to keep them in sync if they have the same ID
-        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->shippingAddressId === $this->billingAddressId) {
             $this->_shippingAddress = $this->_billingAddress;
         }
     }
@@ -2926,7 +2927,7 @@ class Order extends Element
      */
     public function getEstimatedBillingAddress(): ?Address
     {
-        if (null === $this->_estimatedBillingAddress && $this->estimatedBillingAddressId) {
+        if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
             $this->_estimatedBillingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedBillingAddressId);
         }
 

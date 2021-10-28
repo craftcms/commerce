@@ -38,12 +38,12 @@ class RepeatCustomers extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var null|RepeatingCustomersStat
      */
-    private ?RepeatingCustomersStat $_stat;
+    private ?RepeatingCustomersStat $_stat = null;
 
     /**
      * @inheritDoc

@@ -39,7 +39,7 @@ class TotalOrders extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var int|bool
@@ -49,7 +49,7 @@ class TotalOrders extends Widget
     /**
      * @var null|TotalOrdersStat
      */
-    private ?TotalOrdersStat $_stat;
+    private ?TotalOrdersStat $_stat = null;
 
     public function init(): void
     {

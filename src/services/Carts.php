@@ -68,7 +68,7 @@ class Carts extends Component
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
-        if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
+        if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order(['customer' => $customer]);
             $this->_cart->number = $this->getSessionCartNumber();
         }

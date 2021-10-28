@@ -12,9 +12,9 @@ use craft\commerce\console\Controller;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
-use GuzzleHttp\Exception\GuzzleException;
 use yii\base\ErrorException;
 use yii\base\Exception;
+use craft\helpers\Html;
 use yii\console\ExitCode;
 
 /**
@@ -31,10 +31,10 @@ class ExampleTemplatesController extends Controller
     public $defaultAction = 'generate';
 
     /**
-     * @var string Name of the folder the templates will copy into
+     * @var ?string Name of the target folder the templates will be copied to.
      * @since 3.3
      */
-    public string $folderName;
+    public string $folderName = '';
 
     /**
      * @var bool Whether to overwrite an existing folder. Must be passed if a folder with that name already exists.
@@ -43,10 +43,10 @@ class ExampleTemplatesController extends Controller
     public bool $overwrite = false;
 
     /**
-     * @var bool Whether to use CDN linked assets, or copy them inline for tailwind etc
+     * @var ?bool Whether to use htmx
      * @since 3.3
      */
-    public bool $cdnAssets;
+    public ?bool $useHtmx = null;
 
     /**
      * @var bool Whether to generate and copy to the example-templates build folder (used by Craft Commerce developers)
@@ -55,10 +55,10 @@ class ExampleTemplatesController extends Controller
     public bool $devBuild = false;
 
     /**
-     * @var string The base color for the generated example templates.
-     * Possible values are: gray, red, yellow, green, blue, indigo, purple or pink.
+     * @var ?string The base color for the generated example templates.
+     * Possible values are: red, yellow, green, blue, indigo, purple, or pink.
      */
-    public string $baseColor;
+    public ?string $baseColor = null;
 
     /**
      * @var array
@@ -68,7 +68,7 @@ class ExampleTemplatesController extends Controller
     /**
      * @var string[]
      */
-    private array $_colors = ['gray', 'red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
+    private array $_colors = ['red', 'yellow', 'green', 'blue', 'indigo', 'purple', 'pink'];
 
     /**
      * @inheritdoc
@@ -80,15 +80,13 @@ class ExampleTemplatesController extends Controller
         $options[] = 'overwrite';
         $options[] = 'baseColor';
         $options[] = 'devBuild';
-        $options[] = 'cdnAssets';
         return $options;
     }
 
     /**
-     * Generate and copy the example templates.
+     * Generates and copies the example templates.
      *
      * @return int
-     * @throws GuzzleException
      * @throws ErrorException
      * @throws Exception
      */
@@ -98,24 +96,27 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->cdnAssets = true;
+            $this->useHtmx = true;
         }
 
         $slash = DIRECTORY_SEPARATOR;
         $pathService = Craft::$app->getPath();
         $templatesPath = $this->_getTemplatesPath();
+        $tempDestination = null;
 
-        $exampleTemplatesSource = FileHelper::normalizePath($pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop');
+        $exampleTemplatesSource = FileHelper::normalizePath(
+            $pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop'
+        );
 
-        if ($this->folderName) {
+        if (!empty($this->folderName)) {
             $folderName = $this->folderName;
         } else {
             $this->stdout('A folder will be copied to your templates directory.' . PHP_EOL);
             $folderName = $this->prompt('Choose folder name:', ['required' => true, 'default' => 'shop']);
         }
 
-        if ($this->cdnAssets === null) {
-            $this->cdnAssets = $this->confirm('Use CDN link to resources (tailwind)?', true);
+        if ($this->useHtmx === null) {
+            $this->useHtmx = $this->confirm('Use htmx for forms and links?', true);
         }
 
         // Folder name is required
@@ -129,31 +130,39 @@ class ExampleTemplatesController extends Controller
             '[[folderName]]' => $folderName,
         ]);
         $this->_addCssClassesToReplacementData();
-        $this->_addTranslationsToReplacementData();
-        $this->_addTailwindCss();
-
-        // Let’s go!
-        $this->stdout('Attempting to copy example templates ... ' . PHP_EOL);
+        $this->_addResourceAssetsToReplacementData();
 
         try {
-            // Create a temporary directory to hold the copy of the templates before we replace variables.
+            // Create a temporary directory to hold the copy of the templates before we replace variables
             $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
             // Copy the templates to the temporary directory
-            FileHelper::copyDirectory($exampleTemplatesSource, $tempDestination, ['recursive' => true, 'copyEmptyDirectories' => true]);
+            FileHelper::copyDirectory(
+                $exampleTemplatesSource,
+                $tempDestination,
+                ['recursive' => true, 'copyEmptyDirectories' => true]
+            );
 
-            // Find all text files we want to replace [[ ]] notation in.
+            // Find all text files in which we want to replace [[ ]] notation
             $files = FileHelper::findFiles($tempDestination, [
                 'only' => ['*.twig', '*.html', '*.svg', '*.css'],
             ]);
-            // Set the [[ ]] notion variables and write our the files.
+            // Set the [[ ]] notation variables and write the files
             foreach ($files as $file) {
                 $fileContents = file_get_contents($file);
-                $fileContents = str_replace(array_keys($this->_replacementData), array_values($this->_replacementData), $fileContents);
+                $fileContents = str_replace(
+                    array_keys($this->_replacementData),
+                    array_values($this->_replacementData),
+                    $fileContents
+                );
                 file_put_contents($file, $fileContents);
             }
         } catch (\Exception $e) {
             $errors[] = 'Could not generate templates. Exception raised:';
             $errors[] = $e->getCode() . ' ' . $e->getMessage();
+        }
+
+        if (!is_dir($tempDestination)) {
+            $errors[] = 'Could not generate templates.';
         }
 
         if (!empty($errors)) {
@@ -163,19 +172,16 @@ class ExampleTemplatesController extends Controller
         // New source is our temp directory ready for copying to site templates
         $source = $tempDestination;
 
-        // If this is a dev build, copy them to the build folder
         if ($this->devBuild) {
-            $destination = FileHelper::normalizePath(Craft::getAlias('@vendor') . '/craftcms/commerce/example-templates/build/' . $this->folderName);
-        }
-
-        // If this is not a dev build, copy them to the templates folder
-        if (!$this->devBuild) {
-
+            // If this is a dev build, copy them to the build folder
+            $destination = FileHelper::normalizePath(
+                Craft::getAlias('@vendor') . '/craftcms/commerce/example-templates/dist/' . $this->folderName
+            );
+        } else {
+            // If this is not a dev build, copy them to the templates folder
             if (!$templatesPath) {
                 $errors[] = 'Can not determine the site template path.';
-            }
-
-            if ($templatesPath && !FileHelper::isWritable($templatesPath)) {
+            } else if (!FileHelper::isWritable($templatesPath)) {
                 $errors[] = 'Site template path is not writable.';
             }
 
@@ -186,25 +192,24 @@ class ExampleTemplatesController extends Controller
             $destination = $templatesPath . $slash . $folderName;
         }
 
-        $alreadyExists = is_dir($destination);
-        if ($alreadyExists && !$this->overwrite) {
-            $errors[] = 'Folder with name "' . $folderName . '" already exists in the templates folder, and the `overwrite` param was not set to true, which would replace.';
+        $destinationExists = is_dir($destination);
+
+        if ($destinationExists && $this->overwrite) {
+            // We’re allowed to overwrite templates, and we’ve got valid source and destination folders
+            $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);
+            FileHelper::removeDirectory($destination);
+        } else if ($destinationExists && !$this->overwrite) {
+            // A target folder’s been specified that already exists, but we’re not supposed to overwrite it
+            $errors[] = 'The “' . $folderName . '” directory already exists. Set the `overwrite` param to `true` to replace it.';
             return $this->_returnErrors($errors);
         }
 
-        if (is_dir($destination) && is_dir($source)) {
-            if ($this->overwrite) {
-                $this->stdout('Overwriting ...' . PHP_EOL, Console::FG_YELLOW);
-                FileHelper::removeDirectory($destination);
-            }
-        }
-        if (!is_dir($destination) && is_dir($source)) {
-            try {
-                $this->stdout('Copying ...' . PHP_EOL, Console::FG_YELLOW);
-                FileHelper::copyDirectory($source, $destination, ['recursive' => true, 'copyEmptyDirectories' => true]);
-            } catch (\Exception $e) {
-                $errors[] = $e->getMessage();
-            }
+        // Now let’s try and copy that template directory
+        try {
+            $this->stdout('Copying ...' . PHP_EOL, Console::FG_YELLOW);
+            FileHelper::copyDirectory($source, $destination, ['recursive' => true, 'copyEmptyDirectories' => true]);
+        } catch (\Exception $e) {
+            $errors[] = $e->getMessage();
         }
 
         if (!empty($errors)) {
@@ -216,37 +221,21 @@ class ExampleTemplatesController extends Controller
         return ExitCode::OK;
     }
 
-    private function _addTranslationsToReplacementData(): void
-    {
-        $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            "{{ 'Adjustments' }}" => Craft::t('commerce', 'Adjustments'),
-            "{{ 'Estimated' }}" => Craft::t('commerce', 'Estimated'),
-            "{{ 'Shipping Estimate' }}" => Craft::t('commerce', 'Shipping Estimate'),
-            "{{ 'Country' }}" => Craft::t('commerce', 'Country'),
-            "{{ 'State' }}" => Craft::t('commerce', 'State'),
-            "{{ 'Zip Code' }}" => Craft::t('commerce', 'Zip Code'),
-            "{{ 'Tax Estimate' }}" => Craft::t('commerce', 'Tax Estimate'),
-            "{{ 'Show Estimate Fields' }}" => Craft::t('commerce', 'Show Estimate Fields'),
-            "{{ 'Plan Information Entry' }}" => Craft::t('commerce', 'Plan Information Entry'),
-            "{{ 'ID' }}" => Craft::t('commerce', 'ID'),
-            "{{ 'Title' }}" => Craft::t('app', 'Title'),
-            "{{ 'First' }}" => Craft::t('app', 'First'),
-            "{{ 'Previous' }}" => Craft::t('app', 'Previous'),
-            "{{ 'Last' }}" => Craft::t('app', 'Last'),
-            "{{ 'Next' }}" => Craft::t('app', 'Next'),
-        ]);
-    }
-
+    /**
+     * Adds CSS key-value replacements to the array, where the key is our special `[[ ]]` template notation and
+     * the value is what it’ll be replaced with.
+     */
     private function _addCssClassesToReplacementData(): void
     {
         $mainColor = $this->baseColor ?: $this->select('Base Tailwind CSS color:', array_combine($this->_colors, $this->_colors));
-        $dangerColor = ($mainColor == 'red') ? 'purple' : 'red';
+        $dangerColor = ($mainColor === 'red') ? 'purple' : 'red';
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[color]]' => $mainColor,
             '[[dangerColor]]' => $dangerColor,
             '[[classes.a]]' => "text-$mainColor-500 hover:text-$mainColor-600",
             '[[classes.input]]' => "border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded",
             '[[classes.box.base]]' => "bg-gray-100 border-$mainColor-300 border-b-2 p-6",
+            '[[classes.box.selection]]' => "border-$mainColor-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg",
             '[[classes.box.error]]' => "bg-$dangerColor-100 border-$dangerColor-500 border-b-2 p-6",
             '[[classes.btn.base]]' => "cursor-pointer rounded px-4 py-2 inline-block",
             '[[classes.btn.small]]' => "cursor-pointer rounded px-2 py-1 text-sm inline-block",
@@ -257,45 +246,58 @@ class ExampleTemplatesController extends Controller
     }
 
     /**
-     * @throws GuzzleException
+     * Adds external resource key-value replacements to the array, where the key is our special `[[ ]]` template
+     * notation and the value is what it’ll be replaced with.
      */
-    private function _addTailwindCss(): void
+    private function _addResourceAssetsToReplacementData(): void
     {
-        $tag = "<link href='https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css' rel='stylesheet'>";
+        $resourceTags = [
+            Html::cssFile('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css')
+        ];
 
-        if (!$this->cdnAssets) {
-            $response = Craft::createGuzzleClient()->get('https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css');
-            if ($response && $response->getStatusCode() == '200') {
-                $css = $response->getBody();
-                $tag = "<style>$css</style>";
-            }
+        if ($this->useHtmx) {
+            $resourceTags[] = Html::jsFile('https://unpkg.com/htmx.org@^1');
         }
 
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
-            '[[tailwindCssTag]]' => $tag,
+            '[[resourceTags]]' => implode("\n", $resourceTags),
+            '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
         ]);
     }
 
     /**
-     * @param array $errors
+     * Formats and outputs errors and exits.
+     *
+     * @param string[] $errors Error strings to be shown to the user
      * @return int
      */
     private function _returnErrors(array $errors): int
     {
-        $this->stderr('Error(s):' . PHP_EOL . '    - ' . implode(PHP_EOL . '    - ', $errors) . PHP_EOL, Console::FG_RED);
+        if (count($errors) === 1) {
+            $this->stderr('Error: ' . array_shift($errors) . PHP_EOL, Console::FG_RED);
+        } else {
+            $this->stderr(
+                'Errors:' . PHP_EOL . '    - ' . implode(PHP_EOL . '    - ', $errors) . PHP_EOL,
+                Console::FG_RED
+            );
+        }
+
         return ExitCode::USAGE;
     }
 
     /**
-     * @return string
+     * Returns the relevant site base template path.
+     *
+     * @return string The sites’s base template path
      * @throws Exception
      */
     private function _getTemplatesPath(): string
     {
-        $originalMode = Craft::$app->getView()->getTemplateMode();
-        Craft::$app->getView()->setTemplateMode(\craft\web\View::TEMPLATE_MODE_SITE);
-        $templatesPath = Craft::$app->getView()->getTemplatesPath();
-        Craft::$app->getView()->setTemplateMode($originalMode);
+        $view = Craft::$app->getView();
+        $originalMode = $view->getTemplateMode();
+        $view->setTemplateMode(\craft\web\View::TEMPLATE_MODE_SITE);
+        $templatesPath = $view->getTemplatesPath();
+        $view->setTemplateMode($originalMode);
         return $templatesPath;
     }
 }

@@ -117,7 +117,7 @@ class PlansController extends BaseStoreSettingsController
             $plan = $planService->getPlanById($planId);
         }
 
-        if (null === $plan) {
+        if ($plan === null) {
             $plan = $gateway->getPlanModel();
         }
 

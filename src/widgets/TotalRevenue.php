@@ -42,7 +42,7 @@ class TotalRevenue extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var bool

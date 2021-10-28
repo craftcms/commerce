@@ -129,12 +129,12 @@ class LineItem extends Model
     /**
      * @var int|null Purchasable ID
      */
-    public ?int $purchasableId;
+    public ?int $purchasableId = null;
 
     /**
      * @var int|null Order ID
      */
-    public ?int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var int|null Line Item Status ID
@@ -181,7 +181,7 @@ class LineItem extends Model
     /**
      * @var LineItemStatus|null Line item status
      */
-    private ?LineItemStatus $_lineItemStatus;
+    private ?LineItemStatus $_lineItemStatus = null;
 
     /**
      * @var array
@@ -221,7 +221,7 @@ class LineItem extends Model
      */
     public function getOrder(): ?Order
     {
-        if (null === $this->_order && isset($this->orderId) && $this->orderId) {
+        if (!isset($this->_order) && isset($this->orderId) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -615,7 +615,7 @@ class LineItem extends Model
      */
     public function getPurchasable(): ?PurchasableInterface
     {
-        if (null === $this->_purchasable && isset($this->purchasableId) && $this->purchasableId !== null) {
+        if (!isset($this->_purchasable) && isset($this->purchasableId)) {
             $this->_purchasable = Craft::$app->getElements()->getElementById($this->purchasableId);
         }
 
@@ -709,7 +709,7 @@ class LineItem extends Model
      */
     public function getShippingCategory(): ShippingCategory
     {
-        if (null === $this->shippingCategoryId) {
+        if (!isset($this->shippingCategoryId)) {
             throw new InvalidConfigException('Line Item is missing its shipping category ID');
         }
 

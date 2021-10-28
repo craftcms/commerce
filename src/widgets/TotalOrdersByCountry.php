@@ -41,7 +41,7 @@ class TotalOrdersByCountry extends Widget
     /**
      * @var string|null
      */
-    public ?string $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var string Options 'billing', 'shippinh'.

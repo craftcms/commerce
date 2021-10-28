@@ -73,7 +73,7 @@ class PaymentCurrencies extends Component
      */
     public function getAllPaymentCurrencies(): array
     {
-        if (null === $this->_allCurrenciesByIso) {
+        if (!isset($this->_allCurrenciesByIso)) {
             $rows = $this->_createPaymentCurrencyQuery()
                 ->orderBy(['primary' => SORT_DESC, 'iso' => SORT_ASC])
                 ->all();

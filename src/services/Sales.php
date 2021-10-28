@@ -186,7 +186,7 @@ class Sales extends Component
      */
     public function getAllSales(): array
     {
-        if (null === $this->_allSales) {
+        if (!isset($this->_allSales)) {
             $sales = (new Query())->select([
                 'sales.id',
                 'sales.name',
@@ -361,7 +361,7 @@ class Sales extends Component
         $salePrice = ($originalPrice + $takeOffAmount);
 
         // A newPrice has been set so use it.
-        if (null !== $newPrice) {
+        if ($newPrice !== null) {
             $salePrice = $newPrice;
         }
 
@@ -434,7 +434,7 @@ class Sales extends Component
 
             if (!$sale->allGroups) {
                 // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
-                if (null === $user) {
+                if ($user === null) {
                     return false;
                 }
                 // User groups of the order's user
@@ -657,7 +657,7 @@ class Sales extends Component
      */
     private function _getAllEnabledSales(): array
     {
-        if (null === $this->_allActiveSales) {
+        if (!isset($this->_allActiveSales)) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {

@@ -1,0 +1,154 @@
+{% extends 'shop/_private/layouts' %}
+
+{# @var plans \craft\commerce\base\Plan[] #}
+{% set plans = craft.commerce.getPlans().getAllEnabledPlans() %}
+
+{% block main %}
+  <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-3xl block sm:inline">
+    {{- 'Plans'|t -}}
+  </h1>
+
+  {% if not plans|length %}
+    <h2 class="text-lg font-semibold text-gray-600 mt-4">
+      {{- 'No plans set up.'|t -}}
+    </h2>
+  {% endif %}
+
+  {# @var currentUser \craft\elements\User #}
+  {% if currentUser %}
+    <div class="mt-4">
+      {% set subscriptions = craft.subscriptions.userId(currentUser.id).all() %}
+
+      {% if subscriptions|length %}
+        <table class="w-full">
+          <thead>
+            <tr class="bg-gray-300 text-left">
+              <th class="p-2">{{ 'Plan'|t }}</th>
+              <th class="p-2">{{ 'Next Payment'|t }}</th>
+              <th class="p-2">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for subscription in subscriptions %}
+              <tr class="{{ cycle(['bg-gray-100', ''], loop.index0) }}">
+                <td class="p-2">
+                  {% set plan = subscription.plan ?? null %}
+                  {% if plan %}
+                    <div>
+                      {{ plan.name }}
+
+                      {# @var information \craft\elements\Entry #}
+                      {% set information = plan.getInformation() ?? null %}
+                      {% if information %}
+                        <div>
+                          <h4 class="font-semibold">{{ 'Plan Information Entry'|t }}</h4>
+                          <ul>
+                            <li>{{ 'ID' }}: {{ information.id }}</li>
+                            <li>{{ 'Title' }}: {{ information.title }}</li>
+                          </ul>
+                          <br>
+                        </div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+
+                  {% if subscription.isCanceled %}
+                    <div>
+                      <span class="text-sm text-gray-600">
+                        {{- 'Canceled on {date}.'|t({ date: subscription.dateCanceled|date('Y-m-d') }) -}}
+                      </span>
+                    </div>
+                  {% endif %}
+                </td>
+                <td class="p-2">
+                  {{- subscription.isCanceled
+                    ? 'Expires on {date}.'|t({ date: subscription.nextPaymentDate|date('Y-m-d') })
+                    : ''
+                  -}}
+                </td>
+                <td class="p-2 text-right">
+                  <a href="{{ url('/shop/plans/subscription', { subscription: subscription.id }) }}"
+                     class="cursor-pointer rounded px-4 py-2 inline-block bg-gray-500 hover:bg-gray-600 text-white hover:text-white"
+                  >
+                    {{- 'Manage'|t -}}
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <h2 class="text-lg font-semibold text-gray-600">
+          {{- 'You do not have any active subscriptions.'|t -}}
+        </h2>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if currentUser and plans|length %}
+    <div class="mt-4">
+      <h2 class="text-2xl block sm:inline">
+        {{ 'Available Plans'|t }}
+      </h2>
+
+      <div class="flex flex-wrap -mx-2">
+        {% for plan in plans %}
+          <div class="px-2 w-full sm:w-1/2 lg:w-1/3">
+            <div class="bg-gray-100 border-blue-300 border-b-2 p-6 mt-3">
+              <form method="post" action="">
+                {{ csrfInput() }}
+                {{ actionInput('commerce/subscriptions/subscribe') }}
+                {{ redirectInput('shop/plans') }}
+                {{ hiddenInput('planUid', plan.uid|hash) }}
+
+                <h4 class="font-semibold">
+                  {{- plan.name -}}
+                </h4>
+
+                <div class="mt-3">
+                  {% tag 'select' with {
+                    name: 'trialDays',
+                    'data-plan': plan.id,
+                    class: 'border border-gray-300 hover:border-gray-500 px-4 py-2 leading-tight rounded'
+                  } %}
+                    {% for i in [0, 3, 7, 14] %}
+                      {% if i == 0 %}
+                        {{ tag('option', {
+                          value: (plan.uid ~ ':0')|hash,
+                          text: 'No trial period.'|t
+                        }) }}
+                      {% else %}
+                        {{ tag('option', {
+                          value: (plan.uid ~ ':' ~ i)|hash,
+                          text: 'Trial for {n} days.'|t({ n: i })
+                        }) }}
+                      {% endif %}
+                    {% endfor %}
+                  {% endtag %}
+
+                  {% set paymentSources = craft.commerce.getPaymentSources()
+                    .getAllGatewayPaymentSourcesByUserId(plan.gateway.id, currentUser.id ?? null) %}
+
+                  {% if not paymentSources|length %}
+                    <div class="paymentForm mt-3">
+                      {{ plan.gateway.getPaymentFormHtml({})|raw }}
+                    </div>
+                  {% endif %}
+
+                  <div class="mt-3 text-right">
+                    {{ tag('button', {
+                      type: 'submit',
+                      class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
+                      text: 'Subscribe'|t
+                    }) }}
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
