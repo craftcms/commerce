@@ -91,7 +91,7 @@ class DiscountsController extends BaseCpController
         }
 
         $tabName = 'Discount (' . ($variables['isNewDiscount'] ? 'New' : 'ID: ' . $variables['discount']->id) . ')';
-        DebugPanel::addModelTab($tabName, $variables['discount']);
+        DebugPanel::appendModelTab($tabName, $variables['discount']);
 
         $this->_populateVariables($variables);
 
