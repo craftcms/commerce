@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\base\Plan;
 use craft\commerce\base\SubscriptionGateway;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\elements\Entry;
 use craft\helpers\Json;
@@ -68,9 +69,11 @@ class PlansController extends BaseStoreSettingsController
 
         if (!empty($variables['planId'])) {
             $variables['title'] = $variables['plan']->name;
+            DebugPanel::prependModelTab($variables['plan']);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Subscription Plan');
         }
+
 
         $variables['entryElementType'] = Entry::class;
 

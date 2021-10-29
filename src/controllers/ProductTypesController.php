@@ -11,6 +11,7 @@ use Craft;
 use craft\behaviors\FieldLayoutBehavior;
 use craft\commerce\elements\Product;
 use craft\commerce\elements\Variant;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\ProductTypeSite;
 use craft\commerce\Plugin;
@@ -67,6 +68,8 @@ class ProductTypesController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a Product Type');
         }
+
+        DebugPanel::prependModelTab($variables['productType']);
 
         $tabs = [
             'productTypeSettings' => [

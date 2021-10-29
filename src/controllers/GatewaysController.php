@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
 use yii\base\Exception;
@@ -93,6 +94,9 @@ class GatewaysController extends BaseAdminController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new gateway');
         }
+
+        DebugPanel::prependModelTab($variables['gateway']);
+
         return $this->renderTemplate('commerce/settings/gateways/_edit', $variables);
     }
 
