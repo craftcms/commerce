@@ -21,6 +21,7 @@
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
+- Removed `craft\commerce\models\ProductType::lineItemFormat`.
 - Renamed `craft\commerce\web\panel\CommercePanel` to `craft\commerce\debug\CommercePanel`.
 
 ### Deprecated

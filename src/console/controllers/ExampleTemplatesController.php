@@ -31,10 +31,10 @@ class ExampleTemplatesController extends Controller
     public $defaultAction = 'generate';
 
     /**
-     * @var ?string Name of the target folder the templates will be copied to.
+     * @var string|null Name of the target folder the templates will be copied to.
      * @since 3.3
      */
-    public string $folderName = '';
+    public ?string $folderName = null;
 
     /**
      * @var bool Whether to overwrite an existing folder. Must be passed if a folder with that name already exists.
@@ -43,7 +43,7 @@ class ExampleTemplatesController extends Controller
     public bool $overwrite = false;
 
     /**
-     * @var ?bool Whether to use htmx
+     * @var bool|null Whether to use Htmx
      * @since 3.3
      */
     public ?bool $useHtmx = null;
@@ -55,7 +55,7 @@ class ExampleTemplatesController extends Controller
     public bool $devBuild = false;
 
     /**
-     * @var ?string The base color for the generated example templates.
+     * @var string|null The base color for the generated example templates.
      * Possible values are: red, yellow, green, blue, indigo, purple, or pink.
      */
     public ?string $baseColor = null;
@@ -102,13 +102,12 @@ class ExampleTemplatesController extends Controller
         $slash = DIRECTORY_SEPARATOR;
         $pathService = Craft::$app->getPath();
         $templatesPath = $this->_getTemplatesPath();
-        $tempDestination = null;
 
         $exampleTemplatesSource = FileHelper::normalizePath(
             $pathService->getVendorPath() . '/craftcms/commerce/example-templates/src/shop'
         );
 
-        if (!empty($this->folderName)) {
+        if (isset($this->folderName)) {
             $folderName = $this->folderName;
         } else {
             $this->stdout('A folder will be copied to your templates directory.' . PHP_EOL);
@@ -116,7 +115,7 @@ class ExampleTemplatesController extends Controller
         }
 
         if ($this->useHtmx === null) {
-            $this->useHtmx = $this->confirm('Use htmx for forms and links?', true);
+            $this->useHtmx = $this->confirm('Use Htmx for forms and links?', true);
         }
 
         // Folder name is required
@@ -132,9 +131,10 @@ class ExampleTemplatesController extends Controller
         $this->_addCssClassesToReplacementData();
         $this->_addResourceAssetsToReplacementData();
 
+        // Create a temporary directory to hold the copy of the templates before we replace variables
+        $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
+
         try {
-            // Create a temporary directory to hold the copy of the templates before we replace variables
-            $tempDestination = $pathService->getTempPath() . $slash . 'commerce_example_templates_' . md5(uniqid(mt_rand(), true));
             // Copy the templates to the temporary directory
             FileHelper::copyDirectory(
                 $exampleTemplatesSource,
@@ -146,6 +146,7 @@ class ExampleTemplatesController extends Controller
             $files = FileHelper::findFiles($tempDestination, [
                 'only' => ['*.twig', '*.html', '*.svg', '*.css'],
             ]);
+
             // Set the [[ ]] notation variables and write the files
             foreach ($files as $file) {
                 $fileContents = file_get_contents($file);
