@@ -687,8 +687,14 @@ class Plugin extends BasePlugin
         Event::on(Application::class, Application::EVENT_BEFORE_REQUEST, function() {
             /** @var Module|null $module */
             $module = Craft::$app->getModule('debug');
+            $user = Craft::$app->getUser()->getIdentity();
 
-            if (!$module) {
+            if (!$module || !$user || !Craft::$app->getConfig()->getGeneral()->devMode) {
+                return;
+            }
+
+            $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
+            if (!$user->getPreference($pref)) {
                 return;
             }
 
