@@ -84,7 +84,7 @@ class SalesController extends BaseCpController
         }
 
         $tabName = sprintf('Sale (%s)', $isNewSale ? 'New' : 'ID: ' . $variables['sale']->id);
-        DebugPanel::appendModelTab($tabName, $variables['sale']);
+        DebugPanel::prependModelTab($tabName, $variables['sale']);
 
         $this->_populateVariables($variables);
 
