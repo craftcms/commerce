@@ -83,22 +83,10 @@ class CommercePanel extends Panel
 
         if ($this->cart) {
             $nav[] = 'Cart (in session)';
-            $cartAttributes = array_merge(array_keys($this->cart->fields()), $this->cart->extraFields());
 
-            $content[] =
-                Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
-                    'model' => $this->cart,
-                    'attributes' => $cartAttributes,
-                    'toArrayAttributes' => [
-                        'billingAddress',
-                        'customer',
-                        'estimatedBillingAddress',
-                        'estimatedShippingAddress',
-                        'lineItems',
-                        'shippingAddress',
-                        'transactions',
-                    ]
-                ]);
+            $content[] = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
+                'model' => $this->cart,
+            ]);
         }
 
         // Trigger event allowing extra tabs to be added.

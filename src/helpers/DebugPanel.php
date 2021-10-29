@@ -93,8 +93,6 @@ class DebugPanel
         Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $toArrayAttributes, $attributes, $prepend) {
             $content = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
                 'model' => $model,
-                'attributes' => !empty($attributes) ? $attributes : array_keys($model->fields()),
-                'toArrayAttributes' => $toArrayAttributes,
             ]);
 
             if ($prepend) {
