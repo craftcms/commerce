@@ -25,27 +25,23 @@ class DebugPanel
     /**
      * Add a model debug tab to the debug panel.
      *
-     * @param string $name Name of the tab to be displayed.
      * @param object $model
-     * @param array $toArrayAttributes Which attributes to call `toArray` on.
-     * @param array $attributes List of attributes to display, if empty the models `fields()` method will be user.
+     * @param string|null $name Name of the tab to be displayed.
      */
-    public static function appendModelTab(string $name, object $model, array $toArrayAttributes = [], array $attributes = []): void
+    public static function appendModelTab(object $model, ?string $name = null): void
     {
-        self::_registerPanelEventListener($name, $model, $toArrayAttributes, $attributes);
+        self::_registerPanelEventListener($model, $name);
     }
 
     /**
      * Add a model debug tab to the debug panel.
      *
-     * @param string $name Name of the tab to be displayed.
      * @param object $model
-     * @param array $toArrayAttributes Which attributes to call `toArray` on.
-     * @param array $attributes List of attributes to display, if empty the models `fields()` method will be user.
+     * @param string|null $name Name of the tab to be displayed.
      */
-    public static function prependModelTab(string $name, object $model, array $toArrayAttributes = [], array $attributes = []): void
+    public static function prependModelTab(object $model, ?string $name = null): void
     {
-        self::_registerPanelEventListener($name, $model, $toArrayAttributes, $attributes, true);
+        self::_registerPanelEventListener($model, $name, true);
     }
 
     /**
@@ -75,14 +71,21 @@ class DebugPanel
     }
 
     /**
-     * @param string $name Name of the tab to be displayed.
      * @param object $model
-     * @param array $toArrayAttributes Which attributes to call `toArray` on.
-     * @param array $attributes List of attributes to display, if empty the models `fields()` method will be user.
+     * @param string|null $name Name of the tab to be displayed.
      * @param bool $prepend Whether to prepend the content tab.
      */
-    private static function _registerPanelEventListener(string $name, object $model, array $toArrayAttributes = [], array $attributes = [], bool $prepend = false): void
+    private static function _registerPanelEventListener(object $model, ?string $name = null, bool $prepend = false): void
     {
+        if (!$name) {
+            $classSegments = explode('\\', get_class($model));
+            $name = array_pop($classSegments);
+
+            if (property_exists($model, 'id')) {
+                $name .= $model->id ? sprintf(' (ID: %s)', $model->id) : ' (New)';
+            }
+        }
+
         $user = Craft::$app->getUser()->getIdentity();
         $pref = Craft::$app->getRequest()->getIsCpRequest() ? 'enableDebugToolbarForCp' : 'enableDebugToolbarForSite';
 
@@ -90,10 +93,8 @@ class DebugPanel
             return;
         }
 
-        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $toArrayAttributes, $attributes, $prepend) {
-            $content = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', [
-                'model' => $model,
-            ]);
+        Event::on(CommercePanel::class, CommercePanel::EVENT_AFTER_DATA_PREPARE, function(CommerceDebugPanelDataEvent $event) use ($name, $model, $prepend) {
+            $content = Craft::$app->getView()->render('@craft/commerce/views/debug/commerce/model', compact('model'));
 
             if ($prepend) {
                 array_unshift($event->nav, $name);
