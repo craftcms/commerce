@@ -99,12 +99,7 @@ class ProductType extends Model
     public string $descriptionFormat = '{product.title} - {title}';
 
     /**
-     * @var string Line item format
-     */
-    public string $lineItemFormat;
-
-    /**
-     * @var string|null Template
+     * @var string Template
      */
     public ?string $template = null;
 
@@ -137,6 +132,11 @@ class ProductType extends Model
      * @var ProductTypeSite[]|null
      */
     private ?array $_siteSettings = null;
+
+    /**
+     * @var string Line item format
+     */
+    private $_lineItemFormat;
 
     /**
      * @return null|string
@@ -384,6 +384,26 @@ class ProductType extends Model
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('variantFieldLayout');
         return $behavior->getFieldLayout();
+    }
+
+    /**
+     * @return string
+     * @deprecated 3.4.7
+     */
+    public function getLineItemFormat(): string
+    {
+        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
+        return $this->_lineItemFormat;
+    }
+
+    /**
+     * @param $lineItemFormat
+     * @deprecated 3.4.7
+     */
+    public function setLineItemFormat($lineItemFormat): void
+    {
+        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
+        $this->_lineItemFormat = (string)$lineItemFormat;
     }
 
     /**

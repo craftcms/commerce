@@ -1,5 +1,11 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
+
+
 ## 3.4.6 - 2021-10-20
 
 ### Added
