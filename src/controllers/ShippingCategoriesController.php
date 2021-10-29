@@ -62,13 +62,11 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         if ($variables['shippingCategory']->id) {
             $variables['title'] = $variables['shippingCategory']->name;
-            $tabName = sprintf('Shipping Category (ID: %s)', $variables['shippingCategory']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping category');
-            $tabName = 'Shipping Category (New)';
         }
 
-        DebugPanel::prependModelTab($tabName, $variables['shippingCategory']);
+        DebugPanel::prependModelTab($variables['shippingCategory']);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {

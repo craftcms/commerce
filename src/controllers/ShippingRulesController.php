@@ -81,14 +81,12 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         if (!empty($variables['ruleId'])) {
             $variables['title'] = $variables['shippingRule']->name;
-            $tabName = sprintf('Shipping Rule (ID: %s)', $variables['shippingRule']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new shipping rule');
-            $tabName = 'Shipping Rules (New)';
         }
 
-        DebugPanel::prependModelTab(sprintf('Shipping Method (ID: %s)', $variables['shippingMethod']->id), $variables['shippingMethod']);
-        DebugPanel::prependModelTab($tabName, $variables['shippingRule']);
+        DebugPanel::prependModelTab($variables['shippingMethod']);
+        DebugPanel::prependModelTab($variables['shippingRule']);
 
         $shippingZones = $plugin->getShippingZones()->getAllShippingZones();
         $variables['shippingZones'] = [];

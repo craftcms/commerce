@@ -68,7 +68,6 @@ class SalesController extends BaseCpController
     public function actionEdit(int $id = null, Sale $sale = null): Response
     {
         $variables = compact('id', 'sale');
-        $isNewSale = false;
 
         if (!$variables['sale']) {
             if ($variables['id']) {
@@ -79,12 +78,10 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
-                $isNewSale = true;
             }
         }
 
-        $tabName = sprintf('Sale (%s)', $isNewSale ? 'New' : 'ID: ' . $variables['sale']->id);
-        DebugPanel::prependModelTab($tabName, $variables['sale']);
+        DebugPanel::prependModelTab($variables['sale']);
 
         $this->_populateVariables($variables);
 

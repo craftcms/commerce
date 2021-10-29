@@ -166,15 +166,7 @@ class OrdersController extends Controller
 
         $variables['order'] = $order;
 
-        DebugPanel::prependModelTab('Order', $order, [
-            'billingAddress',
-            'customer',
-            'estimatedBillingAddress',
-            'estimatedShippingAddress',
-            'lineItems',
-            'shippingAddress',
-            'transactions',
-        ], array_merge(array_keys($order->fields()), $order->extraFields()));
+        DebugPanel::prependModelTab($order);
 
         $variables['paymentForm'] = $paymentForm;
         $variables['orderId'] = $order->id;

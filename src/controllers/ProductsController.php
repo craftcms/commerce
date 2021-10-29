@@ -388,8 +388,8 @@ class ProductsController extends BaseController
         /** @var Product $product */
         $product = $variables['product'];
 
-        DebugPanel::prependModelTab('Product Type', $productType);
-        DebugPanel::prependModelTab('Product', $product);
+        DebugPanel::prependModelTab($productType);
+        DebugPanel::prependModelTab($product);
 
         $form = $productType->getProductFieldLayout()->createForm($product);
         $variables['tabs'] = $form->getTabMenu();

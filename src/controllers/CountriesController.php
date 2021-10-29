@@ -9,6 +9,7 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\Country;
 use craft\commerce\Plugin;
 use craft\commerce\records\Country as CountryRecord;
@@ -65,6 +66,8 @@ class CountriesController extends BaseStoreSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new country');
         }
+
+        DebugPanel::prependModelTab($variables['country']);
 
         // Check to see if we should show the disable warning
         $variables['showDisableWarning'] = false;

@@ -61,13 +61,11 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         if ($variables['shippingZone']->id) {
             $variables['title'] = $variables['shippingZone']->name;
-            $tabName = sprintf('Shipping Zone (ID: %s)', $variables['shippingZone']->id);
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
-            $tabName = 'Shipping Zone (New)';
         }
 
-        DebugPanel::prependModelTab($tabName, $variables['shippingZone']);
+        DebugPanel::prependModelTab($variables['shippingZone']);
 
         $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
         $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();

@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\CurrencyException;
+use craft\commerce\helpers\DebugPanel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\db\Table as CraftTable;
@@ -71,6 +72,8 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
         } else {
             $variables['title'] = Craft::t('commerce', 'Create a new currency');
         }
+
+        DebugPanel::prependModelTab($variables['currency']);
 
         $variables['storeCurrency'] = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $variables['currencies'] = array_keys(Plugin::getInstance()->getCurrencies()->getAllCurrencies());

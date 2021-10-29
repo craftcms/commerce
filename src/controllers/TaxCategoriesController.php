@@ -69,7 +69,7 @@ class TaxCategoriesController extends BaseTaxSettingsController
             $tabName = 'Tax Category (New)';
         }
 
-        DebugPanel::prependModelTab($tabName, $variables['taxCategory']);
+        DebugPanel::prependModelTab($variables['taxCategory']);
 
         $variables['productTypesOptions'] = [];
         if (!empty($variables['productTypes'])) {
