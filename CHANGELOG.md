@@ -5,6 +5,8 @@
 ### Deprecated
 - Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
 
+### Security
+- Fixed some XSS vulnerabilities.
 
 ## 3.4.6 - 2021-10-20
 

@@ -1303,7 +1303,7 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {
