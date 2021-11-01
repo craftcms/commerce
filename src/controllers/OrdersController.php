@@ -1498,6 +1498,7 @@ class OrdersController extends Controller
                 ];
                 $row['newLineItemUid'] = StringHelper::UUID();
                 $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
+                $row['sku'] = Html::encode($row['sku']);
                 $purchasables[] = $row;
             }
         }
