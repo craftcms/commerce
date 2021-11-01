@@ -467,7 +467,6 @@ class ProductsController extends BaseController
                 $variables['product']->taxCategoryId = key($taxCategories);
                 $shippingCategories = $variables['productType']->getShippingCategories();
                 $variables['product']->shippingCategoryId = key($shippingCategories);
-                $variables['product']->typeId = $variables['productType']->id;
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;
