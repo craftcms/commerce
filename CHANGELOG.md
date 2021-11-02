@@ -5,6 +5,9 @@
 ### Deprecated
 - Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
 
+### Fixed
+- Fixed a bug where PDFs were being rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
+
 ### Security
 - Fixed some XSS vulnerabilities.
 

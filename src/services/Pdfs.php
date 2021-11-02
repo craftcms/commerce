@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\PdfEvent;
 use craft\commerce\events\PdfRenderOptionsEvent;
 use craft\commerce\events\PdfSaveEvent;
+use craft\commerce\helpers\Locale;
 use craft\commerce\models\Pdf;
 use craft\commerce\Plugin;
 use craft\commerce\records\Pdf as PdfRecord;
@@ -443,12 +444,17 @@ class Pdfs extends Component
 
         // Set Craft to the site template mode
         $view = Craft::$app->getView();
+        $originalLanguage = Craft::$app->language;
+        $pdfLanguage = $pdf->getRenderLanguage($order);
+        Locale::switchAppLanguage($pdfLanguage);
+
         $oldTemplateMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
 
         if (!$event->template || !$view->doesTemplateExist($event->template)) {
             // Restore the original template mode
             $view->setTemplateMode($oldTemplateMode);
+            Locale::switchAppLanguage($originalLanguage);
 
             throw new Exception('PDF template file does not exist.');
         }
@@ -456,12 +462,14 @@ class Pdfs extends Component
         try {
             $html = $view->renderTemplate($event->template, $variables);
         } catch (\Exception $e) {
+            Locale::switchAppLanguage($originalLanguage);
             // Set the pdf html to the render error.
             Craft::error('Order PDF render error. Order number: ' . $order->getShortNumber() . '. ' . $e->getMessage());
             Craft::$app->getErrorHandler()->logException($e);
             $html = Craft::t('commerce', 'An error occurred while generating this PDF.');
         }
 
+        Locale::switchAppLanguage($originalLanguage);
         // Restore the original template mode
         $view->setTemplateMode($oldTemplateMode);
 
@@ -497,7 +505,7 @@ class Pdfs extends Component
         $options->setLogOutputFile($dompdfLogFile);
         $options->setIsRemoteEnabled($isRemoteEnabled);
 
-        // Set additional rener options
+        // Set additional render options
         if ($this->hasEventHandlers(self::EVENT_MODIFY_RENDER_OPTIONS)) {
             $this->trigger(self::EVENT_MODIFY_RENDER_OPTIONS, new PdfRenderOptionsEvent([
                 'options' => $options,
