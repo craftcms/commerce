@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.7 - 2021-11-03
 
 ### Deprecated
 - Deprecated `craft\commerce\models\ProductType::getLineItemFormat()` and `setLineItemFormat()`.
