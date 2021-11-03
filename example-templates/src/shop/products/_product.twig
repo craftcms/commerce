@@ -38,7 +38,7 @@
           })) }}
           <div>
             {% for variant in product.variants %}
-              {{ hiddenInput('purchasables['~loop.index~'][id]', variant.id) }}
+              {{ hiddenInput('purchasables[' ~ loop.index ~ '][id]', variant.id) }}
               <div class="flex items-center justify-between w-full">
                 <div class="w-1/2">
                   <span class="inline-block mr-1">{{ variant.title }}</span>

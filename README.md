@@ -47,7 +47,7 @@ We highly recommend you check out these resources as you’re getting started wi
 ---
 
 <p>
-<a href="https://travis-ci.com/craftcms/commerce"><img src="https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=build" alt="Build Status"></a>
+<a href="https://app.travis-ci.com/github/craftcms/commerce"><img src="https://img.shields.io/travis/com/craftcms/commerce/feature/tests.svg?label=build" alt="Build Status"></a>
 <a href="https://packagist.org/packages/craftcms/commerce"><img src="https://img.shields.io/packagist/dt/craftcms/commerce.svg?label=downloads" alt="Total Packagist Downloads"></a>
 <a href="https://github.com/craftcms/commerce/releases"><img src="https://img.shields.io/github/tag/craftcms/commerce.svg?label=stable" alt="Latest Stable Version"></a>
 </p>
