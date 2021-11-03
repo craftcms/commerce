@@ -3,15 +3,15 @@
 ## Unreleased
 
 ### Deprecated
-- Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
+- Deprecated `craft\commerce\models\ProductType::getLineItemFormat()` and `setLineItemFormat()`.
 
 ### Fixed
-- Fixed a bug where the Variant Field could be added to a Products’ field layout twice.
-- Fixed a bug where PDFs were being rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
-- Fixed a PHP that that could occur when instantiating an Order object. ([#2602](https://github.com/craftcms/commerce/issues/2602))
+- Fixed a bug where products’ Variants fields could be added to the field layout twice.
+- Fixed a bug where PDFs could be rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
+- Fixed an error that that could occur when instantiating a `craft\commerce\elements\Order` object. ([#2602](https://github.com/craftcms/commerce/issues/2602))
 
 ### Security
-- Fixed some XSS vulnerabilities.
+- Fixed XSS vulnerabilities.
 
 ## 3.4.6 - 2021-10-20
 
