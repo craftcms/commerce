@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where PDFs were being rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
+- Fixed a PHP that that could occur when instantiating an Order object. ([#2602](https://github.com/craftcms/commerce/issues/2602))
 
 ### Security
 - Fixed some XSS vulnerabilities.
