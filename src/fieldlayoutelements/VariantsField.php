@@ -34,6 +34,14 @@ class VariantsField extends BaseField
     /**
      * @inheritdoc
      */
+    public function mandatory(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function hasCustomWidth(): bool
     {
         return false;
