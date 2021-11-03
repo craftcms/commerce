@@ -1130,7 +1130,7 @@ class Order extends Element
             $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
-        return parent::init();
+        parent::init();
     }
 
     /**
