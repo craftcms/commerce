@@ -88,6 +88,17 @@ class Pdf extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'config';
+
+        return $fields;
+    }
+
+    /**
      * Determines the language this PDF
      *
      * @param Order|null $order
