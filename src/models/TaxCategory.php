@@ -145,4 +145,17 @@ class TaxCategory extends Model
             [['handle'], 'required'],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'productTypes';
+        $fields[] = 'productTypeIds';
+        $fields[] = 'taxRates';
+
+        return $fields;
+    }
 }

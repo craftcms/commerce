@@ -14,6 +14,7 @@ use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Tax rate model.
@@ -132,6 +133,20 @@ class TaxRate extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'taxCategory';
+        $fields[] = 'taxZone';
+        $fields[] = 'rateAsPercent';
+        $fields[] = 'isEverywhere';
+
+        return $fields;
+    }
+
+    /**
      * @return string
      */
     public function getCpEditUrl(): string
@@ -151,6 +166,7 @@ class TaxRate extends Model
 
     /**
      * @return TaxAddressZone|null
+     * @throws InvalidConfigException
      */
     public function getTaxZone(): ?TaxAddressZone
     {
@@ -163,6 +179,7 @@ class TaxRate extends Model
 
     /**
      * @return TaxCategory|null
+     * @throws InvalidConfigException
      */
     public function getTaxCategory(): ?TaxCategory
     {
@@ -175,6 +192,7 @@ class TaxRate extends Model
 
     /**
      * @return bool Does this tax rate apply everywhere
+     * @throws InvalidConfigException
      */
     public function getIsEverywhere(): bool
     {

@@ -265,4 +265,23 @@ class TaxAddressZone extends Model implements AddressZoneInterface
             ],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'countries';
+        $fields[] = 'countryIds';
+        $fields[] = 'countriesNames';
+        $fields[] = 'states';
+        $fields[] = 'stateIds';
+        $fields[] = 'statesNames';
+        $fields[] = 'taxRates';
+        $fields[] = 'isCountryBased';
+        $fields[] = 'zipCodeConditionFormula';
+
+        return $fields;
+    }
 }
