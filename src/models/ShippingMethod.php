@@ -115,4 +115,15 @@ class ShippingMethod extends BaseShippingMethod
             [['handle'], UniqueValidator::class, 'targetClass' => ShippingMethodRecord::class],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRules';
+
+        return $fields;
+    }
 }

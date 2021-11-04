@@ -249,6 +249,18 @@ class ShippingRule extends Model implements ShippingRuleInterface
     /**
      * @inheritdoc
      */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'shippingRuleCategories';
+        $fields[] = 'shippingZone';
+
+        return $fields;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getIsEnabled(): bool
     {
         return $this->enabled;
