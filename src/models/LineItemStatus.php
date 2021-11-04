@@ -87,6 +87,17 @@ class LineItemStatus extends Model
     }
 
     /**
+     * @inerhitdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'labelHtml';
+
+        return $fields;
+    }
+
+    /**
      * @return string
      */
     public function getCpEditUrl(): string
