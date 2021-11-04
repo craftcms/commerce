@@ -69,6 +69,17 @@ class Country extends Model
     }
 
     /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'states';
+
+        return $fields;
+    }
+
+    /**
      * @return array
      * @throws InvalidConfigException
      * @since 3.1
