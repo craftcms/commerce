@@ -172,6 +172,17 @@ class Sale extends Model
     }
 
     /**
+     * @return array
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'purchasableIds';
+
+        return $fields;
+    }
+
+    /**
      * @return string
      */
     public function getApplyAmountAsPercent(): string
