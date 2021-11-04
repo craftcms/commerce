@@ -7,13 +7,18 @@
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
 - Ajax responses from `commerce/payment-sources/*` no longer include `paymentForm`. Use `paymentFormErrors` instead.
+- `craft\commerce\elements\Products::getVariants()`, `getDefaultVariant()`, `getChepeastVariant()`, `getTotalStock()`, and `getHasUnlimitedStock()` now return data related to only enabled variant(s) by default.
 - Renamed `craft\commerce\elements\Order::EVENT_AFTER_REMOVE_LINE_ITEM` string from `afterRemoveLineItemToOrder` -> `afterRemoveLineItemFromOrder.
-- `craft\commerce\modela\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
+- `craft\commerce\model\ProductType::$titleFormat` was renamed to `$variantTitleFormat`.
+- `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
+- `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
+- `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
 - Renamed `craft\commerce\services\ShippingMethods\getAvailableShippingMethods()` to `getMatchingShippingMethods()` to better represent the method.
 - Subscription plans are no longer accessible via old Control Panel URLs.
+- Removed `craft\commerce\models\ProductType::lineItemFormat`.
 
 ### Deprecated
 - Deprecated `craft\commerce\models\Address::getCountryText()`. Use `getCountryName()` instead.
@@ -58,6 +63,7 @@
 - Removed `craft\commerce\services\Payments::getTotalAuthorizedOnlyForOrder()`. Use `Order::getTotalAuthorized()` instead.
 - Removed `craft\commerce\services\Payments::getTotalPaidForOrder()`. Use `Order::getTotalPaid()` instead.
 - Removed `craft\commerce\services\Payments::getTotalRefundedForOrder()`.
+- Removed `craft\commerce\services\Sales::populateSaleRelations()`.
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `json_encode_filtered` twig filter.

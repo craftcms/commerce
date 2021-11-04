@@ -21,30 +21,6 @@ use craft\commerce\services\Sales;
 class SaleTest extends Unit
 {
     /**
-     * @todo Remove when populateSaleRelations is removed #COM-58
-     */
-    public function testLoadRelationsCalledOnce(): void
-    {
-        $populateSaleRelationsRunCount = 0;
-        $sale = new Sale();
-
-        $mockSalesService = $this->make(Sales::class, [
-            'populateSaleRelations' => function() use (&$populateSaleRelationsRunCount, &$sale) {
-                $populateSaleRelationsRunCount++;
-                $sale->setPurchasableIds([]);
-                $sale->setCategoryIds([]);
-                $sale->setUserGroupIds([]);
-            }
-        ]);
-
-        Plugin::getInstance()->set('sales', $mockSalesService);
-        $sale->getPurchasableIds();
-        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-        $sale->getCategoryIds();
-        self::assertSame(0, $populateSaleRelationsRunCount, 'populateSaleRelations should no longer be called');
-    }
-
-    /**
      *
      */
     public function testSetCategoryIds(): void

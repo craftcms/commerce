@@ -38,12 +38,12 @@ class RepeatCustomers extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
      * @var null|RepeatingCustomersStat
      */
-    private $_stat;
+    private ?RepeatingCustomersStat $_stat = null;
 
     /**
      * @inheritDoc
@@ -51,7 +51,7 @@ class RepeatCustomers extends Widget
     public function init(): void
     {
         parent::init();
-        $this->dateRange = !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? RepeatingCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new RepeatingCustomersStat(
             $this->dateRange,

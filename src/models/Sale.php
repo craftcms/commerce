@@ -196,7 +196,7 @@ class Sale extends Model
      */
     public function getCategoryIds(): array
     {
-        if (null === $this->_categoryIds) {
+        if (!isset($this->_categoryIds)) {
             $categoryIds = [];
             if ($this->id) {
                 $categoryIds = (new Query())->select(
@@ -220,7 +220,7 @@ class Sale extends Model
      */
     public function getPurchasableIds(): array
     {
-        if (null === $this->_purchasableIds) {
+        if (!isset($this->_purchasableIds)) {
             $purchasableIds = [];
             if ($this->id) {
                 $purchasableIds = (new Query())->select(
@@ -244,7 +244,7 @@ class Sale extends Model
      */
     public function getUserGroupIds(): array
     {
-        if (null === $this->_userGroupIds) {
+        if (!isset($this->_userGroupIds)) {
             $userGroupIds = [];
             if ($this->id) {
                 $userGroupIds = (new Query())->select(

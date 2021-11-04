@@ -16,6 +16,7 @@ use craft\errors\ElementNotFoundException;
 use craft\errors\MissingComponentException;
 use craft\helpers\ConfigHelper;
 use craft\helpers\DateTimeHelper;
+use craft\helpers\Db;
 use craft\helpers\StringHelper;
 use DateTime;
 use Throwable;
@@ -67,7 +68,7 @@ class Carts extends Component
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
-        if (null === $this->_cart && !$this->_cart = $this->_getCart()) {
+        if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
             $this->_cart = new Order(['customer' => $customer]);
             $this->_cart->number = $this->getSessionCartNumber();
         }
@@ -188,7 +189,7 @@ class Carts extends Component
         $activeCartDuration = ConfigHelper::durationInSeconds(Plugin::getInstance()->getSettings()->activeCartDuration);
         $interval = DateTimeHelper::secondsToInterval($activeCartDuration);
         $edge->sub($interval);
-        return $edge->format(DateTime::ATOM);
+        return Db::prepareDateForDb($edge);
     }
 
     /**
@@ -286,7 +287,7 @@ class Carts extends Component
             $cartIds = (new Query())
                 ->select(['orders.id'])
                 ->where(['not', ['isCompleted' => true]])
-                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => $edge->format('Y-m-d H:i:s')])
+                ->andWhere('[[orders.dateUpdated]] <= :edge', ['edge' => Db::prepareDateForDb($edge)])
                 ->from(['orders' => Table::ORDERS])
                 ->column();
 

@@ -654,7 +654,7 @@ class Address extends Model
      */
     private function _getVatValidator(): Validator
     {
-        if (null === $this->_vatValidator) {
+        if (!isset($this->_vatValidator)) {
             $this->_vatValidator = new Validator();
         }
 

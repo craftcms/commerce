@@ -43,7 +43,7 @@ class AverageOrderTotal extends Widget
     /**
      * @var null|AverageOrderTotalStat
      */
-    private ?AverageOrderTotalStat $_stat;
+    private ?AverageOrderTotalStat $_stat = null;
 
     /**
      * @inheritDoc

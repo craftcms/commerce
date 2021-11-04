@@ -244,9 +244,9 @@ class ProductsController extends BaseController
             // If we're duplicating the product, swap $product with the duplicate
             if ($duplicate) {
                 try {
-                    $originalVariantIds = ArrayHelper::getColumn($oldProduct->getVariants(), 'id');
+                    $originalVariantIds = ArrayHelper::getColumn($oldProduct->getVariants(true), 'id');
                     $product = $elementsService->duplicateElement($oldProduct);
-                    $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(), 'id');
+                    $duplicatedVariantIds = ArrayHelper::getColumn($product->getVariants(true), 'id');
 
                     $newVariants = [];
                     foreach ($variants as $key => $postedVariant) {

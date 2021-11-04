@@ -1,5 +1,43 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Deprecated
+- Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
+
+
+## 3.4.6 - 2021-10-20
+
+### Added
+- Added `craft\commerce\services\PaymentSources::getPaymentSourceByTokenAndGatewayId()`.
+
+### Changed
+- Improved the styling and behavior of the example templates.
+
+### Fixed
+- Fixed a bug where purging inactive carts did not respect time zones. ([#2588](https://github.com/craftcms/commerce/issues/2588))
+- Fixed a bug where it was possible to manage discounts when using the Lite edition. ([#2590](https://github.com/craftcms/commerce/issues/2590))
+
+## 3.4.5 - 2021-10-13
+
+### Added
+- Added `craft\commerce\services\Transactions::getTransactionByReference()`.
+
+### Fixed
+- Fixed a bug where shipping rules could never match when the cart was empty. ([#2583](https://github.com/craftcms/commerce/issues/2583))
+- Fixed a bug where a default shipping method was not being set per the `autoSetCartShippingMethodOption` setting. ([#2584](https://github.com/craftcms/commerce/issues/2584))
+
+## 3.4.4 - 2021-10-07
+
+### Added
+- Added the `autoSetCartShippingMethodOption` config setting.
+
+### Changed
+- The `commerce/cart/update-cart` action now supports a `clearLineItems` param.
+
+### Fixed
+- Fixed a bug where addresses weren’t getting copied to orders correctly. ([#2555](https://github.com/craftcms/commerce/issues/2555))
+
 ## 3.4.3 - 2021-09-22
 
 ### Fixed

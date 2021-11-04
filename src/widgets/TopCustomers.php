@@ -39,27 +39,27 @@ class TopCustomers extends Widget
     /**
      * @var string|null
      */
-    public $dateRange;
+    public ?string $dateRange = null;
 
     /**
-     * @var string Options 'total', 'average'.
+     * @var string|null Options 'total', 'average'.
      */
-    public $type;
+    public ?string $type = null;
 
     /**
      * @var TopCustomersStat
      */
-    private $_stat;
+    private TopCustomersStat $_stat;
 
     /**
      * @var string
      */
-    private $_title;
+    private string $_title;
 
     /**
      * @var array
      */
-    private $_typeOptions;
+    private array $_typeOptions;
 
     /**
      * @inheritDoc
@@ -88,7 +88,7 @@ class TopCustomers extends Widget
                 break;
             }
         }
-        $this->dateRange = !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
+        $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopCustomersStat(
             $this->dateRange,
@@ -146,6 +146,10 @@ class TopCustomers extends Widget
     public function getBodyHtml(): ?string
     {
         $stats = $this->_stat->get();
+
+        if (empty($stats)) {
+            return Html::tag('p', Craft::t('commerce', 'No stats available.'), ['class' => 'zilch']);
+        }
 
         $view = Craft::$app->getView();
         $view->registerAssetBundle(StatWidgetsAsset::class);

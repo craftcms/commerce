@@ -110,7 +110,7 @@ class PaymentSources extends Component
      */
     public function getAllPaymentSourcesByUserId(int $userId = null): array
     {
-        if (null === $userId) {
+        if ($userId === null) {
             return [];
         }
 
@@ -135,7 +135,7 @@ class PaymentSources extends Component
      */
     public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): array
     {
-        if (null === $gatewayId) {
+        if ($gatewayId === null) {
             return [];
         }
 
@@ -162,7 +162,7 @@ class PaymentSources extends Component
      */
     public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $userId = null): array
     {
-        if (null === $gatewayId || null === $userId) {
+        if ($gatewayId === null || $userId === null) {
             return [];
         }
 
@@ -178,6 +178,23 @@ class PaymentSources extends Component
         }
 
         return $sources;
+    }
+
+    /**
+     * Returns a payment source by its gateways token
+     *
+     * @param string $token the payment gateway's token
+     * @param int $gatewayId the gateway's ID
+     * @return PaymentSource|null
+     */
+    public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId)
+    {
+        $result = $this->_createPaymentSourcesQuery()
+            ->where(['token' => $token])
+            ->andWhere(['gatewayId' => $gatewayId])
+            ->one();
+
+        return $result ? new PaymentSource($result) : null;
     }
 
     /**
