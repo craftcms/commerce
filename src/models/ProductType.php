@@ -399,4 +399,17 @@ class ProductType extends Model
             ],
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function extraFields(): array
+    {
+        $fields = parent::extraFields();
+        $fields[] = 'taxCategories';
+        $fields[] = 'shippingCategories';
+        $fields[] = 'siteSettings';
+
+        return $fields;
+    }
 }
