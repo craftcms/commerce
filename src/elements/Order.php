@@ -3307,7 +3307,6 @@ class Order extends Element
         foreach ($this->getNotices() as $notice) {
             if ($notice->id === null) {
                 $noticeRecord = new OrderNoticeRecord();
-                $noticeRecord->id = $notice->id;
                 $noticeRecord->orderId = $notice->orderId;
                 $noticeRecord->type = $notice->type;
                 $noticeRecord->attribute = $notice->attribute;
