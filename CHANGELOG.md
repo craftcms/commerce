@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Improved the performance of order saving.
+
 ## 3.4.7 - 2021-11-03
 
 ### Deprecated
