@@ -5,6 +5,9 @@
 ### Changed
 - Improved the performance of order saving.
 
+### Fixed
+- Fixed a UI bug with Payment modal fields. ([#2603](https://github.com/craftcms/commerce/issues/2603))
+
 ## 3.4.7 - 2021-11-03
 
 ### Deprecated
