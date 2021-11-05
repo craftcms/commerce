@@ -3312,10 +3312,10 @@ class Order extends Element
                 $noticeRecord->attribute = $notice->attribute;
                 $noticeRecord->message = $notice->message;
                 if ($noticeRecord->save(false)) {
-                    $currentNoticeIds[] = $notice->id = $noticeRecord->id;
+                    $notice->id = $noticeRecord->id;
                 }
             }
-            
+
             $currentNoticeIds[] = $notice->id;
         }
 
