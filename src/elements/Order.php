@@ -3314,9 +3314,9 @@ class Order extends Element
                 if ($noticeRecord->save(false)) {
                     $currentNoticeIds[] = $notice->id = $noticeRecord->id;
                 }
-            } else {
-                $currentNoticeIds[] = $notice->id;
             }
+            
+            $currentNoticeIds[] = $notice->id;
         }
 
         // Delete any notices that are no longer on the order
