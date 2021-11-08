@@ -18,6 +18,7 @@ abstract class Table
     const ADDRESSES = '{{%commerce_addresses}}';
     const CHARGES = '{{%commerce_charges}}';
     const COUNTRIES = '{{%commerce_countries}}';
+    const COUPONS = '{{%commerce_coupons}}';
     const CUSTOMER_DISCOUNTUSES = '{{%commerce_customer_discountuses}}';
     const CUSTOMERS = '{{%commerce_customers}}';
     const CUSTOMERS_ADDRESSES = '{{%commerce_customers_addresses}}';
