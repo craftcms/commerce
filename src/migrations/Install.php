@@ -127,6 +127,15 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::COUPONS, [
+            'id' => $this->primaryKey(),
+            'code' => $this->string(),
+            'uses' => $this->integer()->notNull()->defaultValue(0),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::CUSTOMER_DISCOUNTUSES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
