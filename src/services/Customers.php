@@ -235,7 +235,7 @@ class Customers extends Component
         }
 
         // default to customer in session.
-        if (null === $customer) {
+        if ($customer === null) {
             $customer = $this->getCustomer();
         }
 
@@ -374,7 +374,7 @@ class Customers extends Component
     {
         $customer = CustomerRecord::findOne($customer->id);
 
-        if (null === $customer) {
+        if ($customer === null) {
             return null;
         }
 

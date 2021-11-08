@@ -166,7 +166,7 @@ class TaxRate extends Model
      */
     public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory && $this->taxCategoryId) {
+        if (!isset($this->_taxCategory) && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 

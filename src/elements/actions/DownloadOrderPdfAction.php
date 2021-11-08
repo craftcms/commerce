@@ -108,7 +108,7 @@ JS;
         $pdfsService = Plugin::getInstance()->getPdfs();
 
         $pdfId = $this->pdfId;
-        if (null === $pdfId) {
+        if ($pdfId === null) {
             throw new InvalidConfigException("Invalid PDF ID");
         }
 

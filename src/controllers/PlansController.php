@@ -122,8 +122,8 @@ class PlansController extends BaseStoreSettingsController
             $this->requirePermission('commerce-editSubscriptionPlan');
             $plan = $planService->getPlanById($planId);
         }
-
-        if (null === $plan) {
+        
+        if ($plan === null) {
             $this->requirePermission('commerce-createSubscriptionPlan');
             $plan = $gateway->getPlanModel();
         }

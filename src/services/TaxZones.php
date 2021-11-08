@@ -45,7 +45,7 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (null === $this->_allTaxZones) {
+        if (!isset($this->_allTaxZones)) {
             $rows = $this->_createTaxZonesQuery()->all();
 
             foreach ($rows as $row) {

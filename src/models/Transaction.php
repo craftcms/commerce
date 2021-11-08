@@ -38,9 +38,9 @@ class Transaction extends Model
     public ?int $id = null;
 
     /**
-     * @var int Order ID
+     * @var int|null Order ID
      */
-    public int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var int|null Parent transaction ID
@@ -53,9 +53,9 @@ class Transaction extends Model
     public ?int $userId = null;
 
     /**
-     * @var string Hash
+     * @var string|null Hash
      */
-    public string $hash;
+    public ?string $hash = null;
 
     /**
      * @var int Gateway ID
@@ -63,9 +63,9 @@ class Transaction extends Model
     public int $gatewayId;
 
     /**
-     * @var string Currency
+     * @var string|null Currency
      */
-    public string $currency;
+    public ?string $currency = null;
 
     /**
      * The payment amount in the payment currency.
@@ -76,9 +76,9 @@ class Transaction extends Model
     public float $paymentAmount;
 
     /**
-     * @var string Payment currency
+     * @var string|null Payment currency
      */
-    public string $paymentCurrency;
+    public ?string $paymentCurrency = null;
 
     /**
      * @var float Payment Rate
@@ -86,9 +86,9 @@ class Transaction extends Model
     public float $paymentRate;
 
     /**
-     * @var string Transaction Type
+     * @var string|null Transaction Type
      */
-    public string $type;
+    public ?string $type = null;
 
     /**
      * The amount in the currency (which is the currency of the order)
@@ -98,24 +98,24 @@ class Transaction extends Model
     public float $amount;
 
     /**
-     * @var string Status
+     * @var string|null Status
      */
-    public string $status;
+    public ?string $status = null;
 
     /**
-     * @var string reference
+     * @var string|null reference
      */
-    public string $reference;
+    public ?string $reference = null;
 
     /**
-     * @var string Code
+     * @var string|null Code
      */
-    public string $code;
+    public ?string $code = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public string $message;
+    public ?string $message = null;
 
     /**
      * @var string Note
@@ -271,7 +271,7 @@ class Transaction extends Model
      */
     public function getParent(): ?Transaction
     {
-        if (null === $this->_parentTransaction && $this->parentId) {
+        if (!isset($this->_parentTransaction) && $this->parentId) {
             $this->_parentTransaction = Plugin::getInstance()->getTransactions()->getTransactionById($this->parentId);
         }
 
@@ -284,7 +284,7 @@ class Transaction extends Model
      */
     public function getOrder(): ?Order
     {
-        if (null === $this->_order && $this->orderId) {
+        if (!isset($this->_order) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -306,7 +306,7 @@ class Transaction extends Model
      */
     public function getGateway(): ?Gateway
     {
-        if (null === $this->_gateway && $this->gatewayId) {
+        if (!isset($this->_gateway) && $this->gatewayId) {
             $this->_gateway = Plugin::getInstance()->getGateways()->getGatewayById($this->gatewayId);
         }
 
@@ -329,7 +329,7 @@ class Transaction extends Model
      */
     public function getChildTransactions(): array
     {
-        if (null === $this->_children && $this->id) {
+        if (!isset($this->_children) && $this->id) {
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 

@@ -46,7 +46,7 @@ class CartController extends BaseFrontEndController
     /**
      * @var User|null
      */
-    protected ?User $_currentUser;
+    protected ?User $_currentUser = null;
 
     /**
      * @throws InvalidConfigException

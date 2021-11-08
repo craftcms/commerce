@@ -435,7 +435,7 @@ trait OrderElementTrait
         $default = parent::defineExporters($source);
         // Remove the standard expanded exporter and use our own
         ArrayHelper::removeValue($default, CraftExpanded::class);
-        ArrayHelper::append($default, Expanded::class);
+        $default[] = Expanded::class;
 
         return $default;
     }

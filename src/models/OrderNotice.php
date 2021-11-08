@@ -46,12 +46,12 @@ class OrderNotice extends Model
     /**
      * @var int|null Order ID
      */
-    public ?int $orderId;
+    public ?int $orderId = null;
 
     /**
      * @var Order|null The order this notice belongs to
      */
-    private ?Order $_order;
+    private ?Order $_order = null;
 
     /**
      * @return string
