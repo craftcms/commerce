@@ -192,22 +192,22 @@
             value: discount.code,
             errors: discount.getErrors('code'),
         }) }}
+
+        <button class="btn commerce-coupon-button">Coupons</button>
     </div>
 
     <div id="conditions" class="hidden">
 
         {{ forms.dateTimeField({
             label: "Start Date"|t('commerce'),
-            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t('commerce'),
-            id: 'dateFrom',
+            instructions: "Date from which the discount will be active. Leave blank for unlimited start date"|t('commerce'),            id: 'dateFrom',
             name: 'dateFrom',
             value: discount.dateFrom,
             errors: discount.getErrors('dateFrom'),
         }) }}
 
         {{ forms.dateTimeField({
-            label: "End Date"|t('commerce'),
-            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t('commerce'),
+            label: "End Date"|t('commerce'),            instructions: "Date when the discount will be finished. Leave blank for unlimited end date"|t('commerce'),
             id: 'dateTo',
             name: 'dateTo',
             value: discount.dateTo,
@@ -606,21 +606,50 @@ $(function() {
                 dataType: 'json',
                 headers: {
                     "X-CSRF-Token": '{{ craft.app.request.csrfToken }}',
-                        },
-                        url: '',
-                        data: {
-                            'action' : 'commerce/discounts/clear-discount-uses',
-                            'id': '{{ discount.id ?? '' }}',
-                            'type': type
-                        },
-                        success: function(data){
-                            $spinner.toggleClass('hidden');
-                            $field.val('');
-                            Craft.cp.displayNotice(Craft.t('commerce', 'Counter has been cleared.'));
-                            $this.attr('disabled', 'disabled').prop('disabled', 'disabled');
-                        }
-                    });
+                },
+                url: '',
+                data: {
+                    'action' : 'commerce/discounts/clear-discount-uses',
+                    'id': '{{ discount.id ?? '' }}',
+                    'type': type
+                },
+                success: function(data){
+                    $spinner.toggleClass('hidden');
+                    $field.val('');
+                    Craft.cp.displayNotice(Craft.t('commerce', 'Counter has been cleared.'));
+                    $this.attr('disabled', 'disabled').prop('disabled', 'disabled');
                 }
             });
-        });
+        }
+    });
+});
+
+let $couponButton = document.querySelector('.commerce-coupon-button');
+
+let $contents = document.createElement('div');
+let $header = document.createElement('header', {
+    class: 'pane-header'
+});
+
+$header.appendChild(document.createTextNode('Test'));
+
+$contents.appendChild($header);
+
+$couponButton.addEventListener('click', function(ev) {
+    ev.preventDefault();
+    let $slideout = new Craft.Slideout($contents, {
+        containerElement: 'form',
+        containerAttributes: {
+            action: '',
+            method: 'post',
+            novalidate: '',
+            class: 'coupon-editor',
+        },
+    });
+
+    $slideout.on('close', () => {
+        console.log('closing');
+        $slideout.destroy();
+    });
+});
 {% endjs %}
