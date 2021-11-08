@@ -10,6 +10,7 @@ namespace craft\commerce\plugin;
 use craft\commerce\services\Addresses;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
+use craft\commerce\services\Coupons;
 use craft\commerce\services\Currencies;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Discounts;
@@ -122,6 +123,17 @@ trait Services
     public function getCountries(): Countries
     {
         return $this->get('countries');
+    }
+
+    /**
+     * Returns the coupons service
+     *
+     * @return Coupons The countries service
+     * @throws InvalidConfigException
+     */
+    public function getCoupons(): Coupons
+    {
+        return $this->get('coupons');
     }
 
     /**
@@ -537,6 +549,9 @@ trait Services
             ],
             'countries' => [
                 'class' => Countries::class,
+            ],
+            'coupons' => [
+                'class' => Coupons::class,
             ],
             'currencies' => [
                 'class' => Currencies::class,
