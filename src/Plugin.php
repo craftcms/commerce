@@ -342,14 +342,15 @@ class Plugin extends BasePlugin
     private function _registerPermissions(): void
     {
         Event::on(UserPermissions::class, UserPermissions::EVENT_REGISTER_PERMISSIONS, function(RegisterUserPermissionsEvent $event) {
-
-            $productTypePermissions = $this->_registerProductTypePermission();
-
+            
             $event->permissions[] = [
                 'heading' => Craft::t('commerce', 'Craft Commerce'),
                 'permissions' => [
                     'commerce-manageProducts' =>
-                        ['label' => Craft::t('commerce', 'Manage products'), 'nested' => $productTypePermissions],
+                        [
+                            'label' => Craft::t('commerce', 'Manage products'), 
+                            'nested' => $this->_registerProductTypePermission()
+                        ],
                     'commerce-manageOrders' => [
                         'label' => Craft::t('commerce', 'Manage orders'), 'nested' => [
                             'commerce-editOrders' => [
@@ -367,23 +368,14 @@ class Plugin extends BasePlugin
 
                         ],
                     ],
-                    'commerce-manageCustomers' => ['label' => Craft::t('commerce', 'Manage customers')],
-                    'commerce-managePromotions' => ['label' => Craft::t('commerce', 'Manage promotions')],
-                    'commerce-manageSubscriptions' => ['label' => Craft::t('commerce', 'Manage subscriptions')],
+                    'commerce-manageCustomers' => $this->_registerCustomerPermission(),
+                    'commerce-managePromotions' => $this->_registerPromotionPermission(),
+                    'commerce-manageSubscriptions' => $this->_registerSubscriptionPermission(),
                     'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
                     'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
                     'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
-                ],
-                'commerce-manageShipping' => ['label' => Craft::t('commerce', 'Manage shipping (Pro edition Only)')],
-                'commerce-manageTaxes' => ['label' => Craft::t('commerce', 'Manage taxes (Pro edition Only)')],
-                'commerce-manageStoreSettings' => ['label' => Craft::t('commerce', 'Manage store settings')],
+                ]
             ];
-
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-manageCustomers'] = $this->_registerCustomerPermission();
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-managePromotions'] = $this->_registerPromotionPermission();
-            $event->permissions[Craft::t('commerce', 'Craft Commerce')]['commerce-manageSubscriptions'] = $this->_registerSubscriptionPermission();
-
-            $event->permissions = ArrayHelper::merge($event->permissions, $productTypePermissions);
         });
     }
 
@@ -394,11 +386,10 @@ class Plugin extends BasePlugin
     {
         $productTypes = Plugin::getInstance()->getProductTypes()->getAllProductTypes();
 
-        $permissions = [];
+        $productTypePermissions = [];
         foreach ($productTypes as $productType) {
             $suffix = ':' . $productType->uid;
-
-            $productTypePermissions = [];
+            
             $productTypePermissions['commerce-editProductType' . $suffix] = [
                 'label' => Craft::t('commerce', 'Edit “{type}” products', ['type' => $productType->name]),
                 'nested' => [
@@ -410,14 +401,9 @@ class Plugin extends BasePlugin
                     ],
                 ]
             ];
-
-            $label = Craft::t('commerce', 'Product Type - {type}',
-                ['type' => Craft::t('commerce', $productType->name)]);
-
-            $permissions[$label] = $productTypePermissions;
         }
 
-        return $permissions;
+        return $productTypePermissions;
     }
 
     private function _registerCustomerPermission()
