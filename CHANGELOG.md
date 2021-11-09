@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a UI bug with Payment modal fields. ([#2603](https://github.com/craftcms/commerce/issues/2603))
+- Fixed a bug where the "Billing Details URL" config setting was not being parsed as environment variable aware. ([#2571](https://github.com/craftcms/commerce/pull/2571))
 
 ## 3.4.7 - 2021-11-03
 
