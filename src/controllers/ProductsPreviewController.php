@@ -20,6 +20,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -175,11 +176,13 @@ class ProductsPreviewController extends Controller
 
     /**
      * @param Product $product
-     * @throws HttpException
+     * @throws ForbiddenHttpException
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
     }
 
     /**

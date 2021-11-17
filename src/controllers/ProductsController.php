@@ -365,11 +365,13 @@ class ProductsController extends BaseController
     /**
      * @param Product $product
      * @throws HttpException
-     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
      */
     protected function enforceProductPermissions(Product $product)
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
     }
 
 
