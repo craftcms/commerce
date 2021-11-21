@@ -15,6 +15,6 @@ return [
         'title' => 'Commerce Category #2',
 
         'fieldLayoutType' => 'commerce_categories_fieldlayout',
-        'commerceProductVariants' => [],
+        'commerceProductVariants' => Variant::find()->sku(['hct-white'])->ids(),
     ],
 ];
