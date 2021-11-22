@@ -36,6 +36,12 @@ function commerceJs() {
         .pipe(gulp.dest(assetsPath+'commercecp/dist/js'));
 };
 
+function commerceCouponsJs() {
+    return gulp.src(assetsPath+'coupons/src/**/*.js')
+        .pipe(concat('coupons.js'))
+        .pipe(gulp.dest(assetsPath+'coupons/dist/js'));
+};
+
 function libDeps() {
     var streams = [];
 
@@ -58,11 +64,12 @@ function libDeps() {
 
 exports.default = function(done) {
     libDeps();
-    gulp.series(commerceJs, commerceSass, commerceStatsSass)(done);
+    gulp.series(commerceJs, commerceSass, commerceStatsSass, commerceCouponsJs())(done);
 }
 
 exports.watch = function() {
     gulp.watch(assetsPath+'commercecp/src/scss/**/*.scss', commerceSass);
     gulp.watch(assetsPath+'statwidgets/src/scss/**/*.scss', commerceStatsSass);
     gulp.watch(assetsPath+'commercecp/src/**/*.js', commerceJs);
+    gulp.watch(assetsPath+'coupons/src/**/*.js', commerceCouponsJs());
 }
