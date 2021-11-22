@@ -21,30 +21,9 @@ use yii\base\InvalidConfigException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
- *
- * @property-read array $allCoupons
  */
 class Coupons extends Component
 {
-    /**
-     * @var array|null
-     */
-    private ?array $_allCoupons = null;
-
-    /**
-     * @return array
-     */
-    public function getAllCoupons(): array
-    {
-        if ($this->_allCoupons !== null) {
-            return $this->_allCoupons;
-        }
-
-        $this->_allCoupons = $this->_createCouponQuery()->all();
-
-        return $this->_allCoupons;
-    }
-
     /**
      * @param string $code
      * @return Coupon|null
@@ -57,6 +36,24 @@ class Coupons extends Component
             ->one();
 
         return $coupon ? Craft::createObject(Coupon::class, ['config' => ['attributes' => $coupon]]) : null;
+    }
+
+    /**
+     * @param int $discountId
+     * @return Coupon[]
+     * @throws InvalidConfigException
+     */
+    public function getCouponsByDiscountId(int $discountId): array
+    {
+        $coupons = $this->_createCouponQuery()
+            ->where(['discountId' => $discountId])
+            ->all();
+
+        foreach ($coupons as &$coupon) {
+            $coupon = Craft::createObject(Coupon::class, ['config' => ['attributes' => $coupon]]);
+        }
+
+        return $coupons;
     }
 
     /**
@@ -121,6 +118,9 @@ class Coupons extends Component
         }
 
         $record->code = $coupon->code;
+        $record->discountId = $coupon->discountId;
+        $record->uses = $coupon->uses;
+        $record->maxUses = $coupon->maxUses;
 
         // Save it!
         $record->save(false);
@@ -128,14 +128,7 @@ class Coupons extends Component
         // Now that we have a record ID, save it on the model
         $coupon->id = $record->id;
 
-        $this->clearCaches();
-
         return true;
-    }
-
-    protected function clearCaches(): void
-    {
-        $this->_allCoupons = null;
     }
 
     /**
@@ -147,10 +140,11 @@ class Coupons extends Component
     {
         return (new Query())
             ->select([
-                'coupons.dateCreated',
-                'coupons.dateUpdated',
                 'coupons.id',
                 'coupons.code',
+                'coupons.uses',
+                'coupons.maxUses',
+                'coupons.discountId',
             ])
             ->from([Table::COUPONS . ' coupons']);
     }

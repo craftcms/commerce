@@ -41,6 +41,31 @@
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
 } %}
 
+{% set couponsTable = {
+    name: 'coupons',
+    id: 'coupons',
+    cols: {
+        id: {
+            type: 'singleline',
+            heading: 'id'|t('app'),
+            class: 'hidden',
+        },
+        code: {
+            type: 'singleline',
+            heading: 'Code'|t('commerce'),
+        },
+        uses: {
+            type: 'singleline',
+            heading: 'Uses'|t('commerce'),
+        },
+        maxUses: {
+            type: 'singleline',
+            heading: 'Max Uses'|t('commerce'),
+        },
+    },
+    defaultValues: { uses: 0 }
+} %}
+
 {% hook "cp.commerce.discounts.edit" %}
 
 {% block details %}
@@ -193,7 +218,26 @@
             errors: discount.getErrors('code'),
         }) }}
 
-        <button class="btn commerce-coupon-button">Coupons</button>
+        <button id="commerce-coupon-button" class="btn">Coupons</button>
+        <hr>
+        <div id="commerce-coupons">
+            <div class="commerce-coupons-inner">
+                <div>Generation</div>
+                <div class="commerce-coupons-list">
+                    {{ forms.editableTableField({
+                        label: "Coupons"|t('commerce'),
+                        name: couponsTable.name,
+                        id: couponsTable.id,
+                        cols: couponsTable.cols,
+                        rows: discount.coupons,
+                        staticRows: false,
+                        fixedRows: true,
+                        errors: discount.getErrors('coupons'),
+                        initJs: false
+                    }) }}
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="conditions" class="hidden">
@@ -622,34 +666,14 @@ $(function() {
             });
         }
     });
-});
 
-let $couponButton = document.querySelector('.commerce-coupon-button');
-
-let $contents = document.createElement('div');
-let $header = document.createElement('header', {
-    class: 'pane-header'
-});
-
-$header.appendChild(document.createTextNode('Test'));
-
-$contents.appendChild($header);
-
-$couponButton.addEventListener('click', function(ev) {
-    ev.preventDefault();
-    let $slideout = new Craft.Slideout($contents, {
-        containerElement: 'form',
-        containerAttributes: {
-            action: '',
-            method: 'post',
-            novalidate: '',
-            class: 'coupon-editor',
-        },
-    });
-
-    $slideout.on('close', () => {
-        console.log('closing');
-        $slideout.destroy();
+    new Craft.Commerce.Coupons({
+        table: {
+            id: "{{ 'slideout-' ~ couponsTable.id|namespaceInputId|e('js') }}",
+            name: "{{ couponsTable.name|namespaceInputName|e('js') }}",
+            cols: {{ couponsTable.cols|json_encode|raw }},
+            defaultValues: {{ couponsTable.defaultValues|json_encode|raw }}
+        }
     });
 });
 {% endjs %}
