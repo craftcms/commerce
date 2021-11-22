@@ -6,6 +6,7 @@
 - Improved the performance of order saving.
 
 ### Fixed
+- Fixed a bug where inactive carts query did not respect time zones. ([#2601](https://github.com/craftcms/commerce/issues/2601))
 - Fixed a bug where a product saved with zero variants would not throw a validation error. ([#2612](https://github.com/craftcms/commerce/issues/2612))
 - Fixed a UI bug with Payment modal fields. ([#2603](https://github.com/craftcms/commerce/issues/2603))
 - Fixed a bug where the "Billing Details URL" config setting was not being parsed as environment variable aware. ([#2571](https://github.com/craftcms/commerce/pull/2571))
