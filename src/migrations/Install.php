@@ -130,7 +130,9 @@ class Install extends Migration
         $this->createTable(Table::COUPONS, [
             'id' => $this->primaryKey(),
             'code' => $this->string(),
+            'discountId' => $this->integer()->notNull(),
             'uses' => $this->integer()->notNull()->defaultValue(0),
+            'maxUses' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -869,6 +871,7 @@ class Install extends Migration
         $this->dropTableIfExists(Table::COUNTRIES);
         $this->dropTableIfExists(Table::CUSTOMER_DISCOUNTUSES);
         $this->dropTableIfExists(Table::EMAIL_DISCOUNTUSES);
+        $this->dropTableIfExists(Table::COUPONS);
         $this->dropTableIfExists(Table::CUSTOMERS);
         $this->dropTableIfExists(Table::CUSTOMERS_ADDRESSES);
         $this->dropTableIfExists(Table::DISCOUNT_PURCHASABLES);
@@ -940,6 +943,8 @@ class Install extends Migration
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
+        $this->createIndex(null, Table::COUPONS, 'discountId', false);
+        $this->createIndex(null, Table::COUPONS, 'code', true);
         $this->createIndex(null, Table::CUSTOMERS, 'userId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -1050,6 +1055,7 @@ class Install extends Migration
     {
         $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::COUPONS, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
@@ -1145,6 +1151,7 @@ class Install extends Migration
     {
         $tables = [
             Table::ADDRESSES,
+            Table::COUPONS,
             Table::CUSTOMER_DISCOUNTUSES,
             Table::EMAIL_DISCOUNTUSES,
             Table::CUSTOMERS,
