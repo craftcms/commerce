@@ -4,6 +4,7 @@
 
 ### Changed
 - Improved the performance of order saving.
+- Improved the performance of forumla condition evaluation with result caching.
 
 ### Fixed
 - Fixed a bug where inactive carts query did not respect time zones. ([#2601](https://github.com/craftcms/commerce/issues/2601))
