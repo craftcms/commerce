@@ -17,6 +17,7 @@ use craft\db\Query;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Discount model
@@ -215,6 +216,11 @@ class Discount extends Model
     private array $_userGroupIds;
 
     /**
+     * @var Coupon[]|null
+     */
+    private ?array $_coupons = null;
+
+    /**
      * @inheritdoc
      */
     public function datetimeAttributes(): array
@@ -314,6 +320,27 @@ class Discount extends Model
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;
+    }
+
+    /**
+     * @return array|Coupon[]
+     * @throws InvalidConfigException
+     */
+    public function getCoupons(): array
+    {
+        if ($this->_coupons === null && $this->id) {
+            $this->_coupons = Plugin::getInstance()->getCoupons()->getCouponsByDiscountId($this->id);
+        }
+
+        return $this->_coupons ?? [];
+    }
+
+    /**
+     * @param array $coupons
+     */
+    public function setCoupons(array $coupons): void
+    {
+        $this->_coupons = $coupons;
     }
 
     /**

@@ -15,6 +15,9 @@ use craft\db\ActiveRecord;
  *
  * @property int $id
  * @property string $code
+ * @property int $discountId
+ * @property int $uses
+ * @property ?int $maxUses
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
