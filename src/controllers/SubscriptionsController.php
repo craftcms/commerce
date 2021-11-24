@@ -226,7 +226,7 @@ class SubscriptionsController extends BaseController
             if (empty($url)) {
                 $error = Craft::t('commerce', 'Unable to start the subscription. Please check your payment details.');
             } else {
-                return $this->redirect(UrlHelper::url($url, ['subscription' => $subscription->uid]));
+                return $this->redirect(UrlHelper::url(Craft::parseEnv($url), ['subscription' => $subscription->uid]));
             }
         }
 
