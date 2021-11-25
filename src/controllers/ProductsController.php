@@ -234,7 +234,7 @@ class ProductsController extends BaseController
         // Get the requested product
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
-        $variants = $request->getBodyParam('variants');
+        $variants = $request->getBodyParam('variants') ?: [];
         $this->enforceProductPermissions($oldProduct);
         $elementsService = Craft::$app->getElements();
 
