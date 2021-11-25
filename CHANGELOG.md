@@ -2,9 +2,22 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsController::enforceDeleteProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\SubscriptionsController::enforceEditSubscriptionPermissions()`.
+
 ### Changed
 - Improved the performance of order saving.
 - Improved the performance of forumla condition evaluation with result caching.
+- Products now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+- Subscriptions now support `EVENT_DEFINE_IS_EDITABLE`.
+
+## Deprecated
+- Deprecated `craft\commerce\controllers\ProductsController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
 
 ### Fixed
 - Fixed a bug where inactive carts query did not respect time zones. ([#2601](https://github.com/craftcms/commerce/issues/2601))
