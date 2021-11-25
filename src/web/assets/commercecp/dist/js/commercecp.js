@@ -684,15 +684,15 @@ Craft.Commerce.PaymentModal = Garnish.Modal.extend(
                             var id = $(ev.currentTarget).val();
                             $('.gateway-form').addClass('hidden');
                             $('#gateway-' + id + '-form').removeClass('hidden');
-                            Craft.initUiElements(this.$container);
+
                             setTimeout(function() {
+                                Craft.initUiElements(this.$container);
                                 $this.updateSizeAndPosition();
                             }, 200);
                         }, this)).trigger('change');
 
-                        Craft.initUiElements(this.$container);
-
                         setTimeout(function() {
+                            Craft.initUiElements(this.$container);
                             $this.updateSizeAndPosition();
                         }, 200);
                     }
@@ -776,7 +776,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                         disabled = true;
                     }
 
-                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+sale.name+'</option>'));
+                    this.$select.append($('<option value="'+sale.id+'" '+(disabled ? 'disabled' : '')+'>'+Craft.escapeHtml(sale.name)+'</option>'));
                 }
                 var $field = $('<div class="input ltr"></div>');
                 var $container = $('<div class="select" />');

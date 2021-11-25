@@ -2,9 +2,28 @@
 
 ## Unreleased
 
-### Deprecated
-- Deprecated `craft\commerce\models\ProductType::lineItemFormat`.
+### Changed
+- Improved the performance of order saving.
+- Improved the performance of forumla condition evaluation with result caching.
 
+### Fixed
+- Fixed a bug where inactive carts query did not respect time zones. ([#2601](https://github.com/craftcms/commerce/issues/2601))
+- Fixed a bug where a product saved with zero variants would not throw a validation error. ([#2612](https://github.com/craftcms/commerce/issues/2612))
+- Fixed a UI bug with Payment modal fields. ([#2603](https://github.com/craftcms/commerce/issues/2603))
+- Fixed a bug where the "Billing Details URL" config setting was not being parsed as environment variable aware. ([#2571](https://github.com/craftcms/commerce/pull/2571))
+
+## 3.4.7 - 2021-11-03
+
+### Deprecated
+- Deprecated `craft\commerce\models\ProductType::getLineItemFormat()` and `setLineItemFormat()`.
+
+### Fixed
+- Fixed a bug where products’ Variants fields could be added to the field layout twice.
+- Fixed a bug where PDFs could be rendered incorrectly. ([#2599](https://github.com/craftcms/commerce/issues/2599))
+- Fixed an error that that could occur when instantiating a `craft\commerce\elements\Order` object. ([#2602](https://github.com/craftcms/commerce/issues/2602))
+
+### Security
+- Fixed XSS vulnerabilities.
 
 ## 3.4.6 - 2021-10-20
 
