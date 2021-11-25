@@ -203,6 +203,23 @@ class Subscription extends Element
     }
 
     /**
+     * @inheritdoc
+     */
+    protected function isEditable(): bool
+    {
+        $user = Craft::$app->getUser()->getIdentity();
+
+        if(!$user) {
+            return false;
+        }
+
+        $userOwnsSubscription = $this->userId && ($this->userId == $user->id);
+        $allowed = Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions');
+
+        return $userOwnsSubscription || $allowed;
+    }
+
+    /**
      * Returns whether this subscription can be reactivated.
      *
      * @return bool

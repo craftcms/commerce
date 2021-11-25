@@ -60,6 +60,12 @@ class SubscriptionsController extends BaseController
             $subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one();
         }
 
+        if (!$subscription) {
+            throw new NotFoundHttpException(Craft::t('commerce', 'Subscription not found'));
+        }
+
+        $this->enforceEditSubscriptionPermissions($subscription);
+
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Subscription::class);
 
         $variables['tabs'] = [];
@@ -118,6 +124,8 @@ class SubscriptionsController extends BaseController
             throw new NotFoundHttpException('Subscription not found');
         }
 
+        $this->enforceEditSubscriptionPermissions($subscription);
+
         $subscription->setFieldValuesFromRequest('fields');
 
         $subscription->setScenario(Element::SCENARIO_LIVE);
@@ -144,13 +152,14 @@ class SubscriptionsController extends BaseController
     public function actionRefreshPayments()
     {
         $this->requirePostRequest();
-        $this->requirePermission('commerce-manageSubscriptions');
 
         $subscriptionId = Craft::$app->getRequest()->getRequiredBodyParam('subscriptionId');
 
         if (!$subscription = Subscription::find()->anyStatus()->id($subscriptionId)->one()) {
             throw new NotFoundHttpException('Subscription not found');
         }
+
+        $this->enforceEditSubscriptionPermissions($subscription);
 
         $gateway = $subscription->getGateway();
         $gateway->refreshPaymentHistory($subscription);
@@ -270,11 +279,10 @@ class SubscriptionsController extends BaseController
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
             $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
-            $userSession = Craft::$app->getUser();
 
             $validData = $subscriptionUid && $subscription;
             $validAction = $subscription->canReactivate();
-            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = $subscription->getIsEditable();
 
             if ($validData && $validAction && $canModifySubscription) {
                 if (!$plugin->getSubscriptions()->reactivateSubscription($subscription)) {
@@ -330,11 +338,10 @@ class SubscriptionsController extends BaseController
         try {
             $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
             $plan = Commerce::getInstance()->getPlans()->getPlanByUid($planUid);
-            $userSession = Craft::$app->getUser();
 
             $validData = $planUid && $plan && $subscriptionUid && $subscription;
             $validAction = $plan->canSwitchFrom($subscription->getPlan());
-            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = $subscription->getIsEditable();
 
             if ($validData && $validAction && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */
@@ -402,12 +409,9 @@ class SubscriptionsController extends BaseController
 
         try {
             $subscriptionUid = $request->getValidatedBodyParam('subscriptionUid');
-
             $subscription = Subscription::find()->anyStatus()->uid($subscriptionUid)->one();
-            $userSession = Craft::$app->getUser();
-
             $validData = $subscriptionUid && $subscription;
-            $canModifySubscription = ($subscription->userId == $userSession->getId()) || $userSession->checkPermission('commerce-manageSubscriptions');
+            $canModifySubscription = $subscription->getIsEditable();
 
             if ($validData && $canModifySubscription) {
                 /** @var SubscriptionGateway $gateway */

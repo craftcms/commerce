@@ -6,6 +6,8 @@
 - Added `craft\commerce\elements\Product::isDeletable()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
 - Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()` and `enforceDeleteProductPermissions()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
 - Added `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Added `craft\commerce\elements\Subscription::isEditable()`.
+- Added `craft\commerce\controllers\SubscriptionsController::enforceEditSubscriptionPermissions()`.
 
 ### Changed
 - Improved the performance of order saving.
