@@ -194,7 +194,7 @@ class ProductsController extends BaseController
                 ['id' => $productId]));
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -235,7 +235,7 @@ class ProductsController extends BaseController
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
         $variants = $request->getBodyParam('variants') ?: [];
-        $this->enforceProductPermissions($oldProduct);
+        $this->enforceEditProductPermissions($oldProduct);
         $elementsService = Craft::$app->getElements();
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -367,10 +367,35 @@ class ProductsController extends BaseController
      * @throws HttpException
      * @throws ForbiddenHttpException
      */
-    protected function enforceProductPermissions(Product $product)
+    protected function enforceEditProductPermissions(Product $product)
     {
         if (!$product->getIsEditable()) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws HttpException
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceDeleteProductPermissions(Product $product)
+    {
+        if (!$product->getIsDeletable()) {
+            throw new ForbiddenHttpException('User is not permitted to delete this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws HttpException
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.0. Use [[enforceEditProductPermissions()]] and [[enforceDeleteProductPermissions()]] instead.
+     */
+    protected function enforceProductPermissions(Product $product)
+    {
+        if (!$product->getIsEditable() || !$product->getIsDeletable()) {
+            throw new ForbiddenHttpException('User is not permitted to modify this product');
         }
     }
 
@@ -478,7 +503,7 @@ class ProductsController extends BaseController
         }
 
         if ($variables['product']->id) {
-            $this->enforceProductPermissions($variables['product']);
+            $this->enforceEditProductPermissions($variables['product']);
             $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
             $variables['enabledSiteIds'] = [];

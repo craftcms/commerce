@@ -38,7 +38,6 @@ class ProductsPreviewController extends Controller
      */
     protected $allowAnonymous = true;
 
-
     /**
      * Previews a product.
      *
@@ -50,7 +49,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         return $this->_showProduct($product);
     }
@@ -73,7 +72,7 @@ class ProductsPreviewController extends Controller
             throw new HttpException(404);
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Make sure the product actually can be viewed
         if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
@@ -91,7 +90,7 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * Shows an product/draft/version based on a token.
+     * Shows a product/draft/version based on a token.
      *
      * @param mixed $productId
      * @param mixed $site
@@ -123,6 +122,8 @@ class ProductsPreviewController extends Controller
      * @throws ElementNotFoundException
      * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @deprecated in 3.4.8. Use [[\craft\commerce\controllers\ProductsController::actionSaveProduct()]] instead.
+     * @todo Remove in 4.0
      */
     public function actionSaveProduct()
     {
@@ -132,7 +133,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
@@ -173,10 +174,21 @@ class ProductsPreviewController extends Controller
         return $this->redirectToPostedUrl($product);
     }
 
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceEditProductPermissions(Product $product)
+    {
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
 
     /**
      * @param Product $product
      * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
      */
     protected function enforceProductPermissions(Product $product)
     {

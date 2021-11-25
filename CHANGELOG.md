@@ -2,9 +2,18 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\elements\Product::isDeletable()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+- Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()` and `enforceDeleteProductPermissions()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+
 ### Changed
 - Improved the performance of order saving.
 - Improved the performance of forumla condition evaluation with result caching.
+
+## Deprecated
+- Deprecated `craft\commerce\controllers\ProductsController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
 
 ### Fixed
 - Fixed a bug where inactive carts query did not respect time zones. ([#2601](https://github.com/craftcms/commerce/issues/2601))
