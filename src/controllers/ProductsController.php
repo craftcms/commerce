@@ -369,7 +369,7 @@ class ProductsController extends BaseController
      */
     protected function enforceEditProductPermissions(Product $product)
     {
-        if (!$product->getIsEditable()) {
+        if (!$product->getIsEditable()){
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }
