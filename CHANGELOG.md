@@ -5,6 +5,7 @@
 ### Added
 - Added `craft\commerce\elements\Product::isDeletable()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
 - Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()` and `enforceDeleteProductPermissions()`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+- Added `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
 
 ### Changed
 - Improved the performance of order saving.
@@ -12,7 +13,7 @@
 
 ## Deprecated
 - Deprecated `craft\commerce\controllers\ProductsController::enforceProductPermissions()`.
-- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
 - Deprecated `craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
 
 ### Fixed
