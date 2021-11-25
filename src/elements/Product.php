@@ -300,11 +300,7 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
-        }
-
-        return false;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -312,11 +308,8 @@ class Product extends Element
      */
     protected function isDeletable(): bool
     {
-        if ($this->getType()) {
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid); // TODO: Change this to a real delete permission in 4.0
-        }
-
-        return false;
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**

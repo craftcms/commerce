@@ -177,8 +177,9 @@ class ProductsPreviewController extends Controller
     /**
      * @param Product $product
      * @throws ForbiddenHttpException
+     * @since 3.4.8
      */
-    protected function enforceEditProductPermissions(Product $product)
+    protected function enforceEditProductPermissions(Product $product): void
     {
         if (!$product->getIsEditable()) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
@@ -192,9 +193,7 @@ class ProductsPreviewController extends Controller
      */
     protected function enforceProductPermissions(Product $product)
     {
-        if (!$product->getIsEditable()) {
-            throw new ForbiddenHttpException('User is not permitted to edit this product');
-        }
+        $this->enforceEditProductPermissions($product);
     }
 
     /**

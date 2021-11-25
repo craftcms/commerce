@@ -364,10 +364,10 @@ class ProductsController extends BaseController
 
     /**
      * @param Product $product
-     * @throws HttpException
      * @throws ForbiddenHttpException
+     * @since 3.4.8
      */
-    protected function enforceEditProductPermissions(Product $product)
+    protected function enforceEditProductPermissions(Product $product): void
     {
         if (!$product->getIsEditable()){
             throw new ForbiddenHttpException('User is not permitted to edit this product');
@@ -376,10 +376,10 @@ class ProductsController extends BaseController
 
     /**
      * @param Product $product
-     * @throws HttpException
      * @throws ForbiddenHttpException
+     * @since 3.4.8
      */
-    protected function enforceDeleteProductPermissions(Product $product)
+    protected function enforceDeleteProductPermissions(Product $product): void
     {
         if (!$product->getIsDeletable()) {
             throw new ForbiddenHttpException('User is not permitted to delete this product');
@@ -388,15 +388,13 @@ class ProductsController extends BaseController
 
     /**
      * @param Product $product
-     * @throws HttpException
      * @throws ForbiddenHttpException
-     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] and [[enforceDeleteProductPermissions()]] instead.
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
     protected function enforceProductPermissions(Product $product)
     {
-        if (!$product->getIsEditable() || !$product->getIsDeletable()) {
-            throw new ForbiddenHttpException('User is not permitted to modify this product');
-        }
+        $this->enforceEditProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
     }
 
     /**

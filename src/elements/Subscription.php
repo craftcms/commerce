@@ -209,14 +209,14 @@ class Subscription extends Element
     {
         $user = Craft::$app->getUser()->getIdentity();
 
-        if(!$user) {
+        if (!$user) {
             return false;
         }
 
-        $userOwnsSubscription = $this->userId && ($this->userId == $user->id);
-        $allowed = Craft::$app->getUser()->checkPermission('commerce-manageSubscriptions');
-
-        return $userOwnsSubscription || $allowed;
+        return (
+            ($this->userId && $this->userId == $user->id) ||
+            $user->can('commerce-manageSubscriptions')
+        );
     }
 
     /**
