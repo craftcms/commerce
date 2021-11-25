@@ -390,7 +390,7 @@ class ProductsController extends BaseController
      * @param Product $product
      * @throws HttpException
      * @throws ForbiddenHttpException
-     * @deprecated in 3.4.0. Use [[enforceEditProductPermissions()]] and [[enforceDeleteProductPermissions()]] instead.
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] and [[enforceDeleteProductPermissions()]] instead.
      */
     protected function enforceProductPermissions(Product $product)
     {
