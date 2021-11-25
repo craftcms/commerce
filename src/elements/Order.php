@@ -3242,23 +3242,33 @@ class Order extends Element
      */
     private function _saveNotices(): void
     {
-        // Line items that are currently in the DB
-        $previousNotices = OrderNoticeRecord::find()
+        $previousNoticeIds = (new Query())
+            ->select(['id'])
+            ->from([Table::ORDERNOTICES])
             ->where(['orderId' => $this->id])
-            ->all();
+            ->column();
 
-        foreach ($previousNotices as $notice) {
-            $notice->delete();
+        $currentNoticeIds = [];
+
+        // We are never updating a notice, just adding it or keeping it.
+        foreach ($this->getNotices() as $notice) {
+            if ($notice->id === null) {
+                $noticeRecord = new OrderNoticeRecord();
+                $noticeRecord->orderId = $notice->orderId;
+                $noticeRecord->type = $notice->type;
+                $noticeRecord->attribute = $notice->attribute;
+                $noticeRecord->message = $notice->message;
+                if ($noticeRecord->save(false)) {
+                    $notice->id = $noticeRecord->id;
+                }
+            }
+
+            $currentNoticeIds[] = $notice->id;
         }
 
-
-        foreach ($this->getNotices() as $notice) {
-            $noticeRecord = new OrderNoticeRecord();
-            $noticeRecord->orderId = $notice->orderId;
-            $noticeRecord->type = $notice->type;
-            $noticeRecord->attribute = $notice->attribute;
-            $noticeRecord->message = $notice->message;
-            $noticeRecord->save(false);
+        // Delete any notices that are no longer on the order
+        if ($deletableNoticeIds = array_diff($previousNoticeIds, $currentNoticeIds)) {
+            OrderNoticeRecord::deleteAll(['id' => $deletableNoticeIds]);
         }
     }
 

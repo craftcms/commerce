@@ -235,7 +235,7 @@ class ProductsController extends BaseController
         // Get the requested product
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
-        $variants = $request->getBodyParam('variants');
+        $variants = $request->getBodyParam('variants') ?: [];
         $this->enforceProductPermissions($oldProduct);
         $elementsService = Craft::$app->getElements();
 
@@ -468,7 +468,6 @@ class ProductsController extends BaseController
                 $variables['product']->taxCategoryId = key($taxCategories);
                 $shippingCategories = $variables['productType']->getShippingCategories();
                 $variables['product']->shippingCategoryId = key($shippingCategories);
-                $variables['product']->typeId = $variables['productType']->id;
                 $variables['product']->enabled = true;
                 $variables['product']->siteId = $site->id;
                 $variables['product']->promotable = true;
