@@ -43,6 +43,19 @@ class SubscriptionsController extends BaseController
         return $this->renderTemplate('commerce/subscriptions/_index');
     }
 
+
+    /**
+     * @param Subscription $subscription
+     * @throws HttpException
+     * @throws ForbiddenHttpException
+     */
+    protected function enforceEditSubscriptionPermissions(Subscription $subscription)
+    {
+        if (!$subscription->getIsEditable()){
+            throw new ForbiddenHttpException('User is not permitted to edit this subscription');
+        }
+    }
+
     /**
      * @param int|null $subscriptionId
      * @param Subscription|null $subscription
