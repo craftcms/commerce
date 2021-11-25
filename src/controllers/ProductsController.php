@@ -399,7 +399,6 @@ class ProductsController extends BaseController
         }
     }
 
-
     /**
      * @param array $variables
      * @throws InvalidConfigException
