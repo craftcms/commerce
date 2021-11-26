@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.8 - 2021-11-25
 
 ### Added
 - Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()`.
