@@ -1,5 +1,30 @@
 # Release Notes for Craft Commerce
 
+## 3.4.8 - 2021-11-25
+
+### Added
+- Added `craft\commerce\controllers\ProductsController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsController::enforceDeleteProductPermissions()`.
+- Added `craft\commerce\controllers\ProductsPreviewController::enforceEditProductPermissions()`.
+- Added `craft\commerce\controllers\SubscriptionsController::enforceEditSubscriptionPermissions()`.
+
+### Changed
+- Improved the performance of order saving.
+- Formula condition results are now cached.
+- Products now support `EVENT_DEFINE_IS_EDITABLE` and `EVENT_DEFINE_IS_DELETABLE`. ([#2606](https://github.com/craftcms/commerce/issues/2606))
+- Subscriptions now support `EVENT_DEFINE_IS_EDITABLE`.
+
+## Deprecated
+- Deprecated `craft\commerce\controllers\ProductsController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::enforceProductPermissions()`.
+- Deprecated `craft\commerce\controllers\ProductsPreviewController::actionSaveProduct()`.
+
+### Fixed
+- Fixed a bug where active/inactive cart queries weren’t factoring the system time zone properly. ([#2601](https://github.com/craftcms/commerce/issues/2601))
+- Fixed a bug where it was possible to save a product without any variants. ([#2612](https://github.com/craftcms/commerce/issues/2612))
+- Fixed a bug where the First Name and Last Name fields within payment modals weren’t immediately visible. ([#2603](https://github.com/craftcms/commerce/issues/2603))
+- Fixed a bug where the “Billing Details URL” subscription setting didn’t fully support being set to an environment variable. ([#2571](https://github.com/craftcms/commerce/pull/2571))
+
 ## 3.4.7 - 2021-11-03
 
 ### Deprecated

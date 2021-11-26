@@ -203,7 +203,16 @@ Outputs a form for collecting shipping estimate address details if an address do
   </div>
 
   {% js %}
-  window.states = {{ craft.commerce.states.allEnabledStatesAsListGroupedByCountryId|json_encode|raw }};
+  {% set enabledStates = {} %}
+{% for cId, cStates in craft.commerce.states.allEnabledStatesAsListGroupedByCountryId %}
+    {% set eStates = {} %}
+    {% for sId, s in cStates %}
+        {% set eStates = eStates|merge({ ('state-' ~ sId): s }) %}
+    {% endfor %}
+    {% set enabledStates = enabledStates|merge({('country-' ~ cId): eStates}) %}
+{% endfor %}
+
+window.states = {{ enabledStates|json_encode|raw }};
   {% endjs %}
 
   {% js %}
@@ -289,7 +298,8 @@ Outputs a form for collecting shipping estimate address details if an address do
         });
       }
 
-      if (window.states.hasOwnProperty(cid)) {
+      var countryKey = 'country-' + cid;
+      if (window.states.hasOwnProperty(countryKey)) {
         // We have states for this country, show the states drop down.
         $states.classList.remove('hidden');
         $states.setAttribute('name', $states.dataset.modelname + '[stateValue]');
@@ -300,11 +310,11 @@ Outputs a form for collecting shipping estimate address details if an address do
         $stateName.value = '';
 
         // Add all states as options to drop down.
-        for (var id in window.states[cid]) {
-          var state = window.states[cid][id];
+        for (var id in window.states[countryKey]) {
+          var state = window.states[countryKey][id];
           var $option = document.createElement('OPTION');
           $option.text = state;
-          $option.value = id;
+          $option.value = id.replace('state-', '');
           $states.appendChild($option);
         }
       } else {

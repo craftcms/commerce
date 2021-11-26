@@ -300,13 +300,16 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**

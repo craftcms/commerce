@@ -84,6 +84,7 @@ class OrderNotice extends Model
     protected function defineRules(): array
     {
         return [
+            [['id'], 'safe'],
             [['type', 'message', 'attribute', 'orderId'], 'required'],
             [['orderId'], 'integer'],
         ];
