@@ -324,8 +324,8 @@ class Product extends Element
     public function getIsDeletable(): bool
     {
         $productType = $this->getType();
-        
-        return Craft::$app->getUser()->checkPermission("commerce-deleteProducts:$productType->uid"); 
+
+        return Craft::$app->getUser()->checkPermission("commerce-deleteProducts:$productType->uid");
     }
 
     /**
@@ -1177,18 +1177,17 @@ class Product extends Element
 
         if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
-            $canManage = false;
 
             foreach ($productTypes as $productType) {
                 $canDelete = $userSession->checkPermission('commerce-deleteProducts:' . $productType->uid);
                 $canCreate = $userSession->checkPermission('commerce-createProducts:' . $productType->uid);
                 $canEdit = $userSession->checkPermission('commerce-editProducts:' . $productType->uid);
-                
+
                 if ($canCreate) {
                     // Duplicate
                     $actions[] = Duplicate::class;
                 }
-                
+
                 if ($canDelete) {
                     // Allow deletion
                     $deleteAction = Craft::$app->getElements()->createAction([
@@ -1198,7 +1197,7 @@ class Product extends Element
                     ]);
                     $actions[] = $deleteAction;
                 }
-                
+
                 if ($canEdit) {
                     $actions[] = SetStatus::class;
                 }
