@@ -22,7 +22,7 @@ class DeepMergeAsset extends AssetBundle
      */
     public function init()
     {
-        $this->sourcePath = '@commerceLib/deepmerge';
+        $this->sourcePath = __DIR__ . '/dist';
 
         $this->js[] = 'umd.js';
 

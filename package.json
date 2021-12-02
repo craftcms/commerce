@@ -11,6 +11,7 @@
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
     "craftcms-sass": "^3.5.6",
+    "deepmerge": "^4.2.2",
     "moment": "^2.29.1"
   }
 }
