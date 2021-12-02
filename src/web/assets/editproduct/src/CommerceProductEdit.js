@@ -22,7 +22,6 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
     $modals: new Map(),
 
     init: function(settings) {
-      console.log('Commerce Product Edit');
         var _this = this;
         this.setSettings(settings, this.defaults);
         this.$container = $(this.settings.container);
