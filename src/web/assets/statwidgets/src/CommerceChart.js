@@ -1,3 +1,5 @@
+import './scss/stat-widgets.scss';
+
 /* globals Craft, Garnish, Chart, deepmerge, $, moment */
 if (typeof Craft.Commerce === typeof undefined) {
     Craft.Commerce = {};
