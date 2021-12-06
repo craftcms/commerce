@@ -14,6 +14,7 @@
 
 <script>
     import Adjustments from './Adjustments'
+    import {mapGetters} from 'vuex';
 
     export default {
         components: {
@@ -39,6 +40,10 @@
         },
 
         computed: {
+            ...mapGetters([
+                'currentUserId',
+            ]),
+
             adjustments() {
                 return this.lineItem.adjustments
             },
@@ -54,7 +59,10 @@
                     amount: '0.0000',
                     included: false,
                     orderId: this.orderId,
-                    lineItemId: this.lineItem.id
+                    lineItemId: this.lineItem.id,
+
+                    // When creating a brand new manual adjustment, we need to set the author ID
+                    sourceSnapshot: {authorId: this.currentUserId},
                 }
 
                 const lineItem = this.lineItem

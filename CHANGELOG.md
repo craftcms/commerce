@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where adjustments snapshots were removed when recalculating a completed order.
+
 ## 3.4.8 - 2021-11-25
 
 ### Added
