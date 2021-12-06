@@ -41,7 +41,8 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
+    @import '../../../../sass/order/app';
 
     .snapshot {
         margin-top: 14px;

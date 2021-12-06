@@ -23,16 +23,6 @@ use craft\web\assets\vue\VueAsset;
 abstract class CommerceUiAsset extends AssetBundle
 {
     /**
-     * @var string
-     */
-    protected $appJs = 'app.js';
-
-    /**
-     * @var string
-     */
-    protected $appCss = 'app.css';
-
-    /**
      * @inheritdoc
      */
     public function init()
@@ -45,18 +35,6 @@ abstract class CommerceUiAsset extends AssetBundle
             VueAsset::class,
             TimepickerAsset::class,
         ];
-
-        if ($this->getDevServer()) {
-            // Development
-            $devServer = static::getDevServer();
-            $this->js[] = $devServer . '/' . $this->appJs;
-        } else {
-            // Production
-            $this->js[] = 'js/chunk-vendors.js';
-            $this->js[] = 'js/' . $this->appJs;
-            $this->css[] = 'css/chunk-vendors.css';
-            $this->css[] = 'css/' . $this->appCss;
-        }
 
         parent::init();
     }
