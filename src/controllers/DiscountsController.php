@@ -545,4 +545,19 @@ class DiscountsController extends BaseCpController
             ];
         }
     }
+
+    public function actionGenerateCoupons()
+    {
+        $this->requireAcceptsJson();
+        $this->requirePostRequest();
+        $coupons = [];
+
+        $count = Craft::$app->getRequest()->getBodyParam('count', null);
+        $length = Craft::$app->getRequest()->getBodyParam('length', 8);
+        $characters = 'abcdefghijklmopqrstuvwxyz123567890';
+
+        return $this->asJson([
+            'coupons' => $coupons,
+        ]);
+    }
 }

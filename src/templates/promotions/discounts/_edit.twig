@@ -222,16 +222,30 @@
         <hr>
         <div id="commerce-coupons">
             <div class="commerce-coupons-inner">
-                <div>Generation</div>
+                <div>
+                    {{ forms.textField({
+                        label: 'Number of Coupons'|t('commerce'),
+                        name: 'count',
+                        type: 'number',
+                        value: 1,
+                    }) }}
+                    {{ forms.textField({
+                        label: 'Length of coupon'|t('commerce'),
+                        name: 'length',
+                        type: 'number',
+                        value: 8,
+                    }) }}
+                    <button class="commerce-coupon-generate btn">{{ 'Generate'|t }}</button>
+                </div>
                 <div class="commerce-coupons-list">
                     {{ forms.editableTableField({
-                        label: "Coupons"|t('commerce'),
+                        label: 'Coupons'|t('commerce'),
                         name: couponsTable.name,
                         id: couponsTable.id,
                         cols: couponsTable.cols,
                         rows: discount.coupons,
-                        staticRows: false,
-                        fixedRows: true,
+                        allowAdd: true,
+                        allowDelete: true,
                         errors: discount.getErrors('coupons'),
                         initJs: false
                     }) }}
