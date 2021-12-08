@@ -28,7 +28,7 @@
     "craftcms-sass": "^1.6.7",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.2.3",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "sass-loader": "^7.3.1",
     "vue-template-compiler": "^2.6.14"
   },
