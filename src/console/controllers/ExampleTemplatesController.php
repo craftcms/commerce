@@ -252,6 +252,7 @@ class ExampleTemplatesController extends Controller
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[resourceTags]]' => implode("\n", $resourceTags),
             '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
+            '[[hx-disable]]' => $this->useHtmx ? 'hx-disable' : '',
         ]);
     }
 
