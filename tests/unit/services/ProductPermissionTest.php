@@ -5,7 +5,7 @@
  * @license https://craftcms.github.io/license/
  */
 
-namespace craftcommercetests\unit;
+namespace craftcommercetests\unit\services;
 
 use Codeception\Stub;
 use Codeception\Test\Unit;
@@ -18,6 +18,7 @@ use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Products;
+use craft\commerce\services\ProductTypes;
 use craft\commerce\services\Sales;
 use craft\config\GeneralConfig;
 use craft\console\Application;
@@ -44,44 +45,10 @@ class ProductPermissionTest extends Unit
     protected $tester;
 
     /**
-     * @var Products
+     * @var ProductTypes
      */
-    protected $products;
+    protected ProductTypes $productTypes;
 
-    public function testCanAdminUserAbleToEditProduct()
-    {
-
-        $user = new User();
-        $user->id = 1;
-        $user->admin = true;
-
-        $product = $this->make(Product::class, ['getType' => $this->make(ProductType::class, ['id' => 1, 'uid' => 'randomuid']) ]);
-
-        $this->assertTrue($this->products->hasPermission($user, $product));
-
-        $user->admin = false;
-        $this->assertFalse($this->products->hasPermission($user, $product));
-    }
-
-    public function testCanAUserEditThisProduct()
-    {
-        $user = new User();
-        $user->id = 1;
-        $user->admin = false;
-
-        $product = $this->make(Product::class, ['getType' => $this->make(ProductType::class, ['id' => 1, 'uid' => 'randomuid']) ]);
-
-        $this->mockPermissions([]);
-
-       $this->assertFalse($this->products->hasPermission($user, $product));
-
-        $this->mockPermissions(['commerce-editproducttype:randomuid']);
-        $this->assertTrue($this->products->hasPermission($user, $product));
-
-        // if user has access to another product type
-        $this->mockPermissions(['commerce-editProductType:anotherrandomuid']);
-        $this->assertFalse($this->products->hasPermission($user, $product));
-    }
 
     public function testCanAUserCreateOrDeleteAProduct()
     {
@@ -94,22 +61,57 @@ class ProductPermissionTest extends Unit
         // User has no create product permission on a specific product type.
         $this->mockPermissions(['commerce-editproducttype:randomuid']);
 
-        $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-createProducts'));
+        $this->assertFalse($this->productTypes->hasPermission($user, $product->getType(), 'commerce-createProducts'));
 
         // User has create product permission on a specific product type.
         $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-createproducts:randomuid']);
 
-        $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-createProducts'));
+        $this->assertTrue($this->productTypes->hasPermission($user, $product->getType(), 'commerce-createProducts'));
 
         // User has no delete product permission on a specific product type.
         $this->mockPermissions(['commerce-editproducttype:randomuid']);
 
-        $this->assertFalse($this->products->hasPermission($user, $product, 'commerce-deleteProducts:randomuid'));
+        $this->assertFalse($this->productTypes->hasPermission($user, $product->getType(), 'commerce-deleteProducts:randomuid'));
 
         // User has delete product permission on a specific product type.
         $this->mockPermissions(['commerce-editproducttype:randomuid', 'commerce-deleteproducts:randomuid']);
 
-        $this->assertTrue($this->products->hasPermission($user, $product, 'commerce-deleteProducts'));
+        $this->assertTrue($this->productTypes->hasPermission($user, $product->getType(), 'commerce-deleteProducts'));
+    }
+
+    public function testCanAUserEditThisProduct()
+    {
+        $user = new User();
+        $user->id = 1;
+        $user->admin = false;
+
+        $product = $this->make(Product::class, ['getType' => $this->make(ProductType::class, ['id' => 1, 'uid' => 'randomuid'])]);
+
+        $this->mockPermissions([]);
+
+        $this->assertFalse($this->productTypes->hasPermission($user, $product->getType()));
+
+        $this->mockPermissions(['commerce-editproducttype:randomuid']);
+        $this->assertTrue($this->productTypes->hasPermission($user, $product->getType(), 'commerce-editproducttype'));
+
+        // if user has access to another product type
+        $this->mockPermissions(['commerce-editProductType:anotherrandomuid']);
+        $this->assertFalse($this->productTypes->hasPermission($user, $product->getType(), 'commerce-editproducttype'));
+    }
+
+    public function testCanAdminUserAbleToEditProduct()
+    {
+
+        $user = new User();
+        $user->id = 1;
+        $user->admin = true;
+
+        $product = $this->make(Product::class, ['getType' => $this->make(ProductType::class, ['id' => 1, 'uid' => 'randomuid'])]);
+
+        $this->assertTrue($this->productTypes->hasPermission($user, $product->getType(), 'commerce-createProducts'));
+
+        $user->admin = false;
+        $this->assertFalse($this->productTypes->hasPermission($user, $product->getType(), 'commerce-createProducts'));
     }
 
     private function mockPermissions(array $permissions = [])
@@ -118,7 +120,9 @@ class ProductPermissionTest extends Unit
             Craft::$app,
             'userPermissions',
             [
-                'getPermissionsByUserId' => function() use ($permissions) { return $permissions; }
+                'getPermissionsByUserId' => function () use ($permissions) {
+                    return $permissions;
+                }
             ],
             []
         );
@@ -128,6 +132,6 @@ class ProductPermissionTest extends Unit
     {
         parent::_before();
 
-        $this->products = Plugin::getInstance()->getProducts();
+        $this->productTypes = Plugin::getInstance()->getProductTypes();
     }
 }
