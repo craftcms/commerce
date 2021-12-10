@@ -50,7 +50,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         return $this->_showProduct($product);
     }
@@ -73,7 +73,7 @@ class ProductsPreviewController extends Controller
             throw new HttpException(404);
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Make sure the product actually can be viewed
         if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
@@ -132,7 +132,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
@@ -176,12 +176,24 @@ class ProductsPreviewController extends Controller
 
     /**
      * @param Product $product
-     * @throws InvalidConfigException
      * @throws ForbiddenHttpException
+     * @since 3.4.8
      */
-    protected function enforceProductPermissions(Product $product): void
+    protected function enforceEditProductPermissions(Product $product): void
     {
-        $this->requirePermission('commerce-editProductType:' . $product->getType()->uid);
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
+     */
+    protected function enforceProductPermissions(Product $product)
+    {
+        $this->enforceEditProductPermissions($product);
     }
 
     /**

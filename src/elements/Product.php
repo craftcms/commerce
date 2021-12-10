@@ -1111,10 +1111,10 @@ class Product extends Element
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
-
+        $user = Craft::$app->getUser()->getIdentity();
         foreach ($productTypes as $productType) {
             $key = 'productType:' . $productType->uid;
-            $canEditProducts = Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $productType->uid);
+            $canEditProducts = Plugin::getInstance()->getProductTypes()->hasPermission($user, $productType, 'commerce-editProductType');
 
             $sources[$key] = [
                 'key' => $key,
