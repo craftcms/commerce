@@ -4,6 +4,7 @@
 
 ### Fixed
 - Fixed a bug where adjustments snapshots were removed when recalculating a completed order.
+- Fixed a bug where email previews would render with CP assets included. ([#2632](https://github.com/craftcms/commerce/issues/2632))
 
 ## 3.4.8 - 2021-11-25
 
