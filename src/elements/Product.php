@@ -1175,13 +1175,18 @@ class Product extends Element
             'failMessage' => Craft::t('commerce', 'Products not restored.'),
         ]);
 
-        if (!empty($productTypes)) {
+        if ($source === '*') {
+            // Delete
+            $actions[] = Delete::class;
+        } else if (!empty($productTypes)) {
             $userSession = Craft::$app->getUser();
 
+            $currentUser = $userSession->getIdentity();
+
             foreach ($productTypes as $productType) {
-                $canDelete = $userSession->checkPermission('commerce-deleteProducts:' . $productType->uid);
-                $canCreate = $userSession->checkPermission('commerce-createProducts:' . $productType->uid);
-                $canEdit = $userSession->checkPermission('commerce-editProducts:' . $productType->uid);
+                $canDelete = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-deleteProducts');
+                $canCreate = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-createProducts');
+                $canEdit = Plugin::getInstance()->getProductTypes()->hasPermission($currentUser, $productType, 'commerce-editProductType');
 
                 if ($canCreate) {
                     // Duplicate
