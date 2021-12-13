@@ -92,7 +92,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->useHtmx = true;
+            $this->useHtmx = false;
         }
 
         $slash = DIRECTORY_SEPARATOR;
