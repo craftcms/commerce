@@ -112,7 +112,6 @@
 
         <div id="matching-items-purchasables" {% if sale.allPurchasables %}class="hidden"{% endif %}>
             {% for purchasableType in purchasableTypes %}
-                {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
                 {{ forms.elementSelectField({
                     id: 'purchasables-'~purchasableType.elementType|id,
                     label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
@@ -120,7 +119,9 @@
                     elements: purchasables[purchasableType.elementType] ?? null,
                     elementType: purchasableType.elementType,
                     limit: null,
-                    instructions: purchasableType.name~" "~instruction,
+                    instructions: '{type} for which this sale will be applicable to.'|t('commerce', {
+                        type: purchasableType.name
+                    }),
                     errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
                 }) }}
             {% endfor %}
