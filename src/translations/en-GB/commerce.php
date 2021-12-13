@@ -1233,7 +1233,7 @@ return [
     'customers' => 'customers',
     'donation' => 'donation',
     'donations' => 'donations',
-    '{type} for which this discount will be applicable to.' => '{type} for which this discount will be applicable to.',
+    '{type} for which this discount will be applicable to.' => '{type} for which this discount will be applicable.',
     'info' => 'info',
     'new customers' => 'new customers',
     'order' => 'order',
