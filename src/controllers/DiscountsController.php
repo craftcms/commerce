@@ -86,6 +86,8 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['discount']->allCategories = true;
+                $variables['discount']->allPurchasables = true;
                 $variables['isNewDiscount'] = true;
             }
         }

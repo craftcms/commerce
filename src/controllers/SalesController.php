@@ -75,6 +75,9 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
+                $variables['sale']->allCategories = true;
+                $variables['sale']->allPurchasables = true;
+                $variables['sale']->allGroups = true;
             }
         }
 
