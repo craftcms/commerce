@@ -131,30 +131,41 @@ class SalesController extends BaseCpController
             $sale->applyAmount = (float)$applyAmount * -1;
         }
 
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+        // Set purchasable conditions
+        if ($sale->allPurchasables = $request->getBodyParam('allPurchasables')) {
+            $sale->setPurchasableIds([]);
+        } else {
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
-        }
-        $sale->setPurchasableIds(array_unique($purchasables));
-
-        $categories = $request->getBodyParam('categories', []);
-
-        if (!$categories) {
-            $categories = [];
+            $sale->setPurchasableIds($purchasables);
         }
 
-        $sale->setCategoryIds(array_unique($categories));
-
-        $groups = $request->getBodyParam('groups', []);
-
-        if (!$groups) {
-            $groups = [];
+        // Set category conditions
+        if ($sale->allCategories = $request->getBodyParam('allCategories')) {
+            $sale->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $sale->setCategoryIds($categories);
         }
 
-        $sale->setUserGroupIds(array_unique($groups));
+        // Set user group conditions
+        if ($sale->allCategories = $request->getBodyParam('allGroups')) {
+            $sale->setUserGroupIds([]);
+        } else {
+            $groups = $request->getBodyParam('groups', []);
+            if (!$groups) {
+                $groups = [];
+            }
+            $sale->setUserGroupIds($groups);
+        }
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {

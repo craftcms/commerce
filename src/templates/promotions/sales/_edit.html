@@ -100,19 +100,42 @@
     </div>
 
     <div id="matching-items" class="hidden">
-        {% for purchasableType in purchasableTypes %}
-            {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
-            {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|id,
-                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
-                name: 'purchasables['~purchasableType.elementType~']',
-                elements: purchasables[purchasableType.elementType] ?? null,
-                elementType: purchasableType.elementType,
-                limit: null,
-                instructions: purchasableType.name~" "~instruction,
-                errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
-            }) }}
-        {% endfor %}
+
+        {{ forms.lightswitchField({
+            label: "All Purchasables"|t('commerce'),
+            id: 'allPurchasables',
+            name: 'allPurchasables',
+            reverseToggle: '#matching-items-purchasables',
+            on: sale.allPurchasables ? true : false,
+            errors: sale.getErrors('allPurchasables')
+        }) }}
+
+        <div id="matching-items-purchasables" {% if sale.allPurchasables %}class="hidden"{% endif %}>
+            {% for purchasableType in purchasableTypes %}
+                {% set instruction = "Purchasables for which this sale will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
+                {{ forms.elementSelectField({
+                    id: 'purchasables-'~purchasableType.elementType|id,
+                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                    name: 'purchasables['~purchasableType.elementType~']',
+                    elements: purchasables[purchasableType.elementType] ?? null,
+                    elementType: purchasableType.elementType,
+                    limit: null,
+                    instructions: purchasableType.name~" "~instruction,
+                    errors: sale.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-'))
+                }) }}
+            {% endfor %}
+        </div>
+
+        {{ forms.lightswitchField({
+            label: "All Categories"|t('commerce'),
+            id: 'allCategories',
+            name: 'allCategories',
+            reverseToggle: '#matching-items-categories',
+            on: sale.allCategories ? true : false,
+            errors: sale.getErrors('allCategories')
+        }) }}
+
+        <div id="matching-items-categories" {% if sale.allCategories %}class="hidden"{% endif %}>
 
         {{ forms.elementSelectField({
             id: 'categories',
@@ -142,6 +165,8 @@
                 errors: sale.getErrors('categoryRelationshipType')
             }) }}
         </div>
+
+       </div>
     </div>
 
     <div id="conditions" class="hidden">
@@ -163,20 +188,32 @@
             errors: sale.getErrors('dateTo'),
         }) }}
         <div class="grid">
+
             {% if groups|length %}
-                {{ forms.multiselectField({
-                    label: 'User Groups'|t('commerce'),
-                    instructions: "Groups for which this sale will be applicable to. Leave blank for all groups"|t('commerce'),
-                    id: 'groups',
-                    name: 'groups',
-                    options: groups,
-                    values: sale.getUserGroupIds(),
-                    errors: sale.getErrors('groups'),
-                    class: 'selectize fullwidth',
+
+                {{ forms.lightswitchField({
+                    label: "All Customers"|t('commerce'),
+                    id: 'allGroups',
+                    name: 'allGroups',
+                    reverseToggle: '#matching-usergroups',
+                    on: sale.allGroups ? true : false,
+                    errors: sale.getErrors('allGroups')
                 }) }}
+
+                <div id="matching-usergroups" {% if sale.allGroups %}class="hidden"{% endif %}>
+                    {{ forms.multiselectField({
+                        label: 'User Groups'|t('commerce'),
+                        instructions: "Groups for which this sale will be applicable to."|t('commerce'),
+                        id: 'groups',
+                        name: 'groups',
+                        options: groups,
+                        values: sale.getUserGroupIds(),
+                        errors: sale.getErrors('groups'),
+                        class: 'selectize fullwidth',
+                    }) }}
+                </div>
             {% endif %}
         </div>
-
     </div>
 
     <div id="actions" class="hidden">

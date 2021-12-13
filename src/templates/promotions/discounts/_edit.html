@@ -137,48 +137,70 @@
 
     <div id="matching-items" class="hidden">
 
-        {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
-            {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|id,
-                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
-                name: 'purchasables['~purchasableType.elementType~']',
-                elements: purchasables[purchasableType.elementType] ?? null,
-                elementType: purchasableType.elementType,
-                limit: null,
-                instructions: purchasableType.name~" "~instruction,
-                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
-            }) }}
-        {% endfor %}
-
-
-        {{ forms.elementSelectField({
-            id: 'categories',
-            label: 'Categories'|t('commerce'),
-            name: 'categories',
-            elements: categories ? categories : null,
-            elementType: categoryElementType,
-            limit: null,
-            instructions: "Categories that the matching purchasables must be related to. Leave blank to ignore category matching."|t('commerce'),
-            errors: discount.getErrors('categories'),
+        {{ forms.lightswitchField({
+            label: "All Purchasables"|t('commerce'),
+            id: 'allPurchasables',
+            name: 'allPurchasables',
+            reverseToggle: '#matching-items-purchasables',
+            on: discount.allPurchasables ? true : false,
+            errors: discount.getErrors('allPurchasables')
         }) }}
 
-        <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
-           data-target="categoryRelationshipType-advanced">Advanced</a>
+        <div id="matching-items-purchasables" {% if discount.allPurchasables %}class="hidden"{% endif %}>
+            {% for purchasableType in purchasableTypes %}
+                {% set instruction = "for which this discount will be applicable to."|t('commerce') %}
+                {{ forms.elementSelectField({
+                    id: 'purchasables-'~purchasableType.elementType|id,
+                    label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
+                    name: 'purchasables['~purchasableType.elementType~']',
+                    elements: purchasables[purchasableType.elementType] ?? null,
+                    elementType: purchasableType.elementType,
+                    limit: null,
+                    instructions: purchasableType.name~" "~instruction,
+                    errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
+                }) }}
+            {% endfor %}
+        </div>
 
-        <div id="categoryRelationshipType-advanced"
-             class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
-            {{ forms.selectField({
-                id: 'categoryRelationshipType',
-                name: 'categoryRelationshipType',
-                label: 'Categories Relationship Type'|t('commerce'),
-                instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
-                    link: 'https://craftcms.com/docs/3.x/relations.html#terminology',
-                }),
-                options: categoryRelationshipTypeOptions,
-                value: discount.categoryRelationshipType,
-                errors: discount.getErrors('categoryRelationshipType')
+        {{ forms.lightswitchField({
+            label: "All Categories"|t('commerce'),
+            id: 'allCategories',
+            name: 'allCategories',
+            reverseToggle: '#matching-items-categories',
+            on: discount.allCategories ? true : false,
+            errors: discount.getErrors('allCategories')
+        }) }}
+
+        <div id="matching-items-categories" {% if discount.allCategories %}class="hidden"{% endif %}>
+            {{ forms.elementSelectField({
+                id: 'categories',
+                label: 'Categories'|t('commerce'),
+                name: 'categories',
+                elements: categories ? categories : null,
+                elementType: categoryElementType,
+                limit: null,
+                instructions: "Categories that the matching purchasables must be related to."|t('commerce'),
+                errors: discount.getErrors('categories'),
             }) }}
+
+
+            <a class="fieldtoggle {% if (discount.categoryRelationshipType != 'element') %}expanded{% endif %}"
+               data-target="categoryRelationshipType-advanced">Advanced</a>
+
+            <div id="categoryRelationshipType-advanced"
+                 class="{% if (discount.categoryRelationshipType == 'element') %}hidden{% endif %}">
+                {{ forms.selectField({
+                    id: 'categoryRelationshipType',
+                    name: 'categoryRelationshipType',
+                    label: 'Categories Relationship Type'|t('commerce'),
+                    instructions: "How the Purchasables and Categories are related, which determines the matching items. See [Relations Terminology]({link})."|t('commerce', {
+                        link: 'https://craftcms.com/docs/3.x/relations.html#terminology',
+                    }),
+                    options: categoryRelationshipTypeOptions,
+                    value: discount.categoryRelationshipType,
+                    errors: discount.getErrors('categoryRelationshipType')
+                }) }}
+            </div>
         </div>
 
     </div>

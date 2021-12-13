@@ -144,7 +144,8 @@ class Discount extends Model
     public $hasFreeShippingForOrder;
 
     /**
-     * @var string Type of user group condition that should match the discount. (See getUserConditions().)
+     * @var string Type of user group condition that should match the discount.
+     * @see getUserConditions()
      */
     public $userGroupsCondition;
 

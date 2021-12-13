@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Added
+- Discounts now have explicit “All Purchasables” and “All Categories” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
+
 ### Fixed
 - Fixed a bug where adjustments snapshots were removed when recalculating a completed order.
 
