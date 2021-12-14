@@ -39,7 +39,7 @@ class SalePurchasable extends ActiveRecord
     public function rules()
     {
         return [
-            [['saleId', 'purchasableId'], 'unique', 'targetAttribute' => ['saleId', 'purchasableId']]
+            [['saleId', 'purchasableId'], 'unique', 'targetAttribute' => ['saleId', 'purchasableId']],
         ];
     }
 

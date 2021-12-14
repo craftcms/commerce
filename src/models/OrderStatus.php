@@ -13,6 +13,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\OrderStatus as OrderStatusRecord;
 use craft\db\SoftDeleteTrait;
+use craft\helpers\Html;
 use craft\helpers\UrlHelper;
 use craft\validators\HandleValidator;
 use craft\validators\UniqueValidator;
@@ -97,7 +98,7 @@ class OrderStatus extends Model
                 'sortOrder' => AttributeTypecastBehavior::TYPE_INTEGER,
                 'default' => AttributeTypecastBehavior::TYPE_BOOLEAN,
                 'uid' => AttributeTypecastBehavior::TYPE_STRING,
-            ]
+            ],
         ];
 
         return $behaviors;
@@ -127,19 +128,17 @@ class OrderStatus extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class];
-        $rules[] = [
-            ['handle'],
-            HandleValidator::class,
-            'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new']
+        return [
+            [['name', 'handle'], 'required'],
+            [['handle'], UniqueValidator::class, 'targetClass' => OrderStatusRecord::class],
+            [
+                ['handle'],
+                HandleValidator::class,
+                'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title', 'create-new'],
+            ],
         ];
-
-        return $rules;
     }
 
     /**
@@ -171,7 +170,7 @@ class OrderStatus extends Model
      */
     public function getLabelHtml(): string
     {
-        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, $this->getDisplayName());
+        return sprintf('<span class="commerceStatusLabel"><span class="status %s"></span>%s</span>', $this->color, Html::encode($this->getDisplayName()));
     }
 
     /**

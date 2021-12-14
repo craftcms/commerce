@@ -47,6 +47,7 @@ class OrderNoticesTest extends Unit
      */
     public function testOrderNotices()
     {
+        /** @var OrderNotice $firstNotice */
         $firstNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [
@@ -64,6 +65,7 @@ class OrderNoticesTest extends Unit
         self::assertEquals($firstNotice->message, $firstNotice->message);
         self::assertCount(1, $notices);
 
+        /** @var OrderNotice $secondNotice */
         $secondNotice = Craft::createObject([
             'class' => OrderNotice::class,
             'attributes' => [

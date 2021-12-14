@@ -26,7 +26,7 @@ class m200108_114623_consolidate_customer_records extends Migration
         $customers = (new Query())
             ->select([
                 'email',
-                new Expression('COUNT(DISTINCT [[customerId]]) as customerIdCount')
+                new Expression('COUNT(DISTINCT [[customerId]]) as customerIdCount'),
             ])
             ->from('{{%commerce_orders}}')
             ->where(['isCompleted' => true])
@@ -38,7 +38,7 @@ class m200108_114623_consolidate_customer_records extends Migration
         if (!empty($customers)) {
             foreach ($customers as $customer) {
                 Craft::$app->getQueue()->push(new ConsolidateGuestOrders([
-                    'emails' => [$customer['email']]
+                    'emails' => [$customer['email']],
                 ]));
             }
         }

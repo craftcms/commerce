@@ -105,6 +105,18 @@ class Sale extends Model
     public $sortOrder;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @var int[] Product Ids
      */
     private $_purchasableIds;
@@ -135,31 +147,22 @@ class Sale extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [
-            ['apply'],
-            'in',
-            'range' => [
-                'toPercent',
-                'toFlat',
-                'byPercent',
-                'byFlat'
-            ]
+        return [
+            [['apply'], 'in', 'range' => ['toPercent', 'toFlat', 'byPercent', 'byFlat']],
+            [
+                ['categoryRelationshipType'],
+                'in',
+                'range' => [
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
+                    SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH,
+                ],
+            ],
+            [['enabled'], 'boolean'],
+            [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
         ];
-        $rules[] = [
-            ['categoryRelationshipType'], 'in', 'range' => [
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_SOURCE,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_TARGET,
-                SaleRecord::CATEGORY_RELATIONSHIP_TYPE_BOTH
-            ]
-        ];
-        $rules[] = [['enabled'], 'boolean'];
-        $rules[] = [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'];
-
-        return $rules;
     }
 
     /**

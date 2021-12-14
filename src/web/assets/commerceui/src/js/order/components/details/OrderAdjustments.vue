@@ -48,6 +48,7 @@
         computed: {
             ...mapGetters([
                 'orderId',
+                'currentUserId',
             ]),
 
             ...mapState({
@@ -67,8 +68,11 @@
                     name: '',
                     description: '',
                     amount: '0.0000',
-                    included: '0',
+                    included: false,
                     orderId: this.orderId,
+
+                    // When creating a brand new manual adjustment, we need to set the author ID
+                    sourceSnapshot: {authorId: this.currentUserId},
                 }
 
                 const adjustments = this.adjustments

@@ -315,6 +315,8 @@ class Countries extends Component
                 'countries.iso',
                 'countries.isStateRequired',
                 'countries.enabled',
+                'countries.dateCreated',
+                'countries.dateUpdated',
             ])
             ->from([Table::COUNTRIES . ' countries'])
             ->orderBy(['sortOrder' => SORT_ASC, 'name' => SORT_ASC]);

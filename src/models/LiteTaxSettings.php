@@ -45,7 +45,7 @@ class LiteTaxSettings extends Model
         return [
             'taxRate',
             'taxName',
-            'taxInclude'
+            'taxInclude',
         ];
     }
 

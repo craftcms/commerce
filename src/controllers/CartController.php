@@ -87,6 +87,11 @@ class CartController extends BaseFrontEndController
         // When we are about to update the cart, we consider it a real cart at this point, and want to actually create it in the DB.
         $this->_cart = $this->_getCart(true);
 
+        // Can clear line items when updating the cart
+        if (($clearCart = $this->request->getParam('clearLineItems')) !== null) {
+            $this->_cart->setLineItems([]);
+        }
+
         // Can clear notices when updating the cart
         if (($clearNotices = $this->request->getParam('clearNotices')) !== null) {
             $this->_cart->clearNotices();
@@ -129,11 +134,11 @@ class CartController extends BaseFrontEndController
 
                 $purchasable = [];
                 $purchasable['id'] = $purchasableId;
-                $purchasable['options'] = $options;
+                $purchasable['options'] = is_array($options) ? $options : [];
                 $purchasable['note'] = $note;
-                $purchasable['qty'] = (int) $qty;
+                $purchasable['qty'] = (int)$qty;
 
-                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($options);
+                $key = $purchasableId . '-' . LineItemHelper::generateOptionsSignature($purchasable['options']);
                 if (isset($purchasablesByKey[$key])) {
                     $purchasablesByKey[$key]['qty'] += $purchasable['qty'];
                 } else {
@@ -168,7 +173,7 @@ class CartController extends BaseFrontEndController
             foreach ($lineItems as $key => $lineItem) {
                 $lineItem = $this->_getCartLineItemById($key);
                 if ($lineItem) {
-                    $lineItem->qty = (int) $this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
+                    $lineItem->qty = (int)$this->request->getParam("lineItems.{$key}.qty", $lineItem->qty);
                     $lineItem->note = $note = $this->request->getParam("lineItems.{$key}.note", $lineItem->note);
                     $lineItem->setOptions($this->request->getParam("lineItems.{$key}.options", $lineItem->getOptions()));
 
@@ -311,7 +316,7 @@ class CartController extends BaseFrontEndController
             $errors['lineItems'] = Craft::t('commerce', 'Order can not be empty.');
         }
 
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->getShippingMethod()) {
+        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$this->_cart->shippingMethodHandle) {
             $errors['shippingMethodHandle'] = Craft::t('commerce', 'There is no shipping method selected for this order.');
         }
 
@@ -410,12 +415,12 @@ class CartController extends BaseFrontEndController
                     'errors' => $this->_cart->getErrors(),
                     'success' => !$this->_cart->hasErrors(),
                     'message' => $message,
-                    $this->_cartVariable => $this->cartArray($this->_cart)
+                    $this->_cartVariable => $this->cartArray($this->_cart),
                 ]);
             }
 
             Craft::$app->getUrlManager()->setRouteParams([
-                $this->_cartVariable => $this->_cart
+                $this->_cartVariable => $this->_cart,
             ]);
 
             $this->setFailFlash($error);
@@ -436,14 +441,14 @@ class CartController extends BaseFrontEndController
             return $this->asJson([
                 'success' => !$this->_cart->hasErrors(),
                 $this->_cartVariable => $this->cartArray($this->_cart),
-                'message' => $message
+                'message' => $message,
             ]);
         }
 
         $this->setSuccessFlash($cartUpdatedMessage);
 
         Craft::$app->getUrlManager()->setRouteParams([
-            $this->_cartVariable => $this->_cart
+            $this->_cartVariable => $this->_cart,
         ]);
 
         return $this->redirectToPostedUrl();

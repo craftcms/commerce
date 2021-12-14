@@ -58,7 +58,7 @@ class VariantType implements GeneratorInterface
                 'name' => $typeName,
                 'fields' => function() use ($fields) {
                     return $fields;
-                }
+                },
             ]));
         }
 

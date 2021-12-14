@@ -78,12 +78,11 @@ class Pdf extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name', 'handle', 'templatePath', 'language'], 'required'];
-        return $rules;
+        return [
+            [['name', 'handle', 'templatePath', 'language'], 'required'],
+        ];
     }
 
     /**
@@ -124,7 +123,7 @@ class Pdf extends Model
             'enabled' => (bool)$this->enabled,
             'sortOrder' => (int)$this->sortOrder ?: 9999,
             'isDefault' => (bool)$this->isDefault,
-            'language' => $this->language
+            'language' => $this->language,
         ];
     }
 }

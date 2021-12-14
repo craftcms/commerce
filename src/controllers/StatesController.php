@@ -130,7 +130,7 @@ class StatesController extends BaseStoreSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'state' => $state
+            'state' => $state,
         ]);
     }
 

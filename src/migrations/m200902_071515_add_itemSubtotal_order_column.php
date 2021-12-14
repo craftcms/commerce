@@ -42,7 +42,7 @@ class m200902_071515_add_itemSubtotal_order_column extends Migration
 
             // Update orders
             $this->update('{{%commerce_orders}}', [
-                'itemSubtotal' => new Expression('CASE ' . $cases . ' END')
+                'itemSubtotal' => new Expression('CASE ' . $cases . ' END'),
             ], ['id' => array_keys($batch)]);
         }
     }

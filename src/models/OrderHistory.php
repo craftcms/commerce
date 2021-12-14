@@ -98,13 +98,10 @@ class OrderHistory extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['orderId', 'customerId'], 'required'];
-
-        return $rules;
+        return [
+            [['orderId', 'customerId'], 'required'],
+        ];
     }
 }
-

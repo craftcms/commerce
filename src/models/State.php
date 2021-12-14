@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 use yii\base\InvalidConfigException;
 
 /**
@@ -52,17 +53,26 @@ class State extends Model
      */
     public $sortOrder;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['countryId', 'name', 'abbreviation'], 'required'];
-
-        return $rules;
+        return [
+            [['countryId', 'name', 'abbreviation'], 'required'],
+        ];
     }
 
     /**

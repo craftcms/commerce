@@ -10,6 +10,7 @@ namespace craft\commerce\models;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
+use DateTime;
 
 /**
  * Shipping Category model.
@@ -50,6 +51,17 @@ class ShippingCategory extends Model
      */
     private $_productTypes;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * Returns the name of this shipping category.
@@ -107,12 +119,10 @@ class ShippingCategory extends Model
     /**
      * @return array
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules [] = [['name', 'handle'], 'required'];
-
-        return $rules;
+        return [
+            [['name', 'handle'], 'required'],
+        ];
     }
 }

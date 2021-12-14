@@ -9,6 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
+use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\web\twig\Environment;
 use Twig\Error\SyntaxError;
 
@@ -20,6 +22,11 @@ use Twig\Error\SyntaxError;
  */
 class Formulas extends Component
 {
+    /**
+     * @var array
+     */
+    private $_formulaConditionMatches = [];
+
     /**
      * @var Environment
      */
@@ -68,7 +75,7 @@ class Formulas extends Component
     public function validateFormulaSyntax($formula, $params): bool
     {
         try {
-            $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
         } catch (\Exception $exception) {
             return false;
         }
@@ -93,15 +100,22 @@ class Formulas extends Component
             throw new SyntaxError('Tags are not allowed in a condition formula.');
         }
 
+        $cacheKey = 'formula:' . md5($formula) . '|params:' . md5(Json::encode($params));
+
+        if (Craft::$app->getCache()->exists($cacheKey)) {
+            return (bool)Craft::$app->getCache()->get($cacheKey);
+        }
+
         $twigCode = '{% if ';
         $twigCode .= $formula;
         $twigCode .= ' %}TRUE{% else %}FALSE{% endif %}';
 
         $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        $success = $output == 'TRUE';
+        $result = ($output == 'TRUE');
+        Craft::$app->getCache()->set($cacheKey, $result);
 
-        return $success;
+        return $result;
     }
 
     /**
@@ -191,7 +205,7 @@ class Formulas extends Component
             //'currency_name',
             //'currency_symbol',
             //'data_uri',
-            //'date',
+            'date',
             //'date_modify',
             //'default',
             //'escape',

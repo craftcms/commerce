@@ -258,7 +258,7 @@ class ProductTypes extends Component
                     'siteId',
                     'uriFormat',
                     'hasUrls',
-                    'template'
+                    'template',
                 ])
                 ->from(Table::PRODUCTTYPES_SITES)
                 ->where(['productTypeId' => $productTypeId])
@@ -340,7 +340,7 @@ class ProductTypes extends Component
 
             'skuFormat' => $productType->skuFormat,
             'descriptionFormat' => $productType->descriptionFormat,
-            'siteSettings' => []
+            'siteSettings' => [],
         ];
 
         $generateLayoutConfig = function(FieldLayout $fieldLayout): array {
@@ -616,8 +616,8 @@ class ProductTypes extends Component
                         'siteId' => '*',
                         'status' => null,
                         'typeId' => $productTypeRecord->id,
-                        'enabledForSite' => false
-                    ]
+                        'enabledForSite' => false,
+                    ],
                 ]));
             }
         } catch (Throwable $e) {
@@ -952,7 +952,7 @@ class ProductTypes extends Component
 
                 'productTypes.skuFormat',
                 'productTypes.descriptionFormat',
-                'productTypes.uid'
+                'productTypes.uid',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes']);
     }

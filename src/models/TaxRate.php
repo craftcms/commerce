@@ -13,6 +13,7 @@ use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
+use DateTime;
 
 /**
  * Tax rate model.
@@ -54,6 +55,18 @@ class TaxRate extends Model
     public $include;
 
     /**
+     * @var bool Remove the included tax rate
+     * @since 3.4
+     */
+    public $removeIncluded;
+
+    /**
+     * @var bool Remove the included vat tax rate
+     * @since 3.4
+     */
+    public $removeVatIncluded;
+
+    /**
      * @var bool Is VAT
      */
     public $isVat = false;
@@ -79,6 +92,18 @@ class TaxRate extends Model
     public $taxZoneId;
 
     /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
+
+    /**
      * @var TaxCategory
      */
     private $_taxCategory;
@@ -92,18 +117,18 @@ class TaxRate extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['name'], 'required'];
-        $rules[] = [
-            ['taxCategoryId'], 'required', 'when' => function($model): bool {
-                return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
-            }
+        return [
+            [['name'], 'required'],
+            [
+                ['taxCategoryId'],
+                'required',
+                'when' => function($model): bool {
+                    return !in_array($model->taxable, TaxRateRecord::ORDER_TAXABALES, true);
+                },
+            ],
         ];
-
-        return $rules;
     }
 
     /**

@@ -229,7 +229,7 @@ class Customers extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                 'address' => $address,
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -241,7 +241,7 @@ class Customers extends Component
         if (Plugin::getInstance()->getAddresses()->saveAddress($address, $runValidation)) {
             $customerAddress = CustomerAddressRecord::find()->where([
                 'customerId' => $customer->id,
-                'addressId' => $address->id
+                'addressId' => $address->id,
             ])->one();
 
             if (!$customerAddress) {
@@ -256,7 +256,7 @@ class Customers extends Component
                 if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS)) {
                     $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS, new CustomerAddressEvent([
                         'address' => $address,
-                        'customer' => $customer
+                        'customer' => $customer,
                     ]));
                 }
 
@@ -280,7 +280,7 @@ class Customers extends Component
         // Fire a 'beforeSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -319,7 +319,7 @@ class Customers extends Component
         // Fire a 'afterSaveCustomer' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_CUSTOMER)) {
             $this->trigger(self::EVENT_AFTER_SAVE_CUSTOMER, new CustomerEvent([
-                'customer' => $customer
+                'customer' => $customer,
             ]));
         }
 
@@ -666,7 +666,7 @@ class Customers extends Component
             ->andWhere([
                 'or',
                 ['orders.isCompleted' => true],
-                ['not', ['customers.userId' => null]]
+                ['not', ['customers.userId' => null]],
             ]);
 
         if ($search) {
@@ -742,7 +742,7 @@ class Customers extends Component
         $orders = (new Query())
             ->select([
                 'id' => 'orders.id',
-                'userId' => 'customers.userId'
+                'userId' => 'customers.userId',
             ])
             ->where(['and', ['[[orders.email]]' => $email, '[[orders.isCompleted]]' => true], ['not', ['[[orders.customerId]]' => $customerId]]])
             ->leftJoin(Table::CUSTOMERS . ' customers', '[[orders.customerId]] = [[customers.id]]')
@@ -778,10 +778,12 @@ class Customers extends Component
             // Address ID could be null if the orders customer just got switched during order completion.
             // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
             $originalBillingAddressId = $originalBillingAddress->id;
-            $originalBillingAddress->id = null;
-            if ($addressesService->saveAddress($originalBillingAddress, false)) {
+            $newBillingAddress = new Address();
+            $newBillingAddress->attributes = $originalBillingAddress->attributes;
+            $newBillingAddress->id = null;
+            if ($addressesService->saveAddress($newBillingAddress, false)) {
                 $mutated = true;
-                $order->setBillingAddress($originalBillingAddress);
+                $order->setBillingAddress($newBillingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the billing address on order completion. Original billing address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalBillingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -792,10 +794,12 @@ class Customers extends Component
             // Address ID could be null if the orders customer just got switched during order completion.
             // But that is OK, since we will mark order as mutated which will force the  order to save (which will also save the addresses).
             $originalShippingAddressId = $originalShippingAddress->id;
-            $originalShippingAddress->id = null;
-            if ($addressesService->saveAddress($originalShippingAddress, false)) {
+            $newShippingAddress = new Address();
+            $newShippingAddress->attributes = $originalShippingAddress->attributes;
+            $newShippingAddress->id = null;
+            if ($addressesService->saveAddress($newShippingAddress, false)) {
                 $mutated = true;
-                $order->setShippingAddress($originalShippingAddress);
+                $order->setShippingAddress($newShippingAddress);
             } else {
                 Craft::error(Craft::t('commerce', 'Unable to duplicate the shipping address on order completion. Original shipping address ID: {addressId}. Order ID: {orderId}',
                     ['addressId' => $originalShippingAddressId, 'orderId' => $order->id]), __METHOD__);
@@ -821,11 +825,6 @@ class Customers extends Component
 
         // Only if on pro edition
         if (Craft::$app->getEdition() != Craft::Pro) {
-            return;
-        }
-
-        // If a user is logged in, then don't create a user account
-        if (Craft::$app->getUser()->getIdentity()) {
             return;
         }
 
@@ -897,7 +896,7 @@ class Customers extends Component
         if (!$context['isNewUser'] && ($currentUser->can('commerce-manageOrders') || $currentUser->can('commerce-manageSubscriptions'))) {
             $context['tabs']['customerInfo'] = [
                 'label' => Craft::t('commerce', 'Customer Info'),
-                'url' => '#customerInfo'
+                'url' => '#customerInfo',
             ];
         }
     }
@@ -1040,7 +1039,9 @@ class Customers extends Component
                 'id',
                 'userId',
                 'primaryBillingAddressId',
-                'primaryShippingAddressId'
+                'primaryShippingAddressId',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::CUSTOMERS]);
     }

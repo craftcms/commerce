@@ -81,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => null
+                        $this->_cartVariableName => null,
                     ]);
                 }
 
@@ -112,7 +112,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -127,7 +127,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -142,7 +142,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -157,7 +157,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -192,7 +192,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -234,7 +234,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -293,7 +293,7 @@ class PaymentsController extends BaseFrontEndController
                         return $this->asJson([
                             'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
-                            $this->_cartVariableName => $this->cartArray($order)
+                            $this->_cartVariableName => $this->cartArray($order),
                         ]);
                     }
 
@@ -321,7 +321,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -332,13 +332,13 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
+        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -392,7 +392,7 @@ class PaymentsController extends BaseFrontEndController
                     return $this->asJson([
                         'error' => $error,
                         'paymentFormErrors' => $paymentForm->getErrors(),
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -453,7 +453,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -467,7 +467,7 @@ class PaymentsController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             $response = [
                 'success' => true,
-                $this->_cartVariableName => $this->cartArray($order)
+                $this->_cartVariableName => $this->cartArray($order),
             ];
 
             if ($redirect) {

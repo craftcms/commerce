@@ -107,7 +107,7 @@ class Transactions extends Component
                 'type' => TransactionRecord::TYPE_CAPTURE,
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'orderId' => $transaction->orderId,
-                'parentId' => $transaction->id
+                'parentId' => $transaction->id,
             ])
             ->exists();
     }
@@ -155,7 +155,7 @@ class Transactions extends Component
                 'type' => TransactionRecord::TYPE_REFUND,
                 'status' => TransactionRecord::STATUS_SUCCESS,
                 'orderId' => $transaction->orderId,
-                'parentId' => $transaction->id
+                'parentId' => $transaction->id,
             ])
             ->from([Table::TRANSACTIONS])
             ->sum('[[paymentAmount]]');
@@ -206,7 +206,7 @@ class Transactions extends Component
             $transaction->paymentCurrency = $paymentCurrency->iso;
 
             // Payment amount is the amount in the paymentCurrency
-            $transaction->paymentAmount =  Currency::round($order->getPaymentAmount(), $paymentCurrency);
+            $transaction->paymentAmount = Currency::round($order->getPaymentAmount(), $paymentCurrency);
 
             // Amount is always in the base currency
             $amount = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($transaction->paymentAmount, $transaction->paymentCurrency, $transaction->currency);
@@ -231,7 +231,7 @@ class Transactions extends Component
         // Raise 'afterCreateTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -349,6 +349,21 @@ class Transactions extends Component
     }
 
     /**
+     * Get a transaction by its reference.
+     *
+     * @param string $reference the transaction reference
+     * @return Transaction|null
+     */
+    public function getTransactionByReference(string $reference)
+    {
+        $result = $this->_createTransactionQuery()
+            ->where(compact('reference'))
+            ->one();
+
+        return $result ? new Transaction($result) : null;
+    }
+
+    /**
      * Get a transaction by its ID.
      *
      * @param int $id the ID of transaction
@@ -379,7 +394,7 @@ class Transactions extends Component
             ->where([
                 'parentId' => $transaction->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'orderId' => $transaction->orderId
+                'orderId' => $transaction->orderId,
             ])
             ->exists();
     }
@@ -421,7 +436,7 @@ class Transactions extends Component
             'code',
             'response',
             'userId',
-            'parentId'
+            'parentId',
         ];
 
         $record = new TransactionRecord();
@@ -446,7 +461,7 @@ class Transactions extends Component
         // Raise 'afterSaveTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_SAVE_TRANSACTION, new TransactionEvent([
-                'transaction' => $model
+                'transaction' => $model,
             ]));
         }
 

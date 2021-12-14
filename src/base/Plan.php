@@ -15,6 +15,7 @@ use craft\elements\Entry;
 use craft\elements\User;
 use craft\helpers\Json;
 use craft\validators\UniqueValidator;
+use DateTime;
 use yii\base\InvalidConfigException;
 use function count;
 
@@ -43,6 +44,17 @@ abstract class Plan extends Model implements PlanInterface
      */
     private $_data;
 
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * Returns the billing plan friendly name
@@ -162,9 +174,9 @@ abstract class Plan extends Model implements PlanInterface
                 ['handle'],
                 UniqueValidator::class,
                 'targetClass' => PlanRecord::class,
-                'targetAttribute' => ['handle']
+                'targetAttribute' => ['handle'],
             ],
-            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required']
+            [['gatewayId', 'reference', 'name', 'handle', 'planData'], 'required'],
         ];
     }
 }

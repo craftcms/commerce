@@ -61,7 +61,7 @@ class ShippingMethods extends Component
 
 
     /**
-     * Returns the Commerce managed and 3rd party shipping methods
+     * Returns the Commerce managed shipping methods stored in the database.
      *
      * @return ShippingMethod[]
      */
@@ -106,10 +106,11 @@ class ShippingMethods extends Component
     }
 
     /**
-     * Get all available shipping methods.
+     * Get all available shipping methods to the order.
      *
      * @param Order $order
      * @return ShippingMethod[]
+     * @TODO rename to matchingShippingMethods in 4.0
      */
     public function getAvailableShippingMethods(Order $order): array
     {
@@ -119,7 +120,7 @@ class ShippingMethods extends Component
 
         $event = new RegisterAvailableShippingMethodsEvent([
             'shippingMethods' => $methods,
-            'order' => $order
+            'order' => $order,
         ]);
 
         if ($this->hasEventHandlers(self::EVENT_REGISTER_AVAILABLE_SHIPPING_METHODS)) {
@@ -304,7 +305,9 @@ class ShippingMethods extends Component
                 'name',
                 'handle',
                 'enabled',
-                'isLite'
+                'isLite',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->from([Table::SHIPPINGMETHODS]);
 
