@@ -474,7 +474,7 @@ class Sales extends Component
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
-                // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
+                // User group condition means we have to have a real user
                 if (null === $user) {
                     return false;
                 }
@@ -569,9 +569,15 @@ class Sales extends Component
             $record->$field = $model->$field;
         }
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+        if($record->allGroups = $model->allGroups){
+            $model->setUserGroupIds([]);
+        }
+        if($record->allCategories = $model->allCategories){
+            $model->setCategoryIds([]);
+        }
+        if($record->allPurchasables = $model->allPurchasables){
+            $model->setPurchasableIds([]);
+        }
 
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {

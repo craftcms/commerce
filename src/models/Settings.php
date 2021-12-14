@@ -205,15 +205,6 @@ class Settings extends Model
     public $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var array Payment gateway settings indexed by each gateway’s handle.
-     *
-     * Check each gateway’s documentation for settings that may be stored.
-     *
-     * @group Payments
-     */
-    public $gatewaySettings = [];
-
-    /**
      * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
