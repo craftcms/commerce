@@ -150,7 +150,6 @@ class TopProducts extends Stat
             ->groupBy($this->getGroupBy())
             ->orderBy($this->getOrderBy())
             ->andWhere(['not', ['[[v.productId]]' => null]])
-            ->andWhere(['pt.id' => $editableProductTypeIds])
             ->limit($this->limit);
 
         return $topProducts->all();

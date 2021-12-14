@@ -11,6 +11,7 @@ use Codeception\Test\Unit;
 use craft\commerce\models\ProductType;
 use craft\commerce\stats\TopProducts;
 use craft\commerce\stats\TopProductTypes;
+use craft\elements\User;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
 use DateTimeZone;
@@ -55,6 +56,7 @@ class TopProductTypesTest extends Unit
      */
     public function testGetData(string $dateRange,  string $type, DateTime $startDate, DateTime $endDate, int $count, array $productTypeData): void
     {
+        $this->_mockUser();
         $stat = new TopProductTypes($dateRange, $type, $startDate, $endDate);
         $data = $stat->get();
 
@@ -106,5 +108,18 @@ class TopProductTypesTest extends Unit
                 []
             ],
         ];
+    }
+
+    public function _mockUser(): void
+    {
+        $user = new User();
+        $user->id = 1;
+        $user->admin = true;
+
+        $mockUser = $this->make(\craft\web\User::class, [
+            'getIdentity' => $user
+        ]);
+
+        \Craft::$app->set('user', $mockUser);
     }
 }
