@@ -527,14 +527,14 @@ class Discounts extends Component
             return false;
         }
 
-        if ($discount->getPurchasableIds() && !$discount->allPurchasables) {
+        if (!$discount->allPurchasables) {
             $purchasableId = $lineItem->purchasableId;
             if (!in_array($purchasableId, $discount->getPurchasableIds(), false)) {
                 return false;
             }
         }
 
-        if (!$discount->allCategories && $discount->getCategoryIds() && $purchasable = $lineItem->getPurchasable()) {
+        if (!$discount->allCategories && $purchasable = $lineItem->getPurchasable()) {
 
             $key = 'relationshipType:' . $discount->categoryRelationshipType . ':purchasableId:' . $purchasable->getId() . ':categoryIds:' . implode('|', $discount->getCategoryIds());
 
@@ -624,7 +624,7 @@ class Discounts extends Component
         }
 
         // Check to see if we need to match on data related to the lineItems
-        if (($discount->getPurchasableIds() && !$discount->allPurchasables) || ($discount->getCategoryIds() && !$discount->allCategories)) {
+        if (!$discount->allPurchasables || !$discount->allCategories) {
             $lineItemMatch = false;
             $matchingTotal = 0;
             $matchingQty = 0;
@@ -723,15 +723,20 @@ class Discounts extends Component
         $record->perEmailLimit = $model->perEmailLimit;
         $record->totalDiscountUseLimit = $model->totalDiscountUseLimit;
         $record->ignoreSales = $model->ignoreSales;
-        $record->categoryRelationshipType = $model->categoryRelationshipType;
         $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
 
         $record->userGroupsCondition = $model->userGroupsCondition;
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+
+        $record->categoryRelationshipType = $model->categoryRelationshipType;
+        if ($record->allCategories = $model->allCategories) {
+            $model->setCategoryIds([]);
+        }
+        if ($record->allPurchasables = $model->allPurchasables) {
+            $model->setPurchasableIds([]);
+        }
 
         $db = Craft::$app->getDb();
         $transaction = $db->beginTransaction();
