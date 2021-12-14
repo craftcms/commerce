@@ -313,7 +313,7 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
 
     .line-item {
         transition: background-color 0.5s ease;

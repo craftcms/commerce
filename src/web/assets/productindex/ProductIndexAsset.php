@@ -30,7 +30,7 @@ class ProductIndexAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/CommerceProductIndex.js',
+            'CommerceProductIndex.js',
         ];
 
         parent::init();
