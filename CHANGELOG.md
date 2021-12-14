@@ -6,6 +6,9 @@
 - Discounts now have explicit “All Purchasables” and “All Categories” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
 - Sales now have explicit “All Purchasables”, “All Categories”, and “All Customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
 
+### Changed
+- Product index now uses “Product” column heading by default, rather than “Title”.
+
 ### Fixed
 - Fixed a bug where adjustments snapshots were removed when recalculating a completed order.
 - Fixed a bug where email previews would render with CP assets included. ([#2632](https://github.com/craftcms/commerce/issues/2632))
