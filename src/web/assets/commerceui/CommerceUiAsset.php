@@ -38,33 +38,4 @@ abstract class CommerceUiAsset extends AssetBundle
 
         parent::init();
     }
-
-
-    /**
-     * @return string
-     */
-    private static function getDevServer(): string
-    {
-        static $devServer;
-
-        if (!isset($devServer)) {
-            $vueCliServer = getenv('COMMERCE_VUE_CLI_SERVER');
-            if (!Craft::$app->config->general->devMode || !$vueCliServer) {
-                $devServer = '';
-                return $devServer;
-            }
-
-            $devServer = rtrim($vueCliServer, '/') . '/';
-
-            $vueCliLoopbackServer = getenv('COMMERCE_VUE_CLI_LOOPBACK_SERVER');
-            if ($vueCliLoopbackServer) {
-                try {
-                    $contents = file_get_contents($vueCliLoopbackServer);
-                } catch (\Exception $exception) {
-                    $devServer = '';
-                }
-            }
-        }
-        return $devServer;
-    }
 }
