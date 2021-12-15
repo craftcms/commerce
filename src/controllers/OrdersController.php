@@ -527,6 +527,13 @@ class OrdersController extends Controller
         $limit = $request->getParam('per_page', 10);
         $search = $request->getParam('search', null);
         $offset = ($page - 1) * $limit;
+        
+        $orderId = $request->getParam('orderId', null);
+        $currency = null;
+        if ($orderId) {
+            $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
+            $currency = $order->currency;
+        }
 
         // Prepare purchasables query
         $likeOperator = Craft::$app->getDb()->getIsPgsql() ? 'ILIKE' : 'LIKE';
@@ -570,7 +577,7 @@ class OrdersController extends Controller
         $sqlQuery->offset($offset);
         $result = $sqlQuery->all();
 
-        $purchasables = $this->_addLivePurchasableInfo($result);
+        $purchasables = $this->_addLivePurchasableInfo($result, $currency);
 
         return $this->asJson([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
@@ -1482,7 +1489,7 @@ class OrdersController extends Controller
      * @return array
      * @throws InvalidConfigException
      */
-    private function _addLivePurchasableInfo(array $results): array
+    private function _addLivePurchasableInfo(array $results, $currency=null): array
     {
         $baseCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
         $purchasables = [];
@@ -1490,7 +1497,7 @@ class OrdersController extends Controller
             /** @var PurchasableInterface $purchasable */
             if ($purchasable = Craft::$app->getElements()->getElementById($row['id'])) {
                 if ($purchasable->getBehavior('currencyAttributes')) {
-                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency;
+                    $row['priceAsCurrency'] = $purchasable->priceAsCurrency($currency);
                 } else {
                     $row['priceAsCurrency'] = Craft::$app->getFormatter()->asCurrency($row['price'], $baseCurrency, [], [], true);
                 }
