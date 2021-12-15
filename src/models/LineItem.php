@@ -259,6 +259,12 @@ class LineItem extends Model
     {
         $this->orderId = $order->id;
         $this->_order = $order;
+        
+        $this->attachBehavior('currencyAttributes', [
+            'class' => CurrencyAttributeBehavior::class,
+            'defaultCurrency' => $this->getOrder()->currency ?? Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
+            'currencyAttributes' => $this->currencyAttributes(),
+        ]);
     }
 
     /**
