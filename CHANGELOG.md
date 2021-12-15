@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.7.25 or later. ([#2638](https://github.com/craftcms/commerce/issues/2638))
+
 ## 3.4.9 - 2021-12-14
 
 ### Added
