@@ -30,7 +30,7 @@
                 </div>
                 <admin-table
                         :allow-multiple-selections="true"
-                        table-data-endpoint="commerce/orders/purchasables-table"
+                        table-data-endpoint="commerce/orders/purchasables-table?orderId="+this.orderId
                         :checkboxes="true"
                         :checkbox-status="isCheckboxEnabled"
                         :columns="purchasableTableColumns"
