@@ -24,6 +24,10 @@ export default new Vuex.Store({
     },
 
     getters: {
+        currentUserId() {
+            return window.orderEdit.currentUserId
+        },
+
         currentUserPermissions() {
             return window.orderEdit.currentUserPermissions
         },

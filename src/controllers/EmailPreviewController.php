@@ -39,9 +39,6 @@ class EmailPreviewController extends Controller
         $orderNumber = Craft::$app->getRequest()->getParam('orderNumber');
         $orderNumber = Craft::$app->getRequest()->getParam('number', $orderNumber);
 
-        $view = Craft::$app->getView();
-        $view->setTemplateMode(View::TEMPLATE_MODE_SITE);
-
         $order = null;
         if ($orderNumber) {
             $order = Order::find()->shortNumber(substr($orderNumber, 0, 7))->one();
@@ -71,7 +68,7 @@ class EmailPreviewController extends Controller
             $orderHistory = ArrayHelper::firstValue($order->getHistories()) ?: new OrderHistory();
             $orderData = $order->toArray();
             $option = 'email';
-            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'));
+            return $this->renderTemplate($template, compact('order', 'orderHistory', 'option', 'orderData'), View::TEMPLATE_MODE_SITE);
         }
 
         $errors = [];
@@ -79,8 +76,6 @@ class EmailPreviewController extends Controller
             $errors[] = Craft::t('commerce', 'Could not find the email or template.');
         }
 
-        $view = Craft::$app->getView();
-        $view->setTemplateMode(View::TEMPLATE_MODE_CP);
         return $this->renderTemplate('commerce/settings/emails/_previewError', compact('errors'));
     }
 }

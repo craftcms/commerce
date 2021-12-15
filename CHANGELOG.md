@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 3.4.9 - 2021-12-14
+
+### Added
+- Discounts and sales now have “All purchasables”, “All categories”, and “All customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
+
+### Changed
+- Product indexes now use a “Product” header column heading by default, rather than “Title”.
+
+### Fixed
+- Fixed a bug where adjustment snapshots were removed when recalculating a completed order.
+- Fixed a bug where email previews included control panel assets. ([#2632](https://github.com/craftcms/commerce/issues/2632))
+
 ## 3.4.8 - 2021-11-25
 
 ### Added

@@ -66,6 +66,7 @@ export default {
                 draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].name = adjustment.name
                 draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].description = adjustment.description
                 draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].type = adjustment.type
+                draftData.order.lineItems[lineItemKey].adjustments[adjustmentKey].sourceSnapshot = adjustment.sourceSnapshot
             })
         })
 
@@ -78,6 +79,7 @@ export default {
             draftData.order.orderAdjustments[adjustmentKey].name = adjustment.name
             draftData.order.orderAdjustments[adjustmentKey].description = adjustment.description
             draftData.order.orderAdjustments[adjustmentKey].type = adjustment.type
+            draftData.order.orderAdjustments[adjustmentKey].sourceSnapshot = adjustment.sourceSnapshot
         })
 
         return draftData;

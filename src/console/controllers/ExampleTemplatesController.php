@@ -92,7 +92,7 @@ class ExampleTemplatesController extends Controller
             $this->overwrite = true;
             $this->baseColor = 'blue';
             $this->folderName = 'shop';
-            $this->useHtmx = true;
+            $this->useHtmx = false;
         }
 
         $slash = DIRECTORY_SEPARATOR;
@@ -252,6 +252,7 @@ class ExampleTemplatesController extends Controller
         $this->_replacementData = ArrayHelper::merge($this->_replacementData, [
             '[[resourceTags]]' => implode("\n", $resourceTags),
             '[[hx-boost]]' => $this->useHtmx ? 'hx-boost="true"' : '',
+            '[[hx-disable]]' => $this->useHtmx ? 'hx-disable' : '',
         ]);
     }
 
