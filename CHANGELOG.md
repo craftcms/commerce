@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.9.2 - 2021-12-15
 
 ### Fixed
 - Fixed an error that occurred when loading the Order Edit page. ([#2640](https://github.com/craftcms/commerce/issues/2640))
