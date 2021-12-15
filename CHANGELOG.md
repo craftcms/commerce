@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.9 - 2021-12-14
 
 ### Added
 - Discounts and sales now have “All purchasables”, “All categories”, and “All customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
