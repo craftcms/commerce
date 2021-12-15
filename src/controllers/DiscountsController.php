@@ -85,6 +85,8 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['discount']->allCategories = true;
+                $variables['discount']->allPurchasables = true;
                 $variables['isNewDiscount'] = true;
             }
         }
@@ -160,21 +162,31 @@ class DiscountsController extends BaseCpController
             $discount->percentDiscount = (float)$percentDiscountAmount * -1;
         }
 
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+        // Set purchasable conditions
+        if ($discount->allPurchasables = $request->getBodyParam('allPurchasables')) {
+            $discount->setPurchasableIds([]);
+        } else {
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
+            $purchasables = array_unique($purchasables);
+            $discount->setPurchasableIds($purchasables);
         }
-        $purchasables = array_unique($purchasables);
-        $discount->setPurchasableIds($purchasables);
 
-        $categories = $request->getBodyParam('categories', []);
-        if (!$categories) {
-            $categories = [];
+        // Set category conditions
+        if ($discount->allCategories = $request->getBodyParam('allCategories')) {
+            $discount->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $discount->setCategoryIds($categories);
         }
-        $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
 

@@ -1027,6 +1027,8 @@ class OrdersController extends Controller
             'commerce-deleteOrders' => Craft::$app->getUser()->getIdentity()->can('commerce-deleteOrders'),
         ];
         Craft::$app->getView()->registerJs('window.orderEdit.currentUserPermissions = ' . Json::encode($permissions) . ';', View::POS_BEGIN);
+        $currentUser = Craft::$app->getUser()->getIdentity();
+        Craft::$app->getView()->registerJs('window.orderEdit.currentUserId = ' . Json::encode($currentUser->id) . ';', View::POS_BEGIN);
 
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrl = "' . UrlHelper::cpUrl('commerce/orders') . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.ordersIndexUrlHashed = "' . Craft::$app->getSecurity()->hashData('commerce/orders') . '"', View::POS_BEGIN);
@@ -1302,6 +1304,7 @@ class OrdersController extends Controller
                     $adjustment->name = $adjustmentData['name'];
                     $adjustment->description = $adjustmentData['description'];
                     $adjustment->included = $adjustmentData['included'];
+                    $adjustment->setSourceSnapshot($adjustmentData['sourceSnapshot']);
 
                     $adjustments[] = $adjustment;
                 }
@@ -1329,6 +1332,7 @@ class OrdersController extends Controller
                 $adjustment->name = $adjustmentData['name'];
                 $adjustment->description = $adjustmentData['description'];
                 $adjustment->included = $adjustmentData['included'];
+                $adjustment->setSourceSnapshot($adjustmentData['sourceSnapshot']);
 
                 $adjustments[] = $adjustment;
             }
@@ -1402,7 +1406,7 @@ class OrdersController extends Controller
                         ['label' => Html::encode(Craft::t('commerce', 'Transaction Hash')), 'type' => 'code', 'value' => $transaction->hash],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Reference')), 'type' => 'code', 'value' => $transaction->reference],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Message')), 'type' => 'text', 'value' => $transactionMessage],
-                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => $transaction->note ?? ''],
+                        ['label' => Html::encode(Craft::t('commerce', 'Note')), 'type' => 'text', 'value' => Html::encode($transaction->note) ?? ''],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Code')), 'type' => 'code', 'value' => $transaction->code],
                         ['label' => Html::encode(Craft::t('commerce', 'Converted Price')), 'type' => 'text', 'value' => Plugin::getInstance()->getPaymentCurrencies()->convert($transaction->paymentAmount, $transaction->paymentCurrency) . ' <small class="light">(' . $transaction->currency . ')</small>' . ' <small class="light">(1 ' . $transaction->currency . ' = ' . number_format($transaction->paymentRate) . ' ' . $transaction->paymentCurrency . ')</small>'],
                         ['label' => Html::encode(Craft::t('commerce', 'Gateway Response')), 'type' => 'response', 'value' => $transactionResponse],
@@ -1448,6 +1452,8 @@ class OrdersController extends Controller
                 ];
                 $row['newLineItemUid'] = StringHelper::UUID();
                 $row['newLineItemOptionsSignature'] = LineItem::generateOptionsSignature([]);
+                $row['description'] = Html::encode($row['description']);
+                $row['sku'] = Html::encode($row['sku']);
                 $purchasables[] = $row;
             }
         }
