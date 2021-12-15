@@ -22,10 +22,10 @@ class WebhookEvent extends Event
     /**
      * @var Gateway
      */
-    public $gateway;
+    public Gateway $gateway;
 
     /**
      * @var Response
      */
-    public $response;
+    public Response $response;
 }

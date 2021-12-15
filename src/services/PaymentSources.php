@@ -106,10 +106,11 @@ class PaymentSources extends Component
      *
      * @param int|null $userId the user's ID
      * @return PaymentSource[]
+     * @noinspection PhpUnused
      */
     public function getAllPaymentSourcesByUserId(int $userId = null): array
     {
-        if (null === $userId) {
+        if ($userId === null) {
             return [];
         }
 
@@ -134,7 +135,7 @@ class PaymentSources extends Component
      */
     public function getAllPaymentSourcesByGatewayId(int $gatewayId = null): array
     {
-        if (null === $gatewayId) {
+        if ($gatewayId === null) {
             return [];
         }
 
@@ -157,10 +158,11 @@ class PaymentSources extends Component
      * @param int|null $gatewayId the gateway's ID
      * @param int|null $userId the user's ID
      * @return PaymentSource[]
+     * @noinspection PhpUnused
      */
     public function getAllGatewayPaymentSourcesByUserId(int $gatewayId = null, int $userId = null): array
     {
-        if (null === $gatewayId || null === $userId) {
+        if ($gatewayId === null || $userId === null) {
             return [];
         }
 
@@ -179,12 +181,29 @@ class PaymentSources extends Component
     }
 
     /**
+     * Returns a payment source by its gateways token
+     *
+     * @param string $token the payment gateway's token
+     * @param int $gatewayId the gateway's ID
+     * @return PaymentSource|null
+     */
+    public function getPaymentSourceByTokenAndGatewayId(string $token, int $gatewayId)
+    {
+        $result = $this->_createPaymentSourcesQuery()
+            ->where(['token' => $token])
+            ->andWhere(['gatewayId' => $gatewayId])
+            ->one();
+
+        return $result ? new PaymentSource($result) : null;
+    }
+
+    /**
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
      * @return PaymentSource|null
      */
-    public function getPaymentSourceById(int $sourceId)
+    public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
@@ -200,7 +219,7 @@ class PaymentSources extends Component
      * @param int $userId the source's user ID
      * @return PaymentSource|null
      */
-    public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId)
+    public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId): ?PaymentSource
     {
         $result = $this->_createPaymentSourcesQuery()
             ->where(['id' => $sourceId])
@@ -216,8 +235,9 @@ class PaymentSources extends Component
      * @param int $userId the user's ID
      * @param GatewayInterface $gateway the gateway
      * @param BasePaymentForm $paymentForm the payment form to use
-     * @param string $sourceDescription the payment form to use
+     * @param string|null $sourceDescription the payment form to use
      * @return PaymentSource The saved payment source.
+     * @throws InvalidConfigException
      * @throws PaymentSourceException If unable to create the payment source
      */
     public function createPaymentSource(int $userId, GatewayInterface $gateway, BasePaymentForm $paymentForm, string $sourceDescription = null): PaymentSource
@@ -304,7 +324,7 @@ class PaymentSources extends Component
      * @return bool
      * @throws Throwable in case something went wrong when deleting.
      */
-    public function deletePaymentSourceById($id): bool
+    public function deletePaymentSourceById(int $id): bool
     {
         $record = PaymentSourceRecord::findOne($id);
 
@@ -340,12 +360,12 @@ class PaymentSources extends Component
     {
         return (new Query())
             ->select([
-                'id',
-                'gatewayId',
-                'userId',
-                'token',
                 'description',
+                'gatewayId',
+                'id',
                 'response',
+                'token',
+                'userId',
             ])
             ->from([Table::PAYMENTSOURCES]);
     }

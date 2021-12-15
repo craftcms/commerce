@@ -27,7 +27,6 @@ class ResetDataController extends Controller
      * Reset Commerce data.
      *
      * @return int
-     * @throws \yii\db\Exception
      */
     public function actionIndex(): int
     {
@@ -41,7 +40,7 @@ class ResetDataController extends Controller
                 }
 
                 return true;
-            }
+            },
         ]);
 
         if ($reset == 'yes') {

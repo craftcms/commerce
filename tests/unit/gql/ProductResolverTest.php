@@ -16,18 +16,19 @@ use craft\errors\GqlException;
 use craft\helpers\StringHelper;
 use craft\models\GqlSchema;
 use GraphQL\Type\Definition\ResolveInfo;
+use UnitTester;
 
 class ProductResolverTest extends Unit
 {
     /**
-     * @var \UnitTester
+     * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @throws \Exception
      */
-    protected function _before()
+    protected function _before(): void
     {
         // Mock the GQL token for the volumes below
         $this->tester->mockMethods(
@@ -52,7 +53,7 @@ class ProductResolverTest extends Unit
      * @param mixed $result True for exact match, false for non-existing or a callback for fetching the data
      * @throws \Exception
      */
-    public function testProductFieldResolving(string $gqlTypeClass, string $propertyName, $result)
+    public function testProductFieldResolving(string $gqlTypeClass, string $propertyName, $result): void
     {
         $typeHandle = StringHelper::UUID();
 
@@ -80,7 +81,7 @@ class ProductResolverTest extends Unit
      * @param mixed $result True for exact match, false for non-existing or a callback for fetching the data
      * @throws \Exception
      */
-    public function _runTest($element, string $gqlTypeClass, string $propertyName, $result)
+    public function _runTest($element, string $gqlTypeClass, string $propertyName, $result): void
     {
         $resolveInfo = $this->make(ResolveInfo::class, ['fieldName' => $propertyName]);
         $resolve = function () use ($gqlTypeClass, $element, $resolveInfo) {

@@ -56,15 +56,16 @@ class ShippingRule extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['name'], 'required']
+            [['name'], 'required'],
         ];
     }
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getShippingZone(): ActiveQueryInterface
     {

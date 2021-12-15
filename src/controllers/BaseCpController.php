@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
+use yii\web\ForbiddenHttpException;
 
 /**
  * Class BaseCp
@@ -19,8 +20,9 @@ class BaseCpController extends BaseController
 {
     /**
      * @inheritdoc
+     * @throws ForbiddenHttpException
      */
-    public function init()
+    public function init(): void
     {
         parent::init();
 

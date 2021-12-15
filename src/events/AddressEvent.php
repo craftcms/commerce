@@ -21,10 +21,10 @@ class AddressEvent extends Event
     /**
      * @var Address The address model
      */
-    public $address;
+    public Address $address;
 
     /**
      * @var bool If this is a new address
      */
-    public $isNew;
+    public bool $isNew;
 }

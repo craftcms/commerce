@@ -12,6 +12,8 @@ use Craft;
 use craft\commerce\stats\TotalOrders;
 use craftcommercetests\fixtures\OrdersFixture;
 use DateTime;
+use DateTimeZone;
+use Exception;
 use UnitTester;
 
 /**
@@ -25,7 +27,7 @@ class TotalOrdersTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @return array
@@ -47,6 +49,7 @@ class TotalOrdersTest extends Unit
      * @param DateTime $endDate
      * @param int $total
      * @param int $daysDiff
+     * @throws \yii\base\Exception
      */
     public function testGetData(string $dateRange, DateTime $startDate, DateTime $endDate, int $total, int $daysDiff): void
     {
@@ -69,33 +72,34 @@ class TotalOrdersTest extends Unit
         self::assertEquals($total, $firstItem['total']);
     }
 
-    protected function _before()
+    protected function _before(): void
     {
         Craft::$app->setTimeZone('America/Los_Angeles');
     }
 
     /**
      * @return array[]
+     * @throws Exception
      */
     public function getDataDataProvider(): array
     {
         return [
             [
                 TotalOrders::DATE_RANGE_TODAY,
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 2,
-                (new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
-                    ->diff((new DateTime('now', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
+                (new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
+                    ->diff((new DateTime('now', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
                     ->days
             ],
             [
                 TotalOrders::DATE_RANGE_CUSTOM,
-                (new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0),
                 0,
-                (new DateTime('5 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
-                    ->diff((new DateTime('7 days ago', new \DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
+                (new DateTime('5 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0)
+                    ->diff((new DateTime('7 days ago', new DateTimeZone('America/Los_Angeles')))->setTime(0, 0))
                     ->days
             ],
         ];

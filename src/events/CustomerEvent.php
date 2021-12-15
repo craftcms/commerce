@@ -21,5 +21,5 @@ class CustomerEvent extends Event
     /**
      * @var Customer
      */
-    public $customer;
+    public Customer $customer;
 }

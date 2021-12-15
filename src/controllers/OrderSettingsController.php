@@ -12,7 +12,13 @@ use craft\commerce\elements\Order;
 use craft\commerce\services\Orders;
 use craft\helpers\ArrayHelper;
 use craft\helpers\StringHelper;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\base\NotSupportedException;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Order Settings Controller
@@ -36,7 +42,16 @@ class OrderSettingsController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/ordersettings/_edit', $variables);
     }
 
-    public function actionSave()
+    /**
+     * @return Response|null
+     * @throws BadRequestHttpException
+     * @throws ErrorException
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
+     */
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 

@@ -9,9 +9,14 @@ namespace craft\commerce\controllers;
 
 use Craft;
 use craft\commerce\elements\Order;
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use craft\db\Table as CraftTable;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\Exception as DbException;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -25,6 +30,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
 {
     /**
      * @return Response
+     * @throws CurrencyException
      */
     public function actionIndex(): Response
     {
@@ -38,6 +44,7 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
      * @param PaymentCurrency|null $currency
      * @return Response
      * @throws HttpException
+     * @throws InvalidConfigException
      */
     public function actionEdit(int $id = null, PaymentCurrency $currency = null): Response
     {
@@ -74,9 +81,11 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @throws Exception
+     * @throws DbException
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
@@ -123,7 +132,9 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws InvalidConfigException
      */
     public function actionDelete(): Response
     {

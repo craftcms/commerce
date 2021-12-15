@@ -18,9 +18,9 @@ use craft\commerce\base\Purchasable as BasePurchasable;
  */
 class Purchasable extends BasePurchasable
 {
-    public $isPromotable = true;
+    public bool $isPromotable = true;
 
-    public $price = 25.10;
+    public float $price = 25.10;
 
     /**
      * @return bool

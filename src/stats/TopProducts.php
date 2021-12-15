@@ -58,17 +58,17 @@ class TopProducts extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topProducts';
+    protected string $_handle = 'topProducts';
 
     /**
      * @var string Type either 'qty' or 'revenue'.
      */
-    public $type = self::TYPE_QTY;
+    public string $type = self::TYPE_QTY;
 
     /**
      * @var int Number of products to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * Options to be used when when calculating revenue total.
@@ -76,7 +76,7 @@ class TopProducts extends Stat
      * @var string[]
      * @since 3.4
      */
-    public $revenueOptions = [];
+    public array $revenueOptions = [];
 
     /**
      * Default options for calculating revenue total.
@@ -84,7 +84,7 @@ class TopProducts extends Stat
      * @var string[]
      * @since 3.4
      */
-    private $_defaultRevenueOptions = [
+    private array $_defaultRevenueOptions = [
         self::REVENUE_OPTION_DISCOUNT,
         self::REVENUE_OPTION_TAX,
         self::REVENUE_OPTION_TAX_INCLUDED,
@@ -96,12 +96,12 @@ class TopProducts extends Stat
      *
      * @var string
      */
-    private $_ifNullDbFunc;
+    private string $_ifNullDbFunc;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null, $revenueOptions = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null, array $revenueOptions = null)
     {
         $this->_ifNullDbFunc = Craft::$app->getDb()->getIsPgsql() ? 'COALESCE' : 'IFNULL';
 
@@ -131,7 +131,7 @@ class TopProducts extends Stat
             new Expression('SUM([[li.qty]]) as qty'),
             new Expression('SUM([[li.total]]) as revenue'),
             new Expression('SUM([[li.subtotal]]) as revenue_subtotal'),
-            $this->getAdjustmentsSelect()
+            $this->getAdjustmentsSelect(),
         ];
 
         $topProducts = $this->_createStatQuery()
@@ -189,7 +189,7 @@ class TopProducts extends Stat
      * @return Expression
      * @since 3.4
      */
-    protected function getAdjustmentsSelect()
+    protected function getAdjustmentsSelect(): Expression
     {
         $select = 'SUM([[li.subtotal]])';
 
@@ -226,17 +226,17 @@ class TopProducts extends Stat
     {
         $types = [];
         foreach ($this->revenueOptions as $revenueOption) {
-            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax'  : $revenueOption;
+            $types[] = strpos($revenueOption, 'tax') === 0 ? 'tax' : $revenueOption;
         }
         $types = array_unique($types);
 
         return (new Query())
             ->select([
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0) as discount'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0) as tax'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0) as tax_included'),
-                new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0) as shipping'),
                 '[[v.productId]]',
+                'discount' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'discount\' THEN amount END), 0)'),
+                'shipping' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'shipping\' THEN amount END), 0)'),
+                'tax' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=false THEN amount END), 0)'),
+                'tax_included' => new Expression($this->_ifNullDbFunc . '(SUM(CASE WHEN type=\'tax\' AND included=true THEN amount END), 0)'),
             ])
             ->from(Table::ORDERADJUSTMENTS)
             ->leftJoin(Table::LINEITEMS . ' li', '[[li.id]] = [[lineItemId]]')
@@ -253,7 +253,7 @@ class TopProducts extends Stat
      * @return Expression
      * @since 3.4
      */
-    protected function getOrderBy()
+    protected function getOrderBy(): Expression
     {
         if ($this->type === self::TYPE_QTY) {
             return new Expression('SUM([[li.qty]]) DESC');
@@ -273,7 +273,7 @@ class TopProducts extends Stat
      * @return string
      * @since 3.4
      */
-    protected function getGroupBy()
+    protected function getGroupBy(): string
     {
         $groupBy = '[[v.productId]], [[content.title]]';
 

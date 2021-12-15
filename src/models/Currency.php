@@ -20,33 +20,33 @@ class Currency extends Model
     /**
      * @var string Alphabetic code
      */
-    public $alphabeticCode;
+    public string $alphabeticCode;
 
     /**
      * @var string Currency
      */
-    public $currency;
+    public string $currency;
 
     /**
      * @var string Entity
      */
-    public $entity;
+    public string $entity;
 
     /**
      * @var int Number of minor unites
      */
-    public $minorUnit;
+    public int $minorUnit;
 
     /**
      * @var int Numeric code
      */
-    public $numericCode;
+    public int $numericCode;
 
     /**
      * @return string
      */
     public function __toString(): string
     {
-        return (string)$this->alphabeticCode;
+        return $this->alphabeticCode;
     }
 }

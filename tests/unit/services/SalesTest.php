@@ -18,7 +18,11 @@ use craft\db\Query;
 use craft\elements\Category;
 use craft\helpers\ArrayHelper;
 use craftcommercetests\fixtures\SalesFixture;
+use Throwable;
 use UnitTester;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * SalesTest
@@ -31,17 +35,17 @@ class SalesTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var Sales $sales
      */
-    protected $sales;
+    protected Sales $sales;
 
     /**
      * @var SalesFixture
      */
-    protected $salesData;
+    protected SalesFixture $salesData;
 
     /**
      * @return array
@@ -58,7 +62,7 @@ class SalesTest extends Unit
     /*
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -69,7 +73,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetAllSales()
+    public function testGetAllSales(): void
     {
         $sales = $this->sales->getAllSales();
         self::assertCount(2, $sales);
@@ -88,7 +92,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetSaleById()
+    public function testGetSaleById(): void
     {
         $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
         self::assertSame($this->salesData['percentageSale']['name'], $sale->name);
@@ -100,26 +104,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testPopulateSaleRelations()
-    {
-        $sale = new Sale();
-        $sale->id = $this->salesData['allRelationships']['id'];
-
-        $this->sales->populateSaleRelations($sale);
-
-        $categoryIds = Category::find()->title(['Commerce Category', 'Commerce Category #2'])->ids();
-        $purchasableIds = Variant::find()->sku('hct-white')->ids();
-        $userGroupsIds = ['1002'];
-
-        self::assertEquals($categoryIds, $sale->getCategoryIds());
-        self::assertEquals($purchasableIds, $sale->getPurchasableIds());
-        self::assertEquals($userGroupsIds, $sale->getUserGroupIds());
-    }
-
-    /**
-     *
-     */
-    public function testGetSalesForPurchasable()
+    public function testGetSalesForPurchasable(): void
     {
         $variant  = Variant::find()->sku('rad-hood')->one();
         $sale = $this->sales->getSaleById($this->salesData['percentageSale']['id']);
@@ -130,7 +115,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testGetSalesRelatedToPurchasable()
+    public function testGetSalesRelatedToPurchasable(): void
     {
         $variant  = Variant::find()->sku('hct-white')->one();
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
@@ -139,9 +124,9 @@ class SalesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
-    public function testGetSalePriceForPurchasable()
+    public function testGetSalePriceForPurchasable(): void
     {
         $variant = Variant::find()->sku('rad-hood')->one();
         $salePrice = $this->sales->getSalePriceForPurchasable($variant);
@@ -164,9 +149,9 @@ class SalesTest extends Unit
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function testSaveSale()
+    public function testSaveSale(): void
     {
         $sale = $this->sales->getSaleById($this->salesData['allRelationships']['id']);
         $originalName = $sale->name;
@@ -196,7 +181,7 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testReorderSales()
+    public function testReorderSales(): void
     {
         $sales = $this->sales->getAllSales();
         $originalOrder = ArrayHelper::getColumn($sales, 'id', false);
@@ -222,12 +207,13 @@ class SalesTest extends Unit
     }
 
     /**
-     * @throws \Throwable
-     * @throws \yii\db\StaleObjectException
+     * @throws Throwable
+     * @throws StaleObjectException
      */
-    public function testDeleteSaleById()
+    public function testDeleteSaleById(): void
     {
         // Pre-get sales to test the memoization
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $originalSales = $this->sales->getAllSales();
         $id = $this->salesData['percentageSale']['id'];
         $deleteResult = $this->sales->deleteSaleById($id);

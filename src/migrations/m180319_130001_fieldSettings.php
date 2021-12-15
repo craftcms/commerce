@@ -29,7 +29,7 @@ class m180319_130001_fieldSettings extends Migration
             ->where([
                 'type' => [
                     Products::class,
-                ]
+                ],
             ])
             ->all($this->db);
 

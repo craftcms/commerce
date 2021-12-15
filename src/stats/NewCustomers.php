@@ -21,7 +21,7 @@ class NewCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'newCustomers';
+    protected string $_handle = 'newCustomers';
 
     /**
      * @inheritDoc

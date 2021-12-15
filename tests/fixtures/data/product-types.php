@@ -8,7 +8,10 @@ return [
         'hasDimensions' => false,
         'hasVariants' => false,
         'descriptionFormat' => '{product.title}',
-        'titleFormat' => '{product.title}',
+        'variantTitleFormat' => '{product.title}',
+        'productTitleFormat' => '',
+        'hasProductTitleField' => true,
+        'hasVariantTitleField' => false,
     ],
     [
         'id' => '2001',
@@ -17,6 +20,9 @@ return [
         'hasDimensions' => false,
         'hasVariants' => true,
         'descriptionFormat' => '{product.title} - {title}',
-        'titleFormat' => '{product.title}',
+        'variantTitleFormat' => '{product.title}',
+        'productTitleFormat' => '',
+        'hasProductTitleField' => true,
+        'hasVariantTitleField' => false,
     ]
 ];

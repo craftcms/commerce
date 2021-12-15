@@ -94,6 +94,7 @@ class Discount extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getDiscountPurchasables(): ActiveQueryInterface
     {

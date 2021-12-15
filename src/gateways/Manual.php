@@ -30,12 +30,12 @@ class Manual extends Gateway
     /**
      * @var bool
      */
-    public $onlyAllowForZeroPriceOrders;
+    public bool $onlyAllowForZeroPriceOrders = false;
 
     /**
      * @inheritdoc
      */
-    public function getPaymentFormHtml(array $params)
+    public function getPaymentFormHtml(array $params): ?string
     {
         return '';
     }
@@ -51,7 +51,7 @@ class Manual extends Gateway
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml()
+    public function getSettingsHtml(): ?string
     {
         return Craft::$app->getView()->renderTemplate('commerce/gateways/manualGatewaySettings', ['gateway' => $this]);
     }
@@ -215,7 +215,7 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if ($this->onlyAllowForZeroPriceOrders && $order->getTotalPrice() != 0) {
+        if (Craft::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
             return false;
         }
 

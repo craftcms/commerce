@@ -51,7 +51,7 @@ class Transaction extends ActiveRecord
     /**
      * @var int $total
      */
-    public $total = 0;
+    public int $total = 0;
 
 
     /**

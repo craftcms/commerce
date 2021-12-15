@@ -20,13 +20,15 @@ class ChartJsAsset extends AssetBundle
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init(): void
     {
-        $this->sourcePath = '@commerceLib';
+        $this->sourcePath = __DIR__ . '/dist';
 
-        $this->js[] = 'chart-js/Chart.bundle.min.js';
-        $this->js[] = 'moment/moment-with-locales.min.js';
-        $this->js[] = 'chartjs-adapter-moment/chartjs-adapter-moment.min.js';
+        $this->js = [
+            'Chart.bundle.min.js',
+            'moment-with-locales.min.js',
+            'chartjs-adapter-moment.min.js',
+        ];
 
         parent::init();
     }

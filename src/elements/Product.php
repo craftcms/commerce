@@ -34,6 +34,7 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
+use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -64,102 +65,113 @@ class Product extends Element
     const STATUS_EXPIRED = 'expired';
 
     /**
-     * @var DateTime Post date
+     * @var DateTime|null Post date
      */
-    public $postDate;
+    public ?DateTime $postDate = null;
 
     /**
-     * @var DateTime Expiry date
+     * @var DateTime|null Expiry date
      */
-    public $expiryDate;
+    public ?DateTime $expiryDate = null;
 
     /**
-     * @var int Product type ID
+     * @var int|null Product type ID
      */
-    public $typeId;
+    public ?int $typeId = null;
 
     /**
-     * @var int Tax category ID
+     * @var int|null Tax category ID
      */
-    public $taxCategoryId;
+    public ?int $taxCategoryId = null;
 
     /**
-     * @var int Shipping category ID
+     * @var int|null Shipping category ID
      */
-    public $shippingCategoryId;
+    public ?int $shippingCategoryId = null;
 
     /**
      * @var bool Whether the product is promotable
      */
-    public $promotable;
+    public bool $promotable = false;
 
     /**
      * @var bool Whether the product has free shipping
      */
-    public $freeShipping;
+    public bool $freeShipping = false;
 
     /**
      * @var bool Is this product available to be purchased
      */
-    public $availableForPurchase = true;
+    public bool $availableForPurchase = true;
 
     /**
-     * @var int defaultVariantId
+     * @var int|null defaultVariantId
      */
-    public $defaultVariantId;
+    public ?int $defaultVariantId = null;
 
     /**
-     * @var string Default SKU
+     * @var string|null Default SKU
      */
-    public $defaultSku;
+    public ?string $defaultSku = null;
 
     /**
-     * @var float Default price
+     * @var float|null Default price
      */
-    public $defaultPrice;
+    public ?float $defaultPrice = null;
 
     /**
-     * @var float Default height
+     * @var float|null Default height
      */
-    public $defaultHeight;
+    public ?float $defaultHeight = null;
 
     /**
-     * @var float Default length
+     * @var float|null Default length
      */
-    public $defaultLength;
+    public ?float $defaultLength = null;
 
     /**
-     * @var float Default width
+     * @var float|null Default width
      */
-    public $defaultWidth;
+    public ?float $defaultWidth = null;
 
     /**
-     * @var float Default weight
+     * @var float|null Default weight
      */
-    public $defaultWeight;
+    public ?float $defaultWeight = null;
 
     /**
-     * @var TaxCategory Tax category
+     * @var TaxCategory|null Tax category
      */
-    public $taxCategory;
+    public ?TaxCategory $taxCategory = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var Variant[] This product’s variants
+     * @var Variant[]|null This product’s variants
      */
-    private $_variants;
+    private ?array $_variants = null;
 
     /**
-     * @var Variant This product's cheapest variant
+     * @var Variant[]|null This product’s enabled variants
      */
-    private $_cheapestVariant;
+    private ?array $_enabledVariants = null;
+
+    /**
+     * @var Variant|null This product's cheapest variant
+     */
+    private ?Variant $_cheapestVariant = null;
+
+    /**
+     * @var Variant|null This product's cheapest enabled variant
+     */
+    private ?Variant $_cheapestEnabledVariant = null;
 
     /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
@@ -168,14 +180,14 @@ class Product extends Element
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -187,7 +199,7 @@ class Product extends Element
     public function currencyAttributes(): array
     {
         return [
-            'defaultPrice'
+            'defaultPrice',
         ];
     }
 
@@ -241,7 +253,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle()
+    public static function refHandle(): string
     {
         return 'product';
     }
@@ -300,13 +312,16 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -323,7 +338,7 @@ class Product extends Element
 
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
-        if (null === $productType) {
+        if ($productType === null) {
             throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
         }
 
@@ -333,7 +348,7 @@ class Product extends Element
     /**
      * @return string|null
      */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->title;
     }
@@ -351,7 +366,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getUriFormat()
+    public function getUriFormat(): ?string
     {
         $productTypeSiteSettings = $this->getType()->getSiteSettings();
 
@@ -389,9 +404,11 @@ class Product extends Element
      * Returns the shipping category.
      *
      * @return ShippingCategory
+     * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
     {
+        $shippingCategory = null;
         if ($this->shippingCategoryId) {
             $shippingCategory = Plugin::getInstance()->getShippingCategories()->getShippingCategoryById($this->shippingCategoryId);
         }
@@ -408,7 +425,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl()
+    public function getCpEditUrl(): ?string
     {
         $productType = $this->getType();
 
@@ -425,11 +442,13 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
+     * @param bool $includeDisabled
      * @return null|Variant
+     * @throws InvalidConfigException
      */
-    public function getDefaultVariant()
+    public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $variants = $this->getVariants();
+        $variants = $this->getVariants($includeDisabled);
 
         $defaultVariant = ArrayHelper::firstWhere($variants, 'isDefault', true, false);
 
@@ -439,73 +458,92 @@ class Product extends Element
     /**
      * Return the cheapest variant.
      *
-     * @return Variant
+     * @param bool $includeDisabled
+     * @return Variant|null
+     * @throws InvalidConfigException
+     * @noinspection PhpUnused
      */
-    public function getCheapestVariant(): Variant
+    public function getCheapestVariant(bool $includeDisabled = false): ?Variant
     {
-        if ($this->_cheapestVariant) {
+        if ($includeDisabled && $this->_cheapestVariant) {
             return $this->_cheapestVariant;
         }
 
-        foreach ($this->getVariants() as $variant) {
+        if (!$includeDisabled && $this->_cheapestEnabledVariant) {
+            return $this->_cheapestEnabledVariant;
+        }
+
+        foreach ($this->getVariants(true) as $variant) {
             if (
                 !$this->_cheapestVariant
                 || $variant->getSalePrice() < $this->_cheapestVariant->getSalePrice()
             ) {
                 $this->_cheapestVariant = $variant;
             }
+
+            if (
+                $variant->enabled
+                &&
+                (
+                    !$this->_cheapestEnabledVariant
+                    || $variant->getSalePrice() < $this->_cheapestEnabledVariant->getSalePrice()
+                )
+            ) {
+                $this->_cheapestEnabledVariant = $variant;
+            }
         }
 
-        return $this->_cheapestVariant;
+        return $includeDisabled ? $this->_cheapestVariant : $this->_cheapestEnabledVariant;
     }
 
     /**
      * Returns an array of the product's variants.
      *
+     * @param bool $includeDisabled
      * @return Variant[]
      * @throws InvalidConfigException
      */
-    public function getVariants(): array
+    public function getVariants(bool $includeDisabled = false): array
     {
-        // If we are currently duplicating a product, we dont want to have any variants.
+        // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
             $this->_variants = [];
+            $this->_enabledVariants = [];
             return $this->_variants;
         }
 
-        if (null === $this->_variants) {
-            if ($this->id) {
-                if ($this->getType()->hasVariants) {
-                    $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
-                } else {
-                    $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
-                    if ($variants) {
-                        $variants[0]->isDefault = true;
-                        $this->setVariants([$variants[0]]);
-                    }
-                }
+        if (!isset($this->_variants) && $this->id) {
+            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
+
+            if (!$this->getType()->hasVariants && !empty($variants)) {
+                $variant = array_shift($variants);
+                $variant->isDefault = true;
+                $variants = [$variant];
             }
+
+            $this->setVariants($variants);
         }
 
-        if (empty($this->_variants) || null === $this->_variants) {
+        if (empty($this->_variants)) {
             $variant = new Variant();
             $variant->isDefault = true;
             $this->setVariants([$variant]);
-            $this->_variants = [$variant];
         }
 
-        return $this->_variants;
+        return $includeDisabled ? $this->_variants : $this->_enabledVariants;
     }
 
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
-     * @param Variant[]|array $variants
+     * @param array|Variant[] $variants
+     * @throws InvalidConfigException
      */
-    public function setVariants($variants)
+    public function setVariants(array $variants): void
     {
         $this->_variants = [];
+        $this->_enabledVariants = [];
 
         $count = 1;
         foreach ($variants as $key => $variant) {
@@ -516,6 +554,9 @@ class Product extends Element
             $variant->setProduct($this);
 
             $this->_variants[] = $variant;
+            if ($variant->enabled) {
+                $this->_enabledVariants[] = $variant;
+            }
         }
     }
 
@@ -530,7 +571,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getStatus()
+    public function getStatus(): ?string
     {
         $status = parent::getStatus();
 
@@ -554,12 +595,15 @@ class Product extends Element
     }
 
     /**
+     * @param bool $includeDisabled
      * @return int
+     * @throws InvalidConfigException
+     * @noinspection PhpUnused
      */
-    public function getTotalStock(): int
+    public function getTotalStock(bool $includeDisabled = false): int
     {
         $stock = 0;
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants($includeDisabled) as $variant) {
             if (!$variant->hasUnlimitedStock) {
                 $stock += $variant->stock;
             }
@@ -571,11 +615,13 @@ class Product extends Element
     /**
      * Returns whether at least one variant has unlimited stock.
      *
+     * @param bool $includeDisabled
      * @return bool
+     * @throws InvalidConfigException
      */
-    public function getHasUnlimitedStock(): bool
+    public function getHasUnlimitedStock(bool $includeDisabled = false): bool
     {
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants($includeDisabled) as $variant) {
             if ($variant->hasUnlimitedStock) {
                 return true;
             }
@@ -616,7 +662,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function setEagerLoadedElements(string $handle, array $elements)
+    public function setEagerLoadedElements(string $handle, array $elements): void
     {
         if ($handle == 'variants') {
             $this->setVariants($elements);
@@ -642,7 +688,7 @@ class Product extends Element
 
             return [
                 'elementType' => Variant::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -652,7 +698,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute)
+    public static function prepElementQueryForTableAttribute(ElementQueryInterface $elementQuery, string $attribute): void
     {
         if ($attribute === 'variants') {
             $elementQuery->andWith('variants');
@@ -670,7 +716,7 @@ class Product extends Element
             self::STATUS_LIVE => Craft::t('commerce', 'Live'),
             self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
         ];
     }
 
@@ -689,7 +735,7 @@ class Product extends Element
             'label' => Craft::t('commerce', 'Enabled'),
             'id' => 'enabled',
             'name' => 'enabled',
-            'on' =>  $this->enabled,
+            'on' => $this->enabled,
         ]);
 
         // Multi site enabled
@@ -698,7 +744,7 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'Enabled for site'),
                 'id' => 'enabledForSite',
                 'name' => 'enabledForSite',
-                'on' =>  $this->enabledForSite,
+                'on' => $this->enabledForSite,
             ]);
         }
 
@@ -759,7 +805,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterSave(bool $isNew)
+    public function afterSave(bool $isNew): void
     {
         if (!$this->propagating) {
             if (!$isNew) {
@@ -785,7 +831,7 @@ class Product extends Element
             $defaultVariant = $this->getDefaultVariant();
             $record->defaultVariantId = $defaultVariant->id ?? null;
             $record->defaultSku = $defaultVariant->skuAsText ?? '';
-            $record->defaultPrice = $defaultVariant->price ?? 0;
+            $record->defaultPrice = $defaultVariant->price ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0;
             $record->defaultLength = $defaultVariant->length ?? 0;
             $record->defaultWidth = $defaultVariant->width ?? 0;
@@ -806,8 +852,7 @@ class Product extends Element
                 ->where(['productId' => $this->id])
                 ->column();
 
-            /** @var Variant $variant */
-            foreach ($this->getVariants() as $variant) {
+            foreach ($this->getVariants(true) as $variant) {
                 if ($isNew) {
                     $variant->productId = $this->id;
                     $variant->siteId = $this->siteId;
@@ -829,7 +874,7 @@ class Product extends Element
             }
         }
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
@@ -838,7 +883,7 @@ class Product extends Element
      * @since 3.0.3
      * @see \craft\elements\Entry::updateTitle
      */
-    public function updateTitle()
+    public function updateTitle(): void
     {
         $productType = $this->getType();
 
@@ -860,12 +905,12 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function beforeValidate()
+    public function beforeValidate(): bool
     {
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.
         $type = $this->getType();
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants(true) as $variant) {
             if (!$variant->sku && $type->skuFormat) {
                 try {
                     $variant->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $variant);
@@ -890,7 +935,7 @@ class Product extends Element
 
         $variants = Variant::find()
             ->productId([$this->id, ':empty:'])
-            ->anyStatus()
+            ->status(null)
             ->all();
 
         $elementsService = Craft::$app->getElements();
@@ -914,11 +959,11 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function afterRestore()
+    public function afterRestore(): void
     {
         // Also restore any variants for this element
         $variantsQuery = Variant::find()
-            ->anyStatus()
+            ->status(null)
             ->siteId($this->siteId)
             ->productId($this->id)
             ->trashed()
@@ -935,54 +980,49 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
-        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                if (empty($this->getVariants())) {
-                    $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
-                }
-            },
-            'skipOnEmpty' => false,
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    if (isset($skus[$variant->sku])) {
-                        $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
-                        break;
+        return array_merge(parent::defineRules(), [
+            [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true],
+            [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [
+                ['variants'],
+                function() {
+                    if (empty($this->getVariants(true))) {
+                        $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
-                    $skus[$variant->sku] = true;
-                }
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                foreach ($this->getVariants() as $i => $variant) {
-                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
-                        $variant->setScenario(self::SCENARIO_LIVE);
+                },
+                'skipOnEmpty' => false,
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    $skus = [];
+                    foreach ($this->getVariants(true) as $variant) {
+                        if (isset($skus[$variant->sku])) {
+                            $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
+                            break;
+                        }
+                        $skus[$variant->sku] = true;
                     }
-                    if (!$variant->validate()) {
-                        $this->addModelErrors($variant, "variants[$i]");
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants(true) as $i => $variant) {
+                        if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                            $variant->setScenario(self::SCENARIO_LIVE);
+                        }
+                        if (!$variant->validate()) {
+                            $this->addModelErrors($variant, "variants[$i]");
+                        }
                     }
-                }
-            },
-        ];
-
-        return $rules;
+                },
+            ],
+        ]);
     }
 
     /**
@@ -999,7 +1039,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout()
+    public function getFieldLayout(): FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -1060,10 +1100,10 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'All products'),
                 'criteria' => [
                     'typeId' => $productTypeIds,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ],
-                'defaultSort' => ['postDate', 'desc']
-            ]
+                'defaultSort' => ['postDate', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
@@ -1077,9 +1117,9 @@ class Product extends Element
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts
+                    'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
             ];
         }
 
@@ -1120,7 +1160,7 @@ class Product extends Element
 
         // Copy Reference Tag
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => CopyReferenceTag::class
+            'type' => CopyReferenceTag::class,
         ]);
 
         // Restore
@@ -1168,7 +1208,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'title' => ['label' => Craft::t('commerce', 'Product')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -1190,7 +1230,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce', 'Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')],
         ];
     }
 
@@ -1285,11 +1325,11 @@ class Product extends Element
 
         return [
             'templates/render', [
-                'template' => (string)$productTypeSiteSettings[$siteId]->template,
+                'template' => $productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -1298,7 +1338,6 @@ class Product extends Element
      */
     protected function tableAttributeHtml(string $attribute): string
     {
-        /* @var $productType ProductType */
         $productType = $this->getType();
 
         switch ($attribute) {
@@ -1308,7 +1347,7 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {
@@ -1330,8 +1369,8 @@ class Product extends Element
             {
                 $stock = 0;
                 $hasUnlimited = false;
-                /** @var Variant $variant */
-                foreach ($this->getVariants() as $variant) {
+
+                foreach ($this->getVariants(true) as $variant) {
                     $stock += $variant->stock;
                     if ($variant->hasUnlimitedStock) {
                         $hasUnlimited = true;
@@ -1365,7 +1404,7 @@ class Product extends Element
             }
             case 'variants':
             {
-                $value = $this->getVariants();
+                $value = $this->getVariants(true);
                 $first = array_shift($value);
                 $html = Cp::elementHtml($first);
 
@@ -1394,7 +1433,7 @@ class Product extends Element
     /**
      * @inheritDoc
      */
-    public function setScenario($value)
+    public function setScenario($value): void
     {
         foreach ($this->getVariants() as $variant) {
             $variant->setScenario($value);
@@ -1406,7 +1445,7 @@ class Product extends Element
     /**
      * @inheritDoc
      */
-    public function afterPropagate(bool $isNew)
+    public function afterPropagate(bool $isNew): void
     {
         /** @var Product $original */
         if ($original = $this->duplicateOf) {
@@ -1419,6 +1458,7 @@ class Product extends Element
             }
             $this->setVariants($newVariants);
         }
+
         parent::afterPropagate($isNew);
     }
 }

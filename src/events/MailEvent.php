@@ -24,25 +24,25 @@ class MailEvent extends CancelableEvent
     /**
      * @var Message Craft email object
      */
-    public $craftEmail;
+    public Message $craftEmail;
 
     /**
      * @var Email Commerce email object
      */
-    public $commerceEmail;
+    public Email $commerceEmail;
 
     /**
      * @var Order Commerce order
      */
-    public $order;
+    public Order $order;
 
     /**
      * @var OrderHistory The order history
      */
-    public $orderHistory;
+    public OrderHistory $orderHistory;
 
     /**
      * @var array Order data at the time the email sends.
      */
-    public $orderData;
+    public array $orderData;
 }

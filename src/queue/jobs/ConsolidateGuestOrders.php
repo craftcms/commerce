@@ -8,9 +8,7 @@
 namespace craft\commerce\queue\jobs;
 
 use Craft;
-use craft\commerce\db\Table;
 use craft\commerce\Plugin;
-use craft\db\Query;
 use craft\queue\BaseJob;
 
 /**
@@ -24,26 +22,19 @@ class ConsolidateGuestOrders extends BaseJob
     /**
      * @var array
      */
-    public $emails;
-
-    /**
-     * @var
-     */
-    private $_queue;
+    public array $emails;
 
     /**
      * @inheritDoc
      */
-    public function execute($queue)
+    public function execute($queue): void
     {
-        $this->_queue = $queue;
-
         $total = count($this->emails);
 
         $step = 1;
 
         foreach ($this->emails as $email) {
-            $this->setProgress($this->_queue, $step / $total, Craft::t('commerce', 'Email {step} of {total}', compact('step', 'total')));
+            $this->setProgress($queue, $step / $total, Craft::t('commerce', 'Email {step} of {total}', compact('step', 'total')));
             try {
                 Plugin::getInstance()->getCustomers()->consolidateGuestOrdersByEmail($email);
             } catch (\Throwable $e) {

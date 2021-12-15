@@ -1,49 +1,66 @@
 <form method="post" action="" accept-charset="UTF-8">
-    {{ csrfInput() }}
-    {{ actionInput('users/login') }}
-    {{ redirectInput(redirectUrl ?? '') }}
+  {{ csrfInput() }}
+  {{ actionInput('users/login') }}
+  {{ redirectInput(redirectUrl ?? '') }}
 
-    <div class="field mt-3">
-        <label for="loginName">
-            Email / Username
-        </label>
-        <div class="mt-1">
-            <input type="text"
-                   id="loginName"
-                   name="loginName"
-                   class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[[color]]-500 focus:border-[[color]]-500 sm:text-sm"
-                   value="{{ craft.app.user.getRememberedUsername() }}" required
-                   placeholder="email@site.com"/>
-        </div>
+  <div class="field mt-3">
+    <label for="loginName">
+      {{- 'Email / Username'|t -}}
+    </label>
+    <div class="mt-1">
+      {{ input('text', 'loginName', craft.app.user.getRememberedUsername(), {
+        id: 'loginName',
+        placeholder: 'email@site.com',
+        required: true,
+        class: [
+          'appearance-none',
+          'block',
+          'w-full',
+          'px-3',
+          'py-2',
+          'border',
+          'border-gray-300',
+          'rounded-md',
+          'shadow-sm',
+          'placeholder-gray-400',
+          'focus:outline-none',
+          'sm:text-sm',
+          'focus:ring-[[color]]-500',
+          'focus:border-[[color]]-500',
+        ]
+      }) }}
     </div>
+  </div>
 
-    <div class="field mt-3">
-        <label for="loginPassword">Password</label>
-        <input type="password"
-               id="loginPassword"
-               name="password"
-               class="[[classes.input]] mt-1 w-full"/>
-    </div>
+  <div class="field mt-3">
+    <label for="loginPassword">
+      {{- 'Password'|t -}}
+    </label>
+    {{ input('password', 'password', null, {
+      id: 'loginPassword',
+      class: ['mt-1', 'w-full', '[[classes.input]]']
+    }) }}
+  </div>
 
-    <div class="field mt-3">
-        <label>
-            <input type="checkbox"
-                   name="rememberMe"
-                   value="1">
-            Remember me
-        </label>
-    </div>
+  <div class="field mt-3">
+    <label>
+      {{ input('checkbox', 'rememberMe', 1) }}
+      {{ 'Remember me'|t }}
+    </label>
+  </div>
 
-    <div class="mt-3 flex justify-between items-center">
-        <div>
-            <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">Forgot
-                your password?</a>
-        </div>
-        <div>
-            <button type="submit"
-                    class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                Login
-            </button>
-        </div>
+  <div class="mt-3 flex justify-between items-center">
+    <div>
+      <a href="{{ url('/[[folderName]]/customer/forgot-password') }}" class="[[classes.a]]">
+        {{- 'Forgot your password?'|t -}}
+      </a>
     </div>
+    <div>
+      {{ tag('button', {
+        type: 'submit',
+        class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+        text: 'Sign in'|t
+      }) }}
+    </div>
+  </div>
 </form>

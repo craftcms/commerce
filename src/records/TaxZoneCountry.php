@@ -35,15 +35,16 @@ class TaxZoneCountry extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['taxZoneId', 'countryId'], 'unique', 'targetAttribute' => ['taxZoneId', 'countryId']]
+            [['taxZoneId', 'countryId'], 'unique', 'targetAttribute' => ['taxZoneId', 'countryId']],
         ];
     }
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
     {

@@ -11,6 +11,7 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\helpers\UrlHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Country Model
@@ -23,55 +24,56 @@ use DateTime;
 class Country extends Model
 {
     /**
-     * @var int ID
+     * @var int|null ID
      */
-    public $id;
+    public ?int $id = null;
 
     /**
-     * @var string Name
+     * @var string|null Name
      */
-    public $name;
+    public ?string $name = null;
 
     /**
-     * @var string ISO code
+     * @var string|null ISO code
      */
-    public $iso;
+    public ?string $iso = null;
 
     /**
      * @var bool State Required
      */
-    public $isStateRequired;
+    public bool $isStateRequired = false;
 
     /**
      * @var bool Is Enabled
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateCreated;
+    public ?DateTIme $dateCreated = null;
 
     /**
      * @var DateTime|null
      * @since 3.4
      */
-    public $dateUpdated;
+    public ?DateTIme $dateUpdated = null;
 
     /**
      * @return string
      */
     public function __toString(): string
     {
-        return (string)$this->name;
+        return $this->name;
     }
 
     /**
      * @return array
+     * @throws InvalidConfigException
      * @since 3.1
      */
-    public function getStates()
+    public function getStates(): array
     {
         return Plugin::getInstance()->getStates()->getStatesByCountryId($this->id);
     }
@@ -79,14 +81,12 @@ class Country extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['iso', 'name'], 'required'];
-        $rules[] = [['iso'], 'string', 'length' => [2]];
-
-        return $rules;
+        return [
+            [['iso', 'name'], 'required'],
+            [['iso'], 'string', 'length' => [2]],
+        ];
     }
 
     /**

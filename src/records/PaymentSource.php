@@ -21,6 +21,7 @@ use yii\db\ActiveQueryInterface;
  * @property int $id
  * @property string $response
  * @property string $token
+ * @property-read ActiveQueryInterface $user
  * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

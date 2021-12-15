@@ -7,10 +7,12 @@
 
 namespace craft\commerce\helpers;
 
+use craft\commerce\errors\CurrencyException;
 use craft\commerce\models\Currency as CurrencyModel;
 use craft\commerce\models\PaymentCurrency;
 use craft\commerce\Plugin;
 use yii\base\InvalidCallException;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Currency
@@ -25,10 +27,10 @@ class Currency
      * a currency model results in rounding in default currency.
      *
      * @param float $amount
-     * @param PaymentCurrency|null $currency
+     * @param PaymentCurrency|CurrencyModel|null $currency
      * @return float
      */
-    public static function round($amount, $currency = null): float
+    public static function round(float $amount, $currency = null): float
     {
         if (!$currency) {
             $defaultPaymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
@@ -36,10 +38,6 @@ class Currency
         }
 
         $decimals = $currency->minorUnit;
-
-        // If $amount is string it throws round error on PHP 8
-        // @todo to be removed on Commerce 4 - ensure $amount is of float type
-        $amount = (float) $amount;
 
         return round($amount, $decimals);
     }
@@ -60,13 +58,15 @@ class Currency
      * Formats and optionally converts a currency amount into the supplied valid payment currency as per the rate setup in payment currencies.
      *
      * @param      $amount
-     * @param      $currency
+     * @param null $currency
      * @param bool $convert
      * @param bool $format
      * @param bool $stripZeros
      * @return string
+     * @throws CurrencyException
+     * @throws InvalidConfigException
      */
-    public static function formatAsCurrency($amount, $currency = null, $convert = false, $format = true, $stripZeros = false): string
+    public static function formatAsCurrency($amount, $currency = null, bool $convert = false, bool $format = true, bool $stripZeros = false): string
     {
         // return input if no currency passed, and both convert and format are false.
         if (!$convert && !$format) {
@@ -74,7 +74,7 @@ class Currency
         }
 
         $currencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        
+
         if (is_string($currency)) {
             $currencyIso = $currency;
         }

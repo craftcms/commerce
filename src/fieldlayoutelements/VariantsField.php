@@ -34,6 +34,14 @@ class VariantsField extends BaseField
     /**
      * @inheritdoc
      */
+    public function mandatory(): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function hasCustomWidth(): bool
     {
         return false;
@@ -42,7 +50,7 @@ class VariantsField extends BaseField
     /**
      * @inheritdoc
      */
-    protected function defaultLabel(ElementInterface $element = null, bool $static = false)
+    protected function defaultLabel(ElementInterface $element = null, bool $static = false): ?string
     {
         return Craft::t('commerce', 'Variants');
     }
@@ -62,7 +70,7 @@ class VariantsField extends BaseField
     /**
      * @inheritdoc
      */
-    protected function inputHtml(ElementInterface $element = null, bool $static = false)
+    protected function inputHtml(ElementInterface $element = null, bool $static = false): ?string
     {
         if (!$element instanceof Product) {
             throw new InvalidArgumentException('ProductTitleField can only be used in product field layouts.');

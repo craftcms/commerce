@@ -13,6 +13,8 @@ use craft\commerce\Plugin;
 use craft\commerce\services\Subscriptions;
 use craft\helpers\App;
 use craft\helpers\StringHelper;
+use yii\base\InvalidConfigException;
+use yii\web\BadRequestHttpException;
 use yii\web\Response;
 
 /**
@@ -35,7 +37,7 @@ class SettingsController extends BaseAdminController
         $settings->emailSenderNamePlaceholder = $craftSettings['fromName'] ?? '';
 
         $variables = [
-            'settings' => $settings
+            'settings' => $settings,
         ];
 
         return $this->renderTemplate('commerce/settings/general', $variables);
@@ -43,8 +45,10 @@ class SettingsController extends BaseAdminController
 
     /**
      * @return Response|null
+     * @throws InvalidConfigException
+     * @throws BadRequestHttpException
      */
-    public function actionSaveSettings()
+    public function actionSaveSettings(): ?Response
     {
         $this->requirePostRequest();
 

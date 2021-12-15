@@ -1,0 +1,227 @@
+{% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
+{% do view.registerTranslations('commerce', [
+  'Address 1',
+  'Are you sure you want to delete this address?',
+  'Cancellation date',
+  'Cart',
+  'Date Updated',
+  'Expiration date',
+  'Is subscription active?',
+  'New address',
+  'No Addresses available.',
+  'No active carts exist for this customer.',
+  'No inactive carts exist for this customer.',
+  'No subscriptions exist for this user yet.',
+  'No',
+  'Primary Billing Address',
+  'Primary Shipping Address',
+  'Set as Primary Billing',
+  'Set as Primary Shipping',
+  'Status',
+  'Subscription date',
+  'Subscription',
+  'Subscription',
+  'Total',
+  'View address',
+  'Yes',
+]) %}
+
+{% set addresses = customer.getAddresses() ?? null %}
+{% set tableData = [] %}
+{% for address in addresses %}
+  {% set tableData = tableData|merge([{
+    id: address.id,
+    title: address.address1 != '' ? address.address1|e : 'View address'|t('commerce'),
+    url: address.cpEditUrl ~ (addressRedirect is defined and addressRedirect ? '?redirect=' ~ addressRedirect : ''),
+    zipCode: address.zipCode|e,
+    billing: (customer.primaryBillingAddressId == address.id),
+    shipping: (customer.primaryShippingAddressId == address.id),
+    detail: { handle: tag('span', { 'data-icon': 'info', title: 'Show full address'|t('commerce')|e }) , content: address.getAddressLines(true)|join('<br>') }
+  }]) %}
+{% endfor %}
+
+{% if currentUser.can('commerce-manageOrders') %}
+  <h2>{{ 'Orders'|t('commerce') }}</h2>
+  {% include 'commerce/customers/_includes/_ordersTable' with { customer: customer } %}
+
+  <hr>
+
+  <h2>{{ 'Active Carts'|t('commerce') }}</h2>
+  {% set activeCarts = customer.getActiveCarts() %}
+
+  {% set activeTableData = [] %}
+
+  {% for order in activeCarts %}
+    {% set activeTableData = activeTableData|merge([{
+      id: order.id,
+      title: (order.reference ?? order.shortNumber),
+      url: order.cpEditUrl,
+      date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
+      total: order.totalPrice|currency(order.currency),
+    }]) %}
+  {% endfor %}
+
+  <div id="active-vue-admin-table"></div>
+
+  <hr>
+  <h2>{{ 'Inactive Carts'|t('commerce') }}</h2>
+  {% set inactiveCarts = customer.getInactiveCarts() %}
+
+  {% set inactiveTableData = [] %}
+  {% for order in inactiveCarts %}
+    {% set inactiveTableData = inactiveTableData|merge([{
+      id: order.id,
+      title: (order.reference ?? order.shortNumber),
+      url: order.cpEditUrl,
+      date: craft.app.formatter.asTimestamp(order.dateUpdated, 'short'),
+      total: order.totalPrice|currency(order.currency),
+    }]) %}
+  {% endfor %}
+
+  <div id="inactive-vue-admin-table"></div>
+
+{% endif %}
+
+<hr>
+{% set newAddressParams = { customerId: customer.id } %}
+{% if addressRedirect is defined and addressRedirect %}
+    {% set newAddressParams = newAddressParams|merge({ redirect: addressRedirect }) %}
+{% endif %}
+<h2>{{ 'Addresses'|t('commerce') }}</h2>
+<div id="addresses-vue-admin-table"></div>
+
+{% if currentUser.can('commerce-manageSubscriptions') %}
+  <hr>
+  <h2>{{ 'Subscriptions'|t('commerce') }}</h2>
+  {% set subscriptions = customer.subscriptions %}
+
+  {% set subsTableData = [] %}
+  {% for subscription in subscriptions %}
+    {% set subsTableData = subsTableData|merge([{
+      id: subscription.id,
+      title: subscription.__toString(),
+      url: subscription.cpEditUrl,
+      subDate: subscription.dateCreated|date('D jS M Y'),
+      canDate: subscription.dateCanceled ? subscription.dateCanceled|date('D jS M Y') : '',
+      expDate: subscription.dateExpired ? subscription.dateExpired|date('D jS M Y') : '',
+      active: subscription.status == 'active' ? 'Yes'|t('commerce')|e : 'No'|t('commerce')|e,
+    }]) %}
+  {% endfor %}
+  <div id="subscriptions-vue-admin-table"></div>
+{% endif %}
+
+{% js %}
+  var columns = [
+      { name: '__slot:title', title: Craft.t('commerce', 'Address 1') },
+      { name: 'zipCode', title: Craft.t('commerce', 'Zip Code') },
+      { name: 'billing', title: Craft.t('commerce', 'Primary Billing Address'), callback: function(value) {
+              if (!value) {
+                  return '';
+              }
+
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+          } },
+      { name: 'shipping', title: Craft.t('commerce', 'Primary Shipping Address'), callback: function(value) {
+              if (!value) {
+                  return '';
+              }
+
+              return '<span data-icon="check" title="'+Craft.escapeHtml(Craft.t('commerce', 'Yes'))+'"></span>';
+          } },
+      { name: '__slot:detail', title: '', titleClass: 'thin' },
+  ];
+
+  var actions = [
+      {
+          label: '',
+          icon: 'settings',
+          actions: [
+              {
+                  label: Craft.t('commerce', 'Set as Primary Billing'),
+                  action: 'commerce/addresses/set-primary-address',
+                  param: 'type',
+                  value: 'billing',
+                  allowMultiple: false
+              },
+              {
+                  label: Craft.t('commerce', 'Set as Primary Shipping'),
+                  action: 'commerce/addresses/set-primary-address',
+                  param: 'type',
+                  value: 'shipping',
+                  allowMultiple: false
+              }
+          ]
+      }
+  ];
+
+  {% if tableData is defined %}
+    new Craft.VueAdminTable({
+        actions: actions,
+        buttons: [
+            {
+                label: Craft.t('commerce', 'New address'),
+                href: '{{ cpUrl('commerce/addresses/new', newAddressParams) }}',
+                icon: 'plus',
+            }
+        ],
+        checkboxes: true,
+        columns: columns,
+        container: '#addresses-vue-admin-table',
+        deleteAction: 'commerce/addresses/delete',
+        deleteConfirmationMessage: Craft.t('commerce', 'Are you sure you want to delete this address?'),
+        emptyMessage: Craft.t('commerce', 'No Addresses available.'),
+        padded: true,
+        tableData: {{ tableData|json_encode|raw }}
+    });
+  {% endif %}
+
+  var cartColumns = [
+    { name: '__slot:title', title: Craft.t('commerce', 'Cart') },
+    { name: 'date', title: Craft.t('commerce', 'Date Updated') },
+    { name: 'total', title: Craft.t('commerce', 'Total') }
+  ];
+
+  {% if activeTableData is defined %}
+    if (document.querySelector('#active-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: cartColumns,
+        container: '#active-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No active carts exist for this customer.'),
+        padded: true,
+        tableData: {{ activeTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
+
+  {% if inactiveTableData is defined %}
+    if (document.querySelector('#inactive-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: cartColumns,
+        container: '#inactive-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No inactive carts exist for this customer.'),
+        padded: true,
+        tableData: {{ inactiveTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
+
+  {% if subsTableData is defined %}
+    var subColumns = [
+      { name: '__slot:title', title: Craft.t('commerce', 'Subscription') },
+      { name: 'subDate', title: Craft.t('commerce', 'Subscription date') },
+      { name: 'canDate', title: Craft.t('commerce', 'Cancellation date') },
+      { name: 'expDate', title: Craft.t('commerce', 'Expiration date') },
+      { name: 'active', title: Craft.t('commerce', 'Is subscription active?') }
+    ];
+
+    if (document.querySelector('#subscriptions-vue-admin-table')) {
+      new Craft.VueAdminTable({
+        columns: subColumns,
+        container: '#subscriptions-vue-admin-table',
+        emptyMessage: Craft.t('commerce', 'No subscriptions exist for this user yet.'),
+        padded: true,
+        tableData: {{ subsTableData|json_encode|raw }}
+      });
+    }
+  {% endif %}
+{% endjs %}

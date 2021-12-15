@@ -43,9 +43,9 @@ class Variant extends ElementType
 
         switch ($fieldName) {
             case 'productTitle':
-                return $product ? $product->title : '';
+                return $product->title ?? '';
             case 'productTypeId':
-                return $product ? $product->typeId : null;
+                return $product->typeId ?? null;
         }
 
         return parent::resolve($source, $arguments, $context, $resolveInfo);

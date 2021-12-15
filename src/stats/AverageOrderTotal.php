@@ -21,12 +21,7 @@ class AverageOrderTotal extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'averageOrderTotal';
-
-    /**
-     * @inheritdoc
-     */
-    public $cache = false;
+    protected string $_handle = 'averageOrderTotal';
 
     /**
      * @inheritDoc

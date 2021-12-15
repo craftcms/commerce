@@ -15,9 +15,11 @@ use craft\commerce\records\TaxCategory as TaxCategoryRecord;
 use craft\db\Query;
 use craft\helpers\ArrayHelper;
 use craft\queue\jobs\ResaveElements;
+use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
+use yii\db\StaleObjectException;
 
 /**
  * Tax category service.
@@ -33,7 +35,7 @@ class TaxCategories extends Component
     /**
      * @var TaxCategory[]|null
      */
-    private $_allTaxCategories = null;
+    private ?array $_allTaxCategories = null;
 
     /**
      * Returns all Tax Categories
@@ -61,7 +63,7 @@ class TaxCategories extends Component
      * @param int $taxCategoryId
      * @return TaxCategory|null
      */
-    public function getTaxCategoryById($taxCategoryId): ?TaxCategory
+    public function getTaxCategoryById(int $taxCategoryId): ?TaxCategory
     {
         $categories = $this->getAllTaxCategories();
 
@@ -73,8 +75,9 @@ class TaxCategories extends Component
      *
      * @param string $taxCategoryHandle
      * @return TaxCategory|null
+     * @noinspection PhpUnused
      */
-    public function getTaxCategoryByHandle($taxCategoryHandle): ?TaxCategory
+    public function getTaxCategoryByHandle(string $taxCategoryHandle): ?TaxCategory
     {
         $categories = $this->getAllTaxCategories();
 
@@ -205,7 +208,7 @@ class TaxCategories extends Component
      *
      * @param int $productTypeId
      */
-    private function _resaveProductsByProductTypeId(int $productTypeId)
+    private function _resaveProductsByProductTypeId(int $productTypeId): void
     {
         Craft::$app->getQueue()->push(new ResaveElements([
             'elementType' => Product::class,
@@ -214,14 +217,15 @@ class TaxCategories extends Component
                 'siteId' => '*',
                 'unique' => true,
                 'status' => null,
-                'enabledForSite' => false,
-            ]
+            ],
         ]));
     }
 
     /**
      * @param int $id
      * @return bool
+     * @throws Throwable
+     * @throws StaleObjectException
      */
     public function deleteTaxCategoryById($id): bool
     {
@@ -244,6 +248,7 @@ class TaxCategories extends Component
     /**
      * @param $productTypeId
      * @return array
+     * @throws InvalidConfigException
      */
     public function getTaxCategoriesByProductTypeId($productTypeId): array
     {
@@ -274,13 +279,12 @@ class TaxCategories extends Component
         return $taxCategories;
     }
 
-
     /**
      * Memoize a tax category model by its ID and handle.
      *
      * @param TaxCategory $taxCategory
      */
-    private function _memoizeTaxCategory(TaxCategory $taxCategory)
+    private function _memoizeTaxCategory(TaxCategory $taxCategory): void
     {
         $this->_taxCategoriesById[$taxCategory->id] = $taxCategory;
         $this->_taxCategoriesByHandle[$taxCategory->handle] = $taxCategory;
@@ -295,13 +299,13 @@ class TaxCategories extends Component
     {
         return (new Query())
             ->select([
-                'taxCategories.id',
-                'taxCategories.name',
-                'taxCategories.handle',
-                'taxCategories.description',
-                'taxCategories.default',
                 'taxCategories.dateCreated',
                 'taxCategories.dateUpdated',
+                'taxCategories.default',
+                'taxCategories.description',
+                'taxCategories.handle',
+                'taxCategories.id',
+                'taxCategories.name',
             ])
             ->from([Table::TAXCATEGORIES . ' taxCategories']);
     }

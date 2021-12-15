@@ -9,6 +9,8 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
+use Twig\Error\LoaderError;
+use craft\helpers\Json;
 use craft\web\twig\Environment;
 use Twig\Error\SyntaxError;
 
@@ -21,14 +23,19 @@ use Twig\Error\SyntaxError;
 class Formulas extends Component
 {
     /**
+     * @var array
+     */
+    private $_formulaConditionMatches = [];
+
+    /**
      * @var Environment
      */
-    private $_twigEnv;
+    private Environment $_twigEnv;
 
     /**
      * Initialize formulas
      */
-    public function init()
+    public function init(): void
     {
         $tags = $this->_getTags();
         $filters = $this->_getFilters();
@@ -40,16 +47,16 @@ class Formulas extends Component
         $loader = new \Twig\Loader\FilesystemLoader();
         $sandbox = new \Twig\Extension\SandboxExtension($policy, true);
 
-        $this->_twigEnv = new \Twig\Environment($loader);
+        $this->_twigEnv = new Environment($loader);
         $this->_twigEnv->addExtension($sandbox);
     }
 
     /**
-     * @oaram string $formula The condition which will be tested for correct syntax
-     * @oaram array $params data passed into the formula
+     * @param string $condition The condition which will be tested for correct syntax
+     * @param array $params data passed into the formula
      * @return bool
      */
-    public function validateConditionSyntax($condition, $params): bool
+    public function validateConditionSyntax(string $condition, array $params): bool
     {
         try {
             $this->evaluateCondition($condition, $params, Craft::t('commerce', 'Validating condition syntax'));
@@ -61,14 +68,14 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula The formula which will be tested for correct syntax
-     * @oaram array $params data passed into the formula
+     * @param string $formula The formula which will be tested for correct syntax
+     * @param array $params data passed into the formula
      * @return bool
      */
-    public function validateFormulaSyntax($formula, $params): bool
+    public function validateFormulaSyntax(string $formula, array $params): bool
     {
         try {
-            $this->evaluateFomula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
+            $this->evaluateFormula($formula, $params, Craft::t('commerce', 'Validating formula syntax'));
         } catch (\Exception $exception) {
             return false;
         }
@@ -77,20 +84,23 @@ class Formulas extends Component
     }
 
     /**
-     * @oaram string $formula
-     * @oaram array $params data passed into the condition
-     * @oaram string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @param string $formula
-     * @param $params
-     * @param string $name
+     * @param array $params data passed into the condition
+     * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      * @throws SyntaxError
-     * @throws \Twig\Error\LoaderError
+     * @throws LoaderError
      */
-    public function evaluateCondition(string $formula, $params, $name = 'Evaluate Condition'): bool
+    public function evaluateCondition(string $formula, array $params, string $name = 'Evaluate Condition'): bool
     {
         if ($this->_hasDisallowedStrings($formula, ['{%', '%}', '{{', '}}'])) {
             throw new SyntaxError('Tags are not allowed in a condition formula.');
+        }
+
+        $cacheKey = 'formula:' . md5($formula) . '|params:' . md5(Json::encode($params));
+
+        if (Craft::$app->getCache()->exists($cacheKey)) {
+            return (bool)Craft::$app->getCache()->get($cacheKey);
         }
 
         $twigCode = '{% if ';
@@ -99,9 +109,10 @@ class Formulas extends Component
 
         $template = $this->_twigEnv->createTemplate($twigCode, $name);
         $output = $template->render($params);
-        $success = $output == 'TRUE';
+        $result = ($output == 'TRUE');
+        Craft::$app->getCache()->set($cacheKey, $result);
 
-        return $success;
+        return $result;
     }
 
     /**
@@ -111,7 +122,7 @@ class Formulas extends Component
      * @oaram string|null $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
      * @throws SyntaxError
-     * @throws \Twig\Error\LoaderError
+     * @throws LoaderError
      */
     public function evaluateFormula(string $formula, $params, $setType = null, $name = 'Inline formula'): bool
     {
@@ -136,7 +147,7 @@ class Formulas extends Component
      * @param array $disallowedStrings
      * @return bool
      */
-    private function _hasDisallowedStrings(string $code, $disallowedStrings = [])
+    private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
         foreach ($disallowedStrings as $disallowedString) {
             if (stripos($code, $disallowedString) !== false) {
@@ -151,7 +162,7 @@ class Formulas extends Component
      */
     private function _getTags(): array
     {
-        $tags = [
+        return [
             //'apply',
             //'autoescape',
             //'block',
@@ -172,7 +183,6 @@ class Formulas extends Component
             //'verbatim',
             //'with',
         ];
-        return $tags;
     }
 
     /**
@@ -180,7 +190,7 @@ class Formulas extends Component
      */
     private function _getFilters(): array
     {
-        $filters = [
+        return [
             //'abs',
             //'batch',
             'capitalize',
@@ -191,7 +201,7 @@ class Formulas extends Component
             //'currency_name',
             //'currency_symbol',
             //'data_uri',
-            //'date',
+            'date',
             //'date_modify',
             //'default',
             //'escape',
@@ -234,7 +244,6 @@ class Formulas extends Component
             'upper',
             //'url_encode',
         ];
-        return $filters;
     }
 
     /**
@@ -242,7 +251,7 @@ class Formulas extends Component
      */
     private function _getFunctions(): array
     {
-        $functions = [
+        return [
             //'attribute',
             //'block',
             //'constant',
@@ -259,7 +268,6 @@ class Formulas extends Component
             //'source',
             //'template_from_string',
         ];
-        return $functions;
     }
 
     /**
@@ -267,8 +275,7 @@ class Formulas extends Component
      */
     private function _getMethods(): array
     {
-        $methods = [];
-        return $methods;
+        return [];
     }
 
     /**
@@ -276,7 +283,6 @@ class Formulas extends Component
      */
     private function _getProperties(): array
     {
-        $properties = [];
-        return $properties;
+        return [];
     }
 }

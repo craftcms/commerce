@@ -27,6 +27,7 @@ use DateTime;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\base\InvalidConfigException;
 use yii\db\StaleObjectException;
 use function get_class;
 use function in_array;
@@ -146,22 +147,20 @@ class Sales extends Component
      */
     const EVENT_AFTER_DELETE_SALE = 'afterDeleteSale';
 
+    /**
+     * @var Sale[]|null
+     */
+    private ?array $_allSales = null;
 
     /**
-     * @var Sale[]
+     * @var Sale[]|null
      */
-    private $_allSales;
-
-    /**
-     * @var Sale[]
-     */
-    private $_allActiveSales;
+    private ?array $_allActiveSales = null;
 
     /**
      * @var array
      */
-    private $_purchasableSaleMatch = [];
-
+    private array $_purchasableSaleMatch = [];
 
     /**
      * Get a sale by its ID.
@@ -169,7 +168,7 @@ class Sales extends Component
      * @param int $id
      * @return Sale|null
      */
-    public function getSaleById($id)
+    public function getSaleById(int $id): ?Sale
     {
         foreach ($this->getAllSales() as $sale) {
             if ($sale->id == $id) {
@@ -187,7 +186,7 @@ class Sales extends Component
      */
     public function getAllSales(): array
     {
-        if (null === $this->_allSales) {
+        if (!isset($this->_allSales)) {
             $sales = (new Query())->select([
                 'sales.id',
                 'sales.name',
@@ -208,7 +207,7 @@ class Sales extends Component
                 'sales.dateUpdated',
                 'sp.purchasableId',
                 'spt.categoryId',
-                'sug.userGroupId'
+                'sug.userGroupId',
             ])
                 ->from(Table::SALES . ' sales')
                 ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]] = [[sales.id]]')
@@ -256,54 +255,12 @@ class Sales extends Component
     }
 
     /**
-     * Populates a sale's relations.
-     *
-     * @param Sale $sale
-     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
-     * // TODO Removed when completing #COM-58
-     */
-    public function populateSaleRelations(Sale $sale)
-    {
-        $rows = (new Query())->select(
-            'sp.purchasableId,
-            spt.categoryId,
-            sug.userGroupId')
-            ->from(Table::SALES . ' sales')
-            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
-            ->where(['sales.id' => $sale->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
-            }
-        }
-
-        $sale->setPurchasableIds($purchasableIds);
-        $sale->setCategoryIds($categoryIds);
-        $sale->setUserGroupIds($userGroupIds);
-    }
-
-    /**
      * Returns the sales that match the purchasable.
      *
      * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @return Sales[]
+     * @throws InvalidConfigException
      */
     public function getSalesForPurchasable(PurchasableInterface $purchasable, Order $order = null): array
     {
@@ -404,7 +361,7 @@ class Sales extends Component
         $salePrice = ($originalPrice + $takeOffAmount);
 
         // A newPrice has been set so use it.
-        if (null !== $newPrice) {
+        if ($newPrice !== null) {
             $salePrice = $newPrice;
         }
 
@@ -420,8 +377,9 @@ class Sales extends Component
      *
      * @param PurchasableInterface $purchasable
      * @param Sale $sale
-     * @param Order $order
+     * @param Order|null $order
      * @return bool
+     * @throws InvalidConfigException
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
     {
@@ -475,7 +433,7 @@ class Sales extends Component
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
-                // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
+                // User group condition means we have to have a real user
                 if (null === $user) {
                     return false;
                 }
@@ -564,21 +522,27 @@ class Sales extends Component
             'stopProcessing',
             'ignorePrevious',
             'categoryRelationshipType',
-            'enabled'
+            'enabled',
         ];
         foreach ($fields as $field) {
             $record->$field = $model->$field;
         }
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+        if($record->allGroups = $model->allGroups){
+            $model->setUserGroupIds([]);
+        }
+        if($record->allCategories = $model->allCategories){
+            $model->setCategoryIds([]);
+        }
+        if($record->allPurchasables = $model->allPurchasables){
+            $model->setPurchasableIds([]);
+        }
 
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_SALE, new SaleEvent([
                 'sale' => $model,
-                'isNew' => $isNewSale
+                'isNew' => $isNewSale,
             ]));
         }
 
@@ -626,7 +590,7 @@ class Sales extends Component
             if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_SALE)) {
                 $this->trigger(self::EVENT_AFTER_SAVE_SALE, new SaleEvent([
                     'sale' => $model,
-                    'isNew' => $isNewSale
+                    'isNew' => $isNewSale,
                 ]));
             }
 
@@ -642,6 +606,7 @@ class Sales extends Component
      *
      * @param $ids
      * @return bool
+     * @throws \yii\db\Exception
      */
     public function reorderSales($ids): bool
     {
@@ -682,7 +647,7 @@ class Sales extends Component
         if ($result && $this->hasEventHandlers(self::EVENT_AFTER_DELETE_SALE)) {
             $this->trigger(self::EVENT_AFTER_DELETE_SALE, new SaleEvent([
                 'sale' => $sale,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -698,7 +663,7 @@ class Sales extends Component
      */
     private function _getAllEnabledSales(): array
     {
-        if (null === $this->_allActiveSales) {
+        if (!isset($this->_allActiveSales)) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {
@@ -718,7 +683,7 @@ class Sales extends Component
      *
      * @since 3.1.4
      */
-    private function _clearCaches()
+    private function _clearCaches(): void
     {
         $this->_allActiveSales = null;
         $this->_allSales = null;

@@ -1,36 +1,45 @@
 {% extends '[[folderName]]/_private/layouts' %}
 
+{# @var donation \craft\commerce\elements\Donation #}
+{% set donation = craft.commerce.donation %}
+
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    <h1 class="text-3xl block sm:inline">Donation</h1>
+  <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-3xl block sm:inline">
+    {{- 'Donation'|t -}}
+  </h1>
 
-    {% set donation = craft.commerce.donation %}
-    {% if donation and donation.isAvailable %}
-        <form method="post" action="" class="pt-2 pb-8">
-            {{ actionInput('commerce/cart/update-cart') }}
-            {{ successMessageInput('Donation added.') }}
-            {{ redirectInput('[[folderName]]/cart') }}
-            {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
-            {{ csrfInput() }}
+  {% if donation and donation.isAvailable %}
+    <form method="post" action="" class="pt-2 pb-8">
+      {{ csrfInput() }}
+      {{ actionInput('commerce/cart/update-cart') }}
+      {{ successMessageInput('Donation added.'|t) }}
+      {{ redirectInput('[[folderName]]/cart') }}
+      {{ hiddenInput('purchasableId', craft.commerce.donation.id) }}
 
-            <div>
-                <label for="donation-amount">Enter a donation amount e.g. 10, 15, 20</label>
-            </div>
-            <div>
-                <input type="text"
-                       id="donation-amount"
-                       name="options[donationAmount]"
-                       value="" placeholder="10"
-                       class="[[classes.input]]"/>
-            </div>
-            <div class="mt-3">
-                <button type="submit"
-                        class="[[classes.btn.base]] [[classes.btn.mainColor]]">
-                    Add Donation
-                </button>
-            </div>
-        </form>
-    {% else %}
-        <h2 class="text-lg font-semibold text-gray-600 mt-4">No donation set up</h2>
-    {% endif %}
+      <div>
+        <label for="donation-amount">
+          {{- 'Enter a donation amount e.g. 10, 15, 20'|t -}}
+        </label>
+      </div>
+      <div>
+        {{ input('text', 'options[donationAmount]', '', {
+          id: 'donation-amount',
+          placeholder: 10,
+          class: '[[classes.input]]'
+        }) }}
+      </div>
+      <div class="mt-3">
+        {{ tag('button', {
+          type: 'submit',
+          class: '[[classes.btn.base]] [[classes.btn.mainColor]]',
+          text: 'Add donation'|t
+        }) }}
+      </div>
+    </form>
+  {% else %}
+    <h2 class="text-lg font-semibold text-gray-600 mt-4">
+      {{- 'No donation set up.'|t -}}
+    </h2>
+  {% endif %}
 {% endblock %}

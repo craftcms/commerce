@@ -23,7 +23,7 @@ class StateTest extends Unit
     /**
      * @throws InvalidConfigException
      */
-    public function testGetInvalidCountry()
+    public function testGetInvalidCountry(): void
     {
         $state = new State();
         $country = Plugin::getInstance()->getCountries()->getCountryByIso('GB');
@@ -40,7 +40,7 @@ class StateTest extends Unit
     /**
      * @throws InvalidConfigException
      */
-    public function testGetCountry()
+    public function testGetCountry(): void
     {
         $state = new State();
         $country = Plugin::getInstance()->getCountries()->getCountryByIso('GB');
@@ -54,7 +54,7 @@ class StateTest extends Unit
     /**
      *
      */
-    public function testGetLabel()
+    public function testGetLabel(): void
     {
         $name = 'My State';
         $state = new State();

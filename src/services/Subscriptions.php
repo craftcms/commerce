@@ -357,8 +357,9 @@ class Subscriptions extends Component
      * Handle field layout change
      *
      * @param ConfigEvent $event
+     * @throws Exception
      */
-    public function handleChangedFieldLayout(ConfigEvent $event)
+    public function handleChangedFieldLayout(ConfigEvent $event): void
     {
         $data = $event->newValue;
 
@@ -384,7 +385,7 @@ class Subscriptions extends Component
      *
      * @param FieldEvent $event
      */
-    public function pruneDeletedField(FieldEvent $event)
+    public function pruneDeletedField(FieldEvent $event): void
     {
         /** @var Field $field */
         $field = $event->field;
@@ -410,7 +411,7 @@ class Subscriptions extends Component
      *
      * @param ConfigEvent $event
      */
-    public function handleDeletedFieldLayout(ConfigEvent $event)
+    public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
         Craft::$app->getFields()->deleteLayoutsByType(Subscription::class);
     }
@@ -420,13 +421,13 @@ class Subscriptions extends Component
      *
      * @param ModelEvent $event the event.
      */
-    public function beforeDeleteUserHandler(ModelEvent $event)
+    public function beforeDeleteUserHandler(ModelEvent $event): void
     {
         /** @var User $user */
         $user = $event->sender;
 
         // If there are any subscriptions, make sure that this is not allowed.
-        if ($this->doesUserHaveAnySubscriptions($user->id)) {
+        if ($this->doesUserHaveSubscriptions($user->id)) {
             $event->isValid = false;
         }
     }
@@ -435,8 +436,10 @@ class Subscriptions extends Component
      * Expire a subscription.
      *
      * @param Subscription $subscription subscription to expire
-     * @param DateTime $dateTime expiry date time
+     * @param DateTime|null $dateTime expiry date time
      * @return bool whether successfully expired subscription
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws Throwable if cannot expire subscription
      */
     public function expireSubscription(Subscription $subscription, DateTime $dateTime = null): bool
@@ -453,7 +456,7 @@ class Subscriptions extends Component
         // fire an 'expireSubscription' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_EXPIRE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -466,9 +469,21 @@ class Subscriptions extends Component
      * @param int $planId
      * @return int
      */
-    public function getSubscriptionCountForPlanById(int $planId): int
+    public function getSubscriptionCountByPlanId(int $planId): int
     {
         return SubscriptionRecord::find()->where(['planId' => $planId])->count();
+    }
+
+    /**
+     * Returns subscription count for a plan.
+     *
+     * @param int $planId
+     * @return int
+     * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.
+     */
+    public function getSubscriptionCountForPlanById(int $planId): int
+    {
+        return $this->getSubscriptionCountByPlanId($planId);
     }
 
     /**
@@ -477,9 +492,21 @@ class Subscriptions extends Component
      * @param int $userId
      * @return bool
      */
-    public function doesUserHaveAnySubscriptions(int $userId): bool
+    public function doesUserHaveSubscriptions(int $userId): bool
     {
         return (bool)SubscriptionRecord::find()->where(['userId' => $userId])->count();
+    }
+
+    /**
+     * Return true if the user has any subscriptions at all, even expired ones.
+     *
+     * @param int $userId
+     * @return bool
+     * @deprecated in 4.0. Use [[doesUserHaveSubscriptions]] instead.
+     */
+    public function doesUserHaveAnySubscriptions(int $userId): bool
+    {
+        return $this->doesUserHaveSubscriptions($userId);
     }
 
     /**
@@ -490,8 +517,11 @@ class Subscriptions extends Component
      * @param SubscriptionForm $parameters array of additional parameters to use
      * @param array $fieldValues array of content field values to set
      * @return Subscription the subscription
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException if something went wrong during subscription
+     * @throws Throwable
      */
     public function createSubscription(User $user, Plan $plan, SubscriptionForm $parameters, array $fieldValues = []): Subscription
     {
@@ -504,7 +534,7 @@ class Subscriptions extends Component
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Subscription for {user} to {plan} prevented by a plugin.', [
                 'user' => $user->getFriendlyName(),
-                'plan' => (string)$plan
+                'plan' => (string)$plan,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -541,7 +571,7 @@ class Subscriptions extends Component
         // Fire an 'afterCreateSubscription' event.
         if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_AFTER_CREATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 
@@ -594,7 +624,7 @@ class Subscriptions extends Component
             // Fire a 'afterReactivateSubscription' event.
             if ($this->hasEventHandlers(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION)) {
                 $this->trigger(self::EVENT_AFTER_REACTIVATE_SUBSCRIPTION, new SubscriptionEvent([
-                    'subscription' => $subscription
+                    'subscription' => $subscription,
                 ]));
             }
 
@@ -611,8 +641,10 @@ class Subscriptions extends Component
      * @param Plan $plan the plan to change the subscription to
      * @param SwitchPlansForm $parameters additional parameters to use
      * @return bool
+     * @throws ElementNotFoundException
+     * @throws Exception
      * @throws InvalidConfigException
-     * @throws SubscriptionException
+     * @throws Throwable
      */
     public function switchSubscriptionPlan(Subscription $subscription, Plan $plan, SwitchPlansForm $parameters): bool
     {
@@ -633,14 +665,14 @@ class Subscriptions extends Component
             'oldPlan' => $oldPlan,
             'subscription' => $subscription,
             'newPlan' => $plan,
-            'parameters' => $parameters
+            'parameters' => $parameters,
         ]);
         $this->trigger(self::EVENT_BEFORE_SWITCH_SUBSCRIPTION_PLAN, $event);
 
         if (!$event->isValid) {
             $error = Craft::t('commerce', 'Could not switch “{reference}” to “{plan}”.', [
                 'reference' => $subscription->reference,
-                'plan' => $plan->reference
+                'plan' => $plan->reference,
             ]);
 
             Craft::error($error, __METHOD__);
@@ -664,7 +696,7 @@ class Subscriptions extends Component
                 'oldPlan' => $oldPlan,
                 'subscription' => $subscription,
                 'newPlan' => $plan,
-                'parameters' => $parameters
+                'parameters' => $parameters,
             ]));
         }
 
@@ -749,7 +781,7 @@ class Subscriptions extends Component
     {
         if ($this->hasEventHandlers(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION)) {
             $this->trigger(self::EVENT_BEFORE_UPDATE_SUBSCRIPTION, new SubscriptionEvent([
-                'subscription' => $subscription
+                'subscription' => $subscription,
             ]));
         }
 

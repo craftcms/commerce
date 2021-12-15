@@ -29,10 +29,12 @@ class CustomerAddressesController extends BaseFrontEndController
      * Add New Address
      *
      * @return Response
+     * @throws BadRequestHttpException
+     * @throws ElementNotFoundException
      * @throws Exception
-     * @throws HttpException
+     * @throws Throwable
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -40,7 +42,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
         $customerService = Plugin::getInstance()->getCustomers();
         $customerId = $customerService->getCustomer()->id;
-        $addressIds = $customerService->getAddressIds($customerId);
+        $addressIds = $customerService->getAddressIdsByCustomerId($customerId);
         $customer = $customerService->getCustomerById($customerId);
 
         // Ensure any incoming ID is within the editable addresses for a customer:
@@ -141,7 +143,7 @@ class CustomerAddressesController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $errorMsg,
-                    'errors' => $address->errors
+                    'errors' => $address->errors,
                 ]);
             }
 
@@ -165,12 +167,12 @@ class CustomerAddressesController extends BaseFrontEndController
      * @throws ElementNotFoundException
      * @throws BadRequestHttpException
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requirePostRequest();
 
         $customerId = Plugin::getInstance()->getCustomers()->getCustomer()->id;
-        $addressIds = Plugin::getInstance()->getCustomers()->getAddressIds($customerId);
+        $addressIds = Plugin::getInstance()->getCustomers()->getAddressIdsByCustomerId($customerId);
         $cart = Plugin::getInstance()->getCarts()->getCart(true);
 
         $id = $this->request->getRequiredBodyParam('id');

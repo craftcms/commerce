@@ -29,17 +29,17 @@ class EmailPreviewControllerTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      * @var  EmailPreviewController
      */
-    protected $controller;
+    protected EmailPreviewController $controller;
 
     /**
      * @var Request
      */
-    protected $request;
+    protected Request $request;
 
     /**
      * @return array
@@ -59,7 +59,7 @@ class EmailPreviewControllerTest extends Unit
     /**
      * @inheritDoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -74,7 +74,7 @@ class EmailPreviewControllerTest extends Unit
         $this->request->enableCsrfValidation = false;
     }
 
-    public function testRenderRandomOrder()
+    public function testRenderRandomOrder(): void
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
         Craft::$app->getRequest()->setQueryParams(['emailId' => $email['id']]);
@@ -87,7 +87,7 @@ class EmailPreviewControllerTest extends Unit
         self::assertRegExp('/<h1>Order Confirmation [0-9a-zA-Z]{7}<\/h1>/', $response->data);
     }
 
-    public function testRenderSpecificOrder()
+    public function testRenderSpecificOrder(): void
     {
         $email = $this->tester->grabFixture('emails')['order-confirmation'];
         /** @var Order $order */

@@ -1,0 +1,83 @@
+<!-- Template: {{ _self }}.twig -->
+{#
+Outputs radio selection inputs for payment sources and/or gateways.
+
+@var availableGateways \craft\commerce\base\GatewayInterface[]  Available payment gateways
+@var paymentSources    \craft\commerce\models\PaymentSource[]   Available payment sources
+#}
+
+{% set paymentSources = paymentSources ?? [] %}
+{% set availableGateways = availableGateways ?? [] %}
+
+<label class="font-semibold">
+  {{- 'Choose a payment gateway or payment source'|t -}}:
+</label>
+
+{% if paymentSources|length %}
+  {% for source in paymentSources %}
+    <label class="block cursor-pointer mt-3 border-blue-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg">
+      <span class="flex justify-start items-center">
+        <span class="pr-3">
+          {{ input('radio', 'paymentSourceId', source.id, {
+            checked: source.id == cart.paymentSourceId
+          }) }}
+        </span>
+        <span>
+          <strong>{{ source.description }}</strong>
+          <br><span class="text-gray-600">{{ 'Stored source'|t }}</span>
+        </span>
+      </span>
+    </label>
+  {% endfor %}
+{% endif %}
+
+{% if availableGateways|length %}
+  {% for gatewayId, gatewayName in availableGateways %}
+    <label class="block cursor-pointer mt-3 border-blue-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg">
+      <span class="flex justify-start items-center">
+        <span class="pr-3">
+          {{ input('radio', 'gatewayId', gatewayId, {
+            checked: gatewayId == cart.gatewayId
+          }) }}
+        </span>
+        <span>
+          <strong>{{ gatewayName }}</strong>
+          <br><span class="text-gray-600">{{ 'Payment gateway'|t }}</span>
+        </span>
+      </span>
+    </label>
+  {% endfor %}
+{% endif %}
+
+{% js %}
+var $paymentSources = document.querySelectorAll('[name="paymentSourceId"]');
+var hasPaymentSources = $paymentSources && $paymentSources.length > 0;
+var $gateways = document.querySelectorAll('[name="gatewayId"]');
+var hasGateways = $gateways && $gateways.length > 0;
+
+if (hasPaymentSources && hasGateways) {
+  function deselectPaymentSources() {
+    $paymentSources.forEach(function(el) {
+      el.checked = false;
+    });
+  }
+
+  function deselectGateways() {
+    $gateways.forEach(function(el) {
+      el.checked = false;
+    });
+  }
+
+  $paymentSources.forEach(function(el) {
+    el.addEventListener('change', function(ev) {
+      deselectGateways();
+    });
+  });
+
+  $gateways.forEach(function(el) {
+    el.addEventListener('change', function(ev) {
+      deselectPaymentSources();
+    });
+  });
+}
+{% endjs %}

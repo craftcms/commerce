@@ -20,6 +20,7 @@ use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use yii\web\ServerErrorHttpException;
@@ -35,8 +36,7 @@ class ProductsPreviewController extends Controller
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
-
+    protected bool $allowAnonymous = true;
 
     /**
      * Previews a product.
@@ -49,7 +49,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         return $this->_showProduct($product);
     }
@@ -72,7 +72,7 @@ class ProductsPreviewController extends Controller
             throw new HttpException(404);
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Make sure the product actually can be viewed
         if (!Plugin::getInstance()->getProductTypes()->isProductTypeTemplateValid($product->getType(), $product->siteId)) {
@@ -81,7 +81,7 @@ class ProductsPreviewController extends Controller
 
         // Create the token and redirect to the product URL with the token in place
         $token = Craft::$app->getTokens()->createToken([
-            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId]
+            'commerce/products-preview/view-shared-product', ['productId' => $product->id, 'siteId' => $siteId],
         ]);
 
         $url = UrlHelper::urlWithToken($product->getUrl(), $token);
@@ -90,14 +90,14 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * Shows an product/draft/version based on a token.
+     * Shows a product/draft/version based on a token.
      *
      * @param mixed $productId
      * @param mixed $site
      * @return Response|null
      * @throws HttpException
      */
-    public function actionViewSharedProduct($productId, $site = null)
+    public function actionViewSharedProduct($productId, $site = null): ?Response
     {
         $this->requireToken();
 
@@ -122,8 +122,10 @@ class ProductsPreviewController extends Controller
      * @throws ElementNotFoundException
      * @throws MissingComponentException
      * @throws BadRequestHttpException
+     * @deprecated in 3.4.8. Use [[\craft\commerce\controllers\ProductsController::actionSaveProduct()]] instead.
+     * @todo Remove in 4.0
      */
-    public function actionSaveProduct()
+    public function actionSaveProduct(): ?Response
     {
         $this->requirePostRequest();
 
@@ -131,7 +133,7 @@ class ProductsPreviewController extends Controller
 
         $product = ProductHelper::populateProductFromPost();
 
-        $this->enforceProductPermissions($product);
+        $this->enforceEditProductPermissions($product);
 
         // Save the entry (finally!)
         if ($product->enabled && $product->enabledForSite) {
@@ -150,7 +152,7 @@ class ProductsPreviewController extends Controller
 
             // Send the category back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product
+                'product' => $product,
             ]);
 
             return null;
@@ -163,7 +165,7 @@ class ProductsPreviewController extends Controller
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
-                'cpEditUrl' => $product->getCpEditUrl()
+                'cpEditUrl' => $product->getCpEditUrl(),
             ]);
         }
 
@@ -172,14 +174,26 @@ class ProductsPreviewController extends Controller
         return $this->redirectToPostedUrl($product);
     }
 
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
+     */
+    protected function enforceEditProductPermissions(Product $product): void
+    {
+        if (!$product->getIsEditable()) {
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
 
     /**
      * @param Product $product
-     * @throws HttpException
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
      */
-    protected function enforceProductPermissions(Product $product)
+    protected function enforceProductPermissions(Product $product): void
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        $this->enforceEditProductPermissions($product);
     }
 
     /**
@@ -187,7 +201,8 @@ class ProductsPreviewController extends Controller
      *
      * @param Product $product
      * @return Response
-     * @throws HttpException
+     * @throws InvalidConfigException
+     * @throws ServerErrorHttpException
      */
     private function _showProduct(Product $product): Response
     {
@@ -219,7 +234,7 @@ class ProductsPreviewController extends Controller
         $this->getView()->getTwig()->disableStrictVariables();
 
         return $this->renderTemplate($siteSettings[$product->siteId]->template, [
-            'product' => $product
+            'product' => $product,
         ]);
     }
 }

@@ -23,25 +23,25 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
     /**
      * @var bool Whether this subscription is canceled
      */
-    private $_isCanceled = false;
+    private bool $_isCanceled = false;
 
     /**
      * @var int Amount of trial days
      */
-    private $_trialDays = 0;
+    private int $_trialDays = 0;
 
     /**
-     * @inheritdoc
+     * @param bool $isCanceled
      */
-    public function setIsCanceled(bool $isCanceled)
+    public function setIsCanceled(bool $isCanceled): void
     {
         $this->_isCanceled = $isCanceled;
     }
 
     /**
-     * @inheritdoc
+     * @param int $trialDays
      */
-    public function setTrialDays(int $trialDays)
+    public function setTrialDays(int $trialDays): void
     {
         $this->_trialDays = $trialDays;
     }

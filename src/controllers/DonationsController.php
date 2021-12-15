@@ -47,7 +47,7 @@ class DonationsController extends BaseStoreSettingsController
      * @throws Exception
      * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): Response
     {
         $this->requirePostRequest();
 

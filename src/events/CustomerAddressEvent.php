@@ -22,10 +22,10 @@ class CustomerAddressEvent extends Event
     /**
      * @var Address The address model
      */
-    public $address;
+    public Address $address;
 
     /**
      * @var Customer
      */
-    public $customer;
+    public Customer $customer;
 }

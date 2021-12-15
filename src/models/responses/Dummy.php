@@ -19,8 +19,10 @@ use craft\commerce\models\payments\CreditCardPaymentForm;
  */
 class Dummy implements RequestResponseInterface
 {
-    private $_success = true;
-
+    /**
+     * @var bool
+     */
+    private bool $_success = true;
 
     public function __construct(CreditCardPaymentForm $form = null)
     {

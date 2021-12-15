@@ -13,6 +13,8 @@ use craft\commerce\base\GatewayInterface;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\Plugin;
 use craft\helpers\Json;
+use yii\base\Exception;
+use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 
@@ -32,7 +34,7 @@ class GatewaysController extends BaseAdminController
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
 
         return $this->renderTemplate('commerce/settings/gateways/index', [
-            'gateways' => $gateways
+            'gateways' => $gateways,
         ]);
     }
 
@@ -77,7 +79,7 @@ class GatewaysController extends BaseAdminController
 
                 $gatewayOptions[] = [
                     'value' => $class,
-                    'label' => $class::displayName()
+                    'label' => $class::displayName(),
                 ];
             }
         }
@@ -96,9 +98,10 @@ class GatewaysController extends BaseAdminController
 
     /**
      * @return Response|null
-     * @throws HttpException
+     * @throws Exception
+     * @throws BadRequestHttpException
      */
-    public function actionSave()
+    public function actionSave(): ?Response
     {
         $this->requirePostRequest();
 
@@ -140,7 +143,7 @@ class GatewaysController extends BaseAdminController
 
             // Send the volume back to the template
             Craft::$app->getUrlManager()->setRouteParams([
-                'gateway' => $gateway
+                'gateway' => $gateway,
             ]);
 
             return null;

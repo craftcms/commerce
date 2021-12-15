@@ -20,9 +20,9 @@ use yii\base\Component;
 class Currencies extends Component
 {
     /**
-     * @var
+     * @var array
      */
-    private $_allCurrencies;
+    private array $_allCurrencies;
 
 
     /**
@@ -33,7 +33,6 @@ class Currencies extends Component
      */
     public function getCurrencyByIso(string $iso)
     {
-        /** @var Currency $currency */
         foreach ($this->getAllCurrencies() as $currency) {
             if ($currency->alphabeticCode == $iso) {
                 return $currency;
@@ -50,7 +49,7 @@ class Currencies extends Component
      */
     public function getAllCurrencies(): array
     {
-        if (null === $this->_allCurrencies) {
+        if (!isset($this->_allCurrencies)) {
             $this->_allCurrencies = [];
             $data = require __DIR__ . '/../etc/currencies.php';
             foreach ($data as $key => $currency) {

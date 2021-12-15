@@ -56,8 +56,8 @@ interface AddressZoneInterface
     /**
      * Return the zip code match
      *
-     * @return string
+     * @return string|null
      * @since 2.2
      */
-    public function getZipCodeConditionFormula(): string;
+    public function getZipCodeConditionFormula(): ?string;
 }

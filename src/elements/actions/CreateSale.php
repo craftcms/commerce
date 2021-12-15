@@ -32,7 +32,7 @@ class CreateSale extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);
         $js = <<<EOT
@@ -50,5 +50,7 @@ class CreateSale extends ElementAction
 EOT;
 
         Craft::$app->getView()->registerJs($js);
+
+        return null;
     }
 }

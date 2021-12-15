@@ -8,9 +8,11 @@
 namespace craftcommercetests\fixtures;
 
 use Craft;
-use craft\test\ActiveFixture;
+use yii\base\ArrayAccessTrait;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
+use yii\test\DbFixture;
+use yii\test\FileFixtureTrait;
 
 /**
  * Base Model Fixture
@@ -18,41 +20,47 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.2.14
  */
-abstract class BaseModelFixture extends ActiveFixture
+abstract class BaseModelFixture extends DbFixture implements \IteratorAggregate, \ArrayAccess, \Countable
 {
+    use ArrayAccessTrait;
+    use FileFixtureTrait;
+
     /**
      * Name of the delete method in the service.
      *
      * @var string
      */
-    public $deleteMethod;
+    public string $deleteMethod;
 
     /**
      * Name of the save method in the service.
      *
      * @var string
      */
-    public $saveMethod;
+    public string $saveMethod;
 
     /**
      * Instance of the service used for saving and deleting model data.
+     * @var string|null|object
      */
     public $service;
 
     /**
+     * @var array the data rows. Each array element represents one row of data (column name => column value).
+     */
+    public array $data = [];
+
+    /**
+     * @var array
+     */
+    protected array $ids = [];
+
+    /**
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
-        /**
-         * Taken from Yii's ActiveFixture class.
-         * Preventing using the parent init method as that is expecting $modelClass to be an active record class.
-         */
-        if ($this->tableName === null) {
-            if ($this->modelClass === null) {
-                throw new InvalidConfigException('Either "modelClass" or "tableName" must be set.');
-            }
-        }
+        parent::init();
 
         if ($this->service === null || $this->saveMethod === null || $this->deleteMethod === null) {
             throw new InvalidConfigException('"service", "saveMethod" and "deleteMethod" must be set.');
@@ -66,7 +74,7 @@ abstract class BaseModelFixture extends ActiveFixture
     /**
      * @inheritDoc
      */
-    public function load()
+    public function load(): void
     {
         $this->data = [];
         $saveMethod = $this->saveMethod;
@@ -81,7 +89,7 @@ abstract class BaseModelFixture extends ActiveFixture
             $model = $this->prepModel($model, $data);
 
             if (!$this->service->$saveMethod($model)) {
-                throw new InvalidArgumentException('Unable to save model.');
+                throw new InvalidArgumentException('Unable to save model ' . get_class($model) . '.');
             }
 
             $this->data[$key] = array_merge($data, ['id' => $model->id]);
@@ -89,10 +97,15 @@ abstract class BaseModelFixture extends ActiveFixture
         }
     }
 
+    protected function getData(): array
+    {
+        return $this->loadData($this->dataFile, false);
+    }
+
     /**
      * @inheritDoc
      */
-    public function unload()
+    public function unload(): void
     {
         $deleteMethod = $this->deleteMethod;
 
@@ -111,7 +124,8 @@ abstract class BaseModelFixture extends ActiveFixture
      * @param $data
      * @return mixed
      */
-    protected function prepData($data) {
+    protected function prepData($data)
+    {
         return $data;
     }
 
@@ -122,7 +136,8 @@ abstract class BaseModelFixture extends ActiveFixture
      * @param $data
      * @return mixed
      */
-    protected function prepModel($model, $data) {
+    protected function prepModel($model, $data)
+    {
         return $model;
     }
 }

@@ -34,10 +34,10 @@ class TaxCategory extends ActiveRecord
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            [['handle'], 'required']
+            [['handle'], 'required'],
         ];
     }
 }

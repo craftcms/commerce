@@ -32,17 +32,17 @@ class DiscountTest extends Unit
     /**
      * @var Plugin|null
      */
-    public $pluginInstance;
+    public ?Plugin $pluginInstance;
 
     /**
      * @var string|null
      */
-    public $originalEdition;
+    public ?string $originalEdition;
 
     /**
      * @inheritdoc
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
 
@@ -54,7 +54,7 @@ class DiscountTest extends Unit
     /**
      * @inheritdoc
      */
-    protected function _after()
+    protected function _after(): void
     {
         parent::_after();
 
@@ -64,7 +64,7 @@ class DiscountTest extends Unit
     /**
      * @dataProvider adjustDataProvider
      */
-    public function testAdjust($lineItemData, $discountData, $expected)
+    public function testAdjust($lineItemData, $discountData, $expected): void
     {
         // Create discount model
         $discount = new DiscountModel();
@@ -121,7 +121,7 @@ class DiscountTest extends Unit
     /**
      * @return array[]
      */
-    public function adjustDataProvider()
+    public function adjustDataProvider(): array
     {
         $orderLevelDiscount = [
             'name' => 'Order Level',

@@ -21,5 +21,5 @@ class PurchaseVariantEvent extends Event
     /**
      * @var Variant The variant model
      */
-    public $variant;
+    public Variant $variant;
 }

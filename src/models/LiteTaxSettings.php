@@ -25,17 +25,17 @@ class LiteTaxSettings extends Model
     /**
      * @var float Tax rate
      */
-    public $taxRate;
+    public float $taxRate;
 
     /**
      * @var string Tax name
      */
-    public $taxName;
+    public string $taxName;
 
     /**
      * @var string Tax include
      */
-    public $taxInclude;
+    public string $taxInclude;
 
     /**
      * @return array|string[]
@@ -45,7 +45,7 @@ class LiteTaxSettings extends Model
         return [
             'taxRate',
             'taxName',
-            'taxInclude'
+            'taxInclude',
         ];
     }
 

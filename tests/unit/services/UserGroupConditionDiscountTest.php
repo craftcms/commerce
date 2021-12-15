@@ -15,6 +15,8 @@ use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\services\Customers;
 use craft\commerce\services\Discounts;
 use craft\elements\User;
+use Exception;
+use PHPUnit\Framework\MockObject\MockObject;
 use UnitTester;
 
 
@@ -30,17 +32,17 @@ class UserGroupConditionDiscountTest extends Unit
     /**
      * @var UnitTester
      */
-    protected $tester;
+    protected UnitTester $tester;
 
     /**
      *
      */
-    protected function _before()
+    protected function _before(): void
     {
         parent::_before();
     }
 
-    public function testIsUserGroupsConditionAnyOrNoneValid()
+    public function testIsUserGroupsConditionAnyOrNoneValid(): void
     {
         $this->_mockCustomers();
 
@@ -53,7 +55,7 @@ class UserGroupConditionDiscountTest extends Unit
         self::assertTrue($isValid);
     }
 
-    public function testIsUserGroupsConditionIncludeAllValid()
+    public function testIsUserGroupsConditionIncludeAllValid(): void
     {
         $discountAdjuster = new Discounts();
         $this->_mockCustomers();
@@ -79,7 +81,7 @@ class UserGroupConditionDiscountTest extends Unit
         self::assertFalse($isValid);
     }
 
-    public function testUserGroupsConditionIncludeAnyValid()
+    public function testUserGroupsConditionIncludeAnyValid(): void
     {
         $this->_mockCustomers();
 
@@ -98,7 +100,7 @@ class UserGroupConditionDiscountTest extends Unit
         self::assertFalse($isValid);
     }
 
-    public function testIsUserGroupsConditionExcludeValid()
+    public function testIsUserGroupsConditionExcludeValid(): void
     {
         $discountAdjuster = new Discounts();
         $this->_mockCustomers();
@@ -117,7 +119,7 @@ class UserGroupConditionDiscountTest extends Unit
 
     }
 
-    public function _mockCustomers(array $ids = [1, 2])
+    public function _mockCustomers(array $ids = [1, 2]): void
     {
         $mockCustomers = $this->make(Customers::class, [
             'getUserGroupIdsForUser' => $ids
@@ -126,6 +128,11 @@ class UserGroupConditionDiscountTest extends Unit
         Plugin::getInstance()->set('customers', $mockCustomers);
     }
 
+    /**
+     * @param array $ids
+     * @return Discount|mixed|MockObject
+     * @throws Exception
+     */
     public function _getMockDiscount(array $ids)
     {
         /** @var Discount $mockDiscount */

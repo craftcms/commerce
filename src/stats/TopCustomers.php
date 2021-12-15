@@ -22,22 +22,22 @@ class TopCustomers extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'topCustomers';
+    protected string $_handle = 'topCustomers';
 
     /**
      * @var string Type of start either 'total' or 'average'.
      */
-    public $type = 'total';
+    public string $type = 'total';
 
     /**
      * @var int Number of customers to show.
      */
-    public $limit = 5;
+    public int $limit = 5;
 
     /**
      * @inheritDoc
      */
-    public function __construct(string $dateRange = null, $type = null, $startDate = null, $endDate = null)
+    public function __construct(string $dateRange = null, string $type = null, $startDate = null, $endDate = null)
     {
         if ($type) {
             $this->type = $type;
@@ -53,11 +53,11 @@ class TopCustomers extends Stat
     {
         $topCustomers = $this->_createStatQuery()
             ->select([
-                new Expression('SUM([[total]]) as total'),
-                new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4) as average'),
+                'average' => new Expression('ROUND((SUM([[total]]) / COUNT([[orders.id]])), 4)'),
+                'count' => new Expression('COUNT([[orders.id]])'),
                 'customerId',
-                '[[orders.email]] as email',
-                new Expression('COUNT([[orders.id]]) as count'),
+                'email' => '[[orders.email]]',
+                'total' => new Expression('SUM([[total]])'),
             ])
             ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
             ->limit($this->limit);

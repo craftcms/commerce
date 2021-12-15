@@ -21,7 +21,7 @@ class TotalOrders extends Stat
     /**
      * @inheritdoc
      */
-    protected $_handle = 'totalOrders';
+    protected string $_handle = 'totalOrders';
 
     /**
      * @inheritDoc

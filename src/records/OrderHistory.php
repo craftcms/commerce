@@ -49,6 +49,7 @@ class OrderHistory extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getPrevStatus(): ActiveQueryInterface
     {
@@ -57,6 +58,7 @@ class OrderHistory extends ActiveRecord
 
     /**
      * @return ActiveQueryInterface
+     * @noinspection PhpUnused
      */
     public function getNewStatus(): ActiveQueryInterface
     {

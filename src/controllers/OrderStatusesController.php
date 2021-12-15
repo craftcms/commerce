@@ -12,9 +12,13 @@ use craft\commerce\models\OrderStatus;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Json;
+use yii\base\ErrorException;
+use yii\base\Exception;
+use yii\base\NotSupportedException;
 use yii\web\BadRequestHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Order Status Controller
@@ -68,12 +72,16 @@ class OrderStatusesController extends BaseAdminController
         return $this->renderTemplate('commerce/settings/orderstatuses/_edit', $variables);
     }
 
-    public function actionSave()
+    /**
+     * @throws Exception
+     * @throws BadRequestHttpException
+     */
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
-        $orderStatus = Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id);
+        $orderStatus = $id ? Plugin::getInstance()->getOrderStatuses()->getOrderStatusById($id) : false;
 
         if (!$orderStatus) {
             $orderStatus = new OrderStatus();
@@ -102,7 +110,12 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @throws HttpException
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws Exception
+     * @throws ErrorException
+     * @throws NotSupportedException
+     * @throws ServerErrorHttpException
      */
     public function actionReorder(): Response
     {
@@ -123,7 +136,7 @@ class OrderStatusesController extends BaseAdminController
      * @throws BadRequestHttpException
      * @since 2.2
      */
-    public function actionDelete()
+    public function actionDelete(): ?Response
     {
         $this->requireAcceptsJson();
 

@@ -23,7 +23,7 @@ interface PurchasableInterface
      *
      * @return int|null
      */
-    public function getId();
+    public function getId(): ?int;
 
     /**
      * Returns the base price the item will be added to the line item with.
@@ -83,7 +83,7 @@ interface PurchasableInterface
      *
      * @param LineItem $lineItem
      */
-    public function populateLineItem(LineItem $lineItem);
+    public function populateLineItem(LineItem $lineItem): void;
 
     /**
      * Returns an array of data that is serializable to json for storing a line
@@ -110,7 +110,7 @@ interface PurchasableInterface
      * @param LineItem $lineItem
      * @return void
      */
-    public function afterOrderComplete(Order $order, LineItem $lineItem);
+    public function afterOrderComplete(Order $order, LineItem $lineItem): void;
 
     /**
      * Returns whether this purchasable has free shipping.

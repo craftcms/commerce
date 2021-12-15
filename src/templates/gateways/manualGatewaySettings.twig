@@ -1,0 +1,9 @@
+{% from "_includes/forms" import booleanMenuField %}
+
+{{ booleanMenuField({
+    label: "Only allow this gateway to be used for zero value orders?"|t('commerce'),
+    name: 'onlyAllowForZeroPriceOrders',
+    includeEnvVars: true,
+    errors: gateway.getErrors('onlyAllowForZeroPriceOrders'),
+    value: gateway.onlyAllowForZeroPriceOrders
+}) }}

@@ -76,12 +76,12 @@ class LineItemStatusesController extends BaseAdminController
      * @throws Exception
      * @throws MissingComponentException
      */
-    public function actionSave()
+    public function actionSave(): void
     {
         $this->requirePostRequest();
 
         $id = Craft::$app->getRequest()->getBodyParam('id');
-        $lineItemStatus = Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id);
+        $lineItemStatus = $id ? Plugin::getInstance()->getLineItemStatuses()->getLineItemStatusById($id) : false;
 
         if (!$lineItemStatus) {
             $lineItemStatus = new LineItemStatus();
@@ -129,7 +129,7 @@ class LineItemStatusesController extends BaseAdminController
      * @throws BadRequestHttpException
      * @throws Throwable
      */
-    public function actionArchive()
+    public function actionArchive(): ?Response
     {
         $this->requireAcceptsJson();
 

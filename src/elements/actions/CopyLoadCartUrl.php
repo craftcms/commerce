@@ -17,6 +17,9 @@ use craft\helpers\UrlHelper;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 3.3
+ *
+ * @property-read null $triggerHtml
+ * @property-read string $triggerLabel
  */
 class CopyLoadCartUrl extends ElementAction
 {
@@ -34,7 +37,7 @@ class CopyLoadCartUrl extends ElementAction
     /**
      * @inheritdoc
      */
-    public function getTriggerHtml()
+    public function getTriggerHtml(): ?string
     {
         $type = Json::encode(static::class);
 
