@@ -312,13 +312,16 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -1205,7 +1208,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'title' => ['label' => Craft::t('commerce', 'Product')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],

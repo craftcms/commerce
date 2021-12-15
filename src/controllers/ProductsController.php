@@ -195,7 +195,7 @@ class ProductsController extends BaseController
                 ['id' => $productId]));
         }
 
-        $this->enforceProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
             if (Craft::$app->getRequest()->getAcceptsJson()) {
@@ -236,7 +236,7 @@ class ProductsController extends BaseController
         $request = Craft::$app->getRequest();
         $oldProduct = ProductHelper::productFromPost($request);
         $variants = $request->getBodyParam('variants') ?: [];
-        $this->enforceProductPermissions($oldProduct);
+        $this->enforceEditProductPermissions($oldProduct);
         $elementsService = Craft::$app->getElements();
 
         $transaction = Craft::$app->getDb()->beginTransaction();
@@ -366,14 +366,38 @@ class ProductsController extends BaseController
 
     /**
      * @param Product $product
-     * @throws HttpException
-     * @throws InvalidConfigException
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
+     */
+    protected function enforceEditProductPermissions(Product $product): void
+    {
+        if (!$product->getIsEditable()){
+            throw new ForbiddenHttpException('User is not permitted to edit this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @since 3.4.8
+     */
+    protected function enforceDeleteProductPermissions(Product $product): void
+    {
+        if (!$product->getIsDeletable()) {
+            throw new ForbiddenHttpException('User is not permitted to delete this product');
+        }
+    }
+
+    /**
+     * @param Product $product
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
     protected function enforceProductPermissions(Product $product): void
     {
-        $this->requirePermission('commerce-manageProductType:' . $product->getType()->uid);
+        $this->enforceEditProductPermissions($product);
+        $this->enforceDeleteProductPermissions($product);
     }
-
 
     /**
      * @param array $variables
@@ -477,7 +501,7 @@ class ProductsController extends BaseController
         }
 
         if ($variables['product']->id) {
-            $this->enforceProductPermissions($variables['product']);
+            $this->enforceEditProductPermissions($variables['product']);
             $variables['enabledSiteIds'] = Craft::$app->getElements()->getEnabledSiteIdsForElement($variables['product']->id);
         } else {
             $variables['enabledSiteIds'] = [];
