@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when trying to refund an order.
+
 ## 3.4.9.2 - 2021-12-15
 
 ### Fixed
