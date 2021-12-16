@@ -68,7 +68,7 @@ class Transaction extends Model
     public $currency;
 
     /**
-     * The the payment amount in the payment currency.
+     * The payment amount in the payment currency.
      * Multiplying this by the `paymentRate`, give you the `amount`.
      *
      * @var float Payment Amount
