@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where it wasn’t possible to scroll a transaction’s gateway response data. ([#2639](https://github.com/craftcms/commerce/issues/2639))
+
 ## 3.4.9.2 - 2021-12-15
 
 ### Fixed
