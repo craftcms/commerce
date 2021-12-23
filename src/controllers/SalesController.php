@@ -135,7 +135,7 @@ class SalesController extends BaseCpController
         }
 
         // Set purchasable conditions
-        if ($sale->allPurchasables = $request->getBodyParam('allPurchasables')) {
+        if ($sale->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
             $sale->setPurchasableIds([]);
         } else {
             $purchasables = [];
@@ -149,7 +149,7 @@ class SalesController extends BaseCpController
         }
 
         // Set category conditions
-        if ($sale->allCategories = $request->getBodyParam('allCategories')) {
+        if ($sale->allCategories = (bool)$request->getBodyParam('allCategories')) {
             $sale->setCategoryIds([]);
         } else {
             $categories = $request->getBodyParam('categories', []);
@@ -161,7 +161,7 @@ class SalesController extends BaseCpController
 
         // Set user group conditions
         // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
-        if ($sale->allGroups = $request->getBodyParam('allGroups', true)) {
+        if ($sale->allGroups = (bool)$request->getBodyParam('allGroups', true)) {
             $sale->setUserGroupIds([]);
         } else {
             $groups = $request->getBodyParam('groups', []);
