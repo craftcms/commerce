@@ -162,6 +162,12 @@ class Sale extends Model
             ],
             [['enabled'], 'boolean'],
             [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
+            [['categoryIds'], 'required', 'when' => function($model) {
+                return !$model->allCategories;
+            }, 'message' => Craft::t('commerce', 'Categories are required.')],
+            [['userGroupIds'], 'required', 'when' => function($model) {
+                return !$model->allGroups;
+            }, 'message' => Craft::t('commerce', 'User groups are required.')],
         ];
     }
 
