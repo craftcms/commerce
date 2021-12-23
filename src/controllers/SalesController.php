@@ -160,7 +160,8 @@ class SalesController extends BaseCpController
         }
 
         // Set user group conditions
-        if ($sale->allCategories = $request->getBodyParam('allGroups')) {
+        // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
+        if ($sale->allGroups = $request->getBodyParam('allGroups', true)) {
             $sale->setUserGroupIds([]);
         } else {
             $groups = $request->getBodyParam('groups', []);
