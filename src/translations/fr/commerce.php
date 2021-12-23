@@ -448,7 +448,7 @@ return [
     'End Date' => 'Date de fin',
     'Enter SKU' => 'Entrer le code article interne',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Saisir un nom convivial pour ce taux d\'imposition, qui sera utilisé dans le panneau de configuration.',
-    'Enter a percentage like `5%` or `10.5%`.' => 'Entrer un pourcentage comme « 5 % » ou « 10,5 % ».',
+    'Enter a percentage like `5%` or `10.5%`.' => 'Entrer un pourcentage comme « 5 % » ou « 10.5 % ».',
     'Enter coupon code' => 'Entrer le code du coupon',
     'Enter price' => 'Entrer le prix',
     'Enter reference' => 'Entrer la référence',

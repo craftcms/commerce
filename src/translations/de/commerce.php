@@ -448,7 +448,7 @@ return [
     'End Date' => 'Enddatum',
     'Enter SKU' => 'Bestandseinheit (SKU) eingeben',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Geben Sie einen verständlichen Namen für diesen Steuersatz ein, der im Control Panel verwendet werden soll.',
-    'Enter a percentage like `5%` or `10.5%`.' => 'Geben Sie einen Prozentsatz ein, z. B. 5 % oder 10,5 %.',
+    'Enter a percentage like `5%` or `10.5%`.' => 'Geben Sie einen Prozentsatz ein, z. B. 5 % oder 10.5 %.',
     'Enter coupon code' => 'Gutscheincode eingeben',
     'Enter price' => 'Preis angeben',
     'Enter reference' => 'Referenz eingeben',

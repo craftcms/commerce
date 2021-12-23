@@ -448,7 +448,7 @@ return [
     'End Date' => 'Dátum ukončenia',
     'Enter SKU' => 'Zadať SKU',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Zadajte názov tejto daňovej sadzby, ktorý sa bude používať v ovládacom paneli.',
-    'Enter a percentage like `5%` or `10.5%`.' => 'Zadajte percentuálnu hodnotu, ako napr. „5 %“ alebo „10 %“.',
+    'Enter a percentage like `5%` or `10.5%`.' => 'Zadajte percentuálnu hodnotu, ako napr. „5 %“ alebo „10.5 %“.',
     'Enter coupon code' => 'Zadajte kód kupónu',
     'Enter price' => 'Zadať cenu',
     'Enter reference' => 'Zadajte referenciu',

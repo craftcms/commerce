@@ -448,7 +448,7 @@ return [
     'End Date' => 'Einddatum',
     'Enter SKU' => 'Voer Artikelnummer in',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Voeg een mensvriendelijke naam in voor dit belastingtarief voor gebruik in het configuratiescherm.',
-    'Enter a percentage like `5%` or `10.5%`.' => 'Voer een percentage in, bijvoorbeeld \'5%\' of \'10,5%\'.',
+    'Enter a percentage like `5%` or `10.5%`.' => 'Voer een percentage in, bijvoorbeeld \'5%\' of \'10.5%\'.',
     'Enter coupon code' => 'Couponcode invoeren',
     'Enter price' => 'Voer prijs in',
     'Enter reference' => 'Referentie invoeren',

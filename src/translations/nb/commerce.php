@@ -448,7 +448,7 @@ return [
     'End Date' => 'Sluttdato',
     'Enter SKU' => 'Angi SKU',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Skriv et menneskevennlig navn for denne skattesatsen som skal brukes i kontrollpanelet.',
-    'Enter a percentage like `5%` or `10.5%`.' => 'Skriv inn en prosent, som 5 % eller 10,5 %.',
+    'Enter a percentage like `5%` or `10.5%`.' => 'Skriv inn en prosent, som 5 % eller 10.5 %.',
     'Enter coupon code' => 'Skriv inn kupongkode',
     'Enter price' => 'Angi pris',
     'Enter reference' => 'Skriv inn referanse',
