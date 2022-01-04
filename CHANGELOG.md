@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Security
+- Fixed XSS vulnerabilities.
+
 ## 3.4.9.3 - 2021-12-23
 
 ### Fixed
