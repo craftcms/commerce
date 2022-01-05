@@ -7,7 +7,7 @@
     "serve": "webpack-dev-server --node-env=development"
   },
   "devDependencies": {
-    "@craftcms/webpack": "^0.2.0",
+    "@craftcms/webpack": "^0.3.0",
     "axios": "^0.21.1",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
