@@ -2275,7 +2275,7 @@ class Order extends Element
     }
 
     /**
-     * Sets the orders payment amount in the order's currency. This amount is not persisted.
+     * Sets the order's payment amount in the order's currency. This amount is not persisted.
      *
      * @param float $amount
      */
@@ -2284,6 +2284,21 @@ class Order extends Element
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
         $this->_paymentAmount = $amount;
+    }
+
+    /**
+     * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
+     *
+     * @return bool
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @since 3.4.10
+     */
+    public function isPaymentAmountPartial(): bool
+    {
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+
+        return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
     }
 
     /**

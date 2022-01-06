@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Added
+- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`;
+
+### Fixed
+- Fixed a bug where a gateway’s `supportsPartialPayment()` wasn’t being checked.
+- Fixed a bug where partial payment errors weren’t returned correctly when calling `commerce/payments/pay` via ajax.
+
 ### Security
 - Fixed XSS vulnerabilities.
 
