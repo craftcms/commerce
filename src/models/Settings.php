@@ -84,7 +84,8 @@ class Settings extends Model
     public $allowCheckoutWithoutPayment = false;
 
     /**
-     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     * @var bool Whether [partial payment](https://craftcms.com/docs/commerce/3.x/making-payments.html#checkout-with-partial-payment)
+     * can be made from the front end when the gateway allows them.
      *
      * The default `false` does not allow partial payments on the front end.
      *

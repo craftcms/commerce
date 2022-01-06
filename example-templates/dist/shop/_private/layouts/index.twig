@@ -60,7 +60,7 @@ Common, top-level layout template.
     </div>
   {% endif %}
 
-  {% if cart.hasNotices() %}
+  {% if cart and cart.hasNotices() %}
     <div class="bg-blue-400 text-white">
       <div class="container mx-auto px-6 py-4 relative">
         <span>{{ 'Cart Notices'|t }}</span>
@@ -91,7 +91,7 @@ Common, top-level layout template.
     </div>
   {% endif %}
 
-  {% if cart.errors|length %}
+  {% if cart and cart.errors|length %}
     <div class="bg-red-500 text-white">
       <div class="container mx-auto px-6 py-4">
         {% for attribute, errors in cart.errors %}

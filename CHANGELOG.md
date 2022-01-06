@@ -3,15 +3,42 @@
 ## Unreleased
 
 ### Added
-- Discounts now have explicit “All Purchasables” and “All Categories” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
-- Sales now have explicit “All Purchasables”, “All Categories”, and “All Customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
-
-### Changed
-- Product index now uses “Product” column heading by default, rather than “Title”.
+- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`;
 
 ### Fixed
-- Fixed a bug where adjustments snapshots were removed when recalculating a completed order.
-- Fixed a bug where email previews would render with CP assets included. ([#2632](https://github.com/craftcms/commerce/issues/2632))
+- Fixed a bug where a gateway’s `supportsPartialPayment()` wasn’t being checked.
+- Fixed a bug where partial payment errors weren’t returned correctly when calling `commerce/payments/pay` via ajax.
+
+### Security
+- Fixed XSS vulnerabilities.
+
+## 3.4.9.3 - 2021-12-23
+
+### Fixed
+- Fixed a bug where it wasn’t possible to scroll transactions’ gateway response data on View Order pages. ([#2639](https://github.com/craftcms/commerce/issues/2639))
+- Fixed a bug where it wasn’t possible to save sales.
+
+## 3.4.9.2 - 2021-12-15
+
+### Fixed
+- Fixed an error that occurred when loading the Order Edit page. ([#2640](https://github.com/craftcms/commerce/issues/2640))
+
+## 3.4.9.1 - 2021-12-15
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.7.25 or later. ([#2638](https://github.com/craftcms/commerce/issues/2638))
+
+## 3.4.9 - 2021-12-14
+
+### Added
+- Discounts and sales now have “All purchasables”, “All categories”, and “All customers” settings. ([#2615](https://github.com/craftcms/commerce/issues/2615))
+
+### Changed
+- Product indexes now use a “Product” header column heading by default, rather than “Title”.
+
+### Fixed
+- Fixed a bug where adjustment snapshots were removed when recalculating a completed order.
+- Fixed a bug where email previews included control panel assets. ([#2632](https://github.com/craftcms/commerce/issues/2632))
 
 ## 3.4.8 - 2021-11-25
 
