@@ -146,7 +146,7 @@
             elementType: categoryElementType,
             limit: null,
             instructions: "Categories that the purchasables must be related to. Leave blank for all categories."|t('commerce'),
-            errors: sale.getErrors('categories'),
+            errors: sale.getErrors('categoryIds'),
         }) }}
 
         <a class="fieldtoggle {% if (sale.categoryRelationshipType != 'element') %}expanded{% endif %}"
@@ -209,7 +209,7 @@
                         name: 'groups',
                         options: groups,
                         values: sale.getUserGroupIds(),
-                        errors: sale.getErrors('groups'),
+                        errors: sale.getErrors('userGroupIds'),
                         class: 'selectize fullwidth',
                     }) }}
                 </div>

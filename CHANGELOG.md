@@ -1,5 +1,26 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Security
+- Fixed XSS vulnerabilities.
+
+## 3.4.9.3 - 2021-12-23
+
+### Fixed
+- Fixed a bug where it wasn’t possible to scroll transactions’ gateway response data on View Order pages. ([#2639](https://github.com/craftcms/commerce/issues/2639))
+- Fixed a bug where it wasn’t possible to save sales.
+
+## 3.4.9.2 - 2021-12-15
+
+### Fixed
+- Fixed an error that occurred when loading the Order Edit page. ([#2640](https://github.com/craftcms/commerce/issues/2640))
+
+## 3.4.9.1 - 2021-12-15
+
+### Changed
+- Craft Commerce now requires Craft CMS 3.7.25 or later. ([#2638](https://github.com/craftcms/commerce/issues/2638))
+
 ## 3.4.9 - 2021-12-14
 
 ### Added

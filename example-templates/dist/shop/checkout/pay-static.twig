@@ -140,7 +140,7 @@
               {{ redirectInput('/shop/customer/order?number=' ~ cart.number ~ '&success=true') }}
               {{ hiddenInput('cancelUrl', craft.app.request.getUrl()|hash) }}
               {{ hiddenInput('email', email) }}
-              {{ hiddenInput('number', cart.number) }}
+              {{ hiddenInput('orderNumber', cart.number) }}
               {{ hiddenInput('paymentCurrency', paymentCurrency) }}
 
               <fieldset>
@@ -198,7 +198,9 @@
 
                 <div class="mt-4">
                   <div class="w-full">
-                    {% if canPay %}
+                    {% if canPay and className(cart.gateway) not in [
+                        'craft\\commerce\\paypalcheckout\\gateways\\Gateway',
+                    ] %}
                       {{ include('shop/checkout/_includes/partial-payment') }}
                       {{ tag('button', {
                         type: 'submit',
@@ -227,15 +229,15 @@
   </div>
 
   {% js %}
-    $('#paymentForm').on('submit', function(ev) {
-      $form = $(this);
+    let paymentForm = document.querySelector('#paymentForm');
 
-      if ($form.data('processing')) {
+    paymentForm.addEventListener('submit', function(ev) {
+      if (paymentForm.dataset.processing) {
         ev.preventDefault();
         return false;
       }
 
-      $form.data('processing', true);
+      paymentForm.dataset.processing = 'true';
     });
   {% endjs %}
 {% endblock %}

@@ -42,7 +42,7 @@ Craft.Commerce.TableRowAdditionalInfoIcon = Garnish.Base.extend(
                                 value = '<code class="language-xml">'+$('<div/>').text(value).html()+'</code>';
                             }
 
-                            $value = $('<td class="highlight"><pre>'+value+'</pre></td>');
+                            $value = $('<td class="highlight"><pre style="width: 33vw;">'+value+'</pre></td>');
                             Prism.highlightElement($value.find('code').get(0));
 
                             break;
