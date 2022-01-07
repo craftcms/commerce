@@ -83,6 +83,29 @@ class Donation extends Purchasable
         return $fields;
     }
 
+    /**
+     * @return array
+     */
+    protected function defineRules(): array
+    {
+        $rules = parent::defineRules();
+
+        $rules[] = [['sku'], 'trim'];
+        $rules[] = [['sku'], 'required', 'when' => function($model) {
+            /** @var self $model */
+            return $model->availableForPurchase && $model->enabled;
+        }];
+
+        return $rules;
+    }
+
+    /**
+     * @inerhitdoc
+     */
+    public static function hasStatuses(): bool
+    {
+        return true;
+    }
 
     /**
      * @inheritdoc
