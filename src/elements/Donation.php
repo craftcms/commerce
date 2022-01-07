@@ -293,7 +293,7 @@ class Donation extends Purchasable
 
         $record->save(false);
 
-        return parent::afterSave($isNew);
+        parent::afterSave($isNew);
     }
 
     /**
