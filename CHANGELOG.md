@@ -4,11 +4,11 @@
 
 ### Added
 - Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
-- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`;
+- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
 
 ### Fixed
-- Fixed a bug where a gateway’s `supportsPartialPayment()` wasn’t being checked.
-- Fixed a bug where partial payment errors weren’t returned correctly when calling `commerce/payments/pay` via ajax.
+- Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.
+- Fixed a bug where partial payment errors weren’t getting returned correctly for Ajax requests to `commerce/payments/pay`.
 
 ### Security
 - Fixed XSS vulnerabilities.
