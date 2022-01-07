@@ -236,6 +236,7 @@ trait OrderElementTrait
             'username',
             'reference',
             'skus',
+            'lineItemDescriptions'
         ];
     }
 
@@ -275,6 +276,8 @@ trait OrderElementTrait
                 return $this->getUser()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
+            case 'lineItemDescriptions':
+                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
             default:
                 return parent::getSearchKeywords($attribute);
         }
