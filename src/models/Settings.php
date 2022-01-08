@@ -206,7 +206,7 @@ class Settings extends Model
     public $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
      *
