@@ -8,6 +8,7 @@
 
 ### Fixed
 - Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.
+- Fixed an error that could occur when saving a discount. ([#2660](https://github.com/craftcms/commerce/issues/2660))
 - Fixed a bug where partial payment errors weren’t getting returned correctly for Ajax requests to `commerce/payments/pay`.
 
 ### Security
