@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Added
+- Added the ability to enable/disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
 - Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
 - Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
 
