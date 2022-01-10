@@ -19,6 +19,7 @@ use craft\commerce\errors\TransactionException;
 use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
@@ -630,10 +631,13 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
+            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($child->currency);
+
             // If amount is not supplied refund the full amount
-            $child->paymentAmount = $amount ?: $parent->getRefundableAmount();
+            $child->paymentAmount = Currency::round($amount, $currency) ?: $parent->getRefundableAmount();
+
             // Calculate amount in the primary currency
-            $child->amount = $child->paymentAmount / $parent->paymentRate;
+            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $currency);
             $child->note = $note;
 
             $gateway = $parent->getGateway();
