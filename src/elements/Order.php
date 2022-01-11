@@ -2255,6 +2255,21 @@ class Order extends Element
     }
 
     /**
+     * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
+     *
+     * @return bool
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @since 3.4.10
+     */
+    public function isPaymentAmountPartial(): bool
+    {
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+
+        return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
+    }
+
+    /**
      * What is the status of the orders payment
      *
      * @return string

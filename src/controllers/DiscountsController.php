@@ -163,7 +163,7 @@ class DiscountsController extends BaseCpController
         }
 
         // Set purchasable conditions
-        if ($discount->allPurchasables = $request->getBodyParam('allPurchasables')) {
+        if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
             $discount->setPurchasableIds([]);
         } else {
             $purchasables = [];
@@ -178,7 +178,7 @@ class DiscountsController extends BaseCpController
         }
 
         // Set category conditions
-        if ($discount->allCategories = $request->getBodyParam('allCategories')) {
+        if ($discount->allCategories = (bool)$request->getBodyParam('allCategories')) {
             $discount->setCategoryIds([]);
         } else {
             $categories = $request->getBodyParam('categories', []);
