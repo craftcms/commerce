@@ -206,13 +206,12 @@
         <div>
             {{ forms.text({
                 name: 'rate',
-                value: taxRate.rateAsPercent,
+                value: craft.app.formatter.asDecimal(taxRate.rate ? taxRate.rate * 100 : 0)  ~ '%',
                 errors: taxRate.getErrors('rate'),
                 required: true,
             }) }}
         </div>
         <div>
-
             {{ forms.checkboxField({
                 label: "Included in price?"|t('commerce'),
                 name: 'include',

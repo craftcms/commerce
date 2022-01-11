@@ -12,6 +12,7 @@
 - Fixed an error that could occur when saving a discount. ([#2660](https://github.com/craftcms/commerce/issues/2660))
 - Fixed a bug where partial payment errors weren’t getting returned correctly for Ajax requests to `commerce/payments/pay`.
 - Fixed an error that could occur when trying to refund an order. ([#2642](https://github.com/craftcms/commerce/pull/2642))
+- Fixed a bug where tax rates weren’t properly supporting localized number formats.
 
 ### Security
 - Fixed XSS vulnerabilities.

@@ -13,6 +13,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
@@ -168,6 +169,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $rate = Craft::$app->getRequest()->getBodyParam('rate');
+        $rate = Localization::normalizeNumber($rate);
         if (strpos($rate, $percentSign) || $rate >= 1) {
             $taxRate->rate = (float)$rate / 100;
         } else {
