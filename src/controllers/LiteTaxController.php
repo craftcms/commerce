@@ -57,7 +57,10 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxRate = $taxRate->rate;
         $settings->taxInclude = $taxRate->include;
 
-        return $this->renderTemplate('commerce/store-settings/tax/index', compact('settings'));
+        $variables = compact('settings');
+        $variables['percentSign'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+
+        return $this->renderTemplate('commerce/store-settings/tax/index', $variables);
     }
 
     /**
@@ -75,13 +78,9 @@ class LiteTaxController extends BaseStoreSettingsController
 
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $rate = Craft::$app->getRequest()->getBodyParam('taxRate');
+        $rate = str_replace([$percentSign, '%'], '', $rate);
         $rate = Localization::normalizeNumber($rate);
-
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $settings->taxRate = (float)$rate / 100;
-        } else {
-            $settings->taxRate = (float)$rate;
-        }
+        $settings->taxRate = (float)$rate / 100;
 
         if (!$settings->validate()) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));

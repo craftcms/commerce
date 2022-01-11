@@ -145,8 +145,9 @@ class TaxRate extends Model
     public function getRateAsPercent(): string
     {
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $rate = $this->rate * 100;
 
-        return $this->rate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asDecimal($rate) . $percentSign;
     }
 
     /**

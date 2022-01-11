@@ -26,11 +26,12 @@
 
         {{ forms.textField({
             label: "Order Tax Rate"|t('commerce'),
-            instructions: "Tax rate as a percentage of the total order cost, (i.e. if the tax rate is 5% then enter ‘5%’. You could also enter ‘10.5%’)."|t('commerce'),
+            instructions: "Tax rate as a percentage of the total order cost."|t('commerce'),
             id: 'taxRate',
             name: 'taxRate',
-            value: craft.app.formatter.asDecimal(settings.taxRate ? settings.taxRate * 100 : 0)  ~ '%',
+            value: craft.app.formatter.asDecimal(settings.taxRate ? settings.taxRate * 100 : 0),
             class: 'code ltr',
+            unit: percentSign,
             errors: settings.getErrors('taxRate'),
             required: true,
         }) }}
