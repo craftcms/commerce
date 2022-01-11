@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -20,8 +21,6 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use craft\helpers\Localization;
-use craft\i18n\Locale;
 use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
@@ -152,16 +151,7 @@ class DiscountsController extends BaseCpController
             $discount->dateTo = $dateTime;
         }
 
-        // Format into a %
-        $percentDiscountAmount = $request->getBodyParam('percentDiscount');
-        $localeData = Craft::$app->getLocale();
-        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount);
-        if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
-            $discount->percentDiscount = (float)$percentDiscountAmount / -100;
-        } else {
-            $discount->percentDiscount = (float)$percentDiscountAmount * -1;
-        }
+        $discount->percentDiscount = -Localization::normalizePercentage($request->getBodyParam('percentDiscount'));
 
         // Set purchasable conditions
         if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {

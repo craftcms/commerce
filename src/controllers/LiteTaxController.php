@@ -8,11 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
-use craft\helpers\Localization;
-use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\web\Response;
 
@@ -65,16 +64,7 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings = new LiteTaxSettings();
         $settings->taxName = Craft::$app->getRequest()->getBodyParam('taxName');
         $settings->taxInclude = (bool)Craft::$app->getRequest()->getBodyParam('taxInclude');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $rate = Craft::$app->getRequest()->getBodyParam('taxRate');
-        $rate = Localization::normalizeNumber($rate);
-
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $settings->taxRate = (float)$rate / 100;
-        } else {
-            $settings->taxRate = (float)$rate;
-        }
+        $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));
