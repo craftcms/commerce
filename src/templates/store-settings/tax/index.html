@@ -26,10 +26,9 @@
 
         {{ forms.textField({
             label: "Order Tax Rate"|t('commerce'),
-            instructions: "Tax rate as a percentage of the total order cost, i.e. if the tax rate is {ex1} then enter {ex2}. You could also enter {ex3}."|t('commerce', {
+            instructions: "Tax rate as a percentage of the total order cost (i.e. if the tax rate is {ex1} then enter {ex2})."|t('commerce', {
                 ex1: 0.05|percentage,
                 ex2: "`#{0.05|percentage}`",
-                ex3: "`#{0.105|percentage}`",
             }),
             id: 'taxRate',
             name: 'taxRate',

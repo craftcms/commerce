@@ -1014,7 +1014,7 @@ return [
     'Tax Zones' => 'Tax Zones',
     'Tax category saved.' => 'Tax category saved.',
     'Tax category updated.' => 'Tax category updated.',
-    'Tax rate as a percentage of the total order cost, i.e. if the tax rate is {ex1} then enter {ex2}. You could also enter {ex3}.' => 'Tax rate as a percentage of the total order cost, i.e. if the tax rate is {ex1} then enter {ex2}. You could also enter {ex3}.',
+    'Tax rate as a percentage of the total order cost (i.e. if the tax rate is {ex1} then enter {ex2}).' => 'Tax rate as a percentage of the total order cost (i.e. if the tax rate is {ex1} then enter {ex2}).',
     'Tax rate saved.' => 'Tax rate saved.',
     'Tax zone saved.' => 'Tax zone saved.',
     'Tax' => 'Tax',
