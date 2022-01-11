@@ -226,7 +226,10 @@
 
     {{ forms.field({
         label: "Rate"|t('commerce'),
-        instructions: "Enter a percentage like `5%` or `10.5%`."|t('commerce'),
+        instructions: "Enter a percentage like {ex1} or {ex2}."|t('commerce', {
+            ex1: "`#{0.05|percentage}`",
+            ex2: "`#{0.105|percentage}`",
+        }),
     }, rateInput) }}
 
 <div id="removeIncludedContainer">

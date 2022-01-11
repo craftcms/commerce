@@ -476,7 +476,10 @@
 
         {{ forms.field({
             label: "Per Item Percentage Off"|t('commerce'),
-            instructions: "The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places."|t('commerce'),
+            instructions: "The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places."|t('commerce', {
+                ex1: "`#{0.04|percentage}`",
+                ex2: 0.04|percentage,
+            }),
             id: 'percentDiscount',
             errors: discount.getErrors('percentDiscount'),
             tip: 'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.'|t('commerce')
