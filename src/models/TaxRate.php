@@ -7,7 +7,6 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
@@ -144,7 +143,7 @@ class TaxRate extends Model
      */
     public function getRateAsPercent(): string
     {
-        return Localization::asPercent($this->rate);
+        return Localization::formatAsPercentage($this->rate);
     }
 
     /**
