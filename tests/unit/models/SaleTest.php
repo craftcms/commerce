@@ -87,14 +87,14 @@ class SaleTest extends Unit
     }
 
     /**
-     *
+     * @dataProvider getApplyAMountAsPercentDataProvider
      */
-    public function testGetApplyAmountAsPercent()
+    public function testGetApplyAmountAsPercent($applyAmount, $expected)
     {
         $sale = new Sale();
-        $sale->applyAmount = '-0.1000';
+        $sale->applyAmount = $applyAmount;
 
-        self::assertSame('10.00%', $sale->getApplyAmountAsPercent());
+        self::assertSame($expected, $sale->getApplyAmountAsPercent());
     }
 
     /**
@@ -106,5 +106,21 @@ class SaleTest extends Unit
         $sale->applyAmount = '-0.1500';
 
         self::assertSame('0.15', $sale->getApplyAmountAsFlat());
+    }
+
+    /**
+     * @return array
+     */
+    public function getApplyAMountAsPercentDataProvider(): array
+    {
+        return [
+            ['-0.1000', '10%'],
+            [0, '0%'],
+            [-0.1, '10%'],
+            [-0.15, '15%'],
+            [-0.105, '10.5%'],
+            [-0.10504, '10.504%'],
+            ['-0.1050400', '10.504%'],
+        ];
     }
 }
