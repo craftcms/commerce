@@ -202,17 +202,19 @@
     ) }}
 
     {% set rateInput %}
-    <div class="flex">
+    <div>
         <div>
             {{ forms.text({
                 name: 'rate',
-                value: taxRate.rateAsPercent,
+                value: ((taxRate.rate ?? 0) * 100)|number,
+                class: 'code ltr',
+                size: 5,
                 errors: taxRate.getErrors('rate'),
                 required: true,
+                unit: percentSymbol,
             }) }}
         </div>
         <div>
-
             {{ forms.checkboxField({
                 label: "Included in price?"|t('commerce'),
                 name: 'include',
@@ -227,7 +229,10 @@
 
     {{ forms.field({
         label: "Rate"|t('commerce'),
-        instructions: "Enter a percentage like `5%` or `10.5%`."|t('commerce'),
+        instructions: "Enter a percentage like {ex1} or {ex2}."|t('commerce', {
+            ex1: "`5`",
+            ex2: "`#{10.5|number}`",
+        }),
     }, rateInput) }}
 
 <div id="removeIncludedContainer">

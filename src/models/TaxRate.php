@@ -7,12 +7,11 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
 use DateTime;
 
 /**
@@ -144,9 +143,7 @@ class TaxRate extends Model
      */
     public function getRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->rate * 100 . '' . $percentSign;
+        return Localization::formatAsPercentage($this->rate);
     }
 
     /**

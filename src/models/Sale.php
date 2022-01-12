@@ -7,9 +7,9 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\Localization;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
@@ -162,12 +162,6 @@ class Sale extends Model
             ],
             [['enabled'], 'boolean'],
             [['name', 'apply', 'allGroups', 'allPurchasables', 'allCategories'], 'required'],
-            [['categoryIds'], 'required', 'when' => function($model) {
-                return !$model->allCategories;
-            }, 'message' => Craft::t('commerce', 'Categories are required.')],
-            [['userGroupIds'], 'required', 'when' => function($model) {
-                return !$model->allGroups;
-            }, 'message' => Craft::t('commerce', 'User groups are required.')],
         ];
     }
 
@@ -195,11 +189,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        if ($this->applyAmount) {
-            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Localization::formatAsPercentage(-($this->applyAmount ?? 0));
     }
 
     /**
