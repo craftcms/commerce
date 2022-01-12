@@ -54,6 +54,7 @@ abstract class Localization extends \craft\helpers\Localization
      * @param array $options optional configuration for the number formatter. This parameter will be merged with [[numberFormatterOptions]].
      * @param array $textOptions optional configuration for the number formatter. This parameter will be merged with [[numberFormatterTextOptions]].
      * @return string the formatted result.
+     * @deprecated in 3.4.10. This is only used as a stopgap until `craft\i18n\Formatter::asDecimal()` supports dynamic decimals in Craft 4
      */
     public static function formatAsPercentage($value, ?int $decimals = null, array $options = [], array $textOptions = []): string
     {
