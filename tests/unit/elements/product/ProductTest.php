@@ -33,6 +33,7 @@ class ProductTest extends Unit
             ]
         ];
     }
+
     /**
      * @group Product
      */
@@ -50,5 +51,91 @@ class ProductTest extends Unit
         $product->validate();
 
         self::assertCount(0, $product->getErrors());
+    }
+
+    /**
+     * @dataProvider productVariantMethodsDataProvider
+     */
+    public function testProductVariantMethods(int $productTypeId, array $variantData, array $expected): void
+    {
+        $product = new Product();
+        $product->enabled = true;
+        $product->typeId = $productTypeId;
+        $product->title = 'Test Product';
+
+        $variants = [];
+        $count = 1;
+        foreach ($variantData as [$price, $default, $enabled]) {
+            $variant = new Variant();
+            $variant->title = sprintf('Test Variant #%s', $count);
+            $variant->isDefault = $default;
+            $variant->enabled = $enabled;
+            $variant->price = $price;
+
+            $variants[] = $variant;
+            $count++;
+        }
+
+        $product->setVariants($variants);
+
+        self::assertCount($expected['variantCount'], $product->getVariants(true));
+        self::assertCount($expected['enabledVariantCount'], $product->getVariants());
+
+        $defaultVariant = $product->getDefaultVariant(true);
+        self::assertSame($expected['defaultVariantTitle'], $defaultVariant->title);
+
+        $cheapestVariant = $product->getCheapestVariant(true);
+        self::assertSame($expected['cheapestVariantTitle'], $cheapestVariant->title);
+
+        $defaultEnabledVariant = $product->getDefaultVariant();
+        self::assertSame($expected['defaultEnabledVariantTitle'], $defaultEnabledVariant->title ?? null);
+
+        $cheapestEnabledVariant = $product->getCheapestVariant();
+        self::assertSame($expected['cheapestEnabledVariantTitle'], $cheapestEnabledVariant->title ?? null);
+    }
+
+    /**
+     * @return array
+     */
+    public function productVariantMethodsDataProvider(): array
+    {
+        return [
+            'All Enabled' => [
+                2001,
+                [[123, true, true], [456, false, true], [789, false, true]],
+                [
+                    'variantCount' => 3,
+                    'enabledVariantCount' => 3,
+                    'cheapestVariantTitle' => 'Test Variant #1',
+                    'defaultVariantTitle' => 'Test Variant #1',
+                    'cheapestEnabledVariantTitle' => 'Test Variant #1',
+                    'defaultEnabledVariantTitle' => 'Test Variant #1',
+                ]
+            ],
+            'One Disabled' => [
+                2001,
+                [[123, false, false], [456, false, true], [789, true, true]],
+                [
+                    'variantCount' => 3,
+                    'enabledVariantCount' => 2,
+                    'cheapestVariantTitle' => 'Test Variant #1',
+                    'defaultVariantTitle' => 'Test Variant #3',
+                    'cheapestEnabledVariantTitle' => 'Test Variant #2',
+                    'defaultEnabledVariantTitle' => 'Test Variant #3',
+                ]
+            ],
+            'All Disabled' => [
+                2001,
+                [[123, false, false], [456, true, false], [99, false, false]],
+                [
+                    'variantCount' => 3,
+                    'enabledVariantCount' => 0,
+                    'cheapestVariantTitle' => 'Test Variant #3',
+                    'defaultVariantTitle' => 'Test Variant #2',
+                    'cheapestEnabledVariantTitle' => null,
+                    'defaultEnabledVariantTitle' => null,
+                ]
+            ],
+        ];
     }
 }

@@ -29,6 +29,7 @@ use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
 use craft\models\FieldLayout;
+use craft\helpers\Html;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -1329,11 +1330,16 @@ class Variant extends Purchasable
         switch ($attribute) {
             case 'sku':
             {
-                return $this->getSkuAsText();
+                return Html::encode($this->getSkuAsText());
             }
             case 'product':
             {
-                return '<span class="status ' . $this->product->getStatus() . '"></span>' . $this->product->title;
+                $product = $this->getProduct();
+                if (!$product) {
+                    return '';
+                }
+
+                return sprintf('<span class="status %s"></span> %s', $product->getStatus(), Html::encode($product->title));
             }
             case 'price':
             {

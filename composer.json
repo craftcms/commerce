@@ -8,7 +8,7 @@
     "commerce",
     "yii2"
   ],
-  "homepage": "https://craftcommerce.com",
+  "homepage": "https://craftcms.com/commerce",
   "license": "proprietary",
   "support": {
     "email": "support@craftcms.com",
@@ -33,22 +33,21 @@
   },
   "extra": {
     "handle": "commerce",
-    "version": "3.4.4",
+    "version": "3.4.9.3",
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
+    "vlucas/phpdotenv": "^3.4",
     "codeception/codeception": "^4.0.0",
-    "codeception/module-asserts": "^1.0.0",
-    "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-phpbrowser": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0",
     "fzaninotto/faker": "^1.8",
-    "phpstan/phpstan": "^0.12.91",
-    "vlucas/phpdotenv": "^3.4"
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-asserts": "^1.0.0",
+    "codeception/module-rest": "^1.0.0",
+    "codeception/module-datafactory": "^1.0.0",
+    "codeception/module-yii2": "^1.0.0"
   },
   "scripts": {
     "testunit": [

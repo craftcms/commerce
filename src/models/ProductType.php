@@ -99,12 +99,7 @@ class ProductType extends Model
     public string $descriptionFormat = '{product.title} - {title}';
 
     /**
-     * @var string Line item format
-     */
-    public string $lineItemFormat;
-
-    /**
-     * @var string|null Template
+     * @var string Template
      */
     public ?string $template = null;
 

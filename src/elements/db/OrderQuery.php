@@ -105,17 +105,17 @@ class OrderQuery extends ElementQuery
     /**
      * @var string|null The origin the resulting orders must have.
      */
-    public ?string $origin;
+    public ?string $origin = null;
 
     /**
      * @var int|null The user ID that the resulting orders must have.
      */
-    public ?int $customerId;
+    public ?int $customerId = null;
 
     /**
      * @var int|null The gateway ID that the resulting orders must have.
      */
-    public ?int $gatewayId;
+    public ?int $gatewayId = null;
 
     /**
      * @var bool Whether the order is paid

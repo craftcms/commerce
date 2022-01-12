@@ -13,6 +13,7 @@ use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Localization;
 use craft\i18n\Locale;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -66,6 +67,7 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $variables = compact('id', 'taxRate');
+        $variables['percentSign'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 
@@ -180,11 +182,9 @@ class TaxRatesController extends BaseTaxSettingsController
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $rate = Craft::$app->getRequest()->getBodyParam('rate');
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $taxRate->rate = (float)$rate / 100;
-        } else {
-            $taxRate->rate = (float)$rate;
-        }
+        $rate = str_replace([$percentSign, '%'], '', $rate);
+        $rate = Localization::normalizeNumber($rate);
+        $taxRate->rate = (float)$rate / 100;
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {

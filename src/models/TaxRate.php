@@ -145,8 +145,9 @@ class TaxRate extends Model
     public function getRateAsPercent(): string
     {
         $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $rate = $this->rate * 100;
 
-        return $this->rate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asDecimal($rate) . $percentSign;
     }
 
     /**
@@ -166,7 +167,7 @@ class TaxRate extends Model
      */
     public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory && $this->taxCategoryId) {
+        if (!isset($this->_taxCategory) && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 

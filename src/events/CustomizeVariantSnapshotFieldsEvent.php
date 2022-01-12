@@ -26,5 +26,5 @@ class CustomizeVariantSnapshotFieldsEvent extends Event
     /**
      * @var array|null The fields to be captured
      */
-    public ?array $fields;
+    public ?array $fields = null;
 }

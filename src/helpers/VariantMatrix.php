@@ -47,7 +47,7 @@ class VariantMatrix
         $html = $viewService->renderTemplate('commerce/products/_variant_matrix', [
             'id' => $id,
             'name' => $name,
-            'variants' => $product->getVariants(),
+            'variants' => $product->getVariants(true),
             'product' => $product,
         ]);
 

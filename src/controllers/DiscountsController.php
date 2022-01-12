@@ -24,6 +24,7 @@ use craft\helpers\Localization;
 use craft\i18n\Locale;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
@@ -47,6 +48,11 @@ class DiscountsController extends BaseCpController
     public function init(): void
     {
         parent::init();
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '<')) {
+            throw new ForbiddenHttpException('Managing discounts is not permitted on the Lite edition.');
+        }
+
         $this->requirePermission('commerce-managePromotions');
     }
 
@@ -79,6 +85,8 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['discount']->allCategories = true;
+                $variables['discount']->allPurchasables = true;
                 $variables['isNewDiscount'] = true;
             }
         }
@@ -154,21 +162,31 @@ class DiscountsController extends BaseCpController
             $discount->percentDiscount = (float)$percentDiscountAmount * -1;
         }
 
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+        // Set purchasable conditions
+        if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+            $discount->setPurchasableIds([]);
+        } else {
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
+            $purchasables = array_unique($purchasables);
+            $discount->setPurchasableIds($purchasables);
         }
-        $purchasables = array_unique($purchasables);
-        $discount->setPurchasableIds($purchasables);
 
-        $categories = $request->getBodyParam('categories', []);
-        if (!$categories) {
-            $categories = [];
+        // Set category conditions
+        if ($discount->allCategories = (bool)$request->getBodyParam('allCategories')) {
+            $discount->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $discount->setCategoryIds($categories);
         }
-        $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
 

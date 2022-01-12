@@ -23,7 +23,6 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\OrderStatusException;
 use craft\commerce\events\AddLineItemEvent;
 use craft\commerce\events\LineItemEvent;
-use craft\commerce\exports\Raw;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
@@ -1079,8 +1078,9 @@ class Order extends Element
      */
     public function init(): void
     {
-        // Set default addresses on the order
+        // Set default addresseses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
+
             $user = $this->getCustomer();
             $hasPrimaryShippingAddress = !$this->shippingAddressId && $user && $primaryShippingAddressId = $user->getPrimaryShippingAddressId();
             $hasPrimaryBillingAddress = !$this->billingAddressId && $user && $primaryBillingAddressId = $user->getPrimaryBillingAddressId();
@@ -1098,6 +1098,17 @@ class Order extends Element
             $availableMethodOptions = $this->getAvailableShippingMethodOptions();
             if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
                 $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+            if (!$this->shippingAddressId) {
+                $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
+                if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
+                    $this->setShippingAddress($shippingAddress);
+                }
+            }
+            if (!$this->billingAddressId) {
+                $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
+                if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
+                    $this->setBillingAddress($billingAddress);
+                }
             }
         }
 
@@ -1128,6 +1139,13 @@ class Order extends Element
             } else {
                 $this->setRecalculationMode(self::RECALCULATION_MODE_ALL);
             }
+        }
+
+        // Sets a default shipping method
+        // Leave this as the last one inside init(), as shipping rules will need access the above default that are set (like currency).
+        if (!$this->shippingMethodHandle && !$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+            $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
         }
 
         parent::init();
@@ -1333,7 +1351,6 @@ class Order extends Element
     public function extraFields(): array
     {
         $names = parent::extraFields();
-        $names[] = 'matchingShippingMethods';
         $names[] = 'availableShippingMethodOptions';
         $names[] = 'adjustments';
         $names[] = 'billingAddress';
@@ -1678,6 +1695,21 @@ class Order extends Element
         }
 
         if ($this->getRecalculationMode() == self::RECALCULATION_MODE_ALL) {
+
+            // Make sure we set a default shipping method option
+            if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
+                $availableMethodOptions = $this->getAvailableShippingMethodOptions();
+                if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
+                    $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
+                }
+            }
+
+            if (!$this->shippingMethodHandle) {
+                $this->shippingMethodName = null;
+            } else if ($shippingMethod = $this->getShippingMethod()) {
+                $this->shippingMethodName = $shippingMethod->getName();
+            }
+
             $lineItemRemoved = false;
             foreach ($this->getLineItems() as $item) {
                 $originalSalePrice = $item->getSalePrice();
@@ -1806,22 +1838,6 @@ class Order extends Element
         }
 
         return $options;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function beforeSave(bool $isNew): bool
-    {
-        if (null === $this->shippingMethodHandle) {
-            // Reset shipping method name if there is no handle
-            $this->shippingMethodName = null;
-        } else if ($this->shippingMethodHandle && $shippingMethod = $this->getShippingMethod()) {
-            // Update shipping method name if there is a handle and we can retrieve the method
-            $this->shippingMethodName = $shippingMethod->name;
-        }
-
-        return parent::beforeSave($isNew);
     }
 
     /**
@@ -2223,6 +2239,21 @@ class Order extends Element
         $paymentCurrency = Plugin::getInstance()->getPaymentCurrencies()->getPaymentCurrencyByIso($this->getPaymentCurrency());
         $amount = Currency::round($amount, $paymentCurrency);
         $this->_paymentAmount = $amount;
+    }
+
+    /**
+     * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
+     *
+     * @return bool
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @since 3.4.10
+     */
+    public function isPaymentAmountPartial(): bool
+    {
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+
+        return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
     }
 
     /**
@@ -2664,7 +2695,7 @@ class Order extends Element
      */
     public function getAdjustments(): ?array
     {
-        if (null !== $this->_orderAdjustments) {
+        if (isset($this->_orderAdjustments)) {
             return $this->_orderAdjustments;
         }
 
@@ -2741,7 +2772,7 @@ class Order extends Element
      */
     public function getShippingAddress(): ?Address
     {
-        if (null === $this->_shippingAddress && $this->shippingAddressId) {
+        if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
             $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
         }
 
@@ -2779,7 +2810,7 @@ class Order extends Element
         $this->_shippingAddress = $address;
 
         // When we are setting an address we need to keep them in sync if they have the same ID
-        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->billingAddressId === $this->shippingAddressId) {
+        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->billingAddressId === $this->shippingAddressId) {
             $this->_billingAddress = $this->_shippingAddress;
         }
     }
@@ -2799,7 +2830,7 @@ class Order extends Element
      */
     public function getEstimatedShippingAddress(): ?Address
     {
-        if (null === $this->_estimatedShippingAddress && $this->estimatedShippingAddressId) {
+        if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
             $this->_estimatedShippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedShippingAddressId);
         }
 
@@ -2837,7 +2868,7 @@ class Order extends Element
      */
     public function getBillingAddress(): ?Address
     {
-        if (null === $this->_billingAddress && $this->billingAddressId) {
+        if (!isset($this->_billingAddress) && $this->billingAddressId) {
             $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
         }
 
@@ -2875,7 +2906,7 @@ class Order extends Element
         $this->_billingAddress = $address;
 
         // When we are setting an address we need to keep them in sync if they have the same ID
-        if (null !== $this->shippingAddressId && null !== $this->billingAddressId && $this->shippingAddressId === $this->billingAddressId) {
+        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->shippingAddressId === $this->billingAddressId) {
             $this->_shippingAddress = $this->_billingAddress;
         }
     }
@@ -2895,7 +2926,7 @@ class Order extends Element
      */
     public function getEstimatedBillingAddress(): ?Address
     {
-        if (null === $this->_estimatedBillingAddress && $this->estimatedBillingAddressId) {
+        if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
             $this->_estimatedBillingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedBillingAddressId);
         }
 
@@ -3211,23 +3242,33 @@ class Order extends Element
      */
     private function _saveNotices(): void
     {
-        // Line items that are currently in the DB
-        $previousNotices = OrderNoticeRecord::find()
+        $previousNoticeIds = (new Query())
+            ->select(['id'])
+            ->from([Table::ORDERNOTICES])
             ->where(['orderId' => $this->id])
-            ->all();
+            ->column();
 
-        foreach ($previousNotices as $notice) {
-            $notice->delete();
+        $currentNoticeIds = [];
+
+        // We are never updating a notice, just adding it or keeping it.
+        foreach ($this->getNotices() as $notice) {
+            if ($notice->id === null) {
+                $noticeRecord = new OrderNoticeRecord();
+                $noticeRecord->orderId = $notice->orderId;
+                $noticeRecord->type = $notice->type;
+                $noticeRecord->attribute = $notice->attribute;
+                $noticeRecord->message = $notice->message;
+                if ($noticeRecord->save(false)) {
+                    $notice->id = $noticeRecord->id;
+                }
+            }
+
+            $currentNoticeIds[] = $notice->id;
         }
 
-
-        foreach ($this->getNotices() as $notice) {
-            $noticeRecord = new OrderNoticeRecord();
-            $noticeRecord->orderId = $notice->orderId;
-            $noticeRecord->type = $notice->type;
-            $noticeRecord->attribute = $notice->attribute;
-            $noticeRecord->message = $notice->message;
-            $noticeRecord->save(false);
+        // Delete any notices that are no longer on the order
+        if ($deletableNoticeIds = array_diff($previousNoticeIds, $currentNoticeIds)) {
+            OrderNoticeRecord::deleteAll(['id' => $deletableNoticeIds]);
         }
     }
 

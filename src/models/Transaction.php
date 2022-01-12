@@ -14,6 +14,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\helpers\ArrayHelper;
 use DateTime;
+use yii\base\InvalidConfigException;
 
 /**
  * Class Transaction
@@ -52,9 +53,9 @@ class Transaction extends Model
     public ?int $userId = null;
 
     /**
-     * @var string Hash
+     * @var string|null Hash
      */
-    public string $hash;
+    public ?string $hash = null;
 
     /**
      * @var int|null Gateway ID
@@ -62,9 +63,9 @@ class Transaction extends Model
     public ?int $gatewayId = null;
 
     /**
-     * @var string Currency
+     * @var string|null Currency
      */
-    public string $currency;
+    public ?string $currency = null;
 
     /**
      * The payment amount in the payment currency.
@@ -75,9 +76,9 @@ class Transaction extends Model
     public float $paymentAmount;
 
     /**
-     * @var string Payment currency
+     * @var string|null Payment currency
      */
-    public string $paymentCurrency;
+    public ?string $paymentCurrency = null;
 
     /**
      * @var float Payment Rate
@@ -85,9 +86,9 @@ class Transaction extends Model
     public float $paymentRate;
 
     /**
-     * @var string Transaction Type
+     * @var string|null Transaction Type
      */
-    public string $type;
+    public ?string $type = null;
 
     /**
      * The amount in the currency (which is the currency of the order)
@@ -97,24 +98,24 @@ class Transaction extends Model
     public float $amount;
 
     /**
-     * @var string Status
+     * @var string|null Status
      */
-    public string $status;
+    public ?string $status = null;
 
     /**
-     * @var string reference
+     * @var string|null reference
      */
-    public string $reference;
+    public ?string $reference = null;
 
     /**
-     * @var string Code
+     * @var string|null Code
      */
-    public string $code;
+    public ?string $code = null;
 
     /**
-     * @var string Message
+     * @var string|null Message
      */
-    public string $message;
+    public ?string $message = null;
 
     /**
      * @var string Note
@@ -139,7 +140,7 @@ class Transaction extends Model
     /**
      * @var Gateway|null
      */
-    private ?Gateway $_gateway;
+    private ?Gateway $_gateway = null;
 
     /**
      * @var Transaction|null
@@ -239,6 +240,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canCapture(): bool
     {
@@ -247,6 +249,7 @@ class Transaction extends Model
 
     /**
      * @return bool
+     * @throws InvalidConfigException
      */
     public function canRefund(): bool
     {
@@ -255,6 +258,7 @@ class Transaction extends Model
 
     /**
      * @return float
+     * @throws InvalidConfigException
      */
     public function getRefundableAmount(): float
     {
@@ -263,6 +267,7 @@ class Transaction extends Model
 
     /**
      * @return Transaction|null
+     * @throws InvalidConfigException
      */
     public function getParent(): ?Transaction
     {
@@ -275,10 +280,11 @@ class Transaction extends Model
 
     /**
      * @return Order|null
+     * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
     {
-        if (null === $this->_order) {
+        if (!isset($this->_order) && $this->orderId) {
             $this->_order = Plugin::getInstance()->getOrders()->getOrderById($this->orderId);
         }
 
@@ -296,6 +302,7 @@ class Transaction extends Model
 
     /**
      * @return Gateway|null
+     * @throws InvalidConfigException
      */
     public function getGateway(): ?Gateway
     {
@@ -318,14 +325,19 @@ class Transaction extends Model
      * Returns child transactions.
      *
      * @return Transaction[]
+     * @throws InvalidConfigException
      */
     public function getChildTransactions(): array
     {
+<<<<<<< HEAD
         if (null === $this->_children) {
+=======
+        if (!isset($this->_children) && $this->id) {
+>>>>>>> 4.0
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
-        return $this->_children;
+        return $this->_children ?? [];
     }
 
     /**

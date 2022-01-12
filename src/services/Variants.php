@@ -36,11 +36,18 @@ class Variants extends Component
      *
      * @param int $productId product ID
      * @param int|null $siteId Site ID for which to return the variants. Defaults to `null` which is current site.
+     * @param bool $includeDisabled
      * @return Variant[]
      */
-    public function getAllVariantsByProductId(int $productId, int $siteId = null): array
+    public function getAllVariantsByProductId(int $productId, int $siteId = null, bool $includeDisabled = true): array
     {
-        return Variant::find()->productId($productId)->status(null)->limit(null)->siteId($siteId)->all();
+        $variantQuery = Variant::find()->productId($productId)->limit(null)->siteId($siteId);
+
+        if ($includeDisabled) {
+            $variantQuery->status(null);
+        }
+
+        return $variantQuery->all();
     }
 
     /**

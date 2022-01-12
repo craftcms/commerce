@@ -104,7 +104,7 @@ class Countries extends Component
      */
     public function getAllCountries(): array
     {
-        if (null === $this->_countriesById) {
+        if (!isset($this->_countriesById)) {
             $results = $this->_createCountryQuery()->all();
 
             foreach ($results as $row) {
@@ -126,7 +126,7 @@ class Countries extends Component
     {
         $countries = $this->getAllCountries();
 
-        if (null === $this->_enabledCountriesById) {
+        if (!isset($this->_enabledCountriesById)) {
             $this->_enabledCountriesById = ArrayHelper::where($countries , 'enabled', true);
         }
 
@@ -141,7 +141,7 @@ class Countries extends Component
      */
     public function getCountriesByTaxZoneId(int $taxZoneId): array
     {
-        if (null === $this->_countriesByTaxZoneId) {
+        if (!isset($this->_countriesByTaxZoneId)) {
             $results = $this->_createCountryQuery()
                 ->addSelect(['taxZoneCountries.taxZoneId'])
                 ->innerJoin(Table::TAXZONE_COUNTRIES . ' taxZoneCountries', '[[countries.id]] = [[taxZoneCountries.countryId]]')
@@ -172,7 +172,7 @@ class Countries extends Component
      */
     public function getCountriesByShippingZoneId(int $shippingZoneId): array
     {
-        if (null === $this->_countriesByShippingZoneId) {
+        if (!isset($this->_countriesByShippingZoneId)) {
             $results = $this->_createCountryQuery()
                 ->addSelect(['shippingZoneCountries.shippingZoneId'])
                 ->innerJoin(Table::SHIPPINGZONE_COUNTRIES . ' shippingZoneCountries', '[[countries.id]] = [[shippingZoneCountries.countryId]]')

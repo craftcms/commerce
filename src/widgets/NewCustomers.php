@@ -45,7 +45,7 @@ class NewCustomers extends Widget
     /**
      * @var null|NewCustomersStat
      */
-    private ?NewCustomersStat $_stat;
+    private ?NewCustomersStat $_stat = null;
 
     /**
      * @inheritDoc

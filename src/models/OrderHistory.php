@@ -51,7 +51,7 @@ class OrderHistory extends Model
     /**
      * @var int|null New status ID
      */
-    public ?int $newStatusId;
+    public ?int $newStatusId = null;
 
     /**
      * @var int|null User ID

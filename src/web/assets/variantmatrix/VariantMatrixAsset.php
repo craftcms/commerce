@@ -31,7 +31,7 @@ class VariantMatrixAsset extends AssetBundle
         ];
 
         $this->js = [
-            'js/VariantMatrix.js',
+            'VariantMatrix.js',
         ];
 
         parent::init();

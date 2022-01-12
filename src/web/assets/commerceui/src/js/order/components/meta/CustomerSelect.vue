@@ -174,7 +174,7 @@
         }
 
         .vs__dropdown-menu {
-            border-radius: $paneBorderRadius;
+            border-radius: $largeBorderRadius;
             padding: 0;
 
             li:first-child {
