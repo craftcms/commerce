@@ -202,13 +202,14 @@
     ) }}
 
     {% set rateInput %}
-    <div class="flex">
+    <div>
         <div>
             {{ forms.text({
                 name: 'rate',
-                value: craft.app.formatter.asDecimal(taxRate.rate ? taxRate.rate * 100 : 0)  ~ '%',
+                value: craft.app.formatter.asDecimal(taxRate.rate ? taxRate.rate * 100 : 0),
                 errors: taxRate.getErrors('rate'),
                 required: true,
+                unit: percentSign,
             }) }}
         </div>
         <div>
@@ -227,8 +228,8 @@
     {{ forms.field({
         label: "Rate"|t('commerce'),
         instructions: "Enter a percentage like {ex1} or {ex2}."|t('commerce', {
-            ex1: "`#{0.05|percentage}`",
-            ex2: "`#{0.105|percentage}`",
+            ex1: "`5`",
+            ex2: "`#{10.5|number}`",
         }),
     }, rateInput) }}
 

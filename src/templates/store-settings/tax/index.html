@@ -5,13 +5,12 @@
 {% import "_includes/forms" as forms %}
 
 {% block content %}
+    <h2>{{ "Tax"|t('commerce') }}</h2>
 
-<h2>{{ "Tax"|t('commerce') }}</h2>
-
-        <form action="" method="post" accept-charset="UTF-8">
-            <input type="hidden" name="action" value="commerce/lite-tax/save-settings">
-            {{ redirectInput('commerce/store-settings/tax') }}
-            {{ csrfInput() }}
+    <form action="" method="post" accept-charset="UTF-8">
+        <input type="hidden" name="action" value="commerce/lite-tax/save-settings">
+        {{ redirectInput('commerce/store-settings/tax') }}
+        {{ csrfInput() }}
 
         {{ forms.textField({
             label: "Tax Name"|t('commerce'),
@@ -27,15 +26,16 @@
         {{ forms.textField({
             label: "Order Tax Rate"|t('commerce'),
             instructions: "Tax rate as a percentage of the total order cost (i.e. if the tax rate is {ex1} then enter {ex2})."|t('commerce', {
-                ex1: 0.05|percentage,
-                ex2: "`#{0.05|percentage}`",
+                ex1: 0.055|percentage(1),
+                ex2: "`#{5.5|number}`",
             }),
             id: 'taxRate',
             name: 'taxRate',
-            value: (settings.taxRate ?? 0)|percentage,
+            value: craft.app.formatter.asDecimal(settings.taxRate ? settings.taxRate * 100 : 0),
             class: 'code ltr',
             errors: settings.getErrors('taxRate'),
             required: true,
+            unit: percentSign,
         }) }}
 
         {{ forms.lightSwitchField({
@@ -47,6 +47,5 @@
         }) }}
 
         <input type="submit" class="btn submit" value="{{ 'Save'|t('commerce') }}">
-        </form>
-
+    </form>
 {% endblock %}

@@ -12,6 +12,7 @@ use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
+use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\web\Response;
 
@@ -51,7 +52,10 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxRate = $taxRate->rate;
         $settings->taxInclude = $taxRate->include;
 
-        return $this->renderTemplate('commerce/store-settings/tax/index', compact('settings'));
+        $variables = compact('settings');
+        $variables['percentSign'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+
+        return $this->renderTemplate('commerce/store-settings/tax/index', $variables);
     }
 
     /**
