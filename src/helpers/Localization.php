@@ -34,7 +34,7 @@ abstract class Localization extends \craft\helpers\Localization
             return (float)$number;
         }
 
-        $pct = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $pct = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $number = trim($number, "$pct \t\n\r\0\x0B");
 
         if ($number === '') {
