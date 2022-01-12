@@ -329,11 +329,7 @@ class Transaction extends Model
      */
     public function getChildTransactions(): array
     {
-<<<<<<< HEAD
-        if (null === $this->_children) {
-=======
         if (!isset($this->_children) && $this->id) {
->>>>>>> 4.0
             $this->_children = Plugin::getInstance()->getTransactions()->getChildrenByTransactionId($this->id);
         }
 
