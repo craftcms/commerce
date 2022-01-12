@@ -6,12 +6,12 @@
  */
 
 return [
-    '(%) off the discounted item price' => '(%) off the discounted item price',
-    '(%) off the original item price' => '(%) off the original item price',
-    '(%) off total discounted price (Deprecated)' => '(%) off total discounted price (Deprecated)',
-    '(%) off total discounted price and shipping total (Deprecated)' => '(%) off total discounted price and shipping total (Deprecated)',
-    '(%) off total original price (Deprecated)' => '(%) off total original price (Deprecated)',
-    '(%) off total original price and shipping total (Deprecated)' => '(%) off total original price and shipping total (Deprecated)',
+    '{pct} off the discounted item price' => '{pct} off the discounted item price',
+    '{pct} off the original item price' => '{pct} off the original item price',
+    '{pct} off total discounted price (Deprecated)' => '{pct} off total discounted price (Deprecated)',
+    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} off total discounted price and shipping total (Deprecated)',
+    '{pct} off total original price (Deprecated)' => '{pct} off total original price (Deprecated)',
+    '{pct} off total original price and shipping total (Deprecated)' => '{pct} off total original price and shipping total (Deprecated)',
     '(Purchasable)' => '(Purchasable)',
     '(Trashed)' => '(Trashed)',
     '(new price)' => '(new price)',

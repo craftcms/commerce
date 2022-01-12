@@ -461,8 +461,18 @@
                     id: 'percentageOffSubject',
                     name: 'percentageOffSubject',
                     options: [
-                        {label: "(%) off the discounted item price"|t('commerce'), value: 'discounted'},
-                        {label: "(%) off the original item price"|t('commerce'), value: 'original'}
+                        {
+                            label: "{pct} off the discounted item price"|t('commerce', {
+                                pct: percentSymbol,
+                            }),
+                            value: 'discounted',
+                        },
+                        {
+                            label: "{pct} off the original item price"|t('commerce', {
+                                pct: percentSymbol,
+                            }),
+                            value: 'original',
+                        },
                     ],
                     value: discount.percentageOffSubject
                 }) }}
