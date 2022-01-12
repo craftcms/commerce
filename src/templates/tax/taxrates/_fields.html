@@ -207,6 +207,8 @@
             {{ forms.text({
                 name: 'rate',
                 value: ((taxRate.rate ?? 0) * 100)|number,
+                class: 'code ltr',
+                size: 5,
                 errors: taxRate.getErrors('rate'),
                 required: true,
                 unit: percentSymbol,

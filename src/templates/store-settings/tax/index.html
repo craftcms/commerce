@@ -33,6 +33,7 @@
             name: 'taxRate',
             value: ((settings.taxRate ?? 0) * 100)|number,
             class: 'code ltr',
+            size: 5,
             errors: settings.getErrors('taxRate'),
             required: true,
             unit: percentSymbol,
