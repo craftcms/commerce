@@ -54,4 +54,25 @@ abstract class Localization extends \craft\helpers\Localization
 
         return $number;
     }
+
+    /**
+     * Return value as a percentage.
+     *
+     * Decimal precision is dynamically calculated when `$decimals` is `null`.
+     *
+     * @param mixed $value the value to be formatted. It must be a factor e.g. `0.75` will result in `75%`.
+     * @param int|null $decimals the number of digits after the decimal point.
+     * @param array $options optional configuration for the number formatter. This parameter will be merged with [[numberFormatterOptions]].
+     * @param array $textOptions optional configuration for the number formatter. This parameter will be merged with [[numberFormatterTextOptions]].
+     * @return string the formatted result.
+     */
+    public static function asPercent($value, $decimals = null, $options = [], $textOptions = []): string
+    {
+        if ($decimals === null) {
+            $fullValue = ($value * 100);
+            $decimals = strpos($fullValue, '.') !== false ? strlen($fullValue) - strpos($fullValue, '.') - 1 : 0;
+        }
+
+        return Craft::$app->getFormatter()->asPercent($value, $decimals, $options, $textOptions);
+    }
 }
