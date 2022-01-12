@@ -1094,24 +1094,6 @@ class Order extends Element
             }
         }
 
-        if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetCartShippingMethodOption) {
-            $availableMethodOptions = $this->getAvailableShippingMethodOptions();
-            if (!$this->shippingMethodHandle || !isset($availableMethodOptions[$this->shippingMethodHandle])) {
-                $this->shippingMethodHandle = ArrayHelper::firstKey($availableMethodOptions);
-            if (!$this->shippingAddressId) {
-                $hasPrimaryShippingAddress = $this->getCustomer() && $this->getCustomer()->primaryShippingAddressId;
-                if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryShippingAddressId, $this->customerId))) {
-                    $this->setShippingAddress($shippingAddress);
-                }
-            }
-            if (!$this->billingAddressId) {
-                $hasPrimaryBillingAddress = $this->getCustomer() && $this->getCustomer()->primaryBillingAddressId;
-                if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndCustomerId($this->getCustomer()->primaryBillingAddressId, $this->customerId))) {
-                    $this->setBillingAddress($billingAddress);
-                }
-            }
-        }
-
         if ($this->orderLanguage === null) {
             $this->orderLanguage = Craft::$app->language;
         }
