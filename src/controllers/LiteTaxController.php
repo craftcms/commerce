@@ -53,7 +53,7 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxInclude = $taxRate->include;
 
         $variables = compact('settings');
-        $variables['percentSign'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         return $this->renderTemplate('commerce/store-settings/tax/index', $variables);
     }
