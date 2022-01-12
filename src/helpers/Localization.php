@@ -38,7 +38,7 @@ abstract class Localization extends \craft\helpers\Localization
 
         // Is there a % symbol?
         $pct = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        if ($trimmedPct = (($trimmedNumber = trim($number, "$pct \t\n\r\0\x0B")) !== $number)) {
+        if (($trimmedNumber = trim($number, "$pct \t\n\r\0\x0B")) !== $number) {
             $number = $trimmedNumber;
         }
 
@@ -48,11 +48,7 @@ abstract class Localization extends \craft\helpers\Localization
 
         $number = (float)static::normalizeNumber($number);
 
-        if ($trimmedPct || $number >= 1) {
-            $number /= 100;
-        }
-
-        return $number;
+        return $number / 100;
     }
 
     /**
