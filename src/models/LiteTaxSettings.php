@@ -7,8 +7,8 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
+use craft\commerce\helpers\Localization;
 
 /**
  * Class Lite Tax Settings
@@ -53,6 +53,6 @@ class LiteTaxSettings extends Model
      */
     public function getTaxRateAsPercent(): string
     {
-        return Craft::$app->getFormatter()->asPercent($this->taxRate);
+        Localization::formatAsPercentage($this->taxRate);
     }
 }
