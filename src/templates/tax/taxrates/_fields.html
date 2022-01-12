@@ -206,7 +206,7 @@
         <div>
             {{ forms.text({
                 name: 'rate',
-                value: craft.app.formatter.asDecimal(taxRate.rate ? taxRate.rate * 100 : 0),
+                value: ((taxRate.rate ?? 0) * 100)|number,
                 errors: taxRate.getErrors('rate'),
                 required: true,
                 unit: percentSymbol,

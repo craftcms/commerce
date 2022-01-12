@@ -31,7 +31,7 @@
             }),
             id: 'taxRate',
             name: 'taxRate',
-            value: craft.app.formatter.asDecimal(settings.taxRate ? settings.taxRate * 100 : 0),
+            value: ((settings.taxRate ?? 0) * 100)|number,
             class: 'code ltr',
             errors: settings.getErrors('taxRate'),
             required: true,
