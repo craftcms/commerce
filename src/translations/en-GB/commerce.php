@@ -1037,7 +1037,7 @@ return [
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'The minimum the customer should spend on shipping. Set to zero to disable.',
     'The order is not valid.' => 'The order is not valid.',
     'The payment gateway that will be used for the subscription plan.' => 'The payment gateway that will be used for the subscription plan.',
-    'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.' => 'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.',
+    'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.' => 'The percentage value by which each item should be discounted, e.g. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.',
     'The previously-selected shipping method is no longer available.' => 'The previously-selected shipping method is no longer available.',
     'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}',
     'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'The price of {description} was reduced from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}',
