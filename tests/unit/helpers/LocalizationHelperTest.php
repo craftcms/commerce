@@ -10,6 +10,7 @@ namespace craftcommercetests\unit\helpers;
 use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\helpers\Localization;
+use craft\i18n\Locale;
 use UnitTester;
 
 /**
@@ -40,7 +41,7 @@ class LocalizationHelperTest extends Unit
      */
     public function normalizePercentageDataProvider(): array
     {
-        $pct = Craft::$app->getLocale()->getNumberSymbol(\craft\i18n\Locale::SYMBOL_PERCENT);
+        $pct = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         return [
             [0.0, null],
             [0.0, ''],

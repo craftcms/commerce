@@ -34,21 +34,14 @@ abstract class Localization extends \craft\helpers\Localization
             return (float)$number;
         }
 
-        $number = trim($number);
-
-        // Is there a % symbol?
         $pct = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        if (($trimmedNumber = trim($number, "$pct \t\n\r\0\x0B")) !== $number) {
-            $number = $trimmedNumber;
-        }
+        $number = trim($number, "$pct \t\n\r\0\x0B");
 
         if ($number === '') {
             return 0.0;
         }
 
-        $number = (float)static::normalizeNumber($number);
-
-        return $number / 100;
+        return static::normalizeNumber($number) / 100;
     }
 
     /**
