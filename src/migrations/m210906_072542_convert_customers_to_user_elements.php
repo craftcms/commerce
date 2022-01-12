@@ -23,7 +23,7 @@ class m210906_072542_convert_customers_to_user_elements extends Migration
     {
         $allUsersByCustomerId = (new Query())->from('{{%commerce_orders}} orders')
             ->select(['email', 'userId', 'customerId'])
-            ->innerJoin('{{%commerce_customers}} customers', 'customers.id = orders.customerId')
+            ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['not' , ['email' => null]])
             ->andWhere(['not' , ['email' => '']])
             ->indexBy('customerId')
