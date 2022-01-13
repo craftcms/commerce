@@ -323,7 +323,7 @@ class Discount extends Model
      */
     public function getPercentDiscountAsPercent(): string
     {
-        return Localization::formatAsPercentage(-($this->percentDiscount ?? 0));
+        return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
     /**
