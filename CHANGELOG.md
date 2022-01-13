@@ -1,6 +1,11 @@
 # Release Notes for Craft Commerce
 
-## 3.4.10 - 2021-01-12
+## 3.4.10.1 - 2022-01-13
+
+### Fixed
+- Fixed a bug where `craft\commerce\models\LiteTaxSettings::getTaxRateAsPercent()` wasn’t returning a value.
+
+## 3.4.10 - 2022-01-12
 
 ### Added
 - It’s now possible to completely disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
