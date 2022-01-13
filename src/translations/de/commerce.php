@@ -6,12 +6,12 @@
  */
 
 return [
-    '(%) off the discounted item price' => '(%) Nachlass vom reduzierten Artikelpreis',
-    '(%) off the original item price' => '(%) Nachlass vom ursprünglichen Artikelpreis',
-    '(%) off total discounted price (Deprecated)' => '(%) Rabatt vom gesamten reduzierten Preis (Veraltet)',
-    '(%) off total discounted price and shipping total (Deprecated)' => '(%) Rabatt auf den reduzierten Preis und die Gesamtversandkosten (veraltet)',
-    '(%) off total original price (Deprecated)' => '(%) Rabatt auf den Originalpreis (veraltet)',
-    '(%) off total original price and shipping total (Deprecated)' => '(%) Rabatt auf den Originalpreis und die Gesamtversandkosten (Veraltet)',
+    '{pct} off the discounted item price' => '{pct} Nachlass vom reduzierten Artikelpreis',
+    '{pct} off the original item price' => '{pct} Nachlass vom ursprünglichen Artikelpreis',
+    '{pct} off total discounted price (Deprecated)' => '{pct} Rabatt vom gesamten reduzierten Preis (Veraltet)',
+    '{pct} off total discounted price and shipping total (Deprecated)' => '{pct} Rabatt auf den reduzierten Preis und die Gesamtversandkosten (veraltet)',
+    '{pct} off total original price (Deprecated)' => '{pct} Rabatt auf den Originalpreis (veraltet)',
+    '{pct} off total original price and shipping total (Deprecated)' => '{pct} Rabatt auf den Originalpreis und die Gesamtversandkosten (Veraltet)',
     '(Purchasable)' => '(Kaufoption)',
     '(Trashed)' => '(Verworfen)',
     '(new price)' => '(neuer Preis)',
@@ -448,7 +448,7 @@ return [
     'End Date' => 'Enddatum',
     'Enter SKU' => 'Bestandseinheit (SKU) eingeben',
     'Enter a human-friendly name for this tax rate to be used in the control panel.' => 'Geben Sie einen verständlichen Namen für diesen Steuersatz ein, der im Control Panel verwendet werden soll.',
-    'Enter a numerical tax rate.' => 'Enter a numerical tax rate.',
+    'Enter a percentage like {ex1} or {ex2}.' => 'Geben Sie einen Prozentsatz ein, z. B. {ex1} oder {ex2}.',
     'Enter coupon code' => 'Gutscheincode eingeben',
     'Enter price' => 'Preis angeben',
     'Enter reference' => 'Referenz eingeben',
@@ -1015,7 +1015,7 @@ return [
     'Tax Zones' => 'Steuerzonen',
     'Tax category saved.' => 'Steuerklasse gespeichert.',
     'Tax category updated.' => 'Steuerklasse aktualisiert.',
-    'Tax rate as a percentage of the total order cost.' => 'Tax rate as a percentage of the total order cost.',
+    'Tax rate as a percentage of the total order cost (i.e. if the tax rate is {ex1} then enter {ex2}).' => 'Steuersätze als Prozentteil der Gesamtkosten der Bestellung (z.B. {ex2} eingeben, wenn der Steuersatz {ex1} beträgt).',
     'Tax rate saved.' => 'Steuersatz gespeichert.',
     'Tax zone saved.' => 'Steuerzone gespeichert.',
     'Tax' => 'Steuer',
@@ -1038,7 +1038,7 @@ return [
     'The minimum the customer should spend on shipping. Set to zero to disable.' => 'Der Minimalbetrag, den der Kunde für den Versand ausgeben soll. Zum Deaktivieren auf Null setzen.',
     'The order is not valid.' => 'Die Bestellung ist nicht gültig.',
     'The payment gateway that will be used for the subscription plan.' => 'Der Zahlungs-Gateway, der für den Abonnementplan verwendet wird.',
-    'The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B „4%“ für 4% Nachlass.
+    'The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places.' => 'Der Prozentwert, der von jedem Artikel nachgelassen werden soll. z.B {ex1} für {ex2} Nachlass.
 Prozentwerte sind auf zwei Dezimalstellen gerundet.',
     'The previously-selected shipping method is no longer available.' => 'Die zuvor gewählte Versandoption ist nicht mehr verfügbar.',
     'The price of {description} increased from {originalSalePriceAsCurrency} to {newSalePriceAsCurrency}' => 'Der Preis von {description} wurde von {originalSalePriceAsCurrency} auf {newSalePriceAsCurrency} erhöht',

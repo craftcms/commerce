@@ -1,11 +1,12 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.10 - 2021-01-12
 
 ### Added
-- Added the ability to enable/disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
+- It’s now possible to completely disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
 - Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
 - Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
+- Added `craft\commerce\helpers\Localization`.
 
 ### Fixed
 - Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.

@@ -202,32 +202,37 @@
     ) }}
 
     {% set rateInput %}
+    <div>
         <div>
-            <div>
-                {{ forms.text({
-                    name: 'rate',
-                    value: craft.app.formatter.asDecimal(taxRate.rate ? taxRate.rate * 100 : 0),
-                    errors: taxRate.getErrors('rate'),
-                    required: true,
-                    unit: percentSign,
-                }) }}
-            </div>
-            <div>
-                {{ forms.checkboxField({
-                    label: "Included in price?"|t('commerce'),
-                    name: 'include',
-                    checked: taxRate.include,
-                    toggle: '#removeIncludedContainer,#removeVatIncludedContainer',
-                    errors: taxRate.getErrors('include'),
-                    info: "Enable if this rate should be built into the taxable subject price instead of adding a cost to the order."|t('commerce'),
-                }) }}
-            </div>
+            {{ forms.text({
+                name: 'rate',
+                value: ((taxRate.rate ?? 0) * 100)|number,
+                class: 'code ltr',
+                size: 5,
+                errors: taxRate.getErrors('rate'),
+                required: true,
+                unit: percentSymbol,
+            }) }}
         </div>
+        <div>
+            {{ forms.checkboxField({
+                label: "Included in price?"|t('commerce'),
+                name: 'include',
+                checked: taxRate.include,
+                toggle: '#removeIncludedContainer,#removeVatIncludedContainer',
+                errors: taxRate.getErrors('include'),
+                info: "Enable if this rate should be built into the taxable subject price instead of adding a cost to the order."|t('commerce'),
+            }) }}
+        </div>
+    </div>
     {% endset %}
 
     {{ forms.field({
         label: "Rate"|t('commerce'),
-        instructions: "Enter a numerical tax rate."|t('commerce'),
+        instructions: "Enter a percentage like {ex1} or {ex2}."|t('commerce', {
+            ex1: "`5`",
+            ex2: "`#{10.5|number}`",
+        }),
     }, rateInput) }}
 
 <div id="removeIncludedContainer">
