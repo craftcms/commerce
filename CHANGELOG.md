@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where `craft\commerce\models\LiteTaxSettings::getTaxRateAsPercent()` wasn’t returning a value.
+
 ## 3.4.10 - 2021-01-12
 
 ### Added
