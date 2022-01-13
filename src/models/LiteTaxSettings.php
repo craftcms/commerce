@@ -53,6 +53,6 @@ class LiteTaxSettings extends Model
      */
     public function getTaxRateAsPercent(): string
     {
-        Localization::formatAsPercentage($this->taxRate);
+        return Localization::formatAsPercentage($this->taxRate);
     }
 }
