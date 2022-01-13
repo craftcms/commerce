@@ -52,7 +52,6 @@
             name: 'enabled',
             value: 1,
             on: discount.enabled,
-            checked: discount.enabled,
             errors: discount.getErrors('enabled')
         }) }}
     </div>
@@ -450,34 +449,42 @@
         }) }}
 
         {% set pctDiscountInput %}
-            <table class="inputs">
-                <tr>
-                    <td>
-                        {{ forms.text({
-                            id: 'percentDiscount',
-                            name: 'percentDiscount',
-                            size: 10,
-                            value: discount.percentDiscountAsPercent,
-                        }) }}
-                    </td>
-                    <td style="padding-left: 14px;">
-                        {{ forms.select({
-                            id: 'percentageOffSubject',
-                            name: 'percentageOffSubject',
-                            options: [
-                                {label: "(%) off the discounted item price"|t('commerce'), value: 'discounted'},
-                                {label: "(%) off the original item price"|t('commerce'), value: 'original'}
-                            ],
-                            value: discount.percentageOffSubject
-                        }) }}
-                    </td>
-                </tr>
-            </table>
+            <div class="flex">
+                {{ forms.text({
+                    id: 'percentDiscount',
+                    name: 'percentDiscount',
+                    value: (-(discount.percentDiscount ?? 0) * 100)|number,
+                    class: 'code ltr',
+                    size: 5,
+                }) }}
+                {{ forms.select({
+                    id: 'percentageOffSubject',
+                    name: 'percentageOffSubject',
+                    options: [
+                        {
+                            label: "{pct} off the discounted item price"|t('commerce', {
+                                pct: percentSymbol,
+                            }),
+                            value: 'discounted',
+                        },
+                        {
+                            label: "{pct} off the original item price"|t('commerce', {
+                                pct: percentSymbol,
+                            }),
+                            value: 'original',
+                        },
+                    ],
+                    value: discount.percentageOffSubject
+                }) }}
+            </div>
         {% endset %}
 
         {{ forms.field({
             label: "Per Item Percentage Off"|t('commerce'),
-            instructions: "The percentile value which should discount each item. i.e. “4%” for 4% off. Percentages are rounded to 2 decimal places."|t('commerce'),
+            instructions: "The percentile value which should discount each item. i.e. {ex1} for {ex2} off. Percentages are rounded to 2 decimal places."|t('commerce', {
+                ex1: "`10`",
+                ex2: 0.1|percentage,
+            }),
             id: 'percentDiscount',
             errors: discount.getErrors('percentDiscount'),
             tip: 'If you select the percentage to be  “off the discounted item price”, this will include the “Per Item Amount” as well as any other discounts that applied before this one.'|t('commerce')

@@ -417,18 +417,24 @@ class PaymentsController extends BaseFrontEndController
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $paymentAmount = $this->request->getBodyParam('paymentAmount');
-            } else {
+                $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
+            } else if ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+                $order->setPaymentAmount($paymentAmount);
             }
-
-            $order->setPaymentAmount($paymentAmount);
         }
 
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency, true);
-
-        if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
+        if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
+
+            if ($this->request->getAcceptsJson()) {
+                return $this->asJson([
+                    'error' => $error,
+                    'paymentFormErrors' => $paymentForm->getErrors(),
+                    $this->_cartVariableName => $this->cartArray($order),
+                ]);
+            }
+
             $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 

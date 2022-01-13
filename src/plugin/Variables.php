@@ -22,9 +22,10 @@ trait Variables
      * Returns the donation purchasable
      *
      * @return Donation The donation purchasable
+     * @todo in 4.0 change return to be nullable
      */
     public function getDonation(): Donation
     {
-        return Donation::find()->one();
+        return Donation::find()->status(null)->one();
     }
 }

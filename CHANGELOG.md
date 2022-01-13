@@ -1,5 +1,28 @@
 # Release Notes for Craft Commerce
 
+## 3.4.10.1 - 2022-01-13
+
+### Fixed
+- Fixed a bug where `craft\commerce\models\LiteTaxSettings::getTaxRateAsPercent()` wasn’t returning a value.
+
+## 3.4.10 - 2022-01-12
+
+### Added
+- It’s now possible to completely disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
+- Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
+- Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
+- Added `craft\commerce\helpers\Localization`.
+
+### Fixed
+- Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.
+- Fixed an error that could occur when saving a discount. ([#2660](https://github.com/craftcms/commerce/issues/2660))
+- Fixed a bug where partial payment errors weren’t getting returned correctly for Ajax requests to `commerce/payments/pay`.
+- Fixed an error that could occur when trying to refund an order. ([#2642](https://github.com/craftcms/commerce/pull/2642))
+- Fixed a bug where tax rates weren’t properly supporting localized number formats.
+
+### Security
+- Fixed XSS vulnerabilities.
+
 ## 3.4.9.3 - 2021-12-23
 
 ### Fixed
