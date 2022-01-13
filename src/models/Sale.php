@@ -184,7 +184,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsFlat(): string
     {
-        return $this->applyAmount !== 0 ? (string)($this->applyAmount * -1) : '0';
+        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
     /**
