@@ -7,9 +7,9 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
-use craft\commerce\helpers\Localization;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
@@ -176,7 +176,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        return Localization::formatAsPercentage(-($this->applyAmount ?? 0));
+        return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
     }
 
     /**
