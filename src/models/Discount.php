@@ -406,10 +406,8 @@ class Discount extends Model
                         if (!$order) {
                             $order = new Order();
                         }
-                        $orderDiscountConditionParams = [
-                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
-                        ];
-                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, Plugin::getInstance()->getDiscounts()->getOrderConditionParams($order))) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                         }
                     }

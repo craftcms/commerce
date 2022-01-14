@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed an error that could occur when saving a discount. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
 ## 3.4.10.1 - 2022-01-13
 
 ### Fixed

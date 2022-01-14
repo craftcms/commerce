@@ -1070,15 +1070,26 @@ class Discounts extends Component
     private function _isDiscountConditionFormulaValid(Order $order, Discount $discount): bool
     {
         if ($discount->orderConditionFormula) {
-            $fieldsAsArray = $order->getSerializedFieldValues();
-            $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
-            $orderConditionParams = [
-                'order' => array_merge($orderAsArray, $fieldsAsArray),
-            ];
-            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $orderConditionParams, 'Evaluate Order Discount Condition Formula');
+            return Plugin::getInstance()->getFormulas()->evaluateCondition($discount->orderConditionFormula, $this->getOrderConditionParams($order), 'Evaluate Order Discount Condition Formula');
         }
 
         return true;
+    }
+
+    /**
+     * Return condition params for order discount condition formula
+     *
+     * @param Order $order
+     * @return array
+     * @since 3.4.11
+     */
+    public function getOrderConditionParams(Order $order): array
+    {
+        $fieldsAsArray = $order->getSerializedFieldValues();
+        $orderAsArray = $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']);
+        return [
+            'order' => array_merge($orderAsArray, $fieldsAsArray),
+        ];
     }
 
     /**
