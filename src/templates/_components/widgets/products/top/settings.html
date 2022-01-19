@@ -1,13 +1,67 @@
 {% import "_includes/forms" as forms %}
 
 <div id="{{ id }}">
-  {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
+    {% include 'commerce/_components/widgets/_includes/_dateRangeField' with { id: namespaceId, widget: widget } %}
 
-  {{ forms.selectField({
-    label: 'Type'|t('commerce'),
-    id: 'type',
-    name: 'type',
-    value: widget.type,
-    options: typeOptions
-  }) }}
+    <div class="chart-type field">
+        {{ forms.selectField({
+            label: 'Type'|t('commerce'),
+            id: 'type',
+            name: 'type',
+            value: widget.type,
+            options: typeOptions
+        }) }}
+    </div>
+
+    <div class="revenue-options">
+        {% set checkboxes %}
+            {% for opt in revenueOptions %}
+                <div class="commerce-widget-revenue-options-check revenue-check">
+                    {{ forms.checkbox({
+                        label: opt.label,
+                        name: 'revenueOptions[]',
+                        value: opt.value,
+                        checked: opt.checked,
+                    }) }}
+                    {% if opt.instructions %}
+                        <p class="commerce-widget-revenue-options-instructions">{{ opt.instructions }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% endset %}
+        {{ forms.field({
+            label: 'Revenue Options'|t('commerce'),
+            id: 'revenue-options',
+            instructions: 'Choose adjustment values to include when calculating the product revenue total.'|t('commerce'),
+        }, checkboxes) }}
+    </div>
 </div>
+
+{% js %}
+    function {{ namespaceId|camel }}(disable=true) {
+        $('#{{ namespaceId }} .revenue-check [type="checkbox"]').each((i, c) => {
+            $(c).prop('disabled', disable ? 'disabled' : false);
+        });
+        $('#{{ namespaceId }} .revenue-check p, #{{ namespaceId }} .revenue-options .heading, #{{ namespaceId }} .revenue-options .instructions').each((i, c) => {
+            if (disable) {
+                $(c).addClass('disabled');
+            } else {
+                $(c).removeClass('disabled');
+            }
+        });
+    }
+
+    {% if not isRevenueOptionsEnabled %}
+        {{ namespaceId|camel }}(true);
+    {% endif %}
+
+    $('#{{ namespaceId }} .chart-type').on('change', e => {
+        var $_select = $(e.target);
+
+        if ($_select.val() == 'revenue') {
+            {{ namespaceId|camel }}(false);
+        } else {
+            {{ namespaceId|camel }}(true);
+        }
+    });
+{% endjs %}

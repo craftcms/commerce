@@ -12,21 +12,21 @@ return [
     [
         'name' => 'Commerce Orders',
         'type' => 'Link',
-        'url' => UrlHelper::cpUrl('commerce/orders')
+        'url' => UrlHelper::cpUrl('commerce/orders'),
     ],
     [
         'name' => 'Commerce Products',
         'type' => 'Link',
-        'url' => UrlHelper::cpUrl('commerce/products')
+        'url' => UrlHelper::cpUrl('commerce/products'),
     ],
     [
         'name' => 'Commerce Promotions',
         'type' => 'Link',
-        'url' => UrlHelper::cpUrl('commerce/promotions')
+        'url' => UrlHelper::cpUrl('commerce/promotions'),
     ],
     [
         'name' => 'Commerce Settings',
         'type' => 'Link',
-        'url' => UrlHelper::cpUrl('commerce/settings')
-    ]
+        'url' => UrlHelper::cpUrl('commerce/settings'),
+    ],
 ];

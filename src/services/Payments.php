@@ -19,6 +19,7 @@ use craft\commerce\errors\TransactionException;
 use craft\commerce\events\ProcessPaymentEvent;
 use craft\commerce\events\RefundTransactionEvent;
 use craft\commerce\events\TransactionEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Settings;
 use craft\commerce\models\Transaction;
@@ -333,7 +334,7 @@ class Payments extends Component
         // Raise 'beforeCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_BEFORE_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -342,7 +343,7 @@ class Payments extends Component
         // Raise 'afterCaptureTransaction' event
         if ($this->hasEventHandlers(self::EVENT_AFTER_CAPTURE_TRANSACTION)) {
             $this->trigger(self::EVENT_AFTER_CAPTURE_TRANSACTION, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -439,7 +440,7 @@ class Payments extends Component
 
         if ($this->hasEventHandlers(self::EVENT_AFTER_COMPLETE_PAYMENT)) {
             $this->trigger(self::EVENT_AFTER_COMPLETE_PAYMENT, new TransactionEvent([
-                'transaction' => $transaction
+                'transaction' => $transaction,
             ]));
         }
 
@@ -522,7 +523,7 @@ class Payments extends Component
             ->where([
                 'orderId' => $order->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
-                'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE]
+                'type' => [TransactionRecord::TYPE_AUTHORIZE, TransactionRecord::TYPE_PURCHASE, TransactionRecord::TYPE_CAPTURE],
             ])
             ->sum('amount');
     }
@@ -630,10 +631,13 @@ class Payments extends Component
             }
 
             $child = Plugin::getInstance()->getTransactions()->createTransaction(null, $parent, TransactionRecord::TYPE_REFUND);
+            $currency = Plugin::getInstance()->getCurrencies()->getCurrencyByIso($child->currency);
+
             // If amount is not supplied refund the full amount
-            $child->paymentAmount = $amount ?: $parent->getRefundableAmount();
+            $child->paymentAmount = Currency::round($amount, $currency) ?: $parent->getRefundableAmount();
+
             // Calculate amount in the primary currency
-            $child->amount = $child->paymentAmount / $parent->paymentRate;
+            $child->amount = Currency::round($child->paymentAmount / $parent->paymentRate, $currency);
             $child->note = $note;
 
             $gateway = $parent->getGateway();
@@ -677,9 +681,9 @@ class Payments extends Component
     {
         if ($response->isSuccessful()) {
             $transaction->status = TransactionRecord::STATUS_SUCCESS;
-        } elseif ($response->isProcessing()) {
+        } else if ($response->isProcessing()) {
             $transaction->status = TransactionRecord::STATUS_PROCESSING;
-        } elseif ($response->isRedirect()) {
+        } else if ($response->isRedirect()) {
             $transaction->status = TransactionRecord::STATUS_REDIRECT;
         } else {
             $transaction->status = TransactionRecord::STATUS_FAILED;

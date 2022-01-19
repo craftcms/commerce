@@ -160,6 +160,11 @@ class Addresses extends Component
      */
     private $_addressesById = [];
 
+    /**
+     * @var Address|null
+     */
+    private $_storeLocationAddress;
+
 
     /**
      * Returns an address by its ID.
@@ -227,15 +232,17 @@ class Addresses extends Component
      */
     public function getStoreLocationAddress(): Address
     {
+        if ($this->_storeLocationAddress !== null) {
+            return $this->_storeLocationAddress;
+        }
+
         $result = $this->_createAddressQuery()
             ->where(['isStoreLocation' => true])
             ->one();
 
-        if (!$result) {
-            return new Address();
-        }
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
 
-        return new Address($result);
+        return $this->_storeLocationAddress;
     }
 
     /**
@@ -265,7 +272,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
 
@@ -316,9 +323,12 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_SAVE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_SAVE_ADDRESS, new AddressEvent([
                 'address' => $addressModel,
-                'isNew' => $isNewAddress
+                'isNew' => $isNewAddress,
             ]));
         }
+
+        // Clear cache
+        $this->_storeLocationAddress = null;
 
         return true;
     }
@@ -344,7 +354,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_BEFORE_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_BEFORE_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -354,7 +364,7 @@ class Addresses extends Component
         if ($this->hasEventHandlers(self::EVENT_AFTER_DELETE_ADDRESS)) {
             $this->trigger(self::EVENT_AFTER_DELETE_ADDRESS, new AddressEvent([
                 'address' => $address,
-                'isNew' => false
+                'isNew' => false,
             ]));
         }
 
@@ -447,11 +457,11 @@ class Addresses extends Component
                     '[[bo.billingAddressId]]' => null,
                     '[[beo.estimatedBillingAddressId]]' => null,
                     '[[addresses.isStoreLocation]]' => false,
-                ]
+                ],
             ]);
 
         $event = new PurgeAddressesEvent([
-            'addressesQuery' => $addresses
+            'addressesQuery' => $addresses,
         ]);
 
         //Raise the beforePurgeDeleteAddresses event
@@ -460,7 +470,7 @@ class Addresses extends Component
         }
 
         if ($event->isValid) {
-            foreach ($addresses->batch(500) as $address) {
+            foreach ($event->addressesQuery->batch(500) as $address) {
                 $ids = ArrayHelper::getColumn($address, 'id', false);
 
                 if (!empty($ids)) {
@@ -570,7 +580,9 @@ class Addresses extends Component
                 'addresses.custom3',
                 'addresses.custom4',
                 'addresses.isEstimated',
-                'addresses.isStoreLocation'
+                'addresses.isStoreLocation',
+                'addresses.dateCreated',
+                'addresses.dateUpdated',
             ])
             ->from([Table::ADDRESSES . ' addresses']);
     }

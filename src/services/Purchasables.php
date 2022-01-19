@@ -175,7 +175,7 @@ class Purchasables extends Component
         ];
 
         $event = new RegisterComponentTypesEvent([
-            'types' => $purchasableElementTypes
+            'types' => $purchasableElementTypes,
         ]);
         $this->trigger(self::EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES, $event);
 

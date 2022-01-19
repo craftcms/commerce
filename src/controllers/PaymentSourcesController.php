@@ -97,11 +97,11 @@ class PaymentSourcesController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             return $this->asJson([
                 'success' => true,
-                'paymentSource' => $paymentSource
+                'paymentSource' => $paymentSource,
             ]);
         }
 
-        $this->setSuccessFlash('Payment source created.');
+        $this->setSuccessFlash(Craft::t('commerce', 'Payment source created.'));
 
         return $this->redirectToPostedUrl();
     }

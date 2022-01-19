@@ -63,6 +63,13 @@ class Settings extends Model
     public $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Whether the first available shipping method option should be set automatically on carts.
+     *
+     * @group Cart
+     */
+    public $autoSetCartShippingMethodOption = false;
+
+    /**
      * @var bool Whether carts are allowed to be empty on checkout.
      * @group Cart
      * @since 2.2
@@ -77,7 +84,8 @@ class Settings extends Model
     public $allowCheckoutWithoutPayment = false;
 
     /**
-     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     * @var bool Whether [partial payment](https://craftcms.com/docs/commerce/3.x/making-payments.html#checkout-with-partial-payment)
+     * can be made from the front end when the gateway allows them.
      *
      * The default `false` does not allow partial payments on the front end.
      *
@@ -171,16 +179,16 @@ class Settings extends Model
      * <!DOCTYPE html>
      * <html>
      * <head>
-     *     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-     *     <title>Redirecting...</title>
+     *   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+     *   <title>Redirecting...</title>
      * </head>
      * <body onload="document.forms[0].submit();">
      * <form action="{{ actionUrl }}" method="post">
-     *     <p>Redirecting to payment page...</p>
-     *     <p>
-     *         {{ inputs|raw }}
-     *         <input type="submit" value="Continue">
-     *     </p>
+     *   <p>Redirecting to payment page...</p>
+     *   <p>
+     *     {{ inputs|raw }}
+     *     <input type="submit" value="Continue">
+     *   </p>
      * </form>
      * </body>
      * </html>
@@ -198,16 +206,7 @@ class Settings extends Model
     public $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var array Payment gateway settings indexed by each gateway’s handle.
-     *
-     * Check each gateway’s documentation for settings that may be stored.
-     *
-     * @group Payments
-     */
-    public $gatewaySettings = [];
-
-    /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
      *
@@ -424,7 +423,7 @@ class Settings extends Model
         return [
             'g' => Craft::t('commerce', 'Grams (g)'),
             'kg' => Craft::t('commerce', 'Kilograms (kg)'),
-            'lb' => Craft::t('commerce', 'Pounds (lb)')
+            'lb' => Craft::t('commerce', 'Pounds (lb)'),
         ];
     }
 
@@ -454,7 +453,7 @@ class Settings extends Model
         return [
             self::MINIMUM_TOTAL_PRICE_STRATEGY_DEFAULT => Craft::t('commerce', 'Default - Allow the price to be negative if discounts are greater than the order value.'),
             self::MINIMUM_TOTAL_PRICE_STRATEGY_ZERO => Craft::t('commerce', 'Zero - Minimum price is zero if discounts are greater than the order value.'),
-            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.')
+            self::MINIMUM_TOTAL_PRICE_STRATEGY_SHIPPING => Craft::t('commerce', 'Shipping - Minimum cost is the shipping cost, if the order price is less than the shipping cost.'),
         ];
     }
 
@@ -514,13 +513,11 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules [] = [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'];
-
-        return $rules;
+        return [
+            [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
+        ];
     }
 
     /**

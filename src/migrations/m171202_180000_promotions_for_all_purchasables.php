@@ -113,7 +113,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
                     'sourceId' => $product->id,
                     'targetId' => $newCategoriesByProductTypId[$product->getType()->id],
                     'sortOrder' => 1,
-                    'sourceSiteId' => $product->siteId
+                    'sourceSiteId' => $product->siteId,
                 ];
                 $db->createCommand()
                     ->insert('{{%relations}}', $data)
@@ -368,7 +368,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             'instructions' => 'Categories used for sales and discount promotions.',
             'translationMethod' => Field::TRANSLATION_METHOD_NONE,
             'translationKeyFormat' => null,
-            'settings' => $settings
+            'settings' => $settings,
         ]);
 
         $result = Craft::$app->getFields()->saveField($field);
@@ -383,7 +383,7 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
             $newTab = new FieldLayoutTab([
                 'name' => 'Promotions',
                 'layoutId' => $fieldLayout->id,
-                'sortOrder' => 99
+                'sortOrder' => 99,
             ]);
 
             $field->required = false;

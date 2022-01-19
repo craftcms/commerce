@@ -26,7 +26,7 @@ class m201005_169999_add_orderSiteId extends Migration
         }
 
         $this->update('{{%commerce_orders}}', [
-            'orderSiteId' => Craft::$app->getSites()->getPrimarySite()->id
+            'orderSiteId' => Craft::$app->getSites()->getPrimarySite()->id,
         ], [
             'orderSiteId' => null,
         ], [], false);

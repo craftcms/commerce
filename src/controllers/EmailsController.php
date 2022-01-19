@@ -68,9 +68,9 @@ class EmailsController extends BaseAdminController
         $variables['pdfList'] = $pdfList;
 
         $emailLanguageOptions = [
-            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.')
+            EmailRecord::LOCALE_ORDER_LANGUAGE => Craft::t('commerce', 'The language the order was made in.'),
         ];
-        
+
         $variables['emailLanguageOptions'] = array_merge($emailLanguageOptions, LocaleHelper::getSiteAndOtherLanguages());
 
         return $this->renderTemplate('commerce/settings/emails/_edit', $variables);

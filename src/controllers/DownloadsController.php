@@ -82,7 +82,7 @@ class DownloadsController extends BaseFrontEndController
         }
 
         return Craft::$app->getResponse()->sendContentAsFile($renderedPdf, $fileName . '.pdf', [
-            'mimeType' => 'application/pdf'
+            'mimeType' => 'application/pdf',
         ]);
     }
 }

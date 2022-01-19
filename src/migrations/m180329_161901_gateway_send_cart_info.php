@@ -37,7 +37,7 @@ class m180329_161901_gateway_send_cart_info extends Migration
                     'craft\commerce\paypal\gateways\PayPalRest',
                     'craft\commerce\sagepay\gateways\Direct',
                     'craft\commerce\sagepay\gateways\Server',
-                ]
+                ],
             ])
             ->all($this->db);
 

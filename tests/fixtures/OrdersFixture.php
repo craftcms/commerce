@@ -99,7 +99,6 @@ class OrdersFixture extends BaseElementFixture
             if (!$result = Craft::$app->getElements()->saveElement($element)) {
                 throw new InvalidElementException($element, implode(' ', $element->getErrorSummary(true)));
             }
-
         }
 
         // Reset private variables

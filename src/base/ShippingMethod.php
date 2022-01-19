@@ -11,6 +11,7 @@ use craft\commerce\base\Model as BaseModel;
 use craft\commerce\elements\Order;
 use craft\commerce\errors\NotImplementedException;
 use craft\commerce\Plugin;
+use DateTime;
 
 /**
  * Base ShippingMethod
@@ -39,6 +40,18 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
      * @var bool Enabled
      */
     public $enabled;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateCreated;
+
+    /**
+     * @var DateTime|null
+     * @since 3.4
+     */
+    public $dateUpdated;
 
     /**
      * @var bool Is this the shipping method for the lite edition.

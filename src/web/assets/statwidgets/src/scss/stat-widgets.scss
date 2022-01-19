@@ -61,3 +61,14 @@
     width: 12px;
   }
 }
+
+.commerce-widget-revenue-options-check {
+    margin-top: 4px;
+  }
+
+
+.revenue-options > .field > .input  p.commerce-widget-revenue-options-instructions {
+    color: $lightTextColor;
+    margin: 0 !important;
+    padding-left: 21px;
+}

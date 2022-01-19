@@ -81,7 +81,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => null
+                        $this->_cartVariableName => null,
                     ]);
                 }
 
@@ -112,7 +112,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -127,7 +127,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -142,7 +142,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -157,7 +157,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -192,7 +192,7 @@ class PaymentsController extends BaseFrontEndController
                 if ($this->request->getAcceptsJson()) {
                     return $this->asJson([
                         'error' => $error,
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -234,7 +234,7 @@ class PaymentsController extends BaseFrontEndController
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -293,7 +293,7 @@ class PaymentsController extends BaseFrontEndController
                         return $this->asJson([
                             'error' => $error,
                             'paymentFormErrors' => $paymentForm->getErrors(),
-                            $this->_cartVariableName => $this->cartArray($order)
+                            $this->_cartVariableName => $this->cartArray($order),
                         ]);
                     }
 
@@ -321,7 +321,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -332,13 +332,13 @@ class PaymentsController extends BaseFrontEndController
         }
 
         // Does the order require shipping
-        if ($plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->getShippingMethod()) {
+        if ($order->hasShippableItems() && $plugin->getSettings()->requireShippingMethodSelectionAtCheckout && !$order->shippingMethodHandle) {
             $error = Craft::t('commerce', 'There is no shipping method selected for this order.');
 
             if ($this->request->getAcceptsJson()) {
                 return $this->asJson([
                     'error' => $error,
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -392,7 +392,7 @@ class PaymentsController extends BaseFrontEndController
                     return $this->asJson([
                         'error' => $error,
                         'paymentFormErrors' => $paymentForm->getErrors(),
-                        $this->_cartVariableName => $this->cartArray($order)
+                        $this->_cartVariableName => $this->cartArray($order),
                     ]);
                 }
 
@@ -417,18 +417,24 @@ class PaymentsController extends BaseFrontEndController
 
         if ($partialAllowed) {
             if ($isCpAndAllowed) {
-                $paymentAmount = $this->request->getBodyParam('paymentAmount');
-            } else {
+                $order->setPaymentAmount($this->request->getBodyParam('paymentAmount'));
+            } else if ($this->request->getBodyParam('paymentAmount')) {
                 $paymentAmount = $this->request->getValidatedBodyParam('paymentAmount');
+                $order->setPaymentAmount($paymentAmount);
             }
-
-            $order->setPaymentAmount($paymentAmount);
         }
 
-        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($order->getPaymentAmount(), $order->paymentCurrency, $order->currency, true);
-
-        if (!$partialAllowed && $paymentAmountInPrimaryCurrency < $order->getOutstandingBalance()) {
+        if ((!$partialAllowed || !$gateway->supportsPartialPayment()) && $order->isPaymentAmountPartial()) {
             $error = Craft::t('commerce', 'Partial payment not allowed.');
+
+            if ($this->request->getAcceptsJson()) {
+                return $this->asJson([
+                    'error' => $error,
+                    'paymentFormErrors' => $paymentForm->getErrors(),
+                    $this->_cartVariableName => $this->cartArray($order),
+                ]);
+            }
+
             $this->setFailFlash($error);
             Craft::$app->getUrlManager()->setRouteParams(['paymentForm' => $paymentForm, $this->_cartVariableName => $order]);
 
@@ -453,7 +459,7 @@ class PaymentsController extends BaseFrontEndController
                 return $this->asJson([
                     'error' => $error,
                     'paymentFormErrors' => $paymentForm->getErrors(),
-                    $this->_cartVariableName => $this->cartArray($order)
+                    $this->_cartVariableName => $this->cartArray($order),
                 ]);
             }
 
@@ -467,7 +473,7 @@ class PaymentsController extends BaseFrontEndController
         if ($this->request->getAcceptsJson()) {
             $response = [
                 'success' => true,
-                $this->_cartVariableName => $this->cartArray($order)
+                $this->_cartVariableName => $this->cartArray($order),
             ];
 
             if ($redirect) {

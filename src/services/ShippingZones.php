@@ -220,7 +220,9 @@ class ShippingZones extends Component
                 'name',
                 'description',
                 'isCountryBased',
-                'zipCodeConditionFormula'
+                'zipCodeConditionFormula',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->orderBy('name')
             ->from([Table::SHIPPINGZONES]);

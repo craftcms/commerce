@@ -99,11 +99,6 @@ class ProductType extends Model
     public $descriptionFormat;
 
     /**
-     * @var string Line item format
-     */
-    public $lineItemFormat;
-
-    /**
      * @var string Template
      */
     public $template;
@@ -138,6 +133,10 @@ class ProductType extends Model
      */
     private $_siteSettings;
 
+    /**
+     * @var string Line item format
+     */
+    private $_lineItemFormat;
 
     /**
      * @return null|string
@@ -150,29 +149,33 @@ class ProductType extends Model
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true];
-        $rules[] = [['name', 'handle'], 'required'];
-        $rules[] = [
-            ['titleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasVariantTitleField && $model->hasVariants;
-            }
+        return [
+            [['id', 'fieldLayoutId', 'variantFieldLayoutId'], 'number', 'integerOnly' => true],
+            [['name', 'handle'], 'required'],
+            [
+                ['titleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasVariantTitleField && $model->hasVariants;
+                },
+            ],
+            [
+                ['productTitleFormat'],
+                'required',
+                'when' => static function($model) {
+                    /** @var static $model */
+                    return !$model->hasProductTitleField;
+                },
+            ],
+            [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255],
+            [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'],
+            [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']],
+            ['fieldLayout', 'validateFieldLayout'],
+            ['variantFieldLayout', 'validateVariantFieldLayout'],
         ];
-        $rules[] = [
-            ['productTitleFormat'], 'required', 'when' => static function($model) {
-                /** @var static $model */
-                return !$model->hasProductTitleField;
-            }
-        ];
-        $rules[] = [['name', 'handle', 'descriptionFormat'], 'string', 'max' => 255];
-        $rules[] = [['handle'], UniqueValidator::class, 'targetClass' => ProductTypeRecord::class, 'targetAttribute' => ['handle'], 'message' => 'Not Unique'];
-        $rules[] = [['handle'], HandleValidator::class, 'reservedWords' => ['id', 'dateCreated', 'dateUpdated', 'uid', 'title']];
-
-        return $rules;
     }
 
     /**
@@ -326,6 +329,47 @@ class ProductType extends Model
     }
 
     /**
+     * Validate the field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateFieldLayout(): void
+    {
+        $fieldLayout = $this->getFieldLayout();
+
+        $fieldLayout->reservedFieldHandles = [
+            'cheapestVariant',
+            'defaultVariant',
+            'variants',
+        ];
+
+        if (!$fieldLayout->validate()) {
+            $this->addModelErrors($fieldLayout, 'fieldLayout');
+        }
+    }
+
+    /**
+     * Validate the variant field layout to make sure no fields with reserved words are used.
+     *
+     * @since 3.4
+     */
+    public function validateVariantFieldLayout(): void
+    {
+        $variantFieldLayout = $this->getVariantFieldLayout();
+
+        $variantFieldLayout->reservedFieldHandles = [
+            'description',
+            'price',
+            'product',
+            'sku',
+        ];
+
+        if (!$variantFieldLayout->validate()) {
+            $this->addModelErrors($variantFieldLayout, 'variantFieldLayout');
+        }
+    }
+
+    /**
      * @return FieldLayout
      */
     public function getVariantFieldLayout(): FieldLayout
@@ -333,6 +377,26 @@ class ProductType extends Model
         /** @var FieldLayoutBehavior $behavior */
         $behavior = $this->getBehavior('variantFieldLayout');
         return $behavior->getFieldLayout();
+    }
+
+    /**
+     * @return string
+     * @deprecated 3.4.7
+     */
+    public function getLineItemFormat(): string
+    {
+        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
+        return $this->_lineItemFormat;
+    }
+
+    /**
+     * @param $lineItemFormat
+     * @deprecated 3.4.7
+     */
+    public function setLineItemFormat($lineItemFormat): void
+    {
+        Craft::$app->getDeprecator()->log('ProductType::lineItemFormat', 'The ProductType::lineItemFormat property was never used by Craft Commerce and should not be used.');
+        $this->_lineItemFormat = (string)$lineItemFormat;
     }
 
     /**
@@ -344,12 +408,12 @@ class ProductType extends Model
             'productFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Product::class,
-                'idAttribute' => 'fieldLayoutId'
+                'idAttribute' => 'fieldLayoutId',
             ],
             'variantFieldLayout' => [
                 'class' => FieldLayoutBehavior::class,
                 'elementType' => Variant::class,
-                'idAttribute' => 'variantFieldLayoutId'
+                'idAttribute' => 'variantFieldLayoutId',
             ],
         ];
     }

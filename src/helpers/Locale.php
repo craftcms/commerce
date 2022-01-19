@@ -33,7 +33,7 @@ class Locale
 
     /**
      * Get the created sites languages and all languages.
-     * 
+     *
      * @return array
      */
     public static function getSiteAndOtherLanguages()

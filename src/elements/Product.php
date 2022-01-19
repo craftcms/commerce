@@ -168,14 +168,14 @@ class Product extends Element
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;
@@ -187,7 +187,7 @@ class Product extends Element
     public function currencyAttributes(): array
     {
         return [
-            'defaultPrice'
+            'defaultPrice',
         ];
     }
 
@@ -298,15 +298,18 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getIsEditable(): bool
+    protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -642,7 +645,7 @@ class Product extends Element
 
             return [
                 'elementType' => Variant::class,
-                'map' => $map
+                'map' => $map,
             ];
         }
 
@@ -670,38 +673,78 @@ class Product extends Element
             self::STATUS_LIVE => Craft::t('commerce', 'Live'),
             self::STATUS_PENDING => Craft::t('commerce', 'Pending'),
             self::STATUS_EXPIRED => Craft::t('commerce', 'Expired'),
-            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled')
+            self::STATUS_DISABLED => Craft::t('commerce', 'Disabled'),
         ];
     }
 
     /**
      * @inheritdoc
      */
-    public function getEditorHtml(): string
+    public function getSidebarHtml(): string
     {
-        $viewService = Craft::$app->getView();
-        $html = parent::getEditorHtml();
-        $html .= $viewService->renderTemplateMacro('commerce/products/_fields', 'behavioralMetaFields', [$this]);
+        $html = [];
 
-        $productType = $this->getType();
+        // General Meta fields
+        $topMetaHtml = Craft::$app->getView()->renderObjectTemplate('{% import "commerce/products/_fields" as productFields %}{{ productFields.generalMetaFields(product) }}', null, ['product' => $this], Craft::$app->getView()::TEMPLATE_MODE_CP);
 
-        if (!$productType->hasVariants) {
-            /** @var Variant $variant */
-            $variant = ArrayHelper::firstValue($this->getVariants());
-            $namespace = $viewService->getNamespace();
-            $newNamespace = 'variants[' . ($variant->id ?: 'new1') . ']';
-            $viewService->setNamespace($newNamespace);
-            $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'generalVariantFields', [$variant, $variant->getProduct()]));
+        // Enabled field
+        $topMetaHtml .= Cp::lightswitchFieldHtml([
+            'label' => Craft::t('commerce', 'Enabled'),
+            'id' => 'enabled',
+            'name' => 'enabled',
+            'on' => $this->enabled,
+        ]);
 
-            if ($productType->hasDimensions) {
-                $html .= $viewService->namespaceInputs($viewService->renderTemplateMacro('commerce/products/_fields', 'dimensionVariantFields', [$variant]));
-            }
-
-            $viewService->setNamespace($namespace);
-            $viewService->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".elementeditor").find(".meta"));');
+        // Multi site enabled
+        if (Craft::$app->getIsMultiSite()) {
+            $topMetaHtml .= Cp::lightswitchFieldHtml([
+                'label' => Craft::t('commerce', 'Enabled for site'),
+                'id' => 'enabledForSite',
+                'name' => 'enabledForSite',
+                'on' => $this->enabledForSite,
+            ]);
         }
 
-        return $html;
+        $html[] = Html::tag('div', $topMetaHtml, ['class' => 'meta']);
+
+        $html[] = Html::tag('div', Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.behavioralMetaFields(product) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        ), ['class' => 'meta']);
+
+        $html[] = Craft::$app->getView()->renderObjectTemplate(
+            '{% import "commerce/products/_fields" as productFields %}{{ productFields.singleVariantFields(product, product.getType()) }}',
+            null,
+            ['product' => $this],
+            Craft::$app->getView()::TEMPLATE_MODE_CP
+        );
+
+        $html[] = parent::getSidebarHtml();
+
+        // Custom styling
+        $html[] = Html::style('.element-editor > .ee-body > .ee-sidebar > .meta + .meta:not(.read-only) { margin-top: 14px; }');
+
+        if (!$this->getType()->hasVariants) {
+            Craft::$app->getView()->registerJs('Craft.Commerce.initUnlimitedStockCheckbox($(".ee-sidebar"));');
+        }
+
+        return implode('', $html);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMetadata(): array
+    {
+        $metadata = parent::getMetadata();
+
+        if (array_key_exists(Craft::t('app', 'Status'), $metadata)) {
+            unset($metadata[Craft::t('app', 'Status')]);
+        }
+
+        return $metadata;
     }
 
     /**
@@ -895,54 +938,49 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function defineRules(): array
+    protected function defineRules(): array
     {
-        $rules = parent::defineRules();
-
-        $rules[] = [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true];
-        $rules[] = [['postDate', 'expiryDate'], DateTimeValidator::class];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                if (empty($this->getVariants())) {
-                    $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
-                }
-            },
-            'skipOnEmpty' => false,
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                $skus = [];
-                foreach ($this->getVariants() as $variant) {
-                    if (isset($skus[$variant->sku])) {
-                        $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
-                        break;
+        return array_merge(parent::defineRules(), [
+            [['typeId', 'shippingCategoryId', 'taxCategoryId'], 'number', 'integerOnly' => true],
+            [['postDate', 'expiryDate'], DateTimeValidator::class],
+            [
+                ['variants'],
+                function() {
+                    if (empty($this->getVariants())) {
+                        $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
-                    $skus[$variant->sku] = true;
-                }
-            },
-            'on' => self::SCENARIO_LIVE,
-        ];
-
-        $rules[] = [
-            ['variants'],
-            function() {
-                foreach ($this->getVariants() as $i => $variant) {
-                    if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
-                        $variant->setScenario(self::SCENARIO_LIVE);
+                },
+                'skipOnEmpty' => false,
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    $skus = [];
+                    foreach ($this->getVariants() as $variant) {
+                        if (isset($skus[$variant->sku])) {
+                            $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
+                            break;
+                        }
+                        $skus[$variant->sku] = true;
                     }
-                    if (!$variant->validate()) {
-                        $this->addModelErrors($variant, "variants[$i]");
+                },
+                'on' => self::SCENARIO_LIVE,
+            ],
+            [
+                ['variants'],
+                function() {
+                    foreach ($this->getVariants() as $i => $variant) {
+                        if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
+                            $variant->setScenario(self::SCENARIO_LIVE);
+                        }
+                        if (!$variant->validate()) {
+                            $this->addModelErrors($variant, "variants[$i]");
+                        }
                     }
-                }
-            },
-        ];
-
-        return $rules;
+                },
+            ],
+        ]);
     }
 
     /**
@@ -1020,10 +1058,10 @@ class Product extends Element
                 'label' => Craft::t('commerce', 'All products'),
                 'criteria' => [
                     'typeId' => $productTypeIds,
-                    'editable' => $editable
+                    'editable' => $editable,
                 ],
-                'defaultSort' => ['postDate', 'desc']
-            ]
+                'defaultSort' => ['postDate', 'desc'],
+            ],
         ];
 
         $sources[] = ['heading' => Craft::t('commerce', 'Product Types')];
@@ -1037,9 +1075,9 @@ class Product extends Element
                 'label' => Craft::t('site', $productType->name),
                 'data' => [
                     'handle' => $productType->handle,
-                    'editable' => $canEditProducts
+                    'editable' => $canEditProducts,
                 ],
-                'criteria' => ['typeId' => $productType->id, 'editable' => $editable]
+                'criteria' => ['typeId' => $productType->id, 'editable' => $editable],
             ];
         }
 
@@ -1080,7 +1118,7 @@ class Product extends Element
 
         // Copy Reference Tag
         $actions[] = Craft::$app->getElements()->createAction([
-            'type' => CopyReferenceTag::class
+            'type' => CopyReferenceTag::class,
         ]);
 
         // Restore
@@ -1128,7 +1166,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'title' => ['label' => Craft::t('commerce', 'Product')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -1150,7 +1188,7 @@ class Product extends Element
             'defaultLength' => ['label' => Craft::t('commerce', 'Length')],
             'defaultWidth' => ['label' => Craft::t('commerce', 'Width')],
             'defaultHeight' => ['label' => Craft::t('commerce', 'Height')],
-            'variants' => ['label' => Craft::t('commerce', 'Variants')]
+            'variants' => ['label' => Craft::t('commerce', 'Variants')],
         ];
     }
 
@@ -1248,8 +1286,8 @@ class Product extends Element
                 'template' => (string)$productTypeSiteSettings[$siteId]->template,
                 'variables' => [
                     'product' => $this,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -1268,7 +1306,7 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {

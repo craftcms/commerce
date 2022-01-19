@@ -42,7 +42,7 @@ class ProjectConfigData
             $output['orders'] = [
                 'fieldLayouts' => [
                     $orderFieldLayout->uid => $orderFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
@@ -56,11 +56,11 @@ class ProjectConfigData
             $output['subscriptions'] = [
                 'fieldLayouts' => [
                     $subscriptionFieldLayout->uid => $subscriptionFieldLayoutConfig,
-                ]
+                ],
             ];
         }
 
-        return $output;
+        return array_filter($output);
     }
 
     /**
@@ -116,7 +116,7 @@ class ProjectConfigData
                 'productTitleFormat',
                 'skuFormat',
                 'descriptionFormat',
-                'uid'
+                'uid',
             ])
             ->from([Table::PRODUCTTYPES . ' productTypes'])
             ->all();

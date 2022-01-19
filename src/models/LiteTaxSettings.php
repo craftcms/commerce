@@ -7,9 +7,8 @@
 
 namespace craft\commerce\models;
 
-use Craft;
 use craft\commerce\base\Model;
-use craft\i18n\Locale;
+use craft\commerce\helpers\Localization;
 
 /**
  * Class Lite Tax Settings
@@ -45,7 +44,7 @@ class LiteTaxSettings extends Model
         return [
             'taxRate',
             'taxName',
-            'taxInclude'
+            'taxInclude',
         ];
     }
 
@@ -54,8 +53,6 @@ class LiteTaxSettings extends Model
      */
     public function getTaxRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->taxRate * 100 . '' . $percentSign;
+        return Localization::formatAsPercentage($this->taxRate);
     }
 }

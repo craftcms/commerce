@@ -8,6 +8,7 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\ProductType;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
@@ -39,7 +40,7 @@ class TaxRatesController extends BaseTaxSettingsController
         $plugin->getTaxCategories()->getAllTaxCategories();
 
         return $this->renderTemplate('commerce/tax/taxrates/index', [
-            'taxRates' => $taxRates
+            'taxRates' => $taxRates,
         ]);
     }
 
@@ -56,6 +57,7 @@ class TaxRatesController extends BaseTaxSettingsController
         }
 
         $variables = compact('id', 'taxRate');
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $plugin = Plugin::getInstance();
 
@@ -79,7 +81,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         $taxZones = $plugin->getTaxZones()->getAllTaxZones();
         $variables['taxZones'] = [
-            ['value' => '', 'label' => '']
+            ['value' => '', 'label' => ''],
         ];
 
         foreach ($taxZones as $model) {
@@ -158,19 +160,13 @@ class TaxRatesController extends BaseTaxSettingsController
         $taxRate->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxRate->code = Craft::$app->getRequest()->getBodyParam('code');
         $taxRate->include = (bool)Craft::$app->getRequest()->getBodyParam('include');
+        $taxRate->removeIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeIncluded');
+        $taxRate->removeVatIncluded = (bool)Craft::$app->getRequest()->getBodyParam('removeVatIncluded');
         $taxRate->isVat = (bool)Craft::$app->getRequest()->getBodyParam('isVat');
         $taxRate->taxable = Craft::$app->getRequest()->getBodyParam('taxable');
         $taxRate->taxCategoryId = Craft::$app->getRequest()->getBodyParam('taxCategoryId', null);
         $taxRate->taxZoneId = Craft::$app->getRequest()->getBodyParam('taxZoneId');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        $rate = Craft::$app->getRequest()->getBodyParam('rate');
-        if (strpos($rate, $percentSign) || $rate >= 1) {
-            $taxRate->rate = (float)$rate / 100;
-        } else {
-            $taxRate->rate = (float)$rate;
-        }
+        $taxRate->rate = Localization::normalizePercentage($this->request->getBodyParam('rate'));
 
         // Save it
         if (Plugin::getInstance()->getTaxRates()->saveTaxRate($taxRate)) {
@@ -182,7 +178,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Send the model back to the template
         Craft::$app->getUrlManager()->setRouteParams([
-            'taxRate' => $taxRate
+            'taxRate' => $taxRate,
         ]);
     }
 

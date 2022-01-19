@@ -229,6 +229,8 @@ class TaxZones extends Component
                 'isCountryBased',
                 'zipCodeConditionFormula',
                 'default',
+                'dateCreated',
+                'dateUpdated',
             ])
             ->orderBy('name')
             ->from([Table::TAXZONES]);

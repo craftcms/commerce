@@ -1,16 +1,28 @@
 {
+  "name": "craftcommerce",
+  "private": true,
+  "main": "webpack.config.js",
+  "scripts": {
+    "build": "webpack --node-env=production --progress",
+    "serve": "webpack-dev-server --node-env=development"
+  },
   "devDependencies": {
+    "@craftcms/webpack": "^0.3.0",
+    "axios": "^0.24.0",
     "chart.js": "^2.9.4",
     "chartjs-adapter-moment": "^0.1.2",
     "craftcms-sass": "^3.5.6",
     "deepmerge": "^4.2.2",
-    "event-stream": "^4.0.1",
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-sass": "^4.1.0",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-uglify": "^3.0.2",
+    "lodash.debounce": "^4.0.8",
+    "lodash.find": "^4.6.0",
+    "lodash.isequal": "^4.5.0",
+    "lodash.isobjectlike": "^4.0.0",
     "moment": "^2.29.1",
-    "node-sass": "^5.0.0"
+    "prismjs": "^1.24.0",
+    "vue": "^2.6.14",
+    "vue-prism-editor": "^0.6.1",
+    "vue-select": "3.5.2",
+    "vuelidate": "^0.7.7",
+    "vuex": "^3.6.2"
   }
 }

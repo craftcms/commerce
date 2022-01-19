@@ -35,6 +35,11 @@ class ShippingMethodOption extends ShippingMethod
     public $price;
 
     /**
+     * @var boolean
+     */
+    public $matchesOrder;
+
+    /**
      * @return array
      */
     public function behaviors(): array
@@ -44,14 +49,14 @@ class ShippingMethodOption extends ShippingMethod
         $behaviors['typecast'] = [
             'class' => AttributeTypecastBehavior::class,
             'attributeTypes' => [
-                'id' => AttributeTypecastBehavior::TYPE_INTEGER
-            ]
+                'id' => AttributeTypecastBehavior::TYPE_INTEGER,
+            ],
         ];
 
         $behaviors['currencyAttributes'] = [
             'class' => CurrencyAttributeBehavior::class,
             'defaultCurrency' => Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso(),
-            'currencyAttributes' => $this->currencyAttributes()
+            'currencyAttributes' => $this->currencyAttributes(),
         ];
 
         return $behaviors;

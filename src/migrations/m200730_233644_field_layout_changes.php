@@ -67,7 +67,7 @@ class m200730_233644_field_layout_changes extends Migration
                             'elements' => [
                                 [
                                     'type' => VariantsField::class,
-                                ]
+                                ],
                             ],
                         ];
                     }
@@ -116,7 +116,7 @@ class m200730_233644_field_layout_changes extends Migration
                 [
                     'name' => 'Content',
                     'sortOrder' => 1,
-                ]
+                ],
             ];
         }
 

@@ -9,6 +9,21 @@
 
 {% set fullPageForm = true %}
 
+{% block details %}
+    {% if taxZone and taxZone.id %}
+        <div class="meta read-only">
+            <div class="data">
+                <h5 class="heading">{{ "Created at"|t('app') }}</h5>
+                <div id="date-created-value" class="value">{{ taxZone.dateCreated|datetime('short') }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ "Updated at"|t('app') }}</h5>
+                <div id="date-updated-value" class="value">{{ taxZone.dateUpdated|datetime('short') }}</div>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <input type="hidden" name="action" value="commerce/tax-zones/save">
     {{ redirectInput('commerce/tax/taxzones') }}

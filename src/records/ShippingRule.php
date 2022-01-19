@@ -59,7 +59,7 @@ class ShippingRule extends ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required']
+            [['name'], 'required'],
         ];
     }
 

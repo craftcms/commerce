@@ -110,7 +110,7 @@
 
   .customer-display {
     background-color: $bgColor;
-    border-radius: $paneBorderRadius;
+    border-radius: $largeBorderRadius;
     border: 1px solid $lightGrey;
     padding: 6px 24px 6px 14px;
   }
@@ -123,11 +123,11 @@
 
     &--initial {
       background-color: $lightGrey;
-      color: $grey;
+      color: $lightTextColor;
     }
 
     &--email {
-        background-color: #fff;
+        background-color: $lightGrey;
         color: $mediumTextColor;
     }
   }
@@ -171,7 +171,7 @@
   }
 
   .customer-remove {
-    color: $grey;
+    color: $lightTextColor;
     font-weight: bold;
     font-size: 1.25em;
     cursor: pointer;
