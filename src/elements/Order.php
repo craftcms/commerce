@@ -1364,6 +1364,12 @@ class Order extends Element
         $fields['totalTaxIncluded'] = 'totalTaxIncluded';
         $fields['totalShippingCost'] = 'totalShippingCost';
         $fields['totalDiscount'] = 'totalDiscount';
+        $fields['availableShippingMethods'] = 'availableShippingMethodOptions';
+        $fields['estimatedBillingAddress'] = 'estimatedBillingAddress';
+        $fields['estimatedShippingAddress'] = 'estimatedShippingAddress';
+        $fields['paymentMethodId'] = 'paymentMethodId';
+        $fields['totalAdjustments'] = 'totalAdjustments';
+        $fields['totalLineItems'] = 'totalLineItems';
 
         return $fields;
     }
@@ -2931,6 +2937,30 @@ class Order extends Element
         }
 
         return $this->_estimatedBillingAddress;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPaymentMethodId(): int
+    {
+        return $this->gatewayId;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalAdjustments(): int
+    {
+        return count($this->getOrderAdjustments());
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalLineItems():int
+    {
+        return count($this->getLineItems());
     }
 
     /**
