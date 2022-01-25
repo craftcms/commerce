@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug that could occur when attempting to create a customer on the Order Edit page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
+
 ## 3.4.10.1 - 2022-01-13
 
 ### Fixed
