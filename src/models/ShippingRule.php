@@ -305,7 +305,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
             return false;
         }
 
-        $this->getShippingRuleCategories();
         $floatFields = ['minTotal', 'maxTotal', 'minWeight', 'maxWeight'];
         foreach ($floatFields as $field) {
             $this->$field *= 1;
