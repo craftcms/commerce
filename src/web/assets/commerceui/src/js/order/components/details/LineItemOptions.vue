@@ -383,7 +383,7 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
     /* PrismJS fix for .token conflict with Craft’s styles */
 
     .prism-editor-wrapper {

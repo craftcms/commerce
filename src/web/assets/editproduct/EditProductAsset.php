@@ -30,11 +30,11 @@ class EditProductAsset extends AssetBundle
         ];
 
         $this->css = [
-            'css/product.css',
+            'css/CommerceProductEdit.css',
         ];
 
         $this->js = [
-            'js/CommerceProductEdit.js',
+            'CommerceProductEdit.js',
         ];
 
         parent::init();

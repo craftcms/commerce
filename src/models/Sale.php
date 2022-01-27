@@ -176,11 +176,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        if ($this->applyAmount) {
-            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
     }
 
     /**
@@ -188,7 +184,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsFlat(): string
     {
-        return $this->applyAmount !== 0 ? (string)($this->applyAmount * -1) : '0';
+        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
     /**

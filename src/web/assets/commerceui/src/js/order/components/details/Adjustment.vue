@@ -191,13 +191,13 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
 
     .adjustment {
         padding-bottom: 10px;
 
         &-type {
-            color: $grey;
+            color: $lightTextColor;
             font-size: 12px;
             font-weight: bold;
             text-transform: uppercase;
@@ -259,7 +259,7 @@
                     }
 
                     .readonly {
-                        background-color: $light;
+                        background-color: $grey200;
                         color: $mediumTextColor;
                     }
                 }

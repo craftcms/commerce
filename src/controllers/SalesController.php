@@ -77,6 +77,9 @@ class SalesController extends BaseCpController
                 }
             } else {
                 $variables['sale'] = new Sale();
+                $variables['sale']->allCategories = true;
+                $variables['sale']->allPurchasables = true;
+                $variables['sale']->allGroups = true;
             }
         }
 
@@ -133,30 +136,42 @@ class SalesController extends BaseCpController
             $sale->applyAmount = (float)$applyAmount * -1;
         }
 
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+        // Set purchasable conditions
+        if ($sale->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+            $sale->setPurchasableIds([]);
+        } else {
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
-        }
-        $sale->setPurchasableIds(array_unique($purchasables));
-
-        $categories = $request->getBodyParam('categories', []);
-
-        if (!$categories) {
-            $categories = [];
+            $sale->setPurchasableIds($purchasables);
         }
 
-        $sale->setCategoryIds(array_unique($categories));
-
-        $groups = $request->getBodyParam('groups', []);
-
-        if (!$groups) {
-            $groups = [];
+        // Set category conditions
+        if ($sale->allCategories = (bool)$request->getBodyParam('allCategories')) {
+            $sale->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $sale->setCategoryIds($categories);
         }
 
-        $sale->setUserGroupIds(array_unique($groups));
+        // Set user group conditions
+        // Default value is `true` to catch projects that do not have user groups and therefore do not have this field
+        if ($sale->allGroups = (bool)$request->getBodyParam('allGroups', true)) {
+            $sale->setUserGroupIds([]);
+        } else {
+            $groups = $request->getBodyParam('groups', []);
+            if (!$groups) {
+                $groups = [];
+            }
+            $sale->setUserGroupIds($groups);
+        }
 
         // Save it
         if (Plugin::getInstance()->getSales()->saveSale($sale)) {
@@ -413,10 +428,9 @@ class SalesController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localeData = Craft::$app->getLocale();
-        $variables['percentSymbol'] = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $variables['currencySymbol'] = $localeData->getCurrencySymbol($primaryCurrencyIso);
+        $variables['currencySymbol'] = Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {

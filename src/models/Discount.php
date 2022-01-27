@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
@@ -146,7 +147,8 @@ class Discount extends Model
     public bool $hasFreeShippingForOrder = false;
 
     /**
-     * @var string|null Type of user group condition that should match the discount. (See getUserConditions().)
+     * @var string Type of user group condition that should match the discount.
+     * @see getUserConditions()
      */
     public ?string $userGroupsCondition = null;
 
@@ -348,14 +350,7 @@ class Discount extends Model
      */
     public function getPercentDiscountAsPercent(): string
     {
-        if (isset($this->percentDiscount) && $this->percentDiscount !== 0.0) {
-            $string = (string)$this->percentDiscount;
-            $number = rtrim($string, '0');
-            $diff = strlen($string) - strlen($number);
-            return Craft::$app->formatter->asPercent(-$this->percentDiscount, 2 - $diff);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
     /**

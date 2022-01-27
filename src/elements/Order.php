@@ -2255,6 +2255,21 @@ class Order extends Element
     }
 
     /**
+     * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
+     *
+     * @return bool
+     * @throws CurrencyException
+     * @throws InvalidConfigException
+     * @since 3.4.10
+     */
+    public function isPaymentAmountPartial(): bool
+    {
+        $paymentAmountInPrimaryCurrency = Plugin::getInstance()->getPaymentCurrencies()->convertCurrency($this->getPaymentAmount(), $this->getPaymentCurrency(), $this->currency, true);
+
+        return $paymentAmountInPrimaryCurrency < $this->getOutstandingBalance();
+    }
+
+    /**
      * What is the status of the orders payment
      *
      * @return string
@@ -3242,23 +3257,33 @@ class Order extends Element
      */
     private function _saveNotices(): void
     {
-        // Line items that are currently in the DB
-        $previousNotices = OrderNoticeRecord::find()
+        $previousNoticeIds = (new Query())
+            ->select(['id'])
+            ->from([Table::ORDERNOTICES])
             ->where(['orderId' => $this->id])
-            ->all();
+            ->column();
 
-        foreach ($previousNotices as $notice) {
-            $notice->delete();
+        $currentNoticeIds = [];
+
+        // We are never updating a notice, just adding it or keeping it.
+        foreach ($this->getNotices() as $notice) {
+            if ($notice->id === null) {
+                $noticeRecord = new OrderNoticeRecord();
+                $noticeRecord->orderId = $notice->orderId;
+                $noticeRecord->type = $notice->type;
+                $noticeRecord->attribute = $notice->attribute;
+                $noticeRecord->message = $notice->message;
+                if ($noticeRecord->save(false)) {
+                    $notice->id = $noticeRecord->id;
+                }
+            }
+
+            $currentNoticeIds[] = $notice->id;
         }
 
-
-        foreach ($this->getNotices() as $notice) {
-            $noticeRecord = new OrderNoticeRecord();
-            $noticeRecord->orderId = $notice->orderId;
-            $noticeRecord->type = $notice->type;
-            $noticeRecord->attribute = $notice->attribute;
-            $noticeRecord->message = $notice->message;
-            $noticeRecord->save(false);
+        // Delete any notices that are no longer on the order
+        if ($deletableNoticeIds = array_diff($previousNoticeIds, $currentNoticeIds)) {
+            OrderNoticeRecord::deleteAll(['id' => $deletableNoticeIds]);
         }
     }
 

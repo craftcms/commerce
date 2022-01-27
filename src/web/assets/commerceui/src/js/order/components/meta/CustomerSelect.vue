@@ -15,15 +15,15 @@
             @input="onChange"
             @search="onSearch">
         <template v-slot:option="slotProps">
-            <div class="customer-select-option" :class="{ 'hidden': !slotProps.option.id && customers.length}">
-                <template v-if="!slotProps.option.id">
+            <div class="customer-select-option">
+                <template v-if="!slotProps.option.id && (($v.newCustomerEmail.$invalid && !customers.length) || !$v.newCustomerEmail.$invalid)">
                     <div class="order-flex justify-center" v-if="$v.newCustomerEmail.$invalid">
                         <div>{{$options.filters.t('A valid email is required to create a customer.', 'commerce')}}</div>
                     </div>
                     <div class="order-flex align-center" v-else>
                         <div class="customer-photo-wrapper">
                             <div class="customer-photo order-flex customer-photo--initial customer-photo--email justify-center align-center">
-                                <span class="icon" data-icon="email"></span>
+                                <span class="icon" data-icon="plus"></span>
                             </div>
                         </div>
                         <div class="ml-1">
@@ -173,7 +173,7 @@
         }
 
         .vs__dropdown-menu {
-            border-radius: $paneBorderRadius;
+            border-radius: $largeBorderRadius;
             padding: 0;
 
             li:first-child {
