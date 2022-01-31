@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Added
-- Added `\craft\commerce\services\ProductTypes::hasPermission()`.
-
 ### Changed
 - Improved the performance of order saving.
 - Improved the performance of forumla condition evaluation with result caching.
