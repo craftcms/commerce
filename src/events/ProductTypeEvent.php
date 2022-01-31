@@ -21,7 +21,7 @@ class ProductTypeEvent extends Event
     /**
      * @var ProductType|null The product type model associated with the event.
      */
-    public ?ProductType $productType;
+    public ?ProductType $productType = null;
 
     /**
      * @var bool Whether the product type is brand new

@@ -1,0 +1,75 @@
+{% extends 'shop/_private/layouts' %}
+
+{% set addressId = craft.app.request.param('addressId') %}
+{% set redirect = craft.app.request.param('redirect') %}
+
+{% if not address is defined and addressId %}
+  {# @var address \craft\commerce\models\Address #}
+  {% set address = craft.commerce.customers.customer.getAddressById(addressId) %}
+{% endif %}
+
+{% block main %}
+  <!-- Template: {{ _self }}.twig -->
+  <h1 class="text-xl font-semibold">
+    {% if addressId %}
+      {{- 'Edit address'|t -}}
+    {% else %}
+      {{- 'Add a new address'|t -}}
+    {% endif %}
+  </h1>
+
+  <form method="post" action="">
+    {{ csrfInput() }}
+    {{ actionInput('commerce/customer-addresses/save') }}
+    {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
+
+    {% if addressId %}
+      {{ hiddenInput('address[id]', addressId) }}
+    {% endif %}
+
+    {{ include('shop/_private/address/form') }}
+
+    <hr class="my-3"/>
+
+    {% set isPrimaryShipping = (cart.customer.primaryShippingAddressId == addressId) %}
+    <div>
+      <label class="flex items-center">
+        {{ input('checkbox', 'makePrimaryShippingAddress', 1, {
+          id: 'makePrimaryShippingAddress',
+          checked: isPrimaryShipping,
+          class: 'mr-2'
+        }) }}
+        {{ 'Make this the primary shipping address'|t }}
+      </label>
+    </div>
+
+    {% set isPrimaryBilling = (cart.customer.primaryBillingAddressId == addressId) %}
+    <div>
+      <label class="flex items-center">
+        {{ input('checkbox', 'makePrimaryBillingAddress', 1, {
+          id: 'makePrimaryBillingAddress',
+          checked: isPrimaryBilling,
+          class: 'mr-2'
+        }) }}
+        {{ 'Make this the primary billing address'|t }}
+      </label>
+    </div>
+
+    <div class="mt-6 flex justify-between">
+      <div>
+        <a href="{{ redirect ? '/' ~ redirect : url('/shop/customer/addresses') }}"
+           class="text-blue-500 hover:text-blue-600"
+        >
+          {{- 'Cancel'|t -}}
+        </a>
+      </div>
+      <div>
+        {{ tag('button', {
+          type: 'submit',
+          class: 'cursor-pointer rounded px-4 py-2 inline-block bg-blue-500 hover:bg-blue-600 text-white hover:text-white',
+          text: 'Save Address'|t
+        }) }}
+      </div>
+    </div>
+  </form>
+{% endblock %}

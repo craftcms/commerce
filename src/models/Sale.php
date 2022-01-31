@@ -176,11 +176,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsPercent(): string
     {
-        if ($this->applyAmount) {
-            return Craft::$app->formatter->asPercent(-$this->applyAmount, 2);
-        }
-
-        return Craft::$app->formatter->asPercent(0);
+        return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
     }
 
     /**
@@ -188,7 +184,7 @@ class Sale extends Model
      */
     public function getApplyAmountAsFlat(): string
     {
-        return $this->applyAmount !== 0 ? (string)($this->applyAmount * -1) : '0';
+        return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
     /**
@@ -196,7 +192,7 @@ class Sale extends Model
      */
     public function getCategoryIds(): array
     {
-        if (null === $this->_categoryIds) {
+        if (!isset($this->_categoryIds)) {
             $categoryIds = [];
             if ($this->id) {
                 $categoryIds = (new Query())->select(
@@ -220,7 +216,7 @@ class Sale extends Model
      */
     public function getPurchasableIds(): array
     {
-        if (null === $this->_purchasableIds) {
+        if (!isset($this->_purchasableIds)) {
             $purchasableIds = [];
             if ($this->id) {
                 $purchasableIds = (new Query())->select(
@@ -244,7 +240,7 @@ class Sale extends Model
      */
     public function getUserGroupIds(): array
     {
-        if (null === $this->_userGroupIds) {
+        if (!isset($this->_userGroupIds)) {
             $userGroupIds = [];
             if ($this->id) {
                 $userGroupIds = (new Query())->select(

@@ -28,9 +28,9 @@ trait StatTrait
     public int $cacheDuration = 0;
 
     /**
-     * @var string
+     * @var string|null
      */
-    public string $dateRange = StatInterface::DATE_RANGE_TODAY;
+    public ?string $dateRange = StatInterface::DATE_RANGE_TODAY;
 
     /**
      * @var int

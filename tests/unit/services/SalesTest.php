@@ -104,25 +104,6 @@ class SalesTest extends Unit
     /**
      *
      */
-    public function testPopulateSaleRelations(): void
-    {
-        $sale = new Sale();
-        $sale->id = $this->salesData['allRelationships']['id'];
-
-        $this->sales->populateSaleRelations($sale);
-
-        $categoryIds = Category::find()->title(['Commerce Category', 'Commerce Category #2'])->ids();
-        $purchasableIds = Variant::find()->sku('hct-white')->ids();
-        $userGroupsIds = ['1002'];
-
-        self::assertEquals($categoryIds, $sale->getCategoryIds());
-        self::assertEquals($purchasableIds, $sale->getPurchasableIds());
-        self::assertEquals($userGroupsIds, $sale->getUserGroupIds());
-    }
-
-    /**
-     *
-     */
     public function testGetSalesForPurchasable(): void
     {
         $variant  = Variant::find()->sku('rad-hood')->one();

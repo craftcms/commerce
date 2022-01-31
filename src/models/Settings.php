@@ -63,6 +63,13 @@ class Settings extends Model
     public bool $autoSetNewCartAddresses = true;
 
     /**
+     * @var bool Whether the first available shipping method option should be set automatically on carts.
+     *
+     * @group Cart
+     */
+    public $autoSetCartShippingMethodOption = false;
+
+    /**
      * @var bool Whether carts are allowed to be empty on checkout.
      * @group Cart
      * @since 2.2
@@ -77,7 +84,8 @@ class Settings extends Model
     public bool $allowCheckoutWithoutPayment = false;
 
     /**
-     * @var bool Whether partial payment can be made from the front end. Gateway must also allow them.
+     * @var bool Whether [partial payment](https://craftcms.com/docs/commerce/3.x/making-payments.html#checkout-with-partial-payment)
+     * can be made from the front end when the gateway allows them.
      *
      * The default `false` does not allow partial payments on the front end.
      *
@@ -198,16 +206,7 @@ class Settings extends Model
     public string $gatewayPostRedirectTemplate = '';
 
     /**
-     * @var array Payment gateway settings indexed by each gateway’s handle.
-     *
-     * Check each gateway’s documentation for settings that may be stored.
-     *
-     * @group Payments
-     */
-    public array $gatewaySettings = [];
-
-    /**
-     * @var string|null Default URL to be loaded after using the [load cart controller action](loading-a-cart.md).
+     * @var string|null Default URL to be loaded after using the [load cart controller action](orders-carts.md#loading-a-cart).
      *
      * If `null` (default), Craft’s default [`siteUrl`](config3:siteUrl) will be used.
      *

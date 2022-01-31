@@ -1,30 +1,40 @@
 {% extends '[[folderName]]/_private/layouts' %}
-
+{#
+Outputs form for collecting a cart number to be loaded.
+#}
 {% block main %}
-    <!-- Template: {{ _self }}.twig -->
-    <form method="post" action="" class="">
-        {{ actionInput('commerce/cart/load-cart') }}
-        {{ redirectInput('/[[folderName]]/cart') }}
-        {{ csrfInput() }}
+  <!-- Template: {{ _self }}.twig -->
+  <form method="post" action="">
+    {{ csrfInput() }}
+    {{ actionInput('commerce/cart/load-cart') }}
+    {{ redirectInput('/[[folderName]]/cart') }}
 
-        <h1 class="text-xl font-bold">Load Cart</h1>
-        <p>Enter a cart number to load that cart into the current session.</p>
+    <h1 class="text-xl font-bold">
+      {{- 'Load Cart'|t -}}
+    </h1>
 
-        <fieldset class="[[classes.box.base]] mt-3 max-w-lg">
-            <div>
-                <label for="number">Cart Number</label>
-                <div>
-                    <input type="text"
-                           id="number"
-                           name="number"
-                           value=""
-                           class="[[classes.input]] w-full"
-                           placeholder="7e89fh0ew8034…"/>
-                </div>
-            </div>
-            <div class="mt-3 text-right">
-                <button type="submit" class="[[classes.btn.base]] [[classes.btn.mainColor]]">Load cart</button>
-            </div>
-        </fieldset>
-    </form>
+    <p>{{ 'Enter a cart number to load that cart into the current session.'|t }}</p>
+
+    <fieldset class="[[classes.box.base]] mt-3 max-w-lg">
+      <div>
+        <label for="number">
+          {{- 'Cart Number'|t -}}
+        </label>
+        <div>
+          {{ input('text', 'number', '[[classes.input]]', {
+            id: 'number',
+            class: ['w-full', ''],
+            placeholder: '7e89fh0ew8034…'
+          }) }}
+        </div>
+      </div>
+      <div class="mt-3 text-right">
+        {{ tag('button', {
+          type: 'submit',
+          class: ['[[classes.btn.base]]', '[[classes.btn.mainColor]]'],
+          text: 'Load cart'|t
+        }) }}
+      </div>
+    </fieldset>
+  </form>
 {% endblock %}

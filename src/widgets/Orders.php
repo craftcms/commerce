@@ -26,14 +26,14 @@ use craft\helpers\StringHelper;
 class Orders extends Widget
 {
     /**
-     * @var int|null
+     * @var int|string|null
      */
-    public $orderStatusId;
+    public $orderStatusId = null;
 
     /**
      * @var int
      */
-    public $limit = 10;
+    public int $limit = 10;
 
     /**
      * @inheritdoc

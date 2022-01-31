@@ -11,6 +11,7 @@ use Craft;
 use craft\commerce\base\Purchasable;
 use craft\commerce\base\PurchasableInterface;
 use craft\commerce\elements\Product;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
@@ -20,10 +21,10 @@ use craft\errors\MissingComponentException;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
-use craft\helpers\Localization;
 use craft\i18n\Locale;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\HttpException;
 use yii\web\Response;
 use function explode;
@@ -47,6 +48,11 @@ class DiscountsController extends BaseCpController
     public function init(): void
     {
         parent::init();
+
+        if (Plugin::getInstance()->is(Plugin::EDITION_PRO, '<')) {
+            throw new ForbiddenHttpException('Managing discounts is not permitted on the Lite edition.');
+        }
+
         $this->requirePermission('commerce-managePromotions');
     }
 
@@ -79,11 +85,14 @@ class DiscountsController extends BaseCpController
                 }
             } else {
                 $variables['discount'] = new Discount();
+                $variables['discount']->allCategories = true;
+                $variables['discount']->allPurchasables = true;
                 $variables['isNewDiscount'] = true;
             }
         }
 
         $this->_populateVariables($variables);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         return $this->renderTemplate('commerce/promotions/discounts/_edit', $variables);
     }
@@ -144,32 +153,33 @@ class DiscountsController extends BaseCpController
             $discount->dateTo = $dateTime;
         }
 
-        // Format into a %
-        $percentDiscountAmount = $request->getBodyParam('percentDiscount');
-        $localeData = Craft::$app->getLocale();
-        $percentSign = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $percentDiscountAmount = Localization::normalizeNumber($percentDiscountAmount);
-        if (strpos($percentDiscountAmount, $percentSign) || (float)$percentDiscountAmount >= 1) {
-            $discount->percentDiscount = (float)$percentDiscountAmount / -100;
+        $discount->percentDiscount = -Localization::normalizePercentage($request->getBodyParam('percentDiscount'));
+
+        // Set purchasable conditions
+        if ($discount->allPurchasables = (bool)$request->getBodyParam('allPurchasables')) {
+            $discount->setPurchasableIds([]);
         } else {
-            $discount->percentDiscount = (float)$percentDiscountAmount * -1;
-        }
-
-        $purchasables = [];
-        $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
-        foreach ($purchasableGroups as $group) {
-            if (is_array($group)) {
-                array_push($purchasables, ...$group);
+            $purchasables = [];
+            $purchasableGroups = $request->getBodyParam('purchasables') ?: [];
+            foreach ($purchasableGroups as $group) {
+                if (is_array($group)) {
+                    array_push($purchasables, ...$group);
+                }
             }
+            $purchasables = array_unique($purchasables);
+            $discount->setPurchasableIds($purchasables);
         }
-        $purchasables = array_unique($purchasables);
-        $discount->setPurchasableIds($purchasables);
 
-        $categories = $request->getBodyParam('categories', []);
-        if (!$categories) {
-            $categories = [];
+        // Set category conditions
+        if ($discount->allCategories = (bool)$request->getBodyParam('allCategories')) {
+            $discount->setCategoryIds([]);
+        } else {
+            $categories = $request->getBodyParam('categories', []);
+            if (!$categories) {
+                $categories = [];
+            }
+            $discount->setCategoryIds($categories);
         }
-        $discount->setCategoryIds($categories);
 
         $groups = $request->getBodyParam('groups', []);
 
@@ -405,25 +415,34 @@ class DiscountsController extends BaseCpController
 
         $currency = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrency();
         $currencyName = $currency ? $currency->getCurrency() : '';
+        $percentSymbol = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         $variables['baseDiscountTypes'] = [
             DiscountRecord::BASE_DISCOUNT_TYPE_VALUE => Craft::t('commerce', $currencyName . ' value'),
         ];
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Craft::t('commerce', '(%) off total original price and shipping total (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL] = Craft::t('commerce', '{pct} off total original price and shipping total (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Craft::t('commerce', '(%) off total discounted price and shipping total (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_TOTAL_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price and shipping total (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Craft::t('commerce', '(%) off total original price (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS] = Craft::t('commerce', '{pct} off total original price (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         if ($variables['discount']->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED) {
-            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Craft::t('commerce', '(%) off total discounted price (Deprecated)');
+            $variables['baseDiscountTypes'][DiscountRecord::BASE_DISCOUNT_TYPE_PERCENT_ITEMS_DISCOUNTED] = Craft::t('commerce', '{pct} off total discounted price (Deprecated)', [
+                'pct' => $percentSymbol,
+            ]);
         }
 
         $variables['categoryElementType'] = Category::class;

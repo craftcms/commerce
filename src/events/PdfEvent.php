@@ -42,5 +42,5 @@ class PdfEvent extends Event
     /**
      * @var string|null The rendered PDF
      */
-    public ?string $pdf;
+    public ?string $pdf = null;
 }

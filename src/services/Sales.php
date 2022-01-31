@@ -186,7 +186,7 @@ class Sales extends Component
      */
     public function getAllSales(): array
     {
-        if (null === $this->_allSales) {
+        if (!isset($this->_allSales)) {
             $sales = (new Query())->select([
                 'sales.id',
                 'sales.name',
@@ -252,49 +252,6 @@ class Sales extends Component
         }
 
         return $this->_allSales;
-    }
-
-    /**
-     * Populates a sale's relations.
-     *
-     * @param Sale $sale
-     * @deprecated in 3.2.0. No longer required as IDs are populated when retrieving the sale using the service.
-     * // TODO Removed when completing #COM-58
-     */
-    public function populateSaleRelations(Sale $sale): void
-    {
-        $rows = (new Query())->select(
-            'sp.purchasableId,
-            spt.categoryId,
-            sug.userGroupId')
-            ->from(Table::SALES . ' sales')
-            ->leftJoin(Table::SALE_PURCHASABLES . ' sp', '[[sp.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_CATEGORIES . ' spt', '[[spt.saleId]]=[[sales.id]]')
-            ->leftJoin(Table::SALE_USERGROUPS . ' sug', '[[sug.saleId]]=[[sales.id]]')
-            ->where(['sales.id' => $sale->id])
-            ->all();
-
-        $purchasableIds = [];
-        $categoryIds = [];
-        $userGroupIds = [];
-
-        foreach ($rows as $row) {
-            if ($row['purchasableId']) {
-                $purchasableIds[] = $row['purchasableId'];
-            }
-
-            if ($row['categoryId']) {
-                $categoryIds[] = $row['categoryId'];
-            }
-
-            if ($row['userGroupId']) {
-                $userGroupIds[] = $row['userGroupId'];
-            }
-        }
-
-        $sale->setPurchasableIds($purchasableIds);
-        $sale->setCategoryIds($categoryIds);
-        $sale->setUserGroupIds($userGroupIds);
     }
 
     /**
@@ -404,7 +361,7 @@ class Sales extends Component
         $salePrice = ($originalPrice + $takeOffAmount);
 
         // A newPrice has been set so use it.
-        if (null !== $newPrice) {
+        if ($newPrice !== null) {
             $salePrice = $newPrice;
         }
 
@@ -476,7 +433,7 @@ class Sales extends Component
             $user = $order->getUser();
 
             if (!$sale->allGroups) {
-                // We must pass a real user to getCurrentUserGroupIds, otherwise the current user is used.
+                // User group condition means we have to have a real user
                 if (null === $user) {
                     return false;
                 }
@@ -571,9 +528,15 @@ class Sales extends Component
             $record->$field = $model->$field;
         }
 
-        $record->allGroups = $model->allGroups = empty($model->getUserGroupIds());
-        $record->allCategories = $model->allCategories = empty($model->getCategoryIds());
-        $record->allPurchasables = $model->allPurchasables = empty($model->getPurchasableIds());
+        if($record->allGroups = $model->allGroups){
+            $model->setUserGroupIds([]);
+        }
+        if($record->allCategories = $model->allCategories){
+            $model->setCategoryIds([]);
+        }
+        if($record->allPurchasables = $model->allPurchasables){
+            $model->setPurchasableIds([]);
+        }
 
         // Fire an 'beforeSaveSection' event
         if ($this->hasEventHandlers(self::EVENT_BEFORE_SAVE_SALE)) {
@@ -700,7 +663,7 @@ class Sales extends Component
      */
     private function _getAllEnabledSales(): array
     {
-        if (null === $this->_allActiveSales) {
+        if (!isset($this->_allActiveSales)) {
             $sales = $this->getAllSales();
             $activeSales = [];
             foreach ($sales as $sale) {

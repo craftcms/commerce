@@ -215,7 +215,7 @@ class Manual extends Gateway
      */
     public function availableForUseWithOrder(Order $order): bool
     {
-        if ($this->onlyAllowForZeroPriceOrders && $order->getTotalPrice() != 0) {
+        if (Craft::parseBooleanEnv($this->onlyAllowForZeroPriceOrders) && $order->getTotalPrice() != 0) {
             return false;
         }
 

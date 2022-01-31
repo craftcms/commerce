@@ -1,0 +1,92 @@
+{% extends 'shop/_private/layouts' %}
+
+{# @var orders \craft\commerce\elements\Order[] #}
+{% set orders = craft.orders()
+  .customer(craft.commerce.customers.customer)
+  .isCompleted(true)
+  .orderBy('dateOrdered DESC')
+  .all() %}
+
+{# Truncate order preview line items after this many to avoid an overly-verbose layout #}
+{% set limitPreviewLineItems = 4 %}
+
+{% set extraHead %}
+  <meta name="robots" content="noindex">
+{% endset %}
+
+{% block main %}
+  <!-- Template: {{ _self }}.twig -->
+  <div class="lg:flex lg:justify-between">
+    <h1 class="text-3xl block sm:inline">
+      {{- 'My Orders'|t -}}
+    </h1>
+    {% if currentUser %}
+    <div>
+      <a href="{{ url('/shop/customer/cards') }}" class="lg:mr-6 text-blue-500 hover:text-blue-600">
+        {{- 'Manage Stored Cards'|t -}}
+      </a>
+
+      <a href="{{ logoutUrl }}" class="text-blue-500 hover:text-blue-600">
+        {{- 'Sign Out'|t -}}
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if currentUser %}
+    {% if orders|length %}
+      <div class="my-6 sm:grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 sm:gap-4">
+        {% for order in orders %}
+          {% set totalLineItems = order.lineItems|length %}
+          <a href="{{ url('/shop/customer/order', { number: order.number }) }}" class="block border my-4 sm:my-0 rounded-md px-6 py-6 hover:shadow-md w-full">
+            <div class="flex">
+              <div class="w-2/3">
+                <h2 class="text-lg">
+                  {{ order.dateOrdered|date }}
+                  <small class="block text-sm text-gray-400 font-normal">
+                    {{- order.reference -}}
+                  </small>
+                </h2>
+              </div>
+              <div class="w-1/3 text-right">
+                {{ order.totalPriceAsCurrency }}
+              </div>
+            </div>
+            <div class="border-t border-dotted text-sm mt-3 pt-3">
+            <span class="block text-xs uppercase tracking-wider text-gray-600">
+              {{ '{x} {items}'|t({
+                x: order.totalQty,
+                items: order.totalQty == 1 ? 'item' : 'items'
+              }) }}
+            </span>
+              {% for item in order.lineItems|slice(0, limitPreviewLineItems) %}
+                {{ item.description }}{% if item.qty > 1 %}<span class="text-xs"> × {{ item.qty }}</span>{% endif %}{% if not loop.last %}, {% endif %}
+              {%- endfor -%}
+              {%- if totalLineItems > limitPreviewLineItems and loop.last -%}
+                , {{ 'and {x} other items'|t({
+                x: totalLineItems - limitPreviewLineItems
+              }) }}
+              {% endif %}
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div>
+        <p>{{ 'You don’t have any orders yet.'|t }}</p>
+        <p>
+          <a href="{{ url('/shop/products') }}" class="text-blue-500 hover:text-blue-600">
+            {{- 'Continue shopping'|t -}}
+          </a>
+        </p>
+      </div>
+    {% endif %}
+  {% else %}
+    <p>{{ 'You don’t have any orders yet.'|t }}</p>
+    <p>
+      <a href="{{ url('/shop/products') }}" class="text-blue-500 hover:text-blue-600">
+        {{- 'Continue shopping'|t -}}
+      </a>
+    </p>
+  {% endif %}
+{% endblock %}

@@ -236,6 +236,7 @@ trait OrderElementTrait
             'username',
             'reference',
             'skus',
+            'lineItemDescriptions'
         ];
     }
 
@@ -276,6 +277,8 @@ trait OrderElementTrait
                 return $this->getUser()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
+            case 'lineItemDescriptions':
+                return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'description'));
             default:
                 return parent::getSearchKeywords($attribute);
         }
@@ -435,7 +438,7 @@ trait OrderElementTrait
         $default = parent::defineExporters($source);
         // Remove the standard expanded exporter and use our own
         ArrayHelper::removeValue($default, CraftExpanded::class);
-        ArrayHelper::append($default, Expanded::class);
+        $default[] = Expanded::class;
 
         return $default;
     }

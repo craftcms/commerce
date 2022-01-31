@@ -43,7 +43,7 @@ class TaxRates extends Component
      */
     public function getAllTaxRates(): array
     {
-        if (null === $this->_allTaxRates) {
+        if (!isset($this->_allTaxRates)) {
             $rows = $this->_createTaxRatesQuery()->all();
 
             foreach ($rows as $row) {

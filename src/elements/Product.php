@@ -155,12 +155,23 @@ class Product extends Element
     private ?array $_variants = null;
 
     /**
+     * @var Variant[]|null This product’s enabled variants
+     */
+    private ?array $_enabledVariants = null;
+
+    /**
      * @var Variant|null This product's cheapest variant
      */
     private ?Variant $_cheapestVariant = null;
 
     /**
+     * @var Variant|null This product's cheapest enabled variant
+     */
+    private ?Variant $_cheapestEnabledVariant = null;
+
+    /**
      * @return array
+     * @throws InvalidConfigException
      */
     public function behaviors(): array
     {
@@ -301,13 +312,16 @@ class Product extends Element
      */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
 
-            return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $uid);
-        }
-
-        return false;
+    /**
+     * @inheritdoc
+     */
+    protected function isDeletable(): bool
+    {
+        // TODO: Change this to a real delete permission in 4.0
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
     }
 
     /**
@@ -324,7 +338,7 @@ class Product extends Element
 
         $productType = Plugin::getInstance()->getProductTypes()->getProductTypeById($this->typeId);
 
-        if (null === $productType) {
+        if ($productType === null) {
             throw new InvalidConfigException('Invalid product type ID: ' . $this->typeId);
         }
 
@@ -428,12 +442,13 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
+     * @param bool $includeDisabled
      * @return null|Variant
      * @throws InvalidConfigException
      */
-    public function getDefaultVariant(): ?Variant
+    public function getDefaultVariant(bool $includeDisabled = false): ?Variant
     {
-        $variants = $this->getVariants();
+        $variants = $this->getVariants($includeDisabled);
 
         $defaultVariant = ArrayHelper::firstWhere($variants, 'isDefault', true, false);
 
@@ -443,73 +458,92 @@ class Product extends Element
     /**
      * Return the cheapest variant.
      *
-     * @return Variant
+     * @param bool $includeDisabled
+     * @return Variant|null
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
-    public function getCheapestVariant(): Variant
+    public function getCheapestVariant(bool $includeDisabled = false): ?Variant
     {
-        if ($this->_cheapestVariant) {
+        if ($includeDisabled && $this->_cheapestVariant) {
             return $this->_cheapestVariant;
         }
 
-        foreach ($this->getVariants() as $variant) {
+        if (!$includeDisabled && $this->_cheapestEnabledVariant) {
+            return $this->_cheapestEnabledVariant;
+        }
+
+        foreach ($this->getVariants(true) as $variant) {
             if (
                 !$this->_cheapestVariant
                 || $variant->getSalePrice() < $this->_cheapestVariant->getSalePrice()
             ) {
                 $this->_cheapestVariant = $variant;
             }
+
+            if (
+                $variant->enabled
+                &&
+                (
+                    !$this->_cheapestEnabledVariant
+                    || $variant->getSalePrice() < $this->_cheapestEnabledVariant->getSalePrice()
+                )
+            ) {
+                $this->_cheapestEnabledVariant = $variant;
+            }
         }
 
-        return $this->_cheapestVariant;
+        return $includeDisabled ? $this->_cheapestVariant : $this->_cheapestEnabledVariant;
     }
 
     /**
      * Returns an array of the product's variants.
      *
+     * @param bool $includeDisabled
      * @return Variant[]
      * @throws InvalidConfigException
      */
-    public function getVariants(): array
+    public function getVariants(bool $includeDisabled = false): array
     {
-        // If we are currently duplicating a product, we dont want to have any variants.
+        // If we are currently duplicating a product, we don't want to have any variants.
         // We will be duplicating variants and adding them back.
         if ($this->duplicateOf) {
             $this->_variants = [];
+            $this->_enabledVariants = [];
             return $this->_variants;
         }
 
-        if (null === $this->_variants && $this->id) {
-            if ($this->getType()->hasVariants) {
-                $this->setVariants(Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId));
-            } else {
-                $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
-                if ($variants) {
-                    $variants[0]->isDefault = true;
-                    $this->setVariants([$variants[0]]);
-                }
+        if (!isset($this->_variants) && $this->id) {
+            $variants = Plugin::getInstance()->getVariants()->getAllVariantsByProductId($this->id, $this->siteId);
+
+            if (!$this->getType()->hasVariants && !empty($variants)) {
+                $variant = array_shift($variants);
+                $variant->isDefault = true;
+                $variants = [$variant];
             }
+
+            $this->setVariants($variants);
         }
 
         if (empty($this->_variants)) {
             $variant = new Variant();
             $variant->isDefault = true;
             $this->setVariants([$variant]);
-            $this->_variants = [$variant];
         }
 
-        return $this->_variants;
+        return $includeDisabled ? $this->_variants : $this->_enabledVariants;
     }
 
     /**
      * Sets the variants on the product. Accepts an array of variant data keyed by variant ID or the string 'new'.
      *
      * @param array|Variant[] $variants
+     * @throws InvalidConfigException
      */
     public function setVariants(array $variants): void
     {
         $this->_variants = [];
+        $this->_enabledVariants = [];
 
         $count = 1;
         foreach ($variants as $key => $variant) {
@@ -520,6 +554,9 @@ class Product extends Element
             $variant->setProduct($this);
 
             $this->_variants[] = $variant;
+            if ($variant->enabled) {
+                $this->_enabledVariants[] = $variant;
+            }
         }
     }
 
@@ -558,14 +595,15 @@ class Product extends Element
     }
 
     /**
+     * @param bool $includeDisabled
      * @return int
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
-    public function getTotalStock(): int
+    public function getTotalStock(bool $includeDisabled = false): int
     {
         $stock = 0;
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants($includeDisabled) as $variant) {
             if (!$variant->hasUnlimitedStock) {
                 $stock += $variant->stock;
             }
@@ -577,12 +615,13 @@ class Product extends Element
     /**
      * Returns whether at least one variant has unlimited stock.
      *
+     * @param bool $includeDisabled
      * @return bool
      * @throws InvalidConfigException
      */
-    public function getHasUnlimitedStock(): bool
+    public function getHasUnlimitedStock(bool $includeDisabled = false): bool
     {
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants($includeDisabled) as $variant) {
             if ($variant->hasUnlimitedStock) {
                 return true;
             }
@@ -792,7 +831,7 @@ class Product extends Element
             $defaultVariant = $this->getDefaultVariant();
             $record->defaultVariantId = $defaultVariant->id ?? null;
             $record->defaultSku = $defaultVariant->skuAsText ?? '';
-            $record->defaultPrice = $defaultVariant->price ?? 0;
+            $record->defaultPrice = $defaultVariant->price ?? 0.0;
             $record->defaultHeight = $defaultVariant->height ?? 0;
             $record->defaultLength = $defaultVariant->length ?? 0;
             $record->defaultWidth = $defaultVariant->width ?? 0;
@@ -813,7 +852,7 @@ class Product extends Element
                 ->where(['productId' => $this->id])
                 ->column();
 
-            foreach ($this->getVariants() as $variant) {
+            foreach ($this->getVariants(true) as $variant) {
                 if ($isNew) {
                     $variant->productId = $this->id;
                     $variant->siteId = $this->siteId;
@@ -871,7 +910,7 @@ class Product extends Element
         // We need to generate all variant sku formats before validating the product,
         // since the product validates the uniqueness of all variants in memory.
         $type = $this->getType();
-        foreach ($this->getVariants() as $variant) {
+        foreach ($this->getVariants(true) as $variant) {
             if (!$variant->sku && $type->skuFormat) {
                 try {
                     $variant->sku = Craft::$app->getView()->renderObjectTemplate($type->skuFormat, $variant);
@@ -949,7 +988,7 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-                    if (empty($this->getVariants())) {
+                    if (empty($this->getVariants(true))) {
                         $this->addError('variants', Craft::t('commerce', 'Must have at least one variant.'));
                     }
                 },
@@ -960,7 +999,7 @@ class Product extends Element
                 ['variants'],
                 function() {
                     $skus = [];
-                    foreach ($this->getVariants() as $variant) {
+                    foreach ($this->getVariants(true) as $variant) {
                         if (isset($skus[$variant->sku])) {
                             $this->addError('variants', Craft::t('commerce', 'Not all SKUs are unique.'));
                             break;
@@ -973,7 +1012,7 @@ class Product extends Element
             [
                 ['variants'],
                 function() {
-                    foreach ($this->getVariants() as $i => $variant) {
+                    foreach ($this->getVariants(true) as $i => $variant) {
                         if ($this->getScenario() === self::SCENARIO_LIVE && $variant->enabled) {
                             $variant->setScenario(self::SCENARIO_LIVE);
                         }
@@ -1169,7 +1208,7 @@ class Product extends Element
     protected static function defineTableAttributes(): array
     {
         return [
-            'title' => ['label' => Craft::t('commerce', 'Title')],
+            'title' => ['label' => Craft::t('commerce', 'Product')],
             'id' => ['label' => Craft::t('commerce', 'ID')],
             'type' => ['label' => Craft::t('commerce', 'Type')],
             'slug' => ['label' => Craft::t('commerce', 'Slug')],
@@ -1308,7 +1347,7 @@ class Product extends Element
             }
             case 'defaultSku':
             {
-                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : $this->defaultSku;
+                return PurchasableHelper::isTempSku($this->defaultSku) ? '' : Html::encode($this->defaultSku);
             }
             case 'taxCategory':
             {
@@ -1331,7 +1370,7 @@ class Product extends Element
                 $stock = 0;
                 $hasUnlimited = false;
 
-                foreach ($this->getVariants() as $variant) {
+                foreach ($this->getVariants(true) as $variant) {
                     $stock += $variant->stock;
                     if ($variant->hasUnlimitedStock) {
                         $hasUnlimited = true;
@@ -1365,7 +1404,7 @@ class Product extends Element
             }
             case 'variants':
             {
-                $value = $this->getVariants();
+                $value = $this->getVariants(true);
                 $first = array_shift($value);
                 $html = Cp::elementHtml($first);
 

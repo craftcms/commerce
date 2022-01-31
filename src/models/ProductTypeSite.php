@@ -56,12 +56,12 @@ class ProductTypeSite extends Model
     /**
      * @var ProductType|null
      */
-    private ?ProductType $_productType;
+    private ?ProductType $_productType = null;
 
     /**
      * @var Site|null
      */
-    private ?Site $_site;
+    private ?Site $_site = null;
 
     /**
      * @var bool

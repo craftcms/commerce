@@ -12,7 +12,6 @@ use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
 use craft\helpers\UrlHelper;
-use craft\i18n\Locale;
 use DateTime;
 
 /**
@@ -144,9 +143,7 @@ class TaxRate extends Model
      */
     public function getRateAsPercent(): string
     {
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-
-        return $this->rate * 100 . '' . $percentSign;
+        return Craft::$app->getFormatter()->asPercent($this->rate);
     }
 
     /**
@@ -166,7 +163,7 @@ class TaxRate extends Model
      */
     public function getTaxCategory(): ?TaxCategory
     {
-        if (null === $this->_taxCategory && $this->taxCategoryId) {
+        if (!isset($this->_taxCategory) && $this->taxCategoryId) {
             $this->_taxCategory = Plugin::getInstance()->getTaxCategories()->getTaxCategoryById($this->taxCategoryId);
         }
 

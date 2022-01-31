@@ -54,7 +54,7 @@
 </script>
 
 <style lang="scss">
-    @import "../../../../node_modules/craftcms-sass/src/mixins";
+    @import "craftcms-sass/mixins";
 
     .order-notices-header {
         align-items: center;
