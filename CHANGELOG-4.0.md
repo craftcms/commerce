@@ -3,6 +3,11 @@
 ## Unreleased
 
 ### Added
+- Ajax requests to `commerce/cart/*` now include `availableShippingMethods`, `estimatedBillingAddress`, `estimatedShippingAddress`, `paymentMethodId`, `totalAdjustments` and `totalLineItems` fields in the JSON response.
+- Added `craft\commerce\elements\Order::getPaymentMethodId()`.
+- Added `craft\commerce\elements\Order::getTotalAdjustments()`.
+- Added `craft\commerce\elements\Order::getTotalLineItems()`.
+- Ajax requests to `commerce/cart/*` now includes line items’ `tax`, `taxIncluded` and `discount` fields in the JSON response.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
