@@ -1161,6 +1161,7 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+        $order->shippingMethodName = Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle)->getName();
 
         $order->clearNotices();
 
