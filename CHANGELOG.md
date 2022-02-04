@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug that could occur when attempting to create a customer on the Order Edit page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
 - Improved memory usage when using the `craft\commerce\services\LineItems::getAllLineItemsByOrderId()` method.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
+- Added order level adjustment for discount that removes shipping costs with amount of 0. ([#1329](https://github.com/craftcms/commerce/issues/1329))
 
 ## 3.4.10.1 - 2022-01-13
 

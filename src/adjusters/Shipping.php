@@ -90,11 +90,21 @@ class Shipping extends Component implements AdjusterInterface
             // Check for order level discounts for shipping
             $hasDiscountRemoveShippingCosts = false;
             if ($hasOrderLevelShippingRelatedDiscounts) {
+                /** @var \craft\commerce\models\Discount $discount */
                 foreach ($discounts as $discount) {
                     $matchedOrder = Plugin::getInstance()->getDiscounts()->matchOrder($this->_order, $discount);
 
                     if ($discount->hasFreeShippingForOrder && $matchedOrder) {
                         $hasDiscountRemoveShippingCosts = true;
+
+                        $adjustment = new OrderAdjustment;
+                        $adjustment->type = self::ADJUSTMENT_TYPE;
+                        $adjustment->setOrder($this->_order);
+                        $adjustment->name = $discount->name;
+                        $adjustment->amount = 0;
+                        $adjustment->description = $discount->description;
+
+                        $adjustments[] = $adjustment;
                         break;
                     }
 
