@@ -723,7 +723,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getSidebarHtml(): string
+    public function getSidebarHtml(bool $static): string
     {
         $html = [];
 
