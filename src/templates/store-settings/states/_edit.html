@@ -2,7 +2,7 @@
 
 {% set crumbs = [
     { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
-    { label: "States"|t('commerce'), url: url('commerce/store-settings/states') },
+    { label: "States"|t('commerce'), url: url('commerce/store-settings/countries/'~state.countryId') },
 ] %}
 
 {% set selectedSubnavItem = 'store-settings' %}
