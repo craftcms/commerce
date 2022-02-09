@@ -7,7 +7,7 @@
 - Improved memory usage when using the `craft\commerce\services\LineItems::getAllLineItemsByOrderId()` method.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
 - Fixed a bug on order edit page where shipping method name is not updating based on the selected shipping method. ([#2682](https://github.com/craftcms/commerce/issues/2682))
 - Fixed a bug where `Addresses::getStoreLocation()` could return an address with `isStoreLocation` set to `false`. ([#2688](https://github.com/craftcms/commerce/issues/2688))
-- Fixed a bug on states breadcrumb page having incorrect link.
+- Fixed a bug where Edit States pages were displaying a breadcrumb link to a page that doesn’t exist, which would result in a 404 error. ([#2692](https://github.com/craftcms/commerce/pull/2692))
 
 ## 3.4.10.1 - 2022-01-13
 

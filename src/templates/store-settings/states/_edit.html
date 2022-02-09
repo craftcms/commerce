@@ -3,8 +3,11 @@
 {% set crumbs = [
     { label: "Store Settings"|t('commerce'), url: url('commerce/store-settings') },
     { label: "Countries"|t('commerce'), url: url('commerce/store-settings/countries') },
-    { label: "States"|t('commerce'), url: url('commerce/store-settings/countries/'~state.countryId) }
 ] %}
+
+{% if breadcrumb is defined and breadcrumb -%}
+    {%- set crumbs = crumbs|merge([breadcrumb]) -%}
+{% endif -%}
 
 {% set selectedSubnavItem = 'store-settings' %}
 
@@ -64,15 +67,7 @@
         required: true,
     }) }}
 
-    {% if not state.countryId and craft.app.request.getQueryParam('countryId') %}
-        {% set countryId = craft.app.request.getQueryParam('countryId') %}
-        {% set hideSelect = true %}
-    {% else %}
-        {% set countryId = null %}
-        {% set hideSelect = false %}
-    {% endif %}
-
-    <div class="{{ hideSelect ? 'hidden' : '' }}">
+    <div class="{{ showCountrySelect ? '' : 'hidden' }}">
         {{ forms.selectField({
             label: "Country"|t('commerce'),
             id: 'countryId',
