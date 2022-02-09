@@ -5,6 +5,7 @@
 ### Fixed
 - Fixed a bug that could occur when attempting to create a customer on the Order Edit page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
 - Improved memory usage when using the `craft\commerce\services\LineItems::getAllLineItemsByOrderId()` method.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
+- Fixed a bug on order edit page where shipping method name is not updating based on the selected shipping method. ([#2682](https://github.com/craftcms/commerce/issues/2682))
 - Fixed a bug where `Addresses::getStoreLocation()` could return an address with `isStoreLocation` set to `false`. ([#2688](https://github.com/craftcms/commerce/issues/2688))
 
 ## 3.4.10.1 - 2022-01-13
