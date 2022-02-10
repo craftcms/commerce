@@ -1,6 +1,6 @@
 # Release Notes for Craft Commerce
 
-## Unreleased
+## 3.4.11 - 2022-02-09
 
 ### Changed
 - Improved memory usage for `craft\commerce\services\LineItems::getAllLineItemsByOrderId()`.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
