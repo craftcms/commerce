@@ -1,5 +1,17 @@
 # Release Notes for Craft Commerce
 
+## 3.4.11 - 2022-02-09
+
+### Changed
+- Improved memory usage for `craft\commerce\services\LineItems::getAllLineItemsByOrderId()`.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
+
+### Fixed
+- Fixed a bug that could occur when attempting to create a customer on the Edit Order page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
+- Fixed a bug where the shipping method name wasn’t getting updated in the Edit Order page sidebar if the shipping method was changed. ([#2682](https://github.com/craftcms/commerce/issues/2682))
+- Fixed a bug where `Addresses::getStoreLocation()` could return an address with `isStoreLocation` set to `false`. ([#2688](https://github.com/craftcms/commerce/issues/2688))
+- Fixed a bug where Edit State pages included a breadcrumb that linked to a 404. ([#2692](https://github.com/craftcms/commerce/pull/2692))
+- Fixed an error that could occur when saving a discount. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
 ## 3.4.10.1 - 2022-01-13
 
 ### Fixed

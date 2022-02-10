@@ -127,7 +127,7 @@
     }
 
     &--email {
-        background-color: #fff;
+        background-color: $lightGrey;
         color: $mediumTextColor;
     }
   }
