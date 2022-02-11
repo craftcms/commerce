@@ -1,5 +1,10 @@
 # Release Notes for Craft Commerce
 
+## Unreleased
+
+### Fixed
+- Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
+
 ## 3.4.11 - 2022-02-09
 
 ### Changed
