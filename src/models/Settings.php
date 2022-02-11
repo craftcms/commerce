@@ -84,10 +84,9 @@ class Settings extends Model
     public $allowCheckoutWithoutPayment = false;
 
     /**
-     * @var bool Whether [partial payment](https://craftcms.com/docs/commerce/3.x/making-payments.html#checkout-with-partial-payment)
-     * can be made from the front end when the gateway allows them.
+     * @var bool Whether [partial payment](making-payments.md#checkout-with-partial-payment) can be made from the front end when the gateway allows them.
      *
-     * The default `false` does not allow partial payments on the front end.
+     * The `false` default does not allow partial payments on the front end.
      *
      * @group Payments
      */
@@ -231,7 +230,7 @@ class Settings extends Model
     /**
      * @var string Human-friendly reference number format for orders. Result must be unique.
      *
-     * See [Order Numbers](orders.md#order-numbers).
+     * See [Order Numbers](orders-carts.md#order-numbers).
      *
      * @group Orders
      */
@@ -320,7 +319,7 @@ class Settings extends Model
      * @var string URL for a user to resolve billing issues with their subscription.
      *
      * ::: tip
-     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/master/example-templates/shop/plans/update-billing-details.twig).
+     * The example templates include [a template for this page](https://github.com/craftcms/commerce/tree/main/example-templates/dist/shop/plans/update-billing-details.twig).
      * :::
      *
      * @group Orders
