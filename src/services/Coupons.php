@@ -12,6 +12,7 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\records\Coupon as CouponRecord;
 use craft\db\Query;
+use craft\helpers\StringHelper;
 use Exception;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
@@ -24,6 +25,33 @@ use yii\base\InvalidConfigException;
  */
 class Coupons extends Component
 {
+    public const CHARS_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public const CHARS_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+    public const CHARS_NUMBERS = '0123456789';
+    public const CHARS_SPECIAL = '!@#$%^&*()-_=+[]{}|;:,.<>/?~';
+
+    /**
+     * @var array|null
+     */
+    private ?array $_allCodes = null;
+
+    /**
+     * @return array|null
+     */
+    public function getAllCodes(): ?array
+    {
+        if ($this->_allCodes !== null) {
+            return $this->_allCodes;
+        }
+
+        $this->_allCodes = $this->_createCouponQuery()
+            ->indexBy('id')
+            ->select(['coupons.code'])
+            ->column();
+
+        return $this->_allCodes;
+    }
+
     /**
      * @param string $code
      * @return Coupon|null
@@ -57,26 +85,33 @@ class Coupons extends Component
     }
 
     /**
-     * @param string $format
+     * @param int $count
+     * @param int $length
+     * @param array $charOptions
      * @return string[]
+     * @throws InvalidConfigException
      */
-    public function generateCouponCodes(string $format, int $count = 10): array
+    public function generateCouponCodes(int $count = 1, int $length = 8, array $charOptions = [self::CHARS_LOWER, self::CHARS_NUMBERS]): array
     {
-        if (!$format) {
-            throw new \InvalidArgumentException(Craft::t('commerce', 'Coupon code format cannot be empty.'));
+        if (empty($charOptions)) {
+            throw new InvalidConfigException('No character options specified.');
         }
 
-        $codes = [];
+        $existingCodes = $this->getAllCodes();
+        $coupons = [];
+        $characters = implode('', $charOptions);
 
-        try {
-            $render = '{% for i in 1..'.$count.' -%}' . $format . '\n{%- endfor %}';
-            $output = Craft::$app->getView()->renderString($render, []);
-            $codes = array_filter(explode('\n', $output));
-        } catch(Exception $exception) {
-            Craft::info($exception->getMessage(), __METHOD__);
+        for ($i = 1; $i <= $count; $i++) {
+            $coupon = StringHelper::randomStringWithChars($characters, $length);
+            if (!empty($existingCodes) && in_array($coupon, $existingCodes, true)) {
+                $i--;
+                continue;
+            }
+            $coupons[] = $coupon;
+            $existingCodes[] = $coupon;
         }
 
-        return $codes;
+        return $coupons;
     }
 
     /**
@@ -128,7 +163,17 @@ class Coupons extends Component
         // Now that we have a record ID, save it on the model
         $coupon->id = $record->id;
 
+        $this->clearCache();
+
         return true;
+    }
+
+    /**
+     * @return void
+     */
+    protected function clearCache(): void
+    {
+        $this->_allCodes = null;
     }
 
     /**

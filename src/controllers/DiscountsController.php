@@ -560,15 +560,20 @@ class DiscountsController extends BaseCpController
         }
     }
 
-    public function actionGenerateCoupons()
+    /**
+     * @return Response
+     * @throws BadRequestHttpException
+     * @throws \yii\base\InvalidConfigException
+     */
+    public function actionGenerateCoupons(): Response
     {
         $this->requireAcceptsJson();
         $this->requirePostRequest();
-        $coupons = [];
 
-        $count = Craft::$app->getRequest()->getBodyParam('count', null);
+        $count = Craft::$app->getRequest()->getBodyParam('count', 0);
         $length = Craft::$app->getRequest()->getBodyParam('length', 8);
-        $characters = 'abcdefghijklmopqrstuvwxyz123567890';
+
+        $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes($count, $length);
 
         return $this->asJson([
             'coupons' => $coupons,

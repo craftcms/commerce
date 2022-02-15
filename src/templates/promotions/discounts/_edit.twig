@@ -43,7 +43,7 @@
 
 {% set couponsTable = {
     name: 'coupons',
-    id: 'coupons',
+    id: 'coupons-table',
     cols: {
         id: {
             type: 'singleline',
@@ -240,10 +240,15 @@
             errors: discount.getErrors('code'),
         }) }}
 
-        <button id="commerce-coupon-button" class="btn">Coupons</button>
+        {{ forms.button({
+            id: 'commerce-coupon-button',
+            label: 'Coupons'|t('commerce'),
+            spinner: true,
+        }) }}
+
         <hr>
         <div id="commerce-coupons">
-            <div class="commerce-coupons-inner">
+            <div id="commerce-coupons-inner">
                 <div>
                     {{ forms.textField({
                         label: 'Number of Coupons'|t('commerce'),
@@ -257,13 +262,16 @@
                         type: 'number',
                         value: 8,
                     }) }}
-                    <button class="commerce-coupon-generate btn">{{ 'Generate'|t }}</button>
+                    {{ forms.button({
+                        id: 'commerce-coupon-generate',
+                        label: 'Generate'|t('commerce'),
+                        spinner: true,
+                    }) }}
                 </div>
                 <div class="commerce-coupons-list">
                     {{ forms.editableTableField({
                         label: 'Coupons'|t('commerce'),
                         name: couponsTable.name,
-                        id: couponsTable.id,
                         cols: couponsTable.cols,
                         rows: discount.coupons,
                         allowAdd: true,
@@ -711,9 +719,9 @@ $(function() {
         }
     });
 
-    new Craft.Commerce.Coupons({
+    new Craft.Commerce.Coupons('#commerce-coupon-button', {
+        generateBtnSelector: '#commerce-coupon-generate',
         table: {
-            id: "{{ 'slideout-' ~ couponsTable.id|namespaceInputId|e('js') }}",
             name: "{{ couponsTable.name|namespaceInputName|e('js') }}",
             cols: {{ couponsTable.cols|json_encode|raw }},
             defaultValues: {{ couponsTable.defaultValues|json_encode|raw }}

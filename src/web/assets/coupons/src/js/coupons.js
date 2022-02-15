@@ -4,26 +4,46 @@ if (typeof Craft.Commerce === typeof undefined) {
 
 Craft.Commerce.Coupons = Garnish.Base.extend(
   {
-    $couponsContainer: null,
-    $addRowBtn: null,
+    couponBtnSelector: null,
+    couponTable: null,
+
+    tempTableId: null,
+
     $couponsBtn: null,
+    $couponsContainer: null,
+    $generateBtn: null,
     $slideout: null,
+    $slideoutContents: null,
 
-    init: function(settings) {
-      this.setSettings(settings);
-      console.log('init coupons');
 
-      this.$addRowBtn = document.querySelector('#commerce-add-coupon-row');
-      this.$couponsContainer = document.querySelector('#commerce-coupons');
-      this.$couponsBtn = document.querySelector('#commerce-coupon-button');
+    init(couponBtnSelector, settings) {
+      this.couponBtnSelector = couponBtnSelector;
+      this.setSettings(settings, Craft.Commerce.Coupons.defaults);
 
-      this.addListener(this.$couponsBtn, 'click', 'openSlideout');
-      this.addListener(this.$addRowBtn, 'click', 'addCouponRow');
+      this.$couponsBtn = document.querySelector(this.couponBtnSelector);
+
+      this.$couponsContainer = document.querySelector(this.settings.couponsContainerSelector);
+      this.$couponsContainerInner = document.querySelector(this.settings.couponsContainerInnerSelector);
+      this.$slideoutContents = this.$couponsContainer.cloneNode(true);
+
+      this.tempTableId = this.$slideoutContents.querySelector('table.editable').id
+      this.$slideoutContents.querySelector('table.editable').id = this.settings.tableSlideoutId;
+
+      this.$generateBtn = this.$slideoutContents.querySelector(this.settings.generateBtnSelector);
+
+      this._addListeners();
     },
 
-    openSlideout: function (ev) {
+    _addListeners() {
+      this.addListener(this.$couponsBtn, 'click', 'openSlideout');
+      this.addListener(this.$generateBtn, 'click', 'generateCoupons');
+    },
+
+    openSlideout(ev) {
       ev.preventDefault();
-      this.$slideout = new Craft.Slideout(this.$couponsContainer, {
+
+      this.$slideout = new Craft.Slideout(this.$slideoutContents, {
+        autoOpen: false,
         containerElement: 'form',
         containerAttributes: {
           action: '',
@@ -33,25 +53,80 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
         },
       });
 
+      this.$slideout.on('open', () => {
+        setTimeout(function() {
+          this.couponTable = new Craft.EditableTable(this.settings.tableSlideoutId, this.settings.table.name, this.settings.table.cols, {
+            defaultValues: this.settings.table.defaultValues,
+            staticRows: false,
+            minRows: null,
+            allowAdd: true,
+            allowDelete: true,
+            maxRows: null,
+            onDeleteRow: this.onDeleteCoupon
+          });
+        }.bind(this), 300);
+      });
+
       this.$slideout.on('close', () => {
-        console.log('closing');
-        $slideout.destroy();
+        this.$slideoutContents.querySelector(`#${this.settings.tableSlideoutId}`).id = this.tempTableId;
+        this.$couponsContainer.replaceChild(this.$slideoutContents.querySelector(this.settings.couponsContainerInnerSelector), this.$couponsContainerInner);
+        this.$slideout.destroy();
+      });
+
+      this.$slideout.open();
+    },
+
+    generateCoupons(ev) {
+      ev.preventDefault();
+
+      Craft.postActionRequest('commerce/discounts/generate-coupons', this.getGenerateData(), (response, status) => {
+        if (status !== 'success') {
+          console.log('throw an error');
+          return;
+        }
+
+        this.appendCoupons(response.coupons);
       });
     },
 
-    addCouponRow: function() {
-      let $row = this.getCouponRowTemplate();
+    appendCoupons(coupons) {
+      console.log(coupons);
+      if (!coupons || !coupons.length) {
+        return;
+      }
 
-      this.$couponsContainer.appendChild($row);
+      const row = this.couponTable.addRow(false);
+      console.log(row.$tr.find('.singleline-cell textarea'));
     },
 
-    getCouponRowTemplate: function() {
-      let $row = document.createElement('div');
-      $row.createTextNode('Coupon')
+    getGenerateData() {
+      if (!this.$slideoutContents) {
+        return {};
+      }
 
-      return $row;
+      const $countField = this.$slideoutContents.querySelector('input[name=count]');
+      const $lengthField = this.$slideoutContents.querySelector('input[name=length]');
+      return {
+        count: $countField.value,
+        length: $lengthField.value,
+      };
     },
+
+    onDeleteCoupon(id) {
+      // prevent deletion of coupons that have been used
+      console.log(id);
+    }
   },
   {
-    defaults: {}
+    defaults: {
+      couponsContainerInnerSelector: '#commerce-coupons-inner',
+      couponsContainerSelector: '#commerce-coupons',
+      generateSelectors: {
+        count: 'input[name=count]',
+        length: 'input[name=length]',
+      },
+      table: {},
+      tableId: 'coupons-table',
+      tableSlideoutId: 'slideout-coupons',
+    }
   });
