@@ -21,7 +21,6 @@
   "require": {
     "craftcms/cms": "^4.0.0-alpha@dev",
     "dompdf/dompdf": "^1.0.2",
-    "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
   },
@@ -59,6 +58,10 @@
     "sort-packages": true,
     "platform": {
       "php": "7.4"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
     }
   }
 }
