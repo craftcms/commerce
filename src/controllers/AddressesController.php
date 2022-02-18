@@ -168,7 +168,7 @@ class AddressesController extends BaseCpController
 
         return $this->asModelSuccess(
             $address,
-            Craft::t('commerce', 'Couldn’t save address.'),
+            Craft::t('commerce', 'Address saved.'),
             'address'
         );
     }
