@@ -500,7 +500,7 @@ class Discounts extends Component
             return false;
         }
 
-        if (!$discount->getOrderCondition()->matchOrder($order)) {
+        if (!$discount->getOrderMatchCondition()->matchOrder($order)) {
             return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
         }
 
@@ -636,7 +636,7 @@ class Discounts extends Component
         $record->enabled = $model->enabled;
         $record->stopProcessing = $model->stopProcessing;
         $record->purchaseTotal = $model->purchaseTotal;
-        $record->orderCondition = $model->getOrderCondition() ? $model->getOrderCondition()->getConfig() : null;
+        $record->orderCondition = $model->getOrderMatchCondition() ? $model->getOrderMatchCondition()->getConfig() : null;
         $record->orderConditionFormula = $model->orderConditionFormula;
         $record->purchaseQty = $model->purchaseQty;
         $record->maxPurchaseQty = $model->maxPurchaseQty;
@@ -1209,7 +1209,7 @@ class Discounts extends Component
                 '[[discounts.ignoreSales]]',
                 '[[discounts.maxPurchaseQty]]',
                 '[[discounts.name]]',
-                '[[discounts.orderCondition]]',
+                '[[discounts.orderMatchCondition]]',
                 '[[discounts.orderConditionFormula]]',
                 '[[discounts.percentageOffSubject]]',
                 '[[discounts.percentDiscount]]',

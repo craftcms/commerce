@@ -2,8 +2,9 @@
 
 namespace craft\commerce\conditions\discounts;
 
+use craft\base\conditions\ConditionRuleInterface;
 use craft\commerce\elements\Order;
-use craft\conditions\ConditionRuleInterface;
+
 
 /**
  * Discount Order Condition Rule Interface

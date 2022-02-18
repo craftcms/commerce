@@ -315,7 +315,7 @@ class ProductType extends Model
             if (ArrayHelper::contains($layoutTabs, 'name', $variantTabName)) {
                 $variantTabName .= ' ' . StringHelper::randomString(10);
             }
-            $layoutTabs[] = new FieldLayoutTab([
+            $contentTab = new FieldLayoutTab([
                 'name' => $variantTabName,
                 'elements' => [
                     [
@@ -323,6 +323,8 @@ class ProductType extends Model
                     ],
                 ],
             ]);
+            $contentTab->setLayout($fieldLayout);
+            $layoutTabs[] = $contentTab;
             $fieldLayout->setTabs($layoutTabs);
         }
 

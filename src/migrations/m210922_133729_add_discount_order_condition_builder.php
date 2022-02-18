@@ -15,8 +15,8 @@ class m210922_133729_add_discount_order_condition_builder extends Migration
      */
     public function safeUp(): bool
     {
-        if (!$this->db->columnExists('{{%commerce_discounts}}', 'orderCondition')) {
-            $this->addColumn('{{%commerce_discounts}}', 'orderCondition', $this->json()->after('description'));
+        if (!$this->db->columnExists('{{%commerce_discounts}}', 'orderMatchCondition')) {
+            $this->addColumn('{{%commerce_discounts}}', 'orderMatchCondition', $this->text()->after('description'));
         }
 
         return true;

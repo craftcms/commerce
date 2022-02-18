@@ -111,7 +111,7 @@ class DiscountsController extends BaseCpController
         $discount->name = $request->getBodyParam('name');
         $discount->description = $request->getBodyParam('description');
         $discount->enabled = (bool)$request->getBodyParam('enabled');
-        $discount->setOrderCondition($request->getBodyParam('orderCondition'));
+        $discount->setOrderMatchCondition($request->getBodyParam('orderCondition'));
         $discount->stopProcessing = (bool)$request->getBodyParam('stopProcessing');
         $discount->purchaseQty = $request->getBodyParam('purchaseQty');
         $discount->maxPurchaseQty = $request->getBodyParam('maxPurchaseQty');

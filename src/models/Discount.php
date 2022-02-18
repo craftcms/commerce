@@ -13,7 +13,6 @@ use craft\commerce\conditions\discounts\DiscountOrderCondition;
 use craft\commerce\conditions\discounts\DiscountOrderConditionInterface;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
@@ -60,7 +59,7 @@ class Discount extends Model
     /**
      * @var DiscountOrderConditionInterface|null Condition
      */
-    public ?DiscountOrderConditionInterface $_orderCondition = null;
+    public ?DiscountOrderConditionInterface $_orderMatchCondition = null;
 
     /**
      * @var int Per user coupon use limit
@@ -232,11 +231,11 @@ class Discount extends Model
     {
         parent::init();
 
-        if ($this->_orderCondition === null) {
+        if ($this->_orderMatchCondition === null) {
             $config = [
-                'type' => DiscountOrderCondition::class
+                'class' => DiscountOrderCondition::class
             ];
-            $this->_orderCondition = Craft::$app->getConditions()->createCondition($config);
+            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition($config);
         }
     }
 
@@ -263,9 +262,9 @@ class Discount extends Model
     /**
      * @return DiscountOrderConditionInterface
      */
-    public function getOrderCondition()
+    public function getOrderMatchCondition()
     {
-        return $this->_orderCondition;
+        return $this->_orderMatchCondition;
     }
 
     /**
@@ -273,25 +272,25 @@ class Discount extends Model
      * @return DiscountOrderConditionInterface|array|null
      * @throws InvalidConfigException
      */
-    public function setOrderCondition($condition)
+    public function setOrderMatchCondition($condition)
     {
         if (is_string($condition)) {
             $condition = Json::decodeIfJson($condition, true);
         }
 
         if ($condition instanceof DiscountOrderConditionInterface) {
-            $this->_orderCondition = $condition;
+            $this->_orderMatchCondition = $condition;
         } elseif (is_array($condition)) {
             /** @var DiscountOrderCondition $orderCondition */
             $orderCondition = Craft::$app->getConditions()->createCondition($condition);
-            $this->_orderCondition = $orderCondition;
+            $this->_orderMatchCondition = $orderCondition;
         } elseif ($condition === null) {
-            $this->_orderCondition = null;
+            $this->_orderMatchCondition = null;
         } else {
             throw new InvalidConfigException('Not a condition object or config');
         }
 
-        return $this->_orderCondition;
+        return $this->_orderMatchCondition;
     }
 
     /**

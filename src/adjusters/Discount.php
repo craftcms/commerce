@@ -152,7 +152,6 @@ class Discount extends Component implements AdjusterInterface
             }
             $this->_order->setAdjustments($allAdjustments);
 
-
             // Our adjustments
             foreach ($adjustments as $key => $adjustment) {
                 if ($adjustment->getLineItem()) {
