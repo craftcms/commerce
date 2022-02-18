@@ -142,6 +142,6 @@ class EmailsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getEmails()->deleteEmailById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

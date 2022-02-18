@@ -145,15 +145,19 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                 saleId: saleId
             };
 
-            Craft.postActionRequest('commerce/sales/add-purchasable-to-sale', data, $.proxy(function(response) {
-                if (response && response.error) {
-                    Craft.cp.displayError(response.error);
-                } else if (response && response.success ) {
+            Craft.sendActionRequest('POST', 'commerce/sales/add-purchasable-to-sale', {data})
+                .then((response) => {
                     Craft.cp.displayNotice(Craft.t('commerce', 'Added to Sale.'));
                     this.hide();
-                }
-                this.$spinner.addClass('hidden');
-            }, this));
+                })
+                .catch(({response}) => {
+                    if (response.data && response.data.message) {
+                        Craft.cp.displayError(response.data.message);
+                    }
+                })
+                .finally(() => {
+                    this.$spinner.addClass('hidden');
+                });
         },
 
         handleSaleChange: function(ev) {

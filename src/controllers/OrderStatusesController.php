@@ -119,10 +119,10 @@ class OrderStatusesController extends BaseAdminController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
         if ($success = Plugin::getInstance()->getOrderStatuses()->reorderOrderStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder Order Statuses.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder Order Statuses.'));
     }
 
     /**
@@ -137,9 +137,9 @@ class OrderStatusesController extends BaseAdminController
         $orderStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
         if (Plugin::getInstance()->getOrderStatuses()->deleteOrderStatusById((int)$orderStatusId)) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Order Status.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Order Status.'));
     }
 }

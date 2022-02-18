@@ -219,10 +219,10 @@ class DiscountsController extends BaseCpController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder discounts.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
     }
 
     /**
@@ -249,7 +249,7 @@ class DiscountsController extends BaseCpController
         }
 
         if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Discounts deleted.'));
@@ -272,7 +272,7 @@ class DiscountsController extends BaseCpController
         $types = [self::DISCOUNT_COUNTER_TYPE_TOTAL, self::DISCOUNT_COUNTER_TYPE_CUSTOMER, self::DISCOUNT_COUNTER_TYPE_EMAIL];
 
         if (!in_array($type, $types, true)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Type not in allowed options.'));
+            return $this->asFailure(Craft::t('commerce', 'Type not in allowed options.'));
         }
 
         switch ($type) {
@@ -287,7 +287,7 @@ class DiscountsController extends BaseCpController
                 break;
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -332,13 +332,13 @@ class DiscountsController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
         }
 
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
 
         if (!$purchasable) {
-            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+            return $this->asFailure(Craft::t('commerce', 'No purchasable available.'));
         }
 
         $discounts = [];
@@ -352,8 +352,7 @@ class DiscountsController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'discounts' => $discounts,
         ]);
     }

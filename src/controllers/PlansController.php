@@ -155,10 +155,10 @@ class PlansController extends BaseStoreSettingsController
         try {
             Plugin::getInstance()->getPlans()->archivePlanById($planId);
         } catch (Exception $exception) {
-            return $this->asErrorJson($exception->getMessage());
+            return $this->asFailure($exception->getMessage());
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -170,10 +170,10 @@ class PlansController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPlans()->reorderPlans($ids)) {
-            return $this->asJson(['success' => $success]);
-        }
+        $success = Plugin::getInstance()->getPlans()->reorderPlans($ids);
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder plans.')]);
+        return $success ?
+            $this->asSuccess() :
+            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'))
     }
 }

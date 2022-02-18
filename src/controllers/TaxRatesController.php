@@ -206,6 +206,6 @@ class TaxRatesController extends BaseTaxSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

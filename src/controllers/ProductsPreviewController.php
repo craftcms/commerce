@@ -138,37 +138,25 @@ class ProductsPreviewController extends Controller
         }
 
         if (!Craft::$app->getElements()->saveElement($product)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => false,
-                    'errors' => $product->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product.'));
-
-            // Send the category back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product,
-            ]);
-
-            return null;
+            return $this->asModelFailure(
+                $product,
+                Craft::t('commerce', 'Couldn’t save product.'),
+                'product'
+            );
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asModelSuccess(
+            $product,
+            Craft::t('commerce', 'Couldn’t save product.'),
+            'product',
+            [
                 'id' => $product->id,
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
                 'cpEditUrl' => $product->getCpEditUrl(),
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Product saved.'));
-
-        return $this->redirectToPostedUrl($product);
+            ]
+        );
     }
 
     /**

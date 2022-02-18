@@ -110,7 +110,7 @@ class AddressesController extends BaseCpController
 
             if (!$address) {
                 if (Craft::$app->getRequest()->getAcceptsJson()) {
-                    return $this->asErrorJson('Address not found.');
+                    return $this->asFailure('Address not found.');
                 }
 
                 throw new NotFoundHttpException('Address not found.');
@@ -159,28 +159,18 @@ class AddressesController extends BaseCpController
 
         // Save it
         if (!$result) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => Craft::t('commerce', 'Couldn’t save address.'),
-                    'errors' => $address->errors,
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save address.'));
-
-            // Send the model back to the template
-            Craft::$app->getUrlManager()->setRouteParams(['address' => $address]);
-
-            return null;
+            return $this->asModelFailure(
+                $address,
+                Craft::t('commerce', 'Couldn’t save address.'),
+                'address'
+            );
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson(['success' => true, 'address' => $address]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
-
-        return $this->redirectToPostedUrl($address);
+        return $this->asModelSuccess(
+            $address,
+            Craft::t('commerce', 'Couldn’t save address.'),
+            'address'
+        );
     }
 
     /**
@@ -249,7 +239,7 @@ class AddressesController extends BaseCpController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getAddresses()->deleteAddressById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -269,7 +259,7 @@ class AddressesController extends BaseCpController
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve customer.'));
         }
 
         $addresses = Plugin::getInstance()->getAddresses()->getAddressesByCustomerId($customerId);
@@ -290,7 +280,7 @@ class AddressesController extends BaseCpController
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);
@@ -309,7 +299,7 @@ class AddressesController extends BaseCpController
         $addressPost = $request->getParam('address');
 
         if (!$addressPost) {
-            return $this->asErrorJson(Craft::t('commerce', 'An address must be provided.'));
+            return $this->asFailure(Craft::t('commerce', 'An address must be provided.'));
         }
 
         $addressPost = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($addressPost);
@@ -317,13 +307,10 @@ class AddressesController extends BaseCpController
         $address = new AddressModel($addressPost);
 
         if (!$address->validate()) {
-            return $this->asJson([
-                'success' => false,
-                'errors' => $address->getErrors(),
-            ]);
+            return $this->asModelFailure($address);
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -339,21 +326,20 @@ class AddressesController extends BaseCpController
         $addressId = $request->getParam('id');
 
         if (!$addressId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Address ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Address ID is required.'));
         }
 
         if (!is_numeric($addressId)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Address ID must be numeric.'));
+            return $this->asFailure(Craft::t('commerce', 'Address ID must be numeric.'));
         }
 
         $address = Plugin::getInstance()->getAddresses()->getAddressById((int)$addressId);
 
         if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Couldn’t retrieve address.'));
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t retrieve address.'));
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'address' => $address,
         ]);
     }
