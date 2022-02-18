@@ -36,7 +36,7 @@ class ProductsPreviewController extends Controller
     /**
      * @inheritdoc
      */
-    protected bool $allowAnonymous = true;
+    protected $allowAnonymous = true;
 
     /**
      * Previews a product.
