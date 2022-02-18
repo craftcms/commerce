@@ -7,6 +7,7 @@
 
 ### Fixed
 - Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
+- Removed incorrect behavior description "Leave blank for all categories." Sales promotions setting in Matching Items tab.
 
 ## 3.4.11 - 2022-02-09
 

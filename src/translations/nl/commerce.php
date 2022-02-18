@@ -154,7 +154,7 @@ return [
     'Carts' => 'Winkelwagens',
     'Categories Relationship Type' => 'Relatietype categorieën',
     'Categories that the matching purchasables must be related to. Leave blank to ignore category matching.' => 'Categorieën waarop de overeenstemmende aankopen betrekking moeten hebben. Laat dit leeg om overeenstemming van categorieën te negeren.',
-    'Categories that the purchasables must be related to. Leave blank for all categories.' => 'Categorieën waarop de aankopen betrekking moeten hebben. Laat leeg voor alle categorieën.',
+    'Categories that the purchasables must be related to.' => 'Categorieën waarop de aankopen betrekking moeten hebben. Laat leeg voor alle categorieën.',
     'Categories' => 'Categorieën',
     'Category Rate Overrides' => 'Categorietarief overschrijft',
     'Centimeters (cm)' => 'Centimeter (cm)',
