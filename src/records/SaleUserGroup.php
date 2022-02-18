@@ -43,16 +43,12 @@ class SaleUserGroup extends ActiveRecord
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSale(): ActiveQueryInterface
     {
         return $this->hasOne(Sale::class, ['saleId' => 'id']);
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getUserGroup(): ActiveQueryInterface

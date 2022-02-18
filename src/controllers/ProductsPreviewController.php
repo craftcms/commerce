@@ -59,7 +59,6 @@ class ProductsPreviewController extends Controller
      *
      * @param mixed $productId
      * @param mixed $siteId
-     * @return Response
      * @throws Exception
      * @throws HttpException
      * @throws InvalidConfigException
@@ -94,7 +93,6 @@ class ProductsPreviewController extends Controller
      *
      * @param mixed $productId
      * @param mixed $site
-     * @return Response|null
      * @throws HttpException
      */
     public function actionViewSharedProduct($productId, $site = null): ?Response
@@ -115,7 +113,6 @@ class ProductsPreviewController extends Controller
     /**
      * Save a new or existing product.
      *
-     * @return Response|null
      * @throws Exception
      * @throws HttpException
      * @throws Throwable
@@ -175,7 +172,6 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */
@@ -187,7 +183,6 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
      */
@@ -199,8 +194,6 @@ class ProductsPreviewController extends Controller
     /**
      * Displays a product.
      *
-     * @param Product $product
-     * @return Response
      * @throws InvalidConfigException
      * @throws ServerErrorHttpException
      */

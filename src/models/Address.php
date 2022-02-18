@@ -223,9 +223,6 @@ class Address extends Model
         parent::init();
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/addresses/' . $this->id);
@@ -408,9 +405,6 @@ class Address extends Model
     }
 
 
-    /**
-     * @return string
-     */
     public function getCountryName(): string
     {
         $country = $this->getCountry();
@@ -418,7 +412,6 @@ class Address extends Model
     }
 
     /**
-     * @return string
      * @deprecated in 4.0. Use [[getCountryName]] instead.
      */
     public function getCountryText(): string
@@ -426,16 +419,12 @@ class Address extends Model
         return $this->getCountryName();
     }
 
-    /**
-     * @return Country|null
-     */
     public function getCountry(): ?Country
     {
         return $this->countryId ? Plugin::getInstance()->getCountries()->getCountryById($this->countryId) : null;
     }
 
     /**
-     * @return string
      * @since 3.1.4
      */
     public function getCountryIso(): string
@@ -444,9 +433,6 @@ class Address extends Model
         return $country->iso ?? '';
     }
 
-    /**
-     * @return string
-     */
     public function getStateName(): string
     {
         $state = $this->getState();
@@ -462,7 +448,6 @@ class Address extends Model
     }
 
     /**
-     * @return string
      * @deprecated in 4.0. Use [[getStateName]] instead.
      */
     public function getStateText(): string
@@ -470,9 +455,6 @@ class Address extends Model
         return $this->getStateName();
     }
 
-    /**
-     * @return string
-     */
     public function getStateAbbreviation(): string
     {
         $state = $this->getState();
@@ -480,7 +462,6 @@ class Address extends Model
     }
 
     /**
-     * @return string
      * @deprecated in 4.0. Use [[getStateAbbreviation]] instead.
      */
     public function getAbbreviationText(): string
@@ -488,18 +469,12 @@ class Address extends Model
         return $this->getStateAbbreviation();
     }
 
-    /**
-     * @return State|null
-     */
     public function getState(): ?State
     {
         return $this->stateId ? Plugin::getInstance()->getStates()->getStateById($this->stateId) : null;
     }
 
-    /**
-     * @return int|string
-     */
-    public function getStateValue()
+    public function getStateValue(): int|string
     {
         if ($this->_stateValue === null) {
             if ($this->stateName) {
@@ -539,8 +514,6 @@ class Address extends Model
     /**
      * Return a keyed array of address lines. Useful for outputting an address in a consistent format.
      *
-     * @param bool $sanitize
-     * @return array
      * @since 3.2.0
      */
     public function getAddressLines(bool $sanitize = false): array
@@ -589,8 +562,6 @@ class Address extends Model
     /**
      * This method can be used to determine if the other addresses supplied has the same address contents (minus the address ID).
      *
-     * @param Address|null $otherAddress
-     * @return bool
      * @since 3.2.1
      */
     public function sameAs(?Address $otherAddress): bool
@@ -634,10 +605,6 @@ class Address extends Model
         return false;
     }
 
-    /**
-     * @param string $businessVatId
-     * @return bool
-     */
     private function _validateVatNumber(string $businessVatId): bool
     {
         try {
@@ -649,9 +616,6 @@ class Address extends Model
         }
     }
 
-    /**
-     * @return Validator
-     */
     private function _getVatValidator(): Validator
     {
         if (!isset($this->_vatValidator)) {

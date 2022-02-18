@@ -317,7 +317,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function gatewayId($value): SubscriptionQuery
+    public function gatewayId(array|int $value): SubscriptionQuery
     {
         $this->gatewayId = $value;
         return $this;
@@ -338,7 +338,7 @@ class SubscriptionQuery extends ElementQuery
      * @param int|int[] $value The property value
      * @return static self reference
      */
-    public function orderId($value): SubscriptionQuery
+    public function orderId(array|int $value): SubscriptionQuery
     {
         $this->orderId = $value;
         return $this;
@@ -350,7 +350,7 @@ class SubscriptionQuery extends ElementQuery
      * @param string|string[] $value The property value
      * @return static self reference
      */
-    public function reference($value): SubscriptionQuery
+    public function reference(array|string $value): SubscriptionQuery
     {
         $this->reference = $value;
         return $this;
@@ -829,7 +829,6 @@ class SubscriptionQuery extends ElementQuery
     /**
      * Returns the SQL condition to use for trial status.
      *
-     * @param bool $onTrial
      * @return mixed
      */
     private function _getTrialCondition(bool $onTrial)

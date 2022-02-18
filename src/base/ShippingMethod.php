@@ -150,10 +150,6 @@ abstract class ShippingMethod extends BaseModel implements ShippingMethodInterfa
         return null;
     }
 
-    /**
-     * @param Order $order
-     * @return float
-     */
     public function getPriceForOrder(Order $order): float
     {
         $shippingRule = $this->getMatchingShippingRule($order);

@@ -65,17 +65,11 @@ class PaymentCurrency extends Model
      */
     public ?DateTime $dateUpdated = null;
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return (string)$this->iso;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/store-settings/paymentcurrencies/' . $this->id);
@@ -95,9 +89,6 @@ class PaymentCurrency extends Model
         return $names;
     }
 
-    /**
-     * @return string|null
-     */
     public function getAlphabeticCode(): ?string
     {
         if (isset($this->_currency)) {
@@ -107,9 +98,6 @@ class PaymentCurrency extends Model
         return null;
     }
 
-    /**
-     * @return int|null
-     */
     public function getNumericCode(): ?int
     {
         if (isset($this->_currency)) {
@@ -119,9 +107,6 @@ class PaymentCurrency extends Model
         return null;
     }
 
-    /**
-     * @return string|null
-     */
     public function getEntity(): ?string
     {
         if (isset($this->_currency)) {
@@ -131,9 +116,6 @@ class PaymentCurrency extends Model
         return null;
     }
 
-    /**
-     * @return int|null
-     */
     public function getMinorUnit(): ?int
     {
         if (isset($this->_currency)) {
@@ -145,17 +127,12 @@ class PaymentCurrency extends Model
 
     /**
      * Returns alias of getCurrency()
-     *
-     * @return string|null
      */
     public function getName(): ?string
     {
         return $this->getCurrency();
     }
 
-    /**
-     * @return string|null
-     */
     public function getCurrency(): ?string
     {
         if (isset($this->_currency)) {
@@ -167,8 +144,6 @@ class PaymentCurrency extends Model
 
     /**
      * Sets the Currency Model data on the Payment Currency
-     *
-     * @param Currency $currency
      */
     public function setCurrency(Currency $currency): void
     {

@@ -43,7 +43,6 @@ class TaxZoneState extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getTaxZone(): ActiveQueryInterface
@@ -51,9 +50,6 @@ class TaxZoneState extends ActiveRecord
         return $this->hasOne(TaxZone::class, ['id' => 'taxZoneId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getState(): ActiveQueryInterface
     {
         return $this->hasOne(State::class, ['id' => 'stateId']);

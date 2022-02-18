@@ -158,8 +158,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     private ?array $_shippingRuleCategories = null;
 
     /**
-     * @param Order $order
-     * @return array
      * @throws InvalidConfigException
      */
     private function _getUniqueCategoryIdsInOrder(Order $order): array
@@ -177,7 +175,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
 
     /**
      * @param $shippingRuleCategories
-     * @return array
      */
     private function _getRequiredAndDisallowedCategoriesFromRule($shippingRuleCategories): array
     {
@@ -405,7 +402,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @return ShippingAddressZone|null
      * @throws InvalidConfigException
      */
     public function getShippingZone(): ?ShippingAddressZone
@@ -481,7 +477,6 @@ class ShippingRule extends Model implements ShippingRuleInterface
     }
 
     /**
-     * @param string $attribute
      * @since 3.2.7
      */
     public function validateShippingRuleCategories(string $attribute): void

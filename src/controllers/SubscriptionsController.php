@@ -35,7 +35,6 @@ use yii\web\Response;
 class SubscriptionsController extends BaseController
 {
     /**
-     * @return Response
      * @throws ForbiddenHttpException
      */
     public function actionIndex(): Response
@@ -46,7 +45,6 @@ class SubscriptionsController extends BaseController
 
 
     /**
-     * @param Subscription $subscription
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */
@@ -60,7 +58,6 @@ class SubscriptionsController extends BaseController
     /**
      * @param int|null $subscriptionId
      * @param Subscription|null $subscription
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -121,7 +118,6 @@ class SubscriptionsController extends BaseController
     /**
      * Save a subscription's custom fields.
      *
-     * @return Response|null
      * @throws NotFoundHttpException if subscription not found
      * @throws ForbiddenHttpException if permissions are lacking
      * @throws HttpException if invalid data posted
@@ -183,7 +179,6 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws HttpException if request does not match requirements
      * @throws InvalidConfigException if gateway does not support subscriptions
@@ -274,7 +269,6 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Throwable
      */
@@ -331,7 +325,6 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */
@@ -406,7 +399,6 @@ class SubscriptionsController extends BaseController
     }
 
     /**
-     * @return Response|null
      * @throws InvalidConfigException
      * @throws BadRequestHttpException
      */

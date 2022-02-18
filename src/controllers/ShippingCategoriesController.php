@@ -24,9 +24,6 @@ use yii\web\Response;
  */
 class ShippingCategoriesController extends BaseShippingSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $shippingCategories = Plugin::getInstance()->getShippingCategories()->getAllShippingCategories();
@@ -36,7 +33,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     /**
      * @param int|null $id
      * @param ShippingCategory|null $shippingCategory
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, ShippingCategory $shippingCategory = null): Response
@@ -79,7 +75,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Exception
      * @noinspection Duplicates
@@ -161,7 +156,6 @@ class ShippingCategoriesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Exception
      * @since 3.2.9

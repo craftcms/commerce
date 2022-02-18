@@ -58,9 +58,6 @@ class TaxZones extends Component
 
     /**
      * Get a tax zone by its ID.
-     *
-     * @param int $id
-     * @return TaxAddressZone|null
      */
     public function getTaxZoneById(int $id): ?TaxAddressZone
     {
@@ -70,9 +67,7 @@ class TaxZones extends Component
     /**
      * Save a tax zone.
      *
-     * @param TaxAddressZone $model
      * @param bool $runValidation should we validate this zone before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -177,8 +172,6 @@ class TaxZones extends Component
     }
 
     /**
-     * @param int $id
-     * @return bool
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -195,8 +188,6 @@ class TaxZones extends Component
 
     /**
      * Returns a Query object prepped for retrieving tax zones.
-     *
-     * @return Query
      */
     private function _createTaxZonesQuery(): Query
     {

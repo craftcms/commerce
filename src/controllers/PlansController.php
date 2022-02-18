@@ -28,9 +28,6 @@ use function is_array;
  */
 class PlansController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionPlanIndex(): Response
     {
         $plans = Plugin::getInstance()->getPlans()->getAllPlans();
@@ -40,7 +37,6 @@ class PlansController extends BaseStoreSettingsController
     /**
      * @param int|null $planId
      * @param Plan|null $plan
-     * @return Response
      * @throws HttpException
      */
     public function actionEditPlan(int $planId = null, Plan $plan = null): Response
@@ -147,7 +143,6 @@ class PlansController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws HttpException if request does not match requirements
      */
     public function actionArchivePlan(): Response

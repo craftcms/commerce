@@ -72,8 +72,6 @@ class Webhooks extends Component
     const EVENT_AFTER_PROCESS_WEBHOOK = 'afterProcessWebhook';
 
     /**
-     * @param Gateway $gateway
-     * @return Response
      * @throws \Exception
      */
     public function processWebhook(Gateway $gateway): Response

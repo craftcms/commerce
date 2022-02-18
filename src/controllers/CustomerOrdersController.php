@@ -22,7 +22,6 @@ class CustomerOrdersController extends BaseFrontEndController
     /**
      * Get customer's orders
      *
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetOrders(): Response

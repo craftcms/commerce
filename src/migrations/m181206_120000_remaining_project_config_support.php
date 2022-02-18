@@ -70,8 +70,6 @@ class m181206_120000_remaining_project_config_support extends Migration
 
     /**
      * Return product type data config array.
-     *
-     * @return array
      */
     private function _getProductTypeData(): array
     {
@@ -151,8 +149,6 @@ class m181206_120000_remaining_project_config_support extends Migration
 
     /**
      * Return email data config array.
-     *
-     * @return array
      */
     private function _getEmailData(): array
     {
@@ -185,8 +181,6 @@ class m181206_120000_remaining_project_config_support extends Migration
 
     /**
      * Return order status data config array.
-     *
-     * @return array
      */
     private function _getStatusData(): array
     {

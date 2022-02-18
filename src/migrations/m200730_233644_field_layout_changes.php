@@ -105,9 +105,6 @@ class m200730_233644_field_layout_changes extends Migration
         }
     }
 
-    /**
-     * @param array $fieldLayoutConfig
-     */
     private function _updateFieldLayoutConfig(array &$fieldLayoutConfig)
     {
         // Make sure there's at least one tab

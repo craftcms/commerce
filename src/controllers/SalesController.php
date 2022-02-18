@@ -48,7 +48,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -60,7 +59,6 @@ class SalesController extends BaseCpController
     /**
      * @param int|null $id
      * @param Sale|null $sale
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -206,7 +204,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws StaleObjectException
@@ -242,7 +239,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetAllSales(): Response
@@ -254,7 +250,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -295,7 +290,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -334,7 +328,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws \yii\base\Exception

@@ -33,9 +33,6 @@ class OrderNotice extends ActiveRecord
         return Table::ORDERNOTICES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);

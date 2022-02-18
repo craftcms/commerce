@@ -75,7 +75,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionProductIndex(): Response
@@ -84,20 +83,15 @@ class ProductsController extends BaseController
         return $this->renderTemplate('commerce/products/_index');
     }
 
-    /**
-     * @return Response
-     */
     public function actionVariantIndex(): Response
     {
         return $this->renderTemplate('commerce/variants/_index');
     }
 
     /**
-     * @param string $productTypeHandle
      * @param int|null $productId
      * @param string|null $siteHandle
      * @param Product|null $product
-     * @return Response
      * @throws Exception
      * @throws ForbiddenHttpException
      * @throws HttpException
@@ -220,7 +214,6 @@ class ProductsController extends BaseController
      * Save a new or existing product.
      *
      * @param bool $duplicate Whether the product should be duplicated
-     * @return Response|null
      * @throws Exception
      * @throws HttpException
      * @throws Throwable
@@ -250,7 +243,7 @@ class ProductsController extends BaseController
 
                     $newVariants = [];
                     foreach ($variants as $key => $postedVariant) {
-                        if (strpos($key, 'new') === 0) {
+                        if (str_starts_with($key, 'new')) {
                             $newVariants[$key] = $postedVariant;
                         } else {
                             $index = array_search($key, $originalVariantIds);
@@ -355,7 +348,6 @@ class ProductsController extends BaseController
     /**
      * Duplicates a product.
      *
-     * @return Response|null
      * @throws InvalidRouteException
      * @since 3.1.3
      */
@@ -365,7 +357,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */
@@ -377,7 +368,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */
@@ -389,7 +379,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
@@ -399,9 +388,6 @@ class ProductsController extends BaseController
         $this->enforceDeleteProductPermissions($product);
     }
 
-    /**
-     * @param array $variables
-     */
     private function _prepVariables(array &$variables): void
     {
         $variables['tabs'] = [];
@@ -417,7 +403,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @param array $variables
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws NotFoundHttpException

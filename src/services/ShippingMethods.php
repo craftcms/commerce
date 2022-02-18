@@ -84,9 +84,6 @@ class ShippingMethods extends Component
 
     /**
      * Get a shipping method by its handle.
-     *
-     * @param string $shippingMethodHandle
-     * @return ShippingMethod|null
      */
     public function getShippingMethodByHandle(string $shippingMethodHandle): ?ShippingMethod
     {
@@ -95,9 +92,6 @@ class ShippingMethods extends Component
 
     /**
      * Get a shipping method by its ID.
-     *
-     * @param int $shippingMethodId
-     * @return ShippingMethod|null
      */
     public function getShippingMethodById(int $shippingMethodId): ?ShippingMethod
     {
@@ -107,7 +101,6 @@ class ShippingMethods extends Component
     /**
      * Get all available shipping methods to the order.
      *
-     * @param Order $order
      * @return ShippingMethod[]
      */
     public function getMatchingShippingMethods(Order $order): array
@@ -154,9 +147,6 @@ class ShippingMethods extends Component
     /**
      * Get a matching shipping rule for Order and shipping method.
      *
-     * @param Order $order
-     * @param ShippingMethodInterface $method
-     * @return ShippingRuleInterface|null
      * @noinspection PhpUnused
      */
     public function getMatchingShippingRule(Order $order, ShippingMethodInterface $method): ?ShippingRuleInterface
@@ -167,9 +157,7 @@ class ShippingMethods extends Component
     /**
      * Save a shipping method.
      *
-     * @param ShippingMethod $model
      * @param bool $runValidation should we validate this method before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
@@ -213,9 +201,7 @@ class ShippingMethods extends Component
     /**
      * Save a lite shipping method.
      *
-     * @param ShippingMethod $model
      * @param bool $runValidation should we validate this method before saving.
-     * @return bool
      * @throws Exception
      */
     public function saveLiteShippingMethod(ShippingMethod $model, bool $runValidation = true): bool
@@ -239,8 +225,6 @@ class ShippingMethods extends Component
 
     /**
      * Gets the lite shipping method or returns a new one.
-     *
-     * @return ShippingMethod
      */
     public function getLiteShippingMethod(): ShippingMethod
     {
@@ -263,7 +247,6 @@ class ShippingMethods extends Component
      * Delete a shipping method by its ID.
      *
      * @param $shippingMethodId int
-     * @return bool
      * @throws \Throwable
      */
     public function deleteShippingMethodById(int $shippingMethodId): bool
@@ -294,8 +277,6 @@ class ShippingMethods extends Component
 
     /**
      * Returns a Query object prepped for retrieving shipping methods.
-     *
-     * @return Query
      */
     private function _createShippingMethodQuery(): Query
     {

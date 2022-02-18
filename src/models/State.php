@@ -76,24 +76,17 @@ class State extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/store-settings/states/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->name;
     }
 
     /**
-     * @return Country
      * @throws InvalidConfigException if [[countryId]] is missing or invalid
      */
     public function getCountry(): Country
@@ -106,7 +99,6 @@ class State extends Model
     }
 
     /**
-     * @return string
      * @throws InvalidConfigException
      */
     public function getLabel(): string

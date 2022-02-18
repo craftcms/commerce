@@ -29,9 +29,6 @@ use yii\web\Response;
  */
 class StatesController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
@@ -41,7 +38,6 @@ class StatesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param State|null $state
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, State $state = null): Response
@@ -181,7 +177,6 @@ class StatesController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws Exception
      * @throws BadRequestHttpException
      * @since 3.1

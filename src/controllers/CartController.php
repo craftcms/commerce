@@ -76,7 +76,6 @@ class CartController extends BaseFrontEndController
     /**
      * Updates the cart by adding purchasables to the cart, updating line items, or updating various cart attributes.
      *
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws ElementNotFoundException
      * @throws Exception
@@ -251,7 +250,6 @@ class CartController extends BaseFrontEndController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws MissingComponentException
@@ -375,7 +373,6 @@ class CartController extends BaseFrontEndController
 
     /**
      * @param $lineItemId |null
-     * @return LineItem|null
      */
     private function _getCartLineItemById(?int $lineItemId): ?LineItem
     {
@@ -464,7 +461,6 @@ class CartController extends BaseFrontEndController
 
     /**
      * @param bool $forceSave Force the cart to save to the DB
-     * @return Order|null
      *
      * @throws ElementNotFoundException
      * @throws Exception

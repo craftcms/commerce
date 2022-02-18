@@ -228,9 +228,6 @@ class Discount extends Model
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
@@ -302,33 +299,21 @@ class Discount extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
-    /**
-     * @param bool $value
-     */
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
     }
 
-    /**
-     * @return bool
-     */
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;
     }
 
-    /**
-     * @return string
-     */
     public function getPercentDiscountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
-    /**
-     * @return array
-     */
     public function getUserGroupsConditions(): array
     {
         return [

@@ -41,7 +41,6 @@ class ShippingMethodOption extends ShippingMethod
     public bool $matchesOrder;
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -59,8 +58,6 @@ class ShippingMethodOption extends ShippingMethod
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -69,24 +66,17 @@ class ShippingMethodOption extends ShippingMethod
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     protected function getCurrency(): string
     {
         return $this->_order->currency;
     }
 
-    /**
-     * @return float
-     */
     public function getPrice(): float
     {
         return $this->price;
     }
 
     /**
-     * @param Order $order
      * @since 3.1.10
      */
     public function setOrder(Order $order): void

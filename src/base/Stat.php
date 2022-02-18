@@ -222,11 +222,9 @@ abstract class Stat implements StatInterface
     /**
      * Based on the date range return the start date.
      *
-     * @param string $dateRange
-     * @return bool|DateTime|false
      * @throws \Exception
      */
-    private function _getStartDate(string $dateRange)
+    private function _getStartDate(string $dateRange): bool|\DateTime|false
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;
@@ -283,10 +281,9 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @return DateTime|false
      * @throws \Exception
      */
-    private function _getFirstCompletedOrderDate()
+    private function _getFirstCompletedOrderDate(): \DateTime|false
     {
         $firstCompletedOrder = (new Query())
             ->select(['dateOrdered'])
@@ -301,11 +298,9 @@ abstract class Stat implements StatInterface
     /**
      * Based on the date range return the end date.
      *
-     * @param string $dateRange
-     * @return bool|DateTime|false
      * @throws \Exception
      */
-    private function _getEndDate(string $dateRange)
+    private function _getEndDate(string $dateRange): bool|\DateTime|false
     {
         if ($dateRange == self::DATE_RANGE_CUSTOM) {
             return false;
@@ -335,7 +330,6 @@ abstract class Stat implements StatInterface
     /**
      * Generate cache key.
      *
-     * @return string|null
      * @throws \Exception
      */
     private function _getCacheKey(): ?string
@@ -355,10 +349,6 @@ abstract class Stat implements StatInterface
         return implode('-', [$this->getHandle(), $this->dateRange, $this->_startDate->format('U'), $this->_endDate->format('U'), $orderLastUpdatedString]);
     }
 
-    /**
-     * @param string $interval
-     * @return array|null
-     */
     public function getChartQueryOptionsByInterval(string $interval): ?array
     {
         if (Craft::$app->getDb()->getIsMysql()) {
@@ -402,9 +392,6 @@ abstract class Stat implements StatInterface
         return null;
     }
 
-    /**
-     * @return string
-     */
     public function getDateRangeInterval(): string
     {
         if ($this->dateRange == self::DATE_RANGE_CUSTOM) {
@@ -417,8 +404,6 @@ abstract class Stat implements StatInterface
 
     /**
      * Generate base stat query
-     *
-     * @return \yii\db\Query
      */
     protected function _createStatQuery(): \yii\db\Query
     {
@@ -437,10 +422,7 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @param array $select
-     * @param array $resultsDefaults
      * @param null|Query $query
-     * @return array|null
      * @throws \Exception
      */
     protected function _createChartQuery(array $select = [], array $resultsDefaults = [], $query = null): ?array
@@ -490,7 +472,6 @@ abstract class Stat implements StatInterface
     }
 
     /**
-     * @param int $days
      * @return string[]|null
      */
     private function _getCustomDateChartQueryOptions(int $days): ?array

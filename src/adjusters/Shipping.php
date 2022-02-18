@@ -195,11 +195,6 @@ class Shipping extends Component implements AdjusterInterface
     }
 
 
-    /**
-     * @param ShippingMethod $shippingMethod
-     * @param ShippingRule $rule
-     * @return OrderAdjustment
-     */
     private function _createAdjustment(ShippingMethod $shippingMethod, ShippingRule $rule): OrderAdjustment
     {
         //preparing model

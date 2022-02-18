@@ -173,17 +173,11 @@ class ProductType extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditVariantUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/producttypes/' . $this->id . '/variant');
@@ -299,7 +293,6 @@ class ProductType extends Model
     }
 
     /**
-     * @return FieldLayout
      * @throws InvalidConfigException
      */
     public function getProductFieldLayout(): FieldLayout
@@ -371,7 +364,6 @@ class ProductType extends Model
     }
 
     /**
-     * @return FieldLayout
      * @throws InvalidConfigException
      */
     public function getVariantFieldLayout(): FieldLayout

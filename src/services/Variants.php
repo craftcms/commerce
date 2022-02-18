@@ -36,7 +36,6 @@ class Variants extends Component
      *
      * @param int $productId product ID
      * @param int|null $siteId Site ID for which to return the variants. Defaults to `null` which is current site.
-     * @param bool $includeDisabled
      * @return Variant[]
      */
     public function getAllVariantsByProductId(int $productId, int $siteId = null, bool $includeDisabled = true): array
@@ -55,7 +54,6 @@ class Variants extends Component
      *
      * @param int $variantId The variant’s ID.
      * @param int|null $siteId The site ID for which to fetch the variant. Defaults to `null` which is current site.
-     * @return Variant|null
      */
     public function getVariantById(int $variantId, int $siteId = null): ?Variant
     {
@@ -66,7 +64,6 @@ class Variants extends Component
     }
 
     /**
-     * @return array
      * @throws InvalidConfigException
      * @since 3.1.4
      */

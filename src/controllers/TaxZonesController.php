@@ -25,9 +25,6 @@ use yii\web\Response;
  */
 class TaxZonesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $taxZones = Plugin::getInstance()->getTaxZones()->getAllTaxZones();
@@ -37,7 +34,6 @@ class TaxZonesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxAddressZone|null $taxZone
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, TaxAddressZone $taxZone = null): Response
@@ -69,7 +65,6 @@ class TaxZonesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return null|Response
      * @throws Exception
      * @throws BadRequestHttpException
      */
@@ -149,7 +144,6 @@ class TaxZonesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws LoaderError
      * @throws SyntaxError

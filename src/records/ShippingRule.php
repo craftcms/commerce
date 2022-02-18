@@ -64,7 +64,6 @@ class ShippingRule extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getShippingZone(): ActiveQueryInterface
@@ -72,9 +71,6 @@ class ShippingRule extends ActiveRecord
         return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getMethod(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingZone::class, ['id' => 'shippingMethodId']);

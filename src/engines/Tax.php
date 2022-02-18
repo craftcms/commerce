@@ -28,9 +28,6 @@ class Tax extends Component implements TaxEngineInterface
         return 'Commerce Tax Engine';
     }
 
-    /**
-     * @return string
-     */
     public function taxAdjusterClass(): string
     {
         return TaxAdjuster::class;
@@ -68,9 +65,6 @@ class Tax extends Component implements TaxEngineInterface
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function taxCategoryActionHtml(): string
     {
         return '';
