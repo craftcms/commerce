@@ -151,9 +151,7 @@ Craft.Commerce.ProductSalesModal = Garnish.Modal.extend(
                     this.hide();
                 })
                 .catch(({response}) => {
-                    if (response.data && response.data.message) {
-                        Craft.cp.displayError(response.data.message);
-                    }
+                    Craft.cp.displayError(response.data && response.data.message);
                 })
                 .finally(() => {
                     this.$spinner.addClass('hidden');
