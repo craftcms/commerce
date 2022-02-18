@@ -240,7 +240,7 @@ class Addresses extends Component
             ->where(['isStoreLocation' => true])
             ->one();
 
-        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address(['isStoreLocation' => true]);
 
         return $this->_storeLocationAddress;
     }

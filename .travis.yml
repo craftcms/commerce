@@ -1,10 +1,10 @@
 language: php
-dist: xenial
+dist: bionic
 group: edge
 os: linux
 env:
   global:
-  - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest" PHP_8=false
+  - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest"
 branches:
   only:
   - develop
@@ -20,9 +20,9 @@ jobs:
   - php: 8.1.0
     env: DB=pgsql
   - php: 8.0
-    env: DB=mysql PHP_8=true
+    env: DB=mysql
   - php: 8.0
-    env: DB=pgsql PHP_8=true
+    env: DB=mysql
 cache:
   directories:
   - "$HOME/.composer/cache"
@@ -56,6 +56,8 @@ before_script:
 - mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -uroot mysql
 - psql -U postgres -c 'CREATE DATABASE "commercetest";';
 - cp tests/.env.example.$DB tests/.env
+- |
+    yes | pecl install imagick
 - |
   if [[ $DB == "mysql" ]]; then
     sed -i 's/DB_USER="craft"/DB_USER="root"/' tests/.env

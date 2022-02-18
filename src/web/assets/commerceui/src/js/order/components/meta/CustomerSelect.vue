@@ -15,7 +15,7 @@
             @input="onChange"
             @search="onSearch">
         <template v-slot:option="slotProps">
-            <div class="customer-select-option">
+            <div class="customer-select-option" v-if="slotProps.option.id || (!slotProps.option.id && (($v.newCustomerEmail.$invalid && !customers.length) || !$v.newCustomerEmail.$invalid))">
                 <template v-if="!slotProps.option.id && (($v.newCustomerEmail.$invalid && !customers.length) || !$v.newCustomerEmail.$invalid)">
                     <div class="order-flex justify-center" v-if="$v.newCustomerEmail.$invalid">
                         <div>{{$options.filters.t('A valid email is required to create a customer.', 'commerce')}}</div>

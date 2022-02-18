@@ -216,9 +216,7 @@ class Address extends Model
      */
     public function init(): void
     {
-        $this->notes = LitEmoji::shortcodeToUnicode($this->notes);
-        // $this->isEstimated = (bool)$this->isEstimated;
-        // $this->isStoreLocation = (bool)$this->isStoreLocation;
+        $this->notes = LitEmoji::shortcodeToUnicode($this->notes ?? '');
 
         parent::init();
     }
