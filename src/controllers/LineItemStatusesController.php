@@ -29,9 +29,6 @@ use yii\web\ServerErrorHttpException;
  */
 class LineItemStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $lineItemStatuses = Plugin::getInstance()->getLineItemStatuses()->getAllLineItemStatuses();
@@ -42,7 +39,6 @@ class LineItemStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param LineItemStatus|null $lineItemStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, LineItemStatus $lineItemStatus = null): Response
@@ -104,7 +100,6 @@ class LineItemStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -125,7 +120,6 @@ class LineItemStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Throwable
      */

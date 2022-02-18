@@ -32,9 +32,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -52,7 +49,6 @@ class TaxRatesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxRate|null $taxRate
-     * @return Response
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws LoaderError
@@ -195,7 +191,6 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */

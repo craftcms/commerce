@@ -130,25 +130,16 @@ class TaxRate extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/tax/taxrates/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getRateAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent($this->rate);
     }
 
-    /**
-     * @return TaxAddressZone|null
-     */
     public function getTaxZone(): ?TaxAddressZone
     {
         if ($this->_taxZone === null && $this->taxZoneId) {
@@ -158,9 +149,6 @@ class TaxRate extends Model
         return $this->_taxZone;
     }
 
-    /**
-     * @return TaxCategory|null
-     */
     public function getTaxCategory(): ?TaxCategory
     {
         if (!isset($this->_taxCategory) && $this->taxCategoryId) {

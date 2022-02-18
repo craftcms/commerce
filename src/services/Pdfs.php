@@ -199,7 +199,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @return bool
      * @since 3.2
      */
     public function getHasEnabledPdf(): bool
@@ -219,7 +218,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @return Pdf|null
      * @since 3.2
      */
     public function getDefaultPdf(): ?Pdf
@@ -228,8 +226,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @param string $handle
-     * @return Pdf|null
      * @since 3.2
      */
     public function getPdfByHandle(string $handle): ?Pdf
@@ -240,8 +236,6 @@ class Pdfs extends Component
     /**
      * Get an PDF by its ID.
      *
-     * @param int $id
-     * @return Pdf|null
      * @since 3.2
      */
     public function getPdfById(int $id): ?Pdf
@@ -252,9 +246,6 @@ class Pdfs extends Component
     /**
      * Save an PDF.
      *
-     * @param Pdf $pdf
-     * @param bool $runValidation
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -296,8 +287,6 @@ class Pdfs extends Component
     /**
      * Handle PDF status change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws \yii\db\Exception
      * @since 3.2
      */
@@ -349,8 +338,6 @@ class Pdfs extends Component
     /**
      * Delete an PDF by its ID.
      *
-     * @param int $id
-     * @return bool
      * @since 3.2
      */
     public function deletePdfById(int $id): bool
@@ -367,8 +354,6 @@ class Pdfs extends Component
     /**
      * Handle email getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws \Throwable
      * @throws StaleObjectException
      * @since 3.2
@@ -386,8 +371,6 @@ class Pdfs extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
      * @throws ErrorException
      * @throws Exception
      * @throws NotSupportedException
@@ -544,8 +527,6 @@ class Pdfs extends Component
     /**
      * Gets an PDF record by uid.
      *
-     * @param string $uid
-     * @return PdfRecord
      * @since 3.2
      */
     private function _getPdfRecord(string $uid): PdfRecord
@@ -560,7 +541,6 @@ class Pdfs extends Component
     /**
      * Returns a Query object prepped for retrieving PDFs.
      *
-     * @return Query
      * @since 3.2
      */
     private function _createPdfsQuery(): Query

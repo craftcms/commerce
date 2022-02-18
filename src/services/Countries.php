@@ -54,7 +54,6 @@ class Countries extends Component
      * Returns a country by its ID.
      *
      * @param int $id the country's ID
-     * @return Country|null
      */
     public function getCountryById(int $id): ?Country
     {
@@ -65,7 +64,6 @@ class Countries extends Component
      * Returns a country by its ISO code.
      *
      * @param string $iso the country's ISO code
-     * @return Country|null
      */
     public function getCountryByIso(string $iso): ?Country
     {
@@ -74,8 +72,6 @@ class Countries extends Component
 
     /**
      * Returns all country names, indexed by ID.
-     *
-     * @return array
      */
     public function getAllCountriesAsList(): array
     {
@@ -87,7 +83,6 @@ class Countries extends Component
     /**
      * Returns all country names, indexed by ID.
      *
-     * @return array
      * @since 3.0
      */
     public function getAllEnabledCountriesAsList(): array
@@ -119,7 +114,6 @@ class Countries extends Component
     /**
      * Returns an array of all enabled countries
      *
-     * @return array
      * @since 3.0
      */
     public function getAllEnabledCountries(): array
@@ -258,8 +252,6 @@ class Countries extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
      * @throws \yii\db\Exception
      * @since 2.2
      */

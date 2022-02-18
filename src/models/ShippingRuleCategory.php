@@ -79,7 +79,6 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return ShippingRule
      * @throws InvalidConfigException
      */
     public function getRule(): ShippingRule
@@ -88,7 +87,6 @@ class ShippingRuleCategory extends Model
     }
 
     /**
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getCategory(): ShippingCategory

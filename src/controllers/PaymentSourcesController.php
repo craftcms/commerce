@@ -28,7 +28,6 @@ class PaymentSourcesController extends BaseFrontEndController
     /**
      * Adds a payment source.
      *
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws HttpException
      * @throws InvalidConfigException
@@ -103,7 +102,6 @@ class PaymentSourcesController extends BaseFrontEndController
     /**
      * Deletes a payment source.
      *
-     * @return Response|null
      * @throws Throwable if failed to delete the payment source on the gateway
      * @throws BadRequestHttpException if user not logged in
      */

@@ -150,9 +150,6 @@ class CurrencyAttributeBehavior extends Behavior
         return parent::canGetProperty($name, $checkVars);
     }
 
-    /**
-     * @return array
-     */
     public function currencyFields(): array
     {
         $fields = [];
@@ -171,7 +168,6 @@ class CurrencyAttributeBehavior extends Behavior
 
     /**
      * @param $name
-     * @return string
      */
     private function _attributeNameWithoutAsCurrency($name): string
     {

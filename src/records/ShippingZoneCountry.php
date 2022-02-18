@@ -43,7 +43,6 @@ class ShippingZoneCountry extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getShippingZone(): ActiveQueryInterface
@@ -51,9 +50,6 @@ class ShippingZoneCountry extends ActiveRecord
         return $this->hasOne(ShippingZone::class, ['id' => 'shippingZoneId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCountry(): ActiveQueryInterface
     {
         return $this->hasOne(Country::class, ['id' => 'countryId']);

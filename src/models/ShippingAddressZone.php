@@ -87,9 +87,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     private ?array $_states = null;
 
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/shipping/shippingzones/' . $this->id);
@@ -103,18 +100,12 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
         return $this->_isCountryBased;
     }
 
-    /**
-     * @param bool $value
-     *
-     * @return bool
-     */
     public function setIsCountryBased(bool $value): bool
     {
         return $this->_isCountryBased = $value;
     }
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function getCountryIds(): array
@@ -131,7 +122,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns all countries in this Shipping Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getCountries(): array
@@ -154,7 +144,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function getStateIds(): array
@@ -165,7 +154,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns all states in this Shipping Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getStates(): array
@@ -178,7 +166,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @return string|null
      * @since 2.2
      */
     public function getZipCodeConditionFormula(): ?string
@@ -199,7 +186,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns the names of all countries in this Shipping Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getCountriesNames(): array
@@ -210,7 +196,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns the names of all states in this Shipping Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      * @deprecated in 4.0. Use [[getStatesLabels]] instead.
      */
@@ -222,7 +207,6 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     /**
      * Returns the labels of all states in this Shipping Zone.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getStatesLabels(): array

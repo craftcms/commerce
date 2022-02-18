@@ -33,7 +33,6 @@ class WebhooksController extends BaseController
 
     /**
      * @param null $gatewayId
-     * @return Response
      * @throws BadRequestHttpException
      * @throws NotFoundHttpException
      */

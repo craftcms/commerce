@@ -201,7 +201,6 @@ class PaymentSources extends Component
      * Returns a payment source by its ID.
      *
      * @param int $sourceId the source ID
-     * @return PaymentSource|null
      */
     public function getPaymentSourceById(int $sourceId): ?PaymentSource
     {
@@ -217,7 +216,6 @@ class PaymentSources extends Component
      *
      * @param int $sourceId the source ID
      * @param int $userId the source's user ID
-     * @return PaymentSource|null
      */
     public function getPaymentSourceByIdAndUserId(int $sourceId, int $userId): ?PaymentSource
     {
@@ -321,7 +319,6 @@ class PaymentSources extends Component
      * Delete a payment source by its ID.
      *
      * @param int $id The ID
-     * @return bool
      * @throws Throwable in case something went wrong when deleting.
      */
     public function deletePaymentSourceById(int $id): bool

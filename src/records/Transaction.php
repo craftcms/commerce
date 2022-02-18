@@ -62,33 +62,21 @@ class Transaction extends ActiveRecord
         return Table::TRANSACTIONS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getParent(): ActiveQueryInterface
     {
         return $this->hasOne(self::class, ['id' => 'parentId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getGateway(): ActiveQueryInterface
     {
         return $this->hasOne(Gateway::class, ['id' => 'gatewayId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getUser(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);

@@ -304,11 +304,10 @@ class m171202_180000_promotions_for_all_purchasables extends Migration
     }
 
     /**
-     * @return bool|CategoryGroup
      * @throws Throwable
      * @throws CategoryGroupNotFoundException
      */
-    private function _createCategoryGroup()
+    private function _createCategoryGroup(): bool|\craft\models\CategoryGroup
     {
         $group = new CategoryGroup();
 

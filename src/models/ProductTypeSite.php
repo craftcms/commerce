@@ -72,7 +72,6 @@ class ProductTypeSite extends Model
     /**
      * Returns the Product Type.
      *
-     * @return ProductType
      * @throws InvalidConfigException if [[productTypeId]] is missing or invalid
      */
     public function getProductType(): ProductType
@@ -94,8 +93,6 @@ class ProductTypeSite extends Model
 
     /**
      * Sets the Product Type.
-     *
-     * @param ProductType $productType
      */
     public function setProductType(ProductType $productType): void
     {
@@ -103,7 +100,6 @@ class ProductTypeSite extends Model
     }
 
     /**
-     * @return Site
      * @throws InvalidConfigException if [[siteId]] is missing or invalid
      */
     public function getSite(): Site

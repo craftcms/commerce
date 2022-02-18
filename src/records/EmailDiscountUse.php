@@ -34,9 +34,6 @@ class EmailDiscountUse extends ActiveRecord
         return Table::EMAIL_DISCOUNTUSES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id', 'discountId']);

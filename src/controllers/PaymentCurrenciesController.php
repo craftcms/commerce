@@ -29,7 +29,6 @@ use yii\web\Response;
 class PaymentCurrenciesController extends BaseStoreSettingsController
 {
     /**
-     * @return Response
      * @throws CurrencyException
      */
     public function actionIndex(): Response
@@ -42,7 +41,6 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param PaymentCurrency|null $currency
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -132,7 +130,6 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */

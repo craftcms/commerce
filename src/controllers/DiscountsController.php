@@ -68,7 +68,6 @@ class DiscountsController extends BaseCpController
     /**
      * @param int|null $id
      * @param Discount|null $discount
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Discount $discount = null): Response
@@ -212,7 +211,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionReorder(): Response
@@ -261,7 +259,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws \yii\web\BadRequestHttpException
      * @since 3.0
@@ -326,7 +323,6 @@ class DiscountsController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetDiscountsByPurchasableId(): Response
@@ -363,9 +359,6 @@ class DiscountsController extends BaseCpController
         ]);
     }
 
-    /**
-     * @param array $variables
-     */
     private function _populateVariables(array &$variables): void
     {
         if ($variables['discount']->id) {

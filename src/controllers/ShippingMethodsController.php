@@ -26,7 +26,6 @@ use yii\web\Response;
 class ShippingMethodsController extends BaseShippingSettingsController
 {
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -38,7 +37,6 @@ class ShippingMethodsController extends BaseShippingSettingsController
     /**
      * @param int|null $id
      * @param ShippingMethod|null $shippingMethod
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */

@@ -28,9 +28,6 @@ use yii\web\ServerErrorHttpException;
  */
 class OrderStatusesController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $orderStatuses = Plugin::getInstance()->getOrderStatuses()->getAllOrderStatuses();
@@ -41,7 +38,6 @@ class OrderStatusesController extends BaseAdminController
     /**
      * @param int|null $id
      * @param OrderStatus|null $orderStatus
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, OrderStatus $orderStatus = null): Response
@@ -110,7 +106,6 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws ErrorException
@@ -131,7 +126,6 @@ class OrderStatusesController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws \Throwable
      * @throws BadRequestHttpException
      * @since 2.2

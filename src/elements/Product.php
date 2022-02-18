@@ -170,7 +170,6 @@ class Product extends Element
     private ?Variant $_cheapestEnabledVariant = null;
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -203,9 +202,6 @@ class Product extends Element
         ];
     }
 
-    /**
-     * @return array
-     */
     public function fields(): array
     {
         $fields = parent::fields();
@@ -327,7 +323,6 @@ class Product extends Element
     /**
      * Returns the product's product type.
      *
-     * @return ProductType
      * @throws InvalidConfigException
      */
     public function getType(): ProductType
@@ -345,9 +340,6 @@ class Product extends Element
         return $productType;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
         return $this->title;
@@ -380,7 +372,6 @@ class Product extends Element
     /**
      * Returns the tax category.
      *
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getTaxCategory(): TaxCategory
@@ -403,7 +394,6 @@ class Product extends Element
     /**
      * Returns the shipping category.
      *
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
@@ -442,8 +432,6 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
-     * @param bool $includeDisabled
-     * @return null|Variant
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
@@ -458,8 +446,6 @@ class Product extends Element
     /**
      * Return the cheapest variant.
      *
-     * @param bool $includeDisabled
-     * @return Variant|null
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -499,7 +485,6 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @param bool $includeDisabled
      * @return Variant[]
      * @throws InvalidConfigException
      */
@@ -595,8 +580,6 @@ class Product extends Element
     }
 
     /**
-     * @param bool $includeDisabled
-     * @return int
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -615,8 +598,6 @@ class Product extends Element
     /**
      * Returns whether at least one variant has unlimited stock.
      *
-     * @param bool $includeDisabled
-     * @return bool
      * @throws InvalidConfigException
      */
     public function getHasUnlimitedStock(bool $includeDisabled = false): bool

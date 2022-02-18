@@ -163,33 +163,21 @@ class Sale extends Model
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/sales/' . $this->id);
     }
 
-    /**
-     * @return string
-     */
     public function getApplyAmountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->applyAmount ?? 0.0));
     }
 
-    /**
-     * @return string
-     */
     public function getApplyAmountAsFlat(): string
     {
         return $this->applyAmount !== null ? (string)($this->applyAmount * -1) : '0';
     }
 
-    /**
-     * @return array
-     */
     public function getCategoryIds(): array
     {
         if (!isset($this->_categoryIds)) {
@@ -211,9 +199,6 @@ class Sale extends Model
         return $this->_categoryIds;
     }
 
-    /**
-     * @return array
-     */
     public function getPurchasableIds(): array
     {
         if (!isset($this->_purchasableIds)) {
@@ -235,9 +220,6 @@ class Sale extends Model
         return $this->_purchasableIds;
     }
 
-    /**
-     * @return array
-     */
     public function getUserGroupIds(): array
     {
         if (!isset($this->_userGroupIds)) {
@@ -260,8 +242,6 @@ class Sale extends Model
 
     /**
      * Sets the related category ids
-     *
-     * @param array $ids
      */
     public function setCategoryIds(array $ids): void
     {
@@ -270,8 +250,6 @@ class Sale extends Model
 
     /**
      * Sets the related purchasable ids
-     *
-     * @param array $purchasableIds
      */
     public function setPurchasableIds(array $purchasableIds): void
     {
@@ -280,8 +258,6 @@ class Sale extends Model
 
     /**
      * Sets the related user group ids
-     *
-     * @param array $userGroupIds
      */
     public function setUserGroupIds(array $userGroupIds): void
     {

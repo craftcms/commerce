@@ -227,7 +227,6 @@ class CustomerAddressesController extends BaseFrontEndController
     /**
      * Return customer addresses.
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @since 3.2.7
      */

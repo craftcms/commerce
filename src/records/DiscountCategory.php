@@ -33,17 +33,11 @@ class DiscountCategory extends ActiveRecord
         return Table::DISCOUNT_CATEGORIES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id' => 'discountId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCategory(): ActiveQueryInterface
     {
         return $this->hasOne(Category::class, ['id' => 'categoryId']);

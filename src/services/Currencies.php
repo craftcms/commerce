@@ -28,7 +28,6 @@ class Currencies extends Component
     /**
      * Get a currency by it's ISO code.
      *
-     * @param string $iso
      * @return Currency|null
      */
     public function getCurrencyByIso(string $iso)

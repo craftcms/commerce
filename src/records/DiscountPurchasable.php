@@ -33,17 +33,11 @@ class DiscountPurchasable extends ActiveRecord
         return Table::DISCOUNT_PURCHASABLES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id' => 'discountId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getPurchasable(): ActiveQueryInterface
     {
         return $this->hasOne(Purchasable::class, ['id' => 'purchasableId']);

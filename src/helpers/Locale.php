@@ -23,7 +23,6 @@ class Locale
      * Set language of the application
      *
      * @param $toLanguage
-     * @return void
      * @throws InvalidConfigException
      */
     public static function switchAppLanguage($toLanguage): void
@@ -35,7 +34,6 @@ class Locale
     /**
      * Get the created sites languages and all languages.
      *
-     * @return array
      * @throws \yii\base\Exception
      */
     public static function getSiteAndOtherLanguages(): array

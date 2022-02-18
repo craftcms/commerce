@@ -44,7 +44,6 @@ class CraftVariableBehavior extends Behavior
      * Returns a new OrderQuery instance.
      *
      * @param mixed $criteria
-     * @return OrderQuery
      */
     public function orders($criteria = null): OrderQuery
     {
@@ -59,7 +58,6 @@ class CraftVariableBehavior extends Behavior
      * Returns a new SubscriptionQuery instance.
      *
      * @param mixed $criteria
-     * @return SubscriptionQuery
      */
     public function subscriptions($criteria = null): SubscriptionQuery
     {
@@ -74,7 +72,6 @@ class CraftVariableBehavior extends Behavior
      * Returns a new ProductQuery instance.
      *
      * @param mixed $criteria
-     * @return ProductQuery
      */
     public function products($criteria = null): ProductQuery
     {
@@ -89,7 +86,6 @@ class CraftVariableBehavior extends Behavior
      * Returns a new VariantQuery instance.
      *
      * @param mixed $criteria
-     * @return VariantQuery
      */
     public function variants($criteria = null): VariantQuery
     {

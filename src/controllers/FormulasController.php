@@ -22,7 +22,6 @@ use yii\web\Response;
 class FormulasController extends Controller
 {
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionValidateCondition(): Response
@@ -47,7 +46,6 @@ class FormulasController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionValidateFormula(): Response

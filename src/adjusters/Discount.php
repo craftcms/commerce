@@ -227,10 +227,6 @@ class Discount extends Component implements AdjusterInterface
     }
 
 
-    /**
-     * @param DiscountModel $discount
-     * @return OrderAdjustment
-     */
     private function _createOrderAdjustment(DiscountModel $discount): OrderAdjustment
     {
         //preparing model
@@ -247,10 +243,9 @@ class Discount extends Component implements AdjusterInterface
     }
 
     /**
-     * @param DiscountModel $discount
      * @return OrderAdjustment[]|false
      */
-    private function _getAdjustments(DiscountModel $discount)
+    private function _getAdjustments(DiscountModel $discount): array|false
     {
         $adjustments = [];
 
@@ -333,11 +328,7 @@ class Discount extends Component implements AdjusterInterface
         return $event->adjustments;
     }
 
-    /**
-     * @param DiscountModel $discount
-     * @return float|int
-     */
-    private function _getBaseDiscountAmount(DiscountModel $discount)
+    private function _getBaseDiscountAmount(DiscountModel $discount): float|int
     {
         if ($discount->baseDiscountType == DiscountRecord::BASE_DISCOUNT_TYPE_VALUE) {
             return $discount->baseDiscount;

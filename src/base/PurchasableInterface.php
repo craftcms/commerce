@@ -20,8 +20,6 @@ interface PurchasableInterface
 {
     /**
      * Returns the element’s ID.
-     *
-     * @return int|null
      */
     public function getId(): ?int;
 
@@ -42,36 +40,26 @@ interface PurchasableInterface
 
     /**
      * Returns a unique code. Unique as per the commerce_purchasables table.
-     *
-     * @return string
      */
     public function getSku(): string;
 
     /**
      * Returns your element's title or any additional descriptive information.
-     *
-     * @return string
      */
     public function getDescription(): string;
 
     /**
      * Returns the purchasable's tax category ID.
-     *
-     * @return int
      */
     public function getTaxCategoryId(): int;
 
     /**
      * Returns the purchasable's shipping category ID.
-     *
-     * @return int
      */
     public function getShippingCategoryId(): int;
 
     /**
      * Returns whether the purchasable is currently available for purchase.
-     *
-     * @return bool
      */
     public function getIsAvailable(): bool;
 
@@ -80,24 +68,17 @@ interface PurchasableInterface
      * Purchasable is added to the cart and when the cart recalculates.
      * This is your chance to modify the weight, height, width, length, price
      * and saleAmount. This is called before any LineItems::EVENT_POPULATE_LINE_ITEM event listeners.
-     *
-     * @param LineItem $lineItem
      */
     public function populateLineItem(LineItem $lineItem): void;
 
     /**
      * Returns an array of data that is serializable to json for storing a line
      * item at time of adding to the cart or order.
-     *
-     * @return array
      */
     public function getSnapshot(): array;
 
     /**
      * Returns any validation rules this purchasable required the line item to have.
-     *
-     * @param LineItem $lineItem
-     * @return array
      */
     public function getLineItemRules(LineItem $lineItem): array;
 
@@ -108,35 +89,26 @@ interface PurchasableInterface
      *
      * @param Order $order
      * @param LineItem $lineItem
-     * @return void
      */
     public function afterOrderComplete(Order $order, LineItem $lineItem): void;
 
     /**
      * Returns whether this purchasable has free shipping.
-     *
-     * @return bool
      */
     public function hasFreeShipping(): bool;
 
     /**
      * Returns whether this purchasable can be shipped and whether it is counted in shipping calculations.
-     *
-     * @return bool
      */
     public function getIsShippable(): bool;
 
     /**
      * Returns whether this purchasable is exempt from taxes.
-     *
-     * @return bool
      */
     public function getIsTaxable(): bool;
 
     /**
      * Returns whether this purchasable can be subject to discounts or sales.
-     *
-     * @return bool
      */
     public function getIsPromotable(): bool;
 

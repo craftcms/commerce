@@ -71,23 +71,11 @@ class TopCustomers extends Widget
             'average' => Craft::t('commerce', 'Average'),
         ];
 
-        switch ($this->type) {
-            case 'average':
-            {
-                $this->_title = Craft::t('commerce', 'Top Customers by Average Order');
-                break;
-            }
-            case 'total':
-            {
-                $this->_title = Craft::t('commerce', 'Top Customers by Total Revenue');
-                break;
-            }
-            default:
-            {
-                $this->_title = Craft::t('commerce', 'Top Customers');
-                break;
-            }
-        }
+        $this->_title = match ($this->type) {
+            'average' => Craft::t('commerce', 'Top Customers by Average Order'),
+            'total' => Craft::t('commerce', 'Top Customers by Total Revenue'),
+            default => Craft::t('commerce', 'Top Customers'),
+        };
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopCustomersStat::DATE_RANGE_TODAY : $this->dateRange;
 
         $this->_stat = new TopCustomersStat(

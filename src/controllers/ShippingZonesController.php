@@ -25,9 +25,6 @@ use yii\web\Response;
  */
 class ShippingZonesController extends BaseShippingSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
@@ -39,7 +36,6 @@ class ShippingZonesController extends BaseShippingSettingsController
     /**
      * @param int|null $id
      * @param ShippingAddressZone|null $shippingZone
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, ShippingAddressZone $shippingZone = null): Response
@@ -71,7 +67,6 @@ class ShippingZonesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */
@@ -158,7 +153,6 @@ class ShippingZonesController extends BaseShippingSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws LoaderError
      * @throws SyntaxError

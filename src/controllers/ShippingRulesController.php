@@ -36,7 +36,6 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param int|null $methodId
      * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
-     * @return Response
      * @throws HttpException
      * @throws LoaderError
      * @throws RuntimeError
@@ -135,7 +134,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     /**
      * Duplicates a shipping rule.
      *
-     * @return Response|null
      * @throws InvalidRouteException
      * @since 3.2
      */
@@ -145,7 +143,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @param bool $duplicate
      * @throws BadRequestHttpException
      * @throws Exception
      */

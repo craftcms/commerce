@@ -62,7 +62,6 @@ trait OrderNoticesTrait
     /**
      * Adds a new notice
      *
-     * @param OrderNotice $notice
      * @since 3.3
      */
     public function addNotice(OrderNotice $notice): void
@@ -76,7 +75,6 @@ trait OrderNoticesTrait
      *
      * @param null $type
      * @param null $attribute
-     * @return OrderNotice|null
      * @since 3.3
      */
     public function getFirstNotice($type = null, $attribute = null): ?OrderNotice
@@ -101,7 +99,6 @@ trait OrderNoticesTrait
      * Removes notices for all types or a single type.
      *
      * @param string|null $type type name. Use null to remove notices for all types.
-     * @param string|null $attribute
      * @since 3.3
      */
     public function clearNotices(?string $type = null, ?string $attribute = null): void
