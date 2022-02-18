@@ -651,7 +651,7 @@ class OrdersController extends Controller
             return $sum + (int)$thing['orderCount'];
         }, 0);
 
-        return $this->asSuccess(compact('counts', 'total'));
+        return $this->asSuccess(data: compact('counts', 'total'));
     }
 
     /**
