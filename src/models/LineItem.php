@@ -533,19 +533,12 @@ class LineItem extends Model
 
     public function getTaxableSubtotal(string $taxable): float
     {
-        switch ($taxable) {
-            case TaxRateRecord::TAXABLE_PRICE:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
-                break;
-            case TaxRateRecord::TAXABLE_SHIPPING:
-                $taxableSubtotal = $this->getShippingCost();
-                break;
-            case TaxRateRecord::TAXABLE_PRICE_SHIPPING:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost();
-                break;
-            default:
-                $taxableSubtotal = $this->getSubtotal() + $this->getDiscount();
-        }
+        $taxableSubtotal = match ($taxable) {
+            TaxRateRecord::TAXABLE_PRICE => $this->getSubtotal() + $this->getDiscount(),
+            TaxRateRecord::TAXABLE_SHIPPING => $this->getShippingCost(),
+            TaxRateRecord::TAXABLE_PRICE_SHIPPING => $this->getSubtotal() + $this->getDiscount() + $this->getShippingCost(),
+            default => $this->getSubtotal() + $this->getDiscount(),
+        };
 
         return $taxableSubtotal;
     }

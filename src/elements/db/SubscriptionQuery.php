@@ -802,18 +802,15 @@ class SubscriptionQuery extends ElementQuery
      */
     protected function statusCondition(string $status)
     {
-        switch ($status) {
-            case Subscription::STATUS_ACTIVE:
-                return [
-                    'commerce_subscriptions.isExpired' => '0',
-                ];
-            case Subscription::STATUS_EXPIRED:
-                return [
-                    'commerce_subscriptions.isExpired' => '1',
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Subscription::STATUS_ACTIVE => [
+                'commerce_subscriptions.isExpired' => '0',
+            ],
+            Subscription::STATUS_EXPIRED => [
+                'commerce_subscriptions.isExpired' => '1',
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**

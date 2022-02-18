@@ -71,23 +71,11 @@ class TopProductTypes extends Widget
             'revenue' => Craft::t('commerce', 'Revenue'),
         ];
 
-        switch ($this->type) {
-            case 'revenue':
-            {
-                $this->_title = Craft::t('commerce', 'Top Product Types by Revenue');
-                break;
-            }
-            case 'qty':
-            {
-                $this->_title = Craft::t('commerce', 'Top Product Types by Qty Sold');
-                break;
-            }
-            default:
-            {
-                $this->_title = Craft::t('commerce', 'Top Product Types');
-                break;
-            }
-        }
+        $this->_title = match ($this->type) {
+            'revenue' => Craft::t('commerce', 'Top Product Types by Revenue'),
+            'qty' => Craft::t('commerce', 'Top Product Types by Qty Sold'),
+            default => Craft::t('commerce', 'Top Product Types'),
+        };
 
         $this->dateRange = !isset($this->dateRange) || !$this->dateRange ? TopProductTypesStat::DATE_RANGE_TODAY : $this->dateRange;
 

@@ -824,43 +824,39 @@ class ProductQuery extends ElementQuery
     {
         $currentTimeDb = Db::prepareDateForDb(new DateTime());
 
-        switch ($status) {
-            case Product::STATUS_LIVE:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['<=', 'commerce_products.postDate', $currentTimeDb],
-                    [
-                        'or',
-                        ['commerce_products.expiryDate' => null],
-                        ['>', 'commerce_products.expiryDate', $currentTimeDb],
-                    ],
-                ];
-            case Product::STATUS_PENDING:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['>', 'commerce_products.postDate', $currentTimeDb],
-                ];
-            case Product::STATUS_EXPIRED:
-                return [
-                    'and',
-                    [
-                        'elements.enabled' => true,
-                        'elements_sites.enabled' => true,
-                    ],
-                    ['not', ['commerce_products.expiryDate' => null]],
-                    ['<=', 'commerce_products.expiryDate', $currentTimeDb],
-                ];
-            default:
-                return parent::statusCondition($status);
-        }
+        return match ($status) {
+            Product::STATUS_LIVE => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['<=', 'commerce_products.postDate', $currentTimeDb],
+                [
+                    'or',
+                    ['commerce_products.expiryDate' => null],
+                    ['>', 'commerce_products.expiryDate', $currentTimeDb],
+                ],
+            ],
+            Product::STATUS_PENDING => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['>', 'commerce_products.postDate', $currentTimeDb],
+            ],
+            Product::STATUS_EXPIRED => [
+                'and',
+                [
+                    'elements.enabled' => true,
+                    'elements_sites.enabled' => true,
+                ],
+                ['not', ['commerce_products.expiryDate' => null]],
+                ['<=', 'commerce_products.expiryDate', $currentTimeDb],
+            ],
+            default => parent::statusCondition($status),
+        };
     }
 
     /**
