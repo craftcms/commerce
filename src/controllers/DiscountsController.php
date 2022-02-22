@@ -138,8 +138,6 @@ class DiscountsController extends BaseCpController
         $perItemDiscount = Localization::normalizeNumber($perItemDiscount);
         $discount->perItemDiscount = $perItemDiscount * -1;
 
-        $discount->purchaseTotal = Localization::normalizeNumber($request->getBodyParam('purchaseTotal'));
-
         $date = $request->getBodyParam('dateFrom');
         if ($date) {
             $dateTime = DateTimeHelper::toDateTime($date) ?: null;
@@ -375,7 +373,7 @@ class DiscountsController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount', 'purchaseTotal'];
+        $localizedNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         $flipNegativeNumberAttributes = ['baseDiscount', 'perItemDiscount'];
         foreach ($localizedNumberAttributes as $attr) {
             if (!isset($variables['discount']->{$attr})) {
@@ -473,7 +471,7 @@ class DiscountsController extends BaseCpController
             $purchasableIds = [];
             foreach ($purchasableIdsFromUrl as $purchasableId) {
                 $purchasable = Craft::$app->getElements()->getElementById((int)$purchasableId);
-                if ($purchasable && $purchasable instanceof Product) {
+                if ($purchasable instanceof Product) {
                     $purchasableIds[] = $purchasable->defaultVariantId; // this would only be null if we are duplicating a variant, otherwise should never be null
                 } else {
                     $purchasableIds[] = $purchasableId;

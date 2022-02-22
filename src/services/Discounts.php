@@ -484,6 +484,8 @@ class Discounts extends Component
             return false;
         }
 
+        $allItemsMatch = ($discount->allPurchasables && $discount->allCategories);
+
         if (!$discount->getOrderMatchCondition()->matchOrder($order)) {
             return $this->_matchingDiscountsToOrder[$matchCacheKey] = false;
         }
@@ -523,15 +525,15 @@ class Discounts extends Component
             return false;
         }
 
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
+        if ($allItemsMatch && $discount->purchaseTotal > 0 && $order->getItemSubtotal() < $discount->purchaseTotal) {
             return false;
         }
 
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
+        if ($allItemsMatch && $discount->purchaseQty > 0 && $order->getTotalQty() < $discount->purchaseQty) {
             return false;
         }
 
-        if (($discount->allPurchasables && $discount->allCategories) && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
+        if ($allItemsMatch && $discount->maxPurchaseQty > 0 && $order->getTotalQty() > $discount->maxPurchaseQty) {
             return false;
         }
 
@@ -1158,7 +1160,6 @@ class Discounts extends Component
                 '[[discounts.perItemDiscount]]',
                 '[[discounts.perUserLimit]]',
                 '[[discounts.purchaseQty]]',
-                '[[discounts.purchaseTotal]]',
                 '[[discounts.sortOrder]]',
                 '[[discounts.stopProcessing]]',
                 '[[discounts.totalDiscountUseLimit]]',

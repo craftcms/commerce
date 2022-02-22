@@ -139,33 +139,6 @@
 
     <div id="matching-items" class="hidden">
 
-        {% for purchasableType in purchasableTypes %}
-            {% set instruction = "for which this discount will be applicable to. Leave all purchasable fields blank for any purchasable."|t('commerce') %}
-            {{ forms.elementSelectField({
-                id: 'purchasables-'~purchasableType.elementType|id,
-                label: purchasableType.name ~ ' ' ~ '(Purchasable)'|t('commerce'),
-                name: 'purchasables['~purchasableType.elementType~']',
-                elements: purchasables[purchasableType.elementType] ?? null,
-                elementType: purchasableType.elementType,
-                limit: null,
-                instructions: purchasableType.name~" "~instruction,
-                errors: discount.getErrors('purchasables-'~purchasableType.elementType|replace('\\','-')),
-            }) }}
-        {% endfor %}
-
-        <hr>
-
-        {{ forms.elementSelectField({
-            id: 'categories',
-            label: 'Categories'|t('commerce'),
-            name: 'categories',
-            elements: categories ? categories : null,
-            elementType: categoryElementType,
-            limit: null,
-            instructions: "Categories that the matching purchasables must be related to. Leave blank to ignore category matching."|t('commerce'),
-            errors: discount.getErrors('categories'),
-        }) }}
-
         {{ forms.lightswitchField({
             label: "All purchasables"|t('commerce'),
             id: 'allPurchasables',
@@ -248,14 +221,18 @@
     </div>
 
     <div id="order-conditions" class="hidden">
-        {% set builderConfig = {
-            'mainTag' : 'div',
-            'namespace': 'orderMatchCondition'
-        } %}
+        {% set orderMatchConditionInput %}
+            {% namespace 'orderMatchCondition' %}
+                {{ discount.orderMatchCondition.getBuilderHtml()|raw }}
+            {% endnamespace %}
+        {% endset %}
 
-        {% namespace 'orderMatchCondition' %}
-        {{ discount.orderMatchCondition.getBuilderHtml(builderConfig)|raw }}
-        {% endnamespace %}
+        {{ forms.field({
+            id: 'order-match-condition',
+            label: 'March Order'|t('commerce'),
+            instructions: 'Crate rules that allow this discount to match the order.'|t('commerce'),
+            errors: discount.getErrors('orderMatchCondition')
+        }, orderMatchConditionInput) }}
     </div>
 
     <div id="conditions" class="hidden">

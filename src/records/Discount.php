@@ -41,7 +41,6 @@ use yii\db\ActiveQueryInterface;
  * @property float $perItemDiscount
  * @property int $perUserLimit
  * @property int $purchaseQty
- * @property int $purchaseTotal
  * @property string|null $orderCondition
  * @property string|null $orderConditionFormula
  * @property int $sortOrder

@@ -8,14 +8,17 @@
 namespace craft\commerce\models;
 
 use Craft;
+use craft\base\conditions\ConditionInterface;
 use craft\commerce\base\Model;
 use craft\commerce\conditions\discounts\DiscountOrderCondition;
 use craft\commerce\conditions\discounts\DiscountOrderConditionInterface;
 use craft\commerce\db\Table;
+use craft\commerce\elements\conditions\orders\OrderCondition;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;
+use craft\elements\conditions\ElementConditionInterface;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
@@ -57,9 +60,11 @@ class Discount extends Model
     public ?string $code = null;
 
     /**
-     * @var DiscountOrderConditionInterface|null Condition
+     * @var ElementConditionInterface|array|null
+     * @see getOrderMatchCondition()
+     * @see setOrderMatchCondition()
      */
-    public ?DiscountOrderConditionInterface $_orderMatchCondition = null;
+    public $_orderMatchCondition = null;
 
     /**
      * @var int Per user coupon use limit
@@ -205,9 +210,9 @@ class Discount extends Model
     public bool $ignoreSales = true;
 
     /**
-     * @var bool What the per item amount and per item percentage off amounts can apply to
+     * @var string What the per item amount and per item percentage off amounts can apply to
      */
-    public $appliedTo = DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
+    public string $appliedTo = DiscountRecord::APPLIED_TO_MATCHING_LINE_ITEMS;
 
     /**
      * @var int[] Product Ids
@@ -232,10 +237,8 @@ class Discount extends Model
         parent::init();
 
         if ($this->_orderMatchCondition === null) {
-            $config = [
-                'class' => DiscountOrderCondition::class
-            ];
-            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition($config);
+            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition()
+            $this->_orderMatchCondition->id = 'order-match-condition';
         }
     }
 
@@ -257,16 +260,20 @@ class Discount extends Model
     }
 
     /**
-     * @return DiscountOrderConditionInterface
+     * @return ?ElementConditionInterface
      */
-    public function getOrderMatchCondition()
+    public function getOrderMatchCondition(): ?ElementConditionInterface
     {
+        if ($this->_orderMatchCondition !== null && !$this->_orderMatchCondition instanceof ElementConditionInterface) {
+            $this->_orderMatchCondition = Craft::$app->getConditions()->createCondition($this->_orderMatchCondition);
+        }
+
         return $this->_orderMatchCondition;
     }
 
     /**
      * @param $condition
-     * @return DiscountOrderConditionInterface|array|null
+     * @return ElementConditionInterface|array|null
      * @throws InvalidConfigException
      */
     public function setOrderMatchCondition($condition)
@@ -275,10 +282,10 @@ class Discount extends Model
             $condition = Json::decodeIfJson($condition, true);
         }
 
-        if ($condition instanceof DiscountOrderConditionInterface) {
+        if ($condition instanceof ElementConditionInterface) {
             $this->_orderMatchCondition = $condition;
         } elseif (is_array($condition)) {
-            /** @var DiscountOrderCondition $orderCondition */
+            /** @var ElementConditionInterface $orderCondition */
             $orderCondition = Craft::$app->getConditions()->createCondition($condition);
             $this->_orderMatchCondition = $orderCondition;
         } elseif ($condition === null) {
@@ -394,7 +401,6 @@ class Discount extends Model
                     'perEmailLimit',
                     'totalDiscountUseLimit',
                     'totalDiscountUses',
-                    'purchaseTotal',
                     'purchaseQty',
                     'maxPurchaseQty',
                     'baseDiscount',
