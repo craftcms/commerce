@@ -57,7 +57,6 @@ class Carts extends Component
      * Get the current cart for this session.
      *
      * @param bool $forceSave Force the cart to save when requesting it.
-     * @return Order
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -132,7 +131,6 @@ class Carts extends Component
     }
 
     /**
-     * @return Order|null
      * @throws Exception
      * @throws MissingComponentException
      * @throws Throwable
@@ -164,7 +162,6 @@ class Carts extends Component
     /**
      * Forgets the cart in the current session.
      *
-     * @return void
      * @throws MissingComponentException
      */
     public function forgetCart(): void
@@ -176,7 +173,6 @@ class Carts extends Component
     /**
      * Generate a new random cart number and returns it.
      *
-     * @return string
      * @since 2.0
      */
     public function generateCartNumber(): string
@@ -187,7 +183,6 @@ class Carts extends Component
     /**
      * Calculates the date of the active cart duration edge.
      *
-     * @return string
      * @throws \Exception
      * @since 2.2
      */
@@ -203,7 +198,6 @@ class Carts extends Component
     /**
      * Returns whether there is a cart number in the session.
      *
-     * @return bool
      * @throws MissingComponentException
      * @since 2.1.11
      */
@@ -214,7 +208,6 @@ class Carts extends Component
     }
 
     /**
-     * @return string
      * @since 3.1
      */
     public function getCartName(): string
@@ -225,7 +218,6 @@ class Carts extends Component
     /**
      * Get the session cart number or generates one if none exists.
      *
-     * @return string
      * @throws MissingComponentException
      */
     private function getSessionCartNumber(): string
@@ -244,8 +236,6 @@ class Carts extends Component
     /**
      * Set the session cart number.
      *
-     * @param string $cartNumber
-     * @return void
      * @throws MissingComponentException
      */
     private function setSessionCartNumber(string $cartNumber): void
@@ -320,8 +310,6 @@ class Carts extends Component
 
     /**
      * Gets the current payment currency ISO code
-     *
-     * @return string
      */
     private function _getCartPaymentCurrencyIso(): string
     {

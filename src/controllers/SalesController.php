@@ -48,7 +48,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionIndex(): Response
@@ -60,7 +59,6 @@ class SalesController extends BaseCpController
     /**
      * @param int|null $id
      * @param Sale|null $sale
-     * @return Response
      * @throws HttpException
      * @throws InvalidConfigException
      */
@@ -206,7 +204,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws StaleObjectException
@@ -242,7 +239,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionGetAllSales(): Response
@@ -254,7 +250,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -295,7 +290,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      */
@@ -334,7 +328,6 @@ class SalesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws \yii\base\Exception
@@ -428,10 +421,9 @@ class SalesController extends BaseCpController
             $variables['groups'] = [];
         }
 
-        $localeData = Craft::$app->getLocale();
-        $variables['percentSymbol'] = $localeData->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
         $primaryCurrencyIso = Plugin::getInstance()->getPaymentCurrencies()->getPrimaryPaymentCurrencyIso();
-        $variables['currencySymbol'] = $localeData->getCurrencySymbol($primaryCurrencyIso);
+        $variables['currencySymbol'] = Craft::$app->getLocale()->getCurrencySymbol($primaryCurrencyIso);
 
         if (isset($variables['sale']->applyAmount) && $variables['sale']->applyAmount !== null) {
             if ($sale->apply == SaleRecord::APPLY_BY_PERCENT || $sale->apply == SaleRecord::APPLY_TO_PERCENT) {

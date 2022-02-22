@@ -111,10 +111,6 @@ class OrderAdjustments extends Component
         return $event->types;
     }
 
-    /**
-     * @param int $id
-     * @return OrderAdjustment|null
-     */
     public function getOrderAdjustmentById(int $id): ?OrderAdjustment
     {
         $row = $this->_createOrderAdjustmentQuery()
@@ -132,7 +128,6 @@ class OrderAdjustments extends Component
     /**
      * Get all order adjustments by order's ID.
      *
-     * @param int $orderId
      * @return OrderAdjustment[]
      */
     public function getAllOrderAdjustmentsByOrderId(int $orderId): array
@@ -154,9 +149,7 @@ class OrderAdjustments extends Component
     /**
      * Save an order adjustment.
      *
-     * @param OrderAdjustment $orderAdjustment
      * @param bool $runValidation Whether the Order Adjustment should be validated
-     * @return bool
      * @throws Exception
      */
     public function saveOrderAdjustment(OrderAdjustment $orderAdjustment, bool $runValidation = true): bool
@@ -203,8 +196,6 @@ class OrderAdjustments extends Component
     /**
      * Delete all adjustments belonging to an order by its ID.
      *
-     * @param int $orderId
-     * @return bool
      * @noinspection PhpUnused
      */
     public function deleteAllOrderAdjustmentsByOrderId(int $orderId): bool
@@ -215,8 +206,6 @@ class OrderAdjustments extends Component
     /**
      * Delete an order adjustment by its ID.
      *
-     * @param int $adjustmentId
-     * @return bool
      * @throws \Throwable
      * @throws StaleObjectException
      * @noinspection PhpUnused
@@ -285,9 +274,6 @@ class OrderAdjustments extends Component
             ->from([Table::ORDERADJUSTMENTS]);
     }
 
-    /**
-     * @return array
-     */
     public function getDiscountAdjusters(): array
     {
         $discountEvent = new RegisterComponentTypesEvent([

@@ -84,8 +84,6 @@ class OrdersController extends Controller
     /**
      * Index of orders
      *
-     * @param string $orderStatusHandle
-     * @return Response
      * @throws Throwable
      */
     public function actionOrderIndex(string $orderStatusHandle = ''): Response
@@ -106,7 +104,6 @@ class OrdersController extends Controller
     /**
      * Create an order
      *
-     * @return Response
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws ForbiddenHttpException
@@ -146,10 +143,8 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param int $orderId
      * @param Order|null $order
      * @param null $paymentForm
-     * @return Response
      * @throws CurrencyException
      * @throws Exception
      * @throws ForbiddenHttpException
@@ -189,7 +184,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws ElementNotFoundException
      * @throws Exception
@@ -259,7 +253,6 @@ class OrdersController extends Controller
     /**
      * Deletes an order.
      *
-     * @return Response|null
      * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
@@ -288,7 +281,6 @@ class OrdersController extends Controller
      * The refresh action accepts a json representation of an order, recalculates it depending on the mode submitted,
      * and returns the order as json with any validation errors.
      *
-     * @return Response
      * @throws Exception
      */
     public function actionRefresh(): Response
@@ -328,7 +320,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -401,7 +392,6 @@ class OrdersController extends Controller
 
     /**
      * @param Order $order
-     * @return array
      */
     private function _orderToArray($order): array
     {
@@ -471,7 +461,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws InvalidConfigException
@@ -540,7 +529,6 @@ class OrdersController extends Controller
 
     /**
      * @param null $query
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionCustomerSearch($query = null): Response
@@ -562,7 +550,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws Throwable
@@ -616,7 +603,6 @@ class OrdersController extends Controller
     /**
      * Updates an order address
      *
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws ElementNotFoundException
@@ -661,7 +647,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @since 3.0.11
@@ -682,7 +667,6 @@ class OrdersController extends Controller
     /**
      * Returns Payment Modal
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws LoaderError
@@ -769,7 +753,6 @@ class OrdersController extends Controller
     /**
      * Captures Transaction
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws TransactionException
@@ -807,7 +790,6 @@ class OrdersController extends Controller
     /**
      * Refunds transaction.
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -875,7 +857,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws CurrencyException
      */
@@ -916,8 +897,6 @@ class OrdersController extends Controller
 
     /**
      * Modifies the variables of the request.
-     *
-     * @param array $variables
      */
     private function _updateTemplateVariables(array &$variables): void
     {
@@ -1002,7 +981,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $variables
      * @throws Exception
      * @throws InvalidConfigException
      */
@@ -1096,7 +1074,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param Order $order
      * @param $orderRequestData
      * @throws Exception
      * @throws InvalidConfigException
@@ -1118,6 +1095,9 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
+        $order->shippingMethodName = $shippingMethod->name ?? null;
 
         $order->clearNotices();
 
@@ -1345,8 +1325,6 @@ class OrdersController extends Controller
 
     /**
      * @param Transaction[] $transactions
-     * @param int $level
-     * @return array
      * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
@@ -1429,8 +1407,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $results
-     * @return array
      * @throws InvalidConfigException
      */
     private function _addLivePurchasableInfo(array $results): array

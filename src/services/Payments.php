@@ -328,7 +328,6 @@ class Payments extends Component
      * Capture a transaction.
      *
      * @param Transaction $transaction the transaction to capture.
-     * @return Transaction
      * @throws TransactionException if something went wrong when saving the transaction
      */
     public function captureTransaction(Transaction $transaction): Transaction
@@ -358,7 +357,6 @@ class Payments extends Component
      * @param Transaction $transaction the transaction to refund.
      * @param float|null $amount the amount to refund or null for full amount.
      * @param string $note the administrators note on the refund
-     * @return Transaction
      * @throws RefundException if something went wrong during the refund.
      */
     public function refundTransaction(Transaction $transaction, $amount = null, $note = ''): Transaction
@@ -381,9 +379,7 @@ class Payments extends Component
     /**
      * Process return from off-site payment.
      *
-     * @param Transaction $transaction
      * @param string|null &$customError
-     * @return bool
      */
     public function completePayment(Transaction $transaction, &$customError): bool
     {
@@ -465,7 +461,6 @@ class Payments extends Component
     /**
      * Handles a redirect.
      *
-     * @param RequestResponseInterface $response
      * @param                          $redirect
      * @return mixed
      * @throws LoaderError
@@ -522,8 +517,6 @@ class Payments extends Component
     /**
      * Process a capture or refund exception.
      *
-     * @param Transaction $parent
-     * @return Transaction
      * @throws TransactionException if unable to save transaction
      * @throws InvalidConfigException
      */
@@ -550,10 +543,8 @@ class Payments extends Component
     /**
      * Process a capture or refund exception.
      *
-     * @param Transaction $parent
      * @param float|null $amount
      * @param string $note the administrators note on the refund
-     * @return Transaction
      * @throws RefundException if anything goes wrong during a refund
      */
     private function _refund(Transaction $parent, float $amount = null, $note = ''): Transaction
@@ -612,9 +603,6 @@ class Payments extends Component
 
     /**
      * Updates a transaction.
-     *
-     * @param Transaction $transaction
-     * @param RequestResponseInterface $response
      */
     private function _updateTransaction(Transaction $transaction, RequestResponseInterface $response): void
     {

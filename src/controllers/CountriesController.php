@@ -28,9 +28,6 @@ use yii\web\Response;
  */
 class CountriesController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $countries = Plugin::getInstance()->getCountries()->getAllCountries();
@@ -40,7 +37,6 @@ class CountriesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param Country|null $country
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Country $country = null): Response
@@ -152,7 +148,6 @@ class CountriesController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 2.2

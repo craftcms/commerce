@@ -30,7 +30,6 @@ use yii\web\ServerErrorHttpException;
 class PdfsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @since 3.2
      */
     public function actionIndex(): Response
@@ -42,7 +41,6 @@ class PdfsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Pdf|null $pdf
-     * @return Response
      * @throws HttpException
      * @since 3.2
      */
@@ -78,7 +76,6 @@ class PdfsController extends BaseAdminController
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -142,7 +139,6 @@ class PdfsController extends BaseAdminController
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 3.2

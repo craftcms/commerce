@@ -229,7 +229,6 @@ class UserAddressesController extends BaseController
     /**
      * Return customer addresses.
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @since 3.2.7
      */

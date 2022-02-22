@@ -73,7 +73,6 @@ class States extends Component
      * Returns a state by its ID.
      *
      * @param int $id the state's ID
-     * @return State|null
      */
     public function getStateById(int $id): ?State
     {
@@ -101,7 +100,6 @@ class States extends Component
      *
      * @param int $countryId the state's country ID
      * @param string $abbreviation the state's abbreviation
-     * @return State|null
      * @noinspection PhpUnused
      */
     public function getStateByAbbreviation(int $countryId, string $abbreviation): ?State
@@ -116,7 +114,6 @@ class States extends Component
     /**
      * Returns all states indexed by ID
      *
-     * @return array
      * @noinspection PhpUnused
      */
     public function getAllStatesAsList(): array
@@ -148,7 +145,6 @@ class States extends Component
     /**
      * Returns all enabled states as array indexed by ID
      *
-     * @return array
      * @since 3.0
      */
     public function getAllEnabledStatesAsList(): array
@@ -210,10 +206,6 @@ class States extends Component
         return $this->_statesAsOrdered;
     }
 
-    /**
-     * @param int $countryId
-     * @return array
-     */
     public function getStatesByCountryId(int $countryId): array
     {
         return ArrayHelper::where($this->getAllStates(), 'countryId', $countryId);
@@ -345,8 +337,6 @@ class States extends Component
     }
 
     /**
-     * @param array $ids
-     * @return bool
      * @throws \yii\db\Exception
      * @since 3.1
      */

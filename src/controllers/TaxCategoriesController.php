@@ -25,9 +25,6 @@ use yii\web\Response;
  */
 class TaxCategoriesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $taxCategories = Plugin::getInstance()->getTaxCategories()->getAllTaxCategories();
@@ -37,7 +34,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxCategory|null $taxCategory
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, TaxCategory $taxCategory = null): Response
@@ -80,7 +76,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws Exception
      * @noinspection Duplicates

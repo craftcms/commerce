@@ -247,8 +247,6 @@ class Addresses extends Component
 
     /**
      * Returns the store location address, or a blank address if it's not defined.
-     *
-     * @return Address
      */
     public function getStoreLocationAddress(): Address
     {
@@ -260,7 +258,7 @@ class Addresses extends Component
             ->where(['isStoreLocation' => true])
             ->one();
 
-        $this->_storeLocationAddress = $result ? new Address($result) : new Address();
+        $this->_storeLocationAddress = $result ? new Address($result) : new Address(['isStoreLocation' => true]);
 
         return $this->_storeLocationAddress;
     }
@@ -394,9 +392,6 @@ class Addresses extends Component
     }
 
     /**
-     * @param Address $address
-     * @param AddressZoneInterface $zone
-     * @return bool
      * @throws LoaderError
      * @throws SyntaxError
      * @throws InvalidConfigException
@@ -507,8 +502,6 @@ class Addresses extends Component
     }
 
     /**
-     * @param array $address
-     * @return array
      * @since 3.1
      */
     public function removeReadOnlyAttributesFromArray(array $address): array

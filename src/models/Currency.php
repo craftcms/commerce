@@ -42,9 +42,6 @@ class Currency extends Model
      */
     public int $numericCode;
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->alphabeticCode;

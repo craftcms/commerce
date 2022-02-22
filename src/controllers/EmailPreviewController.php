@@ -28,7 +28,6 @@ use yii\web\Response;
 class EmailPreviewController extends Controller
 {
     /**
-     * @return Response
      * @throws Exception
      * @throws ForbiddenHttpException
      */

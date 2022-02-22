@@ -26,9 +26,6 @@ use yii\web\Response;
  */
 class GatewaysController extends BaseAdminController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $gateways = Plugin::getInstance()->getGateways()->getAllGateways();
@@ -41,7 +38,6 @@ class GatewaysController extends BaseAdminController
     /**
      * @param int|null $id
      * @param GatewayInterface|null $gateway
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, GatewayInterface $gateway = null): Response
@@ -97,7 +93,6 @@ class GatewaysController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */

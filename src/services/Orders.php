@@ -33,7 +33,6 @@ class Orders extends Component
     /**
      * Handle field layout change
      *
-     * @param ConfigEvent $event
      * @throws Exception
      */
     public function handleChangedFieldLayout(ConfigEvent $event): void
@@ -60,8 +59,6 @@ class Orders extends Component
 
     /**
      * Prune a deleted field from order field layouts.
-     *
-     * @param FieldEvent $event
      */
     public function pruneDeletedField(FieldEvent $event): void
     {
@@ -86,8 +83,6 @@ class Orders extends Component
 
     /**
      * Handle field layout being deleted
-     *
-     * @param ConfigEvent $event
      */
     public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
@@ -96,9 +91,6 @@ class Orders extends Component
 
     /**
      * Get an order by its ID.
-     *
-     * @param int $id
-     * @return Order|null
      */
     public function getOrderById(int $id): ?Order
     {
@@ -115,9 +107,6 @@ class Orders extends Component
 
     /**
      * Get an order by its number.
-     *
-     * @param string $number
-     * @return Order|null
      */
     public function getOrderByNumber(string $number): ?Order
     {
@@ -133,7 +122,7 @@ class Orders extends Component
      * @param int|User $customer
      * @return Order[]|null
      */
-    public function getOrdersByCustomer($customer): ?array
+    public function getOrdersByCustomer(User|int $customer): ?array
     {
         if (!$customer) {
             return null;
@@ -154,7 +143,6 @@ class Orders extends Component
     /**
      * Get all orders by their email.
      *
-     * @param string $email
      * @return Order[]|null
      */
     public function getOrdersByEmail(string $email): ?array

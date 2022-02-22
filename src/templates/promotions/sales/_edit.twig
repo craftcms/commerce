@@ -242,8 +242,9 @@
                         {{ forms.text({
                             id: 'applyAmount',
                             name: 'applyAmount',
-                            size: 10,
                             value: sale.applyAmount,
+                            class: 'code ltr',
+                            size: 5,
                         }) }}
                         <span id="applyAmount-percent-symbol" class="{% if sale.apply == 'byFlat' or sale.apply == 'toFlat' %}hidden{% endif %}">{{ percentSymbol }}</span>
                     </td>

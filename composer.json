@@ -21,7 +21,6 @@
   "require": {
     "craftcms/cms": "^4.0.0-alpha@dev",
     "dompdf/dompdf": "^1.0.2",
-    "moneyphp/money": "^3.3.1",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
   },
@@ -33,21 +32,21 @@
   },
   "extra": {
     "handle": "commerce",
-    "version": "3.4.9.3",
+    "version": "4.0.0-alpha",
     "name": "Craft Commerce",
     "description": "Create beautifully bespoke ecommerce experiences",
     "developer": "Pixel & Tonic",
     "documentationUrl": "https://craftcms.com/docs/commerce/3.x/"
   },
   "require-dev": {
-    "vlucas/phpdotenv": "^3.4",
     "codeception/codeception": "^4.0.0",
-    "fzaninotto/faker": "^1.8",
-    "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-asserts": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
     "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0"
+    "codeception/module-phpbrowser": "^1.0.0",
+    "codeception/module-rest": "^1.0.0",
+    "codeception/module-yii2": "^1.0.0",
+    "rector/rector": "^0.12.16",
+    "vlucas/phpdotenv": "^3.4"
   },
   "scripts": {
     "testunit": [
@@ -58,7 +57,11 @@
   "config": {
     "sort-packages": true,
     "platform": {
-      "php": "7.4"
+      "php": "8.0.2"
+    },
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
     }
   }
 }

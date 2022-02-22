@@ -28,10 +28,6 @@ use yii\web\ServerErrorHttpException;
  */
 class OrderSettingsController extends BaseAdminController
 {
-    /**
-     * @param array $variables
-     * @return Response
-     */
     public function actionEdit(array $variables = []): Response
     {
         $fieldLayout = Craft::$app->getFields()->getLayoutByType(Order::class);
@@ -43,7 +39,6 @@ class OrderSettingsController extends BaseAdminController
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception

@@ -34,9 +34,6 @@ class Purchasable extends ActiveRecord
         return Table::PURCHASABLES;
     }
 
-    /**
-     * @return \craft\db\ActiveQuery
-     */
     public static function find(): \craft\db\ActiveQuery
     {
         return parent::find()
@@ -44,25 +41,16 @@ class Purchasable extends ActiveRecord
             ->where(['element.dateDeleted' => null]);
     }
 
-    /**
-     * @return ActiveQuery
-     */
     public static function findWithTrashed(): ActiveQuery
     {
         return static::find()->where([]);
     }
 
-    /**
-     * @return ActiveQuery
-     */
     public static function findTrashed(): ActiveQuery
     {
         return static::find()->where(['not', ['element.dateDeleted' => null]]);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'id']);

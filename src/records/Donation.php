@@ -42,9 +42,6 @@ class Donation extends ActiveRecord
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id', 'id']);

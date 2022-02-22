@@ -1593,7 +1593,6 @@ class Install extends Migration
     /**
      * Returns if the table exists.
      *
-     * @param string $tableName
      * @param Migration|null $migration
      * @return bool If the table exists.
      * @throws NotSupportedException

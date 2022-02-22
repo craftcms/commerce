@@ -34,18 +34,15 @@ class UserDiscountUse extends ActiveRecord
         return Table::USER_DISCOUNTUSES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getDiscount(): ActiveQueryInterface
     {
         return $this->hasOne(Discount::class, ['id', 'discountId']);
     }
-
+    
     /**
      * @return ActiveQueryInterface
      */
-    public function getUser(): ActiveQueryInterface
+    public function getCustomer(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id', 'userId']);
     }

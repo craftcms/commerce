@@ -64,7 +64,6 @@ class OrderHistory extends Model
     public ?DateTime $dateCreated = null;
 
     /**
-     * @return Order|null
      * @throws InvalidConfigException
      */
     public function getOrder(): ?Order
@@ -73,7 +72,6 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return OrderStatus|null
      * @throws InvalidConfigException
      */
     public function getPrevStatus(): ?OrderStatus
@@ -83,7 +81,6 @@ class OrderHistory extends Model
     }
 
     /**
-     * @return OrderStatus|null
      * @throws InvalidConfigException
      */
     public function getNewStatus(): ?OrderStatus
@@ -93,7 +90,11 @@ class OrderHistory extends Model
     }
 
     /**
+<<<<<<< HEAD
      * @return User|null
+=======
+     * @throws InvalidConfigException
+>>>>>>> 4.0
      */
     public function getUser(): ?User
     {

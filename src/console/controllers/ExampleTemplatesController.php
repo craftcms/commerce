@@ -86,7 +86,6 @@ class ExampleTemplatesController extends Controller
     /**
      * Generates and copies the example templates.
      *
-     * @return int
      * @throws ErrorException
      * @throws Exception
      */
@@ -271,7 +270,6 @@ class ExampleTemplatesController extends Controller
      * Formats and outputs errors and exits.
      *
      * @param string[] $errors Error strings to be shown to the user
-     * @return int
      */
     private function _returnErrors(array $errors): int
     {

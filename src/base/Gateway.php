@@ -58,7 +58,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
      * Returns the webhook url for this gateway.
      *
      * @param array $params Parameters for the url.
-     * @return string
      */
     public function getWebhookUrl(array $params = []): string
     {
@@ -71,17 +70,12 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns whether this gateway allows payments in control panel.
-     *
-     * @return bool
      */
     public function cpPaymentsEnabled(): bool
     {
         return true;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/settings/gateways/' . $this->id);
@@ -89,8 +83,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns the payment type options.
-     *
-     * @return array
      */
     public function getPaymentTypeOptions(): array
     {
@@ -113,7 +105,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
     /**
      * Returns the html to use when paying with a stored payment source.
      *
-     * @param array $params
      * @return mixed
      */
     public function getPaymentConfirmationFormHtml(array $params): string
@@ -131,8 +122,6 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns true if gateway supports partial refund requests.
-     *
-     * @return bool
      */
     public function supportsPartialPayment(): bool
     {
@@ -141,16 +130,12 @@ abstract class Gateway extends SavableComponent implements GatewayInterface
 
     /**
      * Returns payment Form HTML
-     *
-     * @param array $params
-     * @return string|null
      */
     abstract public function getPaymentFormHtml(array $params): ?string;
 
     /**
      * Returns the transaction hash based on a webhook request
      *
-     * @return string|null
      * @since 3.1.9
      */
     public function getTransactionHashFromWebhook(): ?string

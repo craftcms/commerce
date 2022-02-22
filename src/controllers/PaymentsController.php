@@ -56,7 +56,6 @@ class PaymentsController extends BaseFrontEndController
     }
 
     /**
-     * @return Response|null
      * @throws CurrencyException
      * @throws Exception
      * @throws NotSupportedException

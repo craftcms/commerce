@@ -166,9 +166,6 @@ class Sales extends Component
 
     /**
      * Get a sale by its ID.
-     *
-     * @param int $id
-     * @return Sale|null
      */
     public function getSaleById(int $id): ?Sale
     {
@@ -259,7 +256,6 @@ class Sales extends Component
     /**
      * Returns the sales that match the purchasable.
      *
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @return Sales[]
      * @throws InvalidConfigException
@@ -282,10 +278,6 @@ class Sales extends Component
     }
 
 
-    /**
-     * @param PurchasableInterface $purchasable
-     * @return array
-     */
     public function getSalesRelatedToPurchasable(PurchasableInterface $purchasable): array
     {
         $sales = [];
@@ -313,9 +305,7 @@ class Sales extends Component
     /**
      * Returns the salePrice of the purchasable based on all the sales.
      *
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
-     * @return float
      */
     public function getSalePriceForPurchasable(PurchasableInterface $purchasable, Order $order = null): float
     {
@@ -377,10 +367,7 @@ class Sales extends Component
     /**
      * Match a product and a sale and return the result.
      *
-     * @param PurchasableInterface $purchasable
-     * @param Sale $sale
      * @param Order|null $order
-     * @return bool
      * @throws InvalidConfigException
      */
     public function matchPurchasableAndSale(PurchasableInterface $purchasable, Sale $sale, Order $order = null): bool
@@ -491,9 +478,7 @@ class Sales extends Component
     /**
      * Save a Sale.
      *
-     * @param Sale $model
      * @param bool $runValidation should we validate this before saving.
-     * @return bool
      * @throws Exception
      * @throws \Exception
      */
@@ -611,7 +596,6 @@ class Sales extends Component
      * Reorder Sales based on a list of ids.
      *
      * @param $ids
-     * @return bool
      * @throws \yii\db\Exception
      */
     public function reorderSales($ids): bool
@@ -631,7 +615,6 @@ class Sales extends Component
      * Delete a sale by its id.
      *
      * @param $id
-     * @return bool
      * @throws \Exception
      * @throws Throwable
      * @throws StaleObjectException

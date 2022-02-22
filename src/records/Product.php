@@ -50,41 +50,26 @@ class Product extends ActiveRecord
         return Table::PRODUCTS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getVariants(): ActiveQueryInterface
     {
         return $this->hasMany(Variant::class, ['productId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getElement(): ActiveQueryInterface
     {
         return $this->hasOne(Element::class, ['id' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getType(): ActiveQueryInterface
     {
         return $this->hasOne(ProductType::class, ['id' => 'productTypeId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getShippingCategory(): ActiveQueryInterface
     {
         return $this->hasOne(ShippingCategory::class, ['id' => 'shippingCategoryId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getTaxCategory(): ActiveQueryInterface
     {
         return $this->hasOne(TaxCategory::class, ['id' => 'taxCategoryId']);

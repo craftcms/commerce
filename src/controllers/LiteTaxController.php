@@ -8,10 +8,10 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\helpers\Localization;
 use craft\commerce\models\LiteTaxSettings;
 use craft\commerce\Plugin;
 use craft\errors\WrongEditionException;
-use craft\helpers\Localization;
 use craft\i18n\Locale;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -58,13 +58,12 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings->taxInclude = $taxRate->include;
 
         $variables = compact('settings');
-        $variables['percentSign'] = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
+        $variables['percentSymbol'] = Craft::$app->getFormattingLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
 
         return $this->renderTemplate('commerce/store-settings/tax/index', $variables);
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */
@@ -75,12 +74,7 @@ class LiteTaxController extends BaseStoreSettingsController
         $settings = new LiteTaxSettings();
         $settings->taxName = Craft::$app->getRequest()->getBodyParam('taxName');
         $settings->taxInclude = (bool)Craft::$app->getRequest()->getBodyParam('taxInclude');
-
-        $percentSign = Craft::$app->getLocale()->getNumberSymbol(Locale::SYMBOL_PERCENT);
-        $rate = Craft::$app->getRequest()->getBodyParam('taxRate');
-        $rate = str_replace([$percentSign, '%'], '', $rate);
-        $rate = Localization::normalizeNumber($rate);
-        $settings->taxRate = (float)$rate / 100;
+        $settings->taxRate = Localization::normalizePercentage($this->request->getBodyParam('taxRate'));
 
         if (!$settings->validate()) {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save settings.'));

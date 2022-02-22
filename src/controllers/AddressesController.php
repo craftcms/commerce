@@ -43,7 +43,6 @@ class AddressesController extends BaseCpController
     /**
      * @param int|null $addressId
      * @param AddressModel|null $address
-     * @return Response
      * @throws NotFoundHttpException
      */
     public function actionEdit(int $addressId = null, AddressModel $address = null): Response
@@ -247,7 +246,6 @@ class AddressesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @since 4.0
      */
@@ -292,7 +290,6 @@ class AddressesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @since 3.1
      */
@@ -323,7 +320,6 @@ class AddressesController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @since 3.1
      */

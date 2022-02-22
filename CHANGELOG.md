@@ -3,9 +3,35 @@
 ## Unreleased
 
 ### Added
-- Added the ability to enable/disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
+- Added support for PHP 8.1.
+
+### Fixed
+- Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
+
+## 3.4.11 - 2022-02-09
+
+### Changed
+- Improved memory usage for `craft\commerce\services\LineItems::getAllLineItemsByOrderId()`.  ([#2673](https://github.com/craftcms/commerce/issues/2673))
+
+### Fixed
+- Fixed a bug that could occur when attempting to create a customer on the Edit Order page. ([#2671](https://github.com/craftcms/commerce/issues/2671))
+- Fixed a bug where the shipping method name wasn’t getting updated in the Edit Order page sidebar if the shipping method was changed. ([#2682](https://github.com/craftcms/commerce/issues/2682))
+- Fixed a bug where `Addresses::getStoreLocation()` could return an address with `isStoreLocation` set to `false`. ([#2688](https://github.com/craftcms/commerce/issues/2688))
+- Fixed a bug where Edit State pages included a breadcrumb that linked to a 404. ([#2692](https://github.com/craftcms/commerce/pull/2692))
+- Fixed an error that could occur when saving a discount. ([#2505](https://github.com/craftcms/commerce/issues/2505))
+
+## 3.4.10.1 - 2022-01-13
+
+### Fixed
+- Fixed a bug where `craft\commerce\models\LiteTaxSettings::getTaxRateAsPercent()` wasn’t returning a value.
+
+## 3.4.10 - 2022-01-12
+
+### Added
+- It’s now possible to completely disable the Donation purchasable. ([#2374](https://github.com/craftcms/commerce/discussions/2374))
 - Added support for searching orders by line item description. ([#2658](https://github.com/craftcms/commerce/pull/2658))
 - Added `craft\commerce\elements\Order::isPaymentAmountPartial()`.
+- Added `craft\commerce\helpers\Localization`.
 
 ### Fixed
 - Fixed a bug where gateways’ `supportsPartialPayment()` methods weren’t being respected.

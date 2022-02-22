@@ -80,7 +80,6 @@ class VariantMatrix
      *
      * @param ProductElement $product The product model
      * @param string $namespace The input namespace
-     * @return array
      * @throws Exception
      * @throws InvalidConfigException
      * @throws LoaderError

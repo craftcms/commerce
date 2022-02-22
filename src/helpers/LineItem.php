@@ -19,8 +19,6 @@ use craft\helpers\Json;
 class LineItem
 {
     /**
-     * @param array $options
-     *
      * @return string The generated options signature
      */
     public static function generateOptionsSignature(array $options = []): string
