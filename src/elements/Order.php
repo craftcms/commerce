@@ -2153,14 +2153,6 @@ class Order extends Element
         return $this->_email ?? null;
     }
 
-    /**
-     * Sets the orders email address. Will have no affect if the order's customer is a registered user.
-     */
-    public function setEmail(?string $value): void
-    {
-        $this->_email = $value;
-    }
-
     public function getIsPaid(): bool
     {
         return !$this->hasOutstandingBalance() && $this->isCompleted;
