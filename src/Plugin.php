@@ -11,7 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
-use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\CommerceUserBehavior;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -459,7 +459,7 @@ class Plugin extends BasePlugin
             UserElement::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-                    CustomerBehavior::class,
+                    CommerceUserBehavior::class,
                 ]);
             }
         );

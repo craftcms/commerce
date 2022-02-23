@@ -31,7 +31,7 @@ use yii\base\InvalidConfigException;
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class CustomerBehavior extends Behavior
+class CommerceUserBehavior extends Behavior
 {
     /** @var User */
     public $owner;
@@ -57,33 +57,6 @@ class CustomerBehavior extends Behavior
     private ?array $_subscriptions = null;
 
     /**
-     * @return Address[]
-     * @throws InvalidConfigException
-     */
-    public function getAddresses(): array
-    {
-        if (!$this->owner->id) {
-            return [];
-        }
-
-        if (null === $this->_addresses) {
-            $this->_addresses = Plugin::getInstance()->getAddresses()->getAddressesByUserId($this->owner->id);
-        }
-
-        return $this->_addresses ?? [];
-    }
-
-    /**
-     * @param int $id
-     * @return Address|null
-     * @throws InvalidConfigException
-     */
-    public function getAddressById(int $id): ?Address
-    {
-        return ArrayHelper::firstWhere($this->getAddresses(), 'id', $id);
-    }
-
-    /**
      * @return array
      * @throws InvalidConfigException
      */
@@ -91,7 +64,7 @@ class CustomerBehavior extends Behavior
     {
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
         return Order::find()
-            ->customer($this->owner)
+            ->user($this->owner)
             ->isCompleted(false)
             ->dateUpdated('>= ' . $edge)
             ->orderBy('dateUpdated DESC')
@@ -106,7 +79,7 @@ class CustomerBehavior extends Behavior
     {
         $edge = Plugin::getInstance()->getCarts()->getActiveCartEdgeDuration();
         return Order::find()
-            ->customer($this->owner)
+            ->user($this->owner)
             ->isCompleted(false)
             ->dateUpdated('< ' . $edge)
             ->orderBy('dateUpdated ASC')
@@ -122,7 +95,7 @@ class CustomerBehavior extends Behavior
     public function getOrders(): array
     {
         return Order::find()
-            ->customer($this->owner)
+            ->user($this->owner)
             ->isCompleted()
             ->withAll()
             ->orderBy('dateOrdered DESC')
@@ -152,7 +125,7 @@ class CustomerBehavior extends Behavior
     public function getPrimaryBillingAddress(): ?Address
     {
         if ($primaryBillingAddressId = $this->getPrimaryBillingAddressId()) {
-            return ArrayHelper::firstWhere($this->getAddresses(), 'id', $primaryBillingAddressId);
+            return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $primaryBillingAddressId);
         }
 
         return null;
@@ -179,13 +152,14 @@ class CustomerBehavior extends Behavior
     public function getPrimaryBillingAddressId(): ?int
     {
         if (null === $this->_primaryBillingAddressId && $this->owner->id) {
-            $this->setPrimaryBillingAddressId(UserAddress::find()
+            $id = CommerceUser::find()
                 ->select(['addressId'])
                 ->where([
                     'userId' => $this->owner->id,
                     'isPrimaryBillingAddress' => true,
                 ])
-                ->scalar()
+                ->scalar();
+            $this->setPrimaryBillingAddressId(
             );
         }
 

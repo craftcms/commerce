@@ -14,7 +14,7 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
-use craft\commerce\behaviors\CustomerBehavior;
+use craft\commerce\behaviors\CommerceUserBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
@@ -772,9 +772,9 @@ class Order extends Element
     public ?string $shippingMethodName = null;
 
     /**
-     * @var int|null Customer's User ID
+     * @var int|null User’s ID
      */
-    public ?int $customerId = null;
+    public ?int $userId = null;
 
     /**
      * Whether the email address on the order should be used to register
@@ -1057,7 +1057,7 @@ class Order extends Element
      * {{ order.user }}
      * ```
      */
-    private ?User $_customer = null;
+    private ?User $_user = null;
 
     /**
      * @var float|null
@@ -2057,21 +2057,21 @@ class Order extends Element
     /**
      * @return User|null
      */
-    public function getCustomer(): ?User
+    public function getUser(): ?User
     {
-        if (null !== $this->_customer && $this->_customer->id == $this->customerId) {
-            return $this->_customer;
+        if (null !== $this->_user && $this->_user->id == $this->userId) {
+            return $this->_user;
         }
 
-        if ($this->customerId) {
-            $this->_customer = Craft::$app->getUsers()->getUserById($this->customerId);
+        if ($this->userId) {
+            $this->_user = User($this->userId);
 
-            if (null === $this->_customer) {
-                $this->customerId = null;
+            if (null === $this->_user) {
+                $this->userId = null;
             }
         }
 
-        return $this->_customer;
+        return $this->_user;
     }
 
     /**
