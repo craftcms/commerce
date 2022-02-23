@@ -218,7 +218,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
-        return $this->asJson(['success' => $success]);
+        return $this->asSuccess();
     }
 
     /**
@@ -242,9 +242,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
 
         if ($deleted) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
     }
 }

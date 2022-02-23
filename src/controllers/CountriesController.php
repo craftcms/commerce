@@ -141,9 +141,9 @@ class CountriesController extends BaseStoreSettingsController
 
         try {
             Plugin::getInstance()->getCountries()->deleteCountryById($id);
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         } catch (Exception $e) {
-            return $this->asErrorJson($e->getMessage());
+            return $this->asFailure($e->getMessage());
         }
     }
 
@@ -159,10 +159,10 @@ class CountriesController extends BaseStoreSettingsController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
         if ($success = Plugin::getInstance()->getCountries()->reorderCountries($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder countries.'));
     }
 
     /**

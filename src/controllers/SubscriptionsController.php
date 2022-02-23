@@ -249,23 +249,15 @@ class SubscriptionsController extends BaseController
         }
 
         if ($error) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-            return null;
+            return $this->asFailure($error);
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asSuccess(
+            Craft::t('commerce', 'Subscription started.'),
+            data: [
                 'subscription' => $subscription,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Subscription started.'));
-        return $this->redirectToPostedUrl();
+            ]
+        );
     }
 
     /**
@@ -304,24 +296,15 @@ class SubscriptionsController extends BaseController
         }
 
         if ($error) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error);
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asSuccess(
+            Craft::t('commerce', 'Subscription reactivated.'),
+            data: [
                 'subscription' => $subscription,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Subscription reactivated.'));
-        return $this->redirectToPostedUrl();
+            ]
+        );
     }
 
     /**
@@ -378,24 +361,15 @@ class SubscriptionsController extends BaseController
         }
 
         if ($error) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error);
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asSuccess(
+            Craft::t('commerce', 'Subscription switched.'),
+            data: [
                 'subscription' => $subscription,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Subscription switched.'));
-        return $this->redirectToPostedUrl();
+            ]
+        );
     }
 
     /**
@@ -447,23 +421,14 @@ class SubscriptionsController extends BaseController
         }
 
         if ($error) {
-            if ($request->getAcceptsJson()) {
-                return $this->asErrorJson($error);
-            }
-
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error);
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asSuccess(
+            Craft::t('commerce', 'Subscription cancelled.'),
+            data: [
                 'subscription' => $subscription,
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Subscription cancelled.'));
-        return $this->redirectToPostedUrl();
+            ]
+        );
     }
 }

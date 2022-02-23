@@ -143,10 +143,10 @@ class PaymentCurrenciesController extends BaseStoreSettingsController
 
         if ($currency && !$currency->primary) {
             Plugin::getInstance()->getPaymentCurrencies()->deletePaymentCurrencyById($id);
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         $message = Craft::t('commerce', 'You can not delete that currency.');
-        return $this->asErrorJson($message);
+        return $this->asFailure($message);
     }
 }

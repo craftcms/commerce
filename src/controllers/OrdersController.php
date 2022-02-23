@@ -258,12 +258,10 @@ class OrdersController extends Controller
         }
 
         if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            return $this->asJson(['success' => false]);
+            return $this->asFailure();
         }
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Order deleted.'));
-
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess(Craft::t('commerce', 'Order deleted.'));
     }
 
     /**
@@ -282,7 +280,7 @@ class OrdersController extends Controller
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
 
         if (!$order) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
+            return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
         }
 
         $this->_updateOrder($order, $orderRequestData);
@@ -297,15 +295,23 @@ class OrdersController extends Controller
             $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         }
 
-        $response = [];
-        $response['order'] = $this->_orderToArray($order);
-
         if ($order->hasErrors()) {
-            $response['order']['errors'] = $order->getErrors();
-            $response['error'] = Craft::t('commerce', 'The order is not valid.');
+            return $this->asModelFailure(
+                $order,
+                Craft::t('commerce', 'The order is not valid.'),
+                'order',
+                [
+                    'order' => $this->_orderToArray($order)
+                ]
+            );
         }
 
-        return $this->asJson($response);
+        return $this->asSuccess(
+            '',
+            [
+                'order' => $this->_orderToArray($order)
+            ]
+        );
     }
 
     /**
@@ -327,13 +333,13 @@ class OrdersController extends Controller
         $customerId = $request->getQueryParam('customerId', null);
 
         if (!$customerId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Customer ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve customer.'));
         }
 
         $orderQuery = Order::find()
@@ -372,7 +378,7 @@ class OrdersController extends Controller
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);
@@ -510,7 +516,7 @@ class OrdersController extends Controller
 
         $purchasables = $this->_addLivePurchasableInfo($result);
 
-        return $this->asJson([
+        return $this->asSuccess('',[
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $purchasables,
         ]);
@@ -553,18 +559,18 @@ class OrdersController extends Controller
         $orderId = Craft::$app->getRequest()->getParam('orderId');
 
         if ($id === null || $orderId === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad Request'));
+            return $this->asFailure(Craft::t('commerce', 'Bad Request'));
         }
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
         if ($email === null || !$email->enabled) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         if ($order === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find order'));
         }
 
         // Set language by email's set locale
@@ -585,10 +591,10 @@ class OrdersController extends Controller
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
-            return $this->asErrorJson($error);
+            return $this->asFailure($error);
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -609,32 +615,32 @@ class OrdersController extends Controller
 
         // Validate Address Type
         if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
+            $this->asFailure(Craft::t('commerce', 'Not a valid address type'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         if (!$order) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad order ID.'));
+            $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
         }
 
         // Return early if the address is already set.
         if ($order->{$type . 'Id'} == $addressId) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         // Validate Address Id
         $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
         if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
+            return $this->asFailure(Craft::t('commerce', 'Bad address ID.'));
         }
 
         $order->{$type . 'Id'} = $address->id;
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
+        return $this->asFailure(Craft::t('commerce', 'Could not update orders address.'));
     }
 
     /**
@@ -652,7 +658,7 @@ class OrdersController extends Controller
             return $sum + (int)$thing['orderCount'];
         }, 0);
 
-        return $this->asJson(compact('counts', 'total'));
+        return $this->asSuccess(data: compact('counts', 'total'));
     }
 
     /**
@@ -733,8 +739,7 @@ class OrdersController extends Controller
             'paymentForms' => $formHtml,
         ]);
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'modalHtml' => $modalHtml,
             'headHtml' => $view->getHeadHtml(),
             'footHtml' => $view->getBodyHtml(),
@@ -799,7 +804,7 @@ class OrdersController extends Controller
         if (!$transaction) {
             $error = Craft::t('commerce', 'Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -813,7 +818,7 @@ class OrdersController extends Controller
         if ($amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -875,14 +880,13 @@ class OrdersController extends Controller
             $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
         }
 
-        return $this->asJson([
+        return $this->asSuccess($message, data: [
             'paymentCurrency' => $paymentCurrency,
             'paymentAmount' => $paymentAmount,
             'outstandingBalance' => $outstandingBalance,
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-            'message' => $message,
         ]);
     }
 

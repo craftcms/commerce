@@ -48,12 +48,7 @@ class CustomerAddressesController extends BaseFrontEndController
         // Ensure any incoming ID is within the editable addresses for a customer:
         if ($addressId && !in_array($addressId, $addressIds, false)) {
             $error = Craft::t('commerce', 'Not allowed to edit that address.');
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['error' => $error]);
-            }
-            $this->setFailFlash($error);
-
-            return null;
+            return $this->asFailure($error);
         }
 
         // If we make it past the ownership check, and there was actually an ID passed, look it up:
@@ -110,12 +105,7 @@ class CustomerAddressesController extends BaseFrontEndController
 
             if ($updatedCustomer && !$customerService->saveCustomer($customer)) {
                 $error = Craft::t('commerce', 'Unable to update primary address.');
-                if ($this->request->getAcceptsJson()) {
-                    return $this->asJson(['error' => $error]);
-                }
-                $this->setFailFlash($error);
-
-                return null;
+                return $this->asFailure($error);
             }
 
             // Refresh the cart, if this address was being used.
@@ -130,31 +120,19 @@ class CustomerAddressesController extends BaseFrontEndController
                 Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
             }
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => true, 'address' => $address]);
-            }
 
-            $this->setSuccessFlash(Craft::t('commerce', 'Address saved.'));
-
-            return $this->redirectToPostedUrl($address);
-        } else {
-            $errorMsg = Craft::t('commerce', 'Could not save address.');
-
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson([
-                    'error' => $errorMsg,
-                    'errors' => $address->errors,
-                ]);
-            }
-
-            $this->setFailFlash($errorMsg);
-
-            Craft::$app->getUrlManager()->setRouteParams([
-                'address' => $address,
-            ]);
+            return $this->asModelSuccess(
+                $address,
+                Craft::t('commerce', 'Address saved.'),
+                'address'
+            );
         }
 
-        return null;
+        return $this->asModelFailure(
+            $address,
+            Craft::t('commerce', 'Could not save address.'),
+            'address'
+        );
     }
 
     /**
@@ -205,23 +183,12 @@ class CustomerAddressesController extends BaseFrontEndController
 
             Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
 
-            if ($this->request->getAcceptsJson()) {
-                return $this->asJson(['success' => true]);
-            }
-
-            $this->setSuccessFlash(Craft::t('commerce', 'Address removed.'));
-            return $this->redirectToPostedUrl();
+            return $this->asSuccess(Craft::t('commerce', 'Address removed.'));
         } else {
             $error = Craft::t('commerce', 'Could not delete address.');
         }
 
-        if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['error' => $error]);
-        }
-
-        $this->setFailFlash($error);
-
-        return null;
+        return $this->asFailure($error);
     }
 
     /**
@@ -237,6 +204,6 @@ class CustomerAddressesController extends BaseFrontEndController
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
         $addresses = $customer->getAddresses();
 
-        return $this->asJson(['success' => true, 'addresses' => $addresses]);
+        return $this->asSuccess(data: ['addresses' => $addresses]);
     }
 }

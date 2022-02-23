@@ -197,10 +197,10 @@ class SalesController extends BaseCpController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder sales.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
     }
 
     /**
@@ -230,7 +230,7 @@ class SalesController extends BaseCpController
         }
 
         if ($this->request->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         $this->setSuccessFlash(Craft::t('commerce', 'Sales deleted.'));
@@ -261,13 +261,13 @@ class SalesController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Product ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Product ID is required.'));
         }
 
         $product = Plugin::getInstance()->getProducts()->getProductById($id);
 
         if (!$product) {
-            return $this->asErrorJson(Craft::t('commerce', 'No product available.'));
+            return $this->asFailure(Craft::t('commerce', 'No product available.'));
         }
 
         $sales = [];
@@ -283,10 +283,9 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
-            'sales' => $sales,
-        ]);
+        return $this->asSuccess(
+            data: ['sales' => $sales],
+        );
     }
 
     /**
@@ -301,13 +300,13 @@ class SalesController extends BaseCpController
         $id = $request->getParam('id', null);
 
         if (!$id) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID is required.'));
         }
 
         $purchasable = Plugin::getInstance()->getPurchasables()->getPurchasableById($id);
 
         if (!$purchasable) {
-            return $this->asErrorJson(Craft::t('commerce', 'No purchasable available.'));
+            return $this->asFailure(Craft::t('commerce', 'No purchasable available.'));
         }
 
         $sales = [];
@@ -321,8 +320,7 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'sales' => $sales,
         ]);
     }
@@ -341,7 +339,7 @@ class SalesController extends BaseCpController
         $saleId = $request->getParam('saleId', null);
 
         if (empty($ids) || !$saleId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));
+            return $this->asFailure(Craft::t('commerce', 'Purchasable ID and Sale ID are required.'));
         }
 
         $purchasables = [];
@@ -352,7 +350,7 @@ class SalesController extends BaseCpController
         $sale = Plugin::getInstance()->getSales()->getSaleById($saleId);
 
         if (empty($purchasables) || count($purchasables) != count($ids) || !$sale) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve Sale and Purchasable.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve Sale and Purchasable.'));
         }
 
         $salePurchasableIds = $sale->getPurchasableIds();
@@ -361,10 +359,10 @@ class SalesController extends BaseCpController
         $sale->setPurchasableIds(array_unique($salePurchasableIds));
 
         if (!Plugin::getInstance()->getSales()->saveSale($sale)) {
-            return $this->asErrorJson(Craft::t('commerce', 'Couldn’t save sale.'));
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t save sale.'));
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
