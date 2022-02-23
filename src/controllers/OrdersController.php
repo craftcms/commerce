@@ -305,6 +305,13 @@ class OrdersController extends Controller
                 ]
             );
         }
+
+        return $this->asSuccess(
+            '',
+            [
+                'order' => $this->_orderToArray($order)
+            ]
+        );
     }
 
     /**
@@ -509,7 +516,7 @@ class OrdersController extends Controller
 
         $purchasables = $this->_addLivePurchasableInfo($result);
 
-        return $this->asSuccess([
+        return $this->asSuccess('',[
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $purchasables,
         ]);
