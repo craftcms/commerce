@@ -70,7 +70,9 @@ class CartController extends BaseFrontEndController
 
         $this->_cart = $this->_getCart();
 
-        return $this->asSuccess(data: [$this->_cartVariable => $this->cartArray($this->_cart)]);
+        return $this->asSuccess(
+            data: [$this->_cartVariable => $this->cartArray($this->_cart)]
+        );
     }
 
     /**
