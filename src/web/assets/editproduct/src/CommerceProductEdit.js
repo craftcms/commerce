@@ -136,24 +136,31 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
         $spinner.data('loading', true);
 
         element.empty();
+        Craft.sendActionRequest('POST', 'commerce/sales/get-sales-by-purchasable-id', {data})
+            .then((response) => {
+                $spinner.addClass('hidden');
+                $spinner.data('loading', false);
+                const {data} = response;
+                if (data.sales && data.sales.length) {
+                    for (var i = 0; i < data.sales.length; i++) {
+                        var sale = data.sales[i];
+                        if (_this.saleIdsByVariantId[id] === undefined) {
+                            _this.saleIdsByVariantId[id] = [];
+                        }
+                        _this.saleIdsByVariantId[id].push(sale.id);
 
-        Craft.postActionRequest('commerce/sales/get-sales-by-purchasable-id', data, function(response) {
-            $spinner.addClass('hidden');
-            $spinner.data('loading', false);
-            if (response && response.success && response.sales.length) {
-                for (var i = 0; i < response.sales.length; i++) {
-                    var sale = response.sales[i];
-                    if (_this.saleIdsByVariantId[id] === undefined) {
-                        _this.saleIdsByVariantId[id] = [];
+                        $('<li>\n' +
+                            '<a href="'+sale.cpEditUrl+'"><span>'+sale.name+'</span></a>\n' +
+                            '</li>').appendTo(element);
                     }
-                    _this.saleIdsByVariantId[id].push(sale.id);
-
-                    $('<li>\n' +
-                        '<a href="'+sale.cpEditUrl+'"><span>'+sale.name+'</span></a>\n' +
-                        '</li>').appendTo(element);
                 }
-            }
-        });
+
+            })
+            .catch(({response}) => {
+                $spinner.addClass('hidden');
+                $spinner.data('loading', false);
+
+            });
     },
 
     populateDiscountList: function() {
@@ -168,21 +175,24 @@ Craft.Commerce.ProductEdit = Garnish.Base.extend({
 
                 element.empty();
 
-                Craft.postActionRequest('commerce/discounts/get-discounts-by-purchasable-id', data, function(response) {
-                    if (response && response.success && response.discounts.length) {
-                        for (var i = 0; i < response.discounts.length; i++) {
-                            var discount = response.discounts[i];
-                            if (_this.discountIdsByVariantId[id] === undefined) {
-                                _this.discountIdsByVariantId[id] = [];
-                            }
-                            _this.discountIdsByVariantId[id].push(discount.id);
 
-                            $('<li>\n' +
-                                '<a href="'+discount.cpEditUrl+'"><span>'+Craft.escapeHtml(discount.name)+'</span></a>\n' +
-                                '</li>').appendTo(element);
+                Craft.sendActionRequest('POST', 'commerce/discounts/get-discounts-by-purchasable-id', {data})
+                    .then((response) => {
+                        const {data} = response;
+                        if (data && data.discounts.length) {
+                            for (var i = 0; i < data.discounts.length; i++) {
+                                var discount = data.discounts[i];
+                                if (_this.discountIdsByVariantId[id] === undefined) {
+                                    _this.discountIdsByVariantId[id] = [];
+                                }
+                                _this.discountIdsByVariantId[id].push(discount.id);
+
+                                $('<li>\n' +
+                                    '<a href="'+discount.cpEditUrl+'"><span>'+Craft.escapeHtml(discount.name)+'</span></a>\n' +
+                                    '</li>').appendTo(element);
+                            }
                         }
-                    }
-                });
+                    });
             });
         }
     },

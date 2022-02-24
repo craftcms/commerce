@@ -36,7 +36,6 @@ class ShippingRulesController extends BaseShippingSettingsController
      * @param int|null $methodId
      * @param int|null $ruleId
      * @param ShippingRule|null $shippingRule
-     * @return Response
      * @throws HttpException
      * @throws LoaderError
      * @throws RuntimeError
@@ -135,7 +134,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     /**
      * Duplicates a shipping rule.
      *
-     * @return Response|null
      * @throws InvalidRouteException
      * @since 3.2
      */
@@ -145,7 +143,6 @@ class ShippingRulesController extends BaseShippingSettingsController
     }
 
     /**
-     * @param bool $duplicate
      * @throws BadRequestHttpException
      * @throws Exception
      */
@@ -221,7 +218,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
-        return $this->asJson(['success' => $success]);
+        return $this->asSuccess();
     }
 
     /**
@@ -245,9 +242,9 @@ class ShippingRulesController extends BaseShippingSettingsController
         $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
 
         if ($deleted) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
     }
 }

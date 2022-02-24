@@ -41,9 +41,6 @@ class CustomersController extends BaseCpController
         $this->requirePermission('commerce-manageCustomers');
     }
 
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         return $this->renderTemplate('commerce/customers/_index');
@@ -52,7 +49,6 @@ class CustomersController extends BaseCpController
     /**
      * @param int|null $id
      * @param Customer|null $customer
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, Customer $customer = null): Response
@@ -73,7 +69,6 @@ class CustomersController extends BaseCpController
     }
 
     /**
-     * @return Response|null
      * @throws HttpException
      * @throws MissingComponentException
      * @throws Exception
@@ -105,7 +100,6 @@ class CustomersController extends BaseCpController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      */
     public function actionCustomersTable(): Response
@@ -178,7 +172,7 @@ class CustomersController extends BaseCpController
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess([
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);

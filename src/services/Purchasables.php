@@ -96,10 +96,8 @@ class Purchasables extends Component
     const EVENT_REGISTER_PURCHASABLE_ELEMENT_TYPES = 'registerPurchasableElementTypes';
 
     /**
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @param User|null $currentUser
-     * @return bool
      * @since 3.3.1
      */
     public function isPurchasableAvailable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
@@ -119,10 +117,8 @@ class Purchasables extends Component
     }
 
     /**
-     * @param PurchasableInterface $purchasable
      * @param Order|null $order
      * @param User|null $currentUser
-     * @return bool
      * @since 3.3.2
      */
     public function isPurchasableShippable(PurchasableInterface $purchasable, Order $order = null, User $currentUser = null): bool
@@ -144,8 +140,6 @@ class Purchasables extends Component
     /**
      * Delete a purchasable by its ID.
      *
-     * @param int $purchasableId
-     * @return bool
      * @throws \Throwable
      * @noinspection PhpUnused
      */
@@ -156,9 +150,6 @@ class Purchasables extends Component
 
     /**
      * Get a purchasable by its ID.
-     *
-     * @param int $purchasableId
-     * @return ElementInterface|null
      */
     public function getPurchasableById(int $purchasableId): ?ElementInterface
     {

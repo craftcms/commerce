@@ -64,7 +64,6 @@ class LiteTaxController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */

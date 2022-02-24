@@ -48,9 +48,6 @@ class LiteTaxSettings extends Model
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getTaxRateAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent($this->taxRate);

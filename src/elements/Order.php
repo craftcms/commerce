@@ -1131,9 +1131,6 @@ class Order extends Element
         parent::init();
     }
 
-    /**
-     * @return array
-     */
     public function behaviors(): array
     {
         $behaviors = parent::behaviors();
@@ -1298,8 +1295,6 @@ class Order extends Element
 
     /**
      * The attributes on the order that should be made available as formatted currency.
-     *
-     * @return array
      */
     public function currencyAttributes(): array
     {
@@ -1330,9 +1325,6 @@ class Order extends Element
         return $attributes;
     }
 
-    /**
-     * @return array
-     */
     public function fields(): array
     {
         $fields = parent::fields();
@@ -1503,7 +1495,6 @@ class Order extends Element
     /**
      * Marks the order as complete and sets the default order status, then saves the order.
      *
-     * @return bool
      * @throws OrderStatusException
      * @throws Exception
      * @throws Throwable
@@ -1613,8 +1604,6 @@ class Order extends Element
 
     /**
      * Removes a specific line item from the order.
-     *
-     * @param LineItem $lineItem
      */
     public function removeLineItem(LineItem $lineItem): void
     {
@@ -1635,8 +1624,6 @@ class Order extends Element
 
     /**
      * Adds a line item to the order. Updates the line item if the ID of that line item is already in the cart.
-     *
-     * @param LineItem $lineItem
      */
     public function addLineItem(LineItem $lineItem): void
     {
@@ -1677,8 +1664,6 @@ class Order extends Element
 
     /**
      * Gets the recalculation mode of the order
-     *
-     * @return string
      */
     public function getRecalculationMode(): string
     {
@@ -1687,8 +1672,6 @@ class Order extends Element
 
     /**
      * Sets the recalculation mode of the order
-     *
-     * @param string $value
      */
     public function setRecalculationMode(string $value): void
     {
@@ -2047,9 +2030,6 @@ class Order extends Element
         return Craft::$app->getUser()->checkPermission('commerce-manageOrders');
     }
 
-    /**
-     * @return string
-     */
     public function getShortNumber(): string
     {
         return substr($this->number, 0, 7);
@@ -2115,9 +2095,6 @@ class Order extends Element
         return UrlHelper::actionUrl($path, $params);
     }
 
-    /**
-     * @return Customer|null
-     */
     public function getCustomer(): ?Customer
     {
         if ($this->_customer !== null && $this->_customer->id == $this->customerId) {
@@ -2136,7 +2113,6 @@ class Order extends Element
     }
 
     /**
-     * @param Customer|null $customer
      * @since 3.1.11
      */
     public function setCustomer(?Customer $customer): void
@@ -2174,9 +2150,6 @@ class Order extends Element
         }
     }
 
-    /**
-     * @return User|null
-     */
     public function getUser(): ?User
     {
         return $this->getCustomer() ? $this->getCustomer()->getUser() : null;
@@ -2184,8 +2157,6 @@ class Order extends Element
 
     /**
      * Returns the email for this order. Will always be the registered users email if the order's customer is related to a user.
-     *
-     * @return string|null
      */
     public function getEmail(): ?string
     {
@@ -2198,24 +2169,18 @@ class Order extends Element
 
     /**
      * Sets the orders email address. Will have no affect if the order's customer is a registered user.
-     *
-     * @param string|null $value
      */
     public function setEmail(?string $value): void
     {
         $this->_email = $value;
     }
 
-    /**
-     * @return bool
-     */
     public function getIsPaid(): bool
     {
         return !$this->hasOutstandingBalance() && $this->isCompleted;
     }
 
     /**
-     * @return bool
      * @noinspection PhpUnused
      */
     public function getIsUnpaid(): bool
@@ -2226,7 +2191,6 @@ class Order extends Element
     /**
      * Returns the paymentAmount for this order.
      *
-     * @return float
      * @throws CurrencyException
      */
     public function getPaymentAmount(): float
@@ -2243,7 +2207,6 @@ class Order extends Element
     /**
      * Sets the order's payment amount in the order's currency. This amount is not persisted.
      *
-     * @param float $amount
      * @throws CurrencyException
      * @throws InvalidConfigException
      */
@@ -2257,7 +2220,6 @@ class Order extends Element
     /**
      * Returns whether the payment amount currently set is a partial amount of the order's outstanding balance.
      *
-     * @return bool
      * @throws CurrencyException
      * @throws InvalidConfigException
      * @since 3.4.10
@@ -2271,8 +2233,6 @@ class Order extends Element
 
     /**
      * What is the status of the orders payment
-     *
-     * @return string
      */
     public function getPaidStatus(): string
     {
@@ -2294,7 +2254,6 @@ class Order extends Element
     /**
      * Customer represented as HTML
      *
-     * @return string
      * @since 3.0
      */
     public function getCustomerLinkHtml(): string
@@ -2316,9 +2275,6 @@ class Order extends Element
         return '';
     }
 
-    /**
-     * @return string
-     */
     public function getOrderStatusHtml(): string
     {
         if ($status = $this->getOrderStatus()) {
@@ -2330,37 +2286,21 @@ class Order extends Element
 
     /**
      * Paid status represented as HTML
-     *
-     * @return string
      */
     public function getPaidStatusHtml(): string
     {
-        switch ($this->getPaidStatus()) {
-            case self::PAID_STATUS_OVERPAID:
-            {
-                return '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>';
-            }
-            case self::PAID_STATUS_PAID:
-            {
-                return '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>';
-            }
-            case self::PAID_STATUS_PARTIAL:
-            {
-                return '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>';
-            }
-            case self::PAID_STATUS_UNPAID:
-            {
-                return '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>';
-            }
-        }
-
-        return '';
+        return match ($this->getPaidStatus()) {
+            self::PAID_STATUS_OVERPAID => '<span class="commerceStatusLabel"><span class="status blue"></span> ' . Craft::t('commerce', 'Overpaid') . '</span>',
+            self::PAID_STATUS_PAID => '<span class="commerceStatusLabel"><span class="status green"></span> ' . Craft::t('commerce', 'Paid') . '</span>',
+            self::PAID_STATUS_PARTIAL => '<span class="commerceStatusLabel"><span class="status orange"></span> ' . Craft::t('commerce', 'Partial') . '</span>',
+            self::PAID_STATUS_UNPAID => '<span class="commerceStatusLabel"><span class="status red"></span> ' . Craft::t('commerce', 'Unpaid') . '</span>',
+            default => '',
+        };
     }
 
     /**
      * Returns the raw total of the order, which is the total of all line items and adjustments. This number can be negative, so it is not the price of the order.
      *
-     * @return float
      * @see Order::getTotalPrice() The actual total price of the order.
      *
      */
@@ -2371,8 +2311,6 @@ class Order extends Element
 
     /**
      * Get the total price of the order, whose minimum value is enforced by the configured {@link Settings::minimumTotalPriceStrategy strategy set for minimum total price}.
-     *
-     * @return float
      */
     public function getTotalPrice(): float
     {
@@ -2390,9 +2328,6 @@ class Order extends Element
         return Currency::round($total);
     }
 
-    /**
-     * @return float
-     */
     public function getItemTotal(): float
     {
         $total = 0;
@@ -2405,7 +2340,6 @@ class Order extends Element
     }
 
     /**
-     * @return bool
      * @since 3.4
      */
     public function hasShippableItems(): bool
@@ -2422,7 +2356,6 @@ class Order extends Element
     /**
      * Returns the difference between the order amount and amount paid.
      *
-     * @return float
      *
      */
     public function getOutstandingBalance(): float
@@ -2433,9 +2366,6 @@ class Order extends Element
         return $totalPrice - $totalPaid;
     }
 
-    /**
-     * @return bool
-     */
     public function hasOutstandingBalance(): bool
     {
         return $this->getOutstandingBalance() > 0;
@@ -2443,8 +2373,6 @@ class Order extends Element
 
     /**
      * Returns the total `purchase` and `captured` transactions belonging to this order.
-     *
-     * @return float
      */
     public function getTotalPaid(): float
     {
@@ -2511,7 +2439,6 @@ class Order extends Element
     /**
      * Returns whether this order is the user's current active cart.
      *
-     * @return bool
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws Throwable
@@ -2525,8 +2452,6 @@ class Order extends Element
 
     /**
      * Returns whether the order has any items in it.
-     *
-     * @return bool
      */
     public function getIsEmpty(): bool
     {
@@ -2534,7 +2459,6 @@ class Order extends Element
     }
 
     /**
-     * @return bool
      * @noinspection PhpUnused
      */
     public function hasLineItems(): bool
@@ -2544,8 +2468,6 @@ class Order extends Element
 
     /**
      * Returns total number of items.
-     *
-     * @return int
      */
     public function getTotalQty(): int
     {
@@ -2596,12 +2518,7 @@ class Order extends Element
         }
     }
 
-    /**
-     * @param string|array $types
-     * @param bool $included
-     * @return float|int
-     */
-    public function _getAdjustmentsTotalByType($types, bool $included = false)
+    public function _getAdjustmentsTotalByType(array|string $types, bool $included = false): float|int
     {
         $amount = 0;
 
@@ -2618,40 +2535,27 @@ class Order extends Element
         return $amount;
     }
 
-    /**
-     * @return float
-     */
     public function getTotalTax(): float
     {
         return $this->_getAdjustmentsTotalByType('tax');
     }
 
-    /**
-     * @return float
-     */
     public function getTotalTaxIncluded(): float
     {
         return $this->_getAdjustmentsTotalByType('tax', true);
     }
 
-    /**
-     * @return float
-     */
     public function getTotalDiscount(): float
     {
         return $this->_getAdjustmentsTotalByType('discount');
     }
 
-    /**
-     * @return float
-     */
     public function getTotalShippingCost(): float
     {
         return $this->_getAdjustmentsTotalByType('shipping');
     }
 
     /**
-     * @return float
      * @noinspection PhpUnused
      */
     public function getTotalWeight(): float
@@ -2666,8 +2570,6 @@ class Order extends Element
 
     /**
      * Returns the total sale amount.
-     *
-     * @return float
      */
     public function getTotalSaleAmount(): float
     {
@@ -2681,8 +2583,6 @@ class Order extends Element
 
     /**
      * Returns the total of all line item's subtotals.
-     *
-     * @return float
      */
     public function getItemSubtotal(): float
     {
@@ -2730,8 +2630,6 @@ class Order extends Element
     }
 
     /**
-     * @param string $type
-     * @return array
      * @since 3.0
      */
     public function getAdjustmentsByType(string $type): array
@@ -2747,9 +2645,6 @@ class Order extends Element
         return $adjustments;
     }
 
-    /**
-     * @return array
-     */
     public function getOrderAdjustments(): array
     {
         $adjustments = $this->getAdjustments();
@@ -2772,9 +2667,6 @@ class Order extends Element
         $this->_orderAdjustments = $adjustments;
     }
 
-    /**
-     * @return float
-     */
     public function getAdjustmentsTotal(): float
     {
         $amount = 0;
@@ -2790,8 +2682,6 @@ class Order extends Element
 
     /**
      * * Get the shipping address on the order.
-     *
-     * @return Address|null
      */
     public function getShippingAddress(): ?Address
     {
@@ -2844,7 +2734,6 @@ class Order extends Element
     }
 
     /**
-     * @return Address|null
      * @since 2.2
      */
     public function getEstimatedShippingAddress(): ?Address
@@ -2857,10 +2746,9 @@ class Order extends Element
     }
 
     /**
-     * @param Address|array $address
      * @since 2.2
      */
-    public function setEstimatedShippingAddress($address): void
+    public function setEstimatedShippingAddress(\craft\commerce\models\Address|array $address): void
     {
         if (!$address instanceof Address) {
             $address = new Address($address);
@@ -2882,8 +2770,6 @@ class Order extends Element
 
     /**
      * Get the billing address on the order.
-     *
-     * @return Address|null
      */
     public function getBillingAddress(): ?Address
     {
@@ -2936,7 +2822,6 @@ class Order extends Element
     }
 
     /**
-     * @return Address|null
      * @since 2.2
      */
     public function getEstimatedBillingAddress(): ?Address
@@ -2949,10 +2834,9 @@ class Order extends Element
     }
 
     /**
-     * @param Address|array $address
      * @since 2.2
      */
-    public function setEstimatedBillingAddress($address): void
+    public function setEstimatedBillingAddress(\craft\commerce\models\Address|array $address): void
     {
         if (!$address instanceof Address) {
             $address = new Address($address);
@@ -2972,16 +2856,12 @@ class Order extends Element
         $this->_estimatedBillingAddress = null;
     }
 
-    /**
-     * @return ShippingMethod|null
-     */
     public function getShippingMethod(): ?ShippingMethod
     {
         return Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle((string)$this->shippingMethodHandle);
     }
 
     /**
-     * @return GatewayInterface|null
      * @throws InvalidArgumentException
      */
     public function getGateway(): ?GatewayInterface
@@ -3008,8 +2888,6 @@ class Order extends Element
 
     /**
      * Returns the current payment currency, and defaults to the primary currency if not set.
-     *
-     * @return string
      */
     public function getPaymentCurrency(): string
     {
@@ -3031,7 +2909,6 @@ class Order extends Element
     /**
      * Returns the order's selected payment source if any.
      *
-     * @return PaymentSource|null
      * @throws InvalidConfigException if the payment source is being set by a guest customer.
      * @throws InvalidArgumentException if the order is set to an invalid payment source.
      */
@@ -3054,8 +2931,6 @@ class Order extends Element
 
     /**
      * Sets the order's selected payment source
-     *
-     * @param PaymentSource|null $paymentSource
      */
     public function setPaymentSource(?PaymentSource $paymentSource): void
     {
@@ -3081,8 +2956,6 @@ class Order extends Element
 
     /**
      * Sets the order's selected gateway id.
-     *
-     * @param int $gatewayId
      */
     public function setGatewayId(int $gatewayId): void
     {
@@ -3126,7 +2999,6 @@ class Order extends Element
     }
 
     /**
-     * @return Transaction|null
      * @noinspection PhpUnused
      */
     public function getLastTransaction(): ?Transaction
@@ -3168,7 +3040,6 @@ class Order extends Element
     }
 
     /**
-     * @return OrderStatus|null
      * @throws InvalidConfigException
      */
     public function getOrderStatus(): ?OrderStatus
@@ -3179,7 +3050,6 @@ class Order extends Element
     /**
      * Get the site for the order.
      *
-     * @return Site|null
      * @since 3.2.9
      */
     public function getOrderSite(): ?Site

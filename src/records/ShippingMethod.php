@@ -33,9 +33,6 @@ class ShippingMethod extends ActiveRecord
         return Table::SHIPPINGMETHODS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getRules(): ActiveQueryInterface
     {
         return $this->hasMany(ShippingRule::class, ['shippingMethodId' => 'id']);

@@ -873,7 +873,7 @@ class OrderQuery extends ElementQuery
      * @param User|int $value The property value
      * @return static self reference
      */
-    public function user($value): OrderQuery
+    public function user(int|\craft\elements\User $value): OrderQuery
     {
         if ($value instanceof User) {
             $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($value->id);

@@ -234,9 +234,6 @@ class Discount extends Model
         return $attributes;
     }
 
-    /**
-     * @return string
-     */
     public function getCpEditUrl(): string
     {
         return UrlHelper::cpUrl('commerce/promotions/discounts/' . $this->id);
@@ -308,17 +305,11 @@ class Discount extends Model
         $this->_userGroupIds = array_unique($userGroupIds);
     }
 
-    /**
-     * @param bool $value
-     */
     public function setHasFreeShippingForMatchingItems(bool $value): void
     {
         $this->hasFreeShippingForMatchingItems = $value;
     }
 
-    /**
-     * @return bool
-     */
     public function getHasFreeShippingForMatchingItems(): bool
     {
         return $this->hasFreeShippingForMatchingItems;
@@ -345,17 +336,11 @@ class Discount extends Model
         $this->_coupons = $coupons;
     }
 
-    /**
-     * @return string
-     */
     public function getPercentDiscountAsPercent(): string
     {
         return Craft::$app->getFormatter()->asPercent(-($this->percentDiscount ?? 0.0));
     }
 
-    /**
-     * @return array
-     */
     public function getUserGroupsConditions(): array
     {
         return [
@@ -422,10 +407,8 @@ class Discount extends Model
                         if (!$order) {
                             $order = new Order();
                         }
-                        $orderDiscountConditionParams = [
-                            'order' => $order->toArray([], ['lineItems.snapshot', 'shippingAddress', 'billingAddress']),
-                        ];
-                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, $orderDiscountConditionParams)) {
+
+                        if (!Plugin::getInstance()->getFormulas()->validateConditionSyntax($this->{$attribute}, Plugin::getInstance()->getDiscounts()->getOrderConditionParams($order))) {
                             $this->addError($attribute, Craft::t('commerce', 'Invalid order condition syntax.'));
                         }
                     }

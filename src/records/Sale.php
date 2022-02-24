@@ -58,7 +58,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getGroups(): ActiveQueryInterface
@@ -67,7 +66,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getPurchasables(): ActiveQueryInterface
@@ -76,7 +74,6 @@ class Sale extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @throws InvalidConfigException
      */
     public function getCategories(): ActiveQueryInterface

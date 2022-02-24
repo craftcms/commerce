@@ -39,16 +39,12 @@ class OrderHistory extends ActiveRecord
         return Table::ORDERHISTORIES;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getPrevStatus(): ActiveQueryInterface
@@ -57,7 +53,6 @@ class OrderHistory extends ActiveRecord
     }
 
     /**
-     * @return ActiveQueryInterface
      * @noinspection PhpUnused
      */
     public function getNewStatus(): ActiveQueryInterface
@@ -65,9 +60,6 @@ class OrderHistory extends ActiveRecord
         return $this->hasOne(OrderStatus::class, ['id' => 'newStatusId']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCustomer(): ActiveQueryInterface
     {
         return $this->hasOne(Customer::class, ['id' => 'customerId']);

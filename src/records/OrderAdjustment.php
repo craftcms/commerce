@@ -38,9 +38,6 @@ class OrderAdjustment extends ActiveRecord
         return Table::ORDERADJUSTMENTS;
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getOrder(): ActiveQueryInterface
     {
         return $this->hasOne(Order::class, ['id' => 'orderId']);

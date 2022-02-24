@@ -116,7 +116,6 @@ class Gateways extends Component
     /**
      * Returns all subscription gateways.
      *
-     * @return array
      * @throws InvalidConfigException
      */
     public function getAllSubscriptionGateways(): array
@@ -183,7 +182,6 @@ class Gateways extends Component
     /**
      * Returns a gateway by its ID.
      *
-     * @param int $id
      * @return GatewayInterface|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
@@ -195,7 +193,6 @@ class Gateways extends Component
     /**
      * Returns a gateway by its handle.
      *
-     * @param string $handle
      * @return Gateway|GatewayInterface|null The gateway or null if not found.
      * @throws InvalidConfigException
      */
@@ -269,8 +266,6 @@ class Gateways extends Component
     /**
      * Handle gateway change
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleChangedGateway(ConfigEvent $event): void
@@ -306,8 +301,6 @@ class Gateways extends Component
     /**
      * Handle gateway being archived
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleArchivedGateway(ConfigEvent $event): void
@@ -406,7 +399,6 @@ class Gateways extends Component
      * Returns any custom gateway settings form config file.
      *
      * @param string $handle The gateway handle
-     * @return array|null
      * @throws \craft\errors\DeprecationException
      * @deprecated in 3.3. Overriding gateway settings using the `commerce-gateways.php` file has been deprecated. Use the gateway’s config file instead.
      * // TODO Only remove once Craft 4 has lightswitch and dropdown overrides in core
@@ -454,9 +446,6 @@ class Gateways extends Component
 
     /**
      * Gets a gateway's record by uid.
-     *
-     * @param string $uid
-     * @return GatewayRecord
      */
     private function _getGatewayRecord(string $uid): GatewayRecord
     {

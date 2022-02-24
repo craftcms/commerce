@@ -82,8 +82,6 @@ class OrdersController extends Controller
     /**
      * Index of orders
      *
-     * @param string $orderStatusHandle
-     * @return Response
      * @throws Throwable
      */
     public function actionOrderIndex(string $orderStatusHandle = ''): Response
@@ -104,7 +102,6 @@ class OrdersController extends Controller
     /**
      * Create an order
      *
-     * @return Response
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws ForbiddenHttpException
@@ -135,10 +132,8 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param int $orderId
      * @param Order|null $order
      * @param null $paymentForm
-     * @return Response
      * @throws CurrencyException
      * @throws Exception
      * @throws ForbiddenHttpException
@@ -178,7 +173,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response|null
      * @throws BadRequestHttpException
      * @throws ElementNotFoundException
      * @throws Exception
@@ -248,7 +242,6 @@ class OrdersController extends Controller
     /**
      * Deletes an order.
      *
-     * @return Response|null
      * @throws Exception if you try to edit a non-existent ID.
      * @throws Throwable
      */
@@ -265,19 +258,16 @@ class OrdersController extends Controller
         }
 
         if (!Craft::$app->getElements()->deleteElementById($order->id)) {
-            return $this->asJson(['success' => false]);
+            return $this->asFailure();
         }
 
-        $this->setSuccessFlash(Craft::t('commerce', 'Order deleted.'));
-
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess(Craft::t('commerce', 'Order deleted.'));
     }
 
     /**
      * The refresh action accepts a json representation of an order, recalculates it depending on the mode submitted,
      * and returns the order as json with any validation errors.
      *
-     * @return Response
      * @throws Exception
      */
     public function actionRefresh(): Response
@@ -290,7 +280,7 @@ class OrdersController extends Controller
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderRequestData['order']['id']);
 
         if (!$order) {
-            return $this->asErrorJson(Craft::t('commerce', 'Invalid Order ID'));
+            return $this->asFailure(Craft::t('commerce', 'Invalid Order ID'));
         }
 
         $this->_updateOrder($order, $orderRequestData);
@@ -305,19 +295,26 @@ class OrdersController extends Controller
             $order->setRecalculationMode(Order::RECALCULATION_MODE_ALL);
         }
 
-        $response = [];
-        $response['order'] = $this->_orderToArray($order);
-
         if ($order->hasErrors()) {
-            $response['order']['errors'] = $order->getErrors();
-            $response['error'] = Craft::t('commerce', 'The order is not valid.');
+            return $this->asModelFailure(
+                $order,
+                Craft::t('commerce', 'The order is not valid.'),
+                'order',
+                [
+                    'order' => $this->_orderToArray($order)
+                ]
+            );
         }
 
-        return $this->asJson($response);
+        return $this->asSuccess(
+            '',
+            [
+                'order' => $this->_orderToArray($order)
+            ]
+        );
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -336,13 +333,13 @@ class OrdersController extends Controller
         $customerId = $request->getQueryParam('customerId', null);
 
         if (!$customerId) {
-            return $this->asErrorJson(Craft::t('commerce', 'Customer ID is required.'));
+            return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
         }
 
         $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
 
         if (!$customer) {
-            return $this->asErrorJson(Craft::t('commerce', 'Unable to retrieve customer.'));
+            return $this->asFailure(Craft::t('commerce', 'Unable to retrieve customer.'));
         }
 
         $orderQuery = Order::find()
@@ -381,7 +378,7 @@ class OrdersController extends Controller
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);
@@ -390,7 +387,6 @@ class OrdersController extends Controller
 
     /**
      * @param Order $order
-     * @return array
      */
     private function _orderToArray($order): array
     {
@@ -460,7 +456,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws InvalidConfigException
@@ -521,7 +516,7 @@ class OrdersController extends Controller
 
         $purchasables = $this->_addLivePurchasableInfo($result);
 
-        return $this->asJson([
+        return $this->asSuccess('',[
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $purchasables,
         ]);
@@ -529,7 +524,6 @@ class OrdersController extends Controller
 
     /**
      * @param null $query
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionCustomerSearch($query = null): Response
@@ -553,7 +547,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @throws Throwable
@@ -566,18 +559,18 @@ class OrdersController extends Controller
         $orderId = Craft::$app->getRequest()->getParam('orderId');
 
         if ($id === null || $orderId === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad Request'));
+            return $this->asFailure(Craft::t('commerce', 'Bad Request'));
         }
 
         $email = Plugin::getInstance()->getEmails()->getEmailById($id);
         $order = Order::find()->id($orderId)->one();
 
         if ($email === null || !$email->enabled) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find enabled email.'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find enabled email.'));
         }
 
         if ($order === null) {
-            return $this->asErrorJson(Craft::t('commerce', 'Can not find order'));
+            return $this->asFailure(Craft::t('commerce', 'Can not find order'));
         }
 
         // Set language by email's set locale
@@ -598,16 +591,15 @@ class OrdersController extends Controller
 
         if (!$success) {
             $error = $error ?: Craft::t('commerce', 'Could not send email');
-            return $this->asErrorJson($error);
+            return $this->asFailure($error);
         }
 
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
      * Updates an order address
      *
-     * @return Response
      * @throws Exception
      * @throws Throwable
      * @throws ElementNotFoundException
@@ -623,36 +615,35 @@ class OrdersController extends Controller
 
         // Validate Address Type
         if (!in_array($type, ['shippingAddress', 'billingAddress'], true)) {
-            $this->asErrorJson(Craft::t('commerce', 'Not a valid address type'));
+            $this->asFailure(Craft::t('commerce', 'Not a valid address type'));
         }
 
         $order = Plugin::getInstance()->getOrders()->getOrderById($orderId);
         if (!$order) {
-            $this->asErrorJson(Craft::t('commerce', 'Bad order ID.'));
+            $this->asFailure(Craft::t('commerce', 'Bad order ID.'));
         }
 
         // Return early if the address is already set.
         if ($order->{$type . 'Id'} == $addressId) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
         // Validate Address Id
         $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
         if (!$address) {
-            return $this->asErrorJson(Craft::t('commerce', 'Bad address ID.'));
+            return $this->asFailure(Craft::t('commerce', 'Bad address ID.'));
         }
 
         $order->{$type . 'Id'} = $address->id;
 
         if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asJson(['success' => true]);
+            return $this->asSuccess();
         }
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not update orders address.'));
+        return $this->asFailure(Craft::t('commerce', 'Could not update orders address.'));
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws InvalidConfigException
      * @since 3.0.11
@@ -667,13 +658,12 @@ class OrdersController extends Controller
             return $sum + (int)$thing['orderCount'];
         }, 0);
 
-        return $this->asJson(compact('counts', 'total'));
+        return $this->asSuccess(data: compact('counts', 'total'));
     }
 
     /**
      * Returns Payment Modal
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws Exception
      * @throws LoaderError
@@ -749,8 +739,7 @@ class OrdersController extends Controller
             'paymentForms' => $formHtml,
         ]);
 
-        return $this->asJson([
-            'success' => true,
+        return $this->asSuccess(data: [
             'modalHtml' => $modalHtml,
             'headHtml' => $view->getHeadHtml(),
             'footHtml' => $view->getBodyHtml(),
@@ -760,7 +749,6 @@ class OrdersController extends Controller
     /**
      * Captures Transaction
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      * @throws TransactionException
@@ -798,7 +786,6 @@ class OrdersController extends Controller
     /**
      * Refunds transaction.
      *
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -817,7 +804,7 @@ class OrdersController extends Controller
         if (!$transaction) {
             $error = Craft::t('commerce', 'Can not find the transaction to refund');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -831,7 +818,7 @@ class OrdersController extends Controller
         if ($amount > $transaction->getRefundableAmount()) {
             $error = Craft::t('commerce', 'Can not refund amount greater than the remaining amount');
             if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asErrorJson($error);
+                return $this->asFailure($error);
             } else {
                 $this->setFailFlash($error);
                 return $this->redirectToPostedUrl();
@@ -866,7 +853,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws CurrencyException
      */
@@ -894,21 +880,18 @@ class OrdersController extends Controller
             $message = Craft::t('commerce', 'Order payment balance is {outstandingBalanceAsCurrency}. This is the maximum value that will be charged.', ['outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency]);
         }
 
-        return $this->asJson([
+        return $this->asSuccess($message, data: [
             'paymentCurrency' => $paymentCurrency,
             'paymentAmount' => $paymentAmount,
             'outstandingBalance' => $outstandingBalance,
             'outstandingBalanceAsCurrency' => $outstandingBalanceAsCurrency,
             'baseCurrencyPaymentAmountAsCurrency' => $baseCurrencyPaymentAmountAsCurrency,
             'baseCurrencyPaymentAmount' => $baseCurrencyPaymentAmount,
-            'message' => $message,
         ]);
     }
 
     /**
      * Modifies the variables of the request.
-     *
-     * @param array $variables
      */
     private function _updateTemplateVariables(array &$variables): void
     {
@@ -993,7 +976,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $variables
      * @throws Exception
      * @throws InvalidConfigException
      */
@@ -1095,7 +1077,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param Order $order
      * @param $orderRequestData
      * @throws Exception
      * @throws InvalidConfigException
@@ -1117,6 +1098,9 @@ class OrdersController extends Controller
         $order->orderSiteId = $orderRequestData['order']['orderSiteId'];
         $order->message = $orderRequestData['order']['message'];
         $order->shippingMethodHandle = $orderRequestData['order']['shippingMethodHandle'];
+
+        $shippingMethod = $order->shippingMethodHandle ? Plugin::getInstance()->getShippingMethods()->getShippingMethodByHandle($order->shippingMethodHandle) : null;
+        $order->shippingMethodName = $shippingMethod->name ?? null;
 
         $order->clearNotices();
 
@@ -1344,8 +1328,6 @@ class OrdersController extends Controller
 
     /**
      * @param Transaction[] $transactions
-     * @param int $level
-     * @return array
      * @throws Exception
      * @throws LoaderError
      * @throws RuntimeError
@@ -1428,8 +1410,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $results
-     * @return array
      * @throws InvalidConfigException
      */
     private function _addLivePurchasableInfo(array $results): array
@@ -1461,8 +1441,6 @@ class OrdersController extends Controller
     }
 
     /**
-     * @param array $customers
-     * @return array
      * @since 3.1.4
      */
     private function _prepCustomersArray(array $customers): array

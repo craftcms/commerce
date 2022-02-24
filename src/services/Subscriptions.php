@@ -356,7 +356,6 @@ class Subscriptions extends Component
     /**
      * Handle field layout change
      *
-     * @param ConfigEvent $event
      * @throws Exception
      */
     public function handleChangedFieldLayout(ConfigEvent $event): void
@@ -382,8 +381,6 @@ class Subscriptions extends Component
 
     /**
      * Prune a deleted field from subscription field layouts.
-     *
-     * @param FieldEvent $event
      */
     public function pruneDeletedField(FieldEvent $event): void
     {
@@ -408,8 +405,6 @@ class Subscriptions extends Component
 
     /**
      * Handle field layout being deleted
-     *
-     * @param ConfigEvent $event
      */
     public function handleDeletedFieldLayout(ConfigEvent $event): void
     {
@@ -465,9 +460,6 @@ class Subscriptions extends Component
 
     /**
      * Returns subscription count for a plan.
-     *
-     * @param int $planId
-     * @return int
      */
     public function getSubscriptionCountByPlanId(int $planId): int
     {
@@ -477,8 +469,6 @@ class Subscriptions extends Component
     /**
      * Returns subscription count for a plan.
      *
-     * @param int $planId
-     * @return int
      * @deprecated in 4.0. Use [[getSubscriptionCountByPlanId]] instead.
      */
     public function getSubscriptionCountForPlanById(int $planId): int
@@ -488,9 +478,6 @@ class Subscriptions extends Component
 
     /**
      * Return true if the user has any subscriptions at all, even expired ones.
-     *
-     * @param int $userId
-     * @return bool
      */
     public function doesUserHaveSubscriptions(int $userId): bool
     {
@@ -500,8 +487,6 @@ class Subscriptions extends Component
     /**
      * Return true if the user has any subscriptions at all, even expired ones.
      *
-     * @param int $userId
-     * @return bool
      * @deprecated in 4.0. Use [[doesUserHaveSubscriptions]] instead.
      */
     public function doesUserHaveAnySubscriptions(int $userId): bool
@@ -581,8 +566,6 @@ class Subscriptions extends Component
     /**
      * Reactivate a subscription.
      *
-     * @param Subscription $subscription
-     * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws Throwable
      * @throws ElementNotFoundException
@@ -640,7 +623,6 @@ class Subscriptions extends Component
      * @param Subscription $subscription the subscription to modify
      * @param Plan $plan the plan to change the subscription to
      * @param SwitchPlansForm $parameters additional parameters to use
-     * @return bool
      * @throws ElementNotFoundException
      * @throws Exception
      * @throws InvalidConfigException
@@ -706,9 +688,6 @@ class Subscriptions extends Component
     /**
      * Cancel a subscription.
      *
-     * @param Subscription $subscription
-     * @param CancelSubscriptionForm $parameters
-     * @return bool
      * @throws InvalidConfigException if the gateway does not support subscriptions
      * @throws SubscriptionException  if something went wrong when canceling subscription
      */
@@ -771,8 +750,6 @@ class Subscriptions extends Component
     /**
      * Update a subscription.
      *
-     * @param Subscription $subscription
-     * @return bool
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws Exception
@@ -791,10 +768,6 @@ class Subscriptions extends Component
     /**
      * Receive a payment for a subscription
      *
-     * @param Subscription $subscription
-     * @param SubscriptionPayment $payment
-     * @param DateTime $paidUntil
-     * @return bool
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws Exception

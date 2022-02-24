@@ -30,7 +30,6 @@ use yii\web\ServerErrorHttpException;
 class PdfsController extends BaseAdminController
 {
     /**
-     * @return Response
      * @since 3.2
      */
     public function actionIndex(): Response
@@ -42,7 +41,6 @@ class PdfsController extends BaseAdminController
     /**
      * @param int|null $id
      * @param Pdf|null $pdf
-     * @return Response
      * @throws HttpException
      * @since 3.2
      */
@@ -78,7 +76,6 @@ class PdfsController extends BaseAdminController
     }
 
     /**
-     * @return null|Response
      * @throws BadRequestHttpException
      * @throws ErrorException
      * @throws Exception
@@ -138,11 +135,10 @@ class PdfsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getPdfs()->deletePdfById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
-     * @return Response
      * @throws \yii\db\Exception
      * @throws BadRequestHttpException
      * @since 3.2
@@ -154,9 +150,9 @@ class PdfsController extends BaseAdminController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
         if ($success = Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder PDFs.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
     }
 }

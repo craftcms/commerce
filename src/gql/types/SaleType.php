@@ -29,9 +29,6 @@ class SaleType extends ObjectType
         return 'Sale';
     }
 
-    /**
-     * @return Type
-     */
     public static function getType(): Type
     {
         if ($type = GqlEntityRegistry::getEntity(self::getName())) {
@@ -47,9 +44,6 @@ class SaleType extends ObjectType
         return $type;
     }
 
-    /**
-     * @return array
-     */
     public static function getFieldDefinitions(): array
     {
         return TypeManager::prepareFieldDefinitions([

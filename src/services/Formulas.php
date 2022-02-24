@@ -54,7 +54,6 @@ class Formulas extends Component
     /**
      * @param string $condition The condition which will be tested for correct syntax
      * @param array $params data passed into the formula
-     * @return bool
      */
     public function validateConditionSyntax(string $condition, array $params): bool
     {
@@ -70,7 +69,6 @@ class Formulas extends Component
     /**
      * @param string $formula The formula which will be tested for correct syntax
      * @param array $params data passed into the formula
-     * @return bool
      */
     public function validateFormulaSyntax(string $formula, array $params): bool
     {
@@ -84,7 +82,6 @@ class Formulas extends Component
     }
 
     /**
-     * @param string $formula
      * @param array $params data passed into the condition
      * @param string $name The name of the formula, useful for locating template errors in logs and exceptions
      * @return mixed
@@ -142,11 +139,6 @@ class Formulas extends Component
         return $result;
     }
 
-    /**
-     * @param string $code
-     * @param array $disallowedStrings
-     * @return bool
-     */
     private function _hasDisallowedStrings(string $code, array $disallowedStrings = []): bool
     {
         foreach ($disallowedStrings as $disallowedString) {
@@ -157,9 +149,6 @@ class Formulas extends Component
         return false;
     }
 
-    /**
-     * @return array
-     */
     private function _getTags(): array
     {
         return [
@@ -185,9 +174,6 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getFilters(): array
     {
         return [
@@ -246,9 +232,6 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getFunctions(): array
     {
         return [
@@ -270,17 +253,11 @@ class Formulas extends Component
         ];
     }
 
-    /**
-     * @return array
-     */
     private function _getMethods(): array
     {
         return [];
     }
 
-    /**
-     * @return array
-     */
     private function _getProperties(): array
     {
         return [];

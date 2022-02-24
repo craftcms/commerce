@@ -167,31 +167,31 @@ Craft.Commerce.AddressBox = Garnish.Modal.extend({
         this.$addressBox.find('.delete').click($.proxy(function(ev) {
             ev.preventDefault();
             var confirmationMessage = Craft.t('commerce', 'Are you sure you want to delete this address?');
+            var data = {id: this.address.id};
             if (confirm(confirmationMessage)) {
-                Craft.postActionRequest('commerce/addresses/delete', {id: this.address.id}, $.proxy(function(response) {
-                    if (response.success) {
+                Craft.sendActionRequest('POST', 'commerce/addresses/delete', {data})
+                    .then((response) => {
                         this.$addressBox.remove();
-                    }
-                }, this));
+                    });
             }
 
         }, this));
 
     },
     _updateAddress: function(data, onError) {
-        Craft.postActionRequest(this.saveEndpoint, data.address, $.proxy(function(response) {
-            if (response && response.success) {
-                this.address = response.address;
-                this.settings.onChange(response.address);
+        Craft.sendActionRequest('POST', this.saveEndpoint, {data: data.address})
+            .then((response) => {
+                this.address = response.data && response.data.address;
+                this.settings.onChange(this.address);
                 this._renderAddress();
                 Craft.cp.displayNotice(Craft.t('commerce', 'Address Updated.'));
                 this.editorModal.hide();
                 this.editorModal.destroy();
-            } else {
+            })
+            .catch(({response}) => {
                 Garnish.shake(this.editorModal.$form);
-                onError(response.errors);
-            }
-        }, this));
+                onError(response.data && response.data.errors);
+            });
     },
     defaults: {
         onChange: $.noop,

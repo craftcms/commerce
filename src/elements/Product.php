@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
@@ -28,6 +29,7 @@ use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -170,7 +172,6 @@ class Product extends Element
     private ?Variant $_cheapestEnabledVariant = null;
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -203,9 +204,6 @@ class Product extends Element
         ];
     }
 
-    /**
-     * @return array
-     */
     public function fields(): array
     {
         $fields = parent::fields();
@@ -310,6 +308,81 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function canView(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSave(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDeleteForSite(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canCreateDrafts(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAnother(): ?ElementInterface
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCrumbs(): array
+    {
+        $type = $this->getType();
+
+        return [
+            [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products',
+            ],
+            [
+                'label' => Craft::t('site', $type->name),
+                'url' => "commerce/products/$type->name",
+            ]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     protected function isEditable(): bool
     {
         return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
@@ -327,7 +400,6 @@ class Product extends Element
     /**
      * Returns the product's product type.
      *
-     * @return ProductType
      * @throws InvalidConfigException
      */
     public function getType(): ProductType
@@ -345,9 +417,6 @@ class Product extends Element
         return $productType;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
         return $this->title;
@@ -380,7 +449,6 @@ class Product extends Element
     /**
      * Returns the tax category.
      *
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getTaxCategory(): TaxCategory
@@ -403,7 +471,6 @@ class Product extends Element
     /**
      * Returns the shipping category.
      *
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
@@ -442,8 +509,6 @@ class Product extends Element
     /**
      * Returns the default variant.
      *
-     * @param bool $includeDisabled
-     * @return null|Variant
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
@@ -458,8 +523,6 @@ class Product extends Element
     /**
      * Return the cheapest variant.
      *
-     * @param bool $includeDisabled
-     * @return Variant|null
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -499,7 +562,6 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @param bool $includeDisabled
      * @return Variant[]
      * @throws InvalidConfigException
      */
@@ -595,8 +657,6 @@ class Product extends Element
     }
 
     /**
-     * @param bool $includeDisabled
-     * @return int
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -615,8 +675,6 @@ class Product extends Element
     /**
      * Returns whether at least one variant has unlimited stock.
      *
-     * @param bool $includeDisabled
-     * @return bool
      * @throws InvalidConfigException
      */
     public function getHasUnlimitedStock(bool $includeDisabled = false): bool

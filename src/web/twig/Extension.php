@@ -19,9 +19,6 @@ use Twig\TwigFilter;
  */
 class Extension extends AbstractExtension
 {
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return 'Craft Commerce Twig Extension';

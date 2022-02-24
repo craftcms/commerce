@@ -54,7 +54,6 @@ class LiteShippingController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response|null
      * @throws Exception
      * @throws BadRequestHttpException
      */

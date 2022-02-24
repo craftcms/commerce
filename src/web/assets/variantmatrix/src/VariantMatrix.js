@@ -380,7 +380,7 @@
                 this.$container.addClass('collapsed');
 
                 var previewHtml = '',
-                    $fields = this.$fieldsContainer.find('> .meta > .field:first-child, > .custom-fields > .field');
+                    $fields = this.$fieldsContainer.find('> .meta > .field:first-child, > .custom-fields .field');
 
                 for (var i = 0; i < $fields.length; i++) {
                     var $field = $($fields[i]),

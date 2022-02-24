@@ -36,7 +36,7 @@ class ProductsPreviewController extends Controller
     /**
      * @inheritdoc
      */
-    protected bool $allowAnonymous = true;
+    protected $allowAnonymous = true;
 
     /**
      * Previews a product.
@@ -59,7 +59,6 @@ class ProductsPreviewController extends Controller
      *
      * @param mixed $productId
      * @param mixed $siteId
-     * @return Response
      * @throws Exception
      * @throws HttpException
      * @throws InvalidConfigException
@@ -94,7 +93,6 @@ class ProductsPreviewController extends Controller
      *
      * @param mixed $productId
      * @param mixed $site
-     * @return Response|null
      * @throws HttpException
      */
     public function actionViewSharedProduct($productId, $site = null): ?Response
@@ -115,7 +113,6 @@ class ProductsPreviewController extends Controller
     /**
      * Save a new or existing product.
      *
-     * @return Response|null
      * @throws Exception
      * @throws HttpException
      * @throws Throwable
@@ -141,41 +138,28 @@ class ProductsPreviewController extends Controller
         }
 
         if (!Craft::$app->getElements()->saveElement($product)) {
-            if ($request->getAcceptsJson()) {
-                return $this->asJson([
-                    'success' => false,
-                    'errors' => $product->getErrors(),
-                ]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product.'));
-
-            // Send the category back to the template
-            Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product,
-            ]);
-
-            return null;
+            return $this->asModelFailure(
+                $product,
+                Craft::t('commerce', 'Couldn’t save product.'),
+                'product'
+            );
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asModelSuccess(
+            $product,
+            Craft::t('commerce', 'Couldn’t save product.'),
+            'product',
+            [
                 'id' => $product->id,
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
                 'cpEditUrl' => $product->getCpEditUrl(),
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Product saved.'));
-
-        return $this->redirectToPostedUrl($product);
+            ]
+        );
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @since 3.4.8
      */
@@ -187,7 +171,6 @@ class ProductsPreviewController extends Controller
     }
 
     /**
-     * @param Product $product
      * @throws ForbiddenHttpException
      * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] instead.
      */
@@ -199,8 +182,6 @@ class ProductsPreviewController extends Controller
     /**
      * Displays a product.
      *
-     * @param Product $product
-     * @return Response
      * @throws InvalidConfigException
      * @throws ServerErrorHttpException
      */

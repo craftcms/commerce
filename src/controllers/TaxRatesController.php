@@ -32,9 +32,6 @@ use yii\web\Response;
  */
 class TaxRatesController extends BaseTaxSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $plugin = Plugin::getInstance();
@@ -52,7 +49,6 @@ class TaxRatesController extends BaseTaxSettingsController
     /**
      * @param int|null $id
      * @param TaxRate|null $taxRate
-     * @return Response
      * @throws ForbiddenHttpException
      * @throws HttpException
      * @throws LoaderError
@@ -121,6 +117,7 @@ class TaxRatesController extends BaseTaxSettingsController
 
         // Get the HTML and JS for the new tax zone/category modals
         $view = $this->getView();
+        $oldNamespace = $view->getNamespace();
         $view->setNamespace('new');
 
         $view->startJsBuffer();
@@ -146,8 +143,6 @@ class TaxRatesController extends BaseTaxSettingsController
             $view->renderTemplate('commerce/tax/taxcategories/_fields', compact('productTypes', 'productTypesOptions'))
         );
         $variables['newTaxCategoryJs'] = $view->clearJsBuffer(false);
-
-        $view->setNamespace();
 
         return $this->renderTemplate('commerce/tax/taxrates/_edit', $variables);
     }
@@ -195,7 +190,6 @@ class TaxRatesController extends BaseTaxSettingsController
     }
 
     /**
-     * @return Response
      * @throws BadRequestHttpException
      * @throws ForbiddenHttpException
      */
@@ -211,6 +205,6 @@ class TaxRatesController extends BaseTaxSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getTaxRates()->deleteTaxRateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 }

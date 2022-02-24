@@ -30,17 +30,11 @@ class DummySubscriptionResponse implements SubscriptionResponseInterface
      */
     private int $_trialDays = 0;
 
-    /**
-     * @param bool $isCanceled
-     */
     public function setIsCanceled(bool $isCanceled): void
     {
         $this->_isCanceled = $isCanceled;
     }
 
-    /**
-     * @param int $trialDays
-     */
     public function setTrialDays(int $trialDays): void
     {
         $this->_trialDays = $trialDays;

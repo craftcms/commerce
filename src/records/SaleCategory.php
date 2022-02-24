@@ -43,17 +43,11 @@ class SaleCategory extends ActiveRecord
         ];
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getSale(): ActiveQueryInterface
     {
         return $this->hasOne(Sale::class, ['saleId' => 'id']);
     }
 
-    /**
-     * @return ActiveQueryInterface
-     */
     public function getCategory(): ActiveQueryInterface
     {
         return $this->hasOne(Category::class, ['saleId' => 'id']);

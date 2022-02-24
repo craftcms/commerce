@@ -57,9 +57,6 @@ class ProductFixture extends BaseElementFixture
         $this->productTypeIds = $this->_getProductTypeIds();
     }
 
-    /**
-     * @return ElementInterface
-     */
     protected function createElement(): ElementInterface
     {
         return new Product();
@@ -69,7 +66,6 @@ class ProductFixture extends BaseElementFixture
      * Get array of product type IDs indexed by handle.
      * This uses a raw query to avoid service level caching/memoization.
      *
-     * @return array
      * @TODO review the necessity of this at the next breakpoint version. #COM-54
      */
     private function _getProductTypeIds(): array

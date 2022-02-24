@@ -207,9 +207,6 @@ class Emails extends Component
 
     /**
      * Get an email by its ID.
-     *
-     * @param int $id
-     * @return Email|null
      */
     public function getEmailById(int $id): ?Email
     {
@@ -257,9 +254,6 @@ class Emails extends Component
     /**
      * Save an email.
      *
-     * @param Email $email
-     * @param bool $runValidation
-     * @return bool
      * @throws Exception
      * @throws ErrorException
      * @throws NotSupportedException
@@ -301,8 +295,6 @@ class Emails extends Component
     /**
      * Handle email status change.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable if reasons
      */
     public function handleChangedEmail(ConfigEvent $event): void
@@ -353,9 +345,6 @@ class Emails extends Component
 
     /**
      * Delete an email by its ID.
-     *
-     * @param int $id
-     * @return bool
      */
     public function deleteEmailById(int $id): bool
     {
@@ -378,8 +367,6 @@ class Emails extends Component
     /**
      * Handle email getting deleted.
      *
-     * @param ConfigEvent $event
-     * @return void
      * @throws Throwable
      * @throws StaleObjectException
      */
@@ -406,9 +393,6 @@ class Emails extends Component
     /**
      * Send a commerce email.
      *
-     * @param Email $email
-     * @param Order $order
-     * @param OrderHistory|null $orderHistory
      * @param array|null $orderData Since the order may have changed by the time the email sends.
      * @param string $error The reason this method failed.
      * @return bool $result
@@ -861,7 +845,6 @@ class Emails extends Component
     /**
      * Get all emails by an order status ID.
      *
-     * @param int $id
      * @return Email[]
      */
     public function getAllEmailsByOrderStatusId(int $id): array
@@ -884,8 +867,6 @@ class Emails extends Component
 
     /**
      * Returns a Query object prepped for retrieving Emails.
-     *
-     * @return Query
      */
     private function _createEmailQuery(): Query
     {
@@ -915,9 +896,6 @@ class Emails extends Component
 
     /**
      * Gets an email record by uid.
-     *
-     * @param string $uid
-     * @return EmailRecord
      */
     private function _getEmailRecord(string $uid): EmailRecord
     {

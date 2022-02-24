@@ -25,8 +25,6 @@ class ResetDataController extends Controller
 {
     /**
      * Reset Commerce data.
-     *
-     * @return int
      */
     public function actionIndex(): int
     {

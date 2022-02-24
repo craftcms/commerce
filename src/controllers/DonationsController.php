@@ -24,10 +24,6 @@ use yii\web\Response;
  */
 class DonationsController extends BaseStoreSettingsController
 {
-    /**
-     * @param array $variables
-     * @return Response
-     */
     public function actionEdit(array $variables = []): Response
     {
         $donation = Donation::find()->status(null)->one();
@@ -40,7 +36,6 @@ class DonationsController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws Throwable
      * @throws ElementNotFoundException
      * @throws MissingComponentException

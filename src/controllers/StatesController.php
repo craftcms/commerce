@@ -29,9 +29,6 @@ use yii\web\Response;
  */
 class StatesController extends BaseStoreSettingsController
 {
-    /**
-     * @return Response
-     */
     public function actionIndex(): Response
     {
         $states = Plugin::getInstance()->getStates()->getAllStates();
@@ -41,7 +38,6 @@ class StatesController extends BaseStoreSettingsController
     /**
      * @param int|null $id
      * @param State|null $state
-     * @return Response
      * @throws HttpException
      */
     public function actionEdit(int $id = null, State $state = null): Response
@@ -101,6 +97,23 @@ class StatesController extends BaseStoreSettingsController
             }
         }
 
+        $variables['countryId'] = Craft::$app->getRequest()->getQueryParam('countryId', false);
+        $variables['showCountrySelect'] = !(!$variables['state']->countryId && $variables['countryId']);
+
+        $countryId = $variables['state']->countryId ?: $variables['countryId'];
+        $country = $countryId ? Plugin::getInstance()->getCountries()->getCountryById($countryId) : null;
+
+        $url = null;
+        if ($variables['countryId']) {
+            $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['countryId']);
+        } else if ($variables['state']->countryId) {
+            $url = UrlHelper::cpUrl('commerce/store-settings/countries/' . $variables['state']->countryId);
+        }
+
+        if ($country && $url) {
+            $variables['breadcrumb'] = ['label' => $country->name, 'url' => $url];
+        }
+
         return $this->renderTemplate('commerce/store-settings/states/_edit', $variables);
     }
 
@@ -147,7 +160,7 @@ class StatesController extends BaseStoreSettingsController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getStates()->deleteStateById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -181,7 +194,6 @@ class StatesController extends BaseStoreSettingsController
     }
 
     /**
-     * @return Response
      * @throws Exception
      * @throws BadRequestHttpException
      * @since 3.1
@@ -193,9 +205,9 @@ class StatesController extends BaseStoreSettingsController
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
         if ($success = Plugin::getInstance()->getStates()->reorderStates($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder countries.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder countries.'));
     }
 }
