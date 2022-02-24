@@ -3,6 +3,7 @@
 namespace craft\commerce\migrations;
 
 use Craft;
+use craft\commerce\services\Coupons;
 use craft\db\Migration;
 
 /**
@@ -34,10 +35,12 @@ class m211118_101920_split_coupon_codes extends Migration
             ]);
 
             $this->createIndex(null, '{{%commerce_coupons}}', 'discountId', false);
-            $this->createIndex(null, '{{%commerce_coupons}}', 'code', true);
+            $this->createIndex(null, '{{%commerce_coupons}}', 'code', false);
 
             $this->addForeignKey(null, '{{%commerce_coupons}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         }
+
+        $this->addColumn('{{%commerce_discounts}}', 'couponFormat', $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT));
 
         return true;
     }

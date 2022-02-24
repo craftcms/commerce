@@ -24,6 +24,7 @@ use craft\commerce\records\ShippingMethod;
 use craft\commerce\records\ShippingRule;
 use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
+use craft\commerce\services\Coupons;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
 use craft\helpers\MigrationHelper;
@@ -210,6 +211,7 @@ class Install extends Migration
             'name' => $this->string()->notNull(),
             'description' => $this->text(),
             'code' => $this->string(),
+            'couponFormat' => $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'totalDiscountUses' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
@@ -944,7 +946,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
         $this->createIndex(null, Table::COUPONS, 'discountId', false);
-        $this->createIndex(null, Table::COUPONS, 'code', true);
+        $this->createIndex(null, Table::COUPONS, 'code', false);
         $this->createIndex(null, Table::CUSTOMERS, 'userId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
