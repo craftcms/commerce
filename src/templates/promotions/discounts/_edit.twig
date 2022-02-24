@@ -1,4 +1,10 @@
 {% extends "commerce/_layouts/cp" %}
+{% do view.registerTranslations('commerce', [
+    'Coupon format is required and must contain at least one `#`.',
+    'Generated Coupon Format',
+    'Number of Coupons',
+    'The format used to generate new coupons. `#` will be replaced with a random letter.',
+]) %}
 
 {% set selectedSubnavItem = "promotions" %}
 
@@ -35,7 +41,7 @@
 
 {% set tabs = {
     0: {'label':'Discount'|t('commerce'),'url':'#discount','class':discountClasses},
-    1: {'label':'Coupon'|t('commerce'),'url':'#coupon','class':couponClasses},
+    1: {'label':'Coupons'|t('commerce'),'url':'#coupons','class':couponClasses},
     2: {'label':'Matching Items'|t('commerce'),'url':'#matching-items','class':matchingItemsClasses},
     3: {'label':'Conditions'|t('commerce'),'url':'#conditions','class':conditionsClasses},
     4: {'label':'Actions'|t('commerce'),'url':'#actions'}
@@ -230,57 +236,37 @@
 
     </div>
 
-    <div id="coupon" class="hidden">
-        {{ forms.textField({
-            label: "Coupon Code"|t('commerce'),
-            instructions: "A user will have to enter this code to activate this discount. A blank coupon code here will always match this discount."|t('commerce'),
-            id: 'code',
-            name: 'code',
-            value: discount.code,
-            errors: discount.getErrors('code'),
-        }) }}
-
-        {{ forms.button({
-            id: 'commerce-coupon-button',
-            label: 'Coupons'|t('commerce'),
-            spinner: true,
-        }) }}
-
-        <hr>
+    <div id="coupons" class="hidden">
         <div id="commerce-coupons">
-            <div id="commerce-coupons-inner">
+            {% set tableField %}
                 <div>
-                    {{ forms.textField({
-                        label: 'Number of Coupons'|t('commerce'),
-                        name: 'count',
-                        type: 'number',
-                        value: 1,
-                    }) }}
-                    {{ forms.textField({
-                        label: 'Length of coupon'|t('commerce'),
-                        name: 'length',
-                        type: 'number',
-                        value: 8,
-                    }) }}
-                    {{ forms.button({
-                        id: 'commerce-coupon-generate',
-                        label: 'Generate'|t('commerce'),
-                        spinner: true,
-                    }) }}
-                </div>
-                <div class="commerce-coupons-list">
-                    {{ forms.editableTableField({
-                        label: 'Coupons'|t('commerce'),
+                    {{ forms.editableTable({
+                        id: 'commerce-coupons-table',
                         name: couponsTable.name,
                         cols: couponsTable.cols,
                         rows: discount.coupons,
                         allowAdd: true,
                         allowDelete: true,
-                        errors: discount.getErrors('coupons'),
                         initJs: false
                     }) }}
                 </div>
-            </div>
+            {% endset %}
+            {{ forms.field({
+                label: 'Coupons'|t('commerce'),
+                errors: discount.getErrors('coupons'),
+                headingSuffix: forms.button({
+                    id: 'commerce-coupons-generate',
+                    label: 'Generate'|t('commerce'),
+                    spinner: true,
+                }),
+            }, tableField) }}
+
+            {# This field is update from the generate hud when generating new coupons #}
+            {{ forms.hidden({
+                id: 'commerce-coupon-format',
+                name: 'couponFormat',
+                value: discount.couponFormat,
+            }) }}
         </div>
     </div>
 
@@ -719,13 +705,13 @@ $(function() {
         }
     });
 
-    new Craft.Commerce.Coupons('#commerce-coupon-button', {
-        generateBtnSelector: '#commerce-coupon-generate',
+    new Craft.Commerce.Coupons('#commerce-coupons', {
+        couponFormat: "{{ discount.couponFormat|e('js') }}",
         table: {
             name: "{{ couponsTable.name|namespaceInputName|e('js') }}",
             cols: {{ couponsTable.cols|json_encode|raw }},
             defaultValues: {{ couponsTable.defaultValues|json_encode|raw }}
-        }
+        },
     });
 });
 {% endjs %}

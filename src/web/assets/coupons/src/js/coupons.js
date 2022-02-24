@@ -1,132 +1,151 @@
+import '../css/coupons.scss';
+
 if (typeof Craft.Commerce === typeof undefined) {
   Craft.Commerce = {};
 }
 
 Craft.Commerce.Coupons = Garnish.Base.extend(
   {
-    couponBtnSelector: null,
-    couponTable: null,
+    couponsTable: null,
+    couponFormat: null,
+    hud: null,
 
-    tempTableId: null,
-
-    $couponsBtn: null,
     $couponsContainer: null,
+    $couponFormatField: null,
     $generateBtn: null,
-    $slideout: null,
-    $slideoutContents: null,
+    $generateHudBody: null,
 
+    $hudFormatField: null,
+    $hudCountField: null,
+    $hudSubmitButton: null,
 
     init(couponBtnSelector, settings) {
-      this.couponBtnSelector = couponBtnSelector;
       this.setSettings(settings, Craft.Commerce.Coupons.defaults);
+      this.$couponsContainer = $(this.settings.couponsContainerSelector);
+      this.$couponFormatField = this.$couponsContainer.find(this.settings.couponFormatFieldSelector);
 
-      this.$couponsBtn = document.querySelector(this.couponBtnSelector);
+      this.$generateBtn = $(this.settings.generateBtnSelector);
+      this.addListener(this.$generateBtn, 'click', 'showGenerateHud');
 
-      this.$couponsContainer = document.querySelector(this.settings.couponsContainerSelector);
-      this.$couponsContainerInner = document.querySelector(this.settings.couponsContainerInnerSelector);
-      this.$slideoutContents = this.$couponsContainer.cloneNode(true);
-
-      this.tempTableId = this.$slideoutContents.querySelector('table.editable').id
-      this.$slideoutContents.querySelector('table.editable').id = this.settings.tableSlideoutId;
-
-      this.$generateBtn = this.$slideoutContents.querySelector(this.settings.generateBtnSelector);
-
-      this._addListeners();
-    },
-
-    _addListeners() {
-      this.addListener(this.$couponsBtn, 'click', 'openSlideout');
-      this.addListener(this.$generateBtn, 'click', 'generateCoupons');
-    },
-
-    openSlideout(ev) {
-      ev.preventDefault();
-
-      this.$slideout = new Craft.Slideout(this.$slideoutContents, {
-        autoOpen: false,
-        containerElement: 'form',
-        containerAttributes: {
-          action: '',
-          method: 'post',
-          novalidate: '',
-          class: 'coupon-editor',
-        },
-      });
-
-      this.$slideout.on('open', () => {
-        setTimeout(function() {
-          this.couponTable = new Craft.EditableTable(this.settings.tableSlideoutId, this.settings.table.name, this.settings.table.cols, {
-            defaultValues: this.settings.table.defaultValues,
-            staticRows: false,
-            minRows: null,
-            allowAdd: true,
-            allowDelete: true,
-            maxRows: null,
-            onDeleteRow: this.onDeleteCoupon
-          });
-        }.bind(this), 300);
-      });
-
-      this.$slideout.on('close', () => {
-        this.$slideoutContents.querySelector(`#${this.settings.tableSlideoutId}`).id = this.tempTableId;
-        this.$couponsContainer.replaceChild(this.$slideoutContents.querySelector(this.settings.couponsContainerInnerSelector), this.$couponsContainerInner);
-        this.$slideout.destroy();
-      });
-
-      this.$slideout.open();
-    },
-
-    generateCoupons(ev) {
-      ev.preventDefault();
-
-      Craft.postActionRequest('commerce/discounts/generate-coupons', this.getGenerateData(), (response, status) => {
-        if (status !== 'success') {
-          console.log('throw an error');
-          return;
-        }
-
-        this.appendCoupons(response.coupons);
+      this.couponsTable = new Craft.EditableTable(this.settings.couponsTableId, this.settings.table.name, this.settings.table.cols, {
+        defaultValues: this.settings.table.defaultValues,
+        staticRows: false,
+        minRows: null,
+        allowAdd: true,
+        allowDelete: true,
+        maxRows: null,
       });
     },
 
-    appendCoupons(coupons) {
-      console.log(coupons);
+    showGenerateHud() {
+      if (!this.hud) {
+        this.$generateHudBody = $('<div/>').attr('id', 'commerce-coupons-hud');
+
+        this.$hudCountField = Craft.ui.createTextField({
+          label: Craft.t('commerce', 'Number of Coupons'),
+          name: 'couponCount',
+          type: 'number',
+          value: 1,
+          max: 400,
+        }).appendTo(this.$generateHudBody);
+
+        this.$hudFormatField = Craft.ui.createTextField({
+          label: Craft.t('commerce', 'Generated Coupon Format'),
+          name: 'couponFormat',
+          type: 'text',
+          instructions: Craft.t('commerce', 'The format used to generate new coupons. `#` characters will be replaced with a random letter.'),
+          value: this.settings.couponFormat,
+        });
+
+        this.$generateHudBody.append(this.$hudFormatField);
+
+        this.$hudSubmitButton = Craft.ui.createSubmitButton({
+          spinner: true,
+        }).appendTo(this.$generateHudBody);
+
+        this.hud = new Garnish.HUD(this.$generateBtn, this.$generateHudBody, {
+          hudClass: 'hud',
+          onSubmit: $.proxy(this, 'generateCoupons'),
+        });
+
+        return;
+      }
+
+      this.hud.show();
+    },
+
+
+    generateCoupons() {
+      this.$hudSubmitButton.addClass('loading');
+      Craft.ui.clearErrorsFromField(this.$hudFormatField);
+
+      if (this.$hudFormatField.find('input').val().indexOf('#') === -1) {
+        Craft.ui.addErrorsToField(this.$hudFormatField, [Craft.t('commerce', 'Coupon format is required and must contain at least one `#`.')]);
+        this.$hudSubmitButton.removeClass('loading');
+        return;
+      }
+
+      Craft.sendActionRequest('POST', 'commerce/discounts/generate-coupons', { data: this.getGenerateData() })
+        .then((response) => {
+          this.$couponFormatField.val(this.$hudFormatField.find('input').val());
+          const {coupons} = response.data;
+
+          if (coupons) {
+            this.addCodes(coupons);
+          }
+
+          this.$hudSubmitButton.removeClass('loading');
+          this.hud.hide();
+        })
+        .catch(({response}) => {
+          if (response.data.errors && response.data.errors.length) {
+            Craft.ui.addErrorsToField(this.$hudFormatField, response.data.errors);
+          }
+
+          this.$hudSubmitButton.removeClass('loading');
+        });
+    },
+
+    addCodes(coupons) {
       if (!coupons || !coupons.length) {
         return;
       }
 
-      const row = this.couponTable.addRow(false);
-      console.log(row.$tr.find('.singleline-cell textarea'));
+      // Loop through `coupons` and append each to the table
+      coupons.forEach((coupon) => {
+        const row = this.couponsTable.addRow(false, true);
+        const codeField = row.$tr.find('textarea[name*="[code]"]');
+        codeField.val(coupon);
+      });
+    },
+
+    getAllCodesFromTable() {
+      const codes = [];
+      this.couponsTable.$tbody.find('[name*="[code]"]').each((index, element) => {
+        codes.push($(element).val());
+      });
+
+      return codes;
     },
 
     getGenerateData() {
-      if (!this.$slideoutContents) {
+      if (!this.$couponsContainer) {
         return {};
       }
 
-      const $countField = this.$slideoutContents.querySelector('input[name=count]');
-      const $lengthField = this.$slideoutContents.querySelector('input[name=length]');
       return {
-        count: $countField.value,
-        length: $lengthField.value,
+        count: this.$hudCountField.find('input').val(),
+        format: this.$hudFormatField.find('input').val(),
+        existingCodes: this.getAllCodesFromTable(),
       };
     },
-
-    onDeleteCoupon(id) {
-      // prevent deletion of coupons that have been used
-      console.log(id);
-    }
   },
   {
     defaults: {
-      couponsContainerInnerSelector: '#commerce-coupons-inner',
       couponsContainerSelector: '#commerce-coupons',
-      generateSelectors: {
-        count: 'input[name=count]',
-        length: 'input[name=length]',
-      },
+      couponFormatFieldSelector: 'input[name="couponFormat"]',
+      couponsTableId: 'commerce-coupons-table',
+      generateBtnSelector: '#commerce-coupons-generate',
       table: {},
-      tableId: 'coupons-table',
-      tableSlideoutId: 'slideout-coupons',
     }
   });

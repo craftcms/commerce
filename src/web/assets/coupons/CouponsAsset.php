@@ -31,6 +31,8 @@ class CouponsAsset extends AssetBundle
             CpAsset::class,
         ];
 
+        $this->css[] = 'css/coupons.css';
+
         $this->js[] = 'coupons.js';
 
         parent::init();
