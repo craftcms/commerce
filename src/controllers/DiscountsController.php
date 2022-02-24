@@ -25,6 +25,7 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Json;
 use craft\i18n\Locale;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\web\BadRequestHttpException;
 use yii\web\ForbiddenHttpException;
@@ -122,7 +123,6 @@ class DiscountsController extends BaseCpController
         $discount->hasFreeShippingForMatchingItems = (bool)$request->getBodyParam('hasFreeShippingForMatchingItems');
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
-        $discount->code = trim($request->getBodyParam('code')) ?: null;
         $discount->couponFormat = $request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
@@ -218,6 +218,13 @@ class DiscountsController extends BaseCpController
         Craft::$app->getUrlManager()->setRouteParams($variables);
     }
 
+    /**
+     * @param array $coupons
+     * @param Discount $discount
+     * @return void
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
     private function _setCouponsOnDiscount(array $coupons, Discount $discount): void
     {
         if (empty($coupons)) {
@@ -246,7 +253,8 @@ class DiscountsController extends BaseCpController
     /**
      * @param Discount $discount
      * @return bool
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
+     * @since 4.0
      */
     private function _saveCoupons(Discount $discount): bool
     {
@@ -565,7 +573,7 @@ class DiscountsController extends BaseCpController
     /**
      * @return Response
      * @throws BadRequestHttpException
-     * @throws \yii\base\InvalidConfigException
+     * @since 4.0
      */
     public function actionGenerateCoupons(): Response
     {
