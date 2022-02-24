@@ -3,6 +3,19 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\controllers\DiscountsController::_saveCoupons()`.
+- Added `craft\commerce\controllers\DiscountsController::_setCouponsOnDiscount()`.
+- Added `craft\commerce\controllers\DiscountsController::actionGenerateCoupons()`.
+- Added `craft\commerce\models\Coupon`.
+- Added `craft\commerce\models\Discount::$_coupons`.
+- Added `craft\commerce\models\Discount::$couponFormat`.
+- Added `craft\commerce\models\Discount::getCoupons()`.
+- Added `craft\commerce\models\Discount::setCoupons()`.
+- Added `craft\commerce\plugin\Services::getCoupons()`.
+- Added `craft\commerce\records\Coupon`.
+- Added `craft\commerce\services\Coupons`.
+- Added `craft\commerce\validators\CouponValidator`.
+- Added `craft\commerce\web\assets\coupons\CouponsAsset`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -38,6 +51,7 @@
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed direct `moneyphp/money` dependency.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\models\Discount::$code`.
 
 ### Removed (Previously Deprecated)
 - Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
