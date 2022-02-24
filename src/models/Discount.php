@@ -30,6 +30,7 @@ use yii\base\InvalidConfigException;
  * @property array $categoryIds
  * @property array $purchasableIds
  * @property-read array $userGroupsConditions
+ * @property array|Coupon[] $coupons
  * @property array $userGroupIds
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -50,11 +51,6 @@ class Discount extends Model
      * @var string|null The description of this discount
      */
     public ?string $description = null;
-
-    /**
-     * @var string|null Coupon Code
-     */
-    public ?string $code = null;
 
     /**
      * @var string Format coupons should be generated with
@@ -227,6 +223,7 @@ class Discount extends Model
 
     /**
      * @var Coupon[]|null
+     * @since 4.0
      */
     private ?array $_coupons = null;
 

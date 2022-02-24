@@ -633,7 +633,6 @@ class Discounts extends Component
         $record->appliedTo = $model->appliedTo;
 
         $record->sortOrder = $record->sortOrder ?: 999;
-        $record->code = $model->code ?: null;
         $record->couponFormat = $model->couponFormat;
 
         $record->userGroupsCondition = $model->userGroupsCondition;
@@ -932,11 +931,12 @@ class Discounts extends Component
 
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
-        if (!$discount->code) {
-            return true;
-        }
-
-        return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+        // TODO new coupon code checks
+        // if (!$discount->code) {
+        //     return true;
+        // }
+        //
+        // return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
     }
 
     /**
@@ -1132,7 +1132,6 @@ class Discounts extends Component
                 '[[discounts.baseDiscount]]',
                 '[[discounts.baseDiscountType]]',
                 '[[discounts.categoryRelationshipType]]',
-                '[[discounts.code]]',
                 '[[discounts.couponFormat]]',
                 '[[discounts.dateCreated]]',
                 '[[discounts.dateFrom]]',

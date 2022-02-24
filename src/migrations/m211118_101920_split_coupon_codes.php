@@ -5,6 +5,9 @@ namespace craft\commerce\migrations;
 use Craft;
 use craft\commerce\services\Coupons;
 use craft\db\Migration;
+use craft\db\Query;
+use craft\helpers\StringHelper;
+use yii\db\Expression;
 
 /**
  * m211118_101920_split_coupon_codes migration.
@@ -40,7 +43,52 @@ class m211118_101920_split_coupon_codes extends Migration
             $this->addForeignKey(null, '{{%commerce_coupons}}', ['discountId'], '{{%commerce_discounts}}', ['id'], 'CASCADE', 'CASCADE');
         }
 
-        $this->addColumn('{{%commerce_discounts}}', 'couponFormat', $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT));
+        if (!$this->db->columnExists('{{%commerce_discounts}}', 'couponFormat')) {
+            $this->addColumn('{{%commerce_discounts}}', 'couponFormat', $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT));
+        }
+
+        if (!(new Query())->from('{{%commerce_coupons}}')->exists()) {
+            // These could be one query, leaving as separate for now for readability
+            $discountsWithCodes = (new Query())
+                ->select(['id', 'code', 'dateCreated', 'dateUpdated'])
+                ->from('{{%commerce_discounts}}')
+                ->where(['not', ['code' => null]])
+                ->all();
+
+            $codeUsage = (new Query())
+                ->select([new Expression('COUNT(*) as count'), 'couponCode as code'])
+                ->from('{{%commerce_orders}}')
+                ->where(['not', ['couponCode' => null]])
+                ->groupBy('couponCode')
+                ->indexBy('code')
+                ->column();
+
+            if (!empty($discountsWithCodes)) {
+                $coupons = array_map(static function ($discount) use ($codeUsage) {
+                    $discount['discountId'] = $discount['id'];
+                    $discount['uses'] = $codeUsage[$discount['code']] ?? 0;
+                    $discount['uid'] = StringHelper::UUID();
+                    unset($discount['id']);
+
+                    return $discount;
+                }, $discountsWithCodes);
+
+                $this->batchInsert('{{%commerce_coupons}}', [
+                    'code',
+                    'discountId',
+                    'uses',
+                    'maxUses',
+                    'dateCreated',
+                    'dateUpdated',
+                    'uid',
+                ], $coupons);
+            }
+        }
+
+        if ($this->db->columnExists('{{%commerce_discounts}}', 'code')) {
+            $this->dropIndexIfExists('{{%commerce_discounts}}', 'code', true);
+            $this->dropColumn('{{%commerce_discounts}}', 'code');
+        }
 
         return true;
     }

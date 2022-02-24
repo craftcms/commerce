@@ -210,7 +210,6 @@ class Install extends Migration
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->text(),
-            'code' => $this->string(),
             'couponFormat' => $this->string(20)->notNull()->defaultValue(Coupons::DEFAULT_COUPON_FORMAT),
             'perUserLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
             'perEmailLimit' => $this->integer()->notNull()->defaultValue(0)->unsigned(),
@@ -957,7 +956,6 @@ class Install extends Migration
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, 'categoryId', false);
         $this->createIndex(null, Table::DISCOUNT_USERGROUPS, ['discountId', 'userGroupId'], true);
         $this->createIndex(null, Table::DISCOUNT_USERGROUPS, 'userGroupId', false);
-        $this->createIndex(null, Table::DISCOUNTS, 'code', true);
         $this->createIndex(null, Table::DISCOUNTS, 'dateFrom', false);
         $this->createIndex(null, Table::DISCOUNTS, 'dateTo', false);
         $this->createIndex(null, Table::GATEWAYS, 'handle', false);
