@@ -22,9 +22,13 @@ use yii\base\InvalidConfigException;
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
+ *
+ * @property-read null|array $allCodes
  */
 class Coupons extends Component
 {
+    public const COUPON_FORMAT_REPLACEMENT_CHAR = '#';
+    public const DEFAULT_COUPON_FORMAT = '######';
     public const CHARS_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     public const CHARS_LOWER = 'abcdefghijklmnopqrstuvwxyz';
     public const CHARS_NUMBERS = '0123456789';
@@ -86,47 +90,41 @@ class Coupons extends Component
 
     /**
      * @param int $count
-     * @param int $length
-     * @param array $charOptions
+     * @param string $format
+     * @param array $existingCodes
      * @return string[]
-     * @throws InvalidConfigException
+     * @throws Exception
      */
-    public function generateCouponCodes(int $count = 1, int $length = 8, array $charOptions = [self::CHARS_LOWER, self::CHARS_NUMBERS]): array
+    public function generateCouponCodes(int $count = 1, string $format = self::DEFAULT_COUPON_FORMAT, array $existingCodes = []): array
     {
-        if (empty($charOptions)) {
-            throw new InvalidConfigException('No character options specified.');
+        // Count the number of # characters in the format
+        $numReplacementChars = strlen($format) - strlen(str_replace(self::COUPON_FORMAT_REPLACEMENT_CHAR, '', $format));
+        $numPossibleCodes = strlen(self::CHARS_UPPER) ** $numReplacementChars;
+
+        if ($numPossibleCodes < $count) {
+            // TODO figure out correct exception to throw
+            throw new \Exception('The format is too restrictive to generate enough unique codes.');
         }
 
-        $existingCodes = $this->getAllCodes();
+        $existingCodes = array_unique([...$existingCodes, ...$this->getAllCodes()]);
         $coupons = [];
-        $characters = implode('', $charOptions);
 
         for ($i = 1; $i <= $count; $i++) {
-            $coupon = StringHelper::randomStringWithChars($characters, $length);
-            if (!empty($existingCodes) && in_array($coupon, $existingCodes, true)) {
+            $code = preg_replace_callback('/(['.self::COUPON_FORMAT_REPLACEMENT_CHAR.']+)/', static function ($matches) {
+                $length = strlen($matches[0]);
+                return StringHelper::randomStringWithChars(self::CHARS_UPPER, $length);
+            }, $format);
+
+            if (!empty($existingCodes) && in_array($code, $existingCodes, true)) {
                 $i--;
                 continue;
             }
-            $coupons[] = $coupon;
-            $existingCodes[] = $coupon;
+            $coupons[] = $code;
+            $existingCodes[] = $code;
         }
 
         return $coupons;
     }
-
-    /**
-     * @param int $id
-     * @return Coupon|null
-     * @throws InvalidConfigException
-     */
-    // public function getCouponById(int $id): ?Coupon
-    // {
-    //     $coupon = $this->_createCouponQuery()
-    //         ->where(['id' => $id])
-    //         ->one();
-    //
-    //     return $coupon ? Craft::createObject(Coupon::class, ['config' => ['attributes' => $coupon]]) : null;
-    // }
 
     /**
      * @param Coupon $coupon

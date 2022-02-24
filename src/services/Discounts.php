@@ -634,6 +634,7 @@ class Discounts extends Component
 
         $record->sortOrder = $record->sortOrder ?: 999;
         $record->code = $model->code ?: null;
+        $record->couponFormat = $model->couponFormat;
 
         $record->userGroupsCondition = $model->userGroupsCondition;
 
@@ -1132,6 +1133,7 @@ class Discounts extends Component
                 '[[discounts.baseDiscountType]]',
                 '[[discounts.categoryRelationshipType]]',
                 '[[discounts.code]]',
+                '[[discounts.couponFormat]]',
                 '[[discounts.dateCreated]]',
                 '[[discounts.dateFrom]]',
                 '[[discounts.dateTo]]',

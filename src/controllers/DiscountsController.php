@@ -17,6 +17,7 @@ use craft\commerce\models\Discount;
 use craft\commerce\models\Sale;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
 use craft\commerce\web\assets\coupons\CouponsAsset;
 use craft\elements\Category;
 use craft\errors\MissingComponentException;
@@ -122,6 +123,7 @@ class DiscountsController extends BaseCpController
         $discount->hasFreeShippingForOrder = (bool)$request->getBodyParam('hasFreeShippingForOrder');
         $discount->excludeOnSale = (bool)$request->getBodyParam('excludeOnSale');
         $discount->code = trim($request->getBodyParam('code')) ?: null;
+        $discount->couponFormat = $request->getBodyParam('couponFormat', Coupons::DEFAULT_COUPON_FORMAT);
         $discount->perUserLimit = $request->getBodyParam('perUserLimit');
         $discount->perEmailLimit = $request->getBodyParam('perEmailLimit');
         $discount->totalDiscountUseLimit = $request->getBodyParam('totalDiscountUseLimit');
@@ -190,9 +192,10 @@ class DiscountsController extends BaseCpController
 
         $discount->setUserGroupIds($groups);
 
+        $this->_setCouponsOnDiscount(coupons: $request->getBodyParam('coupons', []), discount: $discount);
+
         // Save it
-        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)
-        ) {
+        if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
             // Save coupons after discount has been saved
             if ($this->_saveCoupons($discount)) {
                 $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
@@ -215,6 +218,31 @@ class DiscountsController extends BaseCpController
         Craft::$app->getUrlManager()->setRouteParams($variables);
     }
 
+    private function _setCouponsOnDiscount(array $coupons, Discount $discount): void
+    {
+        if (empty($coupons)) {
+            return;
+        }
+
+        $discountCoupons = [];
+
+        foreach ($coupons as $key => $c) {
+            $discountCoupons[] = Craft::createObject(Coupon::class, [
+                'config' => [
+                    'attributes' => [
+                        'id' => $c['id'] ?: null,
+                        'discountId' => null,
+                        'code' => $c['code'],
+                        'uses' => $c['uses'] ?: 0,
+                        'maxUses' => $c['maxUses'] ?: null,
+                    ]
+                ]
+            ]);
+        }
+
+        $discount->setCoupons($discountCoupons);
+    }
+
     /**
      * @param Discount $discount
      * @return bool
@@ -222,35 +250,17 @@ class DiscountsController extends BaseCpController
      */
     private function _saveCoupons(Discount $discount): bool
     {
-        $coupons = Craft::$app->getRequest()->getBodyParam('coupons', []);
-
-        if (empty($coupons)) {
+        if (empty($discount->getCoupons())) {
             return true;
         }
 
-        $discountCoupons = [];
-
-        foreach ($coupons as $key => $c) {
-            $coupon = Craft::createObject(Coupon::class, [
-                'config' => [
-                    'attributes' => [
-                        'id' => $c['id'] ?: null,
-                        'discountId' => $discount->id,
-                        'code' => $c['code'],
-                        'uses' => $c['uses'] ?: 0,
-                        'maxUses' => $c['maxUses'] ?: null,
-                    ]
-                ]
-            ]);
+        foreach ($discount->getCoupons() as $key => $coupon) {
+            $coupon->discountId = $discount->id;
 
             if (!Plugin::getInstance()->getCoupons()->saveCoupon($coupon)) {
                 $discount->addModelErrors($coupon, 'coupon.' . $key);
             }
-
-            $discountCoupons[] = $coupon;
         }
-
-        $discount->setCoupons($discountCoupons);
 
         return !$discount->hasErrors();
     }
@@ -562,13 +572,16 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
         $this->requirePostRequest();
 
-        $count = Craft::$app->getRequest()->getBodyParam('count', 0);
-        $length = Craft::$app->getRequest()->getBodyParam('length', 8);
+        $count = (int)Craft::$app->getRequest()->getBodyParam('count', 0);
+        $format = Craft::$app->getRequest()->getBodyParam('format', Coupons::DEFAULT_COUPON_FORMAT);
+        $existingCodes = Craft::$app->getRequest()->getBodyParam('existingCodes', []);
 
-        $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes($count, $length);
+        try {
+            $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
+        } catch (\Exception $e) {
+            return $this->asFailure(errors: [Craft::t('commerce', 'Unable to generate coupon codes: {message}', ['message' => $e->getMessage()])]);
+        }
 
-        return $this->asJson([
-            'coupons' => $coupons,
-        ]);
+        return $this->asSuccess(data: ['coupons' => $coupons]);
     }
 }

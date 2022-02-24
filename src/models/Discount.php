@@ -14,6 +14,8 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
+use craft\commerce\services\Coupons;
+use craft\commerce\validators\CouponsValidator;
 use craft\db\Query;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
@@ -53,6 +55,12 @@ class Discount extends Model
      * @var string|null Coupon Code
      */
     public ?string $code = null;
+
+    /**
+     * @var string Format coupons should be generated with
+     * @since 4.0
+     */
+    public string $couponFormat = Coupons::DEFAULT_COUPON_FORMAT;
 
     /**
      * @var int Per user coupon use limit
@@ -357,7 +365,7 @@ class Discount extends Model
     protected function defineRules(): array
     {
         return [
-            [['name'], 'required'],
+            [['name', 'couponFormat'], 'required'],
             [
                 [
                     'perUserLimit',
@@ -372,7 +380,8 @@ class Discount extends Model
                     'percentDiscount',
                 ], 'number', 'skipOnEmpty' => false,
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
+            [['coupons'], CouponsValidator::class, 'skipOnEmpty' => true],
+            [['couponFormat'], 'string', 'length' => [1, 20]],
             [
                 ['categoryRelationshipType'],
                 'in', 'range' => [
