@@ -70,7 +70,6 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(\craft\db\Table::ELEMENTINDEXSETTINGS, ['type' => [Order::class, Product::class, Subscription::class]]);
         $this->delete(\craft\db\Table::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
