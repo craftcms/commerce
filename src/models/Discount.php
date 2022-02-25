@@ -395,7 +395,6 @@ class Discount extends Model
                     DiscountRecord::APPLIED_TO_ALL_LINE_ITEMS,
                 ],
             ],
-            [['code'], UniqueValidator::class, 'targetClass' => DiscountRecord::class, 'targetAttribute' => ['code']],
             [
                 'hasFreeShippingForOrder',
                 function($attribute, $params, $validator) {
