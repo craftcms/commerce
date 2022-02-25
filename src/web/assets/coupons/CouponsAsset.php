@@ -47,7 +47,11 @@ class CouponsAsset extends AssetBundle
 
         if ($view instanceof View) {
             $view->registerTranslations('commerce', [
-                'Add coupon',
+                'e.g. summer_####. # characters will be replaced with a random letter.',
+                'Coupon format is required and must contain at least one `#`.',
+                'Generated Coupon Format',
+                'Number of Coupons',
+                'The format used to generate new coupons.',
             ]);
         }
     }

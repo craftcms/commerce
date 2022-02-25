@@ -53,8 +53,9 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
           label: Craft.t('commerce', 'Generated Coupon Format'),
           name: 'couponFormat',
           type: 'text',
-          instructions: Craft.t('commerce', 'The format used to generate new coupons. `#` characters will be replaced with a random letter.'),
+          instructions: Craft.t('commerce', 'The format used to generate new coupons.'),
           value: this.settings.couponFormat,
+          tip: 'e.g. summer_####. # characters will be replaced with a random letter.',
         });
 
         this.$generateHudBody.append(this.$hudFormatField);
@@ -94,14 +95,14 @@ Craft.Commerce.Coupons = Garnish.Base.extend(
             this.addCodes(coupons);
           }
 
-          this.$hudSubmitButton.removeClass('loading');
           this.hud.hide();
         })
         .catch(({response}) => {
-          if (response.data.errors && response.data.errors.length) {
-            Craft.ui.addErrorsToField(this.$hudFormatField, response.data.errors);
+          if (response.data.message) {
+            Craft.ui.addErrorsToField(this.$hudFormatField, [response.data.message]);
           }
-
+        })
+        .finally(() => {
           this.$hudSubmitButton.removeClass('loading');
         });
     },
