@@ -15,6 +15,7 @@ use craft\commerce\elements\Order;
 use craft\commerce\events\DiscountEvent;
 use craft\commerce\events\MatchLineItemEvent;
 use craft\commerce\events\MatchOrderEvent;
+use craft\commerce\models\Coupon;
 use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
@@ -282,23 +283,29 @@ class Discounts extends Component
 
         // If the order has a coupon code let's only get discounts for that code, or discounts that do not require a code
         if ($order && $order->couponCode) {
+            $couponSubQuery = (new Query())
+                ->from(Table::COUPONS)
+                ->where(new Expression('[[discountId]] = [[discounts.id]]'));
+
+            $codeWhere = ['code' => $order->couponCode];
             if (Craft::$app->getDb()->getIsPgsql()) {
-                $discountQuery->andWhere(
-                    [
-                        'or',
-                        ['code' => null],
-                        ['ilike', 'code', $order->couponCode],
-                    ]
-                );
-            } else {
-                $discountQuery->andWhere(
-                    [
-                        'or',
-                        ['code' => null],
-                        ['code' => $order->couponCode],
-                    ]
-                );
+                ArrayHelper::prependOrAppend($codeWhere, 'ilike', true);
             }
+
+            $discountQuery->andWhere([
+                'or',
+                // Find discount where the coupon code matches
+                ['exists', (clone $couponSubQuery)
+                    ->andWhere($codeWhere)
+                    ->andWhere([
+                        'or',
+                        ['maxUses' => null],
+                        new Expression('[[uses]] < [[maxUses]]')]
+                    )
+                ],
+                // OR find discounts that do not have a coupon code requirement
+                ['not exists', $couponSubQuery],
+            ]);
         }
 
         $this->_activeDiscountsByKey[$cacheKey] = $this->_populateDiscounts($discountQuery->all());
@@ -317,7 +324,7 @@ class Discounts extends Component
     {
         $discount = $this->getDiscountByCode($order->couponCode);
 
-        if (!$discount) {
+        if (!$discount || !$this->_isDiscountCouponCodeValid($order, $discount)) {
             $explanation = Craft::t('commerce', 'Coupon not valid.');
             return false;
         }
@@ -379,10 +386,11 @@ class Discounts extends Component
         }
 
         $query = $this->_createDiscountQuery();
+        $query->innerJoin(Table::COUPONS . ' coupons', '[[coupons.discountId]] = [[discounts.id]]');
         if (Craft::$app->getDb()->getIsPgsql()) {
-            $query->andWhere(['ilike', '[[discounts.code]]', $code]);
+            $query->andWhere(['ilike', '[[coupons.code]]', $code]);
         } else {
-            $query->andWhere(['[[discounts.code]]' => $code]);
+            $query->andWhere(['[[coupons.code]]' => $code]);
         }
         $discounts = $query->all();
 
@@ -390,8 +398,8 @@ class Discounts extends Component
             return null;
         }
 
-        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), function($discount) use ($code) {
-            return ($discount->enabled && $discount->code && $code && (strcasecmp($code, $discount->code) == 0));
+        return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), static function (Discount $discount) use ($code) {
+            return (bool)ArrayHelper::firstWhere($discount->getCoupons(), static fn($coupon) => (strcasecmp($coupon->code, $code) == 0));
         });
     }
 
@@ -931,12 +939,13 @@ class Discounts extends Component
 
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
-        // TODO new coupon code checks
-        // if (!$discount->code) {
-        //     return true;
-        // }
-        //
-        // return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+        $coupons = $discount->getCoupons();
+        if (empty($coupons)) {
+            return true;
+        }
+
+        $return = ArrayHelper::firstWhere($coupons, static fn(Coupon $coupon) => (strcasecmp($coupon->code, $order->couponCode) == 0) && ($coupon->maxUses === null || $coupon->maxUses > $coupon->uses));
+        return (bool)$return;
     }
 
     /**
