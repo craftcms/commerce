@@ -1,10 +1,4 @@
 {% extends "commerce/_layouts/cp" %}
-{% do view.registerTranslations('commerce', [
-    'Coupon format is required and must contain at least one `#`.',
-    'Generated Coupon Format',
-    'Number of Coupons',
-    'The format used to generate new coupons. `#` will be replaced with a random letter.',
-]) %}
 
 {% set selectedSubnavItem = "promotions" %}
 
@@ -67,6 +61,7 @@
         maxUses: {
             type: 'singleline',
             heading: 'Max Uses'|t('commerce'),
+            info: 'Leave blank for unlimited uses.'|t('commerce'),
         },
     },
     defaultValues: { uses: 0 }
@@ -245,6 +240,7 @@
                         name: couponsTable.name,
                         cols: couponsTable.cols,
                         rows: discount.coupons,
+                        addRowLabel: 'Add a coupon'|t('commerce'),
                         allowAdd: true,
                         allowDelete: true,
                         initJs: false
