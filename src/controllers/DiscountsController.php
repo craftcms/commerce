@@ -191,8 +191,9 @@ class DiscountsController extends BaseCpController
         }
 
         $discount->setUserGroupIds($groups);
+        $coupons = $request->getBodyParam('coupons', null) ?: [];
 
-        $this->_setCouponsOnDiscount(coupons: $request->getBodyParam('coupons', []), discount: $discount);
+        $this->_setCouponsOnDiscount(coupons: $coupons, discount: $discount);
 
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
@@ -233,7 +234,7 @@ class DiscountsController extends BaseCpController
 
         $discountCoupons = [];
 
-        foreach ($coupons as $key => $c) {
+        foreach ($coupons as $c) {
             $discountCoupons[] = Craft::createObject(Coupon::class, [
                 'config' => [
                     'attributes' => [
@@ -587,7 +588,7 @@ class DiscountsController extends BaseCpController
         try {
             $coupons = Plugin::getInstance()->getCoupons()->generateCouponCodes(count: $count, format: $format, existingCodes: $existingCodes);
         } catch (\Exception $e) {
-            return $this->asFailure(errors: [Craft::t('commerce', 'Unable to generate coupon codes: {message}', ['message' => $e->getMessage()])]);
+            return $this->asFailure(message: Craft::t('commerce', 'Unable to generate coupon codes: {message}', ['message' => $e->getMessage()]));
         }
 
         return $this->asSuccess(data: ['coupons' => $coupons]);
