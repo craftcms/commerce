@@ -58,6 +58,8 @@ class Customers extends Component
     {
         $userRecord = CustomerRecord::findOne($user->id) ?: $this->_createCustomerRecord($user);
         $userRecord->primaryShippingAddressId = $addressId;
+        /** @var User|CustomerBehavior $user */
+        $user->primaryShippingAddressId = $addressId;
         return $userRecord->save();
     }
 
@@ -70,6 +72,8 @@ class Customers extends Component
     {
         $userRecord = CustomerRecord::findOne($user->id) ?: $this->_createCustomerRecord($user);
         $userRecord->primaryBillingAddressId = $addressId;
+        /** @var User|CustomerBehavior $user */
+        $user->primaryBillingAddressId = $addressId;
         return $userRecord->save();
     }
 

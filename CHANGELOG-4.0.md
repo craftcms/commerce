@@ -13,6 +13,8 @@
 - Added `craft\commerce\models\OrderHistory::getUser()`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
+- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
+- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -64,12 +66,13 @@
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::SESSION_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::deleteCustomer()`.
+- Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
 - Removed `craft\commerce\services\Customers::forgetCustomer()`.
 - Removed `craft\commerce\services\Customers::getAddressIds()`. Use `ArrayHelper::getColumn($user->getAddresses(), 'id')` instead.
 - Removed `craft\commerce\services\Customers::getCustomerByUserId()`.
 - Removed `craft\commerce\services\Customers::getCustomersQuery()`.
 - Removed `craft\commerce\services\Customers::purgeOrphanedCustomers()`.
-- Removed `craft\commerce\services\Customers::saveAddress()`. Use `AddressBook::saveAddress()` instead.
+- Removed `craft\commerce\services\Customers::saveAddress()`. Use `Craft::$app->getElements()->saveElement()` instead.
 - Removed `craft\commerce\services\Customers::saveCustomer()`.
 - Removed `craft\commerce\services\Customers::saveUserHandler()`.
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.

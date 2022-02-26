@@ -9,9 +9,8 @@ namespace craft\commerce\behaviors;
 
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
-use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\elements\Address as AddressElement;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use yii\base\Behavior;
@@ -27,21 +26,14 @@ use yii\base\InvalidConfigException;
  * @property-read null|Address $primaryBillingAddress
  * @property-read Subscription[] $subscriptions
  * @property null|int $primaryBillingAddressId
+ * @property-read Order[] $orders
  * @property-read Address[] $addresses
+ * @property User $owner
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
- * @method AddressElement[] getAddresses()
  */
 class CustomerBehavior extends Behavior
 {
-    /** @var User */
-    public $owner;
-
-    /**
-     * @var Address[]|null
-     */
-    private ?array $_addresses = null;
-
     /**
      * @var int|null
      */
@@ -149,9 +141,9 @@ class CustomerBehavior extends Behavior
     }
 
     /**
-     * @return AddressElement|null
+     * @return Address|null
      */
-    public function getPrimaryBillingAddress(): ?AddressElement
+    public function getPrimaryBillingAddress(): ?Address
     {
         return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $this->getPrimaryBillingAddressId());
     }
@@ -173,9 +165,9 @@ class CustomerBehavior extends Behavior
     }
 
     /**
-     * @return AddressElement|null
+     * @return Address|null
      */
-    public function getPrimaryShippingAddress(): ?AddressElement
+    public function getPrimaryShippingAddress(): ?Address
     {
         return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $this->getPrimaryShippingAddressId());
     }
