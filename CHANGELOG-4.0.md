@@ -4,19 +4,15 @@
 
 ### Added
 - Added `craft\commerce\behaviors\CustomerBehavior`.
-- Added `craft\commerce\controllers\UserAddressesController`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
-- Added `craft\commerce\events\UserAddressEvent`.
+- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
-- Added `craft\commerce\records\UserAddress`.
-- Added `craft\commerce\records\UserDiscountUse`.
-- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
-- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -51,23 +47,20 @@
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
-- Removed `craft\commerce\controllers\CustomerAddressesController`. Use `UserAddressesController` instead.
+- Removed `craft\commerce\controllers\CustomerAddressesController`.
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
-- Removed direct `moneyphp/money` dependency.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
-- Removed `craft\commerce\events\CustomerAddressEvent`. Use `UserAddressEvent` instead.
+- Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
 - Removed `craft\commerce\models\OrderHistory::$customerId`. User `$userId` instead.
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. User `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
-- Removed `craft\commerce\records\CustomerDiscountUse`. Use `UserDiscountUse` instead.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.
-- Removed `craft\commerce\services\Addresses::getAddressesByCustomerId()`. Use `getAddressesByUserId()` instead.
-- Removed `craft\commerce\services\Addresses::getAddressByIdByCustomerId()`. Use `getAddressByIdAndUserId()` instead.
-- Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`. Use `AddressBook::EVENT_AFTER_SAVE_USER_ADDRESS` instead.
+- Removed `craft\commerce\services\Addresses`.
+- Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`.  Use `Element::EVENT_AFTER_SAVE`, checking for `$event->sender->ownerId` to determine the user addres being saved.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
-- Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`. Use `AddressBook::EVENT_BEFORE_SAVE_USER_ADDRESS` instead.
+- Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::SESSION_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::deleteCustomer()`.
@@ -81,6 +74,7 @@
 - Removed `craft\commerce\services\Customers::saveUserHandler()`.
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
 - Removed `craft\commerce\services\Discounts::getCuustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
+- Removed direct `moneyphp/money` dependency.
 
 ### Removed (Previously Deprecated)
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
