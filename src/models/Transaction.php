@@ -48,6 +48,8 @@ class Transaction extends Model
     public ?int $parentId = null;
 
     /**
+     * This is the user who made the transaction. It could be the customer if logged in, or a store administrator.
+     *
      * @var int|null User ID
      */
     public ?int $userId = null;

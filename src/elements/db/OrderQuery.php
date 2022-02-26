@@ -795,8 +795,45 @@ class OrderQuery extends ElementQuery
      *
      * @param User|int $value The property value
      * @return static self reference
+     * @deprecated 4.0.0 in favor of [[customer()]]
      */
-    public function user(int|\craft\elements\User $value): OrderQuery
+    public function user(int|User $value): OrderQuery
+    {
+        Craft::$app->getDeprecator()->log('OrderQuery::user()', 'The `OrderQuery::user()` method is deprecated, use the `OrderQuery::customer()` method instead.');
+        return $this->customer($value);
+    }
+
+    /**
+     * Narrows the query results based on the customer’s user account.
+     *
+     * Possible values include:
+     *
+     * | Value | Fetches {elements}…
+     * | - | -
+     * | `1` | with a customer with a user account ID of 1.
+     * | a [[User|User]] object | with a customer with a user account represented by the object.
+     *
+     * ---
+     *
+     * ```twig
+     * {# Fetch the current user's orders #}
+     * {% set {elements-var} = {twig-method}
+     *   .customer(currentUser)
+     *   .all() %}
+     * ```
+     *
+     * ```php
+     * // Fetch the current user's orders
+     * $user = Craft::$app->user->getIdentity();
+     * ${elements-var} = {php-method}
+     *     ->customer($user)
+     *     ->all();
+     * ```
+     *
+     * @param User|int $value The property value
+     * @return static self reference
+     */
+    public function customer(int|User $value): OrderQuery
     {
         if ($value instanceof User) {
             $this->customerId = $value->id;
@@ -827,7 +864,7 @@ class OrderQuery extends ElementQuery
      * ```twig
      * {# Fetch the current user's orders #}
      * {% set {elements-var} = {twig-method}
-     *     .userId(currentUser.id)
+     *     .customerId(currentUser.id)
      *     .all() %}
      * ```
      *
@@ -835,7 +872,7 @@ class OrderQuery extends ElementQuery
      * // Fetch the current user's orders
      * $user = Craft::$app->user->getIdentity();
      * ${elements-var} = {php-method}
-     *     ->userId($user->id)
+     *     ->customerId($user->id)
      *     ->all();
      * ```
      *
@@ -1138,7 +1175,7 @@ class OrderQuery extends ElementQuery
 
             // Eager-load addresses?
             if ($this->withAddresses === true || $this->withAll) {
-                $orders = Plugin::getInstance()->getAddresses()->eagerLoadAddressesForOrders($orders);
+                $orders = Plugin::getInstance()->getOrders()->eagerLoadAddressesForOrders($orders);
             }
 
             $orders = Plugin::getInstance()->getOrderNotices()->eagerLoadOrderNoticesForOrders($orders);
@@ -1175,6 +1212,8 @@ class OrderQuery extends ElementQuery
             'commerce_orders.shippingAddressId',
             'commerce_orders.estimatedBillingAddressId',
             'commerce_orders.estimatedShippingAddressId',
+            'commerce_orders.selectedBillingAddressId',
+            'commerce_orders.selectedShippingAddressId',
             'commerce_orders.shippingMethodHandle',
             'commerce_orders.gatewayId',
             'commerce_orders.paymentSourceId',

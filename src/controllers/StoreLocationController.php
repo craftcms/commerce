@@ -8,94 +8,56 @@
 namespace craft\commerce\controllers;
 
 use Craft;
-use craft\commerce\models\Address;
-use craft\commerce\Plugin;
-use yii\db\Exception;
-use yii\web\BadRequestHttpException;
+use craft\commerce\behaviors\StoreLocationBehavior;
+use craft\elements\Address as AddressElement;
+use craft\commerce\records\Store;
+use craft\helpers\Cp;
 use yii\web\Response;
 
 class StoreLocationController extends BaseStoreSettingsController
 {
-    public function actionEditLocation(): Response
-    {
-        $storeLocation = Plugin::getInstance()->getAddresses()->getStoreLocationAddress();
+    /**
+     * @var Store
+     */
+    private ?Store $_store = null;
 
-        if (!$storeLocation) {
-            $storeLocation = new Address();
+    public function beforeAction($action): bool
+    {
+        $this->_store = Store::find()->one();
+
+        if ($this->_store === null) {
+            $this->_store = new Store();
+            $this->_store->save();
         }
 
-        $variables = [
-            'storeLocation' => $storeLocation,
-        ];
-
-        return $this->renderTemplate('commerce/store-settings/location/index', $variables);
+        return true;
     }
 
-
-    /**
-     * Saves the store location setting
-     *
-     * @throws Exception
-     * @throws BadRequestHttpException
-     */
-    public function actionSaveStoreLocation(): Response
+    public function actionEditLocation(): Response
     {
-        $this->requirePostRequest();
+        $view = $this->getView();
+        $storeLocation = AddressElement::findOne($this->_store->locationAddressId);
 
-        $id = (int)Craft::$app->getRequest()->getBodyParam('id');
-
-        $address = Plugin::getInstance()->getAddresses()->getAddressById($id);
-
-        if (!$address) {
-            $address = new Address();
+        if (!$storeLocation) {
+            $storeLocation = new AddressElement();
         }
 
-        // Shared attributes
-        $attributes = [
-            'attention',
-            'title',
-            'firstName',
-            'lastName',
-            'fullName',
-            'address1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'businessName',
-            'businessTaxId',
-            'businessId',
-            'countryId',
-            'stateValue',
-            'phone',
-            'label',
-            'notes',
-            'custom1',
-            'custom2',
-            'custom3',
-            'custom4',
-        ];
-        foreach ($attributes as $attr) {
-            $address->$attr = Craft::$app->getRequest()->getParam($attr);
-        }
+        // Save the address now so that it is stored as the store location.
+        $storeLocation->attachBehavior('storeLocation', StoreLocationBehavior::class);
+        Craft::$app->getElements()->saveElement($storeLocation);
 
-        $address->isStoreLocation = true;
-
-        if ($address->validate() && Plugin::getInstance()->getAddresses()->saveAddress($address)) {
-            $this->setSuccessFlash(Craft::t('commerce', 'Store Location saved.'));
-
-            return $this->redirectToPostedUrl();
-        }
-
-        $this->setFailFlash(Craft::t('commerce', 'Couldn’t save Store Location.'));
+        $storeLocationHtml = Cp::addressCardsHtml(
+            addresses: [$storeLocation],
+            config: [
+                'name' => 'storeLocation',
+                'maxAddresses' => 1
+            ]
+        );
 
         $variables = [
-            'storeLocation' => $address,
+            'storeLocationHtml' => $storeLocationHtml,
         ];
 
-        // Send the model back to the template
         return $this->renderTemplate('commerce/store-settings/location/index', $variables);
     }
 }

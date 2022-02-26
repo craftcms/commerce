@@ -16,14 +16,12 @@ use craft\commerce\events\SaleEvent;
 use craft\commerce\events\SaleMatchEvent;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\models\Sale;
-use craft\commerce\Plugin;
 use craft\commerce\records\Sale as SaleRecord;
 use craft\commerce\records\SaleCategory as SaleCategoryRecord;
 use craft\commerce\records\SalePurchasable as SalePurchasableRecord;
 use craft\commerce\records\SaleUserGroup as SaleUserGroupRecord;
 use craft\db\Query;
 use craft\elements\Category;
-use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use DateTime;
 use Throwable;
@@ -427,7 +425,7 @@ class Sales extends Component
                     return false;
                 }
                 // User groups of the order's user
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($user);
+                $userGroups = ArrayHelper::getColumn($user->getGroups(),'id');
                 if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {
                     return false;
                 }
@@ -439,7 +437,7 @@ class Sales extends Component
             // User groups of the currently logged in user
             $userGroups = null;
             if ($currentUser = Craft::$app->getUser()->getIdentity()) {
-                $userGroups = Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($currentUser);
+                $userGroups = ArrayHelper::getColumn($currentUser->getGroups(),'id');
             }
 
             if (!$userGroups || !array_intersect($userGroups, $sale->getUserGroupIds())) {

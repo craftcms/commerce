@@ -57,7 +57,7 @@ class Settings extends Model
     public $activeCartDuration = 3600;
 
     /**
-     * @var bool Whether the customer’s primary shipping and billing addresses should be set automatically on new carts.
+     * @var bool Whether the user’s primary shipping and billing addresses should be set automatically on new carts.
      * @group Cart
      */
     public bool $autoSetNewCartAddresses = true;

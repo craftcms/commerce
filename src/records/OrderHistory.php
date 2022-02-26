@@ -16,7 +16,7 @@ use yii\db\ActiveQueryInterface;
 /**
  * Order history record.
  *
- * @property User $user
+ * @property Customer $customer
  * @property int $userId
  * @property DateTime $dateCreated
  * @property int $id
@@ -64,7 +64,7 @@ class OrderHistory extends ActiveRecord
     /**
      * @return ActiveQueryInterface
      */
-    public function getUser(): ActiveQueryInterface
+    public function Customer(): ActiveQueryInterface
     {
         return $this->hasOne(User::class, ['id' => 'userId']);
     }

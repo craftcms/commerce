@@ -9,6 +9,7 @@ namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
 use craft\commerce\db\Table;
+use craft\commerce\helpers\AddressZone as AddressZoneHelper;
 use craft\commerce\models\Address;
 use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\State;
@@ -60,99 +61,6 @@ class AddressesTest extends Unit
     }
 
     /**
-     *
-     */
-    public function testGetAddressById(): void
-    {
-        self::assertNull($this->addresses->getAddressById(999));
-
-        $address = $this->addresses->getAddressById(1000);
-        self::assertInstanceOf(Address::class, $address);
-        self::assertSame('1640 Riverside Drive', $address->address1);
-    }
-
-    /**
-     *
-     */
-    public function testGetAddressesByUserId(): void
-    {
-        $address = $this->addresses->getAddressById(1002);
-        /** @var User $user */
-        $user = $this->tester->grabFixture('customer')->getElement('customer1');
-
-        $customerAddresses = $this->addresses->getAddressesByUserId($user->id);
-
-        self::assertIsArray($customerAddresses);
-        self::assertNotEmpty($customerAddresses);
-        self::assertEquals($address->toArray(), $customerAddresses[0]->toArray());
-    }
-
-    /**
-     *
-     */
-    public function testGetAddressByIdAndUserId(): void
-    {
-        $customerAddress = $this->addresses->getAddressById(1002);
-        /** @var User $user */
-        $user = $this->tester->grabFixture('customer')->getElement('customer1');
-
-        $noAddress = $this->addresses->getAddressByIdAndUserId(999, $user->id);
-        self::assertNull($noAddress);
-
-        $address = $this->addresses->getAddressByIdAndUserId(1002, $user->id);
-        self::assertEquals($customerAddress->toArray(), $address->toArray());
-    }
-
-    /**
-     *
-     */
-    public function testGetStoreLocationAddress(): void
-    {
-        $storeAddress = $this->addresses->getAddressById(1123);
-        $address = $this->addresses->getStoreLocationAddress();
-
-        self::assertIsObject($address);
-        self::assertEquals($storeAddress, $address);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testSaveAddress(): void
-    {
-        $address = $this->addresses->getAddressById(1000);
-        $address->address2 = 'Great Scott!';
-
-        $saveResult = $this->addresses->saveAddress($address);
-
-        self::assertTrue($saveResult);
-        self::assertFalse($address->hasErrors());
-        self::assertSame('Great Scott!', $address->address2);
-
-        $address2 = (new Query())
-            ->select(['address2'])
-            ->from(Table::ADDRESSES)
-            ->where(['id' => 1000])
-            ->scalar();
-        self::assertSame('Great Scott!', $address2);
-    }
-
-    /**
-     *
-     */
-    public function testDeleteAddressById(): void
-    {
-        $result = $this->addresses->deleteAddressById(1000);
-
-        self::assertTrue($result);
-        $addressExists = (new Query())
-            ->from(Table::ADDRESSES)
-            ->where(['id' => 1000])
-            ->exists();
-        self::assertFalse($addressExists);
-    }
-
-    /**
      * @throws \Exception
      */
     public function testAddressWithinZone(): void
@@ -169,7 +77,7 @@ class AddressesTest extends Unit
                 return ['236'];
             },
         ]);
-        self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneCountry));
+        self::assertFalse(AddressZoneHelper::addressWithinZone($addressFail, $zoneCountry));
 
         /** @var ShippingAddressZone $zoneState */
         $zoneState = $this->make(ShippingAddressZone::class, [
@@ -185,10 +93,10 @@ class AddressesTest extends Unit
             'countryId' => '236',
         ]);
         $zoneState->setStates([$state]);
-        self::assertFalse($this->addresses->addressWithinZone($addressFail, $zoneState));
+        self::assertFalse(AddressZoneHelper::addressWithinZone($addressFail, $zoneState));
 
-        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneCountry));
-        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneState));
+        self::assertTrue(AddressZoneHelper::addressWithinZone($addressSuccess, $zoneCountry));
+        self::assertTrue(AddressZoneHelper::addressWithinZone($addressSuccess, $zoneState));
 
         /** @var ShippingAddressZone $zoneZipCodeCondition */
         $zoneZipCodeCondition = $this->make(ShippingAddressZone::class, [
@@ -200,80 +108,10 @@ class AddressesTest extends Unit
             },
         ]);
         $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "12345"';
-        self::assertFalse($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
+        self::assertFalse(AddressZoneHelper::addressWithinZone($addressSuccess, $zoneZipCodeCondition));
 
         $zoneZipCodeCondition->zipCodeConditionFormula = 'zipCode == "88"';
-        self::assertTrue($this->addresses->addressWithinZone($addressSuccess, $zoneZipCodeCondition));
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testPurgeOrphanedAddresses(): void
-    {
-        $count = (new Query())
-            ->from(Table::ADDRESSES)
-            ->count();
-
-        self::assertEquals(4, $count);
-
-        $this->addresses->purgeOrphanedAddresses();
-
-        $newCount = (new Query())
-            ->from(Table::ADDRESSES)
-            ->count();
-
-        self::assertNotEquals($count, $newCount);
-        self::assertEquals(3, $newCount);
-    }
-
-    /**
-     *
-     */
-    public function testRemoveReadOnlyAttributesFromArray(): void
-    {
-        $address = $this->addresses->getAddressById(1000);
-        $addressArray = $address->toArray();
-
-        $keysThatShouldExist = [
-            'id',
-            'isStoreLocation',
-            'attention',
-            'title',
-            'firstName',
-            'lastName',
-            'fullName',
-            'address1',
-            'address2',
-            'address3',
-            'city',
-            'zipCode',
-            'phone',
-            'alternativePhone',
-            'label',
-            'businessName',
-            'businessTaxId',
-            'businessId',
-            'stateName',
-            'countryId',
-            'stateId',
-            'notes',
-            'custom1',
-            'custom2',
-            'custom3',
-            'custom4',
-            'isEstimated',
-            'dateCreated',
-            'dateUpdated',
-            'stateValue',
-        ];
-        $keys = array_keys($this->addresses->removeReadOnlyAttributesFromArray($addressArray));
-
-        self::assertNotEquals(array_keys($addressArray), $keys);
-        self::assertEquals($keysThatShouldExist, $keys);
-        self::assertNotContains('countryText', $keys);
-        self::assertNotContains('stateText', $keys);
-        self::assertNotContains('abbreviationText', $keys);
+        self::assertTrue(AddressZoneHelper::addressWithinZone($addressSuccess, $zoneZipCodeCondition));
     }
 
     /**

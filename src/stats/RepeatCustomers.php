@@ -29,13 +29,13 @@ class RepeatCustomers extends Stat
     public function getData()
     {
         $total = (int)$this->_createStatQuery()
-            ->select(['customerId'])
+            ->select(['userId'])
             ->groupBy('customerId')
             ->count();
 
         $repeatRows = $this->_createStatQuery()
             ->select([new Expression('COUNT([[orders.id]])')])
-            ->groupBy('customerId')
+            ->groupBy('userId')
             ->column();
 
 

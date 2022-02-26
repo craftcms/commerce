@@ -9,6 +9,7 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\Element;
 use craft\records\User;
 use yii\db\ActiveQueryInterface;
 
@@ -22,7 +23,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $response
  * @property string $token
  * @property-read ActiveQueryInterface $user
- * @property int $userId
+ * @property int $customerId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -48,12 +49,12 @@ class PaymentSource extends ActiveRecord
 
 
     /**
-     * Return the payment source's owner user.
+     * Return the payment source's owner customer/user.
      *
      * @return ActiveQueryInterface The relational query object.
      */
     public function getUser(): ActiveQueryInterface
     {
-        return $this->hasOne(User::class, ['id' => 'userId']);
+        return $this->hasOne(Element::class, ['id' => 'customerId']);
     }
 }

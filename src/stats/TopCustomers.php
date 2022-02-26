@@ -58,7 +58,7 @@ class TopCustomers extends Stat
                 'customerId',
                 'total' => new Expression('SUM([[total]])'),
             ])
-            ->groupBy(['[[orders.customerId]]', '[[orders.email]]'])
+            ->groupBy(['[[orders.userId]]', '[[orders.email]]'])
             ->limit($this->limit);
 
         if ($this->type == 'average') {

@@ -7,8 +7,6 @@
 
 namespace craft\commerce\plugin;
 
-use craft\commerce\services\AddressBook;
-use craft\commerce\services\Addresses;
 use craft\commerce\services\Carts;
 use craft\commerce\services\Countries;
 use craft\commerce\services\Currencies;
@@ -45,7 +43,6 @@ use craft\commerce\services\Taxes;
 use craft\commerce\services\TaxRates;
 use craft\commerce\services\TaxZones;
 use craft\commerce\services\Transactions;
-use craft\commerce\services\Users;
 use craft\commerce\services\Variants;
 use craft\commerce\services\Webhooks;
 use yii\base\InvalidConfigException;
@@ -57,7 +54,6 @@ use yii\base\InvalidConfigException;
  * @property Carts $cart the cart service
  * @property Countries $countries the countries service
  * @property Currencies $currencies the currencies service
- * @property Customers $customers the customers service
  * @property Discounts $discounts the discounts service
  * @property Emails $emails the emails service
  * @property Gateways $gateways the gateways service
@@ -87,35 +83,13 @@ use yii\base\InvalidConfigException;
  * @property TaxRates $taxRates the taxRates service
  * @property TaxZones $taxZones the taxZones service
  * @property Transactions $transactions the transactions service
+ * @property Customers $customers the customers service
  * @property Variants $variants the variants service
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 trait Services
 {
-    /**
-     * Returns the address book service
-     *
-     * @return AddressBook The address book service
-     * @throws InvalidConfigException
-     * @since 4.0
-     */
-    public function getAddressBook(): AddressBook
-    {
-        return $this->get('addressBook');
-    }
-
-    /**
-     * Returns the address service
-     *
-     * @return Addresses The address service
-     * @throws InvalidConfigException
-     */
-    public function getAddresses(): Addresses
-    {
-        return $this->get('addresses');
-    }
-
     /**
      * Returns the cart service
      *
@@ -543,12 +517,6 @@ trait Services
     private function _setPluginComponents(): void
     {
         $this->setComponents([
-            'addressBook' => [
-                'class' => AddressBook::class,
-            ],
-            'addresses' => [
-                'class' => Addresses::class,
-            ],
             'carts' => [
                 'class' => Carts::class,
             ],
@@ -557,9 +525,6 @@ trait Services
             ],
             'currencies' => [
                 'class' => Currencies::class,
-            ],
-            'customers' => [
-                'class' => Customers::class,
             ],
             'discounts' => [
                 'class' => Discounts::class,
@@ -659,6 +624,9 @@ trait Services
             ],
             'transactions' => [
                 'class' => Transactions::class,
+            ],
+            'customers' => [
+                'class' => Customers::class,
             ],
             'variants' => [
                 'class' => Variants::class,

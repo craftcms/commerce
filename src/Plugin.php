@@ -11,7 +11,7 @@ use Craft;
 use craft\base\Model;
 use craft\base\Plugin as BasePlugin;
 use craft\commerce\base\Purchasable;
-use craft\commerce\behaviors\CommerceUserBehavior;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
@@ -223,13 +223,6 @@ class Plugin extends BasePlugin
             $ret['subnav']['products'] = [
                 'label' => Craft::t('commerce', 'Products'),
                 'url' => 'commerce/products',
-            ];
-        }
-
-        if (Craft::$app->getUser()->checkPermission('commerce-manageCustomers')) {
-            $ret['subnav']['customers'] = [
-                'label' => Craft::t('commerce', 'Customers'),
-                'url' => 'commerce/customers',
             ];
         }
 
@@ -453,13 +446,14 @@ class Plugin extends BasePlugin
         Event::on(Sites::class, Sites::EVENT_AFTER_SAVE_SITE, [$this->getProducts(), 'afterSaveSiteHandler']);
 
         Event::on(UserElement::class, UserElement::EVENT_BEFORE_DELETE, [$this->getSubscriptions(), 'beforeDeleteUserHandler']);
+        Event::on(UserElement::class, UserElement::EVENT_AFTER_SAVE, [$this->getCustomers(), 'afterSaveUserHandler']);
 
         Event::on(
             UserElement::class,
             UserElement::EVENT_DEFINE_BEHAVIORS,
             function(DefineBehaviorsEvent $event) {
                 $event->sender->attachBehaviors([
-                    CommerceUserBehavior::class,
+                    CustomerBehavior::class,
                 ]);
             }
         );

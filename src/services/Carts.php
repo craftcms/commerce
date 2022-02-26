@@ -68,14 +68,11 @@ class Carts extends Component
 
         // If there is no cart set for this request, and we can't get a cart from session, create one.
         if (!isset($this->_cart) && !$this->_cart = $this->_getCart()) {
-            $cartAttributes = [];
-            if ($user) {
-                $cartAttributes['customer'] = $user;
+            $this->_cart = new Order();
+            if ($user && $user->email) {
+                $this->_cart->setEmail($user->email); // Will ensure the customer is also set
             }
 
-            $this->_cart = Craft::createObject(Order::class, [
-                'config' => ['attributes' => $cartAttributes],
-            ]);
             $this->_cart->number = $this->getSessionCartNumber();
         }
 
@@ -258,7 +255,7 @@ class Carts extends Component
         $currentUser = Craft::$app->getUser()->getIdentity();
         $cart = $this->getCart();
 
-        // If the current cart is empty see if the logged in user has a previous cart
+        // If the current cart is empty see if the logged-in user has a previous cart
         // Get any cart that is not empty, is not trashed or complete, and belongings to the user
         if ($cart && $currentUser && $cart->getIsEmpty() && $previousCart = Order::find()->customer($currentUser)->isCompleted(false)->trashed(false)->hasLineItems()->one()) {
             $this->setSessionCartNumber($previousCart->number);

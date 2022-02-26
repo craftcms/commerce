@@ -58,7 +58,7 @@ trait Routes
             $event->rules['commerce/orders'] = 'commerce/orders/order-index';
             $event->rules['commerce/orders/<orderId:\d+>'] = 'commerce/orders/edit-order';
 
-            $event->rules['commerce/orders/create-new'] = 'commerce/orders/new-order';
+            $event->rules['commerce/orders/create'] = 'commerce/orders/create';
 
             $event->rules['commerce/orders/<orderStatusHandle:{handle}>'] = 'commerce/orders/order-index';
 
@@ -151,10 +151,6 @@ trait Routes
             $event->rules['commerce/promotions/discounts'] = 'commerce/discounts/index';
             $event->rules['commerce/promotions/discounts/new'] = 'commerce/discounts/edit';
             $event->rules['commerce/promotions/discounts/<id:\d+>'] = 'commerce/discounts/edit';
-
-            // Customers
-            $event->rules['commerce/customers'] = 'commerce/customers/index';
-            $event->rules['commerce/customers/<id:\d+>'] = 'commerce/customers/edit';
         });
     }
 }

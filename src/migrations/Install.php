@@ -12,7 +12,6 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Donation;
 use craft\commerce\elements\Order;
 use craft\commerce\elements\Product;
-use craft\commerce\elements\Subscription;
 use craft\commerce\elements\Variant;
 use craft\commerce\gateways\Dummy;
 use craft\commerce\models\OrderStatus as OrderStatusModel;
@@ -71,7 +70,6 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(CraftTable::ELEMENTINDEXSETTINGS, ['type' => [Order::class, Product::class, Subscription::class]]);
         $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
@@ -128,10 +126,10 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::USER_DISCOUNTUSES, [
+        $this->createTable(Table::CUSTOMER_DISCOUNTUSES, [
             'id' => $this->primaryKey(),
             'discountId' => $this->integer()->notNull(),
-            'userId' => $this->integer()->notNull(),
+            'customerId' => $this->integer()->notNull(),
             'uses' => $this->integer()->notNull()->unsigned(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -143,17 +141,6 @@ class Install extends Migration
             'discountId' => $this->integer()->notNull(),
             'email' => $this->string()->notNull(),
             'uses' => $this->integer()->notNull()->unsigned(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::USERS_ADDRESSES, [
-            'id' => $this->primaryKey(),
-            'userId' => $this->integer()->notNull(),
-            'addressId' => $this->integer()->notNull(),
-            'isPrimaryBillingAddress' => $this->boolean()->notNull()->defaultValue(false),
-            'isPrimaryShippingAddress' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -372,9 +359,11 @@ class Install extends Migration
             'shippingAddressId' => $this->integer(),
             'estimatedBillingAddressId' => $this->integer(),
             'estimatedShippingAddressId' => $this->integer(),
+            'selectedShippingAddressId' => $this->integer(),
+            'selectedBillingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
-            'customerId' => $this->integer(),
+            'customerId' => $this->integer(), // Customer ID is a User element ID
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
             'reference' => $this->string(),
@@ -448,7 +437,7 @@ class Install extends Migration
 
         $this->createTable(Table::PAYMENTSOURCES, [
             'id' => $this->primaryKey(),
-            'userId' => $this->integer()->notNull(),
+            'customerId' => $this->integer()->notNull(),
             'gatewayId' => $this->integer()->notNull(),
             'token' => $this->string()->notNull(),
             'description' => $this->string(),
@@ -715,6 +704,14 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
+        $this->createTable(Table::STORES, [
+            'id' => $this->primaryKey(),
+            'locationAddressId' => $this->string()->notNull(),
+            'dateCreated' => $this->dateTime()->notNull(),
+            'dateUpdated' => $this->dateTime()->notNull(),
+            'uid' => $this->uid(),
+        ]);
+
         $this->createTable(Table::SUBSCRIPTIONS, [
             'id' => $this->primaryKey(),
             'userId' => $this->integer()->notNull(),
@@ -802,7 +799,7 @@ class Install extends Migration
             'orderId' => $this->integer()->notNull(),
             'parentId' => $this->integer(),
             'gatewayId' => $this->integer(),
-            'userId' => $this->integer(),
+            'userId' => $this->integer(), // Stays as userId since it could be a logged-in user or store administrator. So not just a customer.
             'hash' => $this->string(32),
             'type' => $this->enum('type', ['authorize', 'capture', 'purchase', 'refund'])->notNull(),
             'amount' => $this->decimal(14, 4),
@@ -821,8 +818,10 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::USERS, [
-            'userId' => $this->integer()->notNull(),
+        $this->createTable(Table::CUSTOMERS, [
+            'id' => $this->integer()->notNull(), // This is the User element ID
+            'primaryBillingAddressId' => $this->integer(),
+            'primaryShippingAddressId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -875,16 +874,15 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
-        $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
-        $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
         $this->createIndex(null, Table::COUNTRIES, 'name', true);
         $this->createIndex(null, Table::COUNTRIES, 'iso', true);
+        $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
-        $this->createIndex(null, Table::USER_DISCOUNTUSES, ['userId', 'discountId'], true);
-        $this->createIndex(null, Table::USER_DISCOUNTUSES, 'discountId', false);
-        $this->createIndex(null, Table::USERS_ADDRESSES, ['userId', 'addressId'], true);
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['userId', 'discountId'], true);
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
@@ -980,7 +978,6 @@ class Install extends Migration
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'orderId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'userId', false);
-        $this->createIndex(null, Table::USERS, 'userId', true);
         $this->createIndex(null, Table::VARIANTS, 'sku', false);
         $this->createIndex(null, Table::VARIANTS, 'productId', false);
     }
@@ -990,10 +987,8 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::USER_DISCOUNTUSES, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::USER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
@@ -1009,23 +1004,23 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['prevStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::USERS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['gatewayId'], Table::GATEWAYS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['paymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['estimatedShippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['estimatedBillingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['emailId'], Table::EMAILS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::PAYMENTSOURCES, ['userId'], CraftTable::USERS, ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
@@ -1070,8 +1065,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::USERS, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::USERS, ['userId'], CraftTable::USERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSACTIONS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['id'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['productId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }

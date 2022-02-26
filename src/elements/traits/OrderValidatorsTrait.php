@@ -16,6 +16,7 @@ use craft\commerce\models\Address;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\Plugin;
 use craft\db\Query;
+use craft\helpers\ArrayHelper;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 
@@ -76,50 +77,6 @@ trait OrderValidatorsTrait
 
         if ($address && !$address->validate()) {
             $this->addModelErrors($address, $attribute);
-        }
-    }
-
-    /**
-     * Validates that an address belongs to the order‘s customer.
-     *
-     * @param string $attribute the attribute being validated
-     * @noinspection PhpUnused
-     */
-    public function validateAddressCanBeUsed(string $attribute): void
-    {
-        $user = $this->getCustomer();
-        /** @var Address $address */
-        $address = $this->$attribute;
-
-        // We need to have a customer ID and an address ID
-        if ($user && $user->id && $address && $address->id) {
-
-            $anotherOrdersAddress = false;
-
-            // Is another customer related to this address?
-            $anotherCustomerAddress = (new Query())
-                ->select('id')
-                ->from([Table::USERS_ADDRESSES])
-                ->where(['not', ['userId' => $user->id]])
-                ->andWhere(['addressId' => $address->id])
-                ->all();
-
-
-            // Don't do an additional query if we already have an invalid address
-            if ($anotherCustomerAddress) {
-                // Is another order using this address?
-                $anotherOrdersAddress = (new Query())
-                    ->select('id')
-                    ->from([Table::ORDERS])
-                    ->where(['not', ['id' => $this->id]])
-                    ->andWhere(['or', ['shippingAddressId' => $address->id], ['billingAddressId' => $address->id]])
-                    ->all();
-            }
-
-            if ($anotherCustomerAddress || $anotherOrdersAddress) {
-                $address->addError($attribute, Craft::t('commerce', 'Address does not belong to customer.'));
-                $this->addModelErrors($address, $attribute);
-            }
         }
     }
 

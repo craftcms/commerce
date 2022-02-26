@@ -25,7 +25,7 @@ use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
-use craft\commerce\records\UserDiscountUse;
+use craft\commerce\records\CustomerDiscountUse;
 use craft\db\Query;
 use craft\elements\Category;
 use craft\elements\User;
@@ -834,7 +834,7 @@ class Discounts extends Component
     {
         return (new Query())
             ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[userId]]) as users'])
-            ->from(Table::USER_DISCOUNTUSES)
+            ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['[[discountId]]' => $id])
             ->one();
     }
@@ -873,10 +873,10 @@ class Discounts extends Component
         foreach ($discounts as $discount) {
             // Count if there was a user on this order that has authentication
             if ($user && $user->getIsCredentialed()) {
-                $userDiscountUseRecord = UserDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
+                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
                 if (!$userDiscountUseRecord) {
-                    $userDiscountUseRecord = Craft::createObject(UserDiscountUse::class);
+                    $userDiscountUseRecord = Craft::createObject(CustomerDiscountUse::class);
                     Craft::configure($userDiscountUseRecord, [
                         'userId' => $user->id,
                         'discountId' => $discount['discountUseId'],
@@ -988,7 +988,7 @@ class Discounts extends Component
     public function isDiscountUserGroupValid(Discount $discount, ?User $user): bool
     {
 
-        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsByUser($user) : [];
+        $groupIds = $user ? ArrayHelper::getColumn($user->getGroups(),'id') : [];
 
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {

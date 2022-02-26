@@ -13,25 +13,24 @@ use craft\records\Element;
 use yii\db\ActiveQueryInterface;
 
 /**
- * User record.
+ * Customer record.
  *
- * @property int $id
+ * @property int $id The customer's User element ID
  * @property int $primaryBillingAddressId
  * @property int $primaryShippingAddressId
  * @property-read ActiveQueryInterface $primaryShippingAddress
  * @property-read ActiveQueryInterface $primaryBillingAddress
- * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
  */
-class User extends ActiveRecord
+class Customer extends ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName(): string
     {
-        return Table::USERS;
+        return Table::CUSTOMERS;
     }
 
     public function getPrimaryBillingAddress(): ActiveQueryInterface

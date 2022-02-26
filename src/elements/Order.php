@@ -14,8 +14,9 @@ use craft\commerce\base\Gateway;
 use craft\commerce\base\GatewayInterface;
 use craft\commerce\base\ShippingMethodInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
-use craft\commerce\behaviors\CommerceUserBehavior;
+use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\db\Table;
+use craft\elements\Address as AddressElement;
 use craft\commerce\elements\traits\OrderElementTrait;
 use craft\commerce\elements\traits\OrderNoticesTrait;
 use craft\commerce\elements\traits\OrderValidatorsTrait;
@@ -26,7 +27,6 @@ use craft\commerce\events\LineItemEvent;
 use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Order as OrderHelper;
 use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderHistory;
@@ -71,8 +71,8 @@ use yii\log\Logger;
  * @property OrderAdjustment[] $adjustments
  * @property string $email the email for this order
  * @property LineItem[] $lineItems
- * @property Address|null $billingAddress
- * @property Address|null $shippingAddress
+ * @property AddressElement|null $billingAddress
+ * @property AddressElement|null $shippingAddress
  * @property PaymentSource|null $paymentSource
  * @property string $paymentCurrency the payment currency for this order
  * @property string $recalculationMode the mode of recalculation.
@@ -131,9 +131,9 @@ use yii\log\Logger;
  * @property-read string $storedTotalTaxAsCurrency
  * @property-read string $storedTotalTaxIncludedAsCurrency
  * @property-read Site|null $orderSite
- * @property null|array|Address $estimatedBillingAddress
+ * @property null|array|AddressElement $estimatedBillingAddress
  * @property float $totalDiscount
- * @property null|array|Address $estimatedShippingAddress
+ * @property null|array|AddressElement $estimatedShippingAddress
  * @property float $totalTaxIncluded
  * @property float $totalTax
  * @property float $totalShippingCost
@@ -143,7 +143,7 @@ use yii\log\Logger;
  * @property-read null|string $loadCartUrl
  * @property-read array $metadata
  * @property-read Transaction[] $transactions
- * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
+ * @customer Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
 class Order extends Element
@@ -383,9 +383,9 @@ class Order extends Element
     const EVENT_AFTER_ORDER_PAID = 'afterOrderPaid';
 
     /**
-     * @event \yii\base\Event This event is raised after an order is authorized in full and completed
+     * @event \yii\base\Event This event is raised after an order is customerized in full and completed
      *
-     * Plugins can get notified after an order is authorized in full and completed
+     * Plugins can get notified after an order is customerized in full and completed
      *
      * ```php
      * use craft\commerce\elements\Order;
@@ -486,10 +486,10 @@ class Order extends Element
     public ?DateTime $datePaid = null;
 
     /**
-     * The date and time this order was authorized in full.
+     * The date and time this order was customerized in full.
      * This may the same date as datePaid if the order was paid immediately.
      *
-     * @var DateTime|null Date authorized
+     * @var DateTime|null Date customerized
      * ---
      * ```php
      * echo $order->dateAuthorized;
@@ -755,6 +755,20 @@ class Order extends Element
     public ?int $estimatedShippingAddressId = null;
 
     /**
+     * @var int|null The billing address ID that was selected from the customer’s address book,
+     * which populated the billing address on the order.
+     * @since 4.0
+     */
+    public ?int $selectedBillingAddressId = null;
+
+    /**
+     * @var int|null The shipping address ID that was selected from the customer’s address book,
+     * which populated the shipping address on the order.
+     * @since 4.0
+     */
+    public ?int $selectedShippingAddressId = null;
+
+    /**
      * @var bool Whether estimated billing address should be set to the same address as estimated shipping
      * @since 2.2
      */
@@ -772,9 +786,24 @@ class Order extends Element
     public ?string $shippingMethodName = null;
 
     /**
-     * @var int|null User’s ID
+     * @param int $oldStatusId
+     * @param int $currentOrderStatId
+     * @return void
      */
-    public ?int $userId = null;
+    private function _saveOrderHistory(int $oldStatusId, int $currentOrderStatId): void
+    {
+        $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
+        if ($this->isCompleted && $hasNewStatus) {
+            if (!Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
+                Craft::error('Error saving order history after order save.', __METHOD__);
+            }
+        }
+    }
+
+    /**
+     * @var int|null Customer’s ID
+     */
+    private ?int $_customerId = null;
 
     /**
      * Whether the email address on the order should be used to register
@@ -921,7 +950,7 @@ class Order extends Element
     private ?string $_recalculationMode = null;
 
     /**
-     * @var Address|null
+     * @var AddressElement|null
      * @see Order::setShippingAddress() To set the current shipping address
      * @see Order::getShippingAddress() To get the current shipping address
      * ---
@@ -936,10 +965,10 @@ class Order extends Element
      * {% endif %}
      * ```
      */
-    private ?Address $_shippingAddress = null;
+    private ?AddressElement $_shippingAddress = null;
 
     /**
-     * @var Address|null
+     * @var AddressElement|null
      * @see Order::setBillingAddress() To set the current billing address
      * @see Order::getBillingAddress() To get the current billing address
      * ---
@@ -954,19 +983,19 @@ class Order extends Element
      * {% endif %}
      * ```
      */
-    private ?Address $_billingAddress = null;
+    private ?AddressElement $_billingAddress = null;
 
     /**
-     * @var Address|null
+     * @var AddressElement|null
      * @since 2.2
      */
-    private ?Address $_estimatedShippingAddress = null;
+    private ?AddressElement $_estimatedShippingAddress = null;
 
     /**
-     * @var Address|null
+     * @var AddressElement|null
      * @since 2.2
      */
-    private ?Address $_estimatedBillingAddress = null;
+    private ?AddressElement $_estimatedBillingAddress = null;
 
     /**
      * @var LineItem[]
@@ -1046,18 +1075,18 @@ class Order extends Element
     private ?array $_transactions = null;
 
     /**
-     * @var User|null
+     * @var User|null|false
      * @see Order::getCustomer()
      * @see Order::setCustomer()
      * ---
      * ```php
-     * echo $order->user;
+     * echo $order->customer;
      * ```
      * ```twig
-     * {{ order.user }}
+     * {{ order.customer }}
      * ```
      */
-    private ?User $_user = null;
+    private User|null|false $_customer;
 
     /**
      * @var float|null
@@ -1078,19 +1107,19 @@ class Order extends Element
      */
     public function init(): void
     {
-        // Set default addresseses
+        // Set default addresses
         if (!$this->isCompleted && Plugin::getInstance()->getSettings()->autoSetNewCartAddresses) {
-
             $user = $this->getCustomer();
-            $hasPrimaryShippingAddress = !$this->shippingAddressId && $user && $primaryShippingAddressId = $user->getPrimaryShippingAddressId();
-            $hasPrimaryBillingAddress = !$this->billingAddressId && $user && $primaryBillingAddressId = $user->getPrimaryBillingAddressId();
-
-            if ($hasPrimaryShippingAddress && ($shippingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryShippingAddressId, $this->customerId))) {
-                $this->setShippingAddress($shippingAddress);
+            if (!$this->shippingAddressId && $user) {
+                if ($primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+                    $this->setShippingAddress($primaryShippingAddress);
+                }
             }
 
-            if ($hasPrimaryBillingAddress && ($billingAddress = Plugin::getInstance()->getAddresses()->getAddressByIdAndUserId($primaryBillingAddressId, $this->customerId))) {
-                $this->setBillingAddress($billingAddress);
+            if (!$this->shippingAddressId && $user) {
+                if ($primaryShippingAddress = $user->getPrimaryShippingAddress()) {
+                    $this->setBillingAddress($primaryShippingAddress);
+                }
             }
         }
 
@@ -1203,6 +1232,15 @@ class Order extends Element
         // If the gateway ID doesn't exist, just drop it.
         if ($this->gatewayId && !$this->getGateway()) {
             $this->gatewayId = null;
+        }
+
+        if (!$this->isCompleted) {
+            if (Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getBillingAddress()) {
+                $this->getBillingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
+            }
+            if (!Plugin::getInstance()->getSettings()->useBillingAddressForTax && $this->getShippingAddress()) {
+                $this->getShippingAddress()->attachBehavior('validateOrganizationTaxId', ValidateOrganizationTaxIdBehavior::class);
+            }
         }
 
         return parent::beforeValidate();
@@ -1325,21 +1363,23 @@ class Order extends Element
     public function extraFields(): array
     {
         $names = parent::extraFields();
-        $names[] = 'availableShippingMethodOptions';
         $names[] = 'adjustments';
+        $names[] = 'availableShippingMethodOptions';
         $names[] = 'billingAddress';
         $names[] = 'customer';
+        $names[] = 'estimatedBillingAddress';
+        $names[] = 'estimatedShippingAddress';
         $names[] = 'gateway';
         $names[] = 'histories';
         $names[] = 'loadCartUrl';
         $names[] = 'nestedTransactions';
         $names[] = 'notices';
+        $names[] = 'orderSite';
         $names[] = 'orderStatus';
         $names[] = 'pdfUrl';
         $names[] = 'shippingAddress';
         $names[] = 'shippingMethod';
         $names[] = 'transactions';
-        $names[] = 'orderSite';
         return $names;
     }
 
@@ -1352,13 +1392,9 @@ class Order extends Element
             // Address models are valid
             [['billingAddress', 'shippingAddress'], 'validateAddress'],
 
-            // Do the addresses belong to the customer of the order (only checked if the order is a cart)
-            [['billingAddress', 'shippingAddress'], 'validateAddressCanBeUsed'],
-
             // Are the addresses both being set to each other.
             [
-                ['billingAddress', 'shippingAddress'],
-                'validateAddressReuse',
+                ['billingAddress', 'shippingAddress'], 'validateAddressReuse',
                 'when' => function($model) {
                     /** @var Order $model */
                     return !$model->isCompleted;
@@ -1387,17 +1423,17 @@ class Order extends Element
     }
 
     /**
-     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or authorized.
+     * Updates the paid status and paid date of the order, and marks as complete if the order is paid or customerized.
      */
     public function updateOrderPaidInformation(): void
     {
         $this->_transactions = null; // clear order's transaction cache
 
         $paidInFull = !$this->hasOutstandingBalance();
-        $authorizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
+        $customerizedInFull = $this->getTotalAuthorized() >= $this->getTotalPrice();
 
         $justPaid = $paidInFull && $this->datePaid == null;
-        $justAuthorized = $authorizedInFull && $this->dateAuthorized == null;
+        $justAuthorized = $customerizedInFull && $this->dateAuthorized == null;
 
         $canComplete = ($this->getTotalAuthorized() + $this->getTotalPaid()) > 0;
 
@@ -1406,8 +1442,8 @@ class Order extends Element
             $this->datePaid = null;
         }
 
-        // If it is no longer authorized in full, set dateAuthorized to null
-        if (!$authorizedInFull) {
+        // If it is no longer customerized in full, set dateAuthorized to null
+        if (!$customerizedInFull) {
             $this->dateAuthorized = null;
         }
 
@@ -1416,7 +1452,7 @@ class Order extends Element
             $this->datePaid = new DateTime();
         }
 
-        // If it was just authorized set the date authorized to now.
+        // If it was just customerized set the date customerized to now.
         if ($justAuthorized) {
             $this->dateAuthorized = new DateTime();
         }
@@ -1428,7 +1464,7 @@ class Order extends Element
         // Saving the order will update the datePaid as set above and also update the paidStatus.
         Craft::$app->getElements()->saveElement($this, false);
 
-        // If the order is now paid or authorized in full, lets mark it as complete if it has not already been.
+        // If the order is now paid or customerized in full, lets mark it as complete if it has not already been.
         if (!$this->isCompleted) {
             $totalAuthorized = $this->getTotalAuthorized();
             if ($totalAuthorized >= $this->getTotalPrice() || $paidInFull || $canComplete) {
@@ -1870,69 +1906,40 @@ class Order extends Element
         $orderRecord->orderSiteId = $this->orderSiteId;
         $orderRecord->origin = $this->origin;
         $orderRecord->paymentCurrency = $this->paymentCurrency;
-        $orderRecord->customerId = $this->customerId;
+        $orderRecord->customerId = $this->getCustomerId();
         $orderRecord->registerUserOnOrderComplete = $this->registerUserOnOrderComplete;
         $orderRecord->returnUrl = $this->returnUrl;
         $orderRecord->cancelUrl = $this->cancelUrl;
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
+        $orderRecord->selectedShippingAddressId = $this->selectedShippingAddressId;
+        $orderRecord->selectedBillingAddressId = $this->selectedBillingAddressId;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $orderRecord->dateUpdated = $this->dateUpdated;
         $orderRecord->dateCreated = $this->dateCreated;
 
-        $user = $this->getCustomer();
-        $existingAddresses = [];
-        if ($user) {
-            $existingAddresses = $user->getAddresses();
-        }
-
-        $currentUser = Craft::$app->getUser()->getIdentity();
-        $noUserOrCurrentUser = ($user == null && $currentUser == null);
-        $currentUserDoesntMatchOrderUser = ($currentUser && ($user == null || $currentUser->id != $user->id));
-
-        // Save shipping address, it has already been validated.
         if ($shippingAddress = $this->getShippingAddress()) {
-            // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
-            if ($user && ($noUserOrCurrentUser || !$currentUserDoesntMatchOrderUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
-                $isPrimaryShippingAddress = (isset($this->makePrimaryShippingAddress) && $this->makePrimaryShippingAddress) || empty($existingAddresses) || !$user->getPrimaryShippingAddressId() ?: null;
-                Plugin::getInstance()->getAddressBook()->saveAddress($shippingAddress, $user, false, null, $isPrimaryShippingAddress);
-            } else {
-                Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
-            }
-
+            Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
         } else {
-            // Allow shipping address to be removed from an order/cart
             $orderRecord->shippingAddressId = null;
             $this->setShippingAddress(null);
         }
 
-        // Save billing address, it has already been validated.
         if ($billingAddress = $this->getBillingAddress()) {
-            // We need to only save the address to the customers address book while it is a cart and not being edited by another user
-            // isCpRequest is checked to prevent duplication of address when marking an order as complete in the CP. This will be removed on cart addresses refactor
-            if ($user && ($noUserOrCurrentUser || !$currentUserDoesntMatchOrderUser) && !$this->isCompleted && !Craft::$app->getRequest()->isCpRequest) {
-                $isPrimaryBillingAddress = (isset($this->makePrimaryBillingAddress) && $this->makePrimaryBillingAddress) || empty($existingAddresses) || !$user->getPrimaryBillingAddressId() ?: null;
-                Plugin::getInstance()->getAddressBook()->saveAddress($billingAddress, $user, false, $isPrimaryBillingAddress);
-            } else {
-                Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
-            }
-
+            Craft::$app->getElements()->saveElement($billingAddress, false);
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
         } else {
-            // Allow shipping address to be removed from an order/cart
             $orderRecord->billingAddressId = null;
             $this->setBillingAddress(null);
         }
 
         if ($estimatedShippingAddress = $this->getEstimatedShippingAddress()) {
-            Plugin::getInstance()->getAddresses()->saveAddress($estimatedShippingAddress, false);
-
+            Craft::$app->getElements()->saveElement($estimatedShippingAddress, false);
             $orderRecord->estimatedShippingAddressId = $estimatedShippingAddress->id;
             $this->setEstimatedShippingAddress($estimatedShippingAddress);
 
@@ -1944,8 +1951,7 @@ class Order extends Element
         }
 
         if (!$this->estimatedBillingSameAsShipping && $estimatedBillingAddress = $this->getEstimatedBillingAddress()) {
-            Plugin::getInstance()->getAddresses()->saveAddress($estimatedBillingAddress, false);
-
+            Craft::$app->getElements()->saveElement($estimatedBillingAddress, false);
             $orderRecord->estimatedBillingAddressId = $estimatedBillingAddress->id;
             $this->setEstimatedBillingAddress($estimatedBillingAddress);
         }
@@ -1955,16 +1961,7 @@ class Order extends Element
         $this->_saveAdjustments();
         $this->_saveLineItems();
         $this->_saveNotices();
-
-        if ($this->isCompleted) {
-            //creating order history record
-            $hasNewStatus = $orderRecord->id && ($oldStatusId != $orderRecord->orderStatusId);
-
-            if ($hasNewStatus && !Plugin::getInstance()->getOrderHistories()->createOrderHistoryFromOrder($this, $oldStatusId)) {
-                Craft::error('Error saving order history after Order save.', __METHOD__);
-                throw new Exception('Error saving order history');
-            }
-        }
+        $this->_saveOrderHistory($oldStatusId, $orderRecord->orderStatusId);
 
         parent::afterSave($isNew);
     }
@@ -2043,75 +2040,84 @@ class Order extends Element
     }
 
     /**
+     * Returns the order customer ID.
+     *
      * @return int|null
+     * @since 4.0.0
      */
     public function getCustomerId(): ?int
     {
-        if (null === $this->customerId && $user = $this->getCustomer()) {
-            $this->customerId = $user->id;
-        }
-
-        return $this->customerId;
+        return $this->_customerId;
     }
 
     /**
-     * @return User|null
+     * Sets the order customer ID.
+     *
+     * @param int|int[]|null $customerId
+     * @since 4.0.0
+     */
+    public function setCustomerId(mixed $customerId): void
+    {
+        if (is_array($customerId)) {
+            $this->_customerId = reset($customerId) ?: null;
+        } else {
+            $this->_customerId = $customerId;
+        }
+
+        $this->_customer = null;
+    }
+
+    /**
+     * Returns the order's customer.
+     *
+     * ---
+     * ```php
+     * $customer = $order->customer;
+     * ```
+     * ```twig
+     * <p>By {{ order.customer.name }}</p>
+     * ```
+     *
+     * @return User|null|false
+     */
+    public function getCustomer(): User|null|false
+    {
+        if (!isset($this->_customer)) {
+            if (!$this->getCustomerId()) {
+                return null;
+            }
+
+            if (($this->_customer = Craft::$app->getUsers()->getUserById($this->getCustomerId())) === null) {
+                $this->_customer = false;
+            }
+        }
+
+        if ($this->_customer) {
+            $this->_email = $this->_customer->email;
+        }
+
+        return $this->_customer ?: null;
+    }
+
+    /**
+     * Sets the order's customer.
+     *
+     * @param User|null $customer
+     */
+    public function setCustomer(?User $customer = null): void
+    {
+        if ($customer && $this->_customer = $customer) {
+            $this->setCustomerId($customer->id);
+        }
+    }
+
+    /**
+     * @deprecated in 4.0.0. Use [[getCustomer()]] instead.
      */
     public function getUser(): ?User
     {
-        if (null !== $this->_user && $this->_user->id == $this->userId) {
-            return $this->_user;
-        }
-
-        if ($this->userId) {
-            $this->_user = User($this->userId);
-
-            if (null === $this->_user) {
-                $this->userId = null;
-            }
-        }
-
-        return $this->_user;
-    }
-
-    /**
-     * @param User|null $user
-     * @since 4.0.
-     */
-    public function setCustomer(?User $user): void
-    {
-        if ($user instanceof User) {
-            if (!$user->id) {
-                throw new InvalidCallException('User must have an ID');
-            }
-            $previousUserId = $this->customerId;
-
-            $this->_customer = $user;
-            $this->customerId = $user->id;
-            $this->_email = $user->email;
-
-            // If the customer is changing then we should be resetting the association with the addresses on the cart
-            if (($this->shippingAddressId || $this->billingAddressId) && $this->customerId != $previousUserId) {
-                if ($this->shippingAddressId && $shippingAddress = $this->getShippingAddress()) {
-                    $shippingAddress->id = null;
-                    $this->setShippingAddress($shippingAddress);
-                }
-
-                if ($this->billingAddressId && $billingAddress = $this->getBillingAddress()) {
-                    $billingAddress->id = null;
-                    $this->setBillingAddress($billingAddress);
-                }
-
-                $this->estimatedBillingAddressId = null;
-                $this->_estimatedBillingAddress = null;
-
-                $this->estimatedShippingAddressId = null;
-                $this->_estimatedShippingAddress = null;
-            }
-        } else {
-            $this->_customer = null;
-            $this->customerId = null;
-        }
+        Craft::$app->getDeprecator()->log('Order::getUser()', 'The `Order::getUser()` is deprecated, use the `Order::getCustomer()` instead.');
+        return $this->getCustomer();
     }
 
     /**
@@ -2123,7 +2129,7 @@ class Order extends Element
     {
         if (!$email) {
             $this->_customer = null;
-            $this->customerId = null;
+            $this->_customerId = null;
             $this->_email = null;
             return;
         }
@@ -2132,13 +2138,9 @@ class Order extends Element
             return;
         }
 
-        try {
-            $user = Craft::$app->getUsers()->ensureUserByEmail($email);
-            $this->_email = $email;
-            $this->setCustomer($user);
-        } catch(\Exception $e) {
-            $this->addError('error', $e->getMessage());
-        }
+        $user = Craft::$app->getUsers()->ensureUserByEmail($email);
+        $this->_email = $email;
+        $this->setCustomer($user);
     }
 
     /**
@@ -2377,7 +2379,7 @@ class Order extends Element
             return 0;
         }
 
-        $authorized = 0;
+        $customerized = 0;
         $captured = 0;
 
         if ($this->_transactions === null) {
@@ -2394,7 +2396,7 @@ class Order extends Element
             }
 
             if ($isAuth) {
-                $authorized += $transaction->amount;
+                $customerized += $transaction->amount;
                 continue;
             }
 
@@ -2403,7 +2405,7 @@ class Order extends Element
             }
         }
 
-        return $authorized - $captured;
+        return $customerized - $captured;
     }
 
     /**
@@ -2653,10 +2655,10 @@ class Order extends Element
     /**
      * * Get the shipping address on the order.
      */
-    public function getShippingAddress(): ?Address
+    public function getShippingAddress(): ?AddressElement
     {
         if (!isset($this->_shippingAddress) && $this->shippingAddressId) {
-            $this->_shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->shippingAddressId);
+            $this->_shippingAddress = AddressElement::find()->id($this->shippingAddressId)->ownerId($this->id)->one();
         }
 
         return $this->_shippingAddress;
@@ -2665,9 +2667,9 @@ class Order extends Element
     /**
      * Set the shipping address on the order.
      *
-     * @param Address|array|null $address
+     * @param AddressElement|array|null $address
      */
-    public function setShippingAddress($address): void
+    public function setShippingAddress(mixed $address): void
     {
         if ($address === null) {
             $this->shippingAddressId = null;
@@ -2676,26 +2678,23 @@ class Order extends Element
         }
 
         if (is_array($address)) {
-            if (isset($address['countryId'])) {
-                $address['countryId'] = !$address['countryId'] ? null : $address['countryId'];
-            }
-
-            $addressModel = new Address();
-            $addressModel->setAttributes($address);
-            $address = $addressModel;
+            $addressElement = $this->_shippingAddress ?: new AddressElement();
+            $addressElement->setAttributes($address);
+            $addressElement->ownerId = $this->id;
+            $address = $addressElement;
         }
 
-        if (!$address instanceof Address) {
-            throw new InvalidArgumentException('Not an address');
+        if (!$address instanceof AddressElement) {
+            throw new InvalidArgumentException('Shipping address supplied is not an Address Element');
+        }
+
+        // Ensure that address can only belong to this order
+        if ($address->ownerId != $this->id) {
+            throw new InvalidArgumentException('Can not set a shipping address on the order that is is not owned by the order.');
         }
 
         $this->shippingAddressId = $address->id;
         $this->_shippingAddress = $address;
-
-        // When we are setting an address we need to keep them in sync if they have the same ID
-        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->billingAddressId === $this->shippingAddressId) {
-            $this->_billingAddress = $this->_shippingAddress;
-        }
     }
 
     /**
@@ -2710,10 +2709,10 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function getEstimatedShippingAddress(): ?Address
+    public function getEstimatedShippingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedShippingAddress) && $this->estimatedShippingAddressId) {
-            $this->_estimatedShippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedShippingAddressId);
+            $this->_estimatedShippingAddress = AddressElement::find()->owner($this)->id($this->estimatedShippingAddressId)->one();
         }
 
         return $this->_estimatedShippingAddress;
@@ -2722,12 +2721,13 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function setEstimatedShippingAddress(\craft\commerce\models\Address|array $address): void
+    public function setEstimatedShippingAddress(AddressElement|array $address): void
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if (!$address instanceof AddressElement) {
+            $addressElement = new AddressElement();
+            $addressElement->setAttributes($address);
+            $address = $addressElement;
         }
-        $address->isEstimated = true;
 
         $this->estimatedShippingAddressId = $address->id;
         $this->_estimatedShippingAddress = $address;
@@ -2745,10 +2745,10 @@ class Order extends Element
     /**
      * Get the billing address on the order.
      */
-    public function getBillingAddress(): ?Address
+    public function getBillingAddress(): ?AddressElement
     {
         if (!isset($this->_billingAddress) && $this->billingAddressId) {
-            $this->_billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->billingAddressId);
+            $this->_billingAddress = AddressElement::find()->id($this->billingAddressId)->ownerId($this->id)->one();
         }
 
         return $this->_billingAddress;
@@ -2757,9 +2757,9 @@ class Order extends Element
     /**
      * Set the billing address on the order.
      *
-     * @param Address|array|null $address
+     * @param AddressElement|array|null $address
      */
-    public function setBillingAddress($address): void
+    public function setBillingAddress(mixed $address): void
     {
         if ($address === null) {
             $this->billingAddressId = null;
@@ -2768,26 +2768,24 @@ class Order extends Element
         }
 
         if (is_array($address)) {
-            if (isset($address['countryId'])) {
-                $address['countryId'] = !$address['countryId'] ? null : $address['countryId'];
-            }
-
-            $addressModel = new Address();
-            $addressModel->setAttributes($address);
-            $address = $addressModel;
+            $addressElement = $this->_billingAddress ?: new AddressElement();
+            $addressElement->setAttributes($address);
+            $addressElement->ownerId = $this->id;
+            $address = $addressElement;
         }
 
-        if (!$address instanceof Address) {
-            throw new InvalidArgumentException('Not an address');
+        if (!$address instanceof AddressElement) {
+            throw new InvalidArgumentException('Billing address supplied is not an Address Element');
         }
 
+        // Ensure that address can only belong to this order
+        if ($address->ownerId !== $this->id) {
+            throw new InvalidArgumentException('Can not set a billing address on the order that is is not owned by the order.');
+        }
+
+        $address->ownerId = $this->id;
         $this->billingAddressId = $address->id;
         $this->_billingAddress = $address;
-
-        // When we are setting an address we need to keep them in sync if they have the same ID
-        if (isset($this->shippingAddressId) && isset($this->billingAddressId) && $this->shippingAddressId === $this->billingAddressId) {
-            $this->_shippingAddress = $this->_billingAddress;
-        }
     }
 
     /**
@@ -2802,10 +2800,10 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function getEstimatedBillingAddress(): ?Address
+    public function getEstimatedBillingAddress(): ?AddressElement
     {
         if (!isset($this->_estimatedBillingAddress) && $this->estimatedBillingAddressId) {
-            $this->_estimatedBillingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->estimatedBillingAddressId);
+            $this->_estimatedBillingAddress = AddressElement::find()->owner($this)->id($this->estimatedBillingAddressId)->one();
         }
 
         return $this->_estimatedBillingAddress;
@@ -2814,13 +2812,14 @@ class Order extends Element
     /**
      * @since 2.2
      */
-    public function setEstimatedBillingAddress(\craft\commerce\models\Address|array $address): void
+    public function setEstimatedBillingAddress(AddressElement|array $address): void
     {
-        if (!$address instanceof Address) {
-            $address = new Address($address);
+        if (!$address instanceof AddressElement) {
+            $addressElement = new AddressElement();
+            $addressElement->setAttributes($address);
         }
-        $address->isEstimated = true;
 
+        $address->isEstimated = true;
         $this->estimatedBillingAddressId = $address->id;
         $this->_estimatedBillingAddress = $address;
     }
@@ -2879,8 +2878,9 @@ class Order extends Element
     /**
      * @param string $value the payment currency code
      */
-    public function setPaymentCurrency(string $value): void
-    {
+    public function setPaymentCurrency(
+        string $value
+    ): void {
         $this->_paymentCurrency = $value;
     }
 
@@ -2910,8 +2910,9 @@ class Order extends Element
     /**
      * Sets the order's selected payment source
      */
-    public function setPaymentSource(?PaymentSource $paymentSource): void
-    {
+    public function setPaymentSource(
+        ?PaymentSource $paymentSource
+    ): void {
         if (!$paymentSource instanceof PaymentSource && $paymentSource !== null) {
             throw new InvalidArgumentException('Only a PaymentSource or null are accepted params');
         }
@@ -2935,8 +2936,9 @@ class Order extends Element
     /**
      * Sets the order's selected gateway id.
      */
-    public function setGatewayId(int $gatewayId): void
-    {
+    public function setGatewayId(
+        int $gatewayId
+    ): void {
         $this->gatewayId = $gatewayId;
         $this->paymentSourceId = null;
     }
@@ -3076,7 +3078,8 @@ class Order extends Element
      * @throws Throwable
      * @throws StaleObjectException
      */
-    private function _saveAdjustments(): void
+    private
+    function _saveAdjustments(): void
     {
         $previousAdjustments = OrderAdjustmentRecord::find()
             ->where(['orderId' => $this->id])
@@ -3103,7 +3106,8 @@ class Order extends Element
      * @throws StaleObjectException
      * @throws Throwable
      */
-    private function _saveNotices(): void
+    private
+    function _saveNotices(): void
     {
         $previousNoticeIds = (new Query())
             ->select(['id'])
@@ -3140,7 +3144,8 @@ class Order extends Element
      *
      * @throws Throwable
      */
-    private function _saveLineItems(): void
+    private
+    function _saveLineItems(): void
     {
         // Line items that are currently in the DB
         $previousLineItems = LineItemRecord::find()

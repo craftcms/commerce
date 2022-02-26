@@ -1,4 +1,4 @@
-{% extends 'shop/_private/layouts' %}
+{% extends '[[folderName]]/_private/layouts' %}
 
 {% if not currentUser %}
     {% exit 404 %}
@@ -35,13 +35,13 @@
     <form method="post" action="">
         {{ csrfInput() }}
         {{ actionInput('elements/save') }}
-        {{ redirectInput(redirect ?: 'shop/customer/addresses') }}
+        {{ redirectInput(redirect ?: '[[folderName]]/customer/addresses') }}
 
         {% if addressId %}
             {{ hiddenInput('elementId', addressId) }}
         {% endif %}
 
-        {{ include('shop/_private/address/fields', {
+        {{ include('[[folderName]]/_private/address/fields', {
             address: address
         }) }}
         {{ hiddenInput('ownerId', currentUser.id) }}
@@ -50,7 +50,7 @@
 
         <div class="mt-6 flex justify-between">
             <div>
-                <a href="{{ redirect ? '/' ~ redirect : url('shop/customer/addresses') }}"
+                <a href="{{ redirect ? '/' ~ redirect : url('[[folderName]]/customer/addresses') }}"
                    class="text-blue-500 hover:text-blue-600"
                 >
                     {{- 'Cancel'|t -}}

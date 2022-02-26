@@ -10,12 +10,13 @@ namespace craftcommercetests\unit\models;
 use Codeception\Stub;
 use Codeception\Test\Unit;
 use Craft;
-use craft\commerce\models\Address;
+use craft\commerce\behaviors\ValidateOrganizationTaxIdBehavior;
 use craft\commerce\models\Country;
 use craft\commerce\models\State;
 use craft\commerce\Plugin;
 use craft\commerce\services\Countries;
 use craft\commerce\services\States;
+use craft\elements\Address;
 use DvK\Vat\Validator;
 use Exception;
 use yii\base\InvalidConfigException;
@@ -29,66 +30,17 @@ use yii\caching\DummyCache;
  */
 class AddressTest extends Unit
 {
-    /**
-     *
-     */
-    public function testGetCpEditUrl(): void
-    {
-        $address = new Address(['id' => '1001']);
-        self::assertSame('http://test.craftcms.test/index.php?p=admin/commerce/addresses/1001', $address->getCpEditUrl());
-    }
-
-    /**
-     * @dataProvider validateStateDataProvider
-     *
-     * @param $addressModel
-     * @param $hasErrors
-     * @param $errors
-     * @throws InvalidConfigException
-     */
-    public function testValidateState($addressModel, $hasErrors, $errors): void
-    {
-        $countries = $this->make(Countries::class, [
-            'getCountryById' => function($id) {
-                return new Country([
-                    'id' => $id,
-                    'isStateRequired' => $id == 9000,
-                ]);
-            },
-        ]);
-        Plugin::getInstance()->set('countries', $countries);
-
-        $states = $this->make(States::class, [
-            'getStateById' => function($id) {
-                if ($id == 1) {
-                    return new State([
-                        'countryId' => 9000,
-                    ]);
-                }
-
-                return new State([
-                    'countryId' => 8999,
-                ]);
-            },
-        ]);
-        Plugin::getInstance()->set('states', $states);
-
-        $addressModel->validateState(null, null, null);
-
-        self::assertSame($hasErrors, $addressModel->hasErrors());
-        self::assertSame($errors, $addressModel->getErrors());
-    }
 
     /**
      * @dataProvider validateBusinessTaxIdDataProvider
      *
-     * @param $businessTaxId
+     * @param $organizationTaxId
      * @param $hasErrors
      * @param $errors
-     * @param $validateBusinessTaxIdAsVatId
+     * @param $validateOrganizationTaxIdAsVatId
      * @throws InvalidConfigException
      */
-    public function testValidateBusinessTaxId($businessTaxId, $hasErrors, $errors, $validateBusinessTaxIdAsVatId): void
+    public function testValidateOrganizationTaxId($organizationTaxId, $hasErrors, $errors, $validateOrganizationTaxIdAsVatId): void
     {
         $cache = $this->make(DummyCache::class, [
             'exists' => static function($key) {
@@ -99,15 +51,16 @@ class AddressTest extends Unit
         Craft::$app->set('cache', $cache);
 
         // Validate the VAT id
-        Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId = $validateBusinessTaxIdAsVatId;
+        Plugin::getInstance()->getSettings()->validateBusinessTaxIdAsVatId = $validateOrganizationTaxIdAsVatId;
 
         $validator = $this->make(Validator::class, ['validateExistence' => function($val) {
             return $val == 'GB000472631';
         }]);
-        $addressModel = Stub::make(new Address, ['businessTaxId' => $businessTaxId, '_vatValidator' => $validator]);
-
-        $addressModel->businessTaxId = $businessTaxId;
-        $addressModel->validateBusinessTaxId(null, null, null);
+        /** @var Address $addressModel */
+        $addressModel = Stub::make(new Address(), ['organizationTaxId' => $organizationTaxId, '_vatValidator' => $validator]);
+        $addressModel->attachBehavior('organizationTaxId', ValidateOrganizationTaxIdBehavior::class);
+        $addressModel->organizationTaxId = $organizationTaxId;
+        $addressModel->validate(['organizationTaxId']);
 
         // No validation to take place
         self::assertSame($hasErrors, $addressModel->hasErrors());
@@ -319,7 +272,7 @@ class AddressTest extends Unit
                     'alternativePhone' => '',
                     'label' => 'Movies',
                     'businessName' => '',
-                    'businessTaxId' => '',
+                    'organizationTaxId' => '',
                     'businessId' => '',
                     'countryId' => '236',
                     'stateId' => '26',
@@ -371,7 +324,7 @@ class AddressTest extends Unit
     {
         return [
             ['1123', false, [], false], // Don't validate
-            ['1123', true, ['businessTaxId' => ['Invalid Business Tax ID.']], true], // validate - invalid
+            ['1123', true, ['organizationTaxId' => ['Invalid Org Tax ID.']], true], // validate - invalid
             ['GB000472631', false, [], true], // validate - valid
             ['exists', false, [], true], // validate - valid - already exists
         ];

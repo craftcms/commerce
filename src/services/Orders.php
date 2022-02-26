@@ -10,10 +10,11 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Customer;
+use craft\elements\Address;
 use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
@@ -28,7 +29,6 @@ use yii\base\Exception;
 class Orders extends Component
 {
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
-
 
     /**
      * Handle field layout change
@@ -153,5 +153,34 @@ class Orders extends Component
         $query->limit(null);
 
         return $query->all();
+    }
+
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 4.0.0
+     */
+    public function eagerLoadAddressesForOrders(array $orders): array
+    {
+        $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
+        $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
+        $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
+
+        $addresses = Address::find()->id($ids)->indexBy('id')->all();
+
+        foreach ($orders as $key => $order) {
+
+            if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
+                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
+            }
+
+            if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
+                $order->setBillingAddress($addresses[$order['billingAddressId']]);
+            }
+
+            $orders[$key] = $order;
+        }
+
+        return $orders;
     }
 }

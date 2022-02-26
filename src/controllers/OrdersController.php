@@ -109,7 +109,7 @@ class OrdersController extends Controller
      * @throws ForbiddenHttpException
      * @throws Throwable
      */
-    public function actionNewOrder(): Response
+    public function actionCreate(): Response
     {
         $this->requirePermission('commerce-editOrders');
 
@@ -1022,8 +1022,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = $variables['order']->customerId ? Craft::$app->getUsers()->getUserById($variables['order']->customerId) : null;
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
+        $user = $variables['order']->customerId ? User::findOne($variables['order']->customerId) : null;
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
 
@@ -1132,19 +1132,9 @@ class OrdersController extends Controller
 
         // Only email set on the order
         if ($order->getCustomer() == null && $order->email) {
-            // See if there is a user with that email
-            $user = User::find()->email($order->email)->one();
-            $customer = null;
-            if ($user) {
-                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
-            }
-            // If no user or customer
-            if ($customer == null) {
-                $customer = new Customer();
-                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
-            }
-
-            $order->setCustomer($customer);
+            // Ensure user created for that email
+            $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
+            $order->setCustomer($user);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
@@ -1154,68 +1144,6 @@ class OrdersController extends Controller
         } catch (\Exception $e) {
             $order->paymentSourceId = null;
             $order->gatewayId = null;
-        }
-
-        // Addresses
-        $billingAddressId = $orderRequestData['order']['billingAddressId'];
-        $shippingAddressId = $orderRequestData['order']['shippingAddressId'];
-        $billingAddress = null;
-        $shippingAddress = null;
-
-        // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = UserAddress::find()
-                ->where(['addressId' => $billingAddressId])
-                ->andWhere(['not', ['userId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $billingAddressId = 'new';
-            }
-        }
-
-        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = UserAddress::find()
-                ->where(['addressId' => $shippingAddressId])
-                ->andWhere(['not', ['userId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $shippingAddressId = 'new';
-            }
-        }
-
-        if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
-            $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
-            $billingAddress['isEstimated'] = false;
-
-            $billingAddress['id'] = ($billingAddressId == 'new') ? null : $billingAddress['id'];
-            $billingAddress = new Address($billingAddress);
-
-            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
-            $billingAddressId = $billingAddress->id;
-        }
-
-        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
-            $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
-            $shippingAddress['isEstimated'] = false;
-
-            $shippingAddress['id'] = ($shippingAddressId == 'new') ? null : $shippingAddress['id'];
-            $shippingAddress = new Address($shippingAddress);
-
-            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
-            $shippingAddressId = $shippingAddress->id;
-        }
-
-        $order->billingAddressId = $billingAddressId;
-        $order->shippingAddressId = $shippingAddressId;
-
-        if ($billingAddress) {
-            $order->setBillingAddress($billingAddress);
-        }
-
-        if ($shippingAddress) {
-            $order->setShippingAddress($shippingAddress);
         }
 
         $lineItems = [];
@@ -1463,5 +1391,28 @@ class OrdersController extends Controller
 
 
         return $customers;
+    }
+
+    private function _removeReadOnlyAttributesFromArray(array $address): array
+    {
+        if (empty($address)) {
+            return $address;
+        }
+
+        // Remove readonly attributes
+        $readOnly = [
+            'countryIso',
+            'countryText',
+            'stateText',
+            'abbreviationText',
+            'addressLines',
+        ];
+        foreach ($readOnly as $item) {
+            if (array_key_exists($item, $address)) {
+                unset($address[$item]);
+            }
+        }
+
+        return $address;
     }
 }

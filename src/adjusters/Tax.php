@@ -11,13 +11,14 @@ use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\AddressZone as AddressZoneHelper;
 use craft\commerce\helpers\Currency;
-use craft\commerce\models\Address;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxRate as TaxRateRecord;
+use craft\elements\Address;
 use DvK\Vat\Validator;
 use Exception;
 use function in_array;
@@ -123,7 +124,7 @@ class Tax extends Component implements AdjusterInterface
         $zoneMatches = $taxRate->getIsEverywhere() || ($taxRate->getTaxZone() && $this->_matchAddress($taxRate->getTaxZone()));
 
         if ($zoneMatches && $taxRate->isVat) {
-            $hasValidEuVatId = $this->_validateEuBusinessTaxId();
+            $hasValidEuVatId = $this->organizationTaxId();
         }
 
         $removeIncluded = (!$zoneMatches && $taxRate->removeIncluded);
@@ -293,6 +294,10 @@ class Tax extends Component implements AdjusterInterface
         return $tax;
     }
 
+    /**
+     * @param TaxAddressZone $zone
+     * @return bool
+     */
     private function _matchAddress(TaxAddressZone $zone): bool
     {
         //when having no address check default tax zones only
@@ -300,39 +305,45 @@ class Tax extends Component implements AdjusterInterface
             return (bool)$zone->default;
         }
 
-        return Plugin::getInstance()->getAddresses()->addressWithinZone($this->_address, $zone);
+        return AddressZoneHelper::addressWithinZone($this->_address, $zone);
     }
 
-    private function _validateEuBusinessTaxId(): bool
+    /**
+     * @return bool
+     */
+    private function organizationTaxId(): bool
     {
-
         if (!$this->_address) {
             return false;
         }
-        if (!$this->_address->businessTaxId) {
+        if (!$this->_address->organizationTaxId) {
             return false;
         }
 
-        if (!$this->_address->getCountry()) {
+        if (!$this->_address->getCountryCode()) {
             return false;
         }
 
-        $validBusinessTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->businessTaxId);
+        $validOrganizationTaxId = Craft::$app->getCache()->exists('commerce:validVatId:' . $this->_address->organizationTaxId);
 
         // If we do not have a valid VAT ID in cache, see if we can get one from the API
-        if (!$validBusinessTaxId) {
-            $validBusinessTaxId = $this->validateVatNumber($this->_address->businessTaxId);
+        if (!$validOrganizationTaxId) {
+            $validOrganizationTaxId = $this->validateVatNumber($this->_address->organizationTaxId);
         }
 
-        if ($validBusinessTaxId) {
-            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->businessTaxId, '1');
+        if ($validOrganizationTaxId) {
+            Craft::$app->getCache()->set('commerce:validVatId:' . $this->_address->organizationTaxId, '1');
             return true;
         }
 
-        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->businessTaxId);
+        Craft::$app->getCache()->delete('commerce:validVatId:' . $this->_address->organizationTaxId);
         return false;
     }
 
+    /**
+     * @param string $businessVatId
+     * @return bool
+     */
     protected function validateVatNumber(string $businessVatId): bool
     {
         try {
@@ -381,6 +392,9 @@ class Tax extends Component implements AdjusterInterface
         return $itemTotal + $allNonIncludedAdjustmentsTotal - ($taxAdjustments + $includedTaxAdjustments);
     }
 
+    /**
+     * @return Address|null
+     */
     private function _getTaxAddress(): ?Address
     {
         $this->_isEstimated = false;

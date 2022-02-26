@@ -11,14 +11,14 @@ use craft\commerce\elements\Order;
 use craft\commerce\elements\Subscription;
 use craft\commerce\models\Address;
 use craft\commerce\Plugin;
-use craft\commerce\records\UserAddress;
+use craft\elements\Address as AddressElement;
 use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
 
 /**
- * Commerce User behavior.
+ * Customer behavior.
  *
  * @property-read array $activeCarts
  * @property-read null|Address $primaryShippingAddress
@@ -30,8 +30,9 @@ use yii\base\InvalidConfigException;
  * @property-read Address[] $addresses
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 4.0
+ * @method AddressElement[] getAddresses()
  */
-class CommerceUserBehavior extends Behavior
+class CustomerBehavior extends Behavior
 {
     /** @var User */
     public $owner;
@@ -55,6 +56,18 @@ class CommerceUserBehavior extends Behavior
      * @var array|null
      */
     private ?array $_subscriptions = null;
+
+    /**
+     * @inheritdoc
+     */
+    public function attach($owner)
+    {
+        if (!$owner instanceof User) {
+            throw new \RuntimeException('CustomerBehavior can only be attached to a User element');
+        }
+
+        parent::attach($owner);
+    }
 
     /**
      * @return array
@@ -110,40 +123,13 @@ class CommerceUserBehavior extends Behavior
     public function getSubscriptions(): array
     {
         if (null === $this->_subscriptions) {
-            $this->_subscriptions = Subscription::find()->user($this->owner)->status(null)->all();
+            $this->_subscriptions = Subscription::find()
+                ->user($this->owner)
+                ->status(null)
+                ->all();
         }
 
         return $this->_subscriptions ?? [];
-    }
-
-    /**
-     * Returns the  customer's primary billing address if it exists.
-     *
-     * @return Address|null
-     * @throws InvalidConfigException
-     */
-    public function getPrimaryBillingAddress(): ?Address
-    {
-        if ($primaryBillingAddressId = $this->getPrimaryBillingAddressId()) {
-            return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $primaryBillingAddressId);
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the customer's primary shipping address if it exists.
-     *
-     * @return Address|null
-     * @throws InvalidConfigException
-     */
-    public function getPrimaryShippingAddress(): ?Address
-    {
-        if ($primaryShippingAddressId = $this->getPrimaryShippingAddressId()) {
-            return ArrayHelper::firstWhere($this->getAddresses(), 'id', $primaryShippingAddressId);
-        }
-
-        return null;
     }
 
     /**
@@ -151,18 +137,6 @@ class CommerceUserBehavior extends Behavior
      */
     public function getPrimaryBillingAddressId(): ?int
     {
-        if (null === $this->_primaryBillingAddressId && $this->owner->id) {
-            $id = CommerceUser::find()
-                ->select(['addressId'])
-                ->where([
-                    'userId' => $this->owner->id,
-                    'isPrimaryBillingAddress' => true,
-                ])
-                ->scalar();
-            $this->setPrimaryBillingAddressId(
-            );
-        }
-
         return $this->_primaryBillingAddressId;
     }
 
@@ -175,21 +149,18 @@ class CommerceUserBehavior extends Behavior
     }
 
     /**
+     * @return AddressElement|null
+     */
+    public function getPrimaryBillingAddress(): ?AddressElement
+    {
+        return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $this->getPrimaryBillingAddressId());
+    }
+
+    /**
      * @return int|null
      */
     public function getPrimaryShippingAddressId(): ?int
     {
-        if (null === $this->_primaryShippingAddressId && $this->owner->id) {
-            $this->setPrimaryShippingAddressId(UserAddress::find()
-                ->select(['addressId'])
-                ->where([
-                    'userId' => $this->owner->id,
-                    'isPrimaryShippingAddress' => true
-                ])
-                ->scalar()
-            );
-        }
-
         return $this->_primaryShippingAddressId;
     }
 
@@ -199,5 +170,13 @@ class CommerceUserBehavior extends Behavior
     public function setPrimaryShippingAddressId(?int $primaryShippingAddressId): void
     {
         $this->_primaryShippingAddressId = $primaryShippingAddressId;
+    }
+
+    /**
+     * @return AddressElement|null
+     */
+    public function getPrimaryShippingAddress(): ?AddressElement
+    {
+        return ArrayHelper::firstWhere($this->owner->getAddresses(), 'id', $this->getPrimaryShippingAddressId());
     }
 }

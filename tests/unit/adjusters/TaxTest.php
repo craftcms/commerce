@@ -11,7 +11,7 @@ use Codeception\Test\Unit;
 use Craft;
 use craft\commerce\adjusters\Tax;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Address;
+use craft\elements\Address;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\models\TaxRate;
@@ -67,8 +67,8 @@ class TaxTest extends Unit
         $order = new Order();
 
         $address = new Address();
-        $address->countryId = $this->pluginInstance->getCountries()->getCountryByIso($addressData['countryIso'])->id;
-        $address->businessTaxId = $addressData['businessTaxId'] ?? null;
+        $address->countryCode = $addressData['countryIso'];
+        $address->organizationTaxId = $addressData['organizationTaxId'] ?? null;
 
         $order->setShippingAddress($address);
 

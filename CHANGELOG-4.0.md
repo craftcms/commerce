@@ -15,12 +15,6 @@
 - Added `craft\commerce\records\OrderHistory::getUser()`.
 - Added `craft\commerce\records\UserAddress`.
 - Added `craft\commerce\records\UserDiscountUse`.
-- Added `craft\commerce\services\AddressBook`.
-- Added `craft\commerce\services\Addresses::ADDRESS_TYPE_BILLING`.
-- Added `craft\commerce\services\Addresses::ADDRESS_TYPE_SHIPPING`.
-- Added `craft\commerce\services\Addresses::getAddressesByUserId()`.
-- Added `craft\commerce\services\Addresses::getAddressByIdAndUserId()`.
-- Added `craft\commerce\services\Addresses::setPrimaryAddressByAddressIdAndType()`.
 - Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
 - Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
@@ -92,6 +86,7 @@
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
 - Removed `craft\commerce\base\OrderDeprecatedTrait`.
+- Removed `craft\commerce\base\CustomersController`.
 - Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.

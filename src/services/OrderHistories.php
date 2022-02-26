@@ -107,11 +107,10 @@ class OrderHistories extends Component
         $orderHistoryModel->prevStatusId = $oldStatusId;
         $orderHistoryModel->newStatusId = $order->orderStatusId;
 
-        // TODO refactor the method by which we store and work out who changed the order history #COM-51
-        $userId = $order->customerId;
+        // By default the user who changed the status is the same as the user who placed the order
+        $userId = $order->getCustomerId();
 
-        // Use to current customer's ID only if we aren't in a console request
-        // and we currently have an active session
+        // If the user is logged in, use the current user
         if (!Craft::$app->request->isConsoleRequest
             && !Craft::$app->getResponse()->isSent
             && (Craft::$app->getSession()->getHasSessionId() || Craft::$app->getSession()->getIsActive())
@@ -121,7 +120,6 @@ class OrderHistories extends Component
         }
 
         $orderHistoryModel->userId = $userId;
-
         $orderHistoryModel->message = $order->message;
 
         if (!$this->saveOrderHistory($orderHistoryModel)) {
