@@ -15,6 +15,7 @@ use craft\commerce\base\PurchasableInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\events\LineItemEvent;
+use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\Currency as CurrencyHelper;
 use craft\commerce\helpers\LineItem as LineItemHelper;
 use craft\commerce\Plugin;
@@ -377,9 +378,12 @@ class LineItem extends Model
      */
     public function getSaleAmount(): float
     {
-        return $this->price - $this->salePrice;
+        return Currency::round($this->price - $this->salePrice, $this->_order->currency);
     }
 
+    /**
+     * @inerhitdoc 
+     */
     protected function defineRules(): array
     {
         $rules = [
