@@ -10,6 +10,7 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Component;
 use craft\base\Element;
+use craft\commerce\behaviors\CustomerBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use craft\commerce\records\Customer as CustomerRecord;
@@ -20,10 +21,10 @@ use craft\events\UserEvent;
 use craft\helpers\ArrayHelper;
 
 /**
- * Users service specific to commerce.
+ * Customer service.
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
- * @since 4.0
+ * @since 2.0
  */
 class Customers extends Component
 {
@@ -36,7 +37,7 @@ class Customers extends Component
      */
     public function afterSaveUserHandler(ModelEvent $event)
     {
-        /** @var User $user */
+        /** @var User|CustomerBehavior $user */
         $user = $event->sender;
 
         if ($user->primaryBillingAddressId) {
