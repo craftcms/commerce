@@ -98,11 +98,7 @@ class Orders extends Component
             return null;
         }
 
-        $query = Order::find();
-        $query->id($id);
-        $query->status(null);
-
-        return $query->one();
+        return Order::find()->id($id)->status(null)->one();
     }
 
     /**
@@ -110,10 +106,7 @@ class Orders extends Component
      */
     public function getOrderByNumber(string $number): ?Order
     {
-        $query = Order::find();
-        $query->number($number);
-
-        return $query->one();
+        return Order::find()->number($number)->one();
     }
 
     /**
@@ -147,12 +140,7 @@ class Orders extends Component
      */
     public function getOrdersByEmail(string $email): ?array
     {
-        $query = Order::find();
-        $query->email($email);
-        $query->isCompleted();
-        $query->limit(null);
-
-        return $query->all();
+        return Order::find()->email($email)->isCompleted()->limit(null)->all();
     }
 
     /**
