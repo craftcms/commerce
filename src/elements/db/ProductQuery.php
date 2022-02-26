@@ -680,7 +680,7 @@ class ProductQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch products that are available for purchase #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .availableForPurchase()
      *   .all() %}
      * ```
@@ -718,7 +718,7 @@ class ProductQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch disabled {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('disabled')
      *   .all() %}
      * ```

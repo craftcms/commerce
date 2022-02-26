@@ -279,7 +279,7 @@ class VariantQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch default variants #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isDefault()
      *   .all() %}
      * ```

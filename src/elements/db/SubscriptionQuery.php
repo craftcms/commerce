@@ -375,7 +375,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch trialed subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .onTrial()
      *   .all() %}
      * ```
@@ -443,7 +443,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch canceled subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCanceled()
      *   .all() %}
      * ```
@@ -511,7 +511,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch started subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasStarted()
      *   .all() %}
      * ```
@@ -539,7 +539,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch suspended subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isSuspended()
      *   .all() %}
      * ```
@@ -606,7 +606,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired subscriptions #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isExpired()
      *   .all() %}
      * ```
@@ -683,7 +683,7 @@ class SubscriptionQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch expired {elements} #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .status('expired')
      *   .all() %}
      * ```
