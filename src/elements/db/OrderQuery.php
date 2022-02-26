@@ -342,7 +342,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch completed orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isCompleted()
      *   .all() %}
      * ```
@@ -892,7 +892,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch paid orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isPaid()
      *   .all() %}
      * ```
@@ -920,7 +920,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch unpaid orders #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .isUnpaid()
      *   .all() %}
      * ```
@@ -948,7 +948,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch orders that do or do not have line items #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasLineItems()
      *   .all() %}
      * ```
@@ -976,7 +976,7 @@ class OrderQuery extends ElementQuery
      *
      * ```twig
      * {# Fetch carts that have attempted payments #}
-     * {% set {elements-var} = {twig-function}
+     * {% set {elements-var} = {twig-method}
      *   .hasTransactions()
      *   .all() %}
      * ```

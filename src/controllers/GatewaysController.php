@@ -158,12 +158,12 @@ class GatewaysController extends BaseAdminController
 
         if ($id = Craft::$app->getRequest()->getRequiredBodyParam('id')) {
             if (Plugin::getInstance()->getGateways()->archiveGatewayById((int)$id)) {
-                return $this->asJson(['success' => true]);
+                return $this->asSuccess();
             }
         }
 
 
-        return $this->asErrorJson(Craft::t('commerce', 'Could not archive gateway.'));
+        return $this->asFailure(Craft::t('commerce', 'Could not archive gateway.'));
     }
 
     /**
@@ -176,9 +176,9 @@ class GatewaysController extends BaseAdminController
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
         if ($success = Plugin::getInstance()->getGateways()->reorderGateways($ids)) {
-            return $this->asJson(['success' => $success]);
+            return $this->asSuccess();
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder gateways.')]);
+        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder gateways.'));
     }
 }
