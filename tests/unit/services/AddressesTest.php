@@ -54,9 +54,6 @@ class AddressesTest extends Unit
             'addresses' => [
                 'class' => AddressesFixture::class,
             ],
-            'user-addresses' => [
-                'class' => UserAddressesFixture::class,
-            ],
         ];
     }
 
