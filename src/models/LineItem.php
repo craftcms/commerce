@@ -378,7 +378,7 @@ class LineItem extends Model
      */
     public function getSaleAmount(): float
     {
-        return Currency::round($this->price - $this->salePrice, $this->_order->currency);
+        return Currency::round($this->price - $this->salePrice);
     }
 
     /**
