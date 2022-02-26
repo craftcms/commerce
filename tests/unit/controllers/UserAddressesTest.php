@@ -89,8 +89,7 @@ class UserAddressesTest extends Unit
 
         self::assertEquals(200, $response->statusCode);
         self::assertArrayHasKey('address', $response->data);
-        self::assertInstanceOf(AddressModel::class, $response->data['address']);
-        self::assertEquals(1002, $response->data['address']->id);
+        self::assertEquals(1002, $response->data['address']['id']);
         self::assertEquals(1002, $savedAddress->id);
         self::assertEquals('1 Apple Park Way', $savedAddress->address1);
     }
