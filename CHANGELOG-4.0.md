@@ -58,7 +58,7 @@
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.
 - Removed `craft\commerce\services\Addresses`.
-- Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`.  Use `Element::EVENT_AFTER_SAVE`, checking for `$event->sender->ownerId` to determine the user addres being saved.
+- Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`.  Use `Element::EVENT_AFTER_SAVE`, checking for `$event->sender->ownerId` to determine the user address being saved.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
