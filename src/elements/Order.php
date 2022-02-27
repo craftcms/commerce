@@ -1924,6 +1924,10 @@ class Order extends Element
             Craft::$app->getElements()->saveElement($shippingAddress, false);
             $orderRecord->shippingAddressId = $shippingAddress->id;
             $this->setShippingAddress($shippingAddress);
+            // Set primary shipping if asked
+            if($this->makePrimaryShippingAddress && $this->getCustomer()) {
+                Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($this->getCustomer(), $this->getShippingAddress()->id);
+            }
         } else {
             $orderRecord->shippingAddressId = null;
             $this->setShippingAddress(null);
@@ -1933,6 +1937,10 @@ class Order extends Element
             Craft::$app->getElements()->saveElement($billingAddress, false);
             $orderRecord->billingAddressId = $billingAddress->id;
             $this->setBillingAddress($billingAddress);
+            // Set primary billing if asked
+            if($this->makePrimaryBillingAddress && $this->getCustomer()) {
+                Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($this->getCustomer(), $this->getBillingAddress()->id);
+            }
         } else {
             $orderRecord->billingAddressId = null;
             $this->setBillingAddress(null);
