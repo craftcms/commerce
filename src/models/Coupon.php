@@ -8,7 +8,8 @@
 namespace craft\commerce\models;
 
 use craft\commerce\base\Model;
-use DateTime;
+use craft\commerce\records\Coupon as CouponRecord;
+use craft\validators\UniqueValidator;
 
 /**
  * Class Coupon
@@ -50,6 +51,8 @@ class Coupon extends Model
     {
         $rules = parent::defineRules();
         $rules[] = [['id', 'code', 'discountId', 'uses', 'maxUses'], 'safe'];
+        $rules[] = [['code'], 'required'];
+        $rules[] = [['code'], UniqueValidator::class, 'targetClass' => CouponRecord::class];
 
         return $rules;
     }
