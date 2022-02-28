@@ -12,6 +12,7 @@ use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
 use craft\commerce\events\DefaultOrderStatusEvent;
 use craft\commerce\events\EmailEvent;
+use craft\commerce\events\OrderStatusEmailsEvent;
 use craft\commerce\helpers\Locale;
 use craft\commerce\models\OrderHistory;
 use craft\commerce\models\OrderStatus;
@@ -72,6 +73,35 @@ class OrderStatuses extends Component
      * ```
      */
     const EVENT_DEFAULT_ORDER_STATUS = 'defaultOrderStatus';
+
+    /**
+     * @event OrderStatusEmailsEvent The email event that is triggered when an order status is changed.
+     *
+     * Plugins can get notified when an order status is changed
+     *
+     * ```php
+     * use craft\commerce\events\OrderStatusEmailsEvent;
+     * use craft\commerce\services\OrderStatuses;
+     * use craft\commerce\models\OrderHistory;
+     * use craft\commerce\elements\Order;
+     * use yii\base\Event;
+     *
+     * Event::on(
+     *     OrderStatuses::class,
+     *     OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS,
+     *     function(OrderStatusEmailsEvent $event) {
+     *         // @var OrderHistory $orderHistory
+     *         $orderHistory = $event->orderHistory;
+     *         // @var Order $order
+     *         $order = $event->order;
+     *
+     *         // Let the delivery department know the order’s ready to be delivered
+     *         // ...
+     *     }
+     * );
+     * ```
+     */
+    const EVENT_ORDER_STATUS_CHANGE_EMAILS = 'orderStatusChangeEmails';
 
     const CONFIG_STATUSES_KEY = 'commerce.orderStatuses';
 
@@ -405,7 +435,18 @@ class OrderStatuses extends Component
      */
     public function statusChangeHandler($order, $orderHistory)
     {
-        if ($order->orderStatusId) {
+
+        // Raising 'beforeOrderStatusChange' event
+        $event = new OrderStatusEmailsEvent([
+            'orderHistory' => $orderHistory,
+            'order' => $order,
+        ]);
+
+        if ($this->hasEventHandlers(self::EVENT_ORDER_STATUS_CHANGE_EMAILS)) {
+            $this->trigger(self::EVENT_ORDER_STATUS_CHANGE_EMAILS, $event);
+        }
+
+        if ($event->isValid === true && $order->orderStatusId) {
             $status = $this->getOrderStatusById($order->orderStatusId);
             if ($status && count($status->emails)) {
                 $originalLanguage = Craft::$app->language;

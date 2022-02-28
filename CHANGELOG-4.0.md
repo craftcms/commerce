@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\services\OrderStatuses::EVENT_ORDER_STATUS_CHANGE_EMAILS`.
+- Added `craft\commerce\events\OrderStatusEmailsEvent`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
