@@ -950,6 +950,12 @@ class Discounts extends Component
     }
 
 
+    /**
+     * @param Order $order
+     * @param Discount $discount
+     * @return bool
+     * @throws InvalidConfigException
+     */
     private function _isDiscountCouponCodeValid(Order $order, Discount $discount): bool
     {
         $coupons = $discount->getCoupons();
