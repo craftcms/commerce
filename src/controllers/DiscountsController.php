@@ -197,11 +197,8 @@ class DiscountsController extends BaseCpController
 
         // Save it
         if (Plugin::getInstance()->getDiscounts()->saveDiscount($discount)) {
-            // Save coupons after discount has been saved
-            if ($this->_saveCoupons($discount)) {
-                $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
-                $this->redirectToPostedUrl($discount);
-            }
+            $this->setSuccessFlash(Craft::t('commerce', 'Discount saved.'));
+            $this->redirectToPostedUrl($discount);
         } else {
             $this->setFailFlash(Craft::t('commerce', 'Couldn’t save discount.'));
 
@@ -249,29 +246,6 @@ class DiscountsController extends BaseCpController
         }
 
         $discount->setCoupons($discountCoupons);
-    }
-
-    /**
-     * @param Discount $discount
-     * @return bool
-     * @throws InvalidConfigException
-     * @since 4.0
-     */
-    private function _saveCoupons(Discount $discount): bool
-    {
-        if (empty($discount->getCoupons())) {
-            return true;
-        }
-
-        foreach ($discount->getCoupons() as $key => $coupon) {
-            $coupon->discountId = $discount->id;
-
-            if (!Plugin::getInstance()->getCoupons()->saveCoupon($coupon)) {
-                $discount->addModelErrors($coupon, 'coupon.' . $key);
-            }
-        }
-
-        return !$discount->hasErrors();
     }
 
     /**
