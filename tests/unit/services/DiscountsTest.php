@@ -182,7 +182,7 @@ class DiscountsTest extends Unit
         Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_customer_discountuses}}', [
                 'customerId' => '1000',
-                'discountId' => '1000',
+                'discountId' => $this->tester->grabFixture('discounts')['discount_with_coupon']['id'],
                 'uses' => '1',
             ])->execute();
 
@@ -209,7 +209,7 @@ class DiscountsTest extends Unit
         Craft::$app->getDb()->createCommand()
             ->insert('{{%commerce_email_discountuses}}', [
                 'email' => 'testing@craftcommerce.com',
-                'discountId' => '1000',
+                'discountId' => $this->tester->grabFixture('discounts')['discount_with_coupon']['id'],
                 'uses' => '1'
             ])->execute();
 
@@ -236,7 +236,7 @@ class DiscountsTest extends Unit
         $this->matchLineItems(
             ['couponCode' => null],
             ['qty' => 2, 'salePrice' => 10],
-            ['code' => null, 'allPurchasables' => true, 'allCategories' => true],
+            ['allPurchasables' => true, 'allCategories' => true],
             [],
             true
         );
@@ -250,7 +250,7 @@ class DiscountsTest extends Unit
         $this->matchLineItems(
             ['couponCode' => null],
             ['qty' => 2, 'price' => 15, 'salePrice' => 10],
-            ['code' => null, 'excludeOnSale' => true],
+            ['excludeOnSale' => true],
             [],
             false
         );
@@ -264,7 +264,7 @@ class DiscountsTest extends Unit
         $this->matchLineItems(
             ['couponCode' => null],
             ['qty' => 2, 'price' => 15],
-            ['code' => null],
+            [],
             ['isPromotable' => false],
             false
         );
@@ -278,13 +278,14 @@ class DiscountsTest extends Unit
      */
     public function testOrderCompleteHandler(): void
     {
-        // TODO: Update this test to create a full real order that saves. #COM-54
+        $discountId = $this->tester->grabFixture('discounts')['discount_with_coupon']['id'];
 
+        // TODO: Update this test to create a full real order that saves. #COM-54
         /** @var Order $order */
         $order = $this->make(Order::class, [
-            'getAdjustmentsByType' => function($type) {
+            'getAdjustmentsByType' => function($type) use ($discountId) {
                 $adjustment = new OrderAdjustment();
-                $adjustment->sourceSnapshot = ['discountUseId' => 1000];
+                $adjustment->sourceSnapshot = ['discountUseId' => $discountId];
 
                 return [$adjustment];
             }
@@ -303,7 +304,7 @@ class DiscountsTest extends Unit
         $totalUses = (int)(new Query())
             ->select('totalDiscountUses')
             ->from('{{%commerce_discounts}}')
-            ->where(['code' => 'discount_1'])
+            ->where(['id' => $discountId])
             ->scalar();
 
         self::assertSame(1, $totalUses);
@@ -312,21 +313,29 @@ class DiscountsTest extends Unit
         $customerUses = (new Query())
             ->select('*')
             ->from('{{%commerce_customer_discountuses}}')
-            ->where(['customerId' => '1000', 'discountId' => '1000', 'uses' => '1'])
+            ->where(['customerId' => '1000', 'discountId' => $discountId, 'uses' => '1'])
             ->one();
 
         self::assertNotNull($customerUses);
-
 
         // Get the Email Discount Uses
         $customerEmail = $order->getCustomer()->getUser()->email;
         $customerUses = (new Query())
             ->select('*')
             ->from('{{%commerce_email_discountuses}}')
-            ->where(['email' => $customerEmail, 'discountId' => '1000', 'uses' => '1'])
+            ->where(['email' => $customerEmail, 'discountId' => $discountId, 'uses' => '1'])
             ->one();
 
         self::assertNotNull($customerUses);
+
+        // Coupon uses
+        $couponUses = (new Query())
+            ->select('uses')
+            ->from(Table::COUPONS)
+            ->where(['code' => 'discount_1'])
+            ->scalar();
+
+        self::assertEquals(1, $couponUses);
     }
 
     /**
@@ -393,11 +402,12 @@ class DiscountsTest extends Unit
      */
     protected function updateOrderCoupon(array $data)
     {
+        $discount = $this->tester->grabFixture('discounts')['discount_with_coupon'];
         Craft::$app->getDb()->createCommand()
             ->update(
                 '{{%commerce_discounts}}',
                 $data,
-                ['code' => 'discount_1']
+                ['id' => $discount['id']]
             )->execute();
     }
 

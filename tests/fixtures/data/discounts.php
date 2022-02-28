@@ -6,10 +6,8 @@
  */
 
 return [
-    [
-        'id' => '1000',
+    'discount_with_coupon' => [
         'name' => 'Discount 1',
-        'code' => 'discount_1',
         'perUserLimit' => '1',
         'totalDiscountUseLimit' => '2',
         'baseDiscount' => '10',
@@ -17,6 +15,16 @@ return [
         'percentDiscount' => '15.25',
         'enabled' => true,
         'userGroupsCondition' => 'userGroupsAnyOrNone',
-        'percentageOffSubject' => 'original'
-    ]
+        'userGroupIds' => [],
+        'allCategories' => true,
+        'allPurchasables' => true,
+        'percentageOffSubject' => 'original',
+        '_coupons' => [
+            [
+                'code' => 'discount_1',
+                'uses' => 0,
+                'maxUses' => null,
+            ],
+        ],
+    ],
 ];
