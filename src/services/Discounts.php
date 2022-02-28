@@ -399,7 +399,7 @@ class Discounts extends Component
         }
 
         return ArrayHelper::firstWhere($this->_populateDiscounts($discounts), static function (Discount $discount) use ($code) {
-            return (bool)ArrayHelper::firstWhere($discount->getCoupons(), static fn($coupon) => (strcasecmp($coupon->code, $code) == 0));
+            return ($discount->enabled && (bool)ArrayHelper::firstWhere($discount->getCoupons(), static fn($coupon) => (strcasecmp($coupon->code, $code) == 0)));
         });
     }
 
