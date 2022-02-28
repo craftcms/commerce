@@ -174,6 +174,6 @@ class PlansController extends BaseStoreSettingsController
 
         return $success ?
             $this->asSuccess() :
-            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'))
+            $this->asFailure(Craft::t('commerce', 'Couldn’t reorder plans.'));
     }
 }
