@@ -20,6 +20,7 @@ use craft\commerce\models\Discount;
 use craft\commerce\models\LineItem;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\Plugin;
+use craft\commerce\records\Coupon as CouponRecord;
 use craft\commerce\records\CustomerDiscountUse as CustomerDiscountUseRecord;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
@@ -930,6 +931,17 @@ class Discounts extends Component
                     'id' => $discount['discountUseId'],
                 ])
                 ->execute();
+
+            // if there was a coupon on the order update its usage
+            if ($order->couponCode && $coupon = CouponRecord::findOne(['code' => $order->couponCode, 'discountId' => $discount['discountUseId']])) {
+                Craft::$app->getDb()->createCommand()
+                    ->update(Table::COUPONS, [
+                        'uses' => new Expression('[[uses]] + 1'),
+                    ], [
+                        'id' => $coupon->id,
+                    ])
+                ->execute();
+            }
 
             // Reset internal cache
             $this->_allDiscounts = null;
