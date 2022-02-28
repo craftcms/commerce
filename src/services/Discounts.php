@@ -687,6 +687,7 @@ class Discounts extends Component
                 $relation->save(false);
             }
 
+            Plugin::getInstance()->getCoupons()->saveDiscountCoupons($model);
             $transaction->commit();
 
             // Raise the afterSaveDiscount event

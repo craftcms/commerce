@@ -10,6 +10,8 @@ namespace craft\commerce\services;
 use craft\commerce\models\Coupon;
 use Craft;
 use craft\commerce\db\Table;
+use craft\commerce\models\Discount;
+use craft\commerce\Plugin;
 use craft\commerce\records\Coupon as CouponRecord;
 use craft\db\Query;
 use craft\helpers\StringHelper;
@@ -124,6 +126,75 @@ class Coupons extends Component
         }
 
         return $coupons;
+    }
+
+    /**
+     * @param int $id
+     * @return bool
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function deleteCouponById(int $id): bool
+    {
+        $couponRecord = CouponRecord::findOne($id);
+
+        if (!$couponRecord) {
+            return false;
+        }
+
+        return (bool)$couponRecord->delete();
+    }
+
+    /**
+     * @param Discount $discount
+     * @return bool
+     * @throws InvalidConfigException
+     * @since 4.0
+     */
+    public function saveDiscountCoupons(Discount $discount): bool
+    {
+        if (!$discount->id) {
+            throw new Exception('Discount must be saved before it can have coupons');
+        }
+
+        if (empty($discount->getCoupons())) {
+            return true;
+        }
+
+        // Get currently saved coupon IDs from the DB
+        $existingCouponIds = $this->_createCouponQuery()
+            ->select(['id'])
+            ->where(['discountId' => $discount->id])
+            ->column();
+
+        foreach ($discount->getCoupons() as $key => $coupon) {
+            $coupon->discountId = $discount->id;
+
+            if (!Plugin::getInstance()->getCoupons()->saveCoupon($coupon)) {
+                $discount->addModelErrors($coupon, 'coupon.' . $key);
+            }
+
+            if ($coupon->id) {
+                $couponIds[] = $coupon->id;
+            }
+        }
+
+        $return = !$discount->hasErrors();
+
+        if (empty($existingCouponIds) || $existingCouponIds === $couponIds) {
+            return $return;
+        }
+
+        $deleteableCouponIds = array_diff($existingCouponIds, $couponIds);
+        if (empty($deleteableCouponIds)) {
+            return $return;
+        }
+
+        foreach ($deleteableCouponIds as $deleteableCouponId) {
+            $this->deleteCouponById($deleteableCouponId);
+        }
+
+        return $return;
     }
 
     /**
