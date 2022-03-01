@@ -67,7 +67,7 @@ class TaxTest extends Unit
         $order = new Order();
 
         $address = new Address();
-        $address->countryCode = $addressData['countryIso'];
+        $address->countryCode = $addressData['countryCode'];
         $address->organizationTaxId = $addressData['organizationTaxId'] ?? null;
 
         $order->setShippingAddress($address);
@@ -79,7 +79,7 @@ class TaxTest extends Unit
                 'getTaxZone' => function() use ($item) {
                     if (isset($item['zone'])) {
                         return $this->make(TaxAddressZone::class, [
-                            'getCountryCodes' => $item['zone']['countryIsos'],
+                            'countries' => $item['zone']['countries'],
                             'getIsCountryBased' => true,
                         ]);
                     }
@@ -146,7 +146,7 @@ class TaxTest extends Unit
             // Example 1) 10% included tax
             'tax-10pct-included' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryCode' => 'AU'
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -161,7 +161,7 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['AU']
+                            'countries' => ['AU']
                         ]
                     ]
                 ],
@@ -184,7 +184,7 @@ class TaxTest extends Unit
             // Example 2) 10% not included
             'tax-10pct-not-included' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryCode' => 'AU'
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -220,7 +220,7 @@ class TaxTest extends Unit
             // Example 3) 10% included, 2 line items, isVat
             'tax-10pct-included-2-line-items' => [
                 [ // Address
-                    'countryIso' => 'NL'
+                    'countryCode' => 'NL'
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1], // 100 total price
@@ -263,7 +263,7 @@ class TaxTest extends Unit
             // Example 4) 10% tax that does not apply due to zone mismatch
             'tax-zone-mismatch-1' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryCode' => 'AU'
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -278,7 +278,7 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['NL'] // Not AU on purpose to create mismatch
+                            'countries' => ['NL'] // Not AU on purpose to create mismatch
                         ]
                     ]
                 ],
@@ -294,7 +294,7 @@ class TaxTest extends Unit
             // Example 5) 10% tax that gets removed due to zone mismatch
             'tax-zone-mismatch-2' => [
                 [ // Address
-                    'countryIso' => 'AU'
+                    'countryCode' => 'AU'
                 ],
                 [ // Line Items
                     ['salePrice' => 100, 'qty' => 1] // 100 total price
@@ -310,7 +310,7 @@ class TaxTest extends Unit
                         'isVat' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['NL'] // Not AU on purpose to create mismatch
+                            'countries' => ['NL'] // Not AU on purpose to create mismatch
                         ]
                     ]
                 ],
@@ -333,7 +333,7 @@ class TaxTest extends Unit
             // Example 6) 10% tax that gets removed due to valid VAT ID
             'tax-valid-vat-1' => [
                 [ // Address
-                    'countryIso' => 'CZ',
+                    'countryCode' => 'CZ',
                     'businessTaxId' => 'CZ25666011',
                     '_validateVat' => true,
                 ],
@@ -351,7 +351,7 @@ class TaxTest extends Unit
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                            'countries' => ['CZ'] // Not AU on purpose to create mismatch
                         ]
                     ]
                 ],
@@ -374,7 +374,7 @@ class TaxTest extends Unit
             // Example 7) 10% included tax that does not apply since it has a valid tax ID, but does not remove
             'tax-valid-vat-2' => [
                 [ // Address
-                    'countryIso' => 'CZ',
+                    'countryCode' => 'CZ',
                     'businessTaxId' => 'CZ25666011',
                     '_validateVat' => true,
                 ],
@@ -392,7 +392,7 @@ class TaxTest extends Unit
                         'removeVatIncluded' => false,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                            'countries' => ['CZ'] // Not AU on purpose to create mismatch
                         ]
                     ]
                 ],
@@ -408,7 +408,7 @@ class TaxTest extends Unit
             // Example 6) 10% tax that does not get removed due to an invalid VAT ID
             'tax-invalid-vat-1' => [
                 [ // Address
-                    'countryIso' => 'CZ',
+                    'countryCode' => 'CZ',
                     'businessTaxId' => 'CZ99999999',
                     '_validateVat' => false,
                 ],
@@ -426,7 +426,7 @@ class TaxTest extends Unit
                         'removeVatIncluded' => true,
                         'taxable' => 'order_total_price',
                         'zone' => [
-                            'countryIsos' => ['CZ'] // Not AU on purpose to create mismatch
+                            'countries' => ['CZ'] // Not AU on purpose to create mismatch
                         ]
                     ]
                 ],

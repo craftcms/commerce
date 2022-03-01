@@ -3,22 +3,24 @@
 ## Unreleased
 
 ### Added
-- Added `\craft\commerce\elements\Order::$sourceBillingAddressId`
-- Added `\craft\commerce\elements\Order::$sourceShippingAddressId`
-- Added `craft\commerce\helpers\AddressZone`.
+- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
+- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
 - Added `craft\commerce\base\AddressZoneInterface::getCountryCode()`.
+- Added `craft\commerce\base\Zone`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
-- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
-- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
+- Added `craft\commerce\elements\Order::$sourceBillingAddressId`
+- Added `craft\commerce\elements\Order::$sourceShippingAddressId`
+- Added `craft\commerce\helpers\AddressZone`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
+- Added `craft\commerce\models\Store`.
 - Added `craft\commerce\records\OrderHistory::$userId`.
 - Added `craft\commerce\records\OrderHistory::getUser()`.
-- Added `\craft\commerce\services\Customers::savePrimaryShippingAddressId`
-- Added `\craft\commerce\services\Customers::savePrimaryBillingAddressId`
+- Added `craft\commerce\services\Discounts::clearUserUsageHistoryById()`.
+- Added `craft\commerce\services\Discounts::getUserUsageStatsById()`.
 
 ### Changed
 - Craft Commerce now requires Craft CMS 4.0.0-alpha.1 or newer.
@@ -55,6 +57,7 @@
 - Deprecated `craft\commerce\services\Transactions::deleteTransaction()`. Use `deleteTransactionById()` instead.
 
 ### Removed (Changed in 4.0, not previously deprecated)
+- Removed `craft\commerce\base\AddressZoneInterface`.
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
 - Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.

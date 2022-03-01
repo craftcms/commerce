@@ -11,15 +11,13 @@ use Craft;
 use craft\base\Field;
 use craft\base\FieldInterface;
 use craft\commerce\console\Controller;
-use craft\commerce\db\Table;
 use craft\commerce\records\Store;
 use craft\db\Query;
 use craft\elements\Address;
-use craft\fieldlayoutelements\TextField;
+use craft\elements\User;
 use craft\fields\PlainText;
 use craft\helpers\Console;
 use craft\helpers\DateTimeHelper;
-use craft\helpers\StringHelper;
 use Illuminate\Support\Collection;
 use yii\console\ExitCode;
 
@@ -68,6 +66,16 @@ class MigrateCommerce4 extends Controller
     private array $_administrativeAreaByV3StateId = [];
 
     /**
+     * @var array
+     */
+    public array $userIdsByEmail = [];
+
+    /**
+     * @var array
+     */
+    public array $userIdsByv3CustomerId = [];
+
+    /**
      * @return void
      */
     public function init(): void
@@ -86,13 +94,13 @@ class MigrateCommerce4 extends Controller
     private function _migrateAddressCustomFields(): void
     {
         $addressFieldLayout = Craft::$app->getFields()->getLayoutByType(Address::class);
-        $existingCustomFields = Collection::make($addressFieldLayout->getCustomFields());
+        $existingFieldsInAddressLayout = Collection::make($addressFieldLayout->getCustomFields());
 
         foreach ($this->customAddressFields as $fieldHandle) {
 
             // Does a field with the same handle exist anywhere?
             $currentField = Craft::$app->getFields()->getFieldByHandle($fieldHandle, false);
-            $isFieldInAddressFieldLayout = (bool)$existingCustomFields->first(function($field, $key) use ($fieldHandle) {
+            $isFieldInAddressFieldLayout = (bool)$existingFieldsInAddressLayout->first(function($field, $key) use ($fieldHandle) {
                 /** @var FieldInterface $field */
                 return $field->handle == $fieldHandle;
             });
@@ -115,7 +123,7 @@ class MigrateCommerce4 extends Controller
             if (!$currentField || !$isFieldInAddressFieldLayout) {
                 $this->stdout("There is no custom field with handle \"$fieldHandle\", creating field...\n");
 
-                if(!$currentField) {
+                if (!$currentField) {
                     $currentField = new PlainText([
                         'name' => $fieldHandle,
                         'handle' => $fieldHandle,
@@ -192,6 +200,7 @@ class MigrateCommerce4 extends Controller
 
         $tablesThatShouldStillExist = [
             '{{%commerce_addresses}}',
+            '{{%commerce_customers_addresses}}',
             '{{%commerce_countries}}',
             '{{%commerce_states}}',
             '{{%commerce_shippingzone_countries}}',
@@ -207,27 +216,53 @@ class MigrateCommerce4 extends Controller
             }
         }
 
+        $this->stdout("Creating user for every customer...\n");
+        // In addition to creating users if non exists, we also populate the $this->userIdsByEmail and $this->$userIdsByv3CustomerId
+        $this->_createUserIfNoneExists();
+        $this->stdout("Done.\n");
 
         $this->stdout("Migrating extra address field to custom fields...\n");
         $this->_migrateAddressCustomFields();
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
+        $this->stdout("Migrating Customer Addresses...\n");
+        $this->_migrateUserAddresses();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        // TODO Migrate order addresses
+
         $this->stdout("Migrating Store Location...\n");
         $this->_migrateStoreLocation();
         $this->stdout("Done.\n");
         $this->stdout("\n");
 
-        $this->stdout("Creating user for every customer...\n");
-        // $this->_migrateOrderCustomerId(); // TODO
-        $this->stdout("Done.\n");
         return 0;
+    }
+
+    private function _migrateUserAddresses()
+    {
+        foreach ($this->userIdsByv3CustomerId as $v3customerId => $userId) {
+            $user = User::find()->id($userId)->one();
+            if ($user) {
+                $addresses = (new Query())->select('*')
+                    ->from(['a' => '{{%commerce_addresses}}'])
+                    ->innerJoin(['ca' => '{{%commerce_customers_addresses}}'], '[[a.id]] = [[ca.addressId]]')
+                    ->andWhere(['[[ca.customerId]]' => $v3customerId])
+                    ->all();
+
+                foreach ($addresses as $address) {
+                    $this->_createAddress($address, $user->id); // setting the owner will make it this users address
+                }
+            }
+        }
     }
 
     /**
      * Creates an Address element from previous address data and returns the ID
      */
-    public function _createAddress($data, ?int $ownerId = null): int
+    private function _createAddress($data, ?int $ownerId = null): ?Address
     {
         $address = new Address();
         if ($ownerId) {
@@ -247,7 +282,7 @@ class MigrateCommerce4 extends Controller
 
 
         // Populate the custom field based on $this->customAddressFieldMigrateOptions
-        foreach($this->customAddressFields as $fieldName){
+        foreach ($this->customAddressFields as $fieldName) {
             if (!$this->customAddressFieldMigrateOptions[$fieldName]['skip']) {
                 $address->setFieldValue($fieldName, $data[$fieldName]);
             }
@@ -255,39 +290,41 @@ class MigrateCommerce4 extends Controller
 
         $address->dateCreated = DateTimeHelper::toDateTime($data['dateCreated']);
         $address->dateUpdated = DateTimeHelper::toDateTime($data['dateUpdated']);
-        Craft::$app->getElements()->saveElement($address);
-        return $address->id;
+        Craft::$app->getElements()->saveElement($address, false);
+
+        return $address;
     }
 
-    public function _migrateOrderCustomerId(): void
+    public function _createUserIfNoneExists(): void
     {
         $allCustomers = (new Query())->from('{{%commerce_orders}} orders')
-            ->select(['email', '[[customers.userId]] as userId', 'customerId as oldCustomerId'])
+            ->select(['email', '[[customers.userId]] as userId', 'v3customerId as v3CustomerId'])
             ->innerJoin('{{%commerce_customers}} customers', '[[customers.id]] = [[orders.customerId]]')
             ->where(['not', ['email' => null]])
             ->andWhere(['not', ['email' => '']])
-            ->indexBy('customerId')
-            ->orderBy('customerId ASC')
+            ->indexBy('v3customerId')
             ->distinct()
             ->all();
 
-        $userIdsByEmail = [];
+        $this->userIdsByEmail = [];
+        $this->userIdsByv3CustomerId = [];
         $done = 0;
         Console::startProgress($done, count($allCustomers), 'Ensuring users exist for each customer...');
 
-        foreach ($allCustomers as $key => $customer) {
+        foreach ($allCustomers as $v3CustomerId => $customer) {
             Console::updateProgress($done++, count($allCustomers));
 
             // Do they have a user ID already? If so, we're good.
             if ($customer['userId']) {
-                $userIdsByEmail[$customer['email']] = $customer['userId'];
+                $this->userIdsByEmail[$customer['email']] = $customer['userId'];
+                $this->userIdsByv3CustomerId[$v3CustomerId] = $customer['userId'];
                 continue;
             }
 
             // No user lets get the right user ID for this email
             $user = Craft::$app->getUsers()->ensureUserByEmail($customer['email']);
-            $userIdsByEmail[$customer['email']] = $user->id;
-            $allCustomers[$key]['userId'] = $user->id;
+            $this->userIdsByEmail[$customer['email']] = $user->id;
+            $this->userIdsByv3CustomerId[$v3CustomerId] = $user->id;
 
             Console::endProgress(false, false);
         }
@@ -352,7 +389,7 @@ class MigrateCommerce4 extends Controller
             $store->save();
         }
 
-        $store->locationAddressId = $this->_createAddress($storeLocationQuery);
+        $store->locationAddressId = $this->_createAddress($storeLocationQuery)->id;
         $store->save();
     }
 }

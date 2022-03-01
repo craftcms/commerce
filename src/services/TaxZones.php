@@ -171,7 +171,7 @@ class TaxZones extends Component
                 'zipCodeConditionFormula',
             ])
             ->orderBy('name')
-            ->from([Table::SHIPPINGZONES]);
+            ->from([Table::TAXZONES]);
     }
 
     /**
