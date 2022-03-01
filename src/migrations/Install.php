@@ -114,13 +114,10 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'name' => $this->string()->notNull(),
-            'iso' => $this->string(2)->notNull(),
-            'isStateRequired' => $this->boolean()->notNull()->defaultValue(false),
-            'sortOrder' => $this->integer(),
-            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+        $this->createTable(Table::CUSTOMERS, [
+            'customerId' => $this->integer()->notNull(), // This is the User element ID
+            'primaryBillingAddressId' => $this->integer(),
+            'primaryShippingAddressId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -677,18 +674,6 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::STATES, [
-            'id' => $this->primaryKey(),
-            'countryId' => $this->integer()->notNull(),
-            'name' => $this->string()->notNull(),
-            'abbreviation' => $this->string(),
-            'sortOrder' => $this->integer(),
-            'enabled' => $this->boolean()->notNull()->defaultValue(true),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
             'locationAddressId' => $this->string()->notNull(),
@@ -788,15 +773,6 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::CUSTOMERS, [
-            'customerId' => $this->integer()->notNull(), // This is the User element ID
-            'primaryBillingAddressId' => $this->integer(),
-            'primaryShippingAddressId' => $this->integer(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::VARIANTS, [
             'id' => $this->integer()->notNull(),
             'productId' => $this->integer(), // Allow null so we can delete a product THEN the variants.
@@ -844,8 +820,6 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::COUNTRIES, 'name', true);
-        $this->createIndex(null, Table::COUNTRIES, 'iso', true);
         $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
@@ -924,9 +898,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'shippingZoneId', false);
         $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'stateId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
-        $this->createIndex(null, Table::STATES, 'countryId', false);
-        $this->createIndex(null, Table::STATES, ['countryId', 'abbreviation'], true);
-        $this->createIndex(null, Table::STATES, ['countryId', 'name'], true);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);
@@ -1016,11 +987,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::STATES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['planId'], Table::PLANS, ['id'], 'RESTRICT');
@@ -1028,10 +994,6 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::TAXRATES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_STATES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');

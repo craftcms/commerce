@@ -545,7 +545,7 @@ class CartController extends BaseFrontEndController
                     $this->_cart->setBillingAddress($userBillingAddress);
                 }
             }
-        } else if ($billingAddress && !$billingIsBilling) {
+        } else if ($billingAddress && !$billingIsShipping) {
             $this->_cart->setBillingAddress($billingAddress);
         }
 

@@ -58,6 +58,26 @@ class MigrateCommerce4 extends Controller
     public $customAddressFieldMigrateOptions = [];
 
     /**
+     * v3CountryId => countryCode
+     */
+    private $_countryCodesByV3CountryId = [];
+
+    /**
+     * v3StateId => administrativeArea
+     */
+    private $_administrativeAreaByV3StateId = [];
+
+    /**
+     * @return void
+     */
+    public function init(): void
+    {
+        parent::init();
+        $this->_countryCodesByV3CountryId = $this->_countryCodesByV3CountryId();
+        $this->_administrativeAreaByV3StateId = $this->_administrativeAreaByV3StateId();
+    }
+
+    /**
      * @return void
      * @throws \Throwable
      */
@@ -98,28 +118,10 @@ class MigrateCommerce4 extends Controller
                 }
 
                 $field = Craft::$app->getFields()->saveField($field);
+                // TODO putting field into layout.
+
             }
         }
-    }
-
-    /**
-     * v3CountryId => countryCode
-     */
-    private $_countryCodesByV3CountryId = [];
-
-    /**
-     * v3StateId => administrativeArea
-     */
-    private $_administrativeAreaByV3StateId = [];
-
-    /**
-     * @return void
-     */
-    public function init(): void
-    {
-        parent::init();
-        $this->_countryCodesByV3CountryId = $this->_countryCodesByV3CountryId();
-        $this->administrativeAreaByV3StateId = $this->_administrativeAreaByV3StateId();
     }
 
     /**

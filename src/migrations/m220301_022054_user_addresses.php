@@ -102,13 +102,13 @@ class m220301_022054_user_addresses extends Migration
         $this->renameColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', 'v3CustomerId'); // move the data
         $this->addColumn(Table::CUSTOMER_DISCOUNTUSES, 'customerId', $this->integer());
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'customerId', false);
-        $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
 
         /**
          * Payment Sources
          */
-        $this->dropIndexIfExists(Table::PAYMENTSOURCES, ['customerId']);
-        $this->dropForeignKeyIfExists(Table::PAYMENTSOURCES, ['customerId']);
+        $this->dropIndexIfExists(Table::PAYMENTSOURCES, ['userId']);
+        $this->dropForeignKeyIfExists(Table::PAYMENTSOURCES, ['userId']);
         $this->renameColumn(Table::PAYMENTSOURCES, 'userId', 'customerId');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
 
