@@ -82,10 +82,12 @@ class Donation extends Purchasable
         $rules = parent::defineRules();
 
         $rules[] = [['sku'], 'trim'];
-        $rules[] = [['sku'], 'required', 'when' => function($model) {
-            /** @var self $model */
-            return $model->availableForPurchase && $model->enabled;
-        }];
+        $rules[] = [
+            ['sku'], 'required', 'when' => function($model) {
+                /** @var self $model */
+                return $model->availableForPurchase && $model->enabled;
+            }
+        ];
 
         return $rules;
     }
@@ -149,7 +151,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'donation';
     }
@@ -174,7 +176,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/store-settings/donation');
     }
@@ -182,7 +184,7 @@ class Donation extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return '';
     }

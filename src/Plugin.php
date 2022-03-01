@@ -205,7 +205,7 @@ class Plugin extends BasePlugin
     /**
      * @inheritdoc
      */
-    public function getCpNavItem(): array
+    public function getCpNavItem(): ?array
     {
         $ret = parent::getCpNavItem();
 

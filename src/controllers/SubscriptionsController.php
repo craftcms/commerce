@@ -50,7 +50,7 @@ class SubscriptionsController extends BaseController
      */
     protected function enforceEditSubscriptionPermissions(Subscription $subscription): void
     {
-        if (!$subscription->getIsEditable()){
+        if (!$subscription->getIsEditable()) {
             throw new ForbiddenHttpException('User is not permitted to edit this subscription');
         }
     }
@@ -255,7 +255,7 @@ class SubscriptionsController extends BaseController
         return $this->asSuccess(
             Craft::t('commerce', 'Subscription started.'),
             data: [
-                'subscription' => $subscription,
+                'subscription' => $subscription ?? null,
             ]
         );
     }

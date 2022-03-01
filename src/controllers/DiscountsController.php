@@ -218,11 +218,11 @@ class DiscountsController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getDiscounts()->reorderDiscounts($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder discounts.'));
+        return $this->asSuccess();
     }
 
     /**

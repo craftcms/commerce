@@ -313,12 +313,9 @@ class OrdersController extends Controller
             );
         }
 
-        return $this->asSuccess(
-            '',
-            [
-                'order' => $this->_orderToArray($order)
-            ]
-        );
+        return $this->asSuccess(data: [
+            'order' => $this->_orderToArray($order)
+        ]);
     }
 
     /**
@@ -421,7 +418,7 @@ class OrdersController extends Controller
         ArrayHelper::removeValue($orderFields, 'slug');
 
         if ($order::hasContent() && ($fieldLayout = $order->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 /** @var Field $field */
                 ArrayHelper::removeValue($orderFields, $field->handle);
             }
@@ -523,7 +520,7 @@ class OrdersController extends Controller
 
         $purchasables = $this->_addLivePurchasableInfo($result);
 
-        return $this->asSuccess('',[
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $purchasables,
         ]);
@@ -641,11 +638,11 @@ class OrdersController extends Controller
 
         $order->{$type . 'Id'} = $address->id;
 
-        if (Craft::$app->getElements()->saveElement($order)) {
-            return $this->asSuccess();
+        if (!Craft::$app->getElements()->saveElement($order)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not update orders address.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could not update orders address.'));
+        return $this->asSuccess();
     }
 
     /**

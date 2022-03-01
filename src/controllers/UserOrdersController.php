@@ -36,6 +36,8 @@ class UserOrdersController extends BaseFrontEndController
 
         $orders = $user->getOrders();
 
-        return $this->asSuccess(data: ['orders' => $orders]);
+        return $this->asSuccess(data: [
+            'orders' => $orders,
+        ]);
     }
 }

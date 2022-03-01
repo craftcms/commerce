@@ -113,7 +113,10 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id);
+        if (!Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping zone'));
+        }
+
         return $this->asSuccess();
     }
 
@@ -132,10 +135,11 @@ class ShippingZonesController extends BaseShippingSettingsController
         $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-            return $this->asSuccess();
+
+        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+        return $this->asFailure('failed');
         }
 
-        return $this->asFailure('failed');
+        return $this->asSuccess();
     }
 }

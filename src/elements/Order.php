@@ -1999,7 +1999,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/orders/' . $this->id);
     }

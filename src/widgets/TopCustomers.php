@@ -107,7 +107,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -115,7 +115,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -154,7 +154,7 @@ class TopCustomers extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-products' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

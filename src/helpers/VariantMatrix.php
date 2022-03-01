@@ -91,7 +91,7 @@ class VariantMatrix
         $variant = new Variant();
         $variant->setProduct($product);
 
-        $variantFields = $variant->getFieldLayout()->getFields();
+        $variantFields = $variant->getFieldLayout()->getCustomFields();
 
         foreach ($variantFields as $fieldLayoutField) {
             $fieldLayoutField->setIsFresh(true);
