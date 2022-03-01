@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Added `\craft\commerce\elements\Order::$sourceBillingAddressId`
+- Added `\craft\commerce\elements\Order::$sourceShippingAddressId`
 - Added `craft\commerce\helpers\AddressZone`.
 - Added `craft\commerce\base\AddressZoneInterface::getCountryCode()`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.

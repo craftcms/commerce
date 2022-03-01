@@ -64,8 +64,8 @@ use yii\db\ActiveQueryInterface;
  * @property ActiveQueryInterface $paymentSource
  * @property int $estimatedBillingAddressId
  * @property int $estimatedShippingAddressId
- * @property int $selectedBillingAddressId
- * @property int $selectedShippingAddressId
+ * @property int $sourceBillingAddressId
+ * @property int $sourceShippingAddressId
  * @property Transaction[] $transactions
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

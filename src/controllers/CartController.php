@@ -510,7 +510,7 @@ class CartController extends BaseFrontEndController
             /** @var Address $userShippingAddress */
             $userShippingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $shippingAddressId);
             if ($userShippingAddress) {
-                $this->_cart->selectedShippingAddressId = $shippingAddressId;
+                $this->_cart->sourceShippingAddressId = $shippingAddressId;
                 // If there is already a shipping address on the order, populate it
                 if ($this->_cart->shippingAddressId) {
                     // only set it if it's a different ID
@@ -532,7 +532,7 @@ class CartController extends BaseFrontEndController
             /** @var Address $userBillingAddress */
             $userBillingAddress = Collection::make($currentUser->getAddresses())->firstWhere('id', $billingAddressId);
             if ($userBillingAddress) {
-                $this->_cart->selectedBillingAddressId = $billingAddressId;
+                $this->_cart->sourceBillingAddressId = $billingAddressId;
                 // If there is already a billing address on the order, populate it
                 if ($this->_cart->billingAddressId) {
                     // only set it if it's a different ID

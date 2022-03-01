@@ -760,14 +760,14 @@ class Order extends Element
      * which populated the billing address on the order.
      * @since 4.0
      */
-    public ?int $selectedBillingAddressId = null;
+    public ?int $sourceBillingAddressId = null;
 
     /**
      * @var int|null The shipping address ID that was selected from the customer’s address book,
      * which populated the shipping address on the order.
      * @since 4.0
      */
-    public ?int $selectedShippingAddressId = null;
+    public ?int $sourceShippingAddressId = null;
 
     /**
      * @var bool Whether estimated billing address should be set to the same address as estimated shipping
@@ -1914,8 +1914,8 @@ class Order extends Element
         $orderRecord->message = $this->message;
         $orderRecord->paidStatus = $this->getPaidStatus();
         $orderRecord->recalculationMode = $this->getRecalculationMode();
-        $orderRecord->selectedShippingAddressId = $this->selectedShippingAddressId;
-        $orderRecord->selectedBillingAddressId = $this->selectedBillingAddressId;
+        $orderRecord->sourceShippingAddressId = $this->sourceShippingAddressId;
+        $orderRecord->sourceBillingAddressId = $this->sourceBillingAddressId;
 
         // We want to always have the same date as the element table, based on the logic for updating these in the element service i.e resaving
         $orderRecord->dateUpdated = $this->dateUpdated;

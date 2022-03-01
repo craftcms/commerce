@@ -21,8 +21,8 @@ class m220301_022054_user_addresses extends Migration
         /**
          * Order Addresses
          */
-        $this->addColumn(Table::ORDERS, 'selectedShippingAddressId', $this->integer()->after('estimatedShippingAddressId')); // no need for index as not queryable
-        $this->addColumn(Table::ORDERS, 'selectedBillingAddressId', $this->integer()->after('estimatedBillingAddressId')); // no need for index as not queryable
+        $this->addColumn(Table::ORDERS, 'sourceShippingAddressId', $this->integer()->after('estimatedShippingAddressId')); // no need for index as not queryable
+        $this->addColumn(Table::ORDERS, 'sourceBillingAddressId', $this->integer()->after('estimatedBillingAddressId')); // no need for index as not queryable
 
         /**
          * Zones

@@ -359,8 +359,8 @@ class Install extends Migration
             'shippingAddressId' => $this->integer(),
             'estimatedBillingAddressId' => $this->integer(),
             'estimatedShippingAddressId' => $this->integer(),
-            'selectedShippingAddressId' => $this->integer(),
-            'selectedBillingAddressId' => $this->integer(),
+            'sourceShippingAddressId' => $this->integer(),
+            'sourceBillingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
             'customerId' => $this->integer(), // Customer ID is a User element ID
