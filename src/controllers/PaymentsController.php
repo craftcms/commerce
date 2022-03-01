@@ -477,29 +477,29 @@ class PaymentsController extends BaseFrontEndController
         $error = '';
         $success = $plugin->getPayments()->completePayment($transaction, $error);
 
-        if ($success) {
+        if (!$success) {
+            $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
+            $this->setFailFlash($errorMessage);
+
             if (Craft::$app->getRequest()->getAcceptsJson()) {
                 $data = [
-                    'url' => $transaction->order->returnUrl,
+                    'url' => $transaction->order->cancelUrl,
                 ];
 
-                return $this->asSuccess(data: $data);
+                return $this->asFailure($errorMessage, data: $data);
             }
 
-            return $this->redirect($transaction->order->returnUrl);
+            return $this->redirect($transaction->order->cancelUrl);
         }
-
-        $errorMessage = Craft::t('commerce', 'Payment error: {message}', ['message' => $error]);
-        $this->setFailFlash($errorMessage);
 
         if (Craft::$app->getRequest()->getAcceptsJson()) {
             $data = [
-                'url' => $transaction->order->cancelUrl,
+                'url' => $transaction->order->returnUrl,
             ];
 
-            return $this->asFailure($errorMessage, data: $data);
+            return $this->asSuccess(data: $data);
         }
 
-        return $this->redirect($transaction->order->cancelUrl);
+        return $this->redirect($transaction->order->returnUrl);
     }
 }

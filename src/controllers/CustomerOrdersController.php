@@ -31,6 +31,8 @@ class CustomerOrdersController extends BaseFrontEndController
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
         $orders = $customer->getOrders();
 
-        return $this->asSuccess(data: ['orders' => $orders]);
+        return $this->asSuccess(data: [
+            'orders' => $orders,
+        ]);
     }
 }

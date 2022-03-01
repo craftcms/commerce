@@ -255,7 +255,7 @@ class SubscriptionsController extends BaseController
         return $this->asSuccess(
             Craft::t('commerce', 'Subscription started.'),
             data: [
-                'subscription' => $subscription,
+                'subscription' => $subscription ?? null,
             ]
         );
     }

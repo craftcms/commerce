@@ -132,11 +132,11 @@ class ShippingCategoriesController extends BaseShippingSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getShippingCategories()->deleteShippingCategoryById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping category'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping category'));
+        return $this->asSuccess();
     }
 
     /**

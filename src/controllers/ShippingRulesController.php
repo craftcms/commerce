@@ -216,7 +216,7 @@ class ShippingRulesController extends BaseShippingSettingsController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        $success = Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
+        Plugin::getInstance()->getShippingRules()->reorderShippingRules($ids);
 
         return $this->asSuccess();
     }
@@ -234,17 +234,14 @@ class ShippingRulesController extends BaseShippingSettingsController
             throw new BadRequestHttpException('Product Type ID not submitted');
         }
 
-
         if (Plugin::getInstance()->getShippingRules()->getShippingRuleById($id)) {
             throw new ProductTypeNotFoundException('Can not find product type to delete');
         }
 
-        $deleted = Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id);
-
-        if ($deleted) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getShippingRules()->deleteShippingRuleById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping rule'));
+        return $this->asSuccess();
     }
 }

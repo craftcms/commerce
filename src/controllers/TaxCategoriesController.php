@@ -133,11 +133,11 @@ class TaxCategoriesController extends BaseTaxSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getTaxCategories()->deleteTaxCategoryById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could not delete tax category'));
+        return $this->asSuccess();
     }
 
     /**
