@@ -644,6 +644,8 @@ class Install extends Migration
         $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
             'locationAddressId' => $this->string()->notNull(),
+            'enabledCountries' => $this->text(),
+            'enabledAdministrativeAreas' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),

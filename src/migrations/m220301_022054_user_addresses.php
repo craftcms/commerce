@@ -127,6 +127,8 @@ class m220301_022054_user_addresses extends Migration
             $this->createTable(Table::STORES, [
                 'id' => $this->primaryKey(),
                 'locationAddressId' => $this->integer(),
+                'enabledCountries' => $this->text(),
+                'enabledAdministrativeAreas' => $this->text(),
                 'dateCreated' => $this->dateTime()->notNull(),
                 'dateUpdated' => $this->dateTime()->notNull(),
                 'uid' => $this->uid(),
