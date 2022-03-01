@@ -53,7 +53,7 @@ class MigrateCommerce4 extends Controller
         'custom4',
     ];
 
-    // Custom field options for each field type
+    // Do we migrate the data
     // ['fieldHandle => ['skip'= bool]]
     public $customAddressFieldMigrateOptions = [];
 
@@ -85,7 +85,17 @@ class MigrateCommerce4 extends Controller
     {
         $addressFieldLayout = Craft::$app->getFields()->getLayoutByType(Address::class);
         $existingCustomFields = Collection::make($addressFieldLayout->getCustomFields());
+
         foreach ($this->customAddressFields as $fieldHandle) {
+
+            // Does a field with the same handle exist anywhere?
+            $currentField = Craft::$app->getFields()->getFieldByHandle($fieldHandle, false);
+            $isFieldInAddressFieldLayout = (bool)$existingCustomFields->first(function($field, $key) use ($fieldHandle) {
+                /** @var FieldInterface $field */
+                return $field->handle == $fieldHandle;
+            });
+
+            // Defaults
             $this->customAddressFieldMigrateOptions[$fieldHandle] = [
                 'skip' => true,
                 'newFieldHandle' => '',
@@ -100,13 +110,9 @@ class MigrateCommerce4 extends Controller
 
             $this->customAddressFieldMigrateOptions[$fieldHandle]['skip'] = !$dataExists;
 
-            $existingField = $existingCustomFields->first(function($field, $key) use ($fieldHandle) {
-                /** @var FieldInterface $field */
-                return $field->handle == $fieldHandle;
-            });
-
-            if (!$existingField) {
+            if (!$currentField) {
                 $this->stdout("There is no custom field with handle \"$fieldHandle\", creating field...\n");
+
                 $field = new PlainText([
                     'name' => $fieldHandle,
                     'handle' => $fieldHandle,
@@ -118,8 +124,8 @@ class MigrateCommerce4 extends Controller
                 }
 
                 $field = Craft::$app->getFields()->saveField($field);
-                // TODO putting field into layout.
 
+                // TODO putting field into layout.
             }
         }
     }
