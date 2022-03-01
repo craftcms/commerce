@@ -20,7 +20,7 @@
   },
   "require": {
     "php": "^8.0.2",
-    "craftcms/cms": "^4.0.0-alpha@dev",
+    "craftcms/cms": "^4.0.0-alpha",
     "dompdf/dompdf": "^1.0.2",
     "ibericode/vat": "^1.1.2",
     "iio/libmergepdf": "^4.0"
@@ -46,7 +46,8 @@
     "codeception/module-phpbrowser": "^1.0.0",
     "codeception/module-rest": "^1.0.0",
     "codeception/module-yii2": "^1.0.0",
-    "rector/rector": "^0.12.16",
+    "craftcms/rector": "dev-main",
+    "rector/rector": "dev-main",
     "vlucas/phpdotenv": "^3.4"
   },
   "scripts": {
@@ -64,5 +65,7 @@
       "yiisoft/yii2-composer": true,
       "craftcms/plugin-installer": true
     }
-  }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
 }

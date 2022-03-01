@@ -251,7 +251,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -701,7 +701,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var ProductType $context */
         return $context->handle . '_Product';
@@ -711,7 +711,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -1097,7 +1097,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }

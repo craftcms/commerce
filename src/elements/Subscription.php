@@ -232,7 +232,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -373,7 +373,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }

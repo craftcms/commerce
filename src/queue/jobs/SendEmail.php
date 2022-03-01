@@ -58,7 +58,7 @@ class SendEmail extends BaseJob
     }
 
 
-    protected function defaultDescription(): string
+    protected function defaultDescription(): ?string
     {
         return 'Sending email for order #' . $this->orderId;
     }

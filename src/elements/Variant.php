@@ -345,7 +345,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'variant';
     }
@@ -553,7 +553,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
@@ -561,7 +561,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->product->url . '?variant=' . $this->id;
     }
@@ -604,7 +604,7 @@ class Variant extends Purchasable
 
             // Remove custom fields
             if (($fieldLayout = $product->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     ArrayHelper::removeValue($productAttributes, $field->handle);
                 }
             }
@@ -650,7 +650,7 @@ class Variant extends Purchasable
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 ArrayHelper::removeValue($variantAttributes, $field->handle);
             }
         }
@@ -822,7 +822,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle)
     {
         if ($handle == 'product') {
             // Get the source element IDs
@@ -916,7 +916,7 @@ class Variant extends Purchasable
      * @param mixed $context
      * @since 3.1
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         return $context->handle . '_Variant';
     }
@@ -925,7 +925,7 @@ class Variant extends Purchasable
      * @param mixed $context
      * @since 3.1
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
