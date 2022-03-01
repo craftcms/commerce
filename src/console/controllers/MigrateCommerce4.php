@@ -55,17 +55,17 @@ class MigrateCommerce4 extends Controller
 
     // Do we migrate the data
     // ['fieldHandle => ['skip'= bool]]
-    public $customAddressFieldMigrateOptions = [];
+    public array $customAddressFieldMigrateOptions = [];
 
     /**
      * v3CountryId => countryCode
      */
-    private $_countryCodesByV3CountryId = [];
+    private array $_countryCodesByV3CountryId = [];
 
     /**
      * v3StateId => administrativeArea
      */
-    private $_administrativeAreaByV3StateId = [];
+    private array $_administrativeAreaByV3StateId = [];
 
     /**
      * @return void
@@ -73,6 +73,8 @@ class MigrateCommerce4 extends Controller
     public function init(): void
     {
         parent::init();
+
+        // Collect all the countries and state that were set up in v3
         $this->_countryCodesByV3CountryId = $this->_countryCodesByV3CountryId();
         $this->_administrativeAreaByV3StateId = $this->_administrativeAreaByV3StateId();
     }
@@ -110,21 +112,22 @@ class MigrateCommerce4 extends Controller
 
             $this->customAddressFieldMigrateOptions[$fieldHandle]['skip'] = !$dataExists;
 
-            if (!$currentField) {
+            if (!$currentField || !$isFieldInAddressFieldLayout) {
                 $this->stdout("There is no custom field with handle \"$fieldHandle\", creating field...\n");
 
-                $field = new PlainText([
-                    'name' => $fieldHandle,
-                    'handle' => $fieldHandle,
-                    'translationMethod' => Field::TRANSLATION_METHOD_NONE,
-                ]);
-
-                if ($fieldHandle == 'notes') {
-                    $field->multiline = true;
+                if(!$currentField) {
+                    $currentField = new PlainText([
+                        'name' => $fieldHandle,
+                        'handle' => $fieldHandle,
+                        'translationMethod' => Field::TRANSLATION_METHOD_NONE,
+                    ]);
                 }
 
-                $field = Craft::$app->getFields()->saveField($field);
+                if ($fieldHandle == 'notes') {
+                    $currentField->multiline = true;
+                }
 
+                $field = Craft::$app->getFields()->saveField($currentField);
                 // TODO putting field into layout.
             }
         }
@@ -235,31 +238,24 @@ class MigrateCommerce4 extends Controller
         $address->addressLine1 = $data['address1'] ?? '';
         $address->addressLine2 = $data['address2'] ?? '';
         $address->countryCode = $this->_countryCodesByV3CountryId[$data['countryId']] ?? 'US'; //  get from mapping
-        $address->administrativeArea = $data['stateId'] ?: $data['stateName']; // get from mapping
+        $address->administrativeArea = $this->_administrativeAreaByV3StateId[$data['stateId']] ?? $data['stateName']; //  get from mapping
         $address->postalCode = $data['zipCode'];
         $address->locality = $data['city'];
         $address->dependentLocality = '';
         $address->organization = $data['businessName'];
         $address->organizationTaxId = $data['businessTaxId'];
 
-        // TODO determine if there is data in the column, then migrate to custom field as asked.
-        // Optional custom field addressLine3
-        $address->addressLine3 = $data['address3'];
-        $address->attention = $data['attention'];
-        $address->title = $data['title'];
-        $address->phone = $data['phone'];
-        $address->alternativePhone = $data['alternativePhone'];
-        $address->notes = $data['notes'];
-        $address->businessId = $data['businessId'];
-        $address->custom1 = $data['custom1'];
-        $address->custom2 = $data['custom2'];
-        $address->custom3 = $data['custom3'];
-        $address->custom4 = $data['custom4'];
+
+        // Populate the custom field based on $this->customAddressFieldMigrateOptions
+        foreach($this->customAddressFields as $fieldName){
+            if (!$this->customAddressFieldMigrateOptions[$fieldName]['skip']) {
+                $address->setFieldValue($fieldName, $data[$fieldName]);
+            }
+        }
 
         $address->dateCreated = DateTimeHelper::toDateTime($data['dateCreated']);
         $address->dateUpdated = DateTimeHelper::toDateTime($data['dateUpdated']);
         Craft::$app->getElements()->saveElement($address);
-
         return $address->id;
     }
 
