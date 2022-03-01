@@ -13,7 +13,6 @@ use craft\commerce\errors\CurrencyException;
 use craft\commerce\errors\PaymentException;
 use craft\commerce\errors\PaymentSourceException;
 use craft\commerce\models\PaymentSource;
-use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
 use craft\errors\ElementNotFoundException;
 use yii\base\Exception;

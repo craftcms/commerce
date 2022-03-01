@@ -24,7 +24,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;

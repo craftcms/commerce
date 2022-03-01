@@ -11,7 +11,6 @@ use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin;
 use yii\base\InvalidConfigException;
-use yii\behaviors\AttributeTypecastBehavior;
 
 /**
  * Shipping method option model.

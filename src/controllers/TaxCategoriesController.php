@@ -120,7 +120,6 @@ class TaxCategoriesController extends BaseTaxSettingsController
             Craft::t('commerce', 'Couldn’t save tax category.'),
             'taxCategory'
         );
-
     }
 
     /**

@@ -9,9 +9,9 @@ namespace craft\commerce\services;
 
 use Craft;
 use craft\base\Component;
-use Twig\Error\LoaderError;
 use craft\helpers\Json;
 use craft\web\twig\Environment;
+use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 
 /**

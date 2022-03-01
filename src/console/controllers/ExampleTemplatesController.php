@@ -12,9 +12,9 @@ use craft\commerce\console\Controller;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Console;
 use craft\helpers\FileHelper;
+use craft\helpers\Html;
 use yii\base\ErrorException;
 use yii\base\Exception;
-use craft\helpers\Html;
 use yii\console\ExitCode;
 
 /**
