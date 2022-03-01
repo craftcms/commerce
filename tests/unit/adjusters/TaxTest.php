@@ -78,14 +78,8 @@ class TaxTest extends Unit
                 'getIsEverywhere' => !isset($item['zone']),
                 'getTaxZone' => function() use ($item) {
                     if (isset($item['zone'])) {
-
-                        $countryIds = [];
-                        foreach ($item['zone']['countryIsos'] as $iso) {
-                            $countryIds[] = $this->pluginInstance->getCountries()->getCountryByIso($iso)->id;
-                        }
-
                         return $this->make(TaxAddressZone::class, [
-                            'getCountryIds' => $countryIds,
+                            'getCountryCodes' => $item['zone']['countryIsos'],
                             'getIsCountryBased' => true,
                         ]);
                     }

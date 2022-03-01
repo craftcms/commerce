@@ -15,13 +15,14 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping zone record.
  *
- * @property Country[] $countries
+ * @property string[] $countries
  * @property bool $isCountryBased
+ * @property string $countryCode
  * @property string $description
  * @property string $zipCodeConditionFormula
  * @property int $id
  * @property string $name
- * @property State[] $states
+ * @property string[] $administrativeAreas
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -33,21 +34,5 @@ class ShippingZone extends ActiveRecord
     public static function tableName(): string
     {
         return Table::SHIPPINGZONES;
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getCountries(): ActiveQueryInterface
-    {
-        return $this->hasMany(Country::class, ['id' => 'countryId'])->viaTable(Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId' => 'id']);
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getStates(): ActiveQueryInterface
-    {
-        return $this->hasMany(State::class, ['id' => 'stateId'])->viaTable(Table::SHIPPINGZONE_STATES, ['shippingZoneId' => 'id']);
     }
 }

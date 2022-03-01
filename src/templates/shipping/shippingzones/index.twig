@@ -9,7 +9,7 @@
   'Name',
   'Description',
   'Type',
-  'Countries/States',
+  'Countries/Administrative Areas',
   'Has Zip Condition?',
 ]) %}
 
@@ -29,7 +29,6 @@
         url: url('commerce/shipping/shippingzones/'~shippingZone.id),
         description: shippingZone.description|t('site')|e,
         type: shippingZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
-        countryState: shippingZone.isCountryBased ? shippingZone.getCountriesNames()|join(', ')|e : shippingZone.getStatesLabels()|join(', ')|e,
         zipCondition: shippingZone.zipCodeConditionFormula ? true : false,
     }]) %}
 {% endfor %}
@@ -39,7 +38,6 @@
         { name: '__slot:title', title: Craft.t('commerce', 'Name') },
         { name: 'description', title: Craft.t('commerce', 'Description') },
         { name: 'type', title: Craft.t('commerce', 'Type') },
-        { name: 'countryState', title: Craft.t('commerce', 'Countries/States') },
         {
             name: 'zipCondition',
             title: Craft.t('commerce', 'Has Zip Condition?'),

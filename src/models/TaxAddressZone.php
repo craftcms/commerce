@@ -7,11 +7,13 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
@@ -20,14 +22,12 @@ use yii\base\InvalidConfigException;
 /**
  * Tax zone model.
  *
- * @property Country[] $countries countries in this Tax Zone
- * @property array $countryIds
+ * @property string[] $countries countries in this Tax Zone
  * @property array $countriesNames the names of all countries in this Tax Zone
  * @property string $cpEditUrl
  * @property bool $isCountryBased
- * @property State[] $states all states in this Tax Zone
- * @property array $stateIds
- * @property array $statesNames the names of all states in this Tax Zone
+ * @property string[]|null $administrativeAreas all administrative areas in this Tax Zone
+ * @property array $administrativeAreaNames the names of all administrative areas in this Tax Zone
  * @property array|TaxRate[] $taxRates
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -43,6 +43,11 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      * @var string|null Name
      */
     public ?string $name = null;
+
+    /**
+     * @var string|null Country when administrative area based
+     */
+    public ?string $countryCode = null;
 
     /**
      * @var string|null Description
@@ -78,14 +83,14 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     private bool $_isCountryBased = true;
 
     /**
-     * @var Country[]|null $_countries
+     * @var string[]|null $_countryCodes
      */
     private ?array $_countries = null;
 
     /**
-     * @var State[]|null $_states
+     * @var string[]|null $_administrativeAreas
      */
-    private ?array $_states = null;
+    private ?array $_administrativeAreas = null;
 
 
     public function getCpEditUrl(): string
@@ -102,6 +107,19 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getCountryCode(): ?string
+    {
+        if (!$this->getIsCountryBased()) {
+            return $this->countryCode;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Set if this zone is based on countries only.
      *
      * @param bool $value is the zone country based
@@ -113,7 +131,6 @@ class TaxAddressZone extends Model implements AddressZoneInterface
 
     /**
      * @return TaxRate[]
-     * @throws InvalidConfigException
      */
     public function getTaxRates(): array
     {
@@ -121,76 +138,44 @@ class TaxAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @throws InvalidConfigException
-     */
-    public function getCountryIds(): array
-    {
-        $countries = [];
-        foreach ($this->getCountries() as $country) {
-            $countries[] = $country->id;
-        }
-
-        return $countries;
-    }
-
-    /**
-     *
-     * Returns all countries in this Tax Zone.
-     *
-     * @throws InvalidConfigException
+     * @return string[]
      */
     public function getCountries(): array
     {
-        if ($this->_countries === null && $this->id) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByTaxZoneId($this->id);
-        }
-
         return $this->_countries ?? [];
     }
 
     /**
      * Sets countries in this Tax Zone.
      *
-     * @param Country[] $countries
+     * @param string[]|string $countryCodes
      */
-    public function setCountries(array $countries): void
+    public function setCountries(array $countryCodes): void
     {
-        $this->_countries = $countries;
-    }
-
-    public function getStateIds(): array
-    {
-        $stateIds = [];
-
-        foreach ($this->getStates() as $state) {
-            $stateIds[] = $state->id;
-        }
-
-        return $stateIds;
+        $countryCodes = Json::decodeIfJson($countryCodes);
+        $this->_countries = $countryCodes;
     }
 
     /**
      * Returns all states in this Tax Zone.
      *
-     * @throws InvalidConfigException
+     * @return string[]|null
      */
-    public function getStates(): array
+    public function getAdministrativeAreas(): array
     {
-        if ($this->_states === null && $this->id) {
-            $this->_states = Plugin::getInstance()->getStates()->getStatesByTaxZoneId($this->id);
-        }
-
-        return $this->_states ?? [];
+        return $this->_administrativeAreas;
     }
 
     /**
-     * Sets states in this Tax Zone.
+     * Sets administrative areas in this Tax Zone.
+     * Administrative areas are the administrative area or province.
      *
-     * @param State[] $states
+     * @param string[]|string $administrativeAreas
      */
-    public function setStates(array $states): void
+    public function setAdministrativeAreas(mixed $administrativeAreas): void
     {
-        $this->_states = $states;
+        $administrativeAreas = Json::decodeIfJson($administrativeAreas);
+        $this->_administrativeAreas = $administrativeAreas;
     }
 
     /**
@@ -206,7 +191,13 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      */
     public function getCountriesNames(): array
     {
-        return ArrayHelper::getColumn($this->getCountries(), 'name');
+        $countryNames = [];
+        $countries = $this->getCountries();
+        foreach ($countries as $country) {
+            $countryNames[] = Craft::$app->getAddresses()->getCountryRepository()->get($country)->getName();
+        }
+
+        return $countryNames;
     }
 
     /**
@@ -214,14 +205,16 @@ class TaxAddressZone extends Model implements AddressZoneInterface
      *
      * @throws InvalidConfigException
      */
-    public function getStatesNames(): array
+    public function getAdministrativeAreaNames(): array
     {
-        $stateNames = [];
-        foreach ($this->getStates() as $state) {
-            $stateNames[] = $state->getLabel();
+        $administrativeAreaNames = [];
+        foreach ($this->getAdministrativeAreas() as $administrativeArea) {
+            if ($name = Craft::$app->getAddresses()->getSubdivisionRepository()->get($administrativeArea, [$this->countryCode])?->getName()) {
+                $administrativeAreaNames[] = $name;
+            }
         }
 
-        return $stateNames;
+        return $administrativeAreaNames;
     }
 
     /**
@@ -234,7 +227,7 @@ class TaxAddressZone extends Model implements AddressZoneInterface
             [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
             [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
             [
-                ['states'],
+                ['administrativeAreas','countryCode'],
                 'required',
                 'when' => static function($model) {
                     return !$model->isCountryBased;

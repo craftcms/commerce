@@ -55,6 +55,7 @@ use craft\helpers\UrlHelper;
 use craft\i18n\Locale;
 use craft\models\Site;
 use DateTime;
+use Illuminate\Support\Collection;
 use Throwable;
 use Twig\Markup;
 use yii\base\Exception;
@@ -786,11 +787,11 @@ class Order extends Element
     public ?string $shippingMethodName = null;
 
     /**
-     * @param int $oldStatusId
-     * @param int $currentOrderStatId
+     * @param ?int $oldStatusId
+     * @param ?int $currentOrderStatId
      * @return void
      */
-    private function _saveOrderHistory(int $oldStatusId, int $currentOrderStatId): void
+    private function _saveOrderHistory(?int $oldStatusId, ?int $currentOrderStatId): void
     {
         $hasNewStatus = ($oldStatusId !== $currentOrderStatId);
         if ($this->isCompleted && $hasNewStatus) {
@@ -2827,7 +2828,6 @@ class Order extends Element
             $addressElement->setAttributes($address);
         }
 
-        $address->isEstimated = true;
         $this->estimatedBillingAddressId = $address->id;
         $this->_estimatedBillingAddress = $address;
     }

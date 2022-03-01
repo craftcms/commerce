@@ -1236,12 +1236,6 @@ class OrderQuery extends ElementQuery
             'commerce_orders.orderLanguage',
         ]);
 
-        // Join shipping and billing address
-        $this->query->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' billing_address', '[[billing_address.id]] = [[commerce_orders.billingAddressId]]');
-        $this->query->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-        $this->subQuery->leftJoin(Table::ADDRESSES . ' shipping_address', '[[shipping_address.id]] = [[commerce_orders.shippingAddressId]]');
-
         if (isset($this->number)) {
             // If it's set to anything besides a non-empty string, abort the query
             if (!is_string($this->number) || $this->number === '') {

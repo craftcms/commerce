@@ -18,7 +18,7 @@ use yii\web\HttpException;
 use yii\web\Response;
 
 /**
- * Class Shipping Zones Controller
+ * Class Shipping Zone Controller
  *
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
@@ -28,9 +28,7 @@ class ShippingZonesController extends BaseShippingSettingsController
     public function actionIndex(): Response
     {
         $shippingZones = Plugin::getInstance()->getShippingZones()->getAllShippingZones();
-        return $this->renderTemplate('commerce/shipping/shippingzones/index', [
-            'shippingZones' => $shippingZones,
-        ]);
+        return $this->renderTemplate('commerce/shipping/shippingzones/index', compact('shippingZones'));
     }
 
     /**
@@ -60,9 +58,6 @@ class ShippingZonesController extends BaseShippingSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a shipping zone');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
-
         return $this->renderTemplate('commerce/shipping/shippingzones/_edit', $variables);
     }
 
@@ -80,47 +75,31 @@ class ShippingZonesController extends BaseShippingSettingsController
         $shippingZone->id = Craft::$app->getRequest()->getBodyParam('shippingZoneId');
         $shippingZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $shippingZone->description = Craft::$app->getRequest()->getBodyParam('description');
+        $shippingZone->isCountryBased = (bool)Craft::$app->getRequest()->getBodyParam('isCountryBased');
+        $shippingZone->countryCode = (bool)Craft::$app->getRequest()->getBodyParam('countryCode', 'US');
         $shippingZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
-        $shippingZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
-
-        $countries = [];
-        foreach ($countryIds as $id) {
-            $country = $id ? Plugin::getInstance()->getCountries()->getCountryById($id) : null;
-            if ($country) {
-                $countries[] = $country;
-            }
-        }
+        $shippingZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
+        $countries = Craft::$app->getRequest()->getBodyParam('countries',[]) ?: [];
         $shippingZone->setCountries($countries);
+        $administrativeAreas = Craft::$app->getRequest()->getBodyParam('administrativeAreas',[]) ?: [];
+        $shippingZone->setAdministrativeAreas($administrativeAreas);
 
-        $states = [];
-        foreach ($stateIds as $id) {
-            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
-            if ($state) {
-                $states[] = $state;
-            }
-        }
-        $shippingZone->setStates($states);
-
-        // Save it
-        if (!$shippingZone->validate() || !Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
-            return $this->asModelFailure(
+        if ($shippingZone->validate() && Plugin::getInstance()->getShippingZones()->saveShippingZone($shippingZone)) {
+            return $this->asModelSuccess(
                 $shippingZone,
-                Craft::t('commerce', 'Couldn’t save shipping zone.'),
-                'shippingZone'
+                Craft::t('commerce', 'Shipping zone saved.'),
+                'shippingZone',
+                data: [
+                    'id' => $shippingZone->id,
+                    'name' => $shippingZone->name,
+                ]
             );
         }
 
-        // Success
-        return $this->asModelSuccess(
+        return $this->asModelFailure(
             $shippingZone,
-            Craft::t('commerce', 'Shipping zone saved.'),
-            'shippingZone',
-            data: [
-                'id' => $shippingZone->id,
-                'name' => $shippingZone->name,
-            ]
+            Craft::t('commerce', 'Couldn’t save shipping zone.'),
+            'shippingZone'
         );
     }
 
@@ -134,11 +113,8 @@ class ShippingZonesController extends BaseShippingSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id)) {
-            return $this->asSuccess();
-        }
-
-        return $this->asFailure(Craft::t('commerce', 'Could not delete shipping zone'));
+        Plugin::getInstance()->getShippingZones()->deleteShippingZoneById($id);
+        return $this->asSuccess();
     }
 
     /**

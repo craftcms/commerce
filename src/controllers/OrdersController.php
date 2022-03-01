@@ -24,21 +24,17 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
-use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\commerce\records\UserAddress;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
-use craft\elements\db\UserQuery;
 use craft\elements\User;
+use craft\elements\Address;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
@@ -638,7 +634,7 @@ class OrdersController extends Controller
         }
 
         // Validate Address Id
-        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
+        $address = $addressId ? Address::find()->id($addressId)->one() : null;
         if (!$address) {
             return $this->asFailure(Craft::t('commerce', 'Bad address ID.'));
         }
@@ -1029,25 +1025,6 @@ class OrdersController extends Controller
         $user = $variables['order']->customerId ? User::findOne($variables['order']->customerId) : null;
         Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
-        $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
-
-        if (!empty($statesList)) {
-            foreach ($statesList as &$states) {
-                foreach ($states as $key => &$state) {
-                    $state = [
-                        'id' => $key,
-                        'name' => $state,
-                    ];
-                }
-                $states = array_values($states);
-            }
-        }
-
-        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode($statesList), View::POS_BEGIN);
-        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
-        $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
-        Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
-
         $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         $pdfUrls = [];
         foreach ($pdfs as $pdf) {
@@ -1393,30 +1370,6 @@ class OrdersController extends Controller
             $customer['photo'] = $photo;
         }
 
-
         return $customers;
-    }
-
-    private function _removeReadOnlyAttributesFromArray(array $address): array
-    {
-        if (empty($address)) {
-            return $address;
-        }
-
-        // Remove readonly attributes
-        $readOnly = [
-            'countryIso',
-            'countryText',
-            'stateText',
-            'abbreviationText',
-            'addressLines',
-        ];
-        foreach ($readOnly as $item) {
-            if (array_key_exists($item, $address)) {
-                unset($address[$item]);
-            }
-        }
-
-        return $address;
     }
 }

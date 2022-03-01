@@ -7,27 +7,28 @@
 
 namespace craft\commerce\models;
 
+use Craft;
 use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\base\Model;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingZone as ShippingZoneRecord;
-use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use craft\helpers\UrlHelper;
 use craft\validators\UniqueValidator;
 use DateTime;
+use JetBrains\PhpStorm\Pure;
 use yii\base\InvalidConfigException;
 
 /**
  * Shipping zone model.
  *
- * @property Country[] $countries countries in this Shipping Zone
- * @property array $countryIds all states in this Shipping Zone
+ * @property string[] $countries countries in this Shipping Zone
  * @property array $countriesNames the names of all countries in this Shipping Zone
  * @property string $cpEditUrl
  * @property bool $isCountryBased
- * @property State[] $states all states in this Shipping Zone
- * @property array $stateIds
- * @property array $statesNames the names of all states in this Shipping Zone
+ * @property string[]|null $administrativeAreas all administrative areas in this Shipping Zone
+ * @property-read \craft\commerce\models\ShippingRate[] $shippingRates
+ * @property array $administrativeAreaNames the names of all administrative areas in this Shipping Zone
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */
@@ -42,6 +43,11 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
      * @var string|null Name
      */
     public ?string $name = null;
+
+    /**
+     * @var string|null Country when administrative area based
+     */
+    public ?string $countryCode = null;
 
     /**
      * @var string|null Description
@@ -77,14 +83,14 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     private bool $_isCountryBased = true;
 
     /**
-     * @var Country[]|null
+     * @var string[]|null $_countryCodes
      */
     private ?array $_countries = null;
 
     /**
-     * @var State[]|null
+     * @var string[]|null $_administrativeAreas
      */
-    private ?array $_states = null;
+    private ?array $_administrativeAreas = null;
 
 
     public function getCpEditUrl(): string
@@ -93,76 +99,83 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * @inheritdoc
+     * If this zone is based on countries only.
      */
     public function getIsCountryBased(): bool
     {
         return $this->_isCountryBased;
     }
 
-    public function setIsCountryBased(bool $value): bool
-    {
-        return $this->_isCountryBased = $value;
-    }
-
     /**
-     * @throws InvalidConfigException
+     * @inheritdoc
      */
-    public function getCountryIds(): array
+    public function getCountryCode(): ?string
     {
-        $countries = [];
-
-        foreach ($this->getCountries() as $country) {
-            $countries[] = $country->id;
+        if (!$this->getIsCountryBased()) {
+            return $this->countryCode;
         }
 
-        return $countries;
+        return null;
+    }
+
+
+    /**
+     * Set if this zone is based on countries only.
+     *
+     * @param bool $value is the zone country based
+     */
+    public function setIsCountryBased(bool $value): void
+    {
+        $this->_isCountryBased = $value;
     }
 
     /**
-     * Returns all countries in this Shipping Zone.
-     *
-     * @throws InvalidConfigException
+     * @return ShippingRate[]
+     */
+    public function getShippingRates(): array
+    {
+        return Plugin::getInstance()->getShippingRates()->getShippingRatesByShippingZoneId($this->id);
+    }
+
+    /**
+     * @return string[]
      */
     public function getCountries(): array
     {
-        if ($this->_countries === null && $this->id) {
-            $this->_countries = Plugin::getInstance()->getCountries()->getCountriesByShippingZoneId($this->id);
-        }
-
         return $this->_countries ?? [];
     }
 
     /**
-     * Sets countries in this Tax Zone.
+     * Sets countries in this Shipping Zone.
      *
-     * @param Country[] $countries
+     * @param string[]|string $countries
      */
-    public function setCountries(array $countries): void
+    public function setCountries(mixed $countries): void
     {
+        $countries = Json::decodeIfJson($countries);
         $this->_countries = $countries;
-    }
-
-    /**
-     * @throws InvalidConfigException
-     */
-    public function getStateIds(): array
-    {
-        return ArrayHelper::getColumn($this->getStates(), 'id');
     }
 
     /**
      * Returns all states in this Shipping Zone.
      *
-     * @throws InvalidConfigException
+     * @return string[]|null
      */
-    public function getStates(): array
+    public function getAdministrativeAreas(): array
     {
-        if ($this->_states === null && $this->id) {
-            $this->_states = Plugin::getInstance()->getStates()->getStatesByShippingZoneId($this->id);
-        }
+        return $this->_administrativeAreas ?? [];
+    }
 
-        return $this->_states ?? [];
+    /**
+     * Sets administrative areas in this Shipping Zone.
+     * Administrative areas are the administrative area or province.
+     *
+     * @param string[]|string $administrativeAreas
+     */
+    public function setAdministrativeAreas(mixed $administrativeAreas): void
+    {
+        $administrativeAreas = Json::decodeIfJson($administrativeAreas);
+        $this->_administrativeAreas = $administrativeAreas;
     }
 
     /**
@@ -174,44 +187,34 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
     }
 
     /**
-     * Set states in this shipping Zone.
-     *
-     * @param State[] $states
-     */
-    public function setStates(array $states): void
-    {
-        $this->_states = $states;
-    }
-
-    /**
      * Returns the names of all countries in this Shipping Zone.
-     *
-     * @throws InvalidConfigException
      */
     public function getCountriesNames(): array
     {
-        return ArrayHelper::getColumn($this->getCountries(), 'name');
+        $countryNames = [];
+        $countries = $this->getCountries();
+        foreach ($countries as $country) {
+            $countryNames[] = Craft::$app->getAddresses()->getCountryRepository()->get($country)->getName();
+        }
+
+        return $countryNames;
     }
 
     /**
      * Returns the names of all states in this Shipping Zone.
      *
      * @throws InvalidConfigException
-     * @deprecated in 4.0. Use [[getStatesLabels]] instead.
      */
-    public function getStatesNames(): array
+    public function getAdministrativeAreaNames(): array
     {
-        return $this->getStatesLabels();
-    }
+        $administrativeAreaNames = [];
+        foreach ($this->getAdministrativeAreas() as $administrativeArea) {
+            if ($name = Craft::$app->getAddresses()->getSubdivisionRepository()->get($administrativeArea, [$this->countryCode])?->getName()) {
+                $administrativeAreaNames[] = $name;
+            }
+        }
 
-    /**
-     * Returns the labels of all states in this Shipping Zone.
-     *
-     * @throws InvalidConfigException
-     */
-    public function getStatesLabels(): array
-    {
-        return ArrayHelper::getColumn($this->getStates(), 'label');
+        return $administrativeAreaNames;
     }
 
     /**
@@ -224,7 +227,7 @@ class ShippingAddressZone extends Model implements AddressZoneInterface
             [['zipCodeConditionFormula'], 'string', 'length' => [1, 65000], 'skipOnEmpty' => true],
             [['name'], UniqueValidator::class, 'targetClass' => ShippingZoneRecord::class, 'targetAttribute' => ['name']],
             [
-                ['states'],
+                ['administrativeAreas','countryCode'],
                 'required',
                 'when' => static function($model) {
                     return !$model->isCountryBased;

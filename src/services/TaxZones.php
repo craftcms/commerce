@@ -11,13 +11,12 @@ use Craft;
 use craft\commerce\db\Table;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\records\Country as CountryRecord;
-use craft\commerce\records\State as StateRecord;
-use craft\commerce\records\TaxZone;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\commerce\records\TaxZoneCountry as TaxZoneCountryRecord;
 use craft\commerce\records\TaxZoneState as TaxZoneStateRecord;
+use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
-use craft\helpers\ArrayHelper;
+use craft\helpers\Json;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -34,9 +33,14 @@ use yii\db\StaleObjectException;
 class TaxZones extends Component
 {
     /**
-     * @var TaxAddressZone[]|null
+     * @var bool
      */
-    private ?array $_allTaxZones = null;
+    private bool $_fetchedAllTaxZones = false;
+
+    /**
+     * @var TaxAddressZone[]
+     */
+    private array $_allTaxZones = [];
 
     /**
      * Get all tax zones.
@@ -45,15 +49,17 @@ class TaxZones extends Component
      */
     public function getAllTaxZones(): array
     {
-        if (!isset($this->_allTaxZones)) {
+        if (!$this->_fetchedAllTaxZones) {
             $rows = $this->_createTaxZonesQuery()->all();
 
             foreach ($rows as $row) {
                 $this->_allTaxZones[$row['id']] = new TaxAddressZone($row);
             }
+
+            $this->_fetchedAllTaxZones = true;
         }
 
-        return $this->_allTaxZones ?? [];
+        return $this->_allTaxZones;
     }
 
     /**
@@ -61,15 +67,31 @@ class TaxZones extends Component
      */
     public function getTaxZoneById(int $id): ?TaxAddressZone
     {
-        return ArrayHelper::firstWhere($this->getAllTaxZones(), 'id', $id);
+        if (isset($this->_allTaxZones[$id])) {
+            return $this->_allTaxZones[$id];
+        }
+
+        if ($this->_fetchedAllTaxZones) {
+            return null;
+        }
+
+        $result = $this->_createTaxZonesQuery()
+            ->where(['id' => $id])
+            ->one();
+
+        if (!$result) {
+            return null;
+        }
+
+        return $this->_allTaxZones[$id] = new TaxAddressZone($result);
     }
 
     /**
      * Save a tax zone.
      *
-     * @param bool $runValidation should we validate this zone before saving.
-     * @throws Exception
+     * @param bool $runValidation should we validate this rule before saving.
      * @throws \Exception
+     * @throws Exception
      */
     public function saveTaxZone(TaxAddressZone $model, bool $runValidation = true): bool
     {
@@ -77,21 +99,17 @@ class TaxZones extends Component
             $record = TaxZoneRecord::findOne($model->id);
 
             if (!$record) {
-                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”',
-                    ['id' => $model->id]));
+                throw new Exception(Craft::t('commerce', 'No tax zone exists with the ID “{id}”', ['id' => $model->id]));
             }
         } else {
             $record = new TaxZoneRecord();
         }
 
         if ($runValidation && !$model->validate()) {
-            Craft::info('Tax zone not saved due to validation error.', __METHOD__);
+            Craft::info('Tax rule not saved due to validation error.', __METHOD__);
 
             return false;
         }
-
-        $countryIds = $model->getCountryIds();
-        $stateIds = $model->getStateIds();
 
         //setting attributes
         $record->name = $model->name;
@@ -104,69 +122,12 @@ class TaxZones extends Component
 
         $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
         $record->isCountryBased = $model->isCountryBased;
-        $record->default = $model->default;
+        $record->countryCode = $model->countryCode;
+        $record->countries = Json::encode($model->getCountries());
+        $record->administrativeAreas = Json::encode($model->getAdministrativeAreas());
 
-        //validating given ids
-        if ($record->isCountryBased) {
-            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
-
-            if (!$exist) {
-                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
-            }
-        } else {
-            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
-
-            if (!$exist) {
-                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
-            }
-        }
-
-        if (!$model->validate()) {
-            return false;
-        }
-
-        //saving
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            // Clean out all old links
-            TaxZoneCountryRecord::deleteAll(['taxZoneId' => $record->id]);
-            TaxZoneStateRecord::deleteAll(['taxZoneId' => $record->id]);
-
-            //saving new links
-            if ($model->isCountryBased) {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $countryIds);
-                $cols = ['countryId', 'taxZoneId'];
-                $table = Table::TAXZONE_COUNTRIES;
-            } else {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $stateIds);
-                $cols = ['stateId', 'taxZoneId'];
-                $table = Table::TAXZONE_STATES;
-            }
-            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-            //If this was the default make all others not the default.
-            if ($model->default) {
-                TaxZoneRecord::updateAll(['default' => false], ['not', ['id' => $record->id]]);
-            }
-
-            $transaction->commit();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            throw $e;
-        }
+        $record->save();
+        $model->id = $record->id;
 
         return true;
     }
@@ -180,7 +141,12 @@ class TaxZones extends Component
         $record = TaxZoneRecord::findOne($id);
 
         if ($record) {
-            return (bool)$record->delete();
+            $result = (bool)$record->delete();
+            if ($result) {
+                $this->_clearCaches();
+            }
+
+            return $result;
         }
 
         return false;
@@ -193,9 +159,11 @@ class TaxZones extends Component
     {
         return (new Query())
             ->select([
+                'administrativeAreas',
+                'countries',
+                'countryCode',
                 'dateCreated',
                 'dateUpdated',
-                'default',
                 'description',
                 'id',
                 'isCountryBased',
@@ -203,6 +171,17 @@ class TaxZones extends Component
                 'zipCodeConditionFormula',
             ])
             ->orderBy('name')
-            ->from([Table::TAXZONES]);
+            ->from([Table::SHIPPINGZONES]);
+    }
+
+    /**
+     * Clear memoization.
+     *
+     * @since 3.2.5
+     */
+    private function _clearCaches(): void
+    {
+        $this->_fetchedAllTaxZones = false;
+        $this->_allTaxZones = [];
     }
 }

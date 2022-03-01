@@ -8,9 +8,9 @@ use craft\db\Table as CraftTable;
 use craft\db\Migration;
 
 /**
- * m220222_134640_address_user_schema_changes migration.
+ * m220301_022054_user_addresses migration.
  */
-class m220222_134640_address_user_schema_changes extends Migration
+class m220301_022054_user_addresses extends Migration
 {
     /**
      * @inheritdoc
@@ -23,6 +23,16 @@ class m220222_134640_address_user_schema_changes extends Migration
          */
         $this->addColumn(Table::ORDERS, 'selectedShippingAddressId', $this->integer()->after('estimatedShippingAddressId')); // no need for index as not queryable
         $this->addColumn(Table::ORDERS, 'selectedBillingAddressId', $this->integer()->after('estimatedBillingAddressId')); // no need for index as not queryable
+
+        /**
+         * Zones
+         */
+        $this->addColumn(Table::SHIPPINGZONES, 'countryCode', $this->string()->after('isCountryBased'));
+        $this->addColumn(Table::TAXZONES, 'countryCode', $this->string()->after('isCountryBased'));
+        $this->addColumn(Table::SHIPPINGZONES, 'countries', $this->text()->after('countryCode'));
+        $this->addColumn(Table::SHIPPINGZONES, 'administrativeAreas', $this->text()->after('countryCode'));
+        $this->addColumn(Table::TAXZONES, 'countries', $this->text()->after('countryCode'));
+        $this->addColumn(Table::TAXZONES, 'administrativeAreas', $this->text()->after('countryCode'));
 
         /*
          * Orders
@@ -101,6 +111,16 @@ class m220222_134640_address_user_schema_changes extends Migration
         $this->dropForeignKeyIfExists(Table::PAYMENTSOURCES, ['customerId']);
         $this->renameColumn(Table::PAYMENTSOURCES, 'userId', 'customerId');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
+
+        /**
+         * Order Histories
+         */
+        $this->dropIndexIfExists(Table::ORDERHISTORIES, ['customerId']);
+        $this->dropForeignKeyIfExists(Table::ORDERHISTORIES, ['customerId']);
+        $this->renameColumn(Table::ORDERHISTORIES, 'customerId', 'v3CustomerId'); // move the data
+        $this->addColumn(Table::ORDERHISTORIES, 'userId', $this->integer());
+        $this->createIndex(null, Table::ORDERHISTORIES, 'userId', false);
+        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
 
         // Add new Store table
         if (!Craft::$app->getDb()->tableExists(Table::STORES)) {

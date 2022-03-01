@@ -3,6 +3,8 @@
 ## Unreleased
 
 ### Added
+- Added `craft\commerce\helpers\AddressZone`.
+- Added `craft\commerce\base\AddressZoneInterface::getCountryCode()`.
 - Added `craft\commerce\behaviors\CustomerBehavior`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_EMAIL`.
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_TOTAL`.
@@ -28,6 +30,9 @@
 - `craft\commerce\services\Variants::getAllVariantsByProductId()` now accepts a third param `$includeDisabled`.
 - `craft\commerce\services\LineItems::createLineItem()` no longer has an `$orderId` argument.
 - `craft\commerce\services\LineItems::resolveLineItem()` expects an `$order` argument instead of `$orderId`.
+- `craft\commerce\models\TaxAddressZone::setCountries()` now expects an array of country code strings.
+- `craft\commerce\models\TaxAddressZone::setStatues()` now expects an array of state codes or state name strings.
+- `craft\commerce\services\Addresses::addressWithinZone()` is now found in `craft\commerce\helpers\AddressZone::addressWithinZone()`.
 
 ### Changed (Previously Deprecated)
 - The `cartUpdatedNotice` param is no longer accepted for `commerce/cart/*` requests. Use a hashed `successMessage` param instead.
@@ -49,26 +54,40 @@
 
 ### Removed (Changed in 4.0, not previously deprecated)
 - Removed `craft\commerce\controllers\AddressesController::actionGetCustomerAddresses()`. Use `actionGetUserAddresses()` instead.
+- Removed `craft\commerce\controllers\CountriesController`.
 - Removed `craft\commerce\controllers\CustomerAddressesController`.
 - Removed `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_CUSTOMER`. Use `DISCOUNT_COUNTER_TYPE_USER` instead.
 - Removed `craft\commerce\controllers\PlansController::actionRedirect()`.
+- Removed `craft\commerce\controllers\StatesController`.
 - Removed `craft\commerce\events\CustomerAddressEvent`.
 - Removed `craft\commerce\events\CustomerEvent`.
+- Removed `craft\commerce\models\Country`.
 - Removed `craft\commerce\models\OrderHistory::$customerId`. User `$userId` instead.
 - Removed `craft\commerce\models\OrderHistory::getCustomer()`. User `getUser()` instead.
 - Removed `craft\commerce\models\Settings::$showCustomerInfoTab`. Use `$showEditUserCommerceTab` instead. 
+- Removed `craft\commerce\models\States`.
+- Removed `craft\commerce\models\TaxAddressZone::getCountryIds()`
+- Removed `craft\commerce\models\TaxAddressZone::getStateIds()`
+- Removed `craft\commerce\records\Country`.
 - Removed `craft\commerce\records\CustomerAddress`. Use `UserAddress` instead.
 - Removed `craft\commerce\records\OrderHistory::getCustomer()`. User `getUser()` instead.
+- Removed `craft\commerce\records\ShippingZoneCountry`.
+- Removed `craft\commerce\records\ShippingZoneState`.
+- Removed `craft\commerce\records\States`.
+- Removed `craft\commerce\records\TaxZoneCountry`.
+- Removed `craft\commerce\records\TaxZoneState`.
 - Removed `craft\commerce\services\Addresses`.
+- Removed `craft\commerce\services\Countries`.
+- Removed `craft\commerce\services\States`.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER_ADDRESS`.  Use `Element::EVENT_AFTER_SAVE`, checking for `$event->sender->ownerId` to determine the user address being saved.
 - Removed `craft\commerce\services\Customers::EVENT_AFTER_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER_ADDRESS`.
 - Removed `craft\commerce\services\Customers::EVENT_BEFORE_SAVE_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::SESSION_CUSTOMER`.
 - Removed `craft\commerce\services\Customers::deleteCustomer()`.
-- Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
 - Removed `craft\commerce\services\Customers::forgetCustomer()`.
 - Removed `craft\commerce\services\Customers::getAddressIds()`. Use `ArrayHelper::getColumn($user->getAddresses(), 'id')` instead.
+- Removed `craft\commerce\services\Customers::getCustomer()`. Use `Craft::$app->getUser()->getIdentity()`
 - Removed `craft\commerce\services\Customers::getCustomerByUserId()`.
 - Removed `craft\commerce\services\Customers::getCustomersQuery()`.
 - Removed `craft\commerce\services\Customers::purgeOrphanedCustomers()`.
@@ -77,6 +96,7 @@
 - Removed `craft\commerce\services\Customers::saveUserHandler()`.
 - Removed `craft\commerce\services\Discounts::clearCustomerUsageHistoryById()`. Use `clearUserUsageHistoryById()` instead.
 - Removed `craft\commerce\services\Discounts::getCuustomerUsageStatsById()`. Use `getUserUsageStatsById()` instead.
+- Removed `craft\commerce\services\States`.
 - Removed direct `moneyphp/money` dependency.
 
 ### Removed (Previously Deprecated)

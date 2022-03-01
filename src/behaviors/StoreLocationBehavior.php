@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\elements\Address;
+use craft\events\AuthorizationCheckEvent;
 use craft\events\DefineRulesEvent;
 use craft\events\ModelEvent;
 use DvK\Vat\Validator;
@@ -35,7 +36,17 @@ class StoreLocationBehavior extends Behavior
     {
         return [
             Address::EVENT_AFTER_SAVE => 'saveStoreLocation',
+            Address::EVENT_AUTHORIZE_VIEW => 'authorize',
         ];
+    }
+
+    /**
+     * @param AuthorizationCheckEvent $event
+     * @return void
+     */
+    public function authorize(AuthorizationCheckEvent $event)
+    {
+        $event->authorized = true;
     }
 
     /**

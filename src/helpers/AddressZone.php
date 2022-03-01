@@ -7,6 +7,7 @@
 
 namespace craft\commerce\helpers;
 
+use Craft;
 use craft\commerce\base\AddressZoneInterface;
 use craft\commerce\Plugin;
 use craft\elements\Address;
@@ -26,31 +27,14 @@ class AddressZone
     public static function addressWithinZone(Address $address, AddressZoneInterface $zone): bool
     {
         if ($zone->getIsCountryBased()) {
-            $countryIds = $zone->getCountryIds();
-
-            if (!in_array($address->countryId, $countryIds, false)) {
+            $countryCodes = $zone->getCountries();
+            if (!in_array($address->countryCode, $countryCodes, false)) {
                 return false;
             }
-        }
-
-        if (!$zone->getIsCountryBased()) {
-            $states = [];
-            $countries = [];
-            $stateNames = [];
-            $stateAbbr = [];
-
-            foreach ($zone->getStates() as $state) {
-                $states[] = $state->id;
-                $countries[] = $state->countryId;
-                $stateNames[] = $state->name;
-                $stateAbbr[] = $state->abbreviation;
-            }
-
-            $countryAndStateMatch = (in_array($address->countryId, $countries, false) && in_array($address->stateId, $states, false));
-            $countryAndStateNameMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateName()), array_map('strtolower', $stateNames), false));
-            $countryAndStateAbbrMatch = (in_array($address->countryId, $countries, false) && in_array(strtolower($address->getStateAbbreviation()), array_map('strtolower', $stateAbbr), false));
-
-            if (!$countryAndStateMatch && !$countryAndStateNameMatch && !$countryAndStateAbbrMatch) {
+        }else{
+            $countryAndStateMatch = ($address->countryCode == $zone->getCountryCode()) 
+                && in_array($address->administrativeArea, $zone->getAdministrativeAreas(), false);
+            if (!$countryAndStateMatch) {
                 return false;
             }
         }

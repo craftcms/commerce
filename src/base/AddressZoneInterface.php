@@ -7,9 +7,6 @@
 
 namespace craft\commerce\base;
 
-use craft\commerce\models\Country;
-use craft\commerce\models\State;
-
 /**
  * Zone Interface defines the common interface to be implemented by zones in commerce.
  *
@@ -24,32 +21,23 @@ interface AddressZoneInterface
     public function getIsCountryBased(): bool;
 
     /**
-     * Return the array of Commerce Country IDs this zone contains
-     *
-     * @return int[]
+     * If this zone is not countries based, then it is based on administrative areas, which can only have one country.
      */
-    public function getCountryIds(): array;
+    public function getCountryCode(): ?string;
 
     /**
-     * Return the array of Commerce State IDs this zone contains
+     * Return the array of Country Codes this zone contains
      *
-     * @return int[]
-     */
-    public function getStateIds(): array;
-
-    /**
-     * Return the array of Commerce States this zone contains
-     *
-     * @return State[]
-     */
-    public function getStates(): array;
-
-    /**
-     * Return the array of Commerce Countries this zone contains
-     *
-     * @return Country[]
+     * @return string[]
      */
     public function getCountries(): array;
+
+    /**
+     * Return the array of States (Codes or Names) this zone contains
+     *
+     * @return string[]
+     */
+    public function getAdministrativeAreas(): array;
 
     /**
      * Return the zip code match

@@ -663,29 +663,14 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::SHIPPINGZONE_COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer()->notNull(),
-            'countryId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::SHIPPINGZONE_STATES, [
-            'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::SHIPPINGZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
+            'countryCode' => $this->string(),
+            'countries' => $this->text(),
+            'administrativeAreas' => $this->text(),
             'zipCodeConditionFormula' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -764,29 +749,14 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::TAXZONE_COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer()->notNull(),
-            'countryId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::TAXZONE_STATES, [
-            'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::TAXZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
             'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
+            'countryCode' => $this->string(),
+            'countries' => $this->text(),
+            'administrativeAreas' => $this->text(),
             'zipCodeConditionFormula' => $this->text(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -819,7 +789,7 @@ class Install extends Migration
         ]);
 
         $this->createTable(Table::CUSTOMERS, [
-            'id' => $this->integer()->notNull(), // This is the User element ID
+            'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
             'primaryShippingAddressId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
@@ -881,7 +851,7 @@ class Install extends Migration
         $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
-        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['userId', 'discountId'], true);
+        $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
@@ -1065,8 +1035,8 @@ class Install extends Migration
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TRANSACTIONS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMERS, ['id'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['productId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }

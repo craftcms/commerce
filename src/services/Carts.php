@@ -101,21 +101,7 @@ class Carts extends Component
         $hasOrderLanguageChanged = $originalOrderLanguage != $this->_cart->orderLanguage;
         $hasOrderSiteIdChanged = $originalSiteId != $this->_cart->orderSiteId;
         $hasPaymentCurrencyChanged = $originalPaymentCurrency != $this->_cart->paymentCurrency;
-        $hasUserChanged = $originalUserId != $this->_cart->customerId;
-
-        // Has the customer in session changed?
-        if ($hasUserChanged) {
-            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
-            if ($this->_cart->billingAddressId && $billingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->billingAddressId)) {
-                $billingAddress->id = null;
-                $this->_cart->setBillingAddress($billingAddress);
-            }
-            // Don't lose the data from the address, just drop the ID so when the order is saved, the address belongs to the new customer of the order
-            if ($this->_cart->shippingAddressId && $shippingAddress = Plugin::getInstance()->getAddresses()->getAddressById($this->_cart->shippingAddressId)) {
-                $shippingAddress->id = null;
-                $this->_cart->setShippingAddress($shippingAddress);
-            }
-        }
+        $hasUserChanged = $originalUserId != $this->_cart->getCustomerId();
 
         $hasSomethingChangedOnCart = ($hasIpChanged || $hasOrderLanguageChanged || $hasUserChanged || $hasPaymentCurrencyChanged || $hasOrderSiteIdChanged);
 

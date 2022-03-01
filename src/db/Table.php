@@ -15,18 +15,9 @@ namespace craft\commerce\db;
  */
 abstract class Table
 {
-    /**
-     * @deprecated 4.0.0 Customer Addresses are now stored as Address elements owned by the User element.
-     */
-    public const ADDRESSES = '{{%commerce_addresses}}';
     public const CHARGES = '{{%commerce_charges}}';
-    public const COUNTRIES = '{{%commerce_countries}}';
     public const CUSTOMER_DISCOUNTUSES = '{{%commerce_customer_discountuses}}';
     public const CUSTOMERS = '{{%commerce_customers}}';
-    /**
-     * @deprecated 4.0.0 Customer Addresses are now stored as Address elements owned by the User element.
-     */
-    public const CUSTOMERS_ADDRESSES = '{{%commerce_customers_addresses}}';
     public const DISCOUNT_CATEGORIES = '{{%commerce_discount_categories}}';
     public const DISCOUNT_PURCHASABLES = '{{%commerce_discount_purchasables}}';
     public const DISCOUNT_USERGROUPS = '{{%commerce_discount_usergroups}}';
@@ -61,17 +52,12 @@ abstract class Table
     public const SHIPPINGMETHODS = '{{%commerce_shippingmethods}}';
     public const SHIPPINGRULE_CATEGORIES = '{{%commerce_shippingrule_categories}}';
     public const SHIPPINGRULES = '{{%commerce_shippingrules}}';
-    public const SHIPPINGZONE_COUNTRIES = '{{%commerce_shippingzone_countries}}';
-    public const SHIPPINGZONE_STATES = '{{%commerce_shippingzone_states}}';
     public const SHIPPINGZONES = '{{%commerce_shippingzones}}';
-    public const STATES = '{{%commerce_states}}';
     /** @since 4.0.0 */
     public const STORES = '{{%commerce_stores}}';
     public const SUBSCRIPTIONS = '{{%commerce_subscriptions}}';
     public const TAXCATEGORIES = '{{%commerce_taxcategories}}';
     public const TAXRATES = '{{%commerce_taxrates}}';
-    public const TAXZONE_COUNTRIES = '{{%commerce_taxzone_countries}}';
-    public const TAXZONE_STATES = '{{%commerce_taxzone_states}}';
     public const TAXZONES = '{{%commerce_taxzones}}';
     public const TRANSACTIONS = '{{%commerce_transactions}}';
     public const VARIANTS = '{{%commerce_variants}}';

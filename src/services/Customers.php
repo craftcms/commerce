@@ -163,36 +163,31 @@ class Customers extends Component
      */
     private function _activateUserFromOrder(Order $order): void
     {
-        // Only if on pro edition
-        if (Craft::$app->getEdition() != Craft::Pro) {
+        if (!$order->email) {
             return;
         }
 
-        $user = $order->getCustomer();
+        $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
 
-        // can't create a user without an email
-        if (!$user || !$user->email) {
-            return;
-        }
-
-        // Create a new user
-        $user->firstName = $order->billingAddress?->firstName;
-        $user->lastName = $order->billingAddress?->lastName;
-        $user->pending = true;
-
-        $user->setScenario(Element::SCENARIO_ESSENTIALS);
-
-        if (Craft::$app->getElements()->saveElement($user)) {
-            Craft::$app->getUsers()->assignUserToDefaultGroup($user);
-            $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
-
-            if (!$emailSent) {
-                Craft::warning('User saved, but couldn’t send activation email. Check your email settings.', __METHOD__);
+        if(!$user->getIsCredentialed()) {
+            if(!$user->fullName) {
+                $user->fullName = $order->getBillingAddress()?->fullName ?? $order->getShippingAddress()?->fullName ?? '';
             }
-        } else {
-            $errors = $user->getErrors();
-            Craft::warning('Could not create user on order completion.', __METHOD__);
-            Craft::warning($errors, __METHOD__);
+            $user->pending = true;
+            $user->setScenario(Element::SCENARIO_ESSENTIALS);
+
+            if (Craft::$app->getElements()->saveElement($user)) {
+                Craft::$app->getUsers()->assignUserToDefaultGroup($user);
+                $emailSent = Craft::$app->getUsers()->sendActivationEmail($user);
+
+                if (!$emailSent) {
+                    Craft::warning('"registerUserOnOrderComplete" used to create the user, but couldn’t send an activation email. Check your email settings.', __METHOD__);
+                }
+            } else {
+                $errors = $user->getErrors();
+                Craft::warning('Could not create user on order completion.', __METHOD__);
+                Craft::warning($errors, __METHOD__);
+            }
         }
     }
 

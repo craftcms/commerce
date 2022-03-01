@@ -16,6 +16,7 @@ use craft\commerce\records\ShippingZoneCountry as ShippingZoneCountryRecord;
 use craft\commerce\records\ShippingZoneState as ShippingZoneStateRecord;
 use craft\commerce\records\State as StateRecord;
 use craft\db\Query;
+use craft\helpers\Json;
 use Throwable;
 use yii\base\Component;
 use yii\base\Exception;
@@ -121,65 +122,14 @@ class ShippingZones extends Component
 
         $record->zipCodeConditionFormula = $model->getZipCodeConditionFormula();
         $record->isCountryBased = $model->isCountryBased;
+        $record->countryCode = $model->countryCode;
+        $record->countries = Json::encode($model->getCountries());
+        $record->administrativeAreas = Json::encode($model->getAdministrativeAreas());
 
-        $countryIds = $model->getCountryIds();
-        $stateIds = $model->getStateIds();
+         $record->save();
+         $model->id = $record->id;
 
-        //validating given ids
-        if ($record->isCountryBased) {
-            $exist = CountryRecord::find()->where(['id' => $countryIds])->exists();
-
-            if (!$exist) {
-                $model->addError('countries', Craft::t('commerce', 'At least one country must be selected.'));
-            }
-        } else {
-            $exist = StateRecord::find()->where(['id' => $stateIds])->exists();
-
-            if (!$exist) {
-                $model->addError('states', Craft::t('commerce', 'At least one state must be selected.'));
-            }
-        }
-
-        $db = Craft::$app->getDb();
-        $transaction = $db->beginTransaction();
-
-        try {
-            // Save it!
-            $record->save(false);
-
-            // Now that we have a record ID, save it on the model
-            $model->id = $record->id;
-
-            //deleting old links
-            ShippingZoneCountryRecord::deleteAll(['shippingZoneId' => $record->id]);
-            ShippingZoneStateRecord::deleteAll(['shippingZoneId' => $record->id]);
-
-            //saving new links
-            if ($model->isCountryBased) {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $countryIds);
-                $cols = ['countryId', 'shippingZoneId'];
-                $table = Table::SHIPPINGZONE_COUNTRIES;
-            } else {
-                $rows = array_map(function($id) use ($model) {
-                    return [$id, $model->id];
-                }, $stateIds);
-                $cols = ['stateId', 'shippingZoneId'];
-                $table = Table::SHIPPINGZONE_STATES;
-            }
-            Craft::$app->getDb()->createCommand()->batchInsert($table, $cols, $rows)->execute();
-
-            $transaction->commit();
-
-            $this->_clearCaches();
-        } catch (\Exception $e) {
-            $transaction->rollBack();
-
-            throw $e;
-        }
-
-        return true;
+         return true;
     }
 
     /**
@@ -209,6 +159,9 @@ class ShippingZones extends Component
     {
         return (new Query())
             ->select([
+                'administrativeAreas',
+                'countries',
+                'countryCode',
                 'dateCreated',
                 'dateUpdated',
                 'description',

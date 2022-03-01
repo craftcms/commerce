@@ -90,7 +90,8 @@ trait Routes
             $event->rules['commerce/settings/lineitemstatuses/<id:\d+>'] = 'commerce/line-item-statuses/edit';
 
             // Store Settings
-            $event->rules['commerce/store-settings/location'] = 'commerce/store-location/edit-location';
+            $event->rules['commerce/store-settings/location'] = 'commerce/store/edit-location';
+            $event->rules['commerce/store-settings/market-locations'] = 'commerce/store/edit-market-locations';
 
             $event->rules['commerce/store-settings/paymentcurrencies'] = 'commerce/payment-currencies/index';
             $event->rules['commerce/store-settings/paymentcurrencies/new'] = 'commerce/payment-currencies/edit';
