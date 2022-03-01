@@ -102,12 +102,12 @@
 - Removed direct `moneyphp/money` dependency.
 
 ### Removed (Previously Deprecated)
+- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
 - Removed `availableShippingMethods` from `commerce/cart/*` action JSON responses. Use `availableShippingMethodOptions` instead.
 - Removed `commerce/orders/purchasable-search` action. Use `commerce/orders/purchasables-table` instead.
-- Removed `craft\commerce\base\OrderDeprecatedTrait`.
+- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\base\CustomersController`.
-- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
-- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\base\OrderDeprecatedTrait`.
 - Removed `craft\commerce\elements\Order::getAdjustmentsTotalByType()` has been deprecated. Use `Order::getTotalTax()`, `Order::getTotalDiscount()`, or `Order::getTotalShippingCost()` instead.
 - Removed `craft\commerce\elements\Order::getAvailableShippingMethods()` has been deprecated. Use `Order::getAvailableShippingMethodOptions()` instead.
 - Removed `craft\commerce\elements\Order::getOrderLocale()` has been deprecated. Use `Order::orderLanguage` instead.
@@ -115,13 +115,14 @@
 - Removed `craft\commerce\elements\Order::getShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
 - Removed `craft\commerce\elements\Order::getTotalTaxablePrice()`. Taxable price is now calculated within the tax adjuster.
 - Removed `craft\commerce\elements\Order::setShouldRecalculateAdjustments()` has been deprecated. Use `Order::recalculationMode` instead.
+- Removed `craft\commerce\elements\actions\DeleteOrder`. Using standard `craft\elements\actions\Delete` instead.
+- Removed `craft\commerce\elements\actions\DeleteProduct`. Using standard `craft\elements\actions\Delete` instead.
 - Removed `craft\commerce\elements\traits\OrderDeprecatedTrait`.
 - Removed `craft\commerce\events\LineItemEvent::isValid`.
 - Removed `craft\commerce\helpers\Localization::formatAsPercentage()`.
 - Removed `craft\commerce\models\Email::getPdfTemplatePath()`. Use `craft\commerce\models\Email::getPdf()->getTemplatePath()` instead.
 - Removed `craft\commerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
-- Removed `craft\commerce\Plugin::t()`. Use `Craft::t('commerce', 'My String')` instead.
 - Removed `craft\commerce\queue\jobs\ConsolidateGuestOrders`.
 - Removed `craft\commerce\services\Customers::consolidateOrdersToUser()`.
 - Removed `craft\commerce\services\Customers::getCustomer()`.
@@ -138,7 +139,8 @@
 - Removed `craft\commmerce\models\LineItem::getAdjustmentsTotalByType()` has been deprecated. Use `LineItem::getTax()`, `LineItem::getDiscount()`, or `LineItem::getShippingCost()` instead.
 - Removed `craft\commmerce\models\LineItem::setSaleAmount()`. Sale amount was read only since 3.1.1.
 - Removed `json_encode_filtered` twig filter.
-- Removed `Plugin::getInstance()->getPdf()`. Use `Plugin::getInstance()->getPdfs()` instead.
+- Removed the `orderPdfFilenameFormat` setting.
+- Removed the `orderPdfPath` setting.
 
 ### Fixed
 

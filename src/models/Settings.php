@@ -385,16 +385,6 @@ class Settings extends Model
     public bool $validateCartCustomFieldsOnSubmission = false;
 
     /**
-     * @todo remove in 4.0 #COM-60
-     */
-    private ?string $_orderPdfFilenameFormat = null;
-
-    /**
-     * @todo remove in 4.0 #COM-60
-     */
-    public ?string $_orderPdfPath = null;
-
-    /**
      * @inheritdoc
      */
     public function attributes(): array
@@ -507,63 +497,5 @@ class Settings extends Model
         return [
             [['weightUnits', 'dimensionUnits', 'orderReferenceFormat'], 'required'],
         ];
-    }
-
-    /**
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function setOrderPdfFilenameFormat($value): void
-    {
-        $this->_orderPdfFilenameFormat = $value;
-    }
-
-    /**
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function setOrderPdfPath($value): void
-    {
-        $this->_orderPdfPath = $value;
-    }
-
-    /**
-     * @param bool $fromSettings For use in migration only
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function getOrderPdfFilenameFormat($fromSettings = false): string
-    {
-        if ($fromSettings) {
-            return $this->_orderPdfFilenameFormat ?? '';
-        }
-
-        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
-
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        /** @var Pdf $pdf */
-        $pdf = ArrayHelper::firstValue($pdfs);
-
-        return $pdf->fileNameFormat ?? '';
-    }
-
-    /**
-     * @param bool $fromSettings For use in migration only
-     * @deprecated in 3.2.0. Use the [Default PDF](pdfs.md) model instead.
-     * // TODO only remove when migrations have a breakpoint #COM-60
-     */
-    public function getOrderPdfPath($fromSettings = false): string
-    {
-        if ($fromSettings) {
-            return $this->_orderPdfPath ?? '';
-        }
-
-        Craft::$app->getDeprecator()->log('Settings::getOrderPdfFilenameFormat()', '`Settings::getOrderPdfFilenameFormat()` has been deprecated. Use the configured default PDF model instead.');
-
-        $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
-        /** @var Pdf $pdf */
-        $pdf = ArrayHelper::firstValue($pdfs);
-
-        return $pdf->templatePath ?? '';
     }
 }
