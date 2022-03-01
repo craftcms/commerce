@@ -17,7 +17,7 @@ use craft\commerce\records\Customer as CustomerRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\elements\User;
 use craft\events\ModelEvent;
-use craft\events\UserEvent;
+use yii\web\UserEvent;
 use craft\helpers\ArrayHelper;
 
 /**
