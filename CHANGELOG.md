@@ -4,6 +4,7 @@
 
 ### Added
 - Added support for PHP 8.1.
+- Added parent::behaviors() to `\craft\commerce\models\ProductType::behaviors()` to be able to add additional behaviors. ([#2715](https://github.com/craftcms/commerce/issues/2715))
 
 ### Fixed
 - Fixed a bug where collapsed variant blocks weren’t showing the correct preview text on the Edit Product page.
