@@ -858,12 +858,6 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId', 'countryId'], true);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId', 'stateId'], true);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'stateId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
@@ -875,12 +869,6 @@ class Install extends Migration
         $this->createIndex(null, Table::TAXCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, ['taxZoneId', 'countryId'], true);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, ['taxZoneId', 'stateId'], true);
-        $this->createIndex(null, Table::TAXZONE_STATES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, 'stateId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
