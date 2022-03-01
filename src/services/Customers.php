@@ -28,27 +28,6 @@ use craft\helpers\ArrayHelper;
  */
 class Customers extends Component
 {
-
-    /**
-     * Handle user save
-     *
-     * @param ModelEvent $event
-     * @return void
-     */
-    public function afterSaveUserHandler(ModelEvent $event)
-    {
-        /** @var User|CustomerBehavior $user */
-        $user = $event->sender;
-
-        if ($user->primaryBillingAddressId) {
-            $this->savePrimaryBillingAddressId($user, $user->primaryBillingAddressId);
-        }
-
-        if ($user->primaryShippingAddressId) {
-            $this->savePrimaryShippingAddressId($user, $user->primaryShippingAddressId);
-        }
-    }
-
     /**
      * @param User $user
      * @param int $addressId

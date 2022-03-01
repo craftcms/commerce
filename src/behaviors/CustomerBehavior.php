@@ -12,6 +12,7 @@ use craft\commerce\elements\Subscription;
 use craft\commerce\Plugin;
 use craft\elements\Address;
 use craft\elements\User;
+use craft\events\ModelEvent;
 use craft\helpers\ArrayHelper;
 use yii\base\Behavior;
 use yii\base\InvalidConfigException;
@@ -59,6 +60,35 @@ class CustomerBehavior extends Behavior
         }
 
         parent::attach($owner);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function events()
+    {
+        return [
+            User::EVENT_AFTER_SAVE => 'afterSaveUserHandler',
+        ];
+    }
+
+    /**
+     * @param ModelEvent $event
+     * @return void
+     * @throws InvalidConfigException
+     */
+    public function afterSaveUserHandler(ModelEvent $event)
+    {
+        /** @var User|CustomerBehavior $user */
+        $user = $event->sender;
+
+        if ($user->primaryBillingAddressId) {
+            Plugin::getInstance()->getCustomers()->savePrimaryBillingAddressId($user, $user->primaryBillingAddressId);
+        }
+
+        if ($user->primaryShippingAddressId) {
+            Plugin::getInstance()->getCustomers()->savePrimaryShippingAddressId($user, $user->primaryShippingAddressId);
+        }
     }
 
     /**
