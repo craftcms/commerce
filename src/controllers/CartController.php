@@ -516,6 +516,7 @@ class CartController extends BaseFrontEndController
                     // only set it if it's a different ID
                     if (($this->_cart->shippingAddressId !== $shippingAddressId) && $currentShippingAddress = $this->_cart->getShippingAddress()) {
                         $currentShippingAddress->setAttributes($userShippingAddress->attributes());
+                        // TODO update custom fields
                         $this->_cart->setBillingAddress($userShippingAddress);
                     }
                 } else {
@@ -538,6 +539,7 @@ class CartController extends BaseFrontEndController
                     // only set it if it's a different ID
                     if (($this->_cart->billingAddressId !== $billingAddressId) && $currentBillingAddress = $this->_cart->getBillingAddress()) {
                         $currentBillingAddress->setAttributes($userBillingAddress->attributes());
+                        // TODO update custom fields
                         $this->_cart->setBillingAddress($userBillingAddress);
                     }
                 } else {
