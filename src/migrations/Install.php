@@ -81,39 +81,6 @@ class Install extends Migration
      */
     public function createTables(): void
     {
-        $this->createTable(Table::ADDRESSES, [
-            'id' => $this->primaryKey(),
-            'countryId' => $this->integer(),
-            'stateId' => $this->integer(),
-            'isStoreLocation' => $this->boolean()->notNull()->defaultValue(false),
-            'attention' => $this->string(),
-            'title' => $this->string(),
-            'firstName' => $this->string(),
-            'lastName' => $this->string(),
-            'fullName' => $this->string(),
-            'address1' => $this->string(),
-            'address2' => $this->string(),
-            'address3' => $this->string(),
-            'city' => $this->string(),
-            'zipCode' => $this->string(),
-            'phone' => $this->string(),
-            'alternativePhone' => $this->string(),
-            'label' => $this->string(),
-            'notes' => $this->text(),
-            'businessName' => $this->string(),
-            'businessTaxId' => $this->string(),
-            'businessId' => $this->string(),
-            'stateName' => $this->string(),
-            'custom1' => $this->string(),
-            'custom2' => $this->string(),
-            'custom3' => $this->string(),
-            'custom4' => $this->string(),
-            'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::CUSTOMERS, [
             'customerId' => $this->integer()->notNull(), // This is the User element ID
             'primaryBillingAddressId' => $this->integer(),
