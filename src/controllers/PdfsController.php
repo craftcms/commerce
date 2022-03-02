@@ -135,7 +135,7 @@ class PdfsController extends BaseAdminController
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
         Plugin::getInstance()->getPdfs()->deletePdfById($id);
-        return $this->asJson(['success' => true]);
+        return $this->asSuccess();
     }
 
     /**
@@ -149,10 +149,10 @@ class PdfsController extends BaseAdminController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder PDFs.')]);
+        return $this->asSuccess();
     }
 }

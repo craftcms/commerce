@@ -24,7 +24,6 @@ use craft\helpers\ArrayHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use DateInterval;
 use DateTime;
 use Exception;
@@ -232,7 +231,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return Craft::$app->getFields()->getLayoutByType(static::class);
     }
@@ -373,7 +372,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/subscriptions/' . $this->id);
     }
@@ -497,7 +496,7 @@ class Subscription extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
 

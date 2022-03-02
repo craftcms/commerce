@@ -49,7 +49,7 @@ class Product
         $variantModel->enabled = (bool)($variant['enabled'] ?? 1);
         $variantModel->isDefault = (bool)($variant['isDefault'] ?? 0);
         $variantModel->sku = $variant['sku'] ?? '';
-        $variantModel->price = LocalizationHelper::normalizeNumber($variant['price']);
+        $variantModel->price = (float)LocalizationHelper::normalizeNumber($variant['price']);
         $variantModel->width = isset($variant['width']) ? LocalizationHelper::normalizeNumber($variant['width']) : null;
         $variantModel->height = isset($variant['height']) ? LocalizationHelper::normalizeNumber($variant['height']) : null;
         $variantModel->length = isset($variant['length']) ? LocalizationHelper::normalizeNumber($variant['length']) : null;

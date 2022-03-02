@@ -44,7 +44,7 @@ class BaseFrontEndController extends BaseController
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = true;
+    protected array|bool|int $allowAnonymous = true;
 
     protected function cartArray(Order $cart): array
     {

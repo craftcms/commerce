@@ -9,6 +9,7 @@ namespace craft\commerce\elements;
 
 use Craft;
 use craft\base\Element;
+use craft\base\ElementInterface;
 use craft\commerce\behaviors\CurrencyAttributeBehavior;
 use craft\commerce\db\Table;
 use craft\commerce\elements\actions\CreateDiscount;
@@ -28,13 +29,13 @@ use craft\elements\actions\Duplicate;
 use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQueryInterface;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -249,7 +250,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -301,6 +302,81 @@ class Product extends Element
     public function __toString(): string
     {
         return (string)$this->title;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canView(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canSave(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDuplicate(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDelete(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canDeleteForSite(User $user): bool
+    {
+        return Craft::$app->getUser()->checkPermission('commerce-manageProductType:' . $this->getType()->uid);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function canCreateDrafts(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function createAnother(): ?ElementInterface
+    {
+        return null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCrumbs(): array
+    {
+        $type = $this->getType();
+
+        return [
+            [
+                'label' => Craft::t('commerce', 'Products'),
+                'url' => 'commerce/products',
+            ],
+            [
+                'label' => Craft::t('site', $type->name),
+                'url' => "commerce/products/$type->name",
+            ]
+        ];
     }
 
     /**
@@ -624,7 +700,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var ProductType $context */
         return $context->handle . '_Product';
@@ -634,7 +710,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -655,7 +731,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
@@ -1020,7 +1096,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
@@ -1289,7 +1365,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected function route()
+    protected function route(): array|string|null
     {
         // Make sure that the product is actually live
         if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {

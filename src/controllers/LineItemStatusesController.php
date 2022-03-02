@@ -112,11 +112,11 @@ class LineItemStatusesController extends BaseAdminController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
-            return $this->asJson(['success' => $success]);
+        if (!Plugin::getInstance()->getLineItemStatuses()->reorderLineItemStatuses($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t reorder  Line Item Statuses.')]);
+        return $this->asSuccess();
     }
 
     /**
@@ -129,10 +129,10 @@ class LineItemStatusesController extends BaseAdminController
 
         $lineItemStatusId = Craft::$app->getRequest()->getRequiredParam('id');
 
-        if (Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
-            return $this->asJson(['success' => true]);
+        if (!Plugin::getInstance()->getLineItemStatuses()->archiveLineItemStatusById((int)$lineItemStatusId)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t archive Line Item Status.'));
         }
 
-        return $this->asJson(['error' => Craft::t('commerce', 'Couldn’t archive Line Item Status.')]);
+        return $this->asSuccess();
     }
 }

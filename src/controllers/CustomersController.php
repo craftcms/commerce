@@ -172,7 +172,7 @@ class CustomersController extends BaseCpController
             ];
         }
 
-        return $this->asJson([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);

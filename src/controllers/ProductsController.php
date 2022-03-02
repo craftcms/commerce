@@ -192,22 +192,18 @@ class ProductsController extends BaseController
         $this->enforceDeleteProductPermissions($product);
 
         if (!Craft::$app->getElements()->deleteElement($product)) {
-            if (Craft::$app->getRequest()->getAcceptsJson()) {
-                return $this->asJson(['success' => false]);
-            }
-
-            $this->setFailFlash(Craft::t('commerce', 'Couldn’t delete product.'));
-            Craft::$app->getUrlManager()->setRouteParams([
-                'product' => $product,
-            ]);
+            return $this->asModelFailure(
+                $product,
+                Craft::t('commerce', 'Couldn’t delete product.'),
+                'product'
+            );
         }
 
-        if (Craft::$app->getRequest()->getAcceptsJson()) {
-            return $this->asJson(['success' => true]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Product deleted.'));
-        return $this->redirectToPostedUrl($product);
+        return $this->asModelSuccess(
+            $product,
+            Craft::t('commerce', 'Product deleted.'),
+            'product'
+        );
     }
 
     /**
@@ -259,22 +255,22 @@ class ProductsController extends BaseController
                     /** @var Product $clone */
                     $clone = $e->element;
 
+                    $message = Craft::t('commerce', 'Couldn’t duplicate product.');
                     if ($request->getAcceptsJson()) {
-                        return $this->asJson([
-                            'success' => false,
-                            'errors' => $clone->getErrors(),
-                        ]);
+                        return $this->asModelFailure(
+                            $clone,
+                            $message,
+                            'product'
+                        );
                     }
 
-                    $this->setFailFlash(Craft::t('commerce', 'Couldn’t duplicate product.'));
-
-                    // Send the original product back to the template, with any validation errors on the clone
                     $oldProduct->addErrors($clone->getErrors());
-                    Craft::$app->getUrlManager()->setRouteParams([
-                        'product' => $oldProduct,
-                    ]);
 
-                    return null;
+                    return $this->asModelFailure(
+                        $oldProduct,
+                        $message,
+                        'product'
+                    );
                 } catch (\Throwable $e) {
                     throw new ServerErrorHttpException(Craft::t('commerce', 'An error occurred when duplicating the product.'), 0, $e);
                 }
@@ -302,25 +298,24 @@ class ProductsController extends BaseController
 
             if (!$success) {
                 $transaction->rollBack();
-
+                $message = Craft::t('commerce', 'Couldn’t save product.');
                 if ($request->getAcceptsJson()) {
-                    return $this->asJson([
-                        'success' => false,
-                        'errors' => $product->getErrors(),
-                    ]);
+                    return $this->asModelFailure(
+                        $product,
+                        $message,
+                        'product'
+                    );
                 }
-
-                $this->setFailFlash(Craft::t('commerce', 'Couldn’t save product.'));
 
                 if ($duplicate) {
                     // Add validation errors on the original product
                     $oldProduct->addErrors($product->getErrors());
                 }
-                Craft::$app->getUrlManager()->setRouteParams([
-                    'product' => $oldProduct,
-                ]);
-
-                return null;
+                return $this->asModelFailure(
+                    $oldProduct,
+                    $message,
+                    'product'
+                );
             }
 
             $transaction->commit();
@@ -329,20 +324,18 @@ class ProductsController extends BaseController
             throw $e;
         }
 
-        if ($request->getAcceptsJson()) {
-            return $this->asJson([
-                'success' => true,
+        return $this->asModelSuccess(
+            $product,
+            Craft::t('commerce', 'Product saved.'),
+            'product',
+            [
                 'id' => $product->id,
                 'title' => $product->title,
                 'status' => $product->getStatus(),
                 'url' => $product->getUrl(),
                 'cpEditUrl' => $product->getCpEditUrl(),
-            ]);
-        }
-
-        $this->setSuccessFlash(Craft::t('commerce', 'Product saved.'));
-
-        return $this->redirectToPostedUrl($product);
+            ]
+        );
     }
 
     /**
@@ -362,7 +355,7 @@ class ProductsController extends BaseController
      */
     protected function enforceEditProductPermissions(Product $product): void
     {
-        if (!$product->getIsEditable()){
+        if (!$product->canView(Craft::$app->getUser()->getIdentity())) {
             throw new ForbiddenHttpException('User is not permitted to edit this product');
         }
     }
@@ -373,7 +366,8 @@ class ProductsController extends BaseController
      */
     protected function enforceDeleteProductPermissions(Product $product): void
     {
-        if (!$product->getIsDeletable()) {
+        $user = Craft::$app->getUser()->getIdentity();
+        if (!$product->canDelete($user) || !$product->canDeleteForSite($user)) {
             throw new ForbiddenHttpException('User is not permitted to delete this product');
         }
     }

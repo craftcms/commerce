@@ -24,7 +24,7 @@ class WebhooksController extends BaseController
     /**
      * @inheritdoc
      */
-    protected $allowAnonymous = ['process-webhook'];
+    protected array|bool|int $allowAnonymous = ['process-webhook'];
 
     /**
      * @inheritdoc
