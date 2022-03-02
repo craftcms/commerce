@@ -1342,11 +1342,6 @@ class Order extends Element
             };
         }
 
-        //TODO Remove this when we require Craft 4 and the bahaviour can support the define fields event  #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
