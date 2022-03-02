@@ -12,7 +12,7 @@
                        v-if="!customer.photo && !customer.fullName && customer.firstName">{{customer.firstName[0]}}
                   </div>
               </div>
-              <span class="status" :class="customer.user.status" v-if="customer.user"></span>
+              <span class="status" :class="customer.status"></span>
           </div>
           <div class="customer-info-container ml-1">
               <div v-if="customer.fullName">{{customer.fullName}}</div>
@@ -23,9 +23,6 @@
               <div class="w-full" v-if="display && (customer.url || (customer.user && customer.user.url))">
                   <a :href="customer.url"
                      v-if="customer.url">{{$options.filters.t('View customer', 'commerce')}}</a>
-                  <span v-if="customer.url && customer.user && customer.user.url"> | </span>
-                  <a :href="customer.user.url"
-                      v-if="customer.user && customer.user.url">{{$options.filters.t('View user', 'commerce')}}</a>
               </div>
           </div>
       </div>

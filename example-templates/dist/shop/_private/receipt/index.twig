@@ -35,9 +35,7 @@
           {{- craft.app.systemName -}}
         </h3>
         {% if order.shippingAddress %}
-          {{ include('shop/_private/address/address', {
-            address: order.shippingAddress
-          }) }}
+          {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
         {% endif %}
       </td>
     </tr>

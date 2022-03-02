@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -58,8 +59,14 @@ class TaxZonesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');
         }
 
-        $variables['countries'] = Plugin::getInstance()->getCountries()->getAllEnabledCountriesAsList();
-        $variables['states'] = Plugin::getInstance()->getStates()->getAllEnabledStatesAsList();
+        $condition = $variables['taxZone']->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
 
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
@@ -74,33 +81,11 @@ class TaxZonesController extends BaseTaxSettingsController
 
         $taxZone = new TaxAddressZone();
 
-        // Shared attributes
         $taxZone->id = Craft::$app->getRequest()->getBodyParam('taxZoneId');
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $countryIds = Craft::$app->getRequest()->getBodyParam('countries') ?: [];
-        $stateIds = Craft::$app->getRequest()->getBodyParam('states') ?: [];
-
-        $countries = [];
-        foreach ($countryIds as $id) {
-            $country = $id ? Plugin::getInstance()->getCountries()->getCountryById($id) : null;
-            if ($country) {
-                $countries[] = $country;
-            }
-        }
-        $taxZone->setCountries($countries);
-
-        $states = [];
-        foreach ($stateIds as $id) {
-            $state = $id ? Plugin::getInstance()->getStates()->getStateById($id) : null;
-            if ($state) {
-                $states[] = $state;
-            }
-        }
-        $taxZone->setStates($states);
+        $taxZone->setCondition(Craft::$app->getRequest()->getBodyParam('condition'));
 
         if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
             return $this->asModelSuccess(

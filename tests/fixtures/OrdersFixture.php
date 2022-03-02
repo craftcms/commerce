@@ -35,7 +35,6 @@ class OrdersFixture extends BaseElementFixture
      */
     public $depends = [
         ProductFixture::class,
-        CustomersAddressesFixture::class,
         OrderStatusesFixture::class,
     ];
 
@@ -68,6 +67,11 @@ class OrdersFixture extends BaseElementFixture
      */
     protected function populateElement(ElementInterface $element, array $attributes): void
     {
+        $customerEmail = ArrayHelper::remove($attributes, '_customerEmail');
+        if ($customerEmail && $user = Craft::$app->getUsers()->ensureUserByEmail($customerEmail)) {
+            $attributes['customerId'] = $user->id;
+        }
+
         $this->_lineItems = ArrayHelper::remove($attributes, '_lineItems');
         $this->_markAsComplete = ArrayHelper::remove($attributes, '_markAsComplete');
         $this->_dateOrdered = ArrayHelper::remove($attributes, '_dateOrdered');
@@ -156,7 +160,7 @@ class OrdersFixture extends BaseElementFixture
         $addressIds = array_filter($addressIds);
         if (!empty($addressIds)) {
             foreach ($addressIds as $addressId) {
-                Plugin::getInstance()->getAddresses()->deleteAddressById($addressId);
+                Craft::$app->getElements()->deleteElementById($addressId);
             }
         }
 

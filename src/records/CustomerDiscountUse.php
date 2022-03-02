@@ -9,6 +9,8 @@ namespace craft\commerce\records;
 
 use craft\commerce\db\Table;
 use craft\db\ActiveRecord;
+use craft\records\Element;
+use craft\records\User;
 use yii\db\ActiveQueryInterface;
 
 /**
@@ -37,9 +39,12 @@ class CustomerDiscountUse extends ActiveRecord
     {
         return $this->hasOne(Discount::class, ['id', 'discountId']);
     }
-
+    
+    /**
+     * @return ActiveQueryInterface
+     */
     public function getCustomer(): ActiveQueryInterface
     {
-        return $this->hasOne(Customer::class, ['id', 'customerId']);
+        return $this->hasOne(Element::class, ['id', 'customerId']);
     }
 }

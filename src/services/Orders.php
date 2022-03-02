@@ -10,9 +10,11 @@ namespace craft\commerce\services;
 use Craft;
 use craft\base\Field;
 use craft\commerce\elements\Order;
-use craft\commerce\models\Customer;
+use craft\elements\Address;
+use craft\elements\User;
 use craft\events\ConfigEvent;
 use craft\events\FieldEvent;
+use craft\helpers\ArrayHelper;
 use craft\helpers\ProjectConfig as ProjectConfigHelper;
 use craft\models\FieldLayout;
 use yii\base\Component;
@@ -27,7 +29,6 @@ use yii\base\Exception;
 class Orders extends Component
 {
     const CONFIG_FIELDLAYOUT_KEY = 'commerce.orders.fieldLayouts';
-
 
     /**
      * Handle field layout change
@@ -97,11 +98,7 @@ class Orders extends Component
             return null;
         }
 
-        $query = Order::find();
-        $query->id($id);
-        $query->status(null);
-
-        return $query->one();
+        return Order::find()->id($id)->status(null)->one();
     }
 
     /**
@@ -109,25 +106,23 @@ class Orders extends Component
      */
     public function getOrderByNumber(string $number): ?Order
     {
-        $query = Order::find();
-        $query->number($number);
-
-        return $query->one();
+        return Order::find()->number($number)->one();
     }
 
     /**
      * Get all orders by their customer.
      *
+     * @param int|User $customer
      * @return Order[]|null
      */
-    public function getOrdersByCustomer(\craft\commerce\models\Customer|int $customer): ?array
+    public function getOrdersByCustomer(User|int $customer): ?array
     {
         if (!$customer) {
             return null;
         }
 
         $query = Order::find();
-        if ($customer instanceof Customer) {
+        if ($customer instanceof User) {
             $query->customer($customer);
         } else {
             $query->customerId($customer);
@@ -145,11 +140,35 @@ class Orders extends Component
      */
     public function getOrdersByEmail(string $email): ?array
     {
-        $query = Order::find();
-        $query->email($email);
-        $query->isCompleted();
-        $query->limit(null);
+        return Order::find()->email($email)->isCompleted()->limit(null)->all();
+    }
 
-        return $query->all();
+    /**
+     * @param array|Order[] $orders
+     * @return Order[]
+     * @since 4.0.0
+     */
+    public function eagerLoadAddressesForOrders(array $orders): array
+    {
+        $shippingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'shippingAddressId'));
+        $billingAddressIds = array_filter(ArrayHelper::getColumn($orders, 'billingAddressId'));
+        $ids = array_unique(array_merge($shippingAddressIds, $billingAddressIds));
+
+        $addresses = Address::find()->id($ids)->indexBy('id')->all();
+
+        foreach ($orders as $key => $order) {
+
+            if (isset($order['shippingAddressId'], $addresses[$order['shippingAddressId']])) {
+                $order->setShippingAddress($addresses[$order['shippingAddressId']]);
+            }
+
+            if (isset($order['billingAddressId'], $addresses[$order['billingAddressId']])) {
+                $order->setBillingAddress($addresses[$order['billingAddressId']]);
+            }
+
+            $orders[$key] = $order;
+        }
+
+        return $orders;
     }
 }

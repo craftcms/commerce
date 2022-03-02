@@ -24,19 +24,17 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\helpers\LineItem;
 use craft\commerce\helpers\Locale;
 use craft\commerce\helpers\Purchasable;
-use craft\commerce\models\Address;
-use craft\commerce\models\Customer;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\OrderNotice;
 use craft\commerce\models\Transaction;
 use craft\commerce\Plugin;
-use craft\commerce\records\CustomerAddress;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\web\assets\commercecp\CommerceCpAsset;
 use craft\commerce\web\assets\commerceui\CommerceOrderAsset;
 use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\User;
+use craft\elements\Address;
 use craft\errors\ElementNotFoundException;
 use craft\helpers\AdminTable;
 use craft\helpers\ArrayHelper;
@@ -107,22 +105,31 @@ class OrdersController extends Controller
      * @throws ForbiddenHttpException
      * @throws Throwable
      */
-    public function actionNewOrder(): Response
+    public function actionCreate(): Response
     {
         $this->requirePermission('commerce-editOrders');
 
-        $customerId = Craft::$app->getRequest()->getParam('customerId', null);
+        $userId = Craft::$app->getRequest()->getParam('userId', null);
+        $user = $userId ? Craft::$app->getUsers()->getUserById($userId) : null;
 
-        $order = new Order();
-        $order->number = Plugin::getInstance()->getCarts()->generateCartNumber();
-
-        if (!$customerId || !$customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
-            $customer = new Customer();
-            Plugin::getInstance()->getCustomers()->saveCustomer($customer);
+        if ($userId && !$user) {
+            throw new BadRequestHttpException("Invalid user ID: $userId");
         }
 
-        $order->setCustomer($customer);
-        $order->origin = Order::ORIGIN_CP;
+        $attributes = [
+            'number' => Plugin::getInstance()->getCarts()->generateCartNumber(),
+            'origin' => Order::ORIGIN_CP,
+        ];
+
+        if ($user) {
+            $attributes['customerId'] = $user->id;
+        }
+
+        $order = Craft::createObject(Order::class, [
+            'config' => [
+                'attributes' => $attributes,
+            ],
+        ]);
 
         if (!Craft::$app->getElements()->saveElement($order)) {
             throw new Exception(Craft::t('commerce', 'Can not create a new order'));
@@ -333,7 +340,7 @@ class OrdersController extends Controller
             return $this->asFailure(Craft::t('commerce', 'Customer ID is required.'));
         }
 
-        $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId);
+        $customer = Craft::$app->getUsers()->getUserById($customerId);
 
         if (!$customer) {
             return $this->asFailure(Craft::t('commerce', 'Unable to retrieve customer.'));
@@ -532,15 +539,13 @@ class OrdersController extends Controller
             return $this->asJson($customers);
         }
 
-        $customersQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery($query);
+        $userQuery = User::find()->status(null)->limit($limit);
 
-        $customersQuery->limit($limit);
+        if ($query) {
+            $userQuery->search($query);
+        }
 
-        $customers = $customersQuery->all();
-
-        $customers = $this->_prepCustomersArray($customers);
-
-        return $this->asJson($customers);
+        return $this->asJson($userQuery->all());
     }
 
     /**
@@ -626,7 +631,7 @@ class OrdersController extends Controller
         }
 
         // Validate Address Id
-        $address = $addressId ? Plugin::getInstance()->getAddresses()->getAddressById($addressId) : null;
+        $address = $addressId ? Address::find()->id($addressId)->one() : null;
         if (!$address) {
             return $this->asFailure(Craft::t('commerce', 'Bad address ID.'));
         }
@@ -1014,35 +1019,8 @@ class OrdersController extends Controller
         Craft::$app->getView()->registerJs('window.orderEdit.continueEditingUrl = "' . $variables['order']->cpEditUrl . '"', View::POS_BEGIN);
         Craft::$app->getView()->registerJs('window.orderEdit.userPhotoFallback = "' . Craft::$app->getAssetManager()->getPublishedUrl('@app/web/assets/cp/dist', true, 'images/user.svg') . '"', View::POS_BEGIN);
 
-        $customer = null;
-        if ($variables['order']->customerId) {
-            $customerQuery = Plugin::getInstance()->getCustomers()->getCustomersQuery()->andWhere(['customers.id' => $variables['order']->customerId]);
-            $customers = $this->_prepCustomersArray($customerQuery->all());
-
-            if (!empty($customers)) {
-                $customer = ArrayHelper::firstValue($customers);
-            }
-        }
-        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($customer, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
-
-        $statesList = Plugin::getInstance()->getStates()->getAllEnabledStatesAsListGroupedByCountryId();
-
-        if (!empty($statesList)) {
-            foreach ($statesList as &$states) {
-                foreach ($states as $key => &$state) {
-                    $state = [
-                        'id' => $key,
-                        'name' => $state,
-                    ];
-                }
-                $states = array_values($states);
-            }
-        }
-
-        Craft::$app->getView()->registerJs('window.orderEdit.statesByCountryId = ' . Json::encode($statesList), View::POS_BEGIN);
-        $countries = Plugin::getInstance()->getCountries()->getAllEnabledCountries();
-        $countries = array_values(ArrayHelper::toArray($countries, ['id', 'name']));
-        Craft::$app->getView()->registerJs('window.orderEdit.countries = ' . Json::encode($countries), View::POS_BEGIN);
+        $user = $variables['order']->customerId ? User::findOne($variables['order']->customerId) : null;
+        Craft::$app->getView()->registerJs('window.orderEdit.originalCustomer = ' . Json::encode($user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT), View::POS_BEGIN);
 
         $pdfs = Plugin::getInstance()->getPdfs()->getAllEnabledPdfs();
         $pdfUrls = [];
@@ -1084,7 +1062,7 @@ class OrdersController extends Controller
         $order->reference = $orderRequestData['order']['reference'];
         $order->email = $orderRequestData['order']['email'] ?? '';
         $customerId = $orderRequestData['order']['customerId'] ?? null;
-        if ($customerId && $customer = Plugin::getInstance()->getCustomers()->getCustomerById($customerId)) {
+        if ($customerId && $customer = Craft::$app->getUsers()->getUserById($customerId)) {
             $order->setCustomer($customer);
         } else {
             $order->setCustomer(null);
@@ -1132,19 +1110,9 @@ class OrdersController extends Controller
 
         // Only email set on the order
         if ($order->getCustomer() == null && $order->email) {
-            // See if there is a user with that email
-            $user = User::find()->email($order->email)->one();
-            $customer = null;
-            if ($user) {
-                $customer = Plugin::getInstance()->getCustomers()->getCustomerByUserId($user->id);
-            }
-            // If no user or customer
-            if ($customer == null) {
-                $customer = new Customer();
-                Plugin::getInstance()->getCustomers()->saveCustomer($customer);
-            }
-
-            $order->setCustomer($customer);
+            // Ensure user created for that email
+            $user = Craft::$app->getUsers()->ensureUserByEmail($order->email);
+            $order->setCustomer($user);
         }
 
         // If the customer was changed, the payment source or gateway may not be valid on the order for the new customer and we should unset it.
@@ -1154,68 +1122,6 @@ class OrdersController extends Controller
         } catch (\Exception $e) {
             $order->paymentSourceId = null;
             $order->gatewayId = null;
-        }
-
-        // Addresses
-        $billingAddressId = $orderRequestData['order']['billingAddressId'];
-        $shippingAddressId = $orderRequestData['order']['shippingAddressId'];
-        $billingAddress = null;
-        $shippingAddress = null;
-
-        // We need to create a new address if it belongs to a customer and the order is completed
-        if ($billingAddressId && $billingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
-                ->where(['addressId' => $billingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $billingAddressId = 'new';
-            }
-        }
-
-        if ($shippingAddressId && $shippingAddressId != 'new' && $order->isCompleted) {
-            $belongsToCustomer = CustomerAddress::find()
-                ->where(['addressId' => $shippingAddressId])
-                ->andWhere(['not', ['customerId' => null]])
-                ->exists();
-
-            if ($belongsToCustomer) {
-                $shippingAddressId = 'new';
-            }
-        }
-
-        if ($billingAddressId == 'new' || (isset($orderRequestData['order']['billingAddress']['id']) && $billingAddressId == $orderRequestData['order']['billingAddress']['id'])) {
-            $billingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['billingAddress']);
-            $billingAddress['isEstimated'] = false;
-
-            $billingAddress['id'] = ($billingAddressId == 'new') ? null : $billingAddress['id'];
-            $billingAddress = new Address($billingAddress);
-
-            Plugin::getInstance()->getAddresses()->saveAddress($billingAddress, false);
-            $billingAddressId = $billingAddress->id;
-        }
-
-        if ($shippingAddressId == 'new' || (isset($orderRequestData['order']['shippingAddress']['id']) && $shippingAddressId == $orderRequestData['order']['shippingAddress']['id'])) {
-            $shippingAddress = Plugin::getInstance()->getAddresses()->removeReadOnlyAttributesFromArray($orderRequestData['order']['shippingAddress']);
-            $shippingAddress['isEstimated'] = false;
-
-            $shippingAddress['id'] = ($shippingAddressId == 'new') ? null : $shippingAddress['id'];
-            $shippingAddress = new Address($shippingAddress);
-
-            Plugin::getInstance()->getAddresses()->saveAddress($shippingAddress, false);
-            $shippingAddressId = $shippingAddress->id;
-        }
-
-        $order->billingAddressId = $billingAddressId;
-        $order->shippingAddressId = $shippingAddressId;
-
-        if ($billingAddress) {
-            $order->setBillingAddress($billingAddress);
-        }
-
-        if ($shippingAddress) {
-            $order->setShippingAddress($shippingAddress);
         }
 
         $lineItems = [];
@@ -1438,6 +1344,8 @@ class OrdersController extends Controller
     }
 
     /**
+     * @param User[] $customers
+     * @return array
      * @since 3.1.4
      */
     private function _prepCustomersArray(array $customers): array
@@ -1446,17 +1354,17 @@ class OrdersController extends Controller
             return [];
         }
 
-        $currentUser = Craft::$app->getUser()->getIdentity();
-
         foreach ($customers as &$customer) {
-            $user = $customer['userId'] ? Craft::$app->getUsers()->getUserById($customer['userId']) : null;
-            $customer['user'] = $user ? [
-                'title' => $user ? $user->__toString() : null,
-                'url' => $user && $currentUser->can('editUsers') ? $user->getCpEditUrl() : null,
-                'status' => $user ? $user->getStatus() : null,
-            ] : null;
-            $customer['photo'] = $user && $user->photoId ? $user->getThumbUrl(30) : null;
-            $customer['url'] = $currentUser->can('commerce-manageCustomers') ? UrlHelper::cpUrl('commerce/customers/' . $customer['id']) : null;
+            $addresses = $customer->getAddresses();
+            $primaryBillingAddressId = $customer->getPrimaryBillingAddressId();
+            $primaryShippingAddressId = $customer->getPrimaryShippingAddressId();
+            $photo = $customer->photoId ? $customer->getThumbUrl(30) : null;
+
+            $customer = $customer->toArray();
+            $customer['addresses'] = $addresses;
+            $customer['primaryBillingAddressId'] = $primaryBillingAddressId;
+            $customer['primaryShippingAddressId'] = $primaryShippingAddressId;
+            $customer['photo'] = $photo;
         }
 
         return $customers;

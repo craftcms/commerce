@@ -25,6 +25,7 @@ use craft\commerce\records\State;
 use craft\commerce\records\TaxCategory;
 use craft\db\ActiveRecord;
 use craft\db\Migration;
+use craft\db\Table as CraftTable;
 use craft\helpers\MigrationHelper;
 use craft\records\FieldLayout;
 use Exception;
@@ -69,7 +70,7 @@ class Install extends Migration
         $this->dropTables();
         $this->dropProjectConfig();
 
-        $this->delete(\craft\db\Table::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
+        $this->delete(CraftTable::FIELDLAYOUTS, ['type' => [Order::class, Product::class, Variant::class]]);
 
         return true;
     }
@@ -80,46 +81,10 @@ class Install extends Migration
      */
     public function createTables(): void
     {
-        $this->createTable(Table::ADDRESSES, [
-            'id' => $this->primaryKey(),
-            'countryId' => $this->integer(),
-            'stateId' => $this->integer(),
-            'isStoreLocation' => $this->boolean()->notNull()->defaultValue(false),
-            'attention' => $this->string(),
-            'title' => $this->string(),
-            'firstName' => $this->string(),
-            'lastName' => $this->string(),
-            'fullName' => $this->string(),
-            'address1' => $this->string(),
-            'address2' => $this->string(),
-            'address3' => $this->string(),
-            'city' => $this->string(),
-            'zipCode' => $this->string(),
-            'phone' => $this->string(),
-            'alternativePhone' => $this->string(),
-            'label' => $this->string(),
-            'notes' => $this->text(),
-            'businessName' => $this->string(),
-            'businessTaxId' => $this->string(),
-            'businessId' => $this->string(),
-            'stateName' => $this->string(),
-            'custom1' => $this->string(),
-            'custom2' => $this->string(),
-            'custom3' => $this->string(),
-            'custom4' => $this->string(),
-            'isEstimated' => $this->boolean()->notNull()->defaultValue(false),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'name' => $this->string()->notNull(),
-            'iso' => $this->string(2)->notNull(),
-            'isStateRequired' => $this->boolean()->notNull()->defaultValue(false),
-            'sortOrder' => $this->integer(),
-            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+        $this->createTable(Table::CUSTOMERS, [
+            'customerId' => $this->integer()->notNull(), // This is the User element ID
+            'primaryBillingAddressId' => $this->integer(),
+            'primaryShippingAddressId' => $this->integer(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -140,25 +105,6 @@ class Install extends Migration
             'discountId' => $this->integer()->notNull(),
             'email' => $this->string()->notNull(),
             'uses' => $this->integer()->notNull()->unsigned(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::CUSTOMERS, [
-            'id' => $this->primaryKey(),
-            'userId' => $this->integer(),
-            'primaryBillingAddressId' => $this->integer(),
-            'primaryShippingAddressId' => $this->integer(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::CUSTOMERS_ADDRESSES, [
-            'id' => $this->primaryKey(),
-            'customerId' => $this->integer()->notNull(),
-            'addressId' => $this->integer()->notNull(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -363,7 +309,7 @@ class Install extends Migration
         $this->createTable(Table::ORDERHISTORIES, [
             'id' => $this->primaryKey(),
             'orderId' => $this->integer()->notNull(),
-            'customerId' => $this->integer()->notNull(),
+            'userId' => $this->integer()->notNull(),
             'prevStatusId' => $this->integer(),
             'newStatusId' => $this->integer(),
             'message' => $this->text(),
@@ -378,9 +324,11 @@ class Install extends Migration
             'shippingAddressId' => $this->integer(),
             'estimatedBillingAddressId' => $this->integer(),
             'estimatedShippingAddressId' => $this->integer(),
+            'sourceShippingAddressId' => $this->integer(),
+            'sourceBillingAddressId' => $this->integer(),
             'gatewayId' => $this->integer(),
             'paymentSourceId' => $this->integer(),
-            'customerId' => $this->integer(),
+            'customerId' => $this->integer(), // Customer ID is a User element ID
             'orderStatusId' => $this->integer(),
             'number' => $this->string(32),
             'reference' => $this->string(),
@@ -454,7 +402,7 @@ class Install extends Migration
 
         $this->createTable(Table::PAYMENTSOURCES, [
             'id' => $this->primaryKey(),
-            'userId' => $this->integer()->notNull(),
+            'customerId' => $this->integer()->notNull(),
             'gatewayId' => $this->integer()->notNull(),
             'token' => $this->string()->notNull(),
             'description' => $this->string(),
@@ -680,42 +628,22 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::SHIPPINGZONE_COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer()->notNull(),
-            'countryId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::SHIPPINGZONE_STATES, [
-            'id' => $this->primaryKey(),
-            'shippingZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::SHIPPINGZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
-            'zipCodeConditionFormula' => $this->text(),
+            'condition' => $this->text(),
+            'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::STATES, [
+        $this->createTable(Table::STORES, [
             'id' => $this->primaryKey(),
-            'countryId' => $this->integer()->notNull(),
-            'name' => $this->string()->notNull(),
-            'abbreviation' => $this->string(),
-            'sortOrder' => $this->integer(),
-            'enabled' => $this->boolean()->notNull()->defaultValue(true),
+            'locationAddressId' => $this->string()->notNull(),
+            'enabledCountries' => $this->text(),
+            'enabledAdministrativeAreas' => $this->text(),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
             'uid' => $this->uid(),
@@ -773,30 +701,11 @@ class Install extends Migration
             'uid' => $this->uid(),
         ]);
 
-        $this->createTable(Table::TAXZONE_COUNTRIES, [
-            'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer()->notNull(),
-            'countryId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
-        $this->createTable(Table::TAXZONE_STATES, [
-            'id' => $this->primaryKey(),
-            'taxZoneId' => $this->integer()->notNull(),
-            'stateId' => $this->integer()->notNull(),
-            'dateCreated' => $this->dateTime()->notNull(),
-            'dateUpdated' => $this->dateTime()->notNull(),
-            'uid' => $this->uid(),
-        ]);
-
         $this->createTable(Table::TAXZONES, [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
             'description' => $this->string(),
-            'isCountryBased' => $this->boolean()->notNull()->defaultValue(true),
-            'zipCodeConditionFormula' => $this->text(),
+            'condition' => $this->text(),
             'default' => $this->boolean()->notNull()->defaultValue(false),
             'dateCreated' => $this->dateTime()->notNull(),
             'dateUpdated' => $this->dateTime()->notNull(),
@@ -808,7 +717,7 @@ class Install extends Migration
             'orderId' => $this->integer()->notNull(),
             'parentId' => $this->integer(),
             'gatewayId' => $this->integer(),
-            'userId' => $this->integer(),
+            'userId' => $this->integer(), // Stays as userId since it could be a logged-in user or store administrator. So not just a customer.
             'hash' => $this->string(32),
             'type' => $this->enum('type', ['authorize', 'capture', 'purchase', 'refund'])->notNull(),
             'amount' => $this->decimal(14, 4),
@@ -855,57 +764,10 @@ class Install extends Migration
      */
     public function dropTables(): void
     {
-        $this->dropTableIfExists(Table::ADDRESSES);
-        $this->dropTableIfExists(Table::COUNTRIES);
-        $this->dropTableIfExists(Table::CUSTOMER_DISCOUNTUSES);
-        $this->dropTableIfExists(Table::EMAIL_DISCOUNTUSES);
-        $this->dropTableIfExists(Table::CUSTOMERS);
-        $this->dropTableIfExists(Table::CUSTOMERS_ADDRESSES);
-        $this->dropTableIfExists(Table::DISCOUNT_PURCHASABLES);
-        $this->dropTableIfExists(Table::DISCOUNT_CATEGORIES);
-        $this->dropTableIfExists(Table::DISCOUNT_USERGROUPS);
-        $this->dropTableIfExists(Table::DISCOUNTS);
-        $this->dropTableIfExists(Table::DONATIONS);
-        $this->dropTableIfExists(Table::EMAILS);
-        $this->dropTableIfExists(Table::PDFS);
-        $this->dropTableIfExists(Table::GATEWAYS);
-        $this->dropTableIfExists(Table::LINEITEMS);
-        $this->dropTableIfExists(Table::LINEITEMSTATUSES);
-        $this->dropTableIfExists(Table::ORDERADJUSTMENTS);
-        $this->dropTableIfExists(Table::ORDERHISTORIES);
-        $this->dropTableIfExists(Table::ORDERS);
-        $this->dropTableIfExists(Table::ORDERNOTICES);
-        $this->dropTableIfExists(Table::ORDERSTATUS_EMAILS);
-        $this->dropTableIfExists(Table::ORDERSTATUSES);
-        $this->dropTableIfExists(Table::PAYMENTCURRENCIES);
-        $this->dropTableIfExists(Table::PAYMENTSOURCES);
-        $this->dropTableIfExists(Table::PLANS);
-        $this->dropTableIfExists(Table::PRODUCTS);
-        $this->dropTableIfExists(Table::PRODUCTTYPES);
-        $this->dropTableIfExists(Table::PRODUCTTYPES_SITES);
-        $this->dropTableIfExists(Table::PRODUCTTYPES_SHIPPINGCATEGORIES);
-        $this->dropTableIfExists(Table::PRODUCTTYPES_TAXCATEGORIES);
-        $this->dropTableIfExists(Table::PURCHASABLES);
-        $this->dropTableIfExists(Table::SALE_PURCHASABLES);
-        $this->dropTableIfExists(Table::SALE_CATEGORIES);
-        $this->dropTableIfExists(Table::SALE_USERGROUPS);
-        $this->dropTableIfExists(Table::SALES);
-        $this->dropTableIfExists(Table::SHIPPINGCATEGORIES);
-        $this->dropTableIfExists(Table::SHIPPINGMETHODS);
-        $this->dropTableIfExists(Table::SHIPPINGRULE_CATEGORIES);
-        $this->dropTableIfExists(Table::SHIPPINGRULES);
-        $this->dropTableIfExists(Table::SHIPPINGZONE_COUNTRIES);
-        $this->dropTableIfExists(Table::SHIPPINGZONE_STATES);
-        $this->dropTableIfExists(Table::SHIPPINGZONES);
-        $this->dropTableIfExists(Table::STATES);
-        $this->dropTableIfExists(Table::SUBSCRIPTIONS);
-        $this->dropTableIfExists(Table::TAXCATEGORIES);
-        $this->dropTableIfExists(Table::TAXRATES);
-        $this->dropTableIfExists(Table::TAXZONE_COUNTRIES);
-        $this->dropTableIfExists(Table::TAXZONE_STATES);
-        $this->dropTableIfExists(Table::TAXZONES);
-        $this->dropTableIfExists(Table::TRANSACTIONS);
-        $this->dropTableIfExists(Table::VARIANTS);
+        $tables = $this->_getAllTableNames();
+        foreach ($tables as $table) {
+            $this->dropTableIfExists($table);
+        }
     }
 
     /**
@@ -921,19 +783,13 @@ class Install extends Migration
      */
     public function createIndexes(): void
     {
-        $this->createIndex(null, Table::ADDRESSES, 'countryId', false);
-        $this->createIndex(null, Table::ADDRESSES, 'stateId', false);
-        $this->createIndex(null, Table::ADDRESSES, 'isStoreLocation', false);
-        $this->createIndex(null, Table::COUNTRIES, 'name', true);
-        $this->createIndex(null, Table::COUNTRIES, 'iso', true);
+        $this->createIndex(null, Table::CUSTOMERS, 'customerId', true);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
+        $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['email', 'discountId'], true);
         $this->createIndex(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], false);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId', 'discountId'], true);
         $this->createIndex(null, Table::CUSTOMER_DISCOUNTUSES, 'discountId', false);
-        $this->createIndex(null, Table::CUSTOMERS, 'userId', false);
-        $this->createIndex(null, Table::CUSTOMERS, 'primaryBillingAddressId', false);
-        $this->createIndex(null, Table::CUSTOMERS, 'primaryShippingAddressId', false);
-        $this->createIndex(null, Table::CUSTOMERS_ADDRESSES, ['customerId', 'addressId'], true);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, ['discountId', 'purchasableId'], true);
         $this->createIndex(null, Table::DISCOUNT_PURCHASABLES, 'purchasableId', false);
         $this->createIndex(null, Table::DISCOUNT_CATEGORIES, ['discountId', 'categoryId'], true);
@@ -954,7 +810,7 @@ class Install extends Migration
         $this->createIndex(null, Table::ORDERHISTORIES, 'orderId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'prevStatusId', false);
         $this->createIndex(null, Table::ORDERHISTORIES, 'newStatusId', false);
-        $this->createIndex(null, Table::ORDERHISTORIES, 'customerId', false);
+        $this->createIndex(null, Table::ORDERHISTORIES, 'userId', false);
         $this->createIndex(null, Table::ORDERS, 'number', true);
         $this->createIndex(null, Table::ORDERS, 'reference', false);
         $this->createIndex(null, Table::ORDERS, 'billingAddressId', false);
@@ -998,16 +854,7 @@ class Install extends Migration
         $this->createIndex(null, Table::SHIPPINGRULES, 'name', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'methodId', false);
         $this->createIndex(null, Table::SHIPPINGRULES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId', 'countryId'], true);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId', 'stateId'], true);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'shippingZoneId', false);
-        $this->createIndex(null, Table::SHIPPINGZONE_STATES, 'stateId', false);
         $this->createIndex(null, Table::SHIPPINGZONES, 'name', true);
-        $this->createIndex(null, Table::STATES, 'countryId', false);
-        $this->createIndex(null, Table::STATES, ['countryId', 'abbreviation'], true);
-        $this->createIndex(null, Table::STATES, ['countryId', 'name'], true);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'userId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'planId', false);
         $this->createIndex(null, Table::SUBSCRIPTIONS, 'gatewayId', false);
@@ -1018,12 +865,6 @@ class Install extends Migration
         $this->createIndex(null, Table::TAXCATEGORIES, 'handle', true);
         $this->createIndex(null, Table::TAXRATES, 'taxZoneId', false);
         $this->createIndex(null, Table::TAXRATES, 'taxCategoryId', false);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, ['taxZoneId', 'countryId'], true);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXZONE_COUNTRIES, 'countryId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, ['taxZoneId', 'stateId'], true);
-        $this->createIndex(null, Table::TAXZONE_STATES, 'taxZoneId', false);
-        $this->createIndex(null, Table::TAXZONE_STATES, 'stateId', false);
         $this->createIndex(null, Table::TAXZONES, 'name', true);
         $this->createIndex(null, Table::TRANSACTIONS, 'parentId', false);
         $this->createIndex(null, Table::TRANSACTIONS, 'gatewayId', false);
@@ -1038,16 +879,9 @@ class Install extends Migration
      */
     public function addForeignKeys(): void
     {
-        $this->addForeignKey(null, Table::ADDRESSES, ['countryId'], Table::COUNTRIES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ADDRESSES, ['stateId'], Table::STATES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::CUSTOMER_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::EMAIL_DISCOUNTUSES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CUSTOMERS, ['userId'], '{{%users}}', ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryBillingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMERS, ['primaryShippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::CUSTOMERS_ADDRESSES, ['addressId'], Table::ADDRESSES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::CUSTOMERS_ADDRESSES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_PURCHASABLES, ['purchasableId'], Table::PURCHASABLES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::DISCOUNT_CATEGORIES, ['discountId'], Table::DISCOUNTS, ['id'], 'CASCADE', 'CASCADE');
@@ -1062,23 +896,23 @@ class Install extends Migration
         $this->addForeignKey(null, Table::LINEITEMS, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::ORDERADJUSTMENTS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERNOTICES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERHISTORIES, ['customerId'], Table::CUSTOMERS, ['id'], 'CASCADE', 'CASCADE');
+        $this->addForeignKey(null, Table::ORDERHISTORIES, ['userId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['newStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['orderId'], Table::ORDERS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERHISTORIES, ['prevStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
-        $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['customerId'], Table::CUSTOMERS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['billingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERS, ['gatewayId'], Table::GATEWAYS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERS, ['paymentSourceId'], Table::PAYMENTSOURCES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['estimatedShippingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::ORDERS, ['estimatedBillingAddressId'], Table::ADDRESSES, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedShippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::ORDERS, ['estimatedBillingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['emailId'], Table::EMAILS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::ORDERSTATUS_EMAILS, ['orderStatusId'], Table::ORDERSTATUSES, ['id'], 'RESTRICT', 'CASCADE');
         $this->addForeignKey(null, Table::PAYMENTSOURCES, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::PAYMENTSOURCES, ['userId'], '{{%users}}', ['id'], 'CASCADE');
+        $this->addForeignKey(null, Table::PAYMENTSOURCES, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['gatewayId'], Table::GATEWAYS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::PLANS, ['planInformationId'], '{{%elements}}', 'id', 'SET NULL');
         $this->addForeignKey(null, Table::PRODUCTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
@@ -1104,26 +938,18 @@ class Install extends Migration
         $this->addForeignKey(null, Table::SHIPPINGRULE_CATEGORIES, ['shippingRuleId'], Table::SHIPPINGRULES, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['methodId'], Table::SHIPPINGMETHODS, ['id']);
         $this->addForeignKey(null, Table::SHIPPINGRULES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'SET NULL');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_COUNTRIES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['shippingZoneId'], Table::SHIPPINGZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::SHIPPINGZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::STATES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
-        $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], '{{%users}}', ['id'], 'RESTRICT');
+        $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['userId'], CraftTable::USERS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['planId'], Table::PLANS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], 'RESTRICT');
         $this->addForeignKey(null, Table::SUBSCRIPTIONS, ['orderId'], Table::ORDERS, ['id'], 'SET NULL');
         $this->addForeignKey(null, Table::TAXRATES, ['taxCategoryId'], Table::TAXCATEGORIES, ['id'], null, 'CASCADE');
         $this->addForeignKey(null, Table::TAXRATES, ['taxZoneId'], Table::TAXZONES, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['countryId'], Table::COUNTRIES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_COUNTRIES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_STATES, ['stateId'], Table::STATES, ['id'], 'CASCADE', 'CASCADE');
-        $this->addForeignKey(null, Table::TAXZONE_STATES, ['taxZoneId'], Table::TAXZONES, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['orderId'], Table::ORDERS, ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['parentId'], Table::TRANSACTIONS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::TRANSACTIONS, ['gatewayId'], Table::GATEWAYS, ['id'], null, 'CASCADE');
-        $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], '{{%users}}', ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::TRANSACTIONS, ['userId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
+        $this->addForeignKey(null, Table::CUSTOMERS, ['customerId'], CraftTable::ELEMENTS, ['id'], 'CASCADE', 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['id'], '{{%elements}}', ['id'], 'CASCADE');
         $this->addForeignKey(null, Table::VARIANTS, ['productId'], Table::PRODUCTS, ['id'], 'SET NULL'); // Allow null so we can delete a product THEN the variants.
     }
@@ -1133,46 +959,7 @@ class Install extends Migration
      */
     public function dropForeignKeys(): void
     {
-        $tables = [
-            Table::ADDRESSES,
-            Table::CUSTOMER_DISCOUNTUSES,
-            Table::EMAIL_DISCOUNTUSES,
-            Table::CUSTOMERS,
-            Table::CUSTOMERS_ADDRESSES,
-            Table::DISCOUNT_PURCHASABLES,
-            Table::DISCOUNT_CATEGORIES,
-            Table::DISCOUNT_USERGROUPS,
-            Table::DONATIONS,
-            Table::EMAILS,
-            Table::LINEITEMS,
-            Table::ORDERADJUSTMENTS,
-            Table::ORDERNOTICES,
-            Table::ORDERHISTORIES,
-            Table::ORDERS,
-            Table::ORDERSTATUS_EMAILS,
-            Table::PAYMENTSOURCES,
-            Table::PLANS,
-            Table::PRODUCTS,
-            Table::PRODUCTTYPES,
-            Table::PRODUCTTYPES_SITES,
-            Table::PRODUCTTYPES_SHIPPINGCATEGORIES,
-            Table::PRODUCTTYPES_TAXCATEGORIES,
-            Table::PURCHASABLES,
-            Table::SALE_PURCHASABLES,
-            Table::SALE_CATEGORIES,
-            Table::SALE_USERGROUPS,
-            Table::SHIPPINGRULE_CATEGORIES,
-            Table::SHIPPINGRULES,
-            Table::SHIPPINGZONE_COUNTRIES,
-            Table::SHIPPINGZONE_STATES,
-            Table::STATES,
-            Table::SUBSCRIPTIONS,
-            Table::TAXRATES,
-            Table::TAXZONE_COUNTRIES,
-            Table::TAXZONE_STATES,
-            Table::TRANSACTIONS,
-            Table::VARIANTS,
-        ];
+        $tables = $this->_getAllTableNames();
 
         foreach ($tables as $table) {
             $this->_dropForeignKeyToAndFromTable($table);
@@ -1185,8 +972,6 @@ class Install extends Migration
     public function insertDefaultData(): void
     {
         // The following defaults are not stored in the project config.
-        $this->_defaultCountries();
-        $this->_defaultStates();
         $this->_defaultCurrency();
         $this->_defaultShippingMethod();
         $this->_defaultTaxCategories();
@@ -1201,379 +986,6 @@ class Install extends Migration
             $this->_defaultOrderSettings();
             $this->_defaultGateways();
         }
-    }
-
-
-    /**
-     * Insert default countries data.
-     */
-    private function _defaultCountries(): void
-    {
-        $countries = [
-            ['AF', 'Afghanistan'],
-            ['AX', 'Aland Islands'],
-            ['AL', 'Albania'],
-            ['DZ', 'Algeria'],
-            ['AS', 'American Samoa'],
-            ['AD', 'Andorra'],
-            ['AO', 'Angola'],
-            ['AI', 'Anguilla'],
-            ['AQ', 'Antarctica'],
-            ['AG', 'Antigua and Barbuda'],
-            ['AR', 'Argentina'],
-            ['AM', 'Armenia'],
-            ['AW', 'Aruba'],
-            ['AU', 'Australia'],
-            ['AT', 'Austria'],
-            ['AZ', 'Azerbaijan'],
-            ['BS', 'Bahamas'],
-            ['BH', 'Bahrain'],
-            ['BD', 'Bangladesh'],
-            ['BB', 'Barbados'],
-            ['BY', 'Belarus'],
-            ['BE', 'Belgium'],
-            ['BZ', 'Belize'],
-            ['BJ', 'Benin'],
-            ['BM', 'Bermuda'],
-            ['BT', 'Bhutan'],
-            ['BO', 'Bolivia'],
-            ['BQ', 'Bonaire, Sint Eustatius and Saba'],
-            ['BA', 'Bosnia and Herzegovina'],
-            ['BW', 'Botswana'],
-            ['BV', 'Bouvet Island'],
-            ['BR', 'Brazil'],
-            ['IO', 'British Indian Ocean Territory'],
-            ['BN', 'Brunei Darussalam'],
-            ['BG', 'Bulgaria'],
-            ['BF', 'Burkina Faso'],
-            ['MM', 'Burma (Myanmar)'],
-            ['BI', 'Burundi'],
-            ['KH', 'Cambodia'],
-            ['CM', 'Cameroon'],
-            ['CA', 'Canada'],
-            ['CV', 'Cape Verde'],
-            ['KY', 'Cayman Islands'],
-            ['CF', 'Central African Republic'],
-            ['TD', 'Chad'],
-            ['CL', 'Chile'],
-            ['CN', 'China'],
-            ['CX', 'Christmas Island'],
-            ['CC', 'Cocos (Keeling) Islands'],
-            ['CO', 'Colombia'],
-            ['KM', 'Comoros'],
-            ['CG', 'Congo'],
-            ['CK', 'Cook Islands'],
-            ['CR', 'Costa Rica'],
-            ['HR', 'Croatia (Hrvatska)'],
-            ['CU', 'Cuba'],
-            ['CW', 'Curacao'],
-            ['CY', 'Cyprus'],
-            ['CZ', 'Czech Republic'],
-            ['CD', 'Democratic Republic of Congo'],
-            ['DK', 'Denmark'],
-            ['DJ', 'Djibouti'],
-            ['DM', 'Dominica'],
-            ['DO', 'Dominican Republic'],
-            ['EC', 'Ecuador'],
-            ['EG', 'Egypt'],
-            ['SV', 'El Salvador'],
-            ['GQ', 'Equatorial Guinea'],
-            ['ER', 'Eritrea'],
-            ['EE', 'Estonia'],
-            ['ET', 'Ethiopia'],
-            ['FK', 'Falkland Islands (Malvinas)'],
-            ['FO', 'Faroe Islands'],
-            ['FJ', 'Fiji'],
-            ['FI', 'Finland'],
-            ['FR', 'France'],
-            ['GF', 'French Guiana'],
-            ['PF', 'French Polynesia'],
-            ['TF', 'French Southern Territories'],
-            ['GA', 'Gabon'],
-            ['GM', 'Gambia'],
-            ['GE', 'Georgia'],
-            ['DE', 'Germany'],
-            ['GH', 'Ghana'],
-            ['GI', 'Gibraltar'],
-            ['GR', 'Greece'],
-            ['GL', 'Greenland'],
-            ['GD', 'Grenada'],
-            ['GP', 'Guadeloupe'],
-            ['GU', 'Guam'],
-            ['GT', 'Guatemala'],
-            ['GG', 'Guernsey'],
-            ['GN', 'Guinea'],
-            ['GW', 'Guinea-Bissau'],
-            ['GY', 'Guyana'],
-            ['HT', 'Haiti'],
-            ['HM', 'Heard and McDonald Islands'],
-            ['HN', 'Honduras'],
-            ['HK', 'Hong Kong'],
-            ['HU', 'Hungary'],
-            ['IS', 'Iceland'],
-            ['IN', 'India'],
-            ['ID', 'Indonesia'],
-            ['IR', 'Iran'],
-            ['IQ', 'Iraq'],
-            ['IE', 'Ireland'],
-            ['IM', 'Isle Of Man'],
-            ['IL', 'Israel'],
-            ['IT', 'Italy'],
-            ['CI', 'Ivory Coast'],
-            ['JM', 'Jamaica'],
-            ['JP', 'Japan'],
-            ['JE', 'Jersey'],
-            ['JO', 'Jordan'],
-            ['KZ', 'Kazakhstan'],
-            ['KE', 'Kenya'],
-            ['KI', 'Kiribati'],
-            ['KP', 'Korea (North)'],
-            ['KR', 'Korea (South)'],
-            ['KW', 'Kuwait'],
-            ['KG', 'Kyrgyzstan'],
-            ['LA', 'Laos'],
-            ['LV', 'Latvia'],
-            ['LB', 'Lebanon'],
-            ['LS', 'Lesotho'],
-            ['LR', 'Liberia'],
-            ['LY', 'Libya'],
-            ['LI', 'Liechtenstein'],
-            ['LT', 'Lithuania'],
-            ['LU', 'Luxembourg'],
-            ['MO', 'Macau'],
-            ['MK', 'Macedonia'],
-            ['MG', 'Madagascar'],
-            ['MW', 'Malawi'],
-            ['MY', 'Malaysia'],
-            ['MV', 'Maldives'],
-            ['ML', 'Mali'],
-            ['MT', 'Malta'],
-            ['MH', 'Marshall Islands'],
-            ['MQ', 'Martinique'],
-            ['MR', 'Mauritania'],
-            ['MU', 'Mauritius'],
-            ['YT', 'Mayotte'],
-            ['MX', 'Mexico'],
-            ['FM', 'Micronesia'],
-            ['MD', 'Moldova'],
-            ['MC', 'Monaco'],
-            ['MN', 'Mongolia'],
-            ['ME', 'Montenegro'],
-            ['MS', 'Montserrat'],
-            ['MA', 'Morocco'],
-            ['MZ', 'Mozambique'],
-            ['NA', 'Namibia'],
-            ['NR', 'Nauru'],
-            ['NP', 'Nepal'],
-            ['NL', 'Netherlands'],
-            ['NC', 'New Caledonia'],
-            ['NZ', 'New Zealand'],
-            ['NI', 'Nicaragua'],
-            ['NE', 'Niger'],
-            ['NG', 'Nigeria'],
-            ['NU', 'Niue'],
-            ['NF', 'Norfolk Island'],
-            ['MP', 'Northern Mariana Islands'],
-            ['NO', 'Norway'],
-            ['OM', 'Oman'],
-            ['PK', 'Pakistan'],
-            ['PW', 'Palau'],
-            ['PS', 'Palestinian Territory, Occupied'],
-            ['PA', 'Panama'],
-            ['PG', 'Papua New Guinea'],
-            ['PY', 'Paraguay'],
-            ['PE', 'Peru'],
-            ['PH', 'Philippines'],
-            ['PN', 'Pitcairn'],
-            ['PL', 'Poland'],
-            ['PT', 'Portugal'],
-            ['PR', 'Puerto Rico'],
-            ['QA', 'Qatar'],
-            ['RS', 'Republic of Serbia'],
-            ['RE', 'Reunion'],
-            ['RO', 'Romania'],
-            ['RU', 'Russia'],
-            ['RW', 'Rwanda'],
-            ['GS', 'S. Georgia and S. Sandwich Isls.'],
-            ['BL', 'Saint Barthelemy'],
-            ['KN', 'Saint Kitts and Nevis'],
-            ['LC', 'Saint Lucia'],
-            ['MF', 'Saint Martin (French part)'],
-            ['VC', 'Saint Vincent and the Grenadines'],
-            ['WS', 'Samoa'],
-            ['SM', 'San Marino'],
-            ['ST', 'Sao Tome and Principe'],
-            ['SA', 'Saudi Arabia'],
-            ['SN', 'Senegal'],
-            ['SC', 'Seychelles'],
-            ['SL', 'Sierra Leone'],
-            ['SG', 'Singapore'],
-            ['SX', 'Sint Maarten (Dutch part)'],
-            ['SK', 'Slovak Republic'],
-            ['SI', 'Slovenia'],
-            ['SB', 'Solomon Islands'],
-            ['SO', 'Somalia'],
-            ['ZA', 'South Africa'],
-            ['SS', 'South Sudan'],
-            ['ES', 'Spain'],
-            ['LK', 'Sri Lanka'],
-            ['SH', 'St. Helena'],
-            ['PM', 'St. Pierre and Miquelon'],
-            ['SD', 'Sudan'],
-            ['SR', 'Suriname'],
-            ['SJ', 'Svalbard and Jan Mayen Islands'],
-            ['SZ', 'Swaziland'],
-            ['SE', 'Sweden'],
-            ['CH', 'Switzerland'],
-            ['SY', 'Syria'],
-            ['TW', 'Taiwan'],
-            ['TJ', 'Tajikistan'],
-            ['TZ', 'Tanzania'],
-            ['TH', 'Thailand'],
-            ['TL', 'Timor-Leste'],
-            ['TG', 'Togo'],
-            ['TK', 'Tokelau'],
-            ['TO', 'Tonga'],
-            ['TT', 'Trinidad and Tobago'],
-            ['TN', 'Tunisia'],
-            ['TR', 'Turkey'],
-            ['TM', 'Turkmenistan'],
-            ['TC', 'Turks and Caicos Islands'],
-            ['TV', 'Tuvalu'],
-            ['UG', 'Uganda'],
-            ['UA', 'Ukraine'],
-            ['AE', 'United Arab Emirates'],
-            ['GB', 'United Kingdom'],
-            ['UM', 'United States Minor Outlying Islands'],
-            ['US', 'United States'],
-            ['UY', 'Uruguay'],
-            ['UZ', 'Uzbekistan'],
-            ['VU', 'Vanuatu'],
-            ['VA', 'Vatican City State (Holy See)'],
-            ['VE', 'Venezuela'],
-            ['VN', 'Viet Nam'],
-            ['VG', 'Virgin Islands (British)'],
-            ['VI', 'Virgin Islands (U.S.)'],
-            ['WF', 'Wallis and Futuna Islands'],
-            ['EH', 'Western Sahara'],
-            ['YE', 'Yemen'],
-            ['ZM', 'Zambia'],
-            ['ZW', 'Zimbabwe'],
-        ];
-
-        $orderNumber = 1;
-        foreach ($countries as $key => $country) {
-            $country[] = $orderNumber;
-            $countries[$key] = $country;
-            $orderNumber++;
-        }
-
-        $this->batchInsert(Table::COUNTRIES, ['iso', 'name', 'sortOrder'], $countries);
-    }
-
-    /**
-     * Add default States.
-     */
-    private function _defaultStates(): void
-    {
-        $states = [
-            'AU' => [
-                'ACT' => 'Australian Capital Territory',
-                'NSW' => 'New South Wales',
-                'NT' => 'Northern Territory',
-                'QLD' => 'Queensland',
-                'SA' => 'South Australia',
-                'TAS' => 'Tasmania',
-                'VIC' => 'Victoria',
-                'WA' => 'Western Australia',
-            ],
-            'CA' => [
-                'AB' => 'Alberta',
-                'BC' => 'British Columbia',
-                'MB' => 'Manitoba',
-                'NB' => 'New Brunswick',
-                'NL' => 'Newfoundland and Labrador',
-                'NT' => 'Northwest Territories',
-                'NS' => 'Nova Scotia',
-                'NU' => 'Nunavut',
-                'ON' => 'Ontario',
-                'PE' => 'Prince Edward Island',
-                'QC' => 'Quebec',
-                'SK' => 'Saskatchewan',
-                'YT' => 'Yukon',
-            ],
-            'US' => [
-                'AL' => 'Alabama',
-                'AK' => 'Alaska',
-                'AZ' => 'Arizona',
-                'AR' => 'Arkansas',
-                'CA' => 'California',
-                'CO' => 'Colorado',
-                'CT' => 'Connecticut',
-                'DE' => 'Delaware',
-                'DC' => 'District of Columbia',
-                'FL' => 'Florida',
-                'GA' => 'Georgia',
-                'HI' => 'Hawaii',
-                'ID' => 'Idaho',
-                'IL' => 'Illinois',
-                'IN' => 'Indiana',
-                'IA' => 'Iowa',
-                'KS' => 'Kansas',
-                'KY' => 'Kentucky',
-                'LA' => 'Louisiana',
-                'ME' => 'Maine',
-                'MD' => 'Maryland',
-                'MA' => 'Massachusetts',
-                'MI' => 'Michigan',
-                'MN' => 'Minnesota',
-                'MS' => 'Mississippi',
-                'MO' => 'Missouri',
-                'MT' => 'Montana',
-                'NE' => 'Nebraska',
-                'NV' => 'Nevada',
-                'NH' => 'New Hampshire',
-                'NJ' => 'New Jersey',
-                'NM' => 'New Mexico',
-                'NY' => 'New York',
-                'NC' => 'North Carolina',
-                'ND' => 'North Dakota',
-                'OH' => 'Ohio',
-                'OK' => 'Oklahoma',
-                'OR' => 'Oregon',
-                'PA' => 'Pennsylvania',
-                'RI' => 'Rhode Island',
-                'SC' => 'South Carolina',
-                'SD' => 'South Dakota',
-                'TN' => 'Tennessee',
-                'TX' => 'Texas',
-                'UT' => 'Utah',
-                'VT' => 'Vermont',
-                'VA' => 'Virginia',
-                'WA' => 'Washington',
-                'WV' => 'West Virginia',
-                'WI' => 'Wisconsin',
-                'WY' => 'Wyoming',
-            ],
-        ];
-
-        /** @var ActiveRecord $countries */
-        $countries = Country::find()->where(['in', 'iso', array_keys($states)])->all();
-        $code2id = [];
-        foreach ($countries as $record) {
-            $code2id[$record->iso] = $record->id;
-        }
-
-        $rows = [];
-        foreach ($states as $iso => $list) {
-            $sortNumber = 1;
-            foreach ($list as $abbr => $name) {
-                $rows[] = [$code2id[$iso], $abbr, $name, $sortNumber];
-                $sortNumber++;
-            }
-        }
-
-        $this->batchInsert(State::tableName(), ['countryId', 'abbreviation', 'name', 'sortOrder'], $rows);
     }
 
     /**
@@ -1709,5 +1121,14 @@ class Install extends Migration
             MigrationHelper::dropAllForeignKeysToTable($tableName, $this);
             MigrationHelper::dropAllForeignKeysOnTable($tableName, $this);
         }
+    }
+
+    /**
+     * @return string[]
+     */
+    private function _getAllTableNames(): array
+    {
+        $class = new \ReflectionClass(Table::class);
+        return $class->getConstants();
     }
 }

@@ -6,7 +6,7 @@ Outputs a form for collecting an order’s shipping and billing address.
 #}
 
 {# @var addresses \craft\commerce\models\Address[] #}
-{% set addresses = craft.commerce.customers.customer.addresses %}
+{% set addresses = currentUser ? currentUser.getAddresses() : [] %}
 
 {% block main %}
   <!-- Template: {{ _self }}.twig -->
@@ -152,9 +152,9 @@ Outputs a form for collecting an order’s shipping and billing address.
   {% endjs %}
 
   {% js %}
-  {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
-    $billingSameAs.click();
-  {% endif %}
-{% endjs %}
+    {% if (cart.billingAddressId and cart.billingAddress.hasErrors()) or (cart.billingAddressId != cart.shippingAddressId) %}
+      $billingSameAs.click();
+    {% endif %}
+  {% endjs %}
 
 {% endblock %}

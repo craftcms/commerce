@@ -24,15 +24,10 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
           >
             <span class="js-radio flex py-2">
               {{ input('radio', name ~ 'Id', address.id, {
-                checked: attribute(cart, name ~ 'Id') == address.id,
-                'data-model-name': name
+                checked: attribute(cart, 'selected'~ name ~ 'Id') == address.id,
               }) }}
               <span class="-mt-2 ml-3 mb-2">
-                {{ include('[[folderName]]/_private/address/address', {
-                  address: address,
-                  boldKeys: [ address.label ? 'label' : 'name'],
-                  asLines: false
-                }) }}
+                {{ craft.app.addresses.formatAddress(address)|raw }}
               </span>
             </span>
             <span class="block mb-1">
@@ -54,7 +49,7 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
     </div>
   {% endif %}
 
-  <div class="js-address-select" data-model-name="{{ name }}">
+  <div class="js-address-select">
     {% if attribute(cart, name ~ 'Id') %}
       {% set addressHasErrors = attribute(cart, name).hasErrors() %}
     {% else %}
@@ -74,10 +69,12 @@ Outputs a fieldset for selecting one of a user’s available addresses or creati
 
     <div class="js-body{% if currentUser %} hidden{% endif %}">
       {% if addressHasErrors %}<span class="flash">{{ cart.getErrors(name)|join }}</span><br>{% endif %}
-      {{ include('[[folderName]]/_private/address/form', {
-        modelName: name,
-        address: attribute(cart, name)
-      }) }}
+      {% namespace name %}
+        {{ include('[[folderName]]/_private/address/fields', {
+          address: attribute(cart, name),
+          addressName: name
+        }) }}
+      {% endnamespace %}
     </div>
   </div>
 </div>

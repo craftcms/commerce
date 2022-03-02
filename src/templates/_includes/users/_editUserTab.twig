@@ -1,0 +1,5 @@
+<div id="commerce" class="hidden">
+    {% if user %}
+    {% include 'commerce/_includes/users/_customerTables' with { user: user } %}
+    {% endif %}
+</div>

@@ -36,7 +36,6 @@
                         <customer
                             :customer="{
                                 photo: slotProps.option.photo,
-                                user: slotProps.option.user,
                                 email: slotProps.option.email,
                                 fullName: slotProps.option.billingFullName,
                                 firstName: slotProps.option.billingFirstName,
@@ -111,10 +110,10 @@
                         this.$refs.vSelect.$children[0].search = searchText
                     })
 
-                    return {customerId: this.customerId, email: this.order.email}
+                    return {customerId: this.customerId, email: this.order.customer ? this.order.customer.email : null}
                 }
 
-                return {customerId: null, email: searchText, totalOrders: 0, userId: null, firstName: null, lastName: null}
+                return {customerId: null, email: searchText, totalOrders: 0, firstName: null, lastName: null}
             },
 
             onSearch({searchText, loading}) {
@@ -150,8 +149,10 @@
         },
 
         mounted() {
-            if (this.order.email) {
-                const customer = {customerId: this.customerId, email: this.order.email}
+            if (this.order.customer) {
+                let customer = {customerId: this.order.customer.id};
+
+                customer.email = this.order.isCompleted ? this.order.email : this.order.customer.email;
                 this.$store.commit('updateCustomers', [customer])
                 this.selectedCustomer = customer
             }

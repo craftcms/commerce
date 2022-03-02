@@ -21,6 +21,7 @@ use craft\elements\conditions\ElementConditionInterface;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\exporters\Expanded as CraftExpanded;
 use craft\helpers\ArrayHelper;
+use craft\helpers\Html;
 use craft\models\FieldLayout;
 use Exception;
 
@@ -276,7 +277,7 @@ trait OrderElementTrait
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
-                return $this->getUser()->username ?? '';
+                return $this->getCustomer()->username ?? '';
             case 'skus':
                 return implode(' ', ArrayHelper::getColumn($this->getLineItems(), 'sku'));
             case 'lineItemDescriptions':

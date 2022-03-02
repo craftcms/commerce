@@ -86,26 +86,10 @@ class ResetDataController extends Controller
 
                 $this->stdout($count . ' payment sources deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
 
-                // Customers
-                $this->stdout('Deleting customers ...' . PHP_EOL, Console::FG_GREEN);
-                $count = Craft::$app->getDb()->createCommand()
-                    ->delete(Table::CUSTOMERS, ['userId' => null])
-                    ->execute();
-
-                $this->stdout($count . ' customers deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-
-                // Address
-                $this->stdout('Deleting addresses ...' . PHP_EOL, Console::FG_GREEN);
-                $count = Craft::$app->getDb()->createCommand()
-                    ->delete(Table::ADDRESSES, ['not', ['isStoreLocation' => true]])
-                    ->execute();
-
-                $this->stdout($count . ' addresses deleted.' . PHP_EOL . PHP_EOL, Console::FG_GREEN);
-
                 // Discount usage
                 $this->stdout('Resetting discount usage data ...' . PHP_EOL, Console::FG_GREEN);
                 Craft::$app->getDb()->createCommand()
-                    ->delete(Table::CUSTOMER_DISCOUNTUSES)
+                    ->delete(Table::USER_DISCOUNTUSES)
                     ->execute();
                 Craft::$app->getDb()->createCommand()
                     ->delete(Table::EMAIL_DISCOUNTUSES)

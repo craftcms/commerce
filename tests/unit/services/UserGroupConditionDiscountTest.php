@@ -8,13 +8,13 @@
 namespace craftcommercetests\unit\services;
 
 use Codeception\Test\Unit;
-use craft\commerce\elements\Order;
 use craft\commerce\models\Discount;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
-use craft\commerce\services\Customers;
+use craft\commerce\services\CustomersOld;
 use craft\commerce\services\Discounts;
 use craft\elements\User;
+use craft\services\Users;
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use UnitTester;
@@ -119,10 +119,14 @@ class UserGroupConditionDiscountTest extends Unit
 
     }
 
+    /**
+     * @param array $ids
+     * @return void
+     */
     public function _mockCustomers(array $ids = [1, 2]): void
     {
-        $mockCustomers = $this->make(Customers::class, [
-            'getUserGroupIdsForUser' => $ids
+        $mockCustomers = $this->make(Users::class, [
+            'getUserGroupIdsByUser' => $ids
         ]);
 
         Plugin::getInstance()->set('customers', $mockCustomers);

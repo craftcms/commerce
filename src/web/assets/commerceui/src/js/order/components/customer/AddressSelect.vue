@@ -83,10 +83,10 @@
                 let extraParam = '';
 
                 if (this.customerId) {
-                    extraParam = '?customerId=' + this.customerId;
+                    extraParam = '?userId=' + this.customerId;
                 }
 
-                return 'commerce/addresses/get-customer-addresses' + extraParam;
+                return 'commerce/addresses/get-user-addresses' + extraParam;
             },
 
             isDoneDisabled() {

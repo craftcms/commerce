@@ -16,7 +16,6 @@
             fullName: draft.order.billingAddress && draft.order.billingAddress.fullName ? draft.order.billingAddress.fullName : null,
             firstName: draft.order.billingAddress && draft.order.billingAddress.firstName ? draft.order.billingAddress.firstName : null,
             lastName: draft.order.billingAddress && draft.order.billingAddress.lastName ? draft.order.billingAddress.lastName : null,
-            user: user,
             url: customerUrl,
           }"
           :display="true"
@@ -233,7 +232,6 @@
                     let draft = JSON.parse(JSON.stringify(this.draft));
                     draft.order.customerId = customer.id;
                     draft.order.email = customer.email;
-                    this.user = customer.user;
                     this.photo = customer.photo;
                     this.customerUrl = customer.url;
                     this.draft = draft;

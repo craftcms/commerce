@@ -30,7 +30,7 @@ use yii\db\ActiveQueryInterface;
  * @property string $response
  * @property string $status
  * @property string $type
- * @property User $user
+ * @property Customer $user
  * @property int $userId
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0

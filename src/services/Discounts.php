@@ -25,8 +25,10 @@ use craft\commerce\records\DiscountCategory as DiscountCategoryRecord;
 use craft\commerce\records\DiscountPurchasable as DiscountPurchasableRecord;
 use craft\commerce\records\DiscountUserGroup as DiscountUserGroupRecord;
 use craft\commerce\records\EmailDiscountUse as EmailDiscountUseRecord;
+use craft\commerce\records\CustomerDiscountUse;
 use craft\db\Query;
 use craft\elements\Category;
+use craft\elements\User;
 use craft\helpers\ArrayHelper;
 use craft\helpers\DateTimeHelper;
 use craft\helpers\Db;
@@ -337,15 +339,14 @@ class Discounts extends Component
             return false;
         }
 
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
+        $user = $order->getCustomer();
 
         if (!$this->isDiscountUserGroupValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'Discount is not allowed for the customer.');
             return false;
         }
 
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
             $explanation = Craft::t('commerce', 'This coupon is for registered users and limited to {limit} uses.', [
                 'limit' => $discount->perUserLimit,
             ]);
@@ -498,8 +499,7 @@ class Discounts extends Component
             return false;
         }
 
-        $customer = $order->getCustomer();
-        $user = $customer ? $customer->getUser() : null;
+        $user = $order->getCustomer();
 
         if (!$this->isDiscountUserGroupValid($discount, $user)) {
             return false;
@@ -509,7 +509,7 @@ class Discounts extends Component
             return false;
         }
 
-        if (!$this->_isDiscountPerUserUsageValid($discount, $user, $customer)) {
+        if (!$this->_isDiscountPerUserUsageValid($discount, $user)) {
             return false;
         }
 
@@ -745,14 +745,14 @@ class Discounts extends Component
 
     /**
      * @throws \yii\db\Exception
-     * @since 3.0
+     * @since 4.0
      */
-    public function clearCustomerUsageHistoryById(int $id): void
+    public function clearUserUsageHistoryById(int $id): void
     {
         $db = Craft::$app->getDb();
 
         $db->createCommand()
-            ->delete(Table::CUSTOMER_DISCOUNTUSES, ['discountId' => $id])
+            ->delete(Table::USER_DISCOUNTUSES, ['discountId' => $id])
             ->execute();
 
         // Reset internal cache
@@ -832,19 +832,18 @@ class Discounts extends Component
     }
 
     /**
-     * Customer usage stats for discount
+     * User usage stats for discount
      *
-     * @return array return in the format ['uses' => int, 'customers' => int]
+     * @param int $id
+     * @return array in the format ['uses' => int, 'users' => int]
      */
-    public function getCustomerUsageStatsById(int $id): array
+    public function getUserUsageStatsById(int $id): array
     {
-        $usage = (new Query())
-            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[customerId]]) as customers'])
+        return (new Query())
+            ->select(['COALESCE(SUM(uses), 0) as uses', 'COUNT([[userId]]) as users'])
             ->from(Table::CUSTOMER_DISCOUNTUSES)
             ->where(['[[discountId]]' => $id])
             ->one();
-
-        return $usage;
     }
 
     /**
@@ -877,24 +876,26 @@ class Discounts extends Component
             return;
         }
 
-        $customer = $order->getCustomer();
+        $user = $order->getCustomer();
         foreach ($discounts as $discount) {
-            // Count if there was a user on this order
-            if ($customer && $customer->userId) {
-                $customerDiscountUseRecord = CustomerDiscountUseRecord::find()->where(['[[customerId]]' => $order->customerId, '[[discountId]]' => $discount['discountUseId']])->one();
+            // Count if there was a user on this order that has authentication
+            if ($user && $user->getIsCredentialed()) {
+                $userDiscountUseRecord = CustomerDiscountUse::find()->where(['userId' => $user->id, 'discountId' => $discount['discountUseId']])->one();
 
-                if (!$customerDiscountUseRecord) {
-                    $customerDiscountUseRecord = new CustomerDiscountUseRecord();
-                    $customerDiscountUseRecord->customerId = $order->customerId;
-                    $customerDiscountUseRecord->discountId = $discount['discountUseId'];
-                    $customerDiscountUseRecord->uses = 1;
-                    $customerDiscountUseRecord->save();
+                if (!$userDiscountUseRecord) {
+                    $userDiscountUseRecord = Craft::createObject(CustomerDiscountUse::class);
+                    Craft::configure($userDiscountUseRecord, [
+                        'userId' => $user->id,
+                        'discountId' => $discount['discountUseId'],
+                        'uses' => 1,
+                    ]);
+                    $userDiscountUseRecord->save();
                 } else {
                     Craft::$app->getDb()->createCommand()
-                        ->update(Table::CUSTOMER_DISCOUNTUSES, [
+                        ->update(Table::USER_DISCOUNTUSES, [
                             'uses' => new Expression('[[uses]] + 1'),
                         ], [
-                            'customerId' => $order->customerId,
+                            'userId' => $order->customerId,
                             'discountId' => $discount['discountUseId'],
                         ])
                         ->execute();
@@ -902,13 +903,13 @@ class Discounts extends Component
             }
 
             // Count email usage
-            $customerDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
-            if (!$customerDiscountUseRecord) {
-                $customerDiscountUseRecord = new EmailDiscountUseRecord();
-                $customerDiscountUseRecord->email = $order->getEmail();
-                $customerDiscountUseRecord->discountId = $discount['discountUseId'];
-                $customerDiscountUseRecord->uses = 1;
-                $customerDiscountUseRecord->save();
+            $emailDiscountUseRecord = EmailDiscountUseRecord::find()->where(['email' => $order->getEmail(), 'discountId' => $discount['discountUseId']])->one();
+            if (!$emailDiscountUseRecord) {
+                $emailDiscountUseRecord = new EmailDiscountUseRecord();
+                $emailDiscountUseRecord->email = $order->getEmail();
+                $emailDiscountUseRecord->discountId = $discount['discountUseId'];
+                $emailDiscountUseRecord->uses = 1;
+                $emailDiscountUseRecord->save();
             } else {
                 Craft::$app->getDb()->createCommand()
                     ->update(Table::EMAIL_DISCOUNTUSES, [
@@ -942,7 +943,7 @@ class Discounts extends Component
             return true;
         }
 
-        return ($discount->code && $order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
+        return ($order->couponCode && (strcasecmp($order->couponCode, $discount->code) == 0));
     }
 
     /**
@@ -982,12 +983,19 @@ class Discounts extends Component
     }
 
     /**
+<<<<<<< HEAD
+     * @param Discount $discount
+     * @param User|null $user
+     * @return bool
+=======
      * @param $user
+>>>>>>> 4.0
      * @throws InvalidConfigException
      */
-    public function isDiscountUserGroupValid(Discount $discount, $user): bool
+    public function isDiscountUserGroupValid(Discount $discount, ?User $user): bool
     {
-        $groupIds = $user ? Plugin::getInstance()->getCustomers()->getUserGroupIdsForUser($user) : [];
+
+        $groupIds = $user ? ArrayHelper::getColumn($user->getGroups(),'id') : [];
 
         $discountGroupIds = $discount->getUserGroupIds();
         if ($discount->userGroupsCondition !== DiscountRecord::CONDITION_USER_GROUPS_ANY_OR_NONE) {
@@ -1028,21 +1036,26 @@ class Discounts extends Component
     }
 
     /**
+<<<<<<< HEAD
+     * @param Discount $discount
+     * @param User|null $user
+     * @return bool
+=======
      * @param $user
      * @param $customer
+>>>>>>> 4.0
      */
-    private function _isDiscountPerUserUsageValid(Discount $discount, $user, $customer): bool
+    private function _isDiscountPerUserUsageValid(Discount $discount, ?User $user): bool
     {
         if ($discount->perUserLimit > 0) {
             if (!$user) {
-                return false;
+                return  false;
             }
 
-            // The 'Per User Limit' can only be tracked against logged in users since guest customers are re-generated often
             $usage = (new Query())
                 ->select(['uses'])
-                ->from([Table::CUSTOMER_DISCOUNTUSES])
-                ->where(['[[customerId]]' => $customer->id, 'discountId' => $discount->id])
+                ->from([Table::USER_DISCOUNTUSES])
+                ->where(['[[userId]]' => $user->id, 'discountId' => $discount->id])
                 ->scalar();
 
             if ($usage && $usage >= $discount->perUserLimit) {

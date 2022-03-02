@@ -74,9 +74,6 @@
           </h2>
           {{ include('[[folderName]]/_private/address/address', {
             address: order.shippingAddress,
-            asLines: false,
-            ignoreKeys: ['label'],
-            boldKeys: []
           }) }}
         </div>
       {% else %}
@@ -85,12 +82,7 @@
             {{- 'Shipping Address'|t -}}
           </h2>
           {% if order.shippingAddress %}
-            {{ include('[[folderName]]/_private/address/address', {
-              address: order.shippingAddress,
-              asLines: false,
-              ignoreKeys: ['label'],
-              boldKeys: []
-            }) }}
+            {{ craft.app.addresses.formatAddress(order.shippingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}
@@ -100,12 +92,7 @@
             {{- 'Billing Address'|t -}}
           </h2>
           {% if order.billingAddress %}
-            {{ include('[[folderName]]/_private/address/address', {
-              address: order.billingAddress,
-              asLines: false,
-              ignoreKeys: ['label'],
-              boldKeys: []
-            }) }}
+            {{ craft.app.addresses.formatAddress(order.billingAddress)|raw }}
           {% else %}
             <p>{{ 'Not submitted.'|t }}</p>
           {% endif %}

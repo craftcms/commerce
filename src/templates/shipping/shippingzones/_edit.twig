@@ -29,7 +29,6 @@
 {% block content %}
     <input type="hidden" name="action" value="commerce/shipping-zones/save">
     {{ redirectInput('commerce/shipping/shippingzones') }}
-    {% if shippingZone.id %}<input type="hidden" name="shippingZoneId"
-                                   value="{{ shippingZone.id }}">{% endif %}
+    {% if shippingZone.id %}<input type="hidden" name="shippingZoneId" value="{{ shippingZone.id }}">{% endif %}
     {% include "commerce/shipping/shippingzones/_fields" %}
 {% endblock %}
