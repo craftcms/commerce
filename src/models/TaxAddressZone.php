@@ -8,7 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\helpers\UrlHelper;
-use src\base\Zone;
+use craft\commerce\base\Zone;
 
 /**
  * Tax zone model.
@@ -20,6 +20,11 @@ use src\base\Zone;
  */
 class TaxAddressZone extends Zone
 {
+    /**
+     * @var bool Default
+     */
+    public bool $default = false;
+
     /**
      * @return string
      */

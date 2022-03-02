@@ -15,14 +15,10 @@ use yii\db\ActiveQueryInterface;
 /**
  * Shipping zone record.
  *
- * @property string[] $countries
- * @property bool $isCountryBased
- * @property string $countryCode
  * @property string $description
- * @property string $zipCodeConditionFormula
+ * @property string $condition
  * @property int $id
  * @property string $name
- * @property string[] $administrativeAreas
  * @author Pixel & Tonic, Inc. <support@pixelandtonic.com>
  * @since 2.0
  */

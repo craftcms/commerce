@@ -31,6 +31,8 @@ class m220301_022054_user_addresses extends Migration
         $this->renameColumn(Table::TAXZONES, 'isCountryBased', 'v3isCountryBased');
         $this->renameColumn(Table::SHIPPINGZONES, 'zipCodeConditionFormula', 'v3zipCodeConditionFormula');
         $this->renameColumn(Table::TAXZONES, 'zipCodeConditionFormula', 'v3zipCodeConditionFormula');
+        $this->addColumn(Table::TAXZONES, 'condition', $this->text()->after('id'));
+        $this->addColumn(Table::SHIPPINGZONES, 'condition', $this->text()->after('id'));
 
         /*
          * Orders
@@ -56,7 +58,6 @@ class m220301_022054_user_addresses extends Migration
         $this->renameColumn(Table::ORDERS, 'shippingAddressId', 'v3shippingAddressId');  // move the data
         $this->addColumn(Table::ORDERS, 'shippingAddressId', $this->integer()->after('v3shippingAddressId'));
         $this->addForeignKey(null, Table::ORDERS, ['shippingAddressId'], CraftTable::ELEMENTS, ['id'], 'SET NULL');
-
 
         // Move the estimatedBillingAddressId to a temporary column, and relate the new estimatedBillingAddressId FK to the address element
         $this->dropForeignKeyIfExists(Table::ORDERS, ['estimatedBillingAddressId']);

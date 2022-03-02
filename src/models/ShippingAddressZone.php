@@ -8,7 +8,7 @@
 namespace craft\commerce\models;
 
 use craft\helpers\UrlHelper;
-use src\base\Zone;
+use craft\commerce\base\Zone;
 
 /**
  * Shipping zone model.

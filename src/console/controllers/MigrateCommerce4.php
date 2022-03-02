@@ -11,9 +11,15 @@ use Craft;
 use craft\base\Field;
 use craft\base\FieldInterface;
 use craft\commerce\console\Controller;
+use craft\commerce\db\Table;
+use craft\commerce\Plugin;
 use craft\commerce\records\Store;
 use craft\db\Query;
 use craft\elements\Address;
+use craft\elements\conditions\addresses\AddressCondition;
+use craft\elements\conditions\addresses\AdministrativeAreaConditionRule;
+use craft\elements\conditions\addresses\CountryConditionRule;
+use craft\elements\conditions\addresses\PostalCodeFormulaConditionRule;
 use craft\elements\User;
 use craft\fields\PlainText;
 use craft\helpers\Console;
@@ -35,9 +41,9 @@ class MigrateCommerce4 extends Controller
     public $defaultAction = 'migrate';
 
     /**
-     * @var string[] The list of fields that could be converted to PlainText fields
+     * @var string[] The list of fields that can be converted to PlainText fields
      */
-    public $customAddressFields = [
+    public array $customAddressFields = [
         'addressLine3',
         'attention',
         'title',
@@ -85,6 +91,237 @@ class MigrateCommerce4 extends Controller
         // Collect all the countries and state that were set up in v3
         $this->_countryCodesByV3CountryId = $this->_countryCodesByV3CountryId();
         $this->_administrativeAreaByV3StateId = $this->_administrativeAreaByV3StateId();
+    }
+
+    /**
+     * Reset Commerce data.
+     */
+    public function actionMigrate(): int
+    {
+        $this->stdout("This command will move data from previous Commerce 3 tables and columns to Commerce 4.\n");
+
+        $proceed = $this->prompt('Do you wish to continue?', [
+            'required' => true,
+            'default' => 'no',
+            'validator' => function($input) {
+                if (!in_array($input, ['yes', 'no'])) {
+                    $this->stderr('You must answer either "yes" or "no".' . PHP_EOL, Console::FG_RED);
+                    return false;
+                }
+
+                return true;
+            },
+        ]);
+
+        if ($proceed != 'yes') {
+            $this->stdout('Aborting.' . PHP_EOL, Console::FG_RED);
+            return ExitCode::OK;
+        }
+
+
+        $projectConfig = Craft::$app->getProjectConfig();
+        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
+        if (version_compare($schemaVersion, '4.0.0', '>=')) {
+            $this->stdout("You must run the `craft migrate` command first.\n");
+            return ExitCode::UNSPECIFIED_ERROR;
+        }
+
+        $tablesThatShouldStillExist = [
+            '{{%commerce_addresses}}',
+            '{{%commerce_customers_addresses}}',
+            '{{%commerce_countries}}',
+            '{{%commerce_states}}',
+            '{{%commerce_shippingzone_countries}}',
+            '{{%commerce_shippingzone_states}}',
+            '{{%commerce_taxzone_countries}}',
+            '{{%commerce_taxzone_states}}',
+        ];
+        foreach ($tablesThatShouldStillExist as $table) {
+            $cleanTableName = str_replace(['{{%', '}}'], '', $table);
+            if (!Craft::$app->getDb()->tableExists($table)) {
+                $this->stdout('The `' . $cleanTableName . '` table no longer exists, can not proceed.' . PHP_EOL . PHP_EOL, Console::FG_YELLOW);
+                return ExitCode::UNSPECIFIED_ERROR;
+            }
+        }
+
+        $this->stdout("Creating user for every customer...\n");
+        // In addition to creating users if non exists, we also populate the $this->userIdsByEmail and $this->$userIdsByv3CustomerId
+        $this->_createUserIfNoneExists();
+        $this->stdout("Done.\n");
+
+        $this->stdout("Migrating extra address field to custom fields...\n");
+        $this->_migrateAddressCustomFields();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        $this->stdout("Migrating Customer Addresses...\n");
+        $this->_migrateUserAddresses();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        $this->stdout("Migrating Order Addresses...\n");
+        $this->_migrateOrderAddresses();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        $this->stdout("Migrating Store Location...\n");
+        $this->_migrateStoreLocation();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        $this->stdout("Migrating Tax Zones...\n");
+        $this->_migrateShippingZones();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        $this->stdout("Migrating Tax Zones...\n");
+        $this->_migrateTaxZones();
+        $this->stdout("Done.\n");
+        $this->stdout("\n");
+
+        return 0;
+    }
+
+    /**
+     * @return void
+     */
+    private function _migrateShippingZones(): void
+    {
+
+        $shippingZones = (new Query())
+            ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
+            ->from(['{{%commerce_shippingzones}}'])
+            ->all();
+
+
+        $countryIdsByZoneId = (new Query())
+            ->select(['countryId'])
+            ->from(['{{%commerce_shippingzone_countries}}'])
+            ->indexBy('shippingZoneId')
+            ->column();
+
+        $stateIdsByZoneId = (new Query())
+            ->select(['stateId'])
+            ->from(['{{%commerce_shippingzone_states}}'])
+            ->indexBy('shippingZoneId')
+            ->column();
+
+        $done = 0;
+        Console::startProgress();
+        foreach ($shippingZones as $shippingZone) {
+            $zoneId = $shippingZone['id'];
+
+            // If we have a zone model with that ID (which we should)
+            if ($model = Plugin::getInstance()->getShippingZones()->getShippingZoneById($zoneId)) {
+                // Get the condition (which will create if none exists)
+                $condition = $model->getCondition();
+                $newRules = [];
+
+                // do we have a zip code formula
+                if ($shippingZone['v3zipCodeConditionFormula']) {
+                    $postalCodeCondition = new PostalCodeFormulaConditionRule();
+                    $postalCodeCondition->value = $shippingZone['v3zipCodeConditionFormula'];
+                    $newRules[] = $postalCodeCondition;
+                }
+
+                // do we have a country based zone
+                if ($shippingZone['isCountryBased'] ?? false) {
+                    $countryIds = $countryIdsByZoneId[$zoneId];
+                    $countryCodes = [];
+                    foreach ($countryIds as $countryId) {
+                        $countryCodes[] = $this->_countryCodesByV3CountryId[$countryId];
+                    }
+
+                    $countryCondition = new CountryConditionRule();
+                    $countryCondition->values = $countryCodes;
+                    $newRules[] = $countryCondition;
+                } else {
+                    $stateIds = $stateIdsByZoneId[$zoneId];
+                    $codes = [];
+                    foreach ($stateIds as $stateId) {
+                        $codes[] = $this->_administrativeAreaByV3StateId[$stateId];
+                    }
+
+                    $administrativeAreaCondition = new AdministrativeAreaConditionRule();
+                    $administrativeAreaCondition->values = $codes;
+                    $newRules[] = $administrativeAreaCondition;
+                }
+
+                $condition->setConditionRules($newRules);
+                Plugin::getInstance()->getShippingZones()->saveShippingZone($model, false);
+            }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function _migrateTaxZones(): void
+    {
+
+        $taxZones = (new Query())
+            ->select(['id', 'v3zipCodeConditionFormula', 'isCountryBased'])
+            ->from(['{{%commerce_taxzones}}'])
+            ->all();
+
+
+        $countryIdsByZoneId = (new Query())
+            ->select(['countryId'])
+            ->from(['{{%commerce_taxzone_countries}}'])
+            ->indexBy('taxZoneId')
+            ->column();
+
+        $stateIdsByZoneId = (new Query())
+            ->select(['stateId'])
+            ->from(['{{%commerce_taxzone_states}}'])
+            ->indexBy('taxZoneId')
+            ->column();
+
+        $done = 0;
+        Console::startProgress();
+        foreach ($taxZones as $taxZone) {
+            $zoneId = $taxZone['id'];
+
+            // If we have a zone model with that ID (which we should)
+            if ($model = Plugin::getInstance()->getTaxZones()->getTaxZoneById($zoneId)) {
+                // Get the condition (which will create if none exists)
+                $condition = $model->getCondition();
+                $newRules = [];
+
+                // do we have a zip code formula
+                if ($taxZone['v3zipCodeConditionFormula']) {
+                    $postalCodeCondition = new PostalCodeFormulaConditionRule();
+                    $postalCodeCondition->value = $taxZone['v3zipCodeConditionFormula'];
+                    $newRules[] = $postalCodeCondition;
+                }
+
+                // do we have a country based zone
+                if ($taxZone['isCountryBased'] ?? false) {
+                    $countryIds = $countryIdsByZoneId[$zoneId];
+                    $countryCodes = [];
+                    foreach ($countryIds as $countryId) {
+                        $countryCodes[] = $this->_countryCodesByV3CountryId[$countryId];
+                    }
+
+                    $countryCondition = new CountryConditionRule();
+                    $countryCondition->values = $countryCodes;
+                    $newRules[] = $countryCondition;
+                } else {
+                    $stateIds = $stateIdsByZoneId[$zoneId];
+                    $codes = [];
+                    foreach ($stateIds as $stateId) {
+                        $codes[] = $this->_administrativeAreaByV3StateId[$stateId];
+                    }
+
+                    $administrativeAreaCondition = new AdministrativeAreaConditionRule();
+                    $administrativeAreaCondition->values = $codes;
+                    $newRules[] = $administrativeAreaCondition;
+                }
+
+                $condition->setConditionRules($newRules);
+                Plugin::getInstance()->getTaxZones()->saveTaxZone($model, false);
+            }
+        }
     }
 
     /**
@@ -165,80 +402,78 @@ class MigrateCommerce4 extends Controller
             ->column();
     }
 
-    /**
-     * Reset Commerce data.
-     */
-    public function actionMigrate(): int
+    private function _migrateOrderAddresses()
     {
-        $this->stdout("This command will move data from previous Commerce 3 tables and columns to Commerce 4.\n");
 
-        $proceed = $this->prompt('Do you wish to continue?', [
-            'required' => true,
-            'default' => 'no',
-            'validator' => function($input) {
-                if (!in_array($input, ['yes', 'no'])) {
-                    $this->stderr('You must answer either "yes" or "no".' . PHP_EOL, Console::FG_RED);
-                    return false;
-                }
+        $addressesQuery = (new Query())
+            ->select([
+                'addresses.id',
+                'addresses.attention',
+                'addresses.title',
+                'addresses.firstName',
+                'addresses.lastName',
+                'addresses.fullName',
+                'addresses.countryId',
+                'addresses.stateId',
+                'addresses.address1',
+                'addresses.address2',
+                'addresses.address3',
+                'addresses.city',
+                'addresses.zipCode',
+                'addresses.phone',
+                'addresses.alternativePhone',
+                'addresses.label',
+                'addresses.notes',
+                'addresses.businessName',
+                'addresses.businessTaxId',
+                'addresses.businessId',
+                'addresses.stateName',
+                'addresses.custom1',
+                'addresses.custom2',
+                'addresses.custom3',
+                'addresses.custom4',
+                'addresses.isEstimated',
+                'addresses.isStoreLocation',
+                'addresses.dateCreated',
+                'addresses.dateUpdated',
+                'o.id as orderId',
+            ])
+            ->limit(null)
+            ->from(['{{%commerce_addresses}}' . ' addresses']);
 
-                return true;
-            },
-        ]);
+        $shippingAddresses = $addressesQuery
+            ->innerJoin(['o' => '{{%commerce_orders}}'], '[[addresses.id]] = [[o.v3shippingAddressId]]')
+            ->all();
 
-        if ($proceed != 'yes') {
-            $this->stdout('Aborting.' . PHP_EOL, Console::FG_RED);
-            return ExitCode::OK;
+        $this->stdout("Found: " . count($shippingAddresses) . " shipping addresses to migrate...\n");
+        $done = 0;
+        Console::startProgress($done, count($shippingAddresses), 'Saving address element...');
+        foreach ($shippingAddresses as $address) {
+            $addressElement = $this->_createAddress($address, $address['orderId']);
+            Craft::$app->getDb()->createCommand()->update(Table::ORDERS,
+                ['shippingAddressId' => $addressElement->id],
+                ['id' => $address['orderId']]
+            )->execute();
+            Console::updateProgress($done++, count($shippingAddresses));
         }
+        Console::endProgress();
 
+        $billingAddresses = $addressesQuery
+            ->innerJoin(['o' => '{{%commerce_orders}}'], '[[addresses.id]] = [[o.v3billingAddressId]]')
+            ->all();
 
-        $projectConfig = Craft::$app->getProjectConfig();
-        $schemaVersion = $projectConfig->get('plugins.commerce.schemaVersion', true);
-        if (version_compare($schemaVersion, '4.0.0', '>=')) {
-            $this->stdout("You must run the `craft migrate` command first.\n");
-            return ExitCode::UNSPECIFIED_ERROR;
+        $this->stdout("Found: " . count($billingAddresses) . " billing addresses to migrate...\n");
+        $done = 0;
+        Console::startProgress($done, count($billingAddresses), 'Saving address element...');
+        foreach ($billingAddresses as $address) {
+            $addressElement = $this->_createAddress($address, $address['orderId']);
+            Craft::$app->getDb()->createCommand()->update(Table::ORDERS,
+                ['billingAddressId' => $addressElement->id],
+                ['id' => $address['orderId']]
+            )->execute();
+            Console::updateProgress($done++, count($billingAddresses));
         }
-
-        $tablesThatShouldStillExist = [
-            '{{%commerce_addresses}}',
-            '{{%commerce_customers_addresses}}',
-            '{{%commerce_countries}}',
-            '{{%commerce_states}}',
-            '{{%commerce_shippingzone_countries}}',
-            '{{%commerce_shippingzone_states}}',
-            '{{%commerce_taxzone_countries}}',
-            '{{%commerce_taxzone_states}}',
-        ];
-        foreach ($tablesThatShouldStillExist as $table) {
-            $cleanTableName = str_replace(['{{%', '}}'], '', $table);
-            if (!Craft::$app->getDb()->tableExists($table)) {
-                $this->stdout('The `' . $cleanTableName . '` table no longer exists, can not proceed.' . PHP_EOL . PHP_EOL, Console::FG_YELLOW);
-                return ExitCode::UNSPECIFIED_ERROR;
-            }
-        }
-
-        $this->stdout("Creating user for every customer...\n");
-        // In addition to creating users if non exists, we also populate the $this->userIdsByEmail and $this->$userIdsByv3CustomerId
-        $this->_createUserIfNoneExists();
-        $this->stdout("Done.\n");
-
-        $this->stdout("Migrating extra address field to custom fields...\n");
-        $this->_migrateAddressCustomFields();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
-
-        $this->stdout("Migrating Customer Addresses...\n");
-        $this->_migrateUserAddresses();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
-
-        // TODO Migrate order addresses
-
-        $this->stdout("Migrating Store Location...\n");
-        $this->_migrateStoreLocation();
-        $this->stdout("Done.\n");
-        $this->stdout("\n");
-
-        return 0;
+        Console::endProgress();
     }
 
     private function _migrateUserAddresses()
@@ -262,7 +497,7 @@ class MigrateCommerce4 extends Controller
     /**
      * Creates an Address element from previous address data and returns the ID
      */
-    private function _createAddress($data, ?int $ownerId = null): ?Address
+    private function _createAddress($data, ?int $ownerId = null): Address
     {
         $address = new Address();
         if ($ownerId) {

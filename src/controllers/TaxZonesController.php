@@ -10,6 +10,7 @@ namespace craft\commerce\controllers;
 use Craft;
 use craft\commerce\models\TaxAddressZone;
 use craft\commerce\Plugin;
+use craft\helpers\Cp;
 use Twig\Error\LoaderError;
 use Twig\Error\SyntaxError;
 use yii\base\Exception;
@@ -58,6 +59,15 @@ class TaxZonesController extends BaseTaxSettingsController
             $variables['title'] = Craft::t('commerce', 'Create a tax zone');
         }
 
+        $condition = $variables['taxZone']->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $variables['conditionField'] = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         return $this->renderTemplate('commerce/tax/taxzones/_edit', $variables);
     }
 
@@ -71,15 +81,11 @@ class TaxZonesController extends BaseTaxSettingsController
 
         $taxZone = new TaxAddressZone();
 
-        // Shared attributes
         $taxZone->id = Craft::$app->getRequest()->getBodyParam('taxZoneId');
         $taxZone->name = Craft::$app->getRequest()->getBodyParam('name');
         $taxZone->description = Craft::$app->getRequest()->getBodyParam('description');
-        $taxZone->isCountryBased = Craft::$app->getRequest()->getBodyParam('isCountryBased');
-        $taxZone->zipCodeConditionFormula = Craft::$app->getRequest()->getBodyParam('zipCodeConditionFormula');
         $taxZone->default = (bool)Craft::$app->getRequest()->getBodyParam('default');
-        $taxZone->setCountries(Craft::$app->getRequest()->getBodyParam('countries',[]));
-        $taxZone->setAdministrativeAreas(Craft::$app->getRequest()->getBodyParam('administrativeAreas',[]));
+        $taxZone->setCondition(Craft::$app->getRequest()->getBodyParam('condition'));
 
         if ($taxZone->validate() && Plugin::getInstance()->getTaxZones()->saveTaxZone($taxZone)) {
             return $this->asModelSuccess(

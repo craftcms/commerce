@@ -4,13 +4,9 @@
 
 {% do view.registerAssetBundle('craft\\web\\assets\\admintable\\AdminTableAsset') -%}
 {% do view.registerTranslations('commerce', [
-    'Countries/States',
-    'Has Zip Condition?',
     'Name',
     'Description',
-    'Type',
-    'Countries/Administrative Areas',
-    'Has Zip Condition?',
+    'Default Zone'
 ]) %}
 
 {% block actionButton %}
@@ -28,8 +24,7 @@
         title: taxZone.name|t('site'),
         url: url('commerce/tax/taxzones/'~taxZone.id),
         description: taxZone.description|t('site')|e,
-        type: taxZone.isCountryBased ? 'Country-based'|t('commerce')|e : 'State-based'|t('commerce')|e,
-        zipCondition: taxZone.zipCodeConditionFormula ? true : false,
+        default: taxZone.default,
     }]) %}
 {% endfor %}
 
@@ -37,10 +32,9 @@
 var columns = [
     { name: '__slot:title', title: Craft.t('commerce', 'Name') },
     { name: 'description', title: Craft.t('commerce', 'Description') },
-    { name: 'type', title: Craft.t('commerce', 'Type') },
     {
-        name: 'zipCondition',
-        title: Craft.t('commerce', 'Has Zip Condition?'),
+        name: 'default',
+        title: Craft.t('commerce', 'Default Zone'),
         callback: function(value) {
             if (value) {
                 return '<div data-icon="check"></div>';

@@ -8,11 +8,13 @@
 namespace craft\commerce\controllers;
 
 use Craft;
+use craft\commerce\models\ShippingAddressZone;
 use craft\commerce\models\ShippingRule;
 use craft\commerce\models\ShippingRuleCategory;
 use craft\commerce\Plugin;
 use craft\commerce\records\ShippingRuleCategory as ShippingRuleCategoryRecord;
 use craft\errors\ProductTypeNotFoundException;
+use craft\helpers\Cp;
 use craft\helpers\Json;
 use craft\helpers\Localization;
 use Twig\Error\LoaderError;
@@ -69,11 +71,18 @@ class ShippingRulesController extends BaseShippingSettingsController
 
         $this->getView()->startJsBuffer();
 
+        $newZone = new ShippingAddressZone();
+        $condition = $newZone->getCondition();
+        $condition->mainTag = 'div';
+        $condition->name = 'condition';
+        $condition->id = 'condition';
+        $condition->fieldContext = 'zone';
+        $conditionField = Cp::fieldHtml($condition->getBuilderHtml(), [
+            'label' => Craft::t('app', 'Address Condition'),
+        ]);
+
         $variables['newShippingZoneFields'] = $this->getView()->namespaceInputs(
-            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', [
-                'countries' => $plugin->getCountries()->getAllEnabledCountriesAsList(),
-                'states' => $plugin->getStates()->getAllEnabledStatesAsList(),
-            ])
+            $this->getView()->renderTemplate('commerce/shipping/shippingzones/_fields', ['conditionField' => $conditionField])
         );
         $variables['newShippingZoneJs'] = $this->getView()->clearJsBuffer(false);
 

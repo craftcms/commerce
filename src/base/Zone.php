@@ -1,6 +1,6 @@
 <?php
 
-namespace src\base;
+namespace craft\commerce\base;
 
 
 use Craft;
@@ -8,13 +8,14 @@ use craft\base\conditions\ConditionInterface;
 use craft\base\Model as BaseModel;
 use craft\commerce\records\TaxZone as TaxZoneRecord;
 use craft\elements\conditions\addresses\AddressCondition;
+use craft\elements\conditions\ElementConditionInterface;
+use craft\helpers\Json;
 use craft\validators\UniqueValidator;
 use DateTime;
 
 /**
  * @property string $cpEditUrl
- * @property ConditionInterface $conditionBuilder
- * @property bool $isCountryBased
+ * @property ConditionInterface|string $condition
  */
 abstract class Zone extends BaseModel
 {
@@ -34,11 +35,6 @@ abstract class Zone extends BaseModel
     public ?string $description = null;
 
     /**
-     * @var bool Default
-     */
-    public bool $default = false;
-
-    /**
      * @var DateTime|null
      * @since 3.4
      */
@@ -51,31 +47,37 @@ abstract class Zone extends BaseModel
     public ?DateTime $dateUpdated = null;
 
     /**
-     * @var ?ConditionInterface
+     * @var ?ElementConditionInterface
      */
-    private ?ConditionInterface $_conditionBuilder;
+    private ?ElementConditionInterface $_condition;
 
     abstract public function getCpEditUrl(): string;
 
     /**
-     * @return ConditionInterface
+     * @return ElementConditionInterface
      */
-    public function getConditionBuilder(): ConditionInterface
+    public function getCondition(): ElementConditionInterface
     {
-        return $this->_conditionBuilder ?? new AddressCondition();
+        return $this->_condition ?? new AddressCondition();
     }
 
     /**
-     * @param ConditionInterface|string $conditionBuilder
+     * @param ElementConditionInterface|string|array $condition
      * @return void
      */
-    public function setConditionBuilder(ConditionInterface|string $conditionBuilder): void
+    public function setCondition(ElementConditionInterface|string|array $condition): void
     {
-        if(!$conditionBuilder instanceof ConditionInterface){
-            Craft::$app->getConditions()->createCondition($conditionBuilder);
+        if(is_string($condition)){
+            $condition = Json::decodeIfJson($condition);
         }
 
-        $this->_conditionBuilder = $conditionBuilder;
+        if(!$condition instanceof ElementConditionInterface){
+            $condition['class'] = AddressCondition::class;
+            $condition = Craft::$app->getConditions()->createCondition($condition);
+        }
+        $condition->forProjectConfig = false;
+
+        $this->_condition = $condition;
     }
 
     /**
@@ -85,7 +87,7 @@ abstract class Zone extends BaseModel
     {
         return [
             [['name'], 'required'],
-            [['conditionBuilder'], 'required'],
+            [['condition'], 'required'],
             [['name'], UniqueValidator::class, 'targetClass' => TaxZoneRecord::class, 'targetAttribute' => ['name']],
         ];
     }

@@ -11,7 +11,6 @@ use Craft;
 use craft\base\Component;
 use craft\commerce\base\AdjusterInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\AddressZone as AddressZoneHelper;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\OrderAdjustment;
 use craft\commerce\models\TaxAddressZone;
@@ -305,7 +304,7 @@ class Tax extends Component implements AdjusterInterface
             return (bool)$zone->default;
         }
 
-        return AddressZoneHelper::addressWithinZone($this->_address, $zone);
+        return $zone->getCondition()->matchElement($this->_address);
     }
 
     /**
