@@ -258,8 +258,20 @@ trait OrderElementTrait
                 return $this->billingAddress->phone ?? '';
             case 'billingAddressLines':
                 $address = $this->getBillingAddress();
-                $addressLines = $address ? $address->getAddressLines(true) : [];
-                return implode(' ', $addressLines);
+                // TODO have this as a centralised list to avoid code duplication
+                $addressLines = $address ? $address->toArray([
+                    'countryCode',
+                    'administrativeArea',
+                    'locality',
+                    'dependentLocality',
+                    'postalCode',
+                    'sortingCode',
+                    'addressLine1',
+                    'addressLine2',
+                    'organization',
+                    'fullName',
+                ]) : [];
+                return implode(' ', array_filter($addressLines));
             case 'shippingFirstName':
                 return $this->shippingAddress->firstName ?? '';
             case 'shippingLastName':
@@ -270,8 +282,20 @@ trait OrderElementTrait
                 return $this->shippingAddress->phone ?? '';
             case 'shippingAddressLines':
                 $address = $this->getShippingAddress();
-                $addressLines = $address ? $address->getAddressLines(true) : [];
-                return implode(' ', $addressLines);
+                // TODO have this as a centralised list to avoid code duplication
+                $addressLines = $address ? $address->toArray([
+                    'countryCode',
+                    'administrativeArea',
+                    'locality',
+                    'dependentLocality',
+                    'postalCode',
+                    'sortingCode',
+                    'addressLine1',
+                    'addressLine2',
+                    'organization',
+                    'fullName',
+                ]) : [];
+                return implode(' ', array_filter($addressLines));
             case 'transactionReference':
                 return implode(' ', ArrayHelper::getColumn($this->getTransactions(), 'reference'));
             case 'username':
