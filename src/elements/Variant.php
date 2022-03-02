@@ -283,18 +283,6 @@ class Variant extends Purchasable
         ];
     }
 
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 4 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
-    }
-
     /**
      * @inheritdoc
      */
