@@ -13,7 +13,6 @@
 - Added `craft\commerce\controllers\DiscountsController::DISCOUNT_COUNTER_TYPE_USER`.
 - Added `craft\commerce\elements\Order::$sourceBillingAddressId`
 - Added `craft\commerce\elements\Order::$sourceShippingAddressId`
-- Added `craft\commerce\helpers\AddressZone`.
 - Added `craft\commerce\models\OrderHistory::$userId`.
 - Added `craft\commerce\models\OrderHistory::getUser()`.
 - Added `craft\commerce\models\Store`.
