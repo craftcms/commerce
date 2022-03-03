@@ -104,11 +104,11 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         $id = Craft::$app->getRequest()->getRequiredBodyParam('id');
 
-        if (Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getShippingMethods()->deleteShippingMethodById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Could delete shipping method and it’s rules.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -140,5 +140,4 @@ class ShippingMethodsController extends BaseShippingSettingsController
 
         $this->setSuccessFlash(Craft::t('commerce', 'Shipping methods updated.'));
     }
-
 }

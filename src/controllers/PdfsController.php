@@ -149,10 +149,10 @@ class PdfsController extends BaseAdminController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getPdfs()->reorderPdfs($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder PDFs.'));
+        return $this->asSuccess();
     }
 }

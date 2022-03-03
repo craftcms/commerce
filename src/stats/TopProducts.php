@@ -25,12 +25,14 @@ class TopProducts extends Stat
 {
     /**
      * Stat returned based on quantity.
+     *
      * @since 3.4
      */
     const TYPE_QTY = 'qty';
 
     /**
      * Stat returned based on revenue.
+     *
      * @since 3.4
      */
     const TYPE_REVENUE = 'revenue';

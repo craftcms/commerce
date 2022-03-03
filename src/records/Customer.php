@@ -34,12 +34,14 @@ class Customer extends ActiveRecord
     public function rules(): array
     {
         return [
-            [[
-                'id',
-                'primaryBillingAddressId',
-                'primaryShippingAddressId',
-                'userId',
-            ], 'safe'],
+            [
+                [
+                    'id',
+                    'primaryBillingAddressId',
+                    'primaryShippingAddressId',
+                    'userId',
+                ], 'safe'
+            ],
         ];
     }
 

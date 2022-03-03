@@ -82,7 +82,7 @@ class Variants extends Component
                 }
 
                 $fieldLayout = $productType->getVariantFieldLayout();
-                foreach ($fieldLayout->getFields() as $contentField) {
+                foreach ($fieldLayout->getCustomFields() as $contentField) {
                     if (!$contentField instanceof GqlInlineFragmentFieldInterface) {
                         $contentArguments[$contentField->handle] = [
                             'name' => $contentField->handle,

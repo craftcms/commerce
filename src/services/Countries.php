@@ -121,7 +121,7 @@ class Countries extends Component
         $countries = $this->getAllCountries();
 
         if (!isset($this->_enabledCountriesById)) {
-            $this->_enabledCountriesById = ArrayHelper::where($countries , 'enabled', true);
+            $this->_enabledCountriesById = ArrayHelper::where($countries, 'enabled', true);
         }
 
         return $this->_enabledCountriesById ?? [];

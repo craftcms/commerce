@@ -1343,12 +1343,7 @@ class Order extends Element
                 return $model->$attribute;
             };
         }
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event  #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
+        
         $fields['paidStatusHtml'] = 'paidStatusHtml';
         $fields['customerLinkHtml'] = 'customerLinkHtml';
         $fields['orderStatusHtml'] = 'orderStatusHtml';
@@ -2046,7 +2041,7 @@ class Order extends Element
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return UrlHelper::cpUrl('commerce/orders/' . $this->id);
     }

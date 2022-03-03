@@ -211,11 +211,11 @@ class SalesController extends BaseCpController
         $this->requireAcceptsJson();
 
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
-        if ($success = Plugin::getInstance()->getSales()->reorderSales($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getSales()->reorderSales($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder sales.'));
+        return $this->asSuccess();
     }
 
     /**
@@ -299,9 +299,9 @@ class SalesController extends BaseCpController
             }
         }
 
-        return $this->asSuccess(
-            data: ['sales' => $sales],
-        );
+        return $this->asSuccess(data: [
+            'sales' => $sales,
+        ]);
     }
 
     /**

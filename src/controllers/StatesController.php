@@ -204,10 +204,10 @@ class StatesController extends BaseStoreSettingsController
         $this->requireAcceptsJson();
         $ids = Json::decode(Craft::$app->getRequest()->getRequiredBodyParam('ids'));
 
-        if ($success = Plugin::getInstance()->getStates()->reorderStates($ids)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getStates()->reorderStates($ids)) {
+            return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder countries.'));
         }
 
-        return $this->asFailure(Craft::t('commerce', 'Couldn’t reorder countries.'));
+        return $this->asSuccess();
     }
 }

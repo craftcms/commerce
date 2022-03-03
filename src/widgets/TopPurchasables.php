@@ -126,7 +126,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public static function icon(): string
+    public static function icon(): ?string
     {
         return Craft::getAlias('@craft/commerce/icon-mask.svg');
     }
@@ -134,7 +134,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->_title;
     }
@@ -142,7 +142,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritDoc
      */
-    public function getSubtitle(): string
+    public function getSubtitle(): ?string
     {
         return $this->_stat->getDateRangeWording();
     }
@@ -175,7 +175,7 @@ class TopPurchasables extends Widget
     /**
      * @inheritdoc
      */
-    public function getSettingsHtml(): string
+    public function getSettingsHtml(): ?string
     {
         $id = 'top-purchasables' . StringHelper::randomString();
         $namespaceId = Craft::$app->getView()->namespaceInputId($id);

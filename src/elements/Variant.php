@@ -28,8 +28,8 @@ use craft\db\Query;
 use craft\db\Table as CraftTable;
 use craft\elements\db\ElementQueryInterface;
 use craft\helpers\ArrayHelper;
-use craft\models\FieldLayout;
 use craft\helpers\Html;
+use craft\models\FieldLayout;
 use Throwable;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
@@ -283,18 +283,6 @@ class Variant extends Purchasable
         ];
     }
 
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
-    }
-
     /**
      * @inheritdoc
      */
@@ -345,7 +333,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'variant';
     }
@@ -553,7 +541,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getCpEditUrl(): string
+    public function getCpEditUrl(): ?string
     {
         return $this->getProduct() ? $this->getProduct()->getCpEditUrl() : '';
     }
@@ -561,7 +549,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public function getUrl(): string
+    public function getUrl(): ?string
     {
         return $this->product->url . '?variant=' . $this->id;
     }
@@ -604,7 +592,7 @@ class Variant extends Purchasable
 
             // Remove custom fields
             if (($fieldLayout = $product->getFieldLayout()) !== null) {
-                foreach ($fieldLayout->getFields() as $field) {
+                foreach ($fieldLayout->getCustomFields() as $field) {
                     ArrayHelper::removeValue($productAttributes, $field->handle);
                 }
             }
@@ -650,7 +638,7 @@ class Variant extends Purchasable
 
         // Remove custom fields
         if (($fieldLayout = $this->getFieldLayout()) !== null) {
-            foreach ($fieldLayout->getFields() as $field) {
+            foreach ($fieldLayout->getCustomFields() as $field) {
                 ArrayHelper::removeValue($variantAttributes, $field->handle);
             }
         }
@@ -822,7 +810,7 @@ class Variant extends Purchasable
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle): array
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'product') {
             // Get the source element IDs
@@ -916,7 +904,7 @@ class Variant extends Purchasable
      * @param mixed $context
      * @since 3.1
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         return $context->handle . '_Variant';
     }
@@ -925,7 +913,7 @@ class Variant extends Purchasable
      * @param mixed $context
      * @since 3.1
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];

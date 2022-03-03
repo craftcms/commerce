@@ -73,7 +73,6 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @return Response
      * @throws InvalidConfigException
      */
     public function actionProductIndex(): Response
@@ -82,9 +81,6 @@ class ProductsController extends BaseController
         return $this->renderTemplate('commerce/products/_index');
     }
 
-    /**
-     * @return Response
-     */
     public function actionVariantIndex(): Response
     {
         return $this->renderTemplate('commerce/variants/_index');
@@ -95,7 +91,6 @@ class ProductsController extends BaseController
      * @param int|null $productId
      * @param string|null $siteHandle
      * @param Product|null $product
-     * @return Response
      * @throws Exception
      * @throws ForbiddenHttpException
      * @throws HttpException
@@ -217,7 +212,6 @@ class ProductsController extends BaseController
      * Save a new or existing product.
      *
      * @param bool $duplicate Whether the product should be duplicated
-     * @return Response|null
      * @throws Exception
      * @throws HttpException
      * @throws Throwable
@@ -363,7 +357,6 @@ class ProductsController extends BaseController
     /**
      * Duplicates a product.
      *
-     * @return Response|null
      * @throws InvalidRouteException
      * @since 3.1.3
      */
@@ -397,7 +390,8 @@ class ProductsController extends BaseController
     }
 
     /**
-     * @param array $variables
+     * @throws ForbiddenHttpException
+     * @deprecated in 3.4.8. Use [[enforceEditProductPermissions()]] or [[enforceDeleteProductPermissions()]] instead.
      */
     private function _prepVariables(array &$variables): void
     {

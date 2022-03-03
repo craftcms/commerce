@@ -150,10 +150,10 @@ class TaxZonesController extends BaseTaxSettingsController
         $testZipCode = (string)Craft::$app->getRequest()->getRequiredBodyParam('testZipCode');
 
         $params = ['zipCode' => $testZipCode];
-        if (Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
-            return $this->asSuccess();
+        if (!Plugin::getInstance()->getFormulas()->evaluateCondition($zipCodeFormula, $params)) {
+            return $this->asFailure('failed');
         }
 
-        return $this->asFailure('failed');
+        return $this->asSuccess();
     }
 }

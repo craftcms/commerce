@@ -11,7 +11,6 @@ use Craft;
 use craft\commerce\base\Model;
 use craft\commerce\db\Table;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Localization;
 use craft\commerce\Plugin;
 use craft\commerce\records\Discount as DiscountRecord;
 use craft\db\Query;

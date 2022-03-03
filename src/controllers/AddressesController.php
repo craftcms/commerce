@@ -280,7 +280,7 @@ class AddressesController extends BaseCpController
             ];
         }
 
-        return $this->asSuccess([
+        return $this->asSuccess(data: [
             'pagination' => AdminTable::paginationLinks($page, $total, $limit),
             'data' => $rows,
         ]);

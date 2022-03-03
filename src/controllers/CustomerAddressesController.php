@@ -160,35 +160,33 @@ class CustomerAddressesController extends BaseFrontEndController
         }
 
         // current customer is the owner of the address
-        if (in_array($id, $addressIds, false) && Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
-            if ($cart->shippingAddressId == $id) {
-                $cart->removeShippingAddress();
-            }
-
-            if ($cart->billingAddressId == $id) {
-                $cart->removeBillingAddress();
-            }
-
-            if ($cart->estimatedShippingAddressId == $id) {
-                $cart->removeEstimatedShippingAddress();
-            }
-
-            if ($cart->estimatedBillingAddressId == $id) {
-                $cart->removeEstimatedBillingAddress();
-            }
-
-            // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
-            $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
-            $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
-
-            Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
-
-            return $this->asSuccess(Craft::t('commerce', 'Address removed.'));
-        } else {
-            $error = Craft::t('commerce', 'Could not delete address.');
+        if (!in_array($id, $addressIds, false) || !Plugin::getInstance()->getAddresses()->deleteAddressById($id)) {
+            return $this->asFailure(Craft::t('commerce', 'Could not delete address.'));
         }
 
-        return $this->asFailure($error);
+        if ($cart->shippingAddressId == $id) {
+            $cart->removeShippingAddress();
+        }
+
+        if ($cart->billingAddressId == $id) {
+            $cart->removeBillingAddress();
+        }
+
+        if ($cart->estimatedShippingAddressId == $id) {
+            $cart->removeEstimatedShippingAddress();
+        }
+
+        if ($cart->estimatedBillingAddressId == $id) {
+            $cart->removeEstimatedBillingAddress();
+        }
+
+        // We only want to update search indexes if the order is a cart and the developer wants to keep cart search indexes updated.
+        $updateCartSearchIndexes = Plugin::getInstance()->getSettings()->updateCartSearchIndexes;
+        $updateSearchIndex = ($cart->isCompleted || $updateCartSearchIndexes);
+
+        Craft::$app->getElements()->saveElement($cart, false, false, $updateSearchIndex);
+
+        return $this->asSuccess(Craft::t('commerce', 'Address removed.'));
     }
 
     /**
@@ -204,6 +202,8 @@ class CustomerAddressesController extends BaseFrontEndController
         $customer = Plugin::getInstance()->getCustomers()->getCustomer();
         $addresses = $customer->getAddresses();
 
-        return $this->asSuccess(data: ['addresses' => $addresses]);
+        return $this->asSuccess(data: [
+            'addresses' => $addresses,
+        ]);
     }
 }

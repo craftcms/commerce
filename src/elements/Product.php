@@ -36,7 +36,6 @@ use craft\helpers\DateTimeHelper;
 use craft\helpers\Html;
 use craft\helpers\Json;
 use craft\helpers\UrlHelper;
-use craft\models\FieldLayout;
 use craft\validators\DateTimeValidator;
 use DateTime;
 use yii\base\Exception;
@@ -172,7 +171,6 @@ class Product extends Element
     private ?Variant $_cheapestEnabledVariant = null;
 
     /**
-     * @return array
      * @throws InvalidConfigException
      */
     public function behaviors(): array
@@ -203,21 +201,6 @@ class Product extends Element
         return [
             'defaultPrice',
         ];
-    }
-
-    /**
-     * @return array
-     */
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        //TODO Remove this when we require Craft 3.5 and the bahaviour can support the define fields event #COM-27
-        if ($this->getBehavior('currencyAttributes')) {
-            $fields = array_merge($fields, $this->getBehavior('currencyAttributes')->currencyFields());
-        }
-
-        return $fields;
     }
 
     /**
@@ -255,7 +238,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function refHandle(): string
+    public static function refHandle(): ?string
     {
         return 'product';
     }
@@ -408,7 +391,6 @@ class Product extends Element
     /**
      * Returns the product's product type.
      *
-     * @return ProductType
      * @throws InvalidConfigException
      */
     public function getType(): ProductType
@@ -426,9 +408,6 @@ class Product extends Element
         return $productType;
     }
 
-    /**
-     * @return string|null
-     */
     public function getName(): ?string
     {
         return $this->title;
@@ -461,7 +440,6 @@ class Product extends Element
     /**
      * Returns the tax category.
      *
-     * @return TaxCategory
      * @throws InvalidConfigException
      */
     public function getTaxCategory(): TaxCategory
@@ -484,7 +462,6 @@ class Product extends Element
     /**
      * Returns the shipping category.
      *
-     * @return ShippingCategory
      * @throws InvalidConfigException
      */
     public function getShippingCategory(): ShippingCategory
@@ -524,7 +501,6 @@ class Product extends Element
      * Returns the default variant.
      *
      * @param bool $includeDisabled
-     * @return null|Variant
      * @throws InvalidConfigException
      */
     public function getDefaultVariant(bool $includeDisabled = false): ?Variant
@@ -539,8 +515,6 @@ class Product extends Element
     /**
      * Return the cheapest variant.
      *
-     * @param bool $includeDisabled
-     * @return Variant|null
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -580,7 +554,6 @@ class Product extends Element
     /**
      * Returns an array of the product's variants.
      *
-     * @param bool $includeDisabled
      * @return Variant[]
      * @throws InvalidConfigException
      */
@@ -676,8 +649,6 @@ class Product extends Element
     }
 
     /**
-     * @param bool $includeDisabled
-     * @return int
      * @throws InvalidConfigException
      * @noinspection PhpUnused
      */
@@ -696,8 +667,6 @@ class Product extends Element
     /**
      * Returns whether at least one variant has unlimited stock.
      *
-     * @param bool $includeDisabled
-     * @return bool
      * @throws InvalidConfigException
      */
     public function getHasUnlimitedStock(bool $includeDisabled = false): bool
@@ -724,7 +693,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlTypeNameByContext($context): string
+    public static function gqlTypeNameByContext(mixed $context): string
     {
         /** @var ProductType $context */
         return $context->handle . '_Product';
@@ -734,7 +703,7 @@ class Product extends Element
      * @inheritdoc
      * @since 3.0
      */
-    public static function gqlScopesByContext($context): array
+    public static function gqlScopesByContext(mixed $context): array
     {
         /** @var ProductType $context */
         return ['productTypes.' . $context->uid];
@@ -755,7 +724,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public static function eagerLoadingMap(array $sourceElements, string $handle)
+    public static function eagerLoadingMap(array $sourceElements, string $handle): array|null|false
     {
         if ($handle == 'variants') {
             $sourceElementIds = ArrayHelper::getColumn($sourceElements, 'id');
@@ -1120,7 +1089,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    public function getFieldLayout(): FieldLayout
+    public function getFieldLayout(): ?\craft\models\FieldLayout
     {
         return parent::getFieldLayout() ?? $this->getType()->getFieldLayout();
     }
