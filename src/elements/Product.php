@@ -30,6 +30,7 @@ use craft\elements\actions\Restore;
 use craft\elements\actions\SetStatus;
 use craft\elements\db\ElementQueryInterface;
 use craft\elements\User;
+use craft\events\DefineValueEvent;
 use craft\helpers\ArrayHelper;
 use craft\helpers\Cp;
 use craft\helpers\DateTimeHelper;
@@ -330,22 +331,36 @@ class Product extends Element
     /**
      * @inheritdoc
      */
+    public function getIsEditable(): bool
+    {
+        $event = new DefineValueEvent([
+            'value' => $this->isEditable(),
+        ]);
+        $this->trigger(self::EVENT_DEFINE_IS_EDITABLE, $event);
+        return $event->value;
+    }
+
+    /**
+     * Returns whether the current user can edit the element.
+     *
+     * @return bool
+     * @since 3.7.0
+     */
     protected function isEditable(): bool
     {
-        if ($this->getType()) {
-            $uid = $this->getType()->uid;
-
-            return Craft::$app->getUser()->checkPermission('commerce-editProductType:' . $uid);
-        }
-
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getIsDeletable(): bool
     {
-        $productType = $this->getType();
-
-        return Craft::$app->getUser()->checkPermission("commerce-deleteProducts:$productType->uid");
+        $event = new DefineValueEvent([
+            'value' => $this->isDeletable(),
+        ]);
+        $this->trigger(self::EVENT_DEFINE_IS_DELETABLE, $event);
+        return $event->value;
     }
 
     /**
@@ -1329,7 +1344,7 @@ class Product extends Element
     /**
      * @inheritdoc
      */
-    protected function route()
+    protected function route(): array|string|null
     {
         // Make sure that the product is actually live
         if (!$this->previewing && $this->getStatus() != self::STATUS_LIVE) {
